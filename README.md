@@ -1,0 +1,36 @@
+# BKT - Business Kasper Toolbox
+
+<img src="documentation/screenshot.png" width="400">
+
+## Einführung
+
+Die BKT besteht aus 2 Teilen, dem BKT-Framework und der BKT-Toolbox. Das Framework bietet eine einfach Möglichkeit, um Office-Addins für PowerPoint, Excel, Word, Outlook oder Visio in Python zu schreiben. Die BKT-Toolbox gibt es aktuell für PowerPoint, Excel und Visio.
+
+Die PowerPoint-Toolbox fügt mehrere Tabs hinzu, die einen strukturierten Zugriff auf alle Standard-Funktionen von PowerPoint bieten, ergänzt um viele bisher fehlende Funktionen.
+
+Die BKT wird von uns in der Freizeit entwickelt, daher können wir keinen Support anbieten oder auf spezielle Wünsche eingehen.
+
+## Systemvoraussetzungen
+
+Die BKT läuft unter Windows ab Office 2010 in allen aktuellen Office-Versionen. Eine Mac-Version ist nicht verfügbar, da die entsprechende Office-Schnittstelle (COM-Addin) im Mac-Office nicht von Microsoft angeboten wird.
+
+## Installation
+
+Am einfachsten geht es über das [Setup](https://bkt-toolbox.de/latest).
+
+Alternativ kann man das Repository klonen und die Datei `installer\install.bat` ausführen. Nach einem Update muss die Datei ggf. neu ausgeführt werden.
+
+Hinweise:
+
+  * Die Business Kasper Toolbox ist nach Installation standardmäßig nur in PowerPoint aktiv, 
+    jedoch auch in Excel, Outlook, Word und Visio verfügbar. Dort lässt sich die BKT über den
+    Addin-Dialog aktivieren (Datei > Optionen > Add-Ins)
+  * Über den Addin-Dialog lässt sich ferner das BKT-Dev-Plugin aktivieren. Dieses erlaubt
+    Laden und Entladen des Addins zur Laufzeit der Office-Applikation
+
+## Contributions
+
+ * [IronPython](https://github.com/IronLanguages/ironpython2)
+ * [Fluent.Ribbon](https://github.com/fluentribbon/Fluent.Ribbon)
+ * [ControlzEx](https://github.com/ControlzEx/ControlzEx)
+ * [MahApps.Metro](https://github.com/MahApps/MahApps.Metro)

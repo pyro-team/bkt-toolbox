@@ -1,0 +1,38 @@
+#ignore binary dotnet files of bkt-addin, bkt-dev-addin, bkt-test
+dotnet/**/Debug/
+dotnet/**/Release/
+dotnet/**/Debug-O2010/
+dotnet/**/Office2010/
+
+#ignore temporary and local resources
+resources/registry/local/
+resources/xml/Microsoft.*.xml
+resources/cache/*.cache
+
+#ignore config and log files
+config.txt
+bkt-debug.log
+bkt-debug-py.log
+
+#ignore compiled python files, code editor files and windows temp files
+*.pyc
+Thumbs.db
+.vscode
+dotnet/.vs
+
+#ignore files to build releases
+_untracked/
+_releases/
+_build/
+
+#ignore generated thumbnails expect thumbnail features
+*_thumbnails/
+!ppt_thumbnails
+
+#explicitly add all files in packages, i.e. IronPython
+!bin/*
+!bin/**/*
+!installer/ipy-2.7.*/*
+!installer/ipy-2.7.*/**/*
+!dotnet/packages/*
+!dotnet/packages/**/*
