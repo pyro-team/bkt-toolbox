@@ -1,6 +1,4 @@
-# BKT - Business Kasper Toolbox
-
-<img src="documentation/screenshot.png" width="400">
+<img src="documentation/screenshot.png">
 
 ## Einführung
 
