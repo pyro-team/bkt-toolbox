@@ -1,6 +1,6 @@
 # BKT - Business Kasper Toolbox
 
-<img src="documentation/screenshot.png" width="400">
+<img src="documentation/screenshot.png">
 
 ## Einführung
 
@@ -16,16 +16,17 @@ Die BKT läuft unter Windows ab Office 2010 in allen aktuellen Office-Versionen.
 
 ## Installation
 
-Am einfachsten geht es über das [Setup](https://bkt-toolbox.de/latest).
+Am einfachsten geht die Installation über das [Setup](https://github.com/mrflory/bkt-toolbox/releases/latest).
 
 Alternativ kann man das Repository klonen und die Datei `installer\install.bat` ausführen. Nach einem Update muss die Datei ggf. neu ausgeführt werden.
 
-Hinweise:
+***Hinweise:***
 
-  * Die Business Kasper Toolbox ist nach Installation standardmäßig nur in PowerPoint aktiv, 
+ * Es gibt ein separates Setup for Office 2010. Beim Klonen des Repositories muss vor der Installation die Datei `dotnet\build2010.bat`     ausgeführt werden, damit das Addin für Office 2010 kompiliert wird.
+ * Die Business Kasper Toolbox ist nach Installation standardmäßig nur in PowerPoint aktiv, 
     jedoch auch in Excel, Outlook, Word und Visio verfügbar. Dort lässt sich die BKT über den
     Addin-Dialog aktivieren (Datei > Optionen > Add-Ins)
-  * Über den Addin-Dialog lässt sich ferner das BKT-Dev-Plugin aktivieren. Dieses erlaubt
+ * Über den Addin-Dialog lässt sich ferner das BKT-Dev-Plugin aktivieren. Dieses erlaubt
     Laden und Entladen des Addins zur Laufzeit der Office-Applikation
 
 ## Contributions
