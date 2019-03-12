@@ -1,0 +1,60 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:fr="clr-namespace:Fluent;assembly=Fluent"
+    ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen"
+    Title="Shape-Style aufnehmen"
+    ShowInTaskbar="False" MinWidth="280">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
+           </ResourceDictionary.MergedDictionaries>
+       </ResourceDictionary>
+   </Window.Resources>
+
+    <StackPanel x:Name="DataPanel" Orientation="Vertical" Margin="5">
+
+        <Label Content="Button auswählen:"/>
+        <StackPanel Orientation="Horizontal" Margin="15,0,15,15">
+            <fr:ToggleButton GroupName="buttonindex" IsChecked="{Binding buttonindexA, UpdateSourceTrigger=PropertyChanged}" Size="Small" Icon="{Binding imgButtonA}" Margin="5" />
+            <fr:ToggleButton GroupName="buttonindex" IsChecked="{Binding buttonindexB, UpdateSourceTrigger=PropertyChanged}" Size="Small" Icon="{Binding imgButtonB}" Margin="5" />
+            <fr:ToggleButton GroupName="buttonindex" IsChecked="{Binding buttonindexC, UpdateSourceTrigger=PropertyChanged}" Size="Small" Icon="{Binding imgButtonC}" Margin="5" />
+            <fr:ToggleButton GroupName="buttonindex" IsChecked="{Binding buttonindexD, UpdateSourceTrigger=PropertyChanged}" Size="Small" Icon="{Binding imgButtonD}" Margin="5" />
+            <fr:ToggleButton GroupName="buttonindex" IsChecked="{Binding buttonindexE, UpdateSourceTrigger=PropertyChanged}" Size="Small" Icon="{Binding imgButtonE}" Margin="5" />
+
+            <!-- <RadioButton Content="A" IsChecked="{Binding buttonindexA, Mode=TwoWay}" Margin="10,5" />
+            <RadioButton Content="B" IsChecked="{Binding buttonindexB, Mode=TwoWay}" Margin="10,5" />
+            <RadioButton Content="C" IsChecked="{Binding buttonindexC, Mode=TwoWay}" Margin="10,5" />
+            <RadioButton Content="D" IsChecked="{Binding buttonindexD, Mode=TwoWay}" Margin="10,5" />
+            <RadioButton Content="E" IsChecked="{Binding buttonindexE, Mode=TwoWay}" Margin="10,5" /> -->
+        </StackPanel>
+
+        <Label Content="Standardmäßig anzuwendende Angaben..."/>
+        <StackPanel Orientation="Vertical" Margin="15,0,15,5">
+            <fr:CheckBox Header="Form/Shape-Typ" IsChecked="{Binding settings[type], Mode=TwoWay}" Margin="5" />
+            <fr:CheckBox Header="Hintergrund" IsChecked="{Binding settings[fill], Mode=TwoWay}" Margin="5" />
+            <fr:CheckBox Header="Rahmen/Linie" IsChecked="{Binding settings[line], Mode=TwoWay}" Margin="5" />
+            <fr:CheckBox Header="Textbox-Format (Innenabstand, Spalten, etc.)" IsChecked="{Binding settings[textframe2], Mode=TwoWay}" Margin="5" />
+            <fr:CheckBox Header="Absatz-Format (Ausrichtung, Einzug, Listen, etc.)" IsChecked="{Binding settings[paragraphformat], Mode=TwoWay}" Margin="5" />
+            <fr:CheckBox Header="Schrift-Format (Schriftart, -farbe, etc.)" IsChecked="{Binding settings[font], Mode=TwoWay}" Margin="5" />
+            <fr:CheckBox Header="Schatten/Leuchteffekt/etc. (ohne 3D)" IsChecked="{Binding settings[shadow], Mode=TwoWay}" Margin="5" />
+            <fr:CheckBox Header="Größe" IsChecked="{Binding settings[size], Mode=TwoWay}" Margin="5" />
+            <fr:CheckBox Header="Position" IsChecked="{Binding settings[position], Mode=TwoWay}" Margin="5" />
+        </StackPanel>
+        <TextBlock TextWrapping="WrapWithOverflow" Width="250" FontStyle="Italic" Margin="5,0,5,15">
+            Hinweis: Bei Klick auf die Buttons mit gedrückter ALT-Taste können diese Einstellungen nachträglich geändert werden.
+        </TextBlock>
+        
+        <Grid Margin="0">
+          <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <StackPanel Orientation="Horizontal" Grid.Column="1">
+              <Button Margin="5" MinWidth="80" Padding="5,2" Content="OK"        IsDefault="True" Click="pickup_style"/>
+              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
+          </StackPanel>
+      </Grid>
+    </StackPanel>
+</Window>

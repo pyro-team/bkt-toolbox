@@ -1,0 +1,74 @@
+
+
+AddIn
+    * EventCallbacksContainer                   --> Sammlung aller RibbonCallbacks
+                                                --> Wird durch iterieren ueber RibbonObjekte automatisch gefuellt,
+                                                    wenn ein RibbonObjekt entsprechende Attribute hat (z.B. das
+                                                    image oder on_change)
+        * on_action: BKTCallableCallbacks       --> ausfuehrbare Methode, i.d.R. ein BKTCallable
+        * ...                                   
+        * get_image: GetImageCallbacks          --> holt Image zur Id aus Ressources
+    * ContextWrapper                            --> zum Zugriff auf Variablen im .Net-Kontext
+    * RibbonExtension                           --> Generiert Applikations-Kontext anhand RibbonId
+        * Tab                                   --> Objektstruktur representiert Ribbon-Hierarchy
+            * Group                             
+                * Button                        
+                    * BKTCallable               --> Methoden haengen als Methoden an den Ribbon-Objekten
+                                                --> siehe unten
+                * Button
+            * Group
+                * ...
+        * Tab
+            * ...
+
+
+* BKTFeatureContainer  < AnnotatedType          --> wird in Klassen genutzt, die über Dekoratoren ein
+                                                    Ribbon definieren möchten
+                                                --> erst bei Erzeugung einer Klassen-Instanz durch das AddIn
+                                                    wird eine Ribbon-Objektstruktur (wie im AddIn) generiert
+    * FunctionAnnotation                        --> der erste annotation-Dekorator macht aus einer Methode 
+                                                    ein FunctionAnnotation-Objekt
+        * method                                --> die dekorierte Methode
+        * annotation  < BKTAnnotation           --> Objekt, wo über Dekoratoren Dinge reingespeichert werden
+            * ribbon_control                    --> z.B. wird das zugehörige Ribbon-Objekt annotiert
+            * context
+    * FunctionAnnotation
+    * ...
+
+
+* BKTCallable                                   --> Representiert ausfuehrbare Methoden mit zusaetzlichen Attributen
+    * method
+    * context < BKTCallableContextInformation   --> context-Information der Methode, z.B. ob shapes uebergeben
+                                                    werden sollen
+    * call_with_context(., ArgumentResolver)    --> ArgumentResolver baut anhand Einstellungen in self.context
+                                                    eine Argument-Liste auf, die es an method uebergibt
+
+
+Klassen, die Ribbon-Objekte representieren
+    * RibbonControl   < ClassDefinedObject
+    * RibbonContainer < RibbonControl
+    * Box             < RibbonContainer
+    * Group           < RibbonContainer
+    * Tab             < RibbonContainer
+    * Button          < RibbonControl
+    * EditBox         < RibbonControl
+
+Klassen, zur Erzeugung von Standard-Office-RibbonControls
+    * ForeignControl
+    * MSOControl
+    * MSOFactory
+    * MSOFactoryAccess
+
+Helper Klassen
+    * RibbonXMLFactory                          --> zum Erzeugen von xml-foo
+    * Resources                                 --> zum Laden von Ressourcen, z.B. images
+
+
+Sonstiges
+    * GenericArgumentResolver, siehe ArgumentResolver
+    * EventCallbacks > DefaultEventCallbacks > BKTCallableCallbacks
+    * ApplicationRibbonInformation              --> generischer Dekorator fuer @powerpoint, @excel, usw.
+                                                --> die Dekoratoren registrieren ein Tab fuer ein Office-App
+
+
+

@@ -1,0 +1,12 @@
+﻿<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" xmlns:bktdev="http://www.business-kasper-toolbox.com/toolbox/dev">
+  <ribbon> 
+    <tabs> 
+      <tab idMso="TabDeveloper"> 
+        <group id="GroupBKTDev" label="BKT Dev"> 
+          <button id="ReloadBKT" label="Reload BKT" size="large" imageMso="AccessRefreshAllLists" onAction="ReloadBKTAddIn" /> 
+          <button id="UnloadBKT" label="Unload BKT" size="large" imageMso="Delete" onAction="UnloadBKTAddIn" /> 
+        </group> 
+      </tab> 
+    </tabs> 
+  </ribbon> 
+</customUI>

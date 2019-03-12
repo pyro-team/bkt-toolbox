@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bkt-addin", "bkt-addin\bkt-addin.csproj", "{275FE5EE-65E9-4669-BC7E-662DCAAAC34B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bkt-test", "bkt-test\bkt-test.csproj", "{9C60584B-31AA-4ED0-B095-0499C7B5C2CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bkt-dev-addin", "bkt-dev-addin\bkt-dev-addin.csproj", "{EECB160B-80AD-4DB5-9C3F-BBCA8B706355}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Office2010|Any CPU = Office2010|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{275FE5EE-65E9-4669-BC7E-662DCAAAC34B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{275FE5EE-65E9-4669-BC7E-662DCAAAC34B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{275FE5EE-65E9-4669-BC7E-662DCAAAC34B}.Office2010|Any CPU.ActiveCfg = Office2010|Any CPU
+		{275FE5EE-65E9-4669-BC7E-662DCAAAC34B}.Office2010|Any CPU.Build.0 = Office2010|Any CPU
+		{275FE5EE-65E9-4669-BC7E-662DCAAAC34B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{275FE5EE-65E9-4669-BC7E-662DCAAAC34B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C60584B-31AA-4ED0-B095-0499C7B5C2CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C60584B-31AA-4ED0-B095-0499C7B5C2CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C60584B-31AA-4ED0-B095-0499C7B5C2CC}.Office2010|Any CPU.ActiveCfg = Release|Any CPU
+		{9C60584B-31AA-4ED0-B095-0499C7B5C2CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C60584B-31AA-4ED0-B095-0499C7B5C2CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EECB160B-80AD-4DB5-9C3F-BBCA8B706355}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EECB160B-80AD-4DB5-9C3F-BBCA8B706355}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EECB160B-80AD-4DB5-9C3F-BBCA8B706355}.Office2010|Any CPU.ActiveCfg = Office2010|Any CPU
+		{EECB160B-80AD-4DB5-9C3F-BBCA8B706355}.Office2010|Any CPU.Build.0 = Office2010|Any CPU
+		{EECB160B-80AD-4DB5-9C3F-BBCA8B706355}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EECB160B-80AD-4DB5-9C3F-BBCA8B706355}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,58 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:fr="clr-namespace:Fluent;assembly=Fluent"
+    ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen"
+    Title="Kreissegmente erstellen"
+    ShowInTaskbar="False">
+    <!-- FocusManager.FocusedElement="{Binding ElementName=filename_box}" -->
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
+           </ResourceDictionary.MergedDictionaries>
+       </ResourceDictionary>
+   </Window.Resources>
+
+    <StackPanel x:Name="DataPanel" Orientation="Vertical" Margin="5">
+				
+      <Grid  Margin="5,0,5,0" HorizontalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        
+        <Label      Grid.Column="0" Grid.Row="0" Content="Anzahl Segmente" />
+        <fr:Spinner Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" InputWidth="60" Value="{Binding num_segments, UpdateSourceTrigger=PropertyChanged}"   Format="0" Minimum="1"/>
+
+        <Label      Grid.Column="0" Grid.Row="1" Content="Breite (in % vom Radius)" />
+				<StackPanel Grid.Column="1" Grid.Row="1"  Orientation="Horizontal" Margin="0">
+					  <fr:Spinner InputWidth="60" Value="{Binding width, UpdateSourceTrigger=PropertyChanged}"   Format="0" Minimum="0" Maximum="100" Increment="5"/>
+					  <Label    Content="% vom Radius" />
+				</StackPanel>
+
+        <Label      Grid.Column="0" Grid.Row="2" Content="Form" />
+        <StackPanel Grid.Column="1" Grid.Row="2"  Orientation="Vertical" Margin="5,0,0,5">
+            <RadioButton Content="Segmente" IsChecked="{Binding use_segment_shape, Mode=TwoWay}" Margin="5" />
+            <RadioButton Content="Pfeile"   IsChecked="{Binding use_arrow_shape, Mode=TwoWay}" Margin="5" />
+        </StackPanel>
+      </Grid>
+			
+      <Grid Margin="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Column="1">
+            <Button Margin="5" MinWidth="80" Padding="5,2" Content="OK"        IsDefault="True" Click="create_segments"/>
+            <Button Margin="5" MinWidth="80" Padding="5,2" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
+        </StackPanel>
+      </Grid>
+			
+    </StackPanel>
+</Window>

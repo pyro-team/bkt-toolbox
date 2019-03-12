@@ -1,0 +1,51 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:fr="clr-namespace:Fluent;assembly=Fluent"
+    ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen"
+    Title="Markierte Folien per E-Mail senden"
+    FocusManager.FocusedElement="{Binding ElementName=filename_box}"
+    ShowInTaskbar="False" MinWidth="400">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
+           </ResourceDictionary.MergedDictionaries>
+       </ResourceDictionary>
+   </Window.Resources>
+
+    <StackPanel x:Name="DataPanel" Orientation="Vertical" Margin="5">
+
+        <Label Content="Bitte Dateiname eingeben:"/>
+        <fr:TextBox Name="filename_box" Margin="5" Text="{Binding filename, UpdateSourceTrigger=PropertyChanged}" />
+
+        <GroupBox Header="Dateiformat" Margin="5">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <fr:RadioButton GroupName="fileformat" Header="Nur PowerPoint" IsChecked="{Binding fileformat_ppt, Mode=TwoWay}" />
+                <fr:RadioButton GroupName="fileformat" Header="Nur PDF" IsChecked="{Binding fileformat_pdf, Mode=TwoWay}" />
+                <fr:RadioButton GroupName="fileformat" Header="PowerPoint + PDF" IsChecked="{Binding fileformat_all, Mode=TwoWay}" />
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Header="Folienauswahl" Margin="5">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <fr:RadioButton GroupName="slides" Header="Ausgewählte Folien" IsChecked="{Binding slides_selected, Mode=TwoWay}" />
+                <fr:RadioButton GroupName="slides" Header="Alle Folien" IsChecked="{Binding slides_all, Mode=TwoWay}" />
+            </StackPanel>
+        </GroupBox>
+
+        <fr:CheckBox Header="Alle Abschnitte entfernen" IsChecked="{Binding remove_sections, Mode=TwoWay}" IsEnabled="{Binding rm_se_enabled, UpdateSourceTrigger=PropertyChanged}" Margin="10,5" />
+        <fr:CheckBox Header="Autor aus Dokumenteneigenschaften entfernen" IsChecked="{Binding remove_author, Mode=TwoWay}" Margin="10,5" />
+
+        <Grid Margin="0">
+          <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <StackPanel Orientation="Horizontal" Grid.Column="1">
+              <Button Margin="5" MinWidth="80" Padding="5,2" Content="OK"        IsDefault="True" Click="send_slides"/>
+              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
+          </StackPanel>
+      </Grid>
+    </StackPanel>
+</Window>

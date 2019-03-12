@@ -1,0 +1,4 @@
+[HKEY_CURRENT_USER\Software\Microsoft\${APP_PATH}\Addins\${PROG_ID}]
+"FriendlyName"="${NAME}"
+"Description"="${DESCRIPTION}"
+"LoadBehavior"=dword:${LOAD_BEHAVIOR}

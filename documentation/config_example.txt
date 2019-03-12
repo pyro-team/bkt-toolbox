@@ -1,0 +1,43 @@
+[BKT]
+### Iron Python
+ipy_addin_module = bkt.bootstrap
+ironpython_root = S:\Tooling\Toolbox-git\bin\ipy-2.7.8
+ipy_addin_path = S:\Tooling\Toolbox-git
+
+### Debugging
+#pydev_debug = true
+#pydev_codebase = <eclipse-ordner>\plugins\org.python.pydev_<pydev-version>\pysrc
+
+### Addin Configuration
+# log_show_msgbox will show a MessageBox for every log message in c#-Addin (System.Windows.Forms.MessageBox)
+log_show_msgbox = false
+# show_exception triggers whether exceptions in callback-routines are shown
+show_exception = false
+# log_write_file triggers whether log-messages are written into a log file in the addin-root-directory
+log_write_file = false
+# async_startup runs the Pyhton-Interpreter in a separate thread, fastens startup but has drawbacks in flexibility
+async_startup = false
+
+### Modules
+modules = 
+	modules.dev
+	modules.toolbox.toolbox_powerpoint
+	# modules.demo.demo_customui
+	# modules.demo.demo_bkt
+	# modules.demo.demo_image_mso
+	# modules.tutorial
+
+### Chart and Shape Library
+shape_library_folders =
+    S:\Tooling\Toolbox-git\_personal\shapelib
+shape_libraries = 
+chart_library_folders = 
+    S:\Tooling\Toolbox-git\_personal\chartlib
+chart_libraries = 
+
+### Feature folders
+feature_folders=
+	S:\Cloud\Toolbox\DiBa
+	S:\Cloud\Toolbox\personal
+
+

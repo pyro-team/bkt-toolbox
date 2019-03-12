@@ -1,0 +1,29 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Width="450" Height="320"
+    ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen"
+    Title="Example WPF dialog"
+    ShowInTaskbar="False">
+
+    <StackPanel x:Name="DataPanel" Orientation="Vertical">
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Binding Text:"/>
+            <Label Content="Size"/>
+            <Label Content="{Binding size}"/>
+            <TextBox x:Name="tbSize" Text="{Binding size, UpdateSourceTrigger=PropertyChanged}" />
+            <Button x:Name="Button" Content="Set Initial Value" Click="reset_initial_size"></Button>
+        </StackPanel>
+    
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Binding Images:"/>
+            <Label Content="R"/>
+            <TextBox x:Name="tbRed" Text="{Binding red, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Content="G"/>
+            <TextBox x:Name="tbGreen" Text="{Binding green, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Content="B"/>
+            <TextBox x:Name="tbBlue" Text="{Binding blue, UpdateSourceTrigger=PropertyChanged}" />
+            <Button x:Name="img_button" Content="Generate Image" Click="generate_color_image"></Button>
+            <Image x:Name="linked_image" Source="{Binding img_source, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+    </StackPanel>
+</Window>

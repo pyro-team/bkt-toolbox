@@ -1,0 +1,116 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:fr="urn:fluent-ribbon"
+    Width="450" Height="320">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
+           </ResourceDictionary.MergedDictionaries>
+       
+           <DrawingImage x:Key="VectorImageSample">
+               <DrawingImage.Drawing>
+                   <DrawingGroup>
+                       <DrawingGroup.Children>
+                           <GeometryDrawing Geometry="F1 M 0,-3.8147e-006L 32,-3.8147e-006L 32,19.1563L 20.0625,19.0938L 20,32L 0,32L 0,-3.8147e-006 Z ">
+                               <GeometryDrawing.Pen>
+                                   <Pen LineJoin="Round"
+                                        Brush="#FF000000" />
+                               </GeometryDrawing.Pen>
+                               <GeometryDrawing.Brush>
+                                   <LinearGradientBrush StartPoint="-0.015625,0.5"
+                                                        EndPoint="1.01562,0.5">
+                                       <LinearGradientBrush.GradientStops>
+                                           <GradientStop Color="#FFC01000"
+                                                         Offset="0" />
+                                           <GradientStop Color="#FFC4C245"
+                                                         Offset="0.297674" />
+                                           <GradientStop Color="#FF43B240"
+                                                         Offset="0.553488" />
+                                           <GradientStop Color="#FF35A8B9"
+                                                         Offset="0.744186" />
+                                           <GradientStop Color="#FF0A13B2"
+                                                         Offset="1" />
+                                       </LinearGradientBrush.GradientStops>
+                                   </LinearGradientBrush>
+                               </GeometryDrawing.Brush>
+                           </GeometryDrawing>
+                           <GeometryDrawing Brush="#D0C80FA0"
+                                            Geometry="F1 M 17.3404,9.61637L 1.5,18.869L 17.4332,27.9608L 17.3404,9.61637 Z " />
+                           <GeometryDrawing Brush="#FFFFFFFF"
+                                            Geometry="F1 M 17.2034,18.2831L 14.3995,19.9076L 13.575,18.4845L 13.537,18.5065C 13.5276,19.9491 12.9028,21.0298 11.6624,21.7484C 10.7473,22.2786 9.87606,22.4347 9.0488,22.2166C 8.22155,21.9985 7.55555,21.4539 7.05082,20.5827C 5.98488,18.7429 6.45311,17.053 8.45551,15.513L 10.8182,13.6858C 10.2674,12.7351 9.43411,12.5829 8.31839,13.2293C 7.19488,13.8803 6.31124,14.8173 5.66747,16.0404L 4.3676,13.7968C 4.6501,13.3462 5.098,12.8344 5.7113,12.2612C 6.3246,11.688 6.92138,11.2333 7.50163,10.8971C 10.2082,9.32905 12.3451,9.8975 13.9123,12.6025L 17.2034,18.2831 Z M 12.1751,16.0279L 11.8139,15.4043L 10.1934,16.634C 9.29679,17.3129 9.05647,18.0114 9.47247,18.7294C 9.66031,19.0536 9.93175,19.2517 10.2868,19.3236C 10.6419,19.3955 11.0199,19.3152 11.4211,19.0828C 11.9799,18.7591 12.3274,18.3107 12.4635,17.7377C 12.5997,17.1646 12.5035,16.5947 12.1751,16.0279 Z " />
+                           <GeometryDrawing Brush="#FFFFFFFF"
+                                            Geometry="F1 M 27.6854,12.2101L 19.2737,17.0836L 18.6082,15.935L 19.685,6.89886L 15.52,9.31194L 14.3031,7.21157L 22.1541,2.66294L 22.9544,4.04429L 21.9911,12.7038L 26.4685,10.1097L 27.6854,12.2101 Z " />
+                       </DrawingGroup.Children>
+                   </DrawingGroup>
+               </DrawingImage.Drawing>
+           </DrawingImage>
+           
+           <Rectangle Height="16" x:Key="rect" RadiusX="2" RadiusY="2" Width="16">
+               <Rectangle.Fill>
+                   <SolidColorBrush Color="#FF0000"/>
+               </Rectangle.Fill>
+           </Rectangle>
+              
+       </ResourceDictionary>
+       
+       
+   </Window.Resources>
+
+    <StackPanel x:Name="DataPanel" Orientation="Vertical">
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Test Binding:"/>
+            <Label Content="Size"/>
+            <Label Content="{Binding size}"/>
+            <TextBox x:Name="tbSize" Text="{Binding size, UpdateSourceTrigger=PropertyChanged}" />
+            <Button x:Name="Button" Content="Set Initial Value" Click="reset_initial_size"></Button>
+        </StackPanel>
+    
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Test Image-Binding:"/>
+            <Label Content="R"/>
+            <TextBox x:Name="tbRed" Text="{Binding red, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Content="G"/>
+            <TextBox x:Name="tbGreen" Text="{Binding green, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Content="B"/>
+            <TextBox x:Name="tbBlue" Text="{Binding blue, UpdateSourceTrigger=PropertyChanged}" />
+            <Button x:Name="img_button" Content="Generate Image" Click="generate_color_image"></Button>
+            <Image x:Name="linked_image" Source="{Binding img_source, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+        
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Test Fluent Button:"/>
+            <fr:Button Header="Button #1" Size="Middle" />
+            <fr:Button Header="Button #2" Size="Middle" ToolTip="Regular Tooltip" Icon="{Binding img_source, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+        
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Test Rectangle:"/>
+            <fr:Button Header="Vector image" Size="Middle" Icon="{StaticResource VectorImageSample}"/>
+            <fr:Button Header="Rectangle image" Size="Middle" Icon="{StaticResource rect}"/>
+        </StackPanel>
+        
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Test dynamic Rectangle:"/>
+            <TextBox Text="{Binding fill_color, UpdateSourceTrigger=PropertyChanged}" />
+            <Button>
+                <Rectangle Height="16" RadiusX="2" RadiusY="2" Width="16">
+                    <Rectangle.Fill>
+                        <SolidColorBrush Color="{Binding fill_color, UpdateSourceTrigger=PropertyChanged}" />
+                    </Rectangle.Fill>
+                </Rectangle>
+            </Button>
+            <!-- <fr:Button Header="Dynamic Drawing Image" Size="Middle">
+                <fr:Button.Icon>
+                    <Rectangle Height="16" RadiusX="2" RadiusY="2" Width="16">
+                        <Rectangle.Fill>
+                            <SolidColorBrush Color="{Binding fill_color, UpdateSourceTrigger=PropertyChanged}" />
+                        </Rectangle.Fill>
+                    </Rectangle>
+                </fr:Button.Icon>
+            </fr:Button> -->
+            <fr:Button Header="Dynamic Rect Image" Size="Middle" Icon="{Binding img_drawing, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

@@ -1,0 +1,25 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Width="100" Height="20"
+    ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="Manual"
+    WindowStyle="None"
+    AllowsTransparency="True"
+    Background="Transparent"
+    ShowInTaskbar="False"
+    ShowActivated="False"
+    Focusable="False">
+
+    <Grid Margin="0">
+      <Border Grid.Row="0" Grid.Column="0" BorderBrush="Silver" BorderThickness="1" SnapsToDevicePixels="True" Background="#ffffff" CornerRadius="2">
+        <!-- <TextBlock Text="MASTER" FontSize="8" Margin="2,1" /> -->
+        <Button Content="MASTER" Click="cancel">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <TextBlock Text="{TemplateBinding Content}" FontSize="8" Margin="2,1" />
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+        <!-- <Button Content="MASTER" Click="cancel" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" /> -->
+      </Border>
+    </Grid>
+</Window>

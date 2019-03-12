@@ -1,0 +1,10 @@
+REGEDIT4
+
+[-HKEY_CURRENT_USER\Software\Microsoft\Office\PowerPoint\Addins\BKT.AddIn]
+[-HKEY_CURRENT_USER\Software\Microsoft\Office\Excel\Addins\BKT.AddIn]
+[-HKEY_CURRENT_USER\Software\Microsoft\Office\Word\Addins\BKT.AddIn]
+[-HKEY_CURRENT_USER\Software\Microsoft\Office\Outlook\Addins\BKT.AddIn]
+[-HKEY_CURRENT_USER\Software\Microsoft\Visio\Addins\BKT.AddIn]
+[-HKEY_CURRENT_USER\Software\Classes\BKT.AddIn]
+[-HKEY_CURRENT_USER\Software\Classes\Wow6432Node\CLSID\{8EA4071E-7BD4-48DA-B96D-21AD02E1C238}]
+[-HKEY_CURRENT_USER\Software\Classes\CLSID\{8EA4071E-7BD4-48DA-B96D-21AD02E1C238}]

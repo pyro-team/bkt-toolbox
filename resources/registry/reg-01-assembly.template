@@ -1,0 +1,27 @@
+[HKEY_CURRENT_USER\Software\Classes\${PROG_ID}]
+@="${PROG_ID}"
+
+[HKEY_CURRENT_USER\Software\Classes\${PROG_ID}\CLSID]
+@="${UUID}"
+
+[HKEY_CURRENT_USER\Software\Classes\${WOW_6432}CLSID\${UUID}]
+@="${PROG_ID}"
+
+[HKEY_CURRENT_USER\Software\Classes\${WOW_6432}CLSID\${UUID}\InprocServer32]
+@="mscoree.dll"
+"ThreadingModel"="Both"
+"Class"="${PROG_ID}"
+"Assembly"="${FULLNAME}"
+"RuntimeVersion"="${RUNTIME_VERSION}"
+"CodeBase"="${CODEBASE_URI}"
+
+[HKEY_CURRENT_USER\Software\Classes\${WOW_6432}CLSID\${UUID}\InprocServer32\${VERSION}]
+"Class"="${PROG_ID}"
+"Assembly"="${FULLNAME}"
+"RuntimeVersion"="${RUNTIME_VERSION}"
+"CodeBase"="${CODEBASE_URI}"
+
+[HKEY_CURRENT_USER\Software\Classes\${WOW_6432}CLSID\${UUID}\ProgId]
+@="${PROG_ID}"
+
+[HKEY_CURRENT_USER\Software\Classes\${WOW_6432}CLSID\${UUID}\Implemented Categories\{62C8FE65-4EBB-45E7-B440-6E39B2CDBF29}]

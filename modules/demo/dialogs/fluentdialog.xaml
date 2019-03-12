@@ -1,0 +1,61 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:fr="clr-namespace:Fluent;assembly=Fluent"
+    Width="450" Height="320"
+    WindowStartupLocation="CenterScreen"
+    Title="Example WPF dialog with FluentRibbon controls"
+    ShowInTaskbar="False">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
+           </ResourceDictionary.MergedDictionaries>
+         </ResourceDictionary>
+       
+       
+   </Window.Resources>
+
+    <StackPanel x:Name="DataPanel" Orientation="Vertical">
+    
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Test Image-Binding:"/>
+            <Label Content="R"/>
+            <TextBox x:Name="tbRed" Text="{Binding red, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Content="G"/>
+            <TextBox x:Name="tbGreen" Text="{Binding green, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Content="B"/>
+            <TextBox x:Name="tbBlue" Text="{Binding blue, UpdateSourceTrigger=PropertyChanged}" />
+            <Button x:Name="img_button" Content="Generate Image" Click="generate_color_image"></Button>
+            <Image x:Name="linked_image" Source="{Binding img_source, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+        
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Test Fluent Button:"/>
+            <fr:Button Header="Button #1" Size="Middle" />
+            <fr:Button Header="Button #2" Size="Middle" ToolTip="Regular Tooltip" Icon="{Binding img_source, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+        
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Test dynamic Rectangle:"/>
+            <TextBox Text="{Binding fill_color, UpdateSourceTrigger=PropertyChanged}" />
+            <Button>
+                <Rectangle Height="16" RadiusX="2" RadiusY="2" Width="16">
+                    <Rectangle.Fill>
+                        <SolidColorBrush Color="{Binding fill_color, UpdateSourceTrigger=PropertyChanged}" />
+                    </Rectangle.Fill>
+                </Rectangle>
+            </Button>
+            <!-- <fr:Button Header="Dynamic Drawing Image" Size="Middle">
+                <fr:Button.Icon>
+                    <Rectangle Height="16" RadiusX="2" RadiusY="2" Width="16">
+                        <Rectangle.Fill>
+                            <SolidColorBrush Color="{Binding fill_color, UpdateSourceTrigger=PropertyChanged}" />
+                        </Rectangle.Fill>
+                    </Rectangle>
+                </fr:Button.Icon>
+            </fr:Button> -->
+            <fr:Button Header="Dynamic Rect Image" Size="Middle" Icon="{Binding img_drawing, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

@@ -1,0 +1,8 @@
+REGEDIT4
+
+[-HKEY_CURRENT_USER\Software\Microsoft\Office\PowerPoint\Addins\BKT.Dev.DevAddIn]
+[-HKEY_CURRENT_USER\Software\Microsoft\Office\PowerPoint\Addins\BKT.DevAddIn]
+[-HKEY_CURRENT_USER\Software\Classes\BKT.Dev.DevAddIn]
+[-HKEY_CURRENT_USER\Software\Classes\BKT.DevAddIn]
+[-HKEY_CURRENT_USER\Software\Classes\Wow6432Node\CLSID\{FC4DBFDD-A8A2-4675-A32D-A56337844DC4}]
+[-HKEY_CURRENT_USER\Software\Classes\CLSID\{FC4DBFDD-A8A2-4675-A32D-A56337844DC4}]

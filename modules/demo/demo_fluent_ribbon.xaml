@@ -1,0 +1,274 @@
+<StackPanel Orientation="Vertical">
+
+    <!-- <Label>Buttons</Label> -->
+
+    <WrapPanel Orientation="Horizontal">
+        <fr:Button Header="Button #1" Size="Middle" Icon="{StaticResource settings}">
+            <fr:Button.ToolTip>
+                <fr:ScreenTip Title="Button #1 Screentip Title"
+                              HelpTopic="Help for ScreenTip"
+                              IsRibbonAligned="False"
+                              Image="{StaticResource settings}" 
+                              Text="This is a ScreenTip." />
+            </fr:Button.ToolTip>
+        </fr:Button>
+        <fr:Button Header="Button #2" Size="Middle" Icon="{StaticResource settings}" ToolTip="Regular Tooltip"/>
+        <fr:Button Header="Button #3" Size="Middle" Icon="{StaticResource settings}" IsEnabled="False">
+            <fr:Button.ToolTip>
+                <fr:ScreenTip Title="Screentip Title"
+                                  IsRibbonAligned="False"
+                                  HelpTopic="Help for ScreenTip"
+                                  Text="Lorem ipsum dolor sit amet."
+                                  Image="{StaticResource settings}" 
+                                  DisableReason="Lorem ipsum dolor sit amet."
+                                  />
+            </fr:Button.ToolTip>
+        </fr:Button>
+    </WrapPanel>
+    <!-- <Label>ToDo: Separator</Label> -->
+    
+    
+    <!-- <Border Height="1" Background="#1F000000" HorizontalAlignment="Stretch" SnapsToDevicePixels="True" Margin="7,15,0,3" />
+    <Label>Check / Radio Buttons</Label> -->
+
+    <WrapPanel Orientation="Horizontal">
+        <fr:ToggleButton Header="Toggle me" Size="Middle" Icon="{StaticResource settings}" IsChecked="True"/>
+        <fr:CheckBox Header="check me" IsChecked="True"/>
+    </WrapPanel>
+    <WrapPanel Orientation="Horizontal">
+        <fr:RadioButton Header="Radio 1"
+                            GroupName="Test-Radio"
+                            IsChecked="True" />
+        <fr:RadioButton Header="Radio 2"
+                            GroupName="Test-Radio"
+                            IsChecked="False" />
+    </WrapPanel>
+    <WrapPanel Orientation="Horizontal">
+        <fr:ToggleButton Header="Toggle #1" GroupName="Group1" Size="Middle" Icon="{StaticResource settings}"/>
+        <fr:ToggleButton Header="#2"        GroupName="Group1" Size="Middle" Icon="{StaticResource settings}"/>
+        <fr:ToggleButton Header="#3"        GroupName="Group1" Size="Middle" Icon="{StaticResource settings}" IsChecked="True" />
+    </WrapPanel>
+    
+    
+    <!-- <Border Height="1" Background="#1F000000" HorizontalAlignment="Stretch" SnapsToDevicePixels="True" Margin="7,15,0,3" />
+    <Label>Menus</Label> -->
+    
+    <WrapPanel Orientation="Horizontal">
+        <fr:DropDownButton Header="Simple Menu" Size="Middle"
+                               Icon="{StaticResource settings}"
+                               ClosePopupOnMouseDown="True"
+                               ClosePopupOnMouseDownDelay="250">
+            <fr:MenuItem Header="Item 1" />
+            <fr:MenuItem Header="Item 2" />
+            <Separator />
+            <fr:MenuItem Header="Item 3">
+                <fr:MenuItem Header="Item 1" />
+                <Separator />
+                <fr:MenuItem Header="Item 2">
+                    <fr:MenuItem Header="Item 1" />
+                    <fr:MenuItem Header="Item 2">
+                        <fr:MenuItem Header="Item 1" />
+                        <fr:MenuItem Header="Item 2" />
+                        <fr:MenuItem Header="Item 3" />
+                    </fr:MenuItem>
+                    <fr:MenuItem Header="Item 3" />
+                </fr:MenuItem>
+                <fr:MenuItem Header="Item 3" />
+            </fr:MenuItem>
+            <fr:MenuItem Header="Item 4" />
+        </fr:DropDownButton>
+        <fr:DropDownButton Header="Advanced Menu" Size="Middle" Icon="{StaticResource settings}">
+            <Grid ShowGridLines="True">
+                <Grid.Resources>
+                    <Style TargetType="{x:Type fr:ToggleButton}">
+                        <Setter Property="GroupName"
+                                Value="MonthsGroup" />
+                        <Setter Property="Width"
+                                Value="65" />
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <fr:ToggleButton Grid.Column="0">January</fr:ToggleButton>
+                <fr:ToggleButton Grid.Column="1">February</fr:ToggleButton>
+                <fr:ToggleButton Grid.Column="2">March</fr:ToggleButton>
+                <fr:ToggleButton Grid.Column="3">April</fr:ToggleButton>
+                <fr:ToggleButton Grid.Column="4">May</fr:ToggleButton>
+                <fr:ToggleButton Grid.Column="5">June</fr:ToggleButton>
+                <fr:ToggleButton Grid.Column="6">July</fr:ToggleButton>
+                <fr:ToggleButton Grid.Column="7">August</fr:ToggleButton>
+                <fr:ToggleButton Grid.Column="8">September</fr:ToggleButton>
+                <fr:ToggleButton Grid.Column="9">October</fr:ToggleButton>
+                <fr:ToggleButton Grid.Column="10">November</fr:ToggleButton>
+                <fr:ToggleButton Grid.Column="11">December</fr:ToggleButton>
+            </Grid>
+        </fr:DropDownButton>
+        <fr:SplitButton     Header="Split Button"
+                            SizeDefinition="Middle,Small"
+                            Icon="{StaticResource settings}"
+                            FocusManager.IsFocusScope="True"
+                            CanAddButtonToQuickAccessToolBar="True"
+                            ClosePopupOnMouseDown="True">
+            <fr:MenuItem Header="Begin" />
+            <fr:MenuItem Header="Undo something" />
+            <fr:MenuItem Header="Undo another thing" />
+        </fr:SplitButton>
+    </WrapPanel>
+    
+    
+    <!-- <Border Height="1" Background="#1F000000" HorizontalAlignment="Stretch" SnapsToDevicePixels="True" Margin="7,15,0,3" />
+    <Label>Input</Label> -->
+    
+    <WrapPanel Orientation="Horizontal">
+        <fr:TextBox     InputWidth="70"
+                        MaxLength="5"
+                        Header="Text"
+                        Icon="{StaticResource settings}"
+                        Text="CurrentText" />
+        <fr:ComboBox    Header="ComboBox" IsReadOnly="True"
+                         Icon="{StaticResource settings}"
+                         SelectedIndex="0">
+            <fr:ComboBox.Menu>
+                <fr:RibbonMenu>
+                    <fr:MenuItem Header="Menu Item #1" />
+                    <Separator />
+                    <fr:MenuItem Header="Menu Item #2" />
+                </fr:RibbonMenu>
+            </fr:ComboBox.Menu>
+            <ComboBoxItem>Item #1</ComboBoxItem>
+            <ComboBoxItem>Item #2</ComboBoxItem>
+            <ComboBoxItem>Item #3</ComboBoxItem>
+            <ComboBoxItem>Item #4</ComboBoxItem>
+            <ComboBoxItem>Item #5</ComboBoxItem>
+        </fr:ComboBox>
+        <fr:ComboBox  Header="ComboBox editable"   IsReadOnly="False"
+                         Icon="{StaticResource settings}"
+                         SelectedIndex="0">
+            <fr:ComboBox.Menu>
+                <fr:RibbonMenu>
+                    <fr:MenuItem Header="Menu Item #1" />
+                    <Separator />
+                    <fr:MenuItem Header="Menu Item #2" />
+                </fr:RibbonMenu>
+            </fr:ComboBox.Menu>
+            <ComboBoxItem>Item #1</ComboBoxItem>
+            <ComboBoxItem>Item #2</ComboBoxItem>
+            <ComboBoxItem>Item #3</ComboBoxItem>
+            <ComboBoxItem>Item #4</ComboBoxItem>
+            <ComboBoxItem>Item #5</ComboBoxItem>
+        </fr:ComboBox>
+    </WrapPanel>
+    <WrapPanel Orientation="Horizontal">
+        <fr:Spinner Header="Spinner" InputWidth="50" x:Name="spinner" Icon="{StaticResource settings}"/>
+    </WrapPanel>
+    <WrapPanel Orientation="Horizontal">
+        <DatePicker />
+    </WrapPanel>
+    
+    
+    <!-- <Border Height="1" Background="#1F000000" HorizontalAlignment="Stretch" SnapsToDevicePixels="True" Margin="7,15,0,3" />
+    <Label>Galleries</Label> -->
+    
+    <WrapPanel Orientation="Horizontal">
+        <fr:DropDownButton Header="Gallery Menu"
+                           Size="Middle"
+                           Icon="{StaticResource settings}"
+                           >
+            <fr:Gallery
+                ItemWidth="20"
+                ItemHeight="20"
+                >
+                <TextBlock>1</TextBlock>
+                <TextBlock>2</TextBlock>
+                <TextBlock>3</TextBlock>
+            </fr:Gallery>
+            <fr:MenuItem Header="Button #1" />
+            <fr:MenuItem Header="Button #2" />
+        </fr:DropDownButton>
+        <fr:DropDownButton Header="Gallery Menu (with groups)"
+                           Size="Middle"
+                           Icon="{StaticResource settings}"
+                           >
+            <fr:Gallery
+                ItemWidth="20"
+                ItemHeight="20"
+                GroupBy="Tag"
+                >
+                <TextBlock Tag="Group 1">1</TextBlock>
+                <TextBlock Tag="Group 1">2</TextBlock>
+                <TextBlock Tag="Group 1">3</TextBlock>
+                <TextBlock Tag="Group 1">4</TextBlock>
+                <TextBlock Tag="Group 2">5</TextBlock>
+                <TextBlock Tag="Group 2">6</TextBlock>
+                <TextBlock Tag="Group 2">7</TextBlock>
+            </fr:Gallery>
+            <fr:MenuItem Header="Button #1" />
+            <fr:MenuItem Header="Button #2" />
+        </fr:DropDownButton>
+        <fr:DropDownButton     Header="Standard Colors"
+                               HorizontalAlignment="Left"
+                               Icon="{StaticResource settings}"
+                               SizeDefinition="Middle">
+            <fr:ColorGallery Mode="StandardColors" />
+        </fr:DropDownButton>
+        <fr:DropDownButton     Header="Highlight Colors"
+                               HorizontalAlignment="Left"
+                               Icon="{StaticResource settings}"
+                               SizeDefinition="Middle">
+            <fr:ColorGallery Mode="HighlightColors" IsAutomaticColorButtonVisible="False" />
+        </fr:DropDownButton>
+        <fr:DropDownButton     Header="Theme Colors"
+                               HorizontalAlignment="Left"
+                               Icon="{StaticResource settings}"
+                               SizeDefinition="Middle">
+            <fr:ColorGallery Mode="ThemeColors"
+                StandardColorGridRows="3"
+                Columns="10"
+                ThemeColorGridRows="5"
+                IsNoColorButtonVisible="True" />
+            <!--ThemeColorsSource="{Binding ColorViewModel.ThemeColors}" -->
+        </fr:DropDownButton>
+        <fr:InRibbonGallery x:Name="InRibbonGallery"
+                                Header="Split"
+                                GroupBy="Tag"
+                                ResizeMode="Both"
+                                MaxItemsInRow="4"
+                                MinItemsInRow="2"
+                                ItemWidth="40"
+                                ItemHeight="40"
+                                MinItemsInDropDownRow="3"
+                                >
+            <fr:InRibbonGallery.Filters>
+                <fr:GalleryGroupFilter Title="All"
+                                           Groups="Group1,Group2" />
+                <fr:GalleryGroupFilter Title="Group1"
+                                           Groups="Group1" />
+                <fr:GalleryGroupFilter Title="Group2"
+                                           Groups="Group2" />
+            </fr:InRibbonGallery.Filters>
+
+            <TextBlock Tag="Group1">1</TextBlock>
+            <TextBlock Tag="Group1">2</TextBlock>
+            <TextBlock Tag="Group1">3</TextBlock>
+            <TextBlock Tag="Group1">4</TextBlock>
+            <TextBlock Tag="Group1">5</TextBlock>
+            <TextBlock Tag="Group1">6</TextBlock>
+            <TextBlock Tag="Group2">A</TextBlock>
+            <TextBlock Tag="Group2">B</TextBlock>
+            <TextBlock Tag="Group2">C</TextBlock>
+        </fr:InRibbonGallery>
+    </WrapPanel>
+
+</StackPanel>

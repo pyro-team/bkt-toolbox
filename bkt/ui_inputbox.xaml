@@ -1,0 +1,33 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:fr="clr-namespace:Fluent;assembly=Fluent"
+    ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen"
+    Title="BKT Input"
+    FocusManager.FocusedElement="{Binding ElementName=input_box}"
+    ShowInTaskbar="False" MinWidth="300" MaxWidth="500">
+
+    <!-- <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
+           </ResourceDictionary.MergedDictionaries>
+       </ResourceDictionary>
+   </Window.Resources> -->
+
+    <StackPanel x:Name="DataPanel" Orientation="Vertical" Margin="5">
+
+        <TextBlock Name="text_label" TextWrapping="Wrap" Margin="5" Text="Eingabe:" />
+        <TextBox Name="input_box" Padding="3" Margin="5" Text="" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" />
+
+        <Grid Margin="0">
+          <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <StackPanel Orientation="Horizontal" Grid.Column="1">
+              <Button Margin="5" MinWidth="80" Padding="5,2" Content="OK"        IsDefault="True" Click="confirm"/>
+              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
+          </StackPanel>
+        </Grid>
+    </StackPanel>
+</Window>

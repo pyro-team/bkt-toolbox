@@ -1,0 +1,81 @@
+﻿<UserControl x:Class="BKT.TaskPaneControl"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:fr="urn:fluent-ribbon"
+    TextElement.FontWeight="Medium"
+    TextElement.FontSize="12"
+    >
+     <UserControl.Resources>
+         <ResourceDictionary>
+             <ResourceDictionary.MergedDictionaries>
+                 <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+        
+    </UserControl.Resources>
+    
+    <Grid >
+        
+        <Grid.Resources>
+            
+            <!-- BUTTONS -->
+            <Style TargetType="{x:Type fr:Button}">
+                <EventSetter Event="Click" Handler="Click"/>
+            </Style>
+            
+            <!-- TOGGLES -->
+            <Style TargetType="{x:Type fr:ToggleButton}">
+                <EventSetter Event="Click" Handler="Toggle_Click"/>
+            </Style>
+            <Style TargetType="{x:Type fr:CheckBox}">
+                <EventSetter Event="Click" Handler="Toggle_Click"/>
+            </Style>
+            <Style TargetType="{x:Type fr:RadioButton}">
+                <EventSetter Event="Click" Handler="Toggle_Click"/>
+            </Style>
+            
+            <!-- MENUS -->
+            <Style TargetType="{x:Type fr:MenuItem}">
+                <EventSetter Event="Click" Handler="Menu_Click" />
+            </Style>
+            
+            <!-- TEXT INPUT -->
+            <Style TargetType="{x:Type fr:TextBox}">
+                <EventSetter Event="LostFocus" Handler="Text_LostFocus" />
+                <EventSetter Event="KeyDown" Handler="KeyDown" />
+            </Style>
+            
+            <!-- COMBOBOX -->
+            <Style TargetType="{x:Type fr:ComboBox}">
+                <EventSetter Event="LostFocus" Handler="Combo_LostFocus" />
+                <EventSetter Event="KeyDown" Handler="KeyDown" />
+                <EventSetter Event="SelectionChanged" Handler="Combo_SelectionChanged" />
+            </Style>
+            
+            <!-- SPINNER -->
+            <Style TargetType="{x:Type fr:Spinner}">
+                <EventSetter Event="Loaded" Handler="Spinner_Loaded"/>
+            </Style>
+            
+            <!-- GALLIERIES -->
+            <Style TargetType="{x:Type fr:Gallery}">
+                <EventSetter Event="SelectionChanged" Handler="Gallery_SelectionChanged" />
+            </Style>
+            <Style TargetType="{x:Type fr:InRibbonGallery}">
+                <EventSetter Event="SelectionChanged" Handler="Gallery_SelectionChanged" />
+            </Style>
+            <Style TargetType="{x:Type fr:ColorGallery}">
+                <EventSetter Event="SelectedColorChanged" Handler="SelectedColorChanged"/>
+            </Style>
+            
+            <!-- DATE SELECTOR -->
+            <Style TargetType="{x:Type DatePicker}">
+                <EventSetter Event="SelectedDateChanged" Handler="SelectedDateChanged"/>
+            </Style>
+        
+        </Grid.Resources>
+        
+        <Grid x:Name="layoutGrid" />
+    </Grid>
+        
+</UserControl>

@@ -1,0 +1,1 @@
+bin\ipy-2.7.8\ipy.exe -m unittest discover

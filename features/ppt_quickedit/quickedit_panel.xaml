@@ -1,0 +1,192 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    SizeToContent="WidthAndHeight" WindowStartupLocation="Manual"
+    Title="Quickedit" WindowStyle="None" 
+    ShowInTaskbar="False" MinWidth="10" MinHeight="20"
+    AllowsTransparency="True"
+    ShowActivated="False" Focusable="False"
+    Left="{Binding window_left, Mode=TwoWay}" Top="{Binding window_top, Mode=TwoWay}"
+    MouseLeftButtonDown="Window_MouseLeftButtonDown"
+    Closing="Window_Closing">
+
+    <!-- <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
+           </ResourceDictionary.MergedDictionaries>
+       </ResourceDictionary>
+   </Window.Resources> -->
+    <Window.Resources>
+        <!-- <Style TargetType="{x:Type Rectangle}">
+            <Setter Property="Height" Value="16" />
+            <Setter Property="Width" Value="16" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Fill" Value="#CCCCCC" />
+        </Style> -->
+        <Style x:Key="colorBtn" TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <Rectangle Fill="{Binding}" Width="12" Height="12" Margin="2" SnapsToDevicePixels="True" />
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border BorderThickness="0.5" BorderBrush="RoyalBlue">
+    <DockPanel x:Name="DataPanel" Margin="0" Background="WhiteSmoke">
+        <DockPanel x:Name="TitleBar" DockPanel.Dock="Top">
+            <Button FontSize="8" Background="White" BorderThickness="0" Focusable="False"
+                    Click="change_orientation" DockPanel.Dock="Left" Height="7" Width="7" Padding="0">
+                <Ellipse Fill="DarkGray" Height="5" Width="5" />
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Layout wechseln" Click="change_orientation" />
+                        <Separator />
+                        <MenuItem Header="Zuletzt verwendete Farben anzeigen" IsCheckable="True" IsChecked="{Binding recent_visible}" />
+                        <MenuItem Header="Beim Start automatisch anzeigen" IsCheckable="True" IsChecked="{Binding auto_start}" />
+                        <MenuItem Header="Links von Folie andocken" IsCheckable="True" IsChecked="{Binding docking_left}" Click="update_docking" />
+                        <Separator />
+                        <MenuItem Header="Alle Farben neu laden" Click="ForceReload" />
+                        <MenuItem Header="Eigene Farben zurücksetzen" Click="ResetOwnColors" />
+                        <Separator />
+                        <MenuItem Header="Hilfe öffnen" />
+                        <MenuItem FontFamily="Lucida Sans Typewriter" Header="[SHIFT]: Auswahl" IsEnabled="False" />
+                        <MenuItem FontFamily="Lucida Sans Typewriter" Header=" [STRG]: Linie" IsEnabled="False" />
+                        <MenuItem FontFamily="Lucida Sans Typewriter" Header="  [ALT]: Text" IsEnabled="False" />
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <Button Background="White" BorderThickness="0"
+                    Click="cancel" DockPanel.Dock="Right" Height="7" Width="7" Padding="0">
+                <Rectangle Fill="DarkGray" Height="5" Width="5" />
+            </Button>
+
+            <TextBlock HorizontalAlignment="Center" Margin="0" FontSize="8">QE</TextBlock>
+        </DockPanel>
+
+        <!-- <ContentControl Content="{Binding CurrentPage}" /> -->
+
+        <!-- <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"> -->
+        <WrapPanel Orientation="{Binding outer_orientation}" Margin="2">
+            <WrapPanel Margin="2" Orientation="{Binding inner_orientation}">
+                <Button Click="ColorNone" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" ToolTip="Keine Farbe / Transparenz" Focusable="False" MouseWheel="ColorNone_Wheel">
+                    <!-- <Rectangle Fill="White" Width="12" Height="12" Margin="2" SnapsToDevicePixels="True" Stroke="Black" StrokeThickness="0.5" StrokeDashArray="2.5 2.5" /> -->
+                    <Image Source="{Binding image_nocolor}" Width="12" Height="12" />
+                </Button>
+                <ItemsControl ItemsSource="{Binding colors_theme}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <!-- <WrapPanel Orientation="Horizontal" /> -->
+                            <WrapPanel Orientation="{Binding inner_orientation}" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ToggleButton Style="{StaticResource colorBtn}" IsChecked="{Binding Path=Checked, Mode=TwoWay}" ToolTip="{Binding Path=Label}" Content="{Binding Path=Color}" Tag="{Binding Path=Tag}" Click="ColorThemeButton" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </WrapPanel>
+            
+            <WrapPanel Margin="2" Orientation="{Binding inner_orientation}" Visibility="{Binding recent_visibility}">
+                <Button Click="PickupRecent" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" ToolTip="Farbe aufnehmen" Focusable="False">
+                    <!-- <Rectangle Fill="White" Width="12" Height="12" Margin="2" SnapsToDevicePixels="True" Stroke="Black" StrokeThickness="0.5" StrokeDashArray="2.5 2.5" /> -->
+                    <Image Source="{Binding image_pickup}" Width="12" Height="12" />
+                </Button>
+                <ItemsControl ItemsSource="{Binding colors_recent}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <!-- <WrapPanel Orientation="Horizontal" /> -->
+                            <WrapPanel Orientation="{Binding inner_orientation}" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ToggleButton Style="{StaticResource colorBtn}" IsChecked="{Binding Path=Checked, Mode=TwoWay}" ToolTip="{Binding Path=Label}" Content="{Binding Path=Color}" Tag="{Binding Path=Tag}" Click="ColorRecentButton" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </WrapPanel>
+            
+            <WrapPanel Margin="2" Orientation="{Binding inner_orientation}">
+                <ToggleButton IsChecked="{Binding editmode}" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}" ToolTip="Farben ändern an/aus" Focusable="False">
+                    <!-- <Rectangle Fill="White" Width="12" Height="12" Margin="2" SnapsToDevicePixels="True" Stroke="Black" StrokeThickness="0.5" StrokeDashArray="2.5 2.5" /> -->
+                    <Image Source="{Binding image_edit}" Width="12" Height="12" />
+                    <!-- <ToggleButton.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Menu item 1" />
+                            <MenuItem Header="Menu item 2" />
+                        </ContextMenu>
+                    </ToggleButton.ContextMenu> -->
+                </ToggleButton>
+                <ItemsControl ItemsSource="{Binding colors_own}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <!-- <WrapPanel Orientation="Horizontal" /> -->
+                            <WrapPanel Orientation="{Binding inner_orientation}" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ToggleButton Style="{StaticResource colorBtn}" IsChecked="{Binding Path=Checked, Mode=TwoWay}" ToolTip="{Binding Path=Label}" Content="{Binding Path=Color}" Tag="{Binding Path=Tag}" Click="ColorOwnButton" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </WrapPanel>
+        </WrapPanel>
+        <!-- </ScrollViewer> -->
+
+            <!-- <WrapPanel x:Name="DataPanel" Orientation="Horizontal" Margin="5">
+
+                <Button Name="btnColor1" Click="colorbtn1">
+                    <Rectangle Height="16" Width="16" SnapsToDevicePixels="True">
+                        <Rectangle.Fill>
+                            <SolidColorBrush Color="{Binding fill_color1, UpdateSourceTrigger=PropertyChanged}" />
+                        </Rectangle.Fill>
+                    </Rectangle>
+                </Button>
+
+                <Button Name="btnColor2" Click="colorbtn2">
+                    <Rectangle Height="16" Width="16">
+                        <Rectangle.Fill>
+                            <SolidColorBrush Color="{Binding fill_color2, UpdateSourceTrigger=PropertyChanged}" />
+                        </Rectangle.Fill>
+                    </Rectangle>
+                </Button>
+
+                <Button Name="btnColor2" Click="colorbtn" Tag="2" Content="Green" />
+                <Button Name="btnColor3" Click="colorbtn" Tag="3" Content="Blue" />
+                <Button Name="btnColor4" Click="colorbtn" Tag="4" Content="Red" />
+                <Button Name="btnColor5" Click="colorbtn" Tag="5" Content="Black" />
+                <Button Name="btnColor6" Click="colorbtn" Tag="6" Content="#ff33cc" />
+
+                <ScrollViewer>
+                    <ListView ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <Rectangle Width="20" Height="20" Fill="Beige" />
+                        <Rectangle Width="20" Height="20" Fill="PowderBlue" />
+                        <Rectangle Width="20" Height="20" Fill="#FF9ACD32" />    
+                        <Rectangle Width="20" Height="20" Fill="#FFFF6347" />
+                        <Rectangle Width="20" Height="20" Fill="#FF6495ED" />
+                        <Rectangle Width="20" Height="20" Fill="#FFFFA500" />
+                        <Rectangle Width="20" Height="20" Fill="#FFFFD700" />
+                        <Rectangle Width="20" Height="20" Fill="#FFFF4500" />
+                        <Rectangle Width="20" Height="20" Fill="#FF316915" />    
+                        <Rectangle Width="20" Height="20" Fill="#FF8E32A7" />
+                        <Rectangle Width="20" Height="20" Fill="#FFECBADC" />
+                        <Rectangle Width="20" Height="20" Fill="#FFE6D84F" />
+                    </ListView>
+                </ScrollViewer>
+
+            </WrapPanel> -->
+    </DockPanel>
+    </Border>
+</Window>
