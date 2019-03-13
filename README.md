@@ -12,6 +12,11 @@ Die BKT wird von uns in der Freizeit entwickelt, daher können wir keinen Suppor
 
 Die BKT läuft unter Windows ab Office 2010 in allen aktuellen Office-Versionen. Eine Mac-Version ist nicht verfügbar, da die entsprechende Office-Schnittstelle (COM-Addin) im Mac-Office nicht von Microsoft angeboten wird.
 
+## Bekannte Probleme
+
+ * Da die IronPython-Umgebung erst hochfahren muss, verzögert sich der PowerPoint-Start mit aktiviertem Addin. Wir arbeiten daran, diesen Effekt etwas zu minimieren.
+ * Manchmal gibt es bei längerer Nutzung Performance-Probleme (Texteingaben werden verschluckt, Shape-Auswahl funktioniert nicht mehr richtig, ...) wenn man auf einem BKT-Tab ist. Leider hilft aktuell nur der Wechsel auf einen Standard-Tab (bspw. "Start"), oder ein PowerPoint Neustart. Wir untersuchen dieses Problem noch.
+
 ## Installation
 
 Am einfachsten geht die Installation über das [Setup](https://github.com/mrflory/bkt-toolbox/releases/latest).
