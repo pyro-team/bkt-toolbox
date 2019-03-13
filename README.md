@@ -27,6 +27,14 @@ Alternativ kann man das Repository klonen und die Datei `installer\install.bat` 
  * Über den Addin-Dialog lässt sich ferner das BKT-Dev-Plugin aktivieren. Dieses erlaubt
     Laden und Entladen des Addins zur Laufzeit der Office-Applikation
 
+## Anwenderhandbuch
+
+*In Arbeit*
+
+## Entwicklerdokumentation
+
+*In Arbeit*
+
 ## Contributions
 
  * [IronPython](https://github.com/IronLanguages/ironpython2)
