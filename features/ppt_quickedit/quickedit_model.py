@@ -677,7 +677,7 @@ class QuickEdit(object):
                     if selection.TextRange2.Count == 0:
                         raise TypeError("no text selected, fallback to shape")
                     cls._set_forecolor( selection.TextRange2.Font.Line, color)
-                except TypeError:
+                except: #TypeError, COMException (e.g. if table/table cells are selected)
                     for textframe in pplib.iterate_shape_textframes(shaperange):
                         cls._set_forecolor( textframe.TextRange.Font.Line, color)
             elif alt:
@@ -685,7 +685,7 @@ class QuickEdit(object):
                     if selection.TextRange2.Count == 0:
                         raise TypeError("no text selected, fallback to shape")
                     cls._set_forecolor( selection.TextRange2.Font.Fill, color)
-                except TypeError:
+                except: #TypeError, COMException (e.g. if table/table cells are selected)
                     for textframe in pplib.iterate_shape_textframes(shaperange):
                         cls._set_forecolor( textframe.TextRange.Font.Fill, color)
             elif ctrl or shaperange.Connector == -1: #only connectors selected
