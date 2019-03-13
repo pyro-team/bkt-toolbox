@@ -2583,6 +2583,35 @@ class ChartShapes(object):
 
 
 
+class PictureFormat(object):
+    shape_dimensions = [None, None] #ShapeHeight, ShapeWidth #, ShapeTop, ShapeLeft
+    pic_dimensions   = [None, None, None, None] #PictureHeight, PictureWidth, PictureOffsetX, PictureOffsetY
+
+    @classmethod
+    def is_pic_shape(cls, shape):
+        try:
+            return shape.Type == pplib.MsoShapeType["msoPicture"]
+        except:
+            return False
+
+    @classmethod
+    def is_paste_enabled(cls, shape):
+        return cls.is_pic_shape(shape) and cls.shape_dimensions[0] is not None
+
+    @classmethod
+    def copy_dimensions(cls, shape):
+        croparea = shape.PictureFormat.crop
+        cls.shape_dimensions = [croparea.ShapeHeight, croparea.ShapeWidth] #, croparea.ShapeTop, croparea.ShapeLeft
+        cls.pic_dimensions   = [croparea.PictureHeight, croparea.PictureWidth, croparea.PictureOffsetX, croparea.PictureOffsetY]
+
+    @classmethod
+    def paste_dimensions(cls, shape):
+        croparea = shape.PictureFormat.crop
+        croparea.ShapeHeight, croparea.ShapeWidth = cls.shape_dimensions
+        croparea.PictureHeight, croparea.PictureWidth, croparea.PictureOffsetX, croparea.PictureOffsetY = cls.pic_dimensions
+
+
+
 
 
 
@@ -2647,6 +2676,25 @@ arrange_group = bkt.ribbon.Group(
                     supertip="Überträgt die kopierte Größe und Position des Diagramms bzw. der Zeichnungsfläche auf das ausgewählte Diagramm.",
                     on_action=bkt.Callback(ChartShapes.paste_dimensions, shape=True),
                     get_enabled = bkt.Callback(ChartShapes.is_paste_enabled, shape=True),
+                ),
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Button(
+                    id = 'pic_crop_copy',
+                    label="Bild-Zuschnitt kopieren",
+                    image_mso="PictureCrop",
+                    screentip="Größe und Position des Bildausschnitts kopieren",
+                    supertip="Kopiert Höhe und Breite des Ausschnitts bei einem zugeschnittenen Bild, um den Ausschnitt mit einem anderen Bild anzugleichen.",
+                    on_action=bkt.Callback(PictureFormat.copy_dimensions, shape=True),
+                    get_enabled = bkt.Callback(PictureFormat.is_pic_shape, shape=True),
+                ),
+                bkt.ribbon.Button(
+                    id = 'pic_crop_paste',
+                    label="Bild-Zuschnitt einfügen",
+                    image_mso="PasteWithColumnWidths",
+                    screentip="Größe und Position des Bildausschnitts einfügen",
+                    supertip="Überträgt die kopierte Größe und Position des Bilde-Ausschnitts auf das ausgewählte Bild.",
+                    on_action=bkt.Callback(PictureFormat.paste_dimensions, shape=True),
+                    get_enabled = bkt.Callback(PictureFormat.is_paste_enabled, shape=True),
                 ),
                 bkt.ribbon.MenuSeparator(title="Verknüpfte Shapes"),
                 bkt.ribbon.Button(
