@@ -15,6 +15,7 @@ Die BKT läuft unter Windows ab Office 2010 in allen aktuellen Office-Versionen.
 ## Bekannte Probleme
 
  * Da die IronPython-Umgebung erst hochfahren muss, verzögert sich der PowerPoint-Start mit aktiviertem Addin. Wir arbeiten daran, diesen Effekt etwas zu minimieren.
+ * Wenn im Hintergrund eine PowerPoint-Präsentation in der geschützten Ansicht geöffnet ist, reagiert PowerPoint mit Toolbox unvorhersehbar, bspw. werden Selektionen nicht mehr richtig angenommen. Dies scheint ein PPT-Bug zu sein, den wir leider nicht fixen können.
  * Manchmal gibt es bei längerer Nutzung Performance-Probleme (Texteingaben werden verschluckt, Shape-Auswahl funktioniert nicht mehr richtig, ...) wenn man auf einem BKT-Tab ist. Leider hilft aktuell nur der Wechsel auf einen Standard-Tab (bspw. "Start"), oder ein PowerPoint Neustart. Wir untersuchen dieses Problem noch.
 
 ## Installation
