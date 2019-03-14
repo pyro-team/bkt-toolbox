@@ -13,12 +13,13 @@ import logging
 
 # other toolbox modules
 from chartlib import shapelib_button
+from agenda import ToolboxAgenda
 import text
 import harvey
 import stateshapes
-import traffic_light
-from agenda import ToolboxAgenda
 
+#import popups
+import popups.traffic_light as traffic_light
 
 #import System
 from System import Guid, Array

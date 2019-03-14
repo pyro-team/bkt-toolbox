@@ -1,6 +1,7 @@
 # Unreleased
 
 ## ADDED
+  * BKT: Event-Handling, bspw. zum Ausführen von Aktionen bei Start oder Wechsel eines Fensters
   * PPT-Toolbar: Shape-Format austauschen
   * PPT-Toolbar: Breite/Höhe setzen auf Durchschnitt aller gewählten Shapes
   * PPT-Toolbar: Anfasser-Werte aller Shapes angleichen (bspw. gleicher Kurvenradius)
@@ -13,14 +14,16 @@
   * PPT-Toolbar: Auswahlmenü für Hintergrund- und Linien-Transparenz
   * PPT-Toolbar: Widescreen-Version der Toolbar als Feature-Modul aktivierbar
   * PPT-Toolbar: Diverse Erweiterungen für verknüpfte Shapes (Eigenschaften für Suche, Toleranz, Anzahl Folien, etc.)
+  * PPT-Toolbar: [BETA] Werkzeugleiste für schnelles Farbbearbeitung und -auswahl (QuickEdit-Feature)
   * PPT-Toolbar: [BETA] Modul für Definition von bis zu 5 benutzerdefinierten Formaten
   * PPT-Toolbar: [EXPERIMENTELL] Mini-Popup markiert Master-Shape (zuerst bzw. zuletzt markiertes Shape)
   * PPT-Toolbar: [EXPERIMENTELL] Implementierung von Popup-Fenstern für spezielle Shapes
 
 ## CHANGED
-  * BKT: Update auf aktuelle IronPython-Version 2.7.8
+  * BKT: Update auf aktuelle IronPython-Version 2.7.9
   * BKT: Migration vieler Dialoge auf WPF
   * BKT: Diverse Aufräumarbeiten und Restrukturierungen, um die Entwicklung neuer Features zu ermöglichen (bspw. WPF-Dialoge)
+  * BKT: Diverse Performance-Optimierungen, bspw. Callback in C#, Cache für Image-Resources
   * PPT-Toolbar: Kleinere Verbesserung bei Shape-Table Funktionen
   * PPT-Toolbar: Funktion zur Shape-Selektion funktioniert nun innerhalb gruppierter Shapes
   * PPT-Toolbar: Auswahl erstes/letztes Shape als Mastershape (bei Erweitertes Anordnen) wird nun gespeichert
@@ -28,6 +31,8 @@
   * PPT-Toolbar: Position und Größen Spinner (Seite 2) sind nun leer bei unterschiedlichen Werten (analog Standard-Spinner auf Seite 1)
   * PPT-Toolbar: Swap Funktion mit Einstellung der Shape-Ecke zum tauschen
   * PPT-Toolbar: Harvey-Moon Tab nun nicht mehr in Kontext-Tabs da nicht zuverlässig
+  * PPT-Toolbar: UI für Anordnung auf Paragraphen/Tabellen/Shapes verbessert
+  * PPT-Toolbar: Menüstruktur zum Einfügen "spezieller" Shapes aufgeräumt und einige Features umgezogen
 
 ## FIXED
   * PPT-Toolbar: Kleinere Fehler und Performance-Verbesserungen für Shape-Selektion anhand mehrerer Attribute

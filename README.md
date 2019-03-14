@@ -35,3 +35,4 @@ Alternativ kann man das Repository klonen und die Datei `installer\install.bat` 
  * [Fluent.Ribbon](https://github.com/fluentribbon/Fluent.Ribbon)
  * [ControlzEx](https://github.com/ControlzEx/ControlzEx)
  * [MahApps.Metro](https://github.com/MahApps/MahApps.Metro)
+ * [MouseKeyHooks](https://github.com/gmamaladze/globalmousekeyhook)
