@@ -62,18 +62,18 @@ class SettingsMenu(bkt.ribbon.Menu):
     def __init__(self, idtag="", **kwargs):
         postfix = ("-" if idtag else "") + idtag
         
-        if (bkt.config.use_keymouse_hooks or False):
-            keymouse_hook_buttons = [
-                bkt.ribbon.MenuSeparator(),
-                bkt.ribbon.ToggleButton(
-                    id='key-mouse-hook-toggle' + postfix,
-                    label='Key-/Mouse-Hooks',
-                    get_pressed='GetMouseKeyHookActivated',
-                    on_action='ToggleMouseKeyHookActivation'
-                )
-            ]
-        else:
-            keymouse_hook_buttons = []
+        # if (bkt.config.use_keymouse_hooks or False):
+        keymouse_hook_buttons = [
+            bkt.ribbon.MenuSeparator(),
+            bkt.ribbon.ToggleButton(
+                id='key-mouse-hook-toggle' + postfix,
+                label='Key-/Mouse-Hooks',
+                get_pressed='GetMouseKeyHookActivated',
+                on_action='ToggleMouseKeyHookActivation'
+            )
+        ]
+        # else:
+            # keymouse_hook_buttons = []
         
         def open_folder():
             bkt_folder=os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", ".."))

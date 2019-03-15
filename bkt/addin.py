@@ -450,11 +450,23 @@ class AddIn(object):
             if hasattr(self.app_ui, 'context_dialogs'):
                 self.app_ui.context_dialogs.mouse_up(sender, e)
 
-    def mouse_move(self, sender, e):
+    # def mouse_move(self, sender, e):
+    #     ''' object sender, MouseEventExtArgs e) '''
+    #     if self.app_ui:
+    #         if hasattr(self.app_ui, 'context_dialogs'):
+    #             self.app_ui.context_dialogs.mouse_move(sender, e)
+
+    def mouse_drag_start(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
         if self.app_ui:
             if hasattr(self.app_ui, 'context_dialogs'):
-                self.app_ui.context_dialogs.mouse_move(sender, e)
+                self.app_ui.context_dialogs.mouse_drag_start(sender, e)
+
+    def mouse_drag_end(self, sender, e):
+        ''' object sender, MouseEventExtArgs e) '''
+        if self.app_ui:
+            if hasattr(self.app_ui, 'context_dialogs'):
+                self.app_ui.context_dialogs.mouse_drag_end(sender, e)
         
     def key_down(self, sender, e):
         ''' object sender, KeyEventArgs e) '''

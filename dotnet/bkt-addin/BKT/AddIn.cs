@@ -122,21 +122,20 @@ namespace BKT
             DebugMessage("Addin started");
             Console.WriteLine("Addin startet");
             
-            // FIXME: Mouse-key-hooks is a performance nightmare while loading PPT
             // initialize Mouse/Key-Hooks
-            // try
-            // {
-            //     bool use_keymouse_hooks = Boolean.Parse(GetConfigEntry("use_keymouse_hooks", "false"));
-            //     DebugMessage("Subscribe to Key/Mouse Events: " + use_keymouse_hooks.ToString());
-            //     if (use_keymouse_hooks)
-            //     {
-            //         HookEvents();
-            //     }
-            // }
-            // catch (Exception e)
-            // {
-            //     DebugMessage("Error subscribing to Mouse Events");
-            // }
+            try
+            {
+                bool use_keymouse_hooks = Boolean.Parse(GetConfigEntry("use_keymouse_hooks", "true"));
+                DebugMessage("Subscribe to Key/Mouse Events: " + use_keymouse_hooks.ToString());
+                if (use_keymouse_hooks)
+                {
+                    HookEvents();
+                }
+            }
+            catch (Exception)
+            {
+                DebugMessage("Error subscribing to Mouse Events");
+            }
             
         }
         
@@ -673,35 +672,50 @@ namespace BKT
         
         private void MouseDownEvent(object sender, MouseEventExtArgs e)
         {
-            //DebugMessage(String.Format("MouseDown: \t{0}; \t System Timestamp: \t{1}", e.Button, e.Timestamp));
+            DebugMessage(String.Format("MouseDown: \t{0}; \t System Timestamp: \t{1}", e.Button, e.Timestamp));
             if (!created) return;
+            ppt_last_selection_changed = DateTime.MinValue; // Reset timestamp for selection_changed event
             python_delegate.mouse_down(sender, e);
         }
         
         private void MouseUpEvent(object sender, MouseEventExtArgs e)
         {
-            //DebugMessage(String.Format("MouseUp: \t{0}; \t System Timestamp: \t{1}", e.Button, e.Timestamp));
+            DebugMessage(String.Format("MouseUp: \t{0}; \t System Timestamp: \t{1}", e.Button, e.Timestamp));
             if (!created) return;
             python_delegate.mouse_up(sender, e);
         }
 
-        private void MouseMoveEvent(object sender, MouseEventArgs e)
+        // private void MouseMoveEvent(object sender, MouseEventExtArgs e)
+        // {
+        //     // DebugMessage(String.Format("MouseMove: \t{0} / {1}; \t System Timestamp: \t{2}", e.X, e.Y, e.Timestamp));
+        //     if (!created) return;
+        //     python_delegate.mouse_move(sender, e);
+        // }
+
+        private void MouseDragStartedEvent(object sender, MouseEventExtArgs e)
         {
-            //DebugMessage("MouseMove: \t{0} / {1}; \t System Timestamp: \t{2}", e.X, e.Y, e.Timestamp);
+            DebugMessage(String.Format("MouseDragStartedEvent: \t{0} / {1}; \t System Timestamp: \t{2}", e.X, e.Y, e.Timestamp));
             if (!created) return;
-            python_delegate.mouse_move(sender, e);
+            python_delegate.mouse_drag_start(sender, e);
         }
-        
+
+        private void MouseDragFinishedEvent(object sender, MouseEventExtArgs e)
+        {
+            DebugMessage(String.Format("MouseDragFinishedEvent: \t{0} / {1}; \t System Timestamp: \t{2}", e.X, e.Y, e.Timestamp));
+            if (!created) return;
+            python_delegate.mouse_drag_end(sender, e);
+        }
+
         private void KeyDownEvent(object sender, KeyEventArgs e)
         {
-            //DebugMessage(String.Format("KeyDown: \t{0}", e.KeyCode));
+            DebugMessage(String.Format("KeyDown: \t{0}", e.KeyCode));
             if (!created) return;
             python_delegate.key_down(sender, e);
         }
                 
         private void KeyUpEvent(object sender, KeyEventArgs e)
         {
-            //DebugMessage(String.Format("KeyUp: \t{0}", e.KeyCode));
+            DebugMessage(String.Format("KeyUp: \t{0}", e.KeyCode));
             if (!created) return;
             python_delegate.key_up(sender, e);
         }
@@ -711,10 +725,15 @@ namespace BKT
             if (keymouse_hooks_activated)
                 return;
 
-            m_GlobalHook = Hook.GlobalEvents();
+            // m_GlobalHook = Hook.GlobalEvents(); //Global events -> leads to performance issues when starting ppt
+            m_GlobalHook = Hook.AppEvents(); //Only application events
             m_GlobalHook.MouseDownExt += MouseDownEvent;
             m_GlobalHook.MouseUpExt += MouseUpEvent;
-            m_GlobalHook.MouseMove += MouseMoveEvent;
+            // m_GlobalHook.MouseMoveExt += MouseMoveEvent;
+
+            m_GlobalHook.MouseDragStartedExt += MouseDragStartedEvent;
+            m_GlobalHook.MouseDragFinishedExt += MouseDragFinishedEvent;
+
             m_GlobalHook.KeyDown += KeyDownEvent;
             m_GlobalHook.KeyUp += KeyUpEvent;
             keymouse_hooks_activated = true;
@@ -726,7 +745,9 @@ namespace BKT
             {
                 m_GlobalHook.MouseDownExt -= MouseDownEvent;
                 m_GlobalHook.MouseUpExt -= MouseUpEvent;
-                m_GlobalHook.MouseMove -= MouseMoveEvent;
+                // m_GlobalHook.MouseMoveExt -= MouseMoveEvent;
+                m_GlobalHook.MouseDragStartedExt -= MouseDragStartedEvent;
+                m_GlobalHook.MouseDragFinishedExt -= MouseDragFinishedEvent;
                 m_GlobalHook.KeyDown -= KeyDownEvent;
                 m_GlobalHook.KeyUp -= KeyUpEvent;
 
@@ -862,11 +883,13 @@ namespace BKT
                         shape_id = selection.ShapeRange[1].Id;
                     }
 
-                    // Update timestamp
+                    // Selection is changed for each key press (e.g. while typing), therefore we introduce some thresholds:
+                    // Update timestamp after 2 seconds, when shape id changed, or (see MouseDownEvent) when mouse is clicked
                     if ((DateTime.Now-ppt_last_selection_changed).TotalSeconds > 2 || ppt_last_selection_shape_id != shape_id) {
                         ppt_last_selection_changed  = DateTime.Now;
                         ppt_last_selection_shape_id = shape_id;
                     } else {
+                        // stop method here, no python_delegate (at the bottom)
                         return;
                     }
                 } else {

@@ -144,6 +144,7 @@ class ContextDialogs(object):
         self.active_dialog = None
         
         self.drag_started = False
+        self.key_is_down  = False
         self.showing_dialog_for_shape = False
         
         self.addin = None
@@ -297,36 +298,46 @@ class ContextDialogs(object):
     
     def mouse_down(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
+        logging.debug("ContextDialogs.mouse_down")
         self.drag_started = True
-        if self.showing_dialog_for_shape:
-            if self.active_dialog:
-                if not self.active_dialog.IsMouseOver:
-                    self.close_active_dialog()
+        if self.showing_dialog_for_shape and self.active_dialog:
+            if not self.active_dialog.IsMouseOver:
+                self.close_active_dialog()
 
     def mouse_up(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
+        logging.debug("ContextDialogs.mouse_up")
         self.drag_started = False
 
-    def mouse_move(self, sender, e):
-        ''' object sender, MouseEventExtArgs e) '''
-        if self.showing_dialog_for_shape:
-            if self.drag_started:
-                logging.debug("ContextDialogs.mouse_move/dragging")
-                # self.close_active_dialog() #FIXME: if you drag a rectangle to select multiple shapes, afterwars popup immediatly closes
-    
+    # def mouse_move(self, sender, e):
+    #     ''' object sender, MouseEventExtArgs e) '''
+    #     if self.showing_dialog_for_shape:
+    #         if self.drag_started:
+    #             logging.debug("ContextDialogs.mouse_move/dragging")
+    #             self.close_active_dialog() #FIXME: if you drag a rectangle to select multiple shapes, afterwars popup immediatly closes
+
+    def mouse_drag_start(self, sender, e):
+        logging.debug("ContextDialogs.mouse_drag_start")
+        if self.showing_dialog_for_shape and self.active_dialog:
+            self.close_active_dialog()
+
+    def mouse_drag_end(self, sender, e):
+        logging.debug("ContextDialogs.mouse_drag_end")
+        #FIXME: re-show dialog after drag finished
+
     def key_down(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
-        if self.showing_dialog_for_shape:
-            if self.active_dialog:
-                logging.debug("ContextDialogs.key_down")
-                self.close_active_dialog()
+        logging.debug("ContextDialogs.key_down")
+        if self.showing_dialog_for_shape and not self.key_is_down and self.active_dialog:
+            self.close_active_dialog()
+        self.key_is_down = True
         
     def key_up(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
-        if self.showing_dialog_for_shape:
-            if self.active_dialog:
-                logging.debug("ContextDialogs.key_up")
-                self.close_active_dialog()
+        logging.debug("ContextDialogs.key_up")
+        self.key_is_down = False
+        # if self.showing_dialog_for_shape and self.active_dialog:
+        #     self.close_active_dialog()
 
 
 
@@ -337,25 +348,12 @@ class DialogHelpers(object):
     def hook_events(cls, ctx_dialogs):
         if not cls.hooked:
             cls.hooked = True
-            # keyboard.on_press(ctx_dialogs.key_down)
-            # mouse.on_button(ctx_dialogs.mouse_down)
-        #     mousekeyhook.hooker.add_keyboard_handler(ctx_dialogs.key_down)
-        #     mousekeyhook.hooker.add_mouse_handler(ctx_dialogs.mouse_down)
-        #     # mousekeyhook.hooker.hook_events()
-        #     thread = threading.Thread(target=mousekeyhook.hooker.hook_events)
-        #     thread.start()
-        # pass
         # ctx_dialogs.addin.HookEvents()
-        # mousekeyhook.hooker.hook_events(ctx_dialogs.key_down, ctx_dialogs.mouse_down)
 
     @classmethod
     def unhook_events(cls, ctx_dialogs):
-        # keyboard.unhook_all()
-        # mouse.unhook_all()
         cls.hooked = False
-        # pass
         # ctx_dialogs.addin.UnhookEvents()
-        # mousekeyhook.hooker.unhook_events()
 
     
     @classmethod
