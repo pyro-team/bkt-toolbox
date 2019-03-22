@@ -469,6 +469,7 @@ class InteractiveConsole(F.Form):
          
 class ConsoleTextMessage(F.Form):
     def __init__(self):
+        self.Text = "BKT Message"
         self.Font = D.SystemFonts.MessageBoxFont
         self.console = create_console_textbox()
         self.create_textbox()

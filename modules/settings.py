@@ -18,7 +18,8 @@ class FolderSetup(object):
         
         dialog = F.FolderBrowserDialog()
         dialog.SelectedPath = os.path.dirname(os.path.realpath(__file__))
-        dialog.Description = "Please choose an additional folder with BKT-features"
+        # dialog.Description = "Please choose an additional folder with BKT-features"
+        dialog.Description = "Bitte einen BKT Feature-Ordner hinzufügen"
         
         if (dialog.ShowDialog(None) == F.DialogResult.OK):
             cls.add_folder(context, dialog.SelectedPath)
@@ -56,6 +57,26 @@ class BKTReload(object):
             pass
 
 
+class BKTInfos(object):
+    @staticmethod
+    def open_website():
+        import webbrowser
+        webbrowser.open('https://www.bkt-toolbox.de')
+    
+    @staticmethod
+    def show_debug_message(context):
+        import sys
+
+        winver = sys.getwindowsversion()
+        debug_info = '''--- DEBUG INFORMATION ---
+
+BKT-Framework Version:  {}
+Operating System:       {}.{}.{}
+Office Version:         {}.{}
+IPY-Version:            {}
+'''.format(bkt.full_version, winver.major, winver.minor, winver.build, context.app.Version, context.app.Build, sys.version)
+        bkt.console.show_message(bkt.ui.endings_to_windows(debug_info))
+
 
 
 class SettingsMenu(bkt.ribbon.Menu):
@@ -89,8 +110,21 @@ class SettingsMenu(bkt.ribbon.Menu):
             id='bkt-settings' + postfix,
             image='settings', 
             children=[
+                bkt.ribbon.Button(
+                    id='settings-website' + postfix,
+                    label="Website: bkt-toolbox.de",
+                    image_mso="HyperlinkInsert",
+                    on_action=bkt.Callback(BKTInfos.open_website)
+                ),
+                bkt.ribbon.Button(
+                    id='settings-version' + postfix,
+                    label=bkt.full_version,
+                    image_mso="Info",
+                    on_action=bkt.Callback(BKTInfos.show_debug_message, context=True)
+                ),
+                bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.DynamicMenu(
-                    label='Feature folders',
+                    label='Feature-Ordner',
                     image_mso='ModuleInsert',
                     get_content = bkt.Callback(lambda: self.get_folder_menu(postfix))
                 ),
@@ -149,7 +183,7 @@ class SettingsMenu(bkt.ribbon.Menu):
             children=[
                 bkt.ribbon.Button(
                     id='setting_add_folder' + postfix,
-                    label='Add folder',
+                    label='Feature-Ordner hinzufügen',
                     #image_mso='Folder',
                     image_mso='ModuleInsert',
                     on_action=bkt.Callback(FolderSetup.add_folder_by_dialog)
@@ -176,20 +210,6 @@ def get_task_pane_button_list(id='setting-toggle-bkttaskpane'):
             on_action='OnAction_TaskPaneToggler')]
     else:
         return []
-
-
-def show_debug_message(context):
-    import sys
-
-    winver = sys.getwindowsversion()
-    debug_info = '''--- DEBUG INFORMATION ---
-
-BKT-Framework Version:  {}
-Operating System:       {}.{}.{}
-Office Version:         {}.{}
-IPY-Version:            {}
-'''.format(bkt.full_version, winver.major, winver.minor, winver.build, context.app.Version, context.app.Build, sys.version)
-    bkt.console.show_message(bkt.ui.endings_to_windows(debug_info))
 
 
 settings_menu = SettingsMenu("duplicate", label="Settings", show_label=False)

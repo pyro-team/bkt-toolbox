@@ -11,6 +11,8 @@ wpf = dotnet.import_wpf()
 # for Primitives.Popup
 from System.Windows import Controls
 
+import importlib
+
 
 BKT_CONTEXTDIALOG_TAGKEY = 'BKT_CONTEXTDIALOG'
 
@@ -122,7 +124,8 @@ class ContextDialog(object):
             logging.debug('ContextDialog.import_module importing %s' % self.module_name)
             #do an import equivalent to:  import <<module_name>>
             #FIXME: use importlib.import_module
-            self.module = __import__(self.module_name, globals(), locals(), [], -1)
+            self.module = importlib.import_module(self.module_name)
+            # self.module = __import__(self.module_name, globals(), locals(), [], -1)
         
         
 
