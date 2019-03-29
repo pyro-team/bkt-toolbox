@@ -1117,10 +1117,10 @@ class ArrangeAdvanced(object):
         ref_frame = None
         
         #save preference for master shape (first or last selected) into class variables
-        ArrangeAdvanced.fallback_first_last = bkt.config.arrange_advanced_default or "LAST"
+        ArrangeAdvanced.fallback_first_last = bkt.settings.get("arrange_advanced.default", "LAST")
         ArrangeAdvanced.master = ArrangeAdvanced.fallback_first_last
         #save preference to show master shape indicator into class variables
-        ArrangeAdvanced.master_indicator = bkt.config.arrange_advanced_master_indicator is not False
+        ArrangeAdvanced.master_indicator = bkt.settings.get("arrange_advanced.master_indicator", True)
         if ArrangeAdvanced.master_indicator:
             self._register_dialog()
 
@@ -1445,7 +1445,7 @@ class ArrangeAdvanced(object):
         ''' callback: set master-setting to use first shape in selection '''
         ArrangeAdvanced.fallback_first_last="FIRST"
         ArrangeAdvanced.master="FIRST"
-        bkt.config.set_smart("arrange_advanced_default", "FIRST")
+        bkt.settings["arrange_advanced.default"] = "FIRST"
 
     def get_master_first(self):
         ''' returns whether master-setting is set to first shape in selection '''
@@ -1456,7 +1456,7 @@ class ArrangeAdvanced(object):
         ''' callback: set master-setting to use last shape in selection '''
         ArrangeAdvanced.fallback_first_last="LAST"
         ArrangeAdvanced.master="LAST"
-        bkt.config.set_smart("arrange_advanced_default", "LAST")
+        bkt.settings["arrange_advanced.default"] = "LAST"
 
     def get_master_last(self):
         ''' returns whether master-setting is set to last shape in selection '''
@@ -1467,7 +1467,7 @@ class ArrangeAdvanced(object):
         ''' callback: set master-setting to use outermost shape in selection (as powerpoint default aligning) '''
         ArrangeAdvanced.fallback_first_last="PPTDEFAULT"
         ArrangeAdvanced.master="PPTDEFAULT"
-        bkt.config.set_smart("arrange_advanced_default", "PPTDEFAULT")
+        bkt.settings["arrange_advanced.default"] = "PPTDEFAULT"
 
     def get_master_pptdefault(self):
         ''' returns whether master-setting is set to outermost shape in selection (as powerpoint default aligning) '''
@@ -1478,11 +1478,11 @@ class ArrangeAdvanced(object):
         ''' callback: set whether master shape indicator is shown '''
         if not pressed:
             ArrangeAdvanced.master_indicator = False
-            bkt.config.set_smart("arrange_advanced_master_indicator", False)
+            bkt.settings["arrange_advanced.master_indicator"] = False
             self._unregister_dialog()
         else:
             ArrangeAdvanced.master_indicator = True
-            bkt.config.set_smart("arrange_advanced_master_indicator", True)
+            bkt.settings["arrange_advanced.master_indicator"] = True
             self._register_dialog()
 
     def get_master_indicator(self):
@@ -1548,7 +1548,7 @@ class ArrangeAdvanced(object):
         ''' callback for master-wizzard: sets master to selected shape, content-area or master in selection - 
             depending on given shape-selection and current master-setting
         '''
-        if pressed == False:
+        if not pressed:
             ArrangeAdvanced.master = self.fallback_first_last
             
         else:

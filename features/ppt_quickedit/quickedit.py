@@ -30,7 +30,7 @@ class QuickEditPanelManager(object):
     @classmethod
     def autoshow_panel_for_active_window(cls, context, presentation):
         logging.debug("auto show panel for active window")
-        autoshow = bkt.config.quickedit_restore_panel or False
+        autoshow = bkt.settings.get("quickedit.restore_panel", False)
         if autoshow and cls._is_windowed_presentation(context, presentation):
             cls.show_panel_for_active_window(context)
 

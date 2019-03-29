@@ -57,8 +57,8 @@ class CustomQuickEdit(object):
         if cls.initialized:
             return
         
-        cls.always_keep_theme_color = bkt.config.customformats_theme_colors != False
-        cls.current_file = bkt.config.customformats_default_file or "styles.json"
+        cls.always_keep_theme_color = bkt.settings.get("customformats.theme_colors", True)
+        cls.current_file = bkt.settings.get("customformats.default_file", "styles.json")
         
         cls.read_from_config(cls.current_file)
         cls.initialized = True
@@ -87,11 +87,11 @@ class CustomQuickEdit(object):
 
     @classmethod
     def set_default_style(cls, filename=None):
-        bkt.config.set_smart("customformats_default_file", filename or cls.current_file)
+        bkt.settings["customformats.default_file"] = filename or cls.current_file
     
     @classmethod
     def is_default_style(cls, filename=None):
-        return bkt.config.customformats_default_file == (filename or cls.current_file)
+        return bkt.settings["customformats.default_file"] == (filename or cls.current_file)
 
     @classmethod
     def create_new_style(cls, filename=None):

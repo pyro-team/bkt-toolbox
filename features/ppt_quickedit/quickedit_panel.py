@@ -195,10 +195,10 @@ class ViewModel(bkt.ui.ViewModelSingleton):
 
     @notify_property
     def auto_start(self):
-        return bkt.config.quickedit_restore_panel or False
+        return bkt.settings.get("quickedit.restore_panel", False)
     @auto_start.setter
     def auto_start(self, value):
-        bkt.config.set_smart("quickedit_restore_panel", value)
+        bkt.settings["quickedit.restore_panel"] = value
     
     # @notify_property
     # def change_orientation(self):
@@ -223,10 +223,11 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
         QuickEdit.update_colors(context)
 
         self._vm = ViewModel( 
-            context.config.get_smart("quickedit_orientation_mode", 0, int),
-            context.config.get_smart("quickedit_window_left", 300, int),
-            context.config.get_smart("quickedit_window_top", 300, int),
-            context.config.get_smart("quickedit_viewstate", 0, int))
+            context.settings.get("quickedit.orientation_mode", 0),
+            context.settings.get("quickedit.window_left", 300),
+            context.settings.get("quickedit.window_top", 300),
+            context.settings.get("quickedit.viewstate", 0)
+        )
 
         super(QuickEditPanel, self).__init__(context)
 
@@ -305,10 +306,10 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
 
     def Window_Closing(self, sender, event):
         # print("window closing")
-        self._context.config.set_smart("quickedit_orientation_mode", self._vm.orientation_mode)
-        self._context.config.set_smart("quickedit_window_left", self._vm.window_left)
-        self._context.config.set_smart("quickedit_window_top", self._vm.window_top)
-        self._context.config.set_smart("quickedit_viewstate", self._vm._viewstate)
+        self._context.settings["quickedit.orientation_mode"] = self._vm.orientation_mode
+        self._context.settings["quickedit.window_left"] = self._vm.window_left
+        self._context.settings["quickedit.window_top"] = self._vm.window_top
+        self._context.settings["quickedit.viewstate"] = self._vm._viewstate
     
     # def show_dialog(self, modal=True):
     #     #TODO: Save and restore position and size of window
