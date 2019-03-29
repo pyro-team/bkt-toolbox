@@ -12,13 +12,17 @@ import bkt
 # import bkt.helpers as _h
 
 _h = bkt.helpers
-linq = bkt.dotnet.import_linq()
+# linq = bkt.dotnet.import_linq() #this import doesn't seem to be required...
 Bitmap = bkt.dotnet.import_drawing().Bitmap
 
 import time
 import logging
 import os.path
-import imp
+
+import imp #for importing feature folder
+import importlib #for importing traditional modules
+
+import shelve #for import cache
 
 #from helpers import config
 
@@ -533,50 +537,148 @@ class AddIn(object):
             if not module in sys.modules:
                 logging.info('importing module: %s' % module)
                 try:
-                    __import__(module)
+                    importlib.import_module(module)
+                    # __import__(module)
                 except:
                     logging.error('failed to load %s' % module)
                     _h.message('failed to load %s' % module)
                     _h.message(traceback.format_exc())
                     #_h.exception_as_message('failed to load %s' % module)
         
-        # load modules from feature-folders
-        for folder in bkt.config.feature_folders:
-            logging.info('importing feature-folder: %s' % folder)
-            
-            base_folder = os.path.realpath(os.path.join(folder, ".."))
-            module_name = os.path.basename(folder)
-            init_filename = os.path.join(folder, "__bkt_init__.py")
-            
-            if os.path.isfile(init_filename):
+
+        CACHE_VERSION = "20190328"
+        cache_file = os.path.join( _h.get_cache_folder(), "import.cache" )
+        import_cache = shelve.open(cache_file)
+
+        # to_be_loaded = {
+        #     'sys.path': set(), #set of paths to be added to sys.path (using set for deduplication)
+        #     'bkt_inits':[], #list of tuples with module name and folder
+        #     'legacy_inits':[], #list of tuples with module name and folder
+        #     'features':dict(), #dict of module name => infos copied from bkt_init file
+        # }
+
+        try:
+            # raise KeyError("STOP CACHE")
+            if import_cache['cache.version'] != CACHE_VERSION:
+                logging.warning('invalid cache, fallback to normal import process')
+                raise KeyError("Invalid cache version")
+
+            logging.info('start import from cache')
+            sys.path.extend(import_cache['sys.path'])
+            bkt.apps.Resources.root_folders.extend(import_cache['resources_folders'])
+
+            for bkt_init in import_cache['bkt_inits']:
+                logging.info('importing bkt feature-folder: %s' % bkt_init[1])
                 try:
-                    sys.path.append(base_folder)
+                    if import_cache.has_key('feature.'+bkt_init[0]) and self.context.app_name not in import_cache['feature.'+bkt_init[0]]["relevant_apps"]:
+                        logging.info('importing of current feature-folder stopped, not relevant for current app: %s'%self.context.app_name)
+                        continue
+                    
                     # import module as package, acts like 'import module_name'
                     #f, path, description = imp.find_module(module_name, base_folder)
-                    imp.load_module(module_name, None, folder, ('', '', imp.PKG_DIRECTORY))
+                    imp.load_module(bkt_init[0], None, bkt_init[1], ('', '', imp.PKG_DIRECTORY))
                     # run bkt_init
-                    imp.load_source(module_name + '.__bkt_init__' , init_filename)
+                    module = imp.load_source(bkt_init[0] + '.__bkt_init__' , os.path.join(bkt_init[1], "__bkt_init__.py"))
+
+                    if hasattr(module, "bkt_feature"):
+                        logging.debug("loading bkt feature %s using constructor method" % module.bkt_feature["name"])
+                        module.bkt_feature["contructor"]()
                     
                 except:
-                    logging.error('failed to load feature-folder %s' % folder)
+                    logging.error('failed to load feature-folder %s' % bkt_init[1])
                     logging.error(traceback.format_exc())
-                    _h.message('failed to load feature-folder %s' % folder)
+                    _h.message('failed to load feature-folder %s' % bkt_init[1])
                     _h.message(traceback.format_exc())
+                    #TODO: remove cache on error?
 
-            # backwards compatibility: load module from init.py
-            elif os.path.isfile(os.path.join(folder, "__init__.py")):
+            for legacy_init in import_cache['legacy_inits']:
+                logging.info('importing legacy feature-folder: %s' % legacy_init[1])
                 try:
-                    sys.path.append(folder)
-                    foo = imp.load_source(os.path.basename(folder), os.path.join(folder, "__init__.py"))
+                    foo = imp.load_source(legacy_init[0], os.path.join(legacy_init[1], "__init__.py"))
                 except:
-                    logging.error('failed to load feature-folder %s' % folder)
+                    logging.error('failed to load feature-folder %s' % legacy_init[1])
                     logging.error(traceback.format_exc())
-                    _h.message('failed to load feature-folder %s' % folder)
+                    _h.message('failed to load feature-folder %s' % legacy_init[1])
                     _h.message(traceback.format_exc())
-        
-        # initialize resource-folders from feature-folders
-        for folder in bkt.config.feature_folders:
-            bkt.apps.Resources.root_folders.append(os.path.join(folder,'resources'))
+                    #TODO: remove cache on error?
+        except KeyError:
+            logging.info('start import and build new cache')
+            import_cache.clear()
+            #do not write directly to cache as cache cannot know which values within a list change
+            _c_sys_paths = set()
+            _c_resources_folders = set()
+            _c_bkt_inits = []
+            _c_legacy_inits = []
+
+            # load modules from feature-folders and fill cache on-the-fly
+            for folder in bkt.config.feature_folders:
+                logging.info('importing feature-folder: %s' % folder)
+                
+                base_folder = os.path.realpath(os.path.join(folder, ".."))
+                module_name = os.path.basename(folder)
+                init_filename = os.path.join(folder, "__bkt_init__.py")
+                
+                # initialize resource-folders from feature-folders
+                res_path = os.path.join(folder,'resources')
+                if os.path.exists(res_path):
+                    bkt.apps.Resources.root_folders.append(res_path)
+                    _c_resources_folders.add(res_path)
+
+                # load using bkt_init.py file
+                if os.path.isfile(init_filename):
+                    try:
+                        sys.path.append(base_folder)
+                        _c_sys_paths.add(base_folder)
+                        # import module as package, acts like 'import module_name'
+                        #f, path, description = imp.find_module(module_name, base_folder)
+                        imp.load_module(module_name, None, folder, ('', '', imp.PKG_DIRECTORY))
+                        # run bkt_init
+                        module = imp.load_source(module_name + '.__bkt_init__' , init_filename)
+                        logging.debug('module: %s' % module)
+                        if hasattr(module, "bkt_feature"):
+                            _c_bkt_inits.append((module_name, folder))
+                            import_cache['feature.'+module_name] = module.bkt_feature
+
+                            #only load if relevant for active app
+                            if self.context.app_name in module.bkt_feature["relevant_apps"]:
+                                logging.debug("loading bkt feature %s using constructor method" % module.bkt_feature["name"])
+                                module.bkt_feature["contructor"]()
+                        else:
+                            _c_bkt_inits.append((module_name, folder))
+                            # import_cache['features'+module_name] = module.bkt_feature
+                        
+                    except:
+                        logging.error('failed to load feature-folder %s' % folder)
+                        logging.error(traceback.format_exc())
+                        _h.message('failed to load feature-folder %s' % folder)
+                        _h.message(traceback.format_exc())
+                        #TODO: Offer user to remove feature folder from config on error
+
+                # backwards compatibility: load module from init.py
+                elif os.path.isfile(os.path.join(folder, "__init__.py")):
+                    try:
+                        sys.path.append(folder)
+                        _c_sys_paths.add(folder)
+                        
+                        foo = imp.load_source(module_name, os.path.join(folder, "__init__.py"))
+                        _c_legacy_inits.append((module_name, folder))
+                    except:
+                        logging.error('failed to load feature-folder %s' % folder)
+                        logging.error(traceback.format_exc())
+                        _h.message('failed to load feature-folder %s' % folder)
+                        _h.message(traceback.format_exc())
+                        #TODO: Offer user to remove feature folder from config on error
+            
+            #save to cache
+            import_cache['cache.version'] = CACHE_VERSION
+            import_cache['sys.path'] = _c_sys_paths
+            import_cache['resources_folders'] = _c_resources_folders
+            import_cache['bkt_inits'] = _c_bkt_inits
+            import_cache['legacy_inits'] = _c_legacy_inits
+        finally:
+            import_cache.close()
+
+
         
         #### initialize AppUI, AppCallbacks
         try:

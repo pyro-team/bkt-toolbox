@@ -1,3 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import toolbox_powerpoint
+def initiate():
+    import toolbox_powerpoint
+
+bkt_feature = {
+    "name": "PowerPoint Toolbox",
+    "relevant_apps": ["Microsoft PowerPoint"],
+    "contructor": initiate,
+}
