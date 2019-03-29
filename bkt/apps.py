@@ -9,8 +9,9 @@ Created on 11.07.2014
 import traceback
 from collections import OrderedDict
 
-import io #for resources cache
-import cPickle as pickle #for resources cache
+# import io #for resources cache
+# import cPickle as pickle #for resources cache
+import shelve #for resources cache
 
 import os #os.path not sufficient!
 import bkt.helpers as _h
@@ -606,48 +607,31 @@ class Resources(object):
     def __init__(self, category, suffix):
         self.category = category
         self.suffix = suffix
-        self._cache = {}
-        self._cache_file = os.path.normpath( os.path.join( os.path.dirname(__file__), "../resources/cache/", "resources.%s.cache"%category ) )
 
-        if not os.path.exists(os.path.dirname(self._cache_file)):
-            # ensure that cache dir exists
-            os.makedirs(os.path.dirname(self._cache_file))
-        elif os.path.exists(self._cache_file):
-            # load cache
-            with io.open(self._cache_file, 'rb') as res_file:
-                try:
-                    self._cache = pickle.load(res_file)
-                except:
-                    logging.debug("error loading resource cache")
-                    # if resource cache is corrupt, remove it
-                    self.remove_cache()
+        cache_file = os.path.join( _h.get_cache_folder(), "resources.%s.cache"%category )
+
+        # ensure that cache dir exists
+        if not os.path.exists(os.path.dirname(cache_file)):
+            os.makedirs(os.path.dirname(cache_file))
         
-        #self.folder = _h.mjoin(self.root_folder, category)
-    
-    def save_cache(self):
-        with io.open(self._cache_file, 'wb') as res_file:
-            pickle.dump(self._cache, res_file, -1)
-
-    def remove_cache(self):
-        logging.debug("resource cache deleted: " + self._cache_file)
-        if os.path.exists(self._cache_file):
-            os.remove(self._cache_file)
+        self._cache = shelve.open(cache_file)
 
     def locate(self, name):
         try:
             return self._cache[name]
         except KeyError:
+            logging.info("Locate resource: %s"%name)
             for root_folder in self.root_folders:
                 path = os.path.join(root_folder, self.category, name + '.' + self.suffix)
                 if os.path.exists(path):
                     self._cache[name] = path
-                    self.save_cache()
+                    self._cache.sync() #sync after each change as .close() is never called
                     return path
             return None
         except:
-            logging.debug("error reading from resource cache")
-            # if resource cache is corrupt, remove it
-            self.remove_cache()
+            logging.error("Unknown error reading from resource cache")
+            logging.error(traceback.format_exc())
+            return None
     
     @staticmethod
     def bootstrap():

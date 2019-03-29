@@ -36,7 +36,7 @@ from bkt.library.general import (
     apply_delta_on_ALT_key
 )
 
-
+#@deprecated
 from bkt.decorators import (
     # public classes
     #EventHandler,

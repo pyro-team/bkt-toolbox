@@ -330,7 +330,7 @@ class ChartLib(object):
             else:
                 #Copy each shape individually
                 for shape in context.shapes:
-                    title = bkt.ui.show_user_input("Bitte Shape-Titel eingeben:", "Shape-Titel")
+                    title = bkt.ui.show_user_input("Bitte Shape-Titel eingeben:", "Shape-Titel", shape.Name)
                     if title == None:
                         break
                     shape.Copy()

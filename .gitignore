@@ -7,7 +7,7 @@ dotnet/**/Office2010/
 #ignore temporary and local resources
 resources/registry/local/
 resources/xml/Microsoft.*.xml
-resources/cache/*.cache
+resources/cache/
 
 #ignore config and log files
 config.txt

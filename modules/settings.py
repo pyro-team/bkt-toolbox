@@ -6,7 +6,7 @@ Created on 08.12.2016
 '''
 
 import bkt
-import os
+import os.path
 
 
 CONFIG_FOLDERS = "feature_folders"
@@ -97,11 +97,13 @@ class SettingsMenu(bkt.ribbon.Menu):
             # keymouse_hook_buttons = []
         
         def open_folder():
+            from os import startfile
             bkt_folder=os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", ".."))
             if os.path.isdir(bkt_folder):
-                os.startfile(bkt_folder)
+                startfile(bkt_folder)
         
         def open_config():
+            from os import startfile
             config_filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "config.txt")
             if os.path.exists(config_filename):
                 os.startfile(config_filename)

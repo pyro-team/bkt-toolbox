@@ -14,6 +14,7 @@ import bkt.ribbon as mod_ribbon
 import bkt.apps as mod_apps
 
 import bkt.taskpane
+import bkt.ui #bkt.ui is not required here, but if it is not loaded anywhere, its not available in feature folders. This happended to me when I remove dev module from config.
 
 
 class CustomRibbonUI(object):

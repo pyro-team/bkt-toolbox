@@ -11,21 +11,10 @@ from __future__ import print_function
 import os.path
 import logging
 
-# import von clr/MessageBox --> ~0.05 sec
-
-# import dotnet
-# Forms = dotnet.import_forms()
-# MessageBox = Forms.MessageBox
-# MessageBoxButtons = Forms.MessageBoxButtons
-
 import ctypes #required for messagebox
 
-# importlib fuer lazy-load von anderen libs
-# beschleunigt start / verlangsamt erste tatsaechliche Verwendung
-import importlib
+import ConfigParser #required for config.txt file
 
-# import von ui --> ~1 sec
-#import bkt.ui as _ui
 
 log_as_messagebox = False
 log_as_uibox = False
@@ -89,18 +78,22 @@ def confirmation(text, title="BKT", buttons=Forms.MessageBoxButtons.OKCancel):
     else:
         return result
 
+
 def log(s):
     logging.warning(s)
     #print(s)
     if log_as_messagebox:
         message(s)
     elif log_as_uibox:
-        _co = importlib.import_module('bkt.console')
-        _co.show_message(s)
+        import bkt.console
+        bkt.console.show_message(s)
 
 def exception_as_message(additional_message=None):
     import StringIO
     import traceback
+
+    import bkt.console
+    import bkt.ui
 
     fd = StringIO.StringIO()
     if additional_message:
@@ -108,11 +101,9 @@ def exception_as_message(additional_message=None):
     traceback.print_exc(file=fd)
     traceback.print_exc()
 
-    _co = importlib.import_module('bkt.console')
-    _ui = importlib.import_module('bkt.ui')
-    _co.show_message(_ui.endings_to_windows(fd.getvalue()))
+    bkt.console.show_message(bkt.ui.endings_to_windows(fd.getvalue()))
 
-
+#@deprecated #os.path.join can handle multiple arguments
 def mjoin(*paths):
     ''' Joins multiple path components. Use it to avoid multiple calls of os.path.join() '''
     current = paths[0]
@@ -120,8 +111,6 @@ def mjoin(*paths):
         current = os.path.join(current,path)
     return current
 
-
-import ConfigParser
 
 
 class BKTConfigParser(ConfigParser.ConfigParser):
@@ -180,7 +169,7 @@ class BKTConfigParser(ConfigParser.ConfigParser):
             config.write(configfile)
 
 
-
+# load config
 config = BKTConfigParser()
 config_filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "config.txt")
 if os.path.exists(config_filename):
@@ -196,3 +185,10 @@ def get_fav_folder():
         return folder
     else:
         return os.path.join(os.path.expanduser("~"), "Documents", "BKT-Favoriten")
+
+def get_cache_folder():
+    folder = config.local_cache_path or False
+    if folder:
+        return folder
+    else:
+        return os.path.normpath( os.path.join( os.path.dirname(__file__), "../resources/cache/") )
