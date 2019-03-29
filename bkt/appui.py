@@ -75,7 +75,7 @@ class CustomRibbonUI(object):
     
     def add_context_menu(self, menu):
         ''' add context menu to ribbon-ui '''
-        if menu['id_mso'] == None:
+        if menu['id_mso'] is None:
             raise ValueError('context menus need idMso')
         
         if menu['id_mso'] in self.context_menus:
@@ -87,7 +87,7 @@ class CustomRibbonUI(object):
     
     def add_repurposed_command(self, command):
         ''' add repurposed command to ribbon-ui '''
-        if command['id_mso'] == None:
+        if command['id_mso'] is None:
             raise ValueError('commands need idMso')
         if command['id_mso'] in self.commands:
             # FIXME: chain the commands

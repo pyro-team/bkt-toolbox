@@ -5,15 +5,12 @@ Created on 11.07.2014
 @authors: cschmitt, rdebeerst
 '''
 
-# import contextlib
 import traceback
 from collections import OrderedDict
 
-# import io #for resources cache
-# import cPickle as pickle #for resources cache
 import shelve #for resources cache
+import os.path #for resources cache
 
-import os #os.path not sufficient!
 import bkt.helpers as _h
 from bkt.context import InappropriateContextError
 from bkt.callbacks import Callback, CallbackTypes
@@ -609,10 +606,6 @@ class Resources(object):
         self.suffix = suffix
 
         cache_file = os.path.join( _h.get_cache_folder(), "resources.%s.cache"%category )
-
-        # ensure that cache dir exists
-        if not os.path.exists(os.path.dirname(cache_file)):
-            os.makedirs(os.path.dirname(cache_file))
         
         self._cache = shelve.open(cache_file)
 

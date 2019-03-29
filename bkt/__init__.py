@@ -29,7 +29,8 @@ from bkt.ribbon import mso
 # via bkt.xxx after 'import bkt'
 
 from bkt.helpers import (
-    config
+    config,
+    settings
 )
 
 from bkt.library.general import (

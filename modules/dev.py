@@ -22,6 +22,16 @@ class DevGroup(object):
             yield ''
         
         bkt.console.show_message('\r\n'.join(_iter_lines()))
+    
+    @staticmethod
+    def show_settings(context):
+        import bkt.console
+        def _iter_lines():
+            for k in sorted(context.settings):
+                yield k + ' = ' + repr(context.settings.get(k, "ERROR"))
+            yield ''
+        
+        bkt.console.show_message('\r\n'.join(_iter_lines()))
 
     @staticmethod
     def show_ribbon_xml(python_addin, ribbon_id):
@@ -55,6 +65,12 @@ dev_group = bkt.ribbon.Group(
             size="large",
             image_mso="Info",
             on_action=bkt.Callback(DevGroup.show_config, context=True, transaction=False),
+        ),
+        bkt.ribbon.Button(
+            label="Show Settings",
+            size="large",
+            image_mso="Info",
+            on_action=bkt.Callback(DevGroup.show_settings, context=True, transaction=False),
         ),
         bkt.ribbon.Button(
             label="Show Ribbon XML",

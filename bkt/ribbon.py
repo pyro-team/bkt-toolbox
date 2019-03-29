@@ -113,7 +113,7 @@ class RibbonControl(AbstractAnnotationObject):
             self.user_defined_id = False
             pre_id = self.check_predefined_ids()
             if not self.no_id:
-                if pre_id == None:
+                if pre_id is None:
                     self._attributes[self._id_attribute_key] = self.create_persisting_id()
                 elif isinstance(self, Tab):
                     logging.debug("Predefined ID found: %s (%s)" % (pre_id, self._attributes[pre_id]))
@@ -134,7 +134,7 @@ class RibbonControl(AbstractAnnotationObject):
         for key, value in kwargs.iteritems():
             if isinstance(value, Callback):
                 # add callback
-                if value.callback_type is None or value.callback_type.python_name == None:
+                if value.callback_type is None or value.callback_type.python_name is None:
                     # use fallback callback-type
                    value.callback_type = getattr(CallbackTypes, key)
                 self.add_callback(value)
@@ -715,11 +715,11 @@ class RoundingSpinnerBox(SpinnerBox):
         '''
         ambiguous = False
         
-        if value == None:
+        if value is None:
             return None
         elif type(value) == list:
             # list means ambiguous values
-            if len(value) == 0 or value[0] == None:
+            if len(value) == 0 or value[0] is None:
                 return None
             elif value.count(value[0]) == len(value):
                 # all values are the same, use first value
@@ -836,11 +836,11 @@ class ColorGallery(Gallery):
         
         if theme_brightness_rgb[0] == 0:
             # check rgb-value only
-            gallery_colors_list = [ None if x == None or x[0] != 0 else x[2]  for x in self.gallery_colors]
+            gallery_colors_list = [ None if x is None or x[0] != 0 else x[2]  for x in self.gallery_colors]
             check = theme_brightness_rgb[2]
 
         else:
-            gallery_colors_list = [ None if x == None else [x[0], int(x[1]*100)]  for x in self.gallery_colors]
+            gallery_colors_list = [ None if x is None else [x[0], int(x[1]*100)]  for x in self.gallery_colors]
             check = [theme_brightness_rgb[0], int(theme_brightness_rgb[1]*100)]
 
         if check in gallery_colors_list:
@@ -876,7 +876,7 @@ class ColorGallery(Gallery):
         # save values for item_action
         self.gallery_colors[index] = [themecolor, brightness, rgb]
 
-        if rgb == None:
+        if rgb is None:
             return None
         else:
             return self.get_color_image(rgb)
@@ -1174,9 +1174,9 @@ mso = MSOFactoryAccess()
 
 
 def convert_value_to_string(v):
-    if v == True:
+    if v is True:
         return 'true'
-    elif v == False:
+    elif v is False:
         return 'false'
     elif isinstance(v, (str, unicode)):
         return v

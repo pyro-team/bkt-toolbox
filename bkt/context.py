@@ -26,7 +26,7 @@ class AppContext(object):
         return AppContext(*args, **kwargs)
     
     
-    def __init__(self, dotnet_context, python_addin=None, config=None, app_callbacks=None, app_ui=None):
+    def __init__(self, dotnet_context, python_addin=None, config=None, app_callbacks=None, app_ui=None, settings=None):
         ''' Initialize AppContext '''
         # attributes with direct access
         self.dotnet_context = dotnet_context
@@ -35,6 +35,7 @@ class AppContext(object):
         self.app_ui = app_ui
         # no direct access to config, fallback to global config-instance
         self._config = config
+        self._settings = settings
         # uninitialized values
         self.current_control = None
         # caching of arguments
@@ -60,6 +61,13 @@ class AppContext(object):
         else:
             return bkt.helpers.config
     
+    @property
+    def settings(self):
+        ''' return local settings (from initialization) or global settings instance '''
+        if self._settings:
+            return self._settings
+        else:
+            return bkt.helpers.settings
     
     # ===========================================
     # = convenience properties for .Net-Context =

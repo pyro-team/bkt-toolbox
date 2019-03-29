@@ -14,6 +14,7 @@ import logging
 import ctypes #required for messagebox
 
 import ConfigParser #required for config.txt file
+import shelve #required for global settings database
 
 
 log_as_messagebox = False
@@ -178,17 +179,39 @@ else:
     config.add_section('BKT')
 
 
+def ensure_folders_exist(folder_path):
+    if not os.path.isdir(folder_path):
+        from os import makedirs
+        makedirs(folder_path)
+    return folder_path
+
 
 def get_fav_folder():
     folder = config.local_fav_path or False
     if folder:
         return folder
     else:
-        return os.path.join(os.path.expanduser("~"), "Documents", "BKT-Favoriten")
+        return ensure_folders_exist(os.path.join(os.path.expanduser("~"), "Documents", "BKT-Favoriten"))
 
 def get_cache_folder():
     folder = config.local_cache_path or False
     if folder:
         return folder
     else:
-        return os.path.normpath( os.path.join( os.path.dirname(__file__), "../resources/cache/") )
+        return ensure_folders_exist(os.path.normpath( os.path.join( os.path.dirname(__file__), "../resources/cache") ))
+
+def get_settings_folder():
+    folder = config.local_settings_path or False
+    if folder:
+        return folder
+    else:
+        return ensure_folders_exist(os.path.normpath( os.path.join( os.path.dirname(__file__), "../resources/settings") ))
+
+
+#load global setting database
+try:
+    #FIXME: shelve does not support concurrent access, so this might be a problem if there a multiple bkt instances. Fix: either use thread+queue or open seperate files per app.
+    settings = shelve.open(os.path.join( get_settings_folder(), "bkt.settings" ))
+except:
+    exception_as_message()
+    settings = dict() #fallback to empty dict

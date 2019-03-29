@@ -40,7 +40,7 @@ class TextframeSpinnerBox(RoundingSpinnerBox):
     
     def get_text(self, shapes, selection):
         value = self.get_attr_from_shapes(shapes, selection)
-        if value == None: #e.g. no textframe detected
+        if value is None: #e.g. no textframe detected
             return None
         elif int(value) == -2147483648: #replace large negative number (values differ between selected items) with fallback value
             return self.fallback_value
@@ -117,7 +117,7 @@ class ParagraphFormatSpinnerBox(RoundingSpinnerBox):
     
     def get_text(self, shapes, selection):
         value = self.get_attr_from_shapes(shapes, selection)
-        if value == None: #e.g. no textframe detected
+        if value is None: #e.g. no textframe detected
             return None
         elif int(value) == -2147483648: #replace large negative number (values differ between selected items) with fallback value
             return self.fallback_value

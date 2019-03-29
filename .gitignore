@@ -8,6 +8,9 @@ dotnet/**/Office2010/
 resources/registry/local/
 resources/xml/Microsoft.*.xml
 resources/cache/
+resources/**/*.bak
+resources/**/*.dat
+resources/**/*.dir
 
 #ignore config and log files
 config.txt

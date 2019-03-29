@@ -515,6 +515,7 @@ class AddIn(object):
             
     def on_destroy(self):
         self.app_callbacks.fire_event(self.events.bkt_unload)
+        bkt.settings.close() #save settings to database
         self.reset()
     
     def on_create(self, dotnet_context):
@@ -736,7 +737,7 @@ class AddIn(object):
         try:
             logging.info('Retrieve CustomUI for ribbon: %s' % ribbon_id)
             
-            if self.app_ui == None:
+            if self.app_ui is None:
                 return None
             
             ### initialize UI-callbacks
@@ -768,7 +769,7 @@ class AddIn(object):
         try:
             logging.debug('Retrieve UI for taskpane')
             
-            if self.app_ui == None:
+            if self.app_ui is None:
                 return None
             else:
                 logging.debug(self.app_ui.get_taskpane_ui())
