@@ -607,8 +607,12 @@ class Resources(object):
 
         cache_file = os.path.join( _h.get_cache_folder(), "resources.%s.cache"%category )
         
-        self._cache = shelve.open(cache_file)
-
+        try:
+            self._cache = shelve.open(cache_file)
+        except:
+            logging.error("Loading resource cache failed")
+            logging.debug(traceback.format_exc())
+            
     def locate(self, name):
         try:
             return self._cache[name]
@@ -623,7 +627,7 @@ class Resources(object):
             return None
         except:
             logging.error("Unknown error reading from resource cache")
-            logging.error(traceback.format_exc())
+            logging.debug(traceback.format_exc())
             return None
     
     @staticmethod
