@@ -449,14 +449,24 @@ class ShapeDistance(object):
             except:
                 raise bkt.context.InappropriateContextError
         return pplib.wrap_shapes(shapes, cls._get_locpin())
-
+    
+    @classmethod
+    def get_vertical_fix(cls):
+        if bkt.library.system.get_key_state(bkt.library.system.key_code.ALT):
+            if cls.vertical_fix == "bottom":
+                return "top"
+            else:
+                return "bottom"
+        else:
+            return cls.vertical_fix
+        
     @classmethod
     def set_shape_sep_vertical(cls, shapes, value):
         try:
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.top, shape.left), reverse=cls.vertical_fix=="bottom")
+        shapes.sort(key=lambda shape: (shape.top, shape.left), reverse=cls.get_vertical_fix()=="bottom")
 
         top = shapes[0].top if cls.vertical_edges != "visual" else shapes[0].visual_y
         for shape in shapes:
@@ -466,7 +476,7 @@ class ShapeDistance(object):
             else:
                 shape.top = top
                 delta = shape.height + value if cls.vertical_edges == "distance" else value
-            top = top-delta if cls.vertical_fix=="bottom" else top+delta
+            top = top-delta if cls.get_vertical_fix()=="bottom" else top+delta
 
     @classmethod
     def get_shape_sep_vertical(cls, shapes):
@@ -491,12 +501,22 @@ class ShapeDistance(object):
         return dis
 
     @classmethod
+    def get_horizontal_fix(cls):
+        if bkt.library.system.get_key_state(bkt.library.system.key_code.ALT):
+            if cls.vertical_fix == "right":
+                return "left"
+            else:
+                return "right"
+        else:
+            return cls.horizontal_fix
+
+    @classmethod
     def set_shape_sep_horizontal(cls, shapes, value):
         try:
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.left, shape.top), reverse=cls.horizontal_fix=="right")
+        shapes.sort(key=lambda shape: (shape.left, shape.top), reverse=cls.get_horizontal_fix()=="right")
 
         left = shapes[0].left if cls.horizontal_edges != "visual" else shapes[0].visual_x
         for shape in shapes:
@@ -506,7 +526,7 @@ class ShapeDistance(object):
             else:
                 shape.left = left
                 delta = shape.width + value if cls.horizontal_edges == "distance" else value
-            left = left-delta if cls.horizontal_fix=="right" else left+delta
+            left = left-delta if cls.get_horizontal_fix()=="right" else left+delta
 
     @classmethod
     def get_shape_sep_horizontal(cls, shapes):
@@ -876,14 +896,14 @@ distance_rotation_group = bkt.ribbon.Group(
                     bkt.ribbon.ToggleButton(
                         label="Nach rechts",
                         image="shapedis_moveright",
-                        description="Ändert die Distanz ausgehend vom linken Shape und schiebt alle anderen nach rechts.",
+                        description="Ändert die Distanz ausgehend vom linken Shape und schiebt alle anderen nach rechts. Temporärer Wechsel auf 'Nach links' durch [ALT].",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_fix=="left"),
                         on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_fix", "left")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Nach links",
                         image="shapedis_moveleft",
-                        description="Ändert die Distanz ausgehend vom rechten Shape und schiebt alle anderen nach links.",
+                        description="Ändert die Distanz ausgehend vom rechten Shape und schiebt alle anderen nach links. Temporärer Wechsel auf 'Nach rechts' durch [ALT].",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_fix=="right"),
                         on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_fix", "right")),
                     ),
