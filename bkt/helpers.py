@@ -213,5 +213,7 @@ try:
     #FIXME: shelve does not support concurrent access, so this might be a problem if there a multiple bkt instances. Fix: either use thread+queue or open seperate files per app.
     settings = shelve.open(os.path.join( get_settings_folder(), "bkt.settings" ))
 except:
+    logging.error("error reading bkt settings")
+    logging.debug(traceback.format_exc())
     exception_as_message()
     settings = dict() #fallback to empty dict
