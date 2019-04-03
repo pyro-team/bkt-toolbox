@@ -820,14 +820,14 @@ distance_rotation_group = bkt.ribbon.Group(
                     bkt.ribbon.ToggleButton(
                         label="Nach unten",
                         image="shapedis_movedown",
-                        description="Ändert die Distanz ausgehend vom obersten Shape und schiebt alle anderen nach unten.",
+                        description="Ändert die Distanz ausgehend vom obersten Shape und schiebt alle anderen nach unten. Temporärer Wechsel auf 'Nach oben' durch [ALT].",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_fix=="top"),
                         on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_fix", "top")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Nach oben",
                         image="shapedis_moveup",
-                        description="Ändert die Distanz ausgehend vom untersten Shape und schiebt alle anderen nach oben.",
+                        description="Ändert die Distanz ausgehend vom untersten Shape und schiebt alle anderen nach oben. Temporärer Wechsel auf 'Nach unten' durch [ALT].",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_fix=="bottom"),
                         on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_fix", "bottom")),
                     ),
@@ -2631,7 +2631,37 @@ class PictureFormat(object):
         croparea.PictureHeight, croparea.PictureWidth, croparea.PictureOffsetX, croparea.PictureOffsetY = cls.pic_dimensions
 
 
+class TableFormat(object):
+    col_widths = []
+    row_heights = []
 
+    @classmethod
+    def is_table_shape(cls, shape):
+        try:
+            return shape.Type == pplib.MsoShapeType["msoTable"]
+        except:
+            return False
+
+    @classmethod
+    def is_paste_enabled(cls, shape):
+        return cls.is_table_shape(shape) and len(cls.col_widths) > 0
+
+    @classmethod
+    def copy_dimensions(cls, shape):
+        cls.col_widths = [col.width for col in shape.table.columns]
+        cls.row_heights = [row.height for row in shape.table.rows]
+
+    @classmethod
+    def paste_dimensions(cls, shape):
+        for i, col_width in enumerate(cls.col_widths):
+            if shape.table.columns.count-1 < i:
+                break
+            shape.table.columns(i+1).width = col_width
+        
+        for i, row_height in enumerate(cls.row_heights):
+            if shape.table.rows.count-1 < i:
+                break
+            shape.table.rows(i+1).height = row_height
 
 
 
@@ -2678,43 +2708,67 @@ arrange_group = bkt.ribbon.Group(
                 bkt.ribbon.MenuSeparator(title="Positionieren"),
                 bkt.mso.control.ObjectRotateGallery,
                 reposition_gallery,
-                bkt.ribbon.MenuSeparator(),
-                bkt.ribbon.Button(
-                    id = 'chart_dimensions_copy',
-                    label="Diagramm-Dimensionen kopieren",
-                    image_mso="ChartPlotArea",
-                    screentip="Größe und Position vom Diagrammbereich kopieren",
-                    supertip="Kopiert Höhe und Breite des Diagramms sowie Größe und Position der Zeichnungsfläche, um ein anderes Diagramm anzugleichen.",
-                    on_action=bkt.Callback(ChartShapes.copy_dimensions, shape=True),
-                    get_enabled = bkt.Callback(ChartShapes.is_chart_shape, shape=True),
-                ),
-                bkt.ribbon.Button(
-                    id = 'chart_dimensions_paste',
-                    label="Diagramm-Dimensionen einfügen",
-                    image_mso="PasteWithColumnWidths",
-                    screentip="Größe und Position vom Diagrammbereich einfügen",
-                    supertip="Überträgt die kopierte Größe und Position des Diagramms bzw. der Zeichnungsfläche auf das ausgewählte Diagramm.",
-                    on_action=bkt.Callback(ChartShapes.paste_dimensions, shape=True),
-                    get_enabled = bkt.Callback(ChartShapes.is_paste_enabled, shape=True),
-                ),
-                bkt.ribbon.MenuSeparator(),
-                bkt.ribbon.Button(
-                    id = 'pic_crop_copy',
-                    label="Bild-Zuschnitt kopieren",
-                    image_mso="PictureCrop",
-                    screentip="Größe und Position des Bildausschnitts kopieren",
-                    supertip="Kopiert Höhe und Breite des Ausschnitts bei einem zugeschnittenen Bild, um den Ausschnitt mit einem anderen Bild anzugleichen.",
-                    on_action=bkt.Callback(PictureFormat.copy_dimensions, shape=True),
-                    get_enabled = bkt.Callback(PictureFormat.is_pic_shape, shape=True),
-                ),
-                bkt.ribbon.Button(
-                    id = 'pic_crop_paste',
-                    label="Bild-Zuschnitt einfügen",
-                    image_mso="PasteWithColumnWidths",
-                    screentip="Größe und Position des Bildausschnitts einfügen",
-                    supertip="Überträgt die kopierte Größe und Position des Bilde-Ausschnitts auf das ausgewählte Bild.",
-                    on_action=bkt.Callback(PictureFormat.paste_dimensions, shape=True),
-                    get_enabled = bkt.Callback(PictureFormat.is_paste_enabled, shape=True),
+                bkt.ribbon.Menu(
+                    label='Dimensionen/Größen übertragen',
+                    image_mso='PasteWithColumnWidths',
+                    children=[
+                        bkt.ribbon.Button(
+                            id = 'chart_dimensions_copy',
+                            label="Diagramm-Dimensionen kopieren",
+                            image_mso="ChartPlotArea",
+                            screentip="Größe und Position vom Diagrammbereich kopieren",
+                            supertip="Kopiert Höhe und Breite des Diagramms sowie Größe und Position der Zeichnungsfläche, um ein anderes Diagramm anzugleichen.",
+                            on_action=bkt.Callback(ChartShapes.copy_dimensions, shape=True),
+                            get_enabled = bkt.Callback(ChartShapes.is_chart_shape, shape=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'chart_dimensions_paste',
+                            label="Diagramm-Dimensionen einfügen",
+                            image_mso="PasteWithColumnWidths",
+                            screentip="Größe und Position vom Diagrammbereich einfügen",
+                            supertip="Überträgt die kopierte Größe und Position des Diagramms bzw. der Zeichnungsfläche auf das ausgewählte Diagramm.",
+                            on_action=bkt.Callback(ChartShapes.paste_dimensions, shape=True),
+                            get_enabled = bkt.Callback(ChartShapes.is_paste_enabled, shape=True),
+                        ),
+                        bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.Button(
+                            id = 'pic_crop_copy',
+                            label="Bild-Zuschnitt kopieren",
+                            image_mso="PictureCrop",
+                            screentip="Größe und Position des Bildausschnitts kopieren",
+                            supertip="Kopiert Höhe und Breite des Ausschnitts bei einem zugeschnittenen Bild, um den Ausschnitt mit einem anderen Bild anzugleichen.",
+                            on_action=bkt.Callback(PictureFormat.copy_dimensions, shape=True),
+                            get_enabled = bkt.Callback(PictureFormat.is_pic_shape, shape=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'pic_crop_paste',
+                            label="Bild-Zuschnitt einfügen",
+                            image_mso="PasteWithColumnWidths",
+                            screentip="Größe und Position des Bildausschnitts einfügen",
+                            supertip="Überträgt die kopierte Größe und Position des Bilde-Ausschnitts auf das ausgewählte Bild.",
+                            on_action=bkt.Callback(PictureFormat.paste_dimensions, shape=True),
+                            get_enabled = bkt.Callback(PictureFormat.is_paste_enabled, shape=True),
+                        ),
+                        bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.Button(
+                            id = 'table_dimensions_copy',
+                            label="Tabellengrößen kopieren",
+                            image_mso="TableColumnsDistribute",
+                            screentip="Breite/Höhe der Tabellenspalten/-zeilen kopieren",
+                            supertip="Kopiert Höhe und Breite der Tabellenzeilen bzw. Tabellenspalten, um diese mit einer anderen Tabelle anzugleichen.",
+                            on_action=bkt.Callback(TableFormat.copy_dimensions, shape=True),
+                            get_enabled = bkt.Callback(TableFormat.is_table_shape, shape=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'table_dimensions_paste',
+                            label="Tabellengrößen einfügen",
+                            image_mso="PasteWithColumnWidths",
+                            screentip="Breite/Höhe der Tabellenspalten/-zeilen einfügen",
+                            supertip="Überträgt die kopierten Tabellen-Dimensionen auf die ausgewählte Tabelle.",
+                            on_action=bkt.Callback(TableFormat.paste_dimensions, shape=True),
+                            get_enabled = bkt.Callback(TableFormat.is_paste_enabled, shape=True),
+                        ),
+                    ]
                 ),
                 bkt.ribbon.MenuSeparator(title="Verknüpfte Shapes"),
                 bkt.ribbon.Button(

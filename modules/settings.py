@@ -66,6 +66,7 @@ class BKTInfos(object):
     @staticmethod
     def show_debug_message(context):
         import sys
+        import bkt.console
 
         winver = sys.getwindowsversion()
         debug_info = '''--- DEBUG INFORMATION ---
