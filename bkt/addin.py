@@ -515,7 +515,7 @@ class AddIn(object):
             
     def on_destroy(self):
         self.app_callbacks.fire_event(self.events.bkt_unload)
-        bkt.settings.close() #save settings to database
+        _h.settings.close() #save settings to database
         self.reset()
     
     def on_create(self, dotnet_context):
@@ -525,6 +525,9 @@ class AddIn(object):
             return
         self.created = True
         
+        #open app-specific settings database
+        _h.settings.open(dotnet_context.hostAppName)
+
         # wrap dotnet-context and add self as python_addin
         self.context = bkt.context.AppContext.create_app_context(dotnet_context.hostAppName, dotnet_context, python_addin=self)
         #self.dotnet_context.python_addin = self

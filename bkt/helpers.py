@@ -90,13 +90,13 @@ def log(s):
         bkt.console.show_message(s)
 
 def exception_as_message(additional_message=None):
-    import StringIO
+    from cStringIO import StringIO
     import traceback
 
     import bkt.console
     import bkt.ui
 
-    fd = StringIO.StringIO()
+    fd = StringIO()
     if additional_message:
         print(additional_message,file=fd)
     traceback.print_exc(file=fd)
@@ -208,10 +208,27 @@ def get_settings_folder():
         return ensure_folders_exist(os.path.normpath( os.path.join( os.path.dirname(__file__), "../resources/settings") ))
 
 
+#lazy loading shelve
+class BKTSettings(shelve.Shelf):
+
+    def __init__(self):
+        shelve.Shelf.__init__(self, shelve._ClosedDict())
+    
+    def open(self, filename):
+        import anydbm
+        try:
+            self.dict = anydbm.open(os.path.join( get_settings_folder(), filename), 'c')
+        except:
+            logging.error("error reading bkt settings")
+            logging.debug(traceback.format_exc())
+            exception_as_message()
+            self.dict = dict() #fallback to empty dict
+
 #load global setting database
-try:
-    #FIXME: shelve does not support concurrent access, so this might be a problem if there a multiple bkt instances. Fix: either use thread+queue or open seperate files per app.
-    settings = shelve.open(os.path.join( get_settings_folder(), "bkt.settings" ))
-except:
-    exception_as_message()
-    settings = dict() #fallback to empty dict
+settings = BKTSettings()
+
+# try:
+#     settings = shelve.open(os.path.join( get_settings_folder(), "bkt.settings" ))
+# except:
+#     exception_as_message()
+#     settings = dict() #fallback to empty dict

@@ -6,7 +6,7 @@ Created on 23.01.2014
 '''
 
 import code
-import StringIO
+from cStringIO import StringIO
 import sys
 import traceback
 import re
@@ -54,7 +54,7 @@ class FileWrapper(object):
     def __init__(self, fd):
         self._fd = fd
         self._callbacks = set()
-        self._buffer = StringIO.StringIO()
+        self._buffer = StringIO()
         
     def __getattr__(self, attr):
         return getattr(self._fd, attr)
