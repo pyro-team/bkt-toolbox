@@ -27,6 +27,8 @@ SolidCompression=yes
 SourceDir=..\
 PrivilegesRequired=lowest
 ;SignedUninstaller=yes
+SetupIconFile=setup\bkt_logo.ico
+WizardSmallImageFile=setup\bkt_logo_55x55.bmp,setup\bkt_logo_64x68.bmp,setup\bkt_logo_83x80.bmp,setup\bkt_logo_110x106.bmp,setup\bkt_logo_138x140.bmp
 
 [Languages]
 ; Name: "english"; MessagesFile: "compiler:Default.isl"

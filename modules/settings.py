@@ -111,7 +111,7 @@ class SettingsMenu(bkt.ribbon.Menu):
         
         super(SettingsMenu, self).__init__(
             id='bkt-settings' + postfix,
-            image='settings', 
+            image='bkt_logo', 
             children=[
                 bkt.ribbon.Button(
                     id='settings-website' + postfix,
@@ -220,7 +220,7 @@ settings_menu = SettingsMenu("duplicate", label="Settings", show_label=False)
 settings_home_tab = bkt.ribbon.Tab(
     id_mso="TabHome",
     children=[
-        bkt.ribbon.Group(label="BKT", image="settings", children =[SettingsMenu("tabhome", size="large", label="Settings")] + get_task_pane_button_list())
+        bkt.ribbon.Group(label="BKT", image="bkt_logo", children =[SettingsMenu("tabhome", size="large", label="Settings")] + get_task_pane_button_list())
     ] 
 )
 
