@@ -6,9 +6,13 @@
 .project-name::before {
 	display:inline-block;
 	content: " ";
-	width:3rem;
-	height:3rem;
+	width:4rem;
+	height:4rem;
 	background-image: url(../img/bkt_logo_1.0.svg);
 	background-size: contain;
-	margin:0 1rem;
+	background-repeat: no-repeat;
+	position:relative;
+	left:-1rem;
+	bottom:-0.5rem;
+	border-radius:4px;
 }
