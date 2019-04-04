@@ -802,34 +802,39 @@ class QuickEdit(object):
 
     @staticmethod
     def show_help():
-        help_msg = '''
-1. Reihe: Farben des Design-Farbschemas der aktuellen Folie.
-2. Reihe: Zuletzt verwendete Farben (außerhalb des Farbschemas).
-          Sind (noch) keine zuletzt verwendeten Farben definiert, sind die Buttons grau. Über den "Pickup"-
-          Button kann eine Farbe hinzugefügt, entweder die Hintergrundfarbe des markierten Shapes, oder
-          mittels eines Farbmischers (wenn nichts markiert ist oder bei gedrückter SHIFT-Taste).
+        from os import startfile
+        helpfile=os.path.join(os.path.dirname(os.path.realpath(__file__)), "resources", "QuickEdit Help.pdf")
+        os.startfile(helpfile)
 
-Folgende Funktionen stehen zur Verfügung:
+#         help_msg = '''
+# 1. Reihe: Farben des Design-Farbschemas der aktuellen Folie.
+# 2. Reihe: Zuletzt verwendete Farben (außerhalb des Farbschemas).
+#           Sind (noch) keine zuletzt verwendeten Farben definiert, sind die Buttons grau. Über den "Pickup"-
+#           Button kann eine Farbe hinzugefügt, entweder die Hintergrundfarbe des markierten Shapes, oder
+#           mittels eines Farbmischers (wenn nichts markiert ist oder bei gedrückter SHIFT-Taste).
 
-[Ohne Tasten]:    Setzt Hintergrundfarbe der selektierten Shapes auf gewählte Farbe.
-                  Ist kein Shape selektiert, werden alle Shapes mit der gewählten Hintergrundfarbe markiert.
-[STRG]:           Setzt Liniefarbe der selektierten Shapes auf gewählte Farbe.
-                  Ist kein Shape selektiert, werden alle Shapes mit der gewählten Linienfarbe markiert.
-[ALT]:            Setzt Textfarbe der selektierten Shapes auf gewählte Farbe.
-                  Ist kein Shape selektiert, werden alle Shapes mit der gewählten Textfarbe markiert.
-[ALT+STRG]:       Setzt Textkontur der selektierten Shapes auf gewählte Farbe.
-                  Ist kein Shape selektiert, werden alle Shapes mit der gewählten Textkontur markiert.
+# Folgende Funktionen stehen zur Verfügung:
 
-[SHIFT]:          Selektiert alle Shapes mit entsprechender Hintergrundfarbe.
-[SHIFT+STRG]:     Selektiert alle Shapes mit entsprechender Linienfarbe.
-[SHIFT+ALT]:      Selektiert alle Shapes mit entsprechender Textfarbe.
-[SHIFT+ALT+STRG]: Selektiert alle Shapes mit entsprechender Textkontur.
+# [Ohne Tasten]:    Setzt Hintergrundfarbe der selektierten Shapes auf gewählte Farbe.
+#                   Ist kein Shape selektiert, werden alle Shapes mit der gewählten Hintergrundfarbe markiert.
+# [STRG]:           Setzt Liniefarbe der selektierten Shapes auf gewählte Farbe.
+#                   Ist kein Shape selektiert, werden alle Shapes mit der gewählten Linienfarbe markiert.
+# [ALT]:            Setzt Textfarbe der selektierten Shapes auf gewählte Farbe.
+#                   Ist kein Shape selektiert, werden alle Shapes mit der gewählten Textfarbe markiert.
+# [ALT+STRG]:       Setzt Textkontur der selektierten Shapes auf gewählte Farbe.
+#                   Ist kein Shape selektiert, werden alle Shapes mit der gewählten Textkontur markiert.
 
-Hinweis für Mac-Nutzer: Je nach Einstellung fängt Parallels einige Tastenkombinationen ab.
-Hinweis für Experten: Die 2. Reihe weist ausschließlich RGB-Werte zu und nicht Farben des Farbschemas.
-'''
-        # bkt.helpers.message(help_msg)
-        bkt.console.show_message(bkt.ui.endings_to_windows(help_msg))
+# [SHIFT]:          Selektiert alle Shapes mit entsprechender Hintergrundfarbe.
+# [SHIFT+STRG]:     Selektiert alle Shapes mit entsprechender Linienfarbe.
+# [SHIFT+ALT]:      Selektiert alle Shapes mit entsprechender Textfarbe.
+# [SHIFT+ALT+STRG]: Selektiert alle Shapes mit entsprechender Textkontur.
+
+# Hinweis für Mac-Nutzer: Je nach Einstellung fängt Parallels einige Tastenkombinationen ab.
+# Hinweis für Experten: Die 2. Reihe weist ausschließlich RGB-Werte zu und nicht Farben des Farbschemas.
+# '''
+#         # bkt.helpers.message(help_msg)
+#         import bkt.console
+#         bkt.console.show_message(bkt.ui.endings_to_windows(help_msg))
 
 
 QuickEdit.read_from_config()

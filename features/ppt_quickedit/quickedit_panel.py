@@ -229,6 +229,11 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
             context.settings.get("quickedit.viewstate", 0)
         )
 
+        # first start detection
+        if "quickedit.viewstate" not in context.settings:
+            if bkt.helpers.confirmation("Dies scheint dein erster Start von QuickEdit zu sein. Soll die Anleitung (PDF) geöffnet werden?"):
+                QuickEdit.show_help()
+
         super(QuickEditPanel, self).__init__(context)
 
     def _get_color(self, button):
@@ -299,6 +304,9 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
     def ResetOwnColors(self, sender, event):
         QuickEdit.reset_own_colors()
     
+
+    def ShowHelp(self, sender, event):
+        QuickEdit.show_help()
 
     def Window_MouseLeftButtonDown(self, sender, event):
         self._vm.docking_left = False

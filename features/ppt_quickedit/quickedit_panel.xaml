@@ -53,7 +53,7 @@
                         <MenuItem Header="Alle Farben neu laden" Click="ForceReload" />
                         <MenuItem Header="Eigene Farben zurücksetzen" Click="ResetOwnColors" />
                         <Separator />
-                        <MenuItem Header="Hilfe öffnen" />
+                        <MenuItem Header="Hilfe öffnen" Click="ShowHelp" />
                         <MenuItem FontFamily="Lucida Sans Typewriter" Header="[SHIFT]: Auswahl" IsEnabled="False" />
                         <MenuItem FontFamily="Lucida Sans Typewriter" Header=" [STRG]: Linie" IsEnabled="False" />
                         <MenuItem FontFamily="Lucida Sans Typewriter" Header="  [ALT]: Text" IsEnabled="False" />
