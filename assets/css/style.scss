@@ -1,0 +1,14 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+.project-name::before {
+	display:inline-block;
+	content: " ";
+	width:3rem;
+	height:3rem;
+	background-image: url(../img/bkt_logo_1.0.svg);
+	background-size: contain;
+	margin:0 1rem;
+}

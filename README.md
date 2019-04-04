@@ -48,3 +48,4 @@ Alternativ kann man das Repository klonen und die Datei `installer\install.bat` 
  * [ControlzEx](https://github.com/ControlzEx/ControlzEx)
  * [MahApps.Metro](https://github.com/MahApps/MahApps.Metro)
  * [MouseKeyHooks](https://github.com/gmamaladze/globalmousekeyhook)
+ * [InnoSetup](http://www.jrsoftware.org/isinfo.php)
