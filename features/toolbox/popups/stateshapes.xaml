@@ -1,0 +1,26 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Width="450" Height="320"
+    ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="Manual"
+    WindowStyle="None"
+    AllowsTransparency="True"
+    Background="Transparent"
+    ShowInTaskbar="False"
+    ShowActivated="False"
+    Focusable="False">
+
+    <Grid Margin="8">
+      <Grid.Effect>
+        <DropShadowEffect Direction="315" BlurRadius="4" ShadowDepth="1" Opacity=".3" />
+      </Grid.Effect>
+
+      <Border Grid.Row="1" Grid.Column="1" BorderBrush="Silver" BorderThickness="1" SnapsToDevicePixels="True" Background="#ffffff">
+        <StackPanel x:Name="DataPanel" Orientation="Vertical" Margin="2">
+            <StackPanel Orientation="Horizontal" >
+                <Button x:Name="btnprev" Click="btnprev" FontFamily="Marlett" Content="3" BorderThickness="0" Background="#ffffff" Width="24" Height="24" />
+                <Button x:Name="btnnext" Click="btnnext" FontFamily="Marlett" Content="4" BorderThickness="0" Background="#ffffff" Width="24" Height="24" />
+            </StackPanel>
+        </StackPanel>
+      </Border>
+    </Grid>
+</Window>

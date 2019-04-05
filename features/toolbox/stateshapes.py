@@ -5,6 +5,8 @@ Created on 21.12.2017
 @author: fstallmann
 '''
 
+import os.path
+
 import bkt
 import bkt.library.powerpoint as pplib
 
@@ -15,10 +17,24 @@ Drawing = dotnet.import_drawing()
 
 
 class StateShape(object):
+    BKT_DIALOG_TAG = 'BKT_DIALOG_STATESHAPE'
     
     @classmethod
+    def is_convertable_to_state_shape(cls, shape):
+        try:
+            return shape.Type == pplib.MsoShapeType['msoGroup']
+        except:
+            return False
+
+
+    @classmethod
     def is_state_shape(cls, shape):
-        return shape.Type == pplib.MsoShapeType['msoGroup']
+        try:
+            return shape.Tags.Item(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY) == cls.BKT_DIALOG_TAG
+        except:
+            #Shape.Tags throws COMException for SmartArt shapes
+            return False
+        # return shape.Type == pplib.MsoShapeType['msoGroup']
     
     @classmethod
     def are_state_shapes(cls, shapes):
@@ -41,6 +57,7 @@ class StateShape(object):
         pos = (pos + delta) % len(shapes)
         shapes[pos].visible = True
         grp = ungrouped_shapes.Group()
+        grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
         try:
             #sometimes throws "Invalid request.  To select a shape, its view must be active.", e.g. right after duplicating the shape
             grp.Select(replace=False)
@@ -69,19 +86,23 @@ class StateShape(object):
         for shape in shapes:
             cls.switch_state(shape, pos=value)
 
-    @classmethod
-    def get_show_all(cls, shape):
-        return cls.is_state_shape(shape) and shape.GroupItems.Range(None).Visible == -1
+    # @classmethod
+    # def get_show_all(cls, shape):
+    #     return cls.is_state_shape(shape) and shape.GroupItems.Range(None).Visible == -1
+
+    # @classmethod
+    # def toggle_show_all(cls, shape, pressed):
+    #     if not pressed:
+    #         cls.switch_state(shape, pos=0)
+    #     else:
+    #         cls.show_all(shape)
 
     @classmethod
-    def toggle_show_all(cls, shape, pressed):
-        if not pressed:
-            cls.switch_state(shape, pos=0)
-        else:
-            ungrouped_shapes = shape.Ungroup()
-            for s in list(iter(ungrouped_shapes)):
-                s.visible = True
-            ungrouped_shapes.Group().Select()
+    def show_all(cls, shape):
+        ungrouped_shapes = shape.Ungroup()
+        for s in list(iter(ungrouped_shapes)):
+            s.visible = True
+        ungrouped_shapes.Group().Select()
 
     @classmethod
     def set_color_fill_rgb(cls, shapes, color):
@@ -115,6 +136,7 @@ class StateShape(object):
 
     @staticmethod
     def show_help():
+        #TODO
         bkt.helpers.message("TODO: show help file, image, or something...")
 
 
@@ -207,6 +229,7 @@ class LikertScale(object):
         
         slide.Shapes.Range(shapecount+1).visible = -1 #make first visible
         grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total+1))).group()
+        grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, StateShape.BKT_DIALOG_TAG)
         grp.select()
 
 
@@ -230,16 +253,45 @@ stateshape_gruppe = bkt.ribbon.Group(
     label='Wechsel-Shapes',
     image_mso='GroupSmartArtQuickStyles',
     children = [
-        bkt.ribbon.ToggleButton(
-            id="stateshape_show_all",
-            label=u"Alle anzeigen",
-            screentip="Alle Shapes sichtbar machen",
-            supertip="Bei gruppierten Shapes (Wechsel-Shapes) kann zwischen den Shapes innerhalb der Gruppe gewechselt werden, d.h. es ist immer nur ein Shape der Gruppe sichtbar. Dies ist bspw. nützlich für Ampeln, Skalen, etc.\n\nMit diesem Button können die Shapes innerhalb der Gruppe ein- und ausgeblendet werden.",
+        bkt.ribbon.SplitButton(
+            id="stateshape_convert_splitbutton",
             size="large",
-            image_mso='GroupSmartArtQuickStyles',
-            get_pressed=bkt.Callback(StateShape.get_show_all),
-            on_toggle_action=bkt.Callback(StateShape.toggle_show_all),
-            get_enabled=bkt.Callback(StateShape.is_state_shape),
+            children=[
+                bkt.ribbon.Button(
+                    id="stateshape_convert",
+                    label=u"Konvertieren",
+                    image_mso='GroupSmartArtQuickStyles',
+                    screentip="Gruppierte Shapes in ein Wechselshape konvertieren",
+                    supertip="Bei gruppierten Shapes (Wechsel-Shapes) kann zwischen den Shapes innerhalb der Gruppe gewechselt werden, d.h. es ist immer nur ein Shape der Gruppe sichtbar. Dies ist bspw. nützlich für Ampeln, Skalen, etc.",
+                    on_action=bkt.Callback(StateShape.reset_state),
+                    get_enabled=bkt.Callback(StateShape.is_convertable_to_state_shape),
+                ),
+                bkt.ribbon.Menu(
+                    children=[
+                        bkt.ribbon.Button(
+                            id="stateshape_convert2",
+                            label=u"In Wechselshape konvertieren",
+                            image_mso='GroupSmartArtQuickStyles',
+                            screentip="Gruppierte Shapes in ein Wechselshape konvertieren",
+                            supertip="Bei gruppierten Shapes (Wechsel-Shapes) kann zwischen den Shapes innerhalb der Gruppe gewechselt werden, d.h. es ist immer nur ein Shape der Gruppe sichtbar. Dies ist bspw. nützlich für Ampeln, Skalen, etc.",
+                            on_action=bkt.Callback(StateShape.reset_state),
+                            get_enabled=bkt.Callback(StateShape.is_convertable_to_state_shape),
+                        ),
+                        # bkt.ribbon.ToggleButton(
+                        bkt.ribbon.Button(
+                            id="stateshape_show_all",
+                            label=u"Alle Shapes wieder anzeigen",
+                            screentip="Alle Shapes sichtbar machen",
+                            supertip="Mit diesem Button können die Shapes innerhalb der Wechselshape-Gruppe eingeblendet werden.",
+                            # image_mso='GroupSmartArtQuickStyles',
+                            # get_pressed=bkt.Callback(StateShape.get_show_all),
+                            # on_toggle_action=bkt.Callback(StateShape.toggle_show_all),
+                            on_action=bkt.Callback(StateShape.show_all),
+                            get_enabled=bkt.Callback(StateShape.is_state_shape),
+                        ),
+                    ]
+                )
+            ]
         ),
         bkt.ribbon.Separator(),
         # bkt.ribbon.LabelControl(label="Wechsel: "),
@@ -322,4 +374,32 @@ stateshape_gruppe = bkt.ribbon.Group(
         # ),
         # likert_button,
     ]
+)
+
+
+class StateShapePopup(bkt.ui.WpfWindowAbstract):
+    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'popups', 'stateshapes.xaml')
+    '''
+    class representing a popup-dialog for a stateshape
+    '''
+    
+    def __init__(self, context=None):
+        self.IsPopup = True
+        self._context = context
+
+        super(StateShapePopup, self).__init__()
+
+    def btnprev(self, sender, event):
+        StateShape.previous_state(self._context.shapes)
+
+    def btnnext(self, sender, event):
+        StateShape.next_state(self._context.shapes)
+
+# register dialog
+bkt.powerpoint.context_dialogs.register_dialog(
+    bkt.contextdialogs.ContextDialog(
+        id=StateShape.BKT_DIALOG_TAG,
+        module=None,
+        window_class=StateShapePopup
+    )
 )

@@ -106,7 +106,7 @@ class Ampel(object):
 class TrafficPopup(bkt.ui.WpfWindowAbstract):
     _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'traffic_light_dialog2.xaml')
     '''
-    class representing a opup-dialog for a traffic-light-shape
+    class representing a popup-dialog for a traffic-light-shape
     '''
     
     def __init__(self, context=None):
