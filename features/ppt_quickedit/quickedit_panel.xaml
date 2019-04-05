@@ -39,9 +39,8 @@
     <Border BorderThickness="0.5" BorderBrush="RoyalBlue">
     <DockPanel x:Name="DataPanel" Margin="0" Background="WhiteSmoke">
         <DockPanel x:Name="TitleBar" DockPanel.Dock="Top">
-            <Button FontSize="8" Background="White" BorderThickness="0" Focusable="False"
-                    Click="change_orientation" DockPanel.Dock="Left" Height="7" Width="7" Padding="0">
-                <Ellipse Fill="DarkGray" Height="5" Width="5" />
+            <Button FontSize="8" FontFamily="Marlett" BorderThickness="0" Focusable="False" Background="Transparent" Foreground="DimGray"
+                    Click="change_orientation" DockPanel.Dock="Left" Height="7" Width="7" Padding="0" Content="v">
                 <Button.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Layout wechseln" Click="change_orientation" />
@@ -60,10 +59,8 @@
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
-            <Button Background="White" BorderThickness="0"
-                    Click="cancel" DockPanel.Dock="Right" Height="7" Width="7" Padding="0">
-                <Rectangle Fill="DarkGray" Height="5" Width="5" />
-            </Button>
+            <Button FontSize="7" FontFamily="Marlett" BorderThickness="0" Background="Transparent" Foreground="DimGray"
+                    Click="cancel" DockPanel.Dock="Right" Height="7" Width="7" Padding="0" Content="r" />
 
             <TextBlock HorizontalAlignment="Center" Margin="0" FontSize="8">QE</TextBlock>
         </DockPanel>
