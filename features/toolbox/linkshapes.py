@@ -9,6 +9,7 @@ import bkt
 import bkt.library.powerpoint as pplib
 
 import uuid
+import os.path
 
 
 BKT_LINK_UUID = "BKT_LINK_UUID"
@@ -17,13 +18,17 @@ class LinkedShapes(object):
     current_link_guid = None
 
     @staticmethod
+    def _add_tags(shape, link_guid):
+        shape.Tags.Add(BKT_LINK_UUID, link_guid)
+        shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_LINK_UUID)
+
+    @staticmethod
     def is_linked_shape(shape):
         try:
             return shape.Tags.Item(BKT_LINK_UUID) != ''
         except:
             #Shape.Tags throws COMException for SmartArt shapes
             return False
-
 
     @classmethod
     def not_is_linked_shape(cls, shape):
@@ -71,7 +76,7 @@ class LinkedShapes(object):
                     # cShp.Rotation == shape.Rotation 
                     ):
                     if not dry_run:
-                        cShp.Tags.Add(BKT_LINK_UUID, link_guid)
+                        cls._add_tags(cShp, link_guid)
                     shapes_found += 1
             num_slides -= 1
             if num_slides == 0:
@@ -82,7 +87,7 @@ class LinkedShapes(object):
         elif dry_run:
             bkt.helpers.message("Es wurden %s Shapes zum verknüpfen gefunden." % shapes_found)
         else:
-            shape.Tags.Add(BKT_LINK_UUID, link_guid)
+            cls._add_tags(shape, link_guid)
             bkt.helpers.message("Das Shape wurde mit %s Shapes verknüpft." % shapes_found)
             context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
 
@@ -104,7 +109,7 @@ class LinkedShapes(object):
     def copy_shape_to_slides(cls, shape, context, limit_slides=None):
         link_guid = str(uuid.uuid4())
 
-        shape.Tags.Add(BKT_LINK_UUID, link_guid)
+        cls._add_tags(shape, link_guid)
         shape.Copy()
         active_slide_index = shape.Parent.SlideIndex
 
@@ -141,8 +146,8 @@ class LinkedShapes(object):
     @classmethod
     def add_to_link_shapes(cls, shapes):
         for shape in shapes:
-            shape.Tags.Add(BKT_LINK_UUID, cls.current_link_guid)
-    
+            cls._add_tags(shape, cls.current_link_guid)
+
     @classmethod
     def count_link_shapes(cls, shape, context):
         count_shapes = 0
@@ -167,6 +172,9 @@ class LinkedShapes(object):
         list_shapes[sel_shape_index].parent.select() #select slide
         list_shapes[sel_shape_index].select() #select shape
 
+    @classmethod
+    def goto_first_shape(cls, shape, context):
+        cls.goto_linked_shape(shape, context, 0, False)
 
     @classmethod
     def _iterate_linked_shapes(cls, shape, context):
@@ -428,9 +436,9 @@ linkshapes_tab = bkt.ribbon.Tab(
             children = [
                 bkt.ribbon.Button(
                     id = 'linked_shapes_count',
-                    label="Anzahl verknüpfter Shapes",
-                    image_mso="FindDialog",
-                    screentip="Verknüpfte Shapes zählen",
+                    label="Verknüpfte Shapes zählen",
+                    image_mso="FormattingUnique",
+                    screentip="Alle verknüpften Shapes zählen",
                     supertip="Zählt die Anzahl der verknüpften Shapes auf allen Folien.",
                     on_action=bkt.Callback(LinkedShapes.count_link_shapes, shape=True, context=True),
                 ),
@@ -441,6 +449,14 @@ linkshapes_tab = bkt.ribbon.Tab(
                     screentip="Zum nächsten verknüpften Shape gehen",
                     supertip="Sucht nach dem nächste verknüpften Shape. Sollte auf den Folgefolien kein Shape mehr kommen, wird das erste verknüpfte Shape der Präsentation gesucht.",
                     on_action=bkt.Callback(LinkedShapes.goto_linked_shape, shape=True, context=True),
+                ),
+                bkt.ribbon.Button(
+                    id = 'linked_shapes_first',
+                    label="Erstes verknüpfte Shape finden",
+                    image_mso="FirstPage",
+                    screentip="Zum ersten verknüpften Shape gehen",
+                    supertip="Sucht nach dem ersten verknüpften Shape.",
+                    on_action=bkt.Callback(LinkedShapes.goto_first_shape, shape=True, context=True),
                 ),
             ]
         ),
@@ -546,4 +562,42 @@ linkshapes_tab = bkt.ribbon.Tab(
             ]
         ),
     ]
+)
+
+
+class LinkedShapePopup(bkt.ui.WpfWindowAbstract):
+    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'popups', 'linkedshape.xaml')
+    '''
+    class representing a popup-dialog for a linked shape
+    '''
+    
+    def __init__(self, context=None):
+        self.IsPopup = True
+        self._context = context
+
+        super(LinkedShapePopup, self).__init__()
+
+    def btntab(self, sender, event):
+        self._context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
+
+    def btnsync_text(self, sender, event):
+        LinkedShapes.text_linked_shapes(self._context.shapes[-1], self._context)
+
+    def btnsync_possize(self, sender, event):
+        LinkedShapes.align_linked_shapes(self._context.shapes[-1], self._context)
+        LinkedShapes.size_linked_shapes(self._context.shapes[-1], self._context)
+
+    def btnsync_format(self, sender, event):
+        LinkedShapes.format_linked_shapes(self._context.shapes[-1], self._context)
+
+    def btnnext(self, sender, event):
+        LinkedShapes.goto_linked_shape(self._context.shapes[-1], self._context)
+
+# register dialog
+bkt.powerpoint.context_dialogs.register_dialog(
+    bkt.contextdialogs.ContextDialog(
+        id=BKT_LINK_UUID,
+        module=None,
+        window_class=LinkedShapePopup
+    )
 )
