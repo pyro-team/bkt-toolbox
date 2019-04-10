@@ -348,6 +348,7 @@ class AppUIPowerPoint(AppUI):
     def __init__(self, ribbon_ids=[], short_ids=[]):
         super(AppUIPowerPoint, self).__init__(ribbon_ids=ribbon_ids, short_ids=short_ids)
         
+        self.use_contextdialogs = not _h.config.ppt_use_contextdialogs is False
         self.context_dialogs = ContextDialogs()
 
 

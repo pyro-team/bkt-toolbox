@@ -141,7 +141,6 @@ class AppCallbacksBase(AppCallbacks):
         self.cache_timeout = 0.5
         self.cache_last_refresh = 0
     
-    
     def destroy(self):
         self.unbind_app_events()
         
@@ -506,7 +505,8 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
             logging.error(traceback.format_exc())
 
         try:
-            self.app_ui.context_dialogs.show_shape_dialog_for_selection(selection, self.context)
+            if self.app_ui.use_contextdialogs:
+                self.app_ui.context_dialogs.show_shape_dialog_for_selection(selection, self.context)
         except:
             logging.error(traceback.format_exc())
         
