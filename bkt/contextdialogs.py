@@ -150,7 +150,8 @@ class ContextDialogs(object):
         self.key_is_down  = False
         self.showing_dialog_for_shape = False
         
-        self.addin = None
+        self.addin = None #c-addin
+        self.context = None
         
     def register(self, id, module):
         ''' register a context dialog '''
@@ -170,6 +171,17 @@ class ContextDialogs(object):
         except IndexError:
             pass
 
+    def re_show_shape_dialogs(self):
+        ''' re-show context dialogs for current context '''
+        logging.debug('ContextDialogs.re_show_shape_dialogs')
+
+        try:
+            if not self.context or self.showing_dialog_for_shape:
+                return #if context not defined or dialog already visible, skip re-show
+            self.show_shape_dialog_for_selection(self.context.selection, self.context)
+        except:
+            logging.error(traceback.format_exc())
+
 
     def show_shape_dialog_for_selection(self, selection, context):
         ''' show a context dialog for selected shape if exactly one shape is selected '''
@@ -178,6 +190,7 @@ class ContextDialogs(object):
         try:
             #save addin from context to (un)hook mouse/key events
             if not self.addin:
+                self.context = context
                 self.addin = context.addin
             # selection type
             # 0 = ppSelectionNone
@@ -302,7 +315,6 @@ class ContextDialogs(object):
     def mouse_down(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
         logging.debug("ContextDialogs.mouse_down")
-        self.drag_started = True
         if self.showing_dialog_for_shape and self.active_dialog:
             if not self.active_dialog.IsMouseOver:
                 self.close_active_dialog()
@@ -310,7 +322,8 @@ class ContextDialogs(object):
     def mouse_up(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
         logging.debug("ContextDialogs.mouse_up")
-        self.drag_started = False
+        if not self.drag_started:
+            self.re_show_shape_dialogs()
 
     # def mouse_move(self, sender, e):
     #     ''' object sender, MouseEventExtArgs e) '''
@@ -321,12 +334,13 @@ class ContextDialogs(object):
 
     def mouse_drag_start(self, sender, e):
         logging.debug("ContextDialogs.mouse_drag_start")
+        self.drag_started = True
         if self.showing_dialog_for_shape and self.active_dialog:
             self.close_active_dialog()
 
     def mouse_drag_end(self, sender, e):
         logging.debug("ContextDialogs.mouse_drag_end")
-        #FIXME: re-show dialog after drag finished
+        self.drag_started = False
 
     def key_down(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
