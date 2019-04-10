@@ -164,8 +164,10 @@ class Thumbnailer(object):
                 application.ActiveWindow.View.PasteSpecial(Datatype=data_type)
                 pasted_shapes += 1
                 #Save tags
-                with ThumbnailerTags(application.ActiveWindow.Selection.ShapeRange(1).Tags) as tags:
+                shape = application.ActiveWindow.Selection.ShapeRange(1)
+                with ThumbnailerTags(shape.Tags) as tags:
                     tags.set_thumbnail(slide_id, data["slide_path"], data_type, content_only, shape_id)
+                shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_THUMBNAIL)
             except:
                 #bkt.helpers.exception_as_message()
                 bkt.helpers.message("Fehler! Thumbnail konnte nicht im gewählten Format eingefügt werden.")
@@ -256,8 +258,12 @@ class Thumbnailer(object):
             bkt.helpers.message("Keine Folien-Thumbnails gefunden.")
             return
 
+        cls.shapes_refresh(thumbs)
+
+    @classmethod
+    def shapes_refresh(cls, shapes, application):
         err_counter = 0
-        for shp in thumbs:
+        for shp in shapes:
             try:
                 cls._shape_refresh(shp, application) #FIXME: currently file is opened for each thumbnail, can be improved for better performance
             except:
@@ -265,9 +271,9 @@ class Thumbnailer(object):
                 err_counter += 1
                 # bkt.helpers.exception_as_message()
         if err_counter > 0:
-            bkt.helpers.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert, aber %r Folien-Thumbnail/s konnten wegen eines Fehlers nicht aktualisiert werden. Die fehlerhaften Thumbnails wurden mit dem Text 'BKT THUMB UPDATE FAILED' markiert." % (len(thumbs)-err_counter, err_counter))
+            bkt.helpers.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert, aber %r Folien-Thumbnail/s konnten wegen eines Fehlers nicht aktualisiert werden. Die fehlerhaften Thumbnails wurden mit dem Text 'BKT THUMB UPDATE FAILED' markiert." % (len(shapes)-err_counter, err_counter))
         else:
-            bkt.helpers.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert." % len(thumbs))
+            bkt.helpers.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert." % len(shapes))
 
     @classmethod
     def shape_refresh(cls, shape, application):
@@ -297,6 +303,8 @@ class Thumbnailer(object):
             #Duplicate tags
             with ThumbnailerTags(new_shp.Tags) as tags_new:
                 tags_new.set_thumbnail(**tags_old.data)
+
+        new_shp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_THUMBNAIL)
 
         new_shp.PictureFormat.crop.ShapeHeight = shape.PictureFormat.crop.ShapeHeight 
         new_shp.PictureFormat.crop.ShapeWidth  = shape.PictureFormat.crop.ShapeWidth  
@@ -672,4 +680,33 @@ bkt.powerpoint.add_context_menu(
             ]
         ),
     ])
+)
+
+
+class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
+    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'thumbnail.xaml')
+    '''
+    class representing a popup-dialog for a thumbnail shape
+    '''
+    
+    def __init__(self, context=None):
+        self.IsPopup = True
+        self._context = context
+
+        super(ThumbnailPopup, self).__init__()
+
+    def btnrefresh(self, sender, event):
+        shapes = self._context.shapes
+        if len(shapes) == 1:
+            Thumbnailer.shape_refresh(shapes[0], self._context.app)
+        else:
+            Thumbnailer.shapes_refresh(shapes, self._context.app)
+
+# register dialog
+bkt.powerpoint.context_dialogs.register_dialog(
+    bkt.contextdialogs.ContextDialog(
+        id=BKT_THUMBNAIL,
+        module=None,
+        window_class=ThumbnailPopup
+    )
 )
