@@ -41,6 +41,8 @@ Alternativ kann man das Repository klonen und die Datei `installer\install.bat` 
 
 *In Arbeit*
 
+[Übersicht der Einstellungen in der Konfigurationsdatei](config.md)
+
 ## Contributions
 
  * [IronPython](https://github.com/IronLanguages/ironpython2)
