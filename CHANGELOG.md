@@ -13,6 +13,8 @@
   * PPT-Toolbar: Verknüpfte-Shapes-Tab (wird bei Auswahl von verknüpftem Shape sichtbar)
   * PPT-Toolbar: Auswahlmenü für Hintergrund- und Linien-Transparenz
   * PPT-Toolbar: Widescreen-Version der Toolbar als Feature-Modul aktivierbar
+  * PPT-Toolbar: Kleines Popup-Fenster für Wechselshapes hinzugefügt
+  * PPT-Toolbar: Funktion zum Übertragen von Bildausschnitt/-zuschnitt sowie Tabellengrößen
   * PPT-Toolbar: Diverse Erweiterungen für verknüpfte Shapes (Eigenschaften für Suche, Toleranz, Anzahl Folien, etc.)
   * PPT-Toolbar: [BETA] Werkzeugleiste für schnelles Farbbearbeitung und -auswahl (QuickEdit-Feature)
   * PPT-Toolbar: [BETA] Modul für Definition von bis zu 5 benutzerdefinierten Formaten
@@ -33,6 +35,7 @@
   * PPT-Toolbar: Harvey-Moon Tab nun nicht mehr in Kontext-Tabs da nicht zuverlässig
   * PPT-Toolbar: UI für Anordnung auf Paragraphen/Tabellen/Shapes verbessert
   * PPT-Toolbar: Menüstruktur zum Einfügen "spezieller" Shapes aufgeräumt und einige Features umgezogen
+  * PPT-Toolbar: Veränderte Logik für Wechselshapes, diese müssen nun erst in ein solches konvertiert werden
 
 ## FIXED
   * PPT-Toolbar: Kleinere Fehler und Performance-Verbesserungen für Shape-Selektion anhand mehrerer Attribute

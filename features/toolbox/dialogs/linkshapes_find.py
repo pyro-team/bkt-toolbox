@@ -166,7 +166,7 @@ class FindWindow(bkt.ui.WpfWindowAbstract):
         return sections.FirstSlide(cur_section) + sections.SlidesCount(cur_section) - 1
 
     def _link_shapes(self, dry_run=False):
-        shape_keys = [k for k,v in self.attributes.items() if v == True]
+        shape_keys = [k for k,v in self.attributes.items() if v]
         num_slides = None if self._vm.findmode_all else self._vm.num_slides
         self._model.find_similar_shapes_and_link(self.context.shape, self.context, shape_keys, self._vm.threshold, num_slides, dry_run)
 

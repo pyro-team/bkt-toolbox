@@ -238,7 +238,7 @@ class ChartLib(object):
         
             # find subfolders
             for filename in os.listdir(folder):
-                if os.path.isdir(folder + "\\" + filename) == True:
+                if os.path.isdir(os.path.join(folder, filename)):
                     if not filename.endswith(THUMBNAIL_POSTFIX):
                         subfolders.append(filename)
             logging.debug('get_folder_menu folders: %s' % subfolders)
@@ -331,7 +331,7 @@ class ChartLib(object):
                 #Copy each shape individually
                 for shape in context.shapes:
                     title = bkt.ui.show_user_input("Bitte Shape-Titel eingeben:", "Shape-Titel", shape.Name)
-                    if title == None:
+                    if title is None:
                         break
                     shape.Copy()
                     slide = pres.Slides.Add(pres.Slides.Count+1, 11) #11=ppTitleOnly

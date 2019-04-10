@@ -55,7 +55,7 @@ class InnerMargin(bkt.ribbon.RoundingSpinnerBox):
 
     @classmethod
     def toggle_all_equal(cls, pressed):
-        cls.all_equal = (pressed == True)
+        cls.all_equal = pressed
     
     ### set margin to 0
     

@@ -61,7 +61,7 @@ If you continue editing in PowerPoint it is highly recommended to open all prese
 
 
 class FormatTab(object):
-    ppt_hide_format_tab = bkt.config.ppt_hide_format_tab == True
+    ppt_hide_format_tab = bkt.config.ppt_hide_format_tab is True
 
     @classmethod
     def get_visible(cls):

@@ -108,6 +108,7 @@ class TestVisio(object):
     
     @staticmethod
     def shape_data(shape):
+        import bkt.console
         msg = '''--- ALL SHAPE DATA ---
 
     X:    {}

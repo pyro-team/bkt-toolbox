@@ -377,7 +377,7 @@ class ShapesMore(object):
     def show_shapes(slide):
         slide.Application.ActiveWindow.Selection.Unselect()
         for shape in slide.shapes:
-            if shape.visible == False:
+            if not shape.visible:
                 shape.visible = True
                 shape.Select(replace=False)
 
