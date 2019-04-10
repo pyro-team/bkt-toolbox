@@ -58,7 +58,8 @@ class CustomQuickEdit(object):
             return
         
         cls.always_keep_theme_color = bkt.settings.get("customformats.theme_colors", True)
-        cls.current_file = bkt.settings.get("customformats.default_file", "styles.json")
+        cls.default_file = bkt.settings.get("customformats.default_file", "styles.json")
+        cls.current_file = cls.default_file
         
         cls.read_from_config(cls.current_file)
         cls.initialized = True
@@ -91,7 +92,7 @@ class CustomQuickEdit(object):
     
     @classmethod
     def is_default_style(cls, filename=None):
-        return bkt.settings["customformats.default_file"] == (filename or cls.current_file)
+        return cls.default_file == (filename or cls.current_file)
 
     @classmethod
     def create_new_style(cls, filename=None):
@@ -359,7 +360,8 @@ class CustomQuickEdit(object):
         shp.select()
 
         #for new shapes always consider type, size and position
-        cls.apply_custom_style(index, context, {'type': True, 'size': True, 'position': True})
+        # cls.apply_custom_style(index, context, {'type': True, 'size': True, 'position': True}, [shp])
+        cls._apply_custom_style_on_shape(shp, cls.custom_styles[index], {'type': True, 'size': True, 'position': True})
 
         return shp
 
@@ -394,7 +396,7 @@ class CustomQuickEdit(object):
         ApplyWindow.create_and_show_dialog(cls, index, context)
 
     @classmethod
-    def apply_custom_style(cls, index, context, style_settings = None):
+    def apply_custom_style(cls, index, context, style_settings=None):
         if cls.custom_styles[index] is None:
             bkt.helpers.message("Style nicht definiert!")
             return
@@ -407,7 +409,7 @@ class CustomQuickEdit(object):
 
         settings = style_settings or cls.custom_styles[index]["style_settings"]
         
-        shift  = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
+        shift = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
         # ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
         alt   = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
 
@@ -450,86 +452,95 @@ class CustomQuickEdit(object):
 
             errors = False
             for shape in shapes:
-
-                try:
-                    if settings.get("type", False) and "Type" in style:
-                        helpers.ShapeFormats._set_type(shape, style["Type"])
-                except Exception as e:
-                    errors = True
-                    logging.error("Custom formats: Error in setting shape type with error: {}".format(e))
-
-                try:
-                    if settings.get("fill", False) and "Fill" in style:
-                        helpers.ShapeFormats._set_fill(shape.fill, style["Fill"])
-                except Exception as e:
-                    errors = True
-                    logging.error("Custom formats: Error in setting fill with error: {}".format(e))
-
-                try:
-                    if settings.get("line", False) and "Line" in style:
-                        helpers.ShapeFormats._set_line(shape.line, style["Line"])
-                except Exception as e:
-                    errors = True
-                    logging.error("Custom formats: Error in setting line with error: {}".format(e))
-
-                try:
-                    if settings.get("textframe2", False) and "TextFrame2" in style:
-                        helpers.ShapeFormats._set_textframe(shape.textframe2, style["TextFrame2"])
-                except Exception as e:
-                    errors = True
-                    logging.error("Custom formats: Error in setting textframe with error: {}".format(e))
-
-                try:
-                    if settings.get("shadow", False):
-                        if "Shadow" in style:
-                            helpers.ShapeFormats._set_shadow(shape.shadow, style["Shadow"])
-                        if "Glow" in style:
-                            helpers.ShapeFormats._set_glow(shape.glow, style["Glow"])
-                        if "SoftEdge" in style:
-                            helpers.ShapeFormats._set_softedge(shape.softedge, style["SoftEdge"])
-                        if "Reflection" in style:
-                            helpers.ShapeFormats._set_reflection(shape.reflection, style["Reflection"])
-                except Exception as e:
-                    errors = True
-                    logging.error("Custom formats: Error in setting shadow with error: {}".format(e))
-
-                try:
-                    if settings.get("size", False) and "Size" in style:
-                        helpers.ShapeFormats._set_size(shape, style["Size"])
-                except Exception as e:
-                    errors = True
-                    logging.error("Custom formats: Error in setting shape size with error: {}".format(e))
-
-                try:
-                    if settings.get("position", False) and "Position" in style:
-                        helpers.ShapeFormats._set_position(shape, style["Position"])
-                except Exception as e:
-                    errors = True
-                    logging.error("Custom formats: Error in setting shape position with error: {}".format(e))
-
-                try:
-                    if (settings.get("paragraphformat", False) or settings.get("font", False)) and "IndentLevels" in style:
-                        if shape.TextFrame2.TextRange.Paragraphs().Count > 0:
-                            for par in shape.TextFrame2.TextRange.Paragraphs():
-                                indent_level = str(par.ParagraphFormat.IndentLevel)
-                                if indent_level not in style["IndentLevels"] or (indent_level == "1" and par.ParagraphFormat.Bullet.Visible == 0):
-                                    indent_level = "0"
-                                if settings.get("paragraphformat", False):
-                                    helpers.ShapeFormats._set_paragraphformat(par.ParagraphFormat, style["IndentLevels"][indent_level]["ParagraphFormat"])
-                                if settings.get("font", False):
-                                    helpers.ShapeFormats._set_font(par.Font, style["IndentLevels"][indent_level]["Font"])
-                        else:
-                            if settings.get("paragraphformat", False):
-                                helpers.ShapeFormats._set_paragraphformat(shape.TextFrame2.TextRange.ParagraphFormat, style["IndentLevels"]["0"]["ParagraphFormat"])
-                            if settings.get("font", False):
-                                helpers.ShapeFormats._set_font(shape.TextFrame2.TextRange.Font, style["IndentLevels"]["0"]["Font"])
-                except Exception as e:
-                    errors = True
-                    logging.error("Custom formats: Error in setting paragraph format with error: {}".format(e))
-
+                errors = errors or cls._apply_custom_style_on_shape(shape, style, settings)
 
             if errors:
                 bkt.helpers.message("Einige Eigenschaften konnten nicht auf die ausgewählten Shapes übertragen werden. Dies kann beispielweise bei Tabellen passieren, da diese nicht alle Eigenschaften unterstützen.")
+
+    @classmethod
+    def _apply_custom_style_on_shape(cls, shape, style, settings):
+        errors = False
+        
+        try:
+            if settings.get("type", False) and "Type" in style:
+                helpers.ShapeFormats._set_type(shape, style["Type"])
+        except Exception as e:
+            errors = True
+            logging.error("Custom formats: Error in setting shape type with error: {}".format(e))
+
+        try:
+            if settings.get("fill", False) and "Fill" in style:
+                helpers.ShapeFormats._set_fill(shape.fill, style["Fill"])
+        except Exception as e:
+            errors = True
+            logging.error("Custom formats: Error in setting fill with error: {}".format(e))
+
+        try:
+            if settings.get("line", False) and "Line" in style:
+                helpers.ShapeFormats._set_line(shape.line, style["Line"])
+        except Exception as e:
+            errors = True
+            logging.error("Custom formats: Error in setting line with error: {}".format(e))
+
+        try:
+            if settings.get("textframe2", False) and "TextFrame2" in style:
+                helpers.ShapeFormats._set_textframe(shape.textframe2, style["TextFrame2"])
+        except Exception as e:
+            errors = True
+            logging.error("Custom formats: Error in setting textframe with error: {}".format(e))
+
+        try:
+            if settings.get("shadow", False):
+                # order is important here. shadow must be last as setting glow, reflection or softedge will re-enable shadow
+                if "Glow" in style:
+                    helpers.ShapeFormats._set_glow(shape.glow, style["Glow"])
+                if "Reflection" in style:
+                    helpers.ShapeFormats._set_reflection(shape.reflection, style["Reflection"])
+                if "SoftEdge" in style:
+                    helpers.ShapeFormats._set_softedge(shape.softedge, style["SoftEdge"])
+                if "Shadow" in style:
+                    helpers.ShapeFormats._set_shadow(shape.shadow, style["Shadow"])
+        except Exception as e:
+            errors = True
+            logging.error("Custom formats: Error in setting shadow with error: {}".format(e))
+
+        try:
+            if settings.get("size", False) and "Size" in style:
+                helpers.ShapeFormats._set_size(shape, style["Size"])
+        except Exception as e:
+            errors = True
+            logging.error("Custom formats: Error in setting shape size with error: {}".format(e))
+
+        try:
+            if settings.get("position", False) and "Position" in style:
+                helpers.ShapeFormats._set_position(shape, style["Position"])
+        except Exception as e:
+            errors = True
+            logging.error("Custom formats: Error in setting shape position with error: {}".format(e))
+
+        try:
+            if (settings.get("paragraphformat", False) or settings.get("font", False)) and "IndentLevels" in style:
+                if shape.TextFrame2.TextRange.Paragraphs().Count > 0:
+                    for par in shape.TextFrame2.TextRange.Paragraphs():
+                        indent_level = str(par.ParagraphFormat.IndentLevel)
+                        if indent_level not in style["IndentLevels"] or (indent_level == "1" and par.ParagraphFormat.Bullet.Visible == 0):
+                            indent_level = "0"
+                        if settings.get("paragraphformat", False):
+                            helpers.ShapeFormats._set_paragraphformat(par.ParagraphFormat, style["IndentLevels"][indent_level]["ParagraphFormat"])
+                        if settings.get("font", False):
+                            helpers.ShapeFormats._set_font(par.Font, style["IndentLevels"][indent_level]["Font"])
+                else:
+                    if settings.get("paragraphformat", False):
+                        helpers.ShapeFormats._set_paragraphformat(shape.TextFrame2.TextRange.ParagraphFormat, style["IndentLevels"]["0"]["ParagraphFormat"])
+                    if settings.get("font", False):
+                        helpers.ShapeFormats._set_font(shape.TextFrame2.TextRange.Font, style["IndentLevels"]["0"]["Font"])
+        except Exception as e:
+            errors = True
+            logging.error("Custom formats: Error in setting paragraph format with error: {}".format(e))
+        
+        return errors
+
+
 
     @classmethod
     def get_supertip(cls, index):

@@ -4,6 +4,7 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
+import logging
 
 import bkt.library.powerpoint as pplib
 from collections import OrderedDict
@@ -14,6 +15,7 @@ class ShapeFormats(object):
 
     @classmethod
     def mult_setattr(cls, obj, name, value):
+        logging.debug("mult_setattr: setting {} = {}".format(name, value))
         attrs = name.split(".")
         for name in attrs[:-1]:
             try:
@@ -64,6 +66,7 @@ class ShapeFormats(object):
         return tmp
     @classmethod
     def _set_type(cls, shape, type_dict):
+        logging.debug("customformats: set type")
         shape.AutoShapeType = type_dict["AutoShapeType"]
 
         if shape.VerticalFlip != type_dict["VerticalFlip"]:
@@ -146,6 +149,7 @@ class ShapeFormats(object):
         return tmp
     @classmethod
     def _set_fill(cls, fill_object, fill_dict):
+        logging.debug("customformats: set fill")
         for key, value in fill_dict.items():
             if key == "Pattern":
                     fill_object.Patterned(value)
@@ -193,6 +197,7 @@ class ShapeFormats(object):
         return tmp
     @classmethod
     def _set_line(cls, line_object, line_dict):
+        logging.debug("customformats: set line")
         for key, value in line_dict.items():
             cls.mult_setattr(line_object, key, value)
 
@@ -201,20 +206,23 @@ class ShapeFormats(object):
         tmp = OrderedDict()
         if shadow_object.Visible == -1:
             tmp['Visible'] = -1
-            if shadow_object.Type > 0:
+            if shadow_object.Type != -2: #msoShadowMixed
                 tmp['Type'] = shadow_object.Type
-            cls._write_color_to_array(tmp, shadow_object.ForeColor, 'ForeColor')
-            tmp['Size'] = float(shadow_object.Size)
-            tmp['Style'] = shadow_object.Style
-            tmp['Blur'] = float(shadow_object.Blur)
-            tmp['OffsetX'] = float(shadow_object.OffsetX)
-            tmp['OffsetY'] = float(shadow_object.OffsetY)
-            tmp['Transparency'] = float(shadow_object.Transparency)
+                cls._write_color_to_array(tmp, shadow_object.ForeColor, 'ForeColor')
+            else:
+                tmp['Style'] = shadow_object.Style
+                cls._write_color_to_array(tmp, shadow_object.ForeColor, 'ForeColor')
+                tmp['Size'] = float(shadow_object.Size)
+                tmp['Blur'] = float(shadow_object.Blur)
+                tmp['OffsetX'] = float(shadow_object.OffsetX)
+                tmp['OffsetY'] = float(shadow_object.OffsetY)
+                tmp['Transparency'] = float(shadow_object.Transparency)
         else:
             tmp['Visible'] = 0
         return tmp
     @classmethod
     def _set_shadow(cls, shadow_object, shadow_dict):
+        logging.debug("customformats: set shadow")
         for key, value in shadow_dict.items():
             cls.mult_setattr(shadow_object, key, value)
 
@@ -226,24 +234,26 @@ class ShapeFormats(object):
             tmp['Radius'] = float(glow_object.Radius)
             tmp['Transparency'] = float(glow_object.Transparency)
         else:
-            tmp['Radius'] = 0
+            tmp['Radius'] = 0.0
         return tmp
     @classmethod
     def _set_glow(cls, glow_object, glow_dict):
+        logging.debug("customformats: set glow")
         for key, value in glow_dict.items():
             cls.mult_setattr(glow_object, key, value)
 
     @classmethod
     def _get_softedge(cls, softedge_object):
         tmp = OrderedDict()
-        if softedge_object.Type > 0:
+        if softedge_object.Radius > 0:
             tmp['Type'] = softedge_object.Type
             tmp['Radius'] = float(softedge_object.Radius)
         else:
-            tmp['Type'] = 0
+            tmp['Radius'] = 0.0
         return tmp
     @classmethod
     def _set_softedge(cls, softedge_object, softedge_dict):
+        logging.debug("customformats: set softedge")
         for key, value in softedge_dict.items():
             cls.mult_setattr(softedge_object, key, value)
 
@@ -261,6 +271,7 @@ class ShapeFormats(object):
         return tmp
     @classmethod
     def _set_reflection(cls, reflection_object, reflection_dict):
+        logging.debug("customformats: set reflection")
         for key, value in reflection_dict.items():
             cls.mult_setattr(reflection_object, key, value)
 
@@ -281,6 +292,7 @@ class ShapeFormats(object):
         return tmp
     @classmethod
     def _set_textframe(cls, textframe_object, textframe_dict):
+        logging.debug("customformats: set textframe")
         for key, value in textframe_dict.items():
             cls.mult_setattr(textframe_object, key, value)
 
@@ -315,6 +327,7 @@ class ShapeFormats(object):
         return tmp
     @classmethod
     def _set_font(cls, font_object, font_dict):
+        logging.debug("customformats: set font")
         for key, value in font_dict.items():
             cls.mult_setattr(font_object, key, value)
     
@@ -358,6 +371,7 @@ class ShapeFormats(object):
         return tmp
     @classmethod
     def _set_paragraphformat(cls, parfor_object, parfor_dict):
+        logging.debug("customformats: set parformat")
         for key, value in parfor_dict.items():
             cls.mult_setattr(parfor_object, key, value)
 
@@ -370,6 +384,7 @@ class ShapeFormats(object):
         return tmp
     @classmethod
     def _set_size(cls, shape, size_dict):
+        logging.debug("customformats: set size")
         shape.LockAspectRatio = 0
         shape.Width = size_dict["Width"]
         shape.Height = size_dict["Height"]
@@ -384,6 +399,7 @@ class ShapeFormats(object):
         return tmp
     @classmethod
     def _set_position(cls, shape, position_dict):
+        logging.debug("customformats: set position")
         shape.Left = position_dict["Left"]
         shape.Top = position_dict["Top"]
         shape.Rotation = position_dict["Rotation"]
