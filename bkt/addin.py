@@ -550,7 +550,7 @@ class AddIn(object):
                     #_h.exception_as_message('failed to load %s' % module)
         
 
-        CACHE_VERSION = "20190328"
+        CACHE_VERSION = "20190411"
         cache_file = os.path.join( _h.get_cache_folder(), "import.cache" )
         import_cache = shelve.open(cache_file)
 
@@ -563,7 +563,7 @@ class AddIn(object):
 
         try:
             # raise KeyError("STOP CACHE")
-            if import_cache['cache.version'] != CACHE_VERSION or import_cache['len_folders'] != len(bkt.config.feature_folders):
+            if import_cache['cache.version'] != CACHE_VERSION or import_cache['cache.hash'] != hash(str(bkt.config.feature_folders)):
                 logging.warning('invalid cache, fallback to normal import process')
                 raise KeyError("Invalid cache version")
 
@@ -675,7 +675,7 @@ class AddIn(object):
             
             #save to cache
             import_cache['cache.version'] = CACHE_VERSION
-            import_cache['len_folders'] = len(bkt.config.feature_folders)
+            import_cache['cache.hash'] = hash(str(bkt.config.feature_folders))
             import_cache['sys.path'] = _c_sys_paths
             import_cache['resources_folders'] = _c_resources_folders
             import_cache['bkt_inits'] = _c_bkt_inits
