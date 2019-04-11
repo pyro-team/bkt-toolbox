@@ -13,13 +13,12 @@
   * PPT-Toolbar: Verknüpfte-Shapes-Tab (wird bei Auswahl von verknüpftem Shape sichtbar)
   * PPT-Toolbar: Auswahlmenü für Hintergrund- und Linien-Transparenz
   * PPT-Toolbar: Widescreen-Version der Toolbar als Feature-Modul aktivierbar
-  * PPT-Toolbar: Kleines Popup-Fenster für Wechselshapes hinzugefügt
+  * PPT-Toolbar: Kleines Popup-Fenster für Wechselshapes, verknüpfte Shapes und Thumbnails hinzugefügt
   * PPT-Toolbar: Funktion zum Übertragen von Bildausschnitt/-zuschnitt sowie Tabellengrößen
   * PPT-Toolbar: Diverse Erweiterungen für verknüpfte Shapes (Eigenschaften für Suche, Toleranz, Anzahl Folien, etc.)
   * PPT-Toolbar: [BETA] Werkzeugleiste für schnelles Farbbearbeitung und -auswahl (QuickEdit-Feature)
   * PPT-Toolbar: [BETA] Modul für Definition von bis zu 5 benutzerdefinierten Formaten
   * PPT-Toolbar: [EXPERIMENTELL] Mini-Popup markiert Master-Shape (zuerst bzw. zuletzt markiertes Shape)
-  * PPT-Toolbar: [EXPERIMENTELL] Implementierung von Popup-Fenstern für spezielle Shapes
 
 ## CHANGED
   * BKT: Update auf aktuelle IronPython-Version 2.7.9
