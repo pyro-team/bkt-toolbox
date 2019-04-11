@@ -58,9 +58,9 @@ class ViewModel(bkt.ui.ViewModelSingleton):
 
         self._editmode  = False
 
-        self.image_pickup  = bkt.ui.load_bitmapimage("qe_pickup")
-        self.image_nocolor = bkt.ui.load_bitmapimage("qe_nocolor")
-        self.image_edit    = bkt.ui.load_bitmapimage("qe_edit")
+        # self.image_pickup  = bkt.ui.load_bitmapimage("qe_pickup")
+        # self.image_nocolor = bkt.ui.load_bitmapimage("qe_nocolor")
+        # self.image_edit    = bkt.ui.load_bitmapimage("qe_edit")
     
     def init_buttons(self):
         self._colors_theme = ObservableCollection[QEColorButton]()
