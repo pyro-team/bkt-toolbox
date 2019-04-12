@@ -41,7 +41,7 @@ class CustomQuickEdit(object):
         'position':         True,
     }
     always_keep_theme_color = True #set to true to remain theme color even if RGB value differs due to different color scheme
-    use_real_thumbnails = False #set to true to use thumbnails of the actual shape and not generated images for the buttons
+    # use_real_thumbnails = False #set to true to use thumbnails of the actual shape and not generated images for the buttons
 
     config_folder = os.path.join(bkt.helpers.get_fav_folder(), "custom_formats")
     cache_images = {}
@@ -137,13 +137,13 @@ class CustomQuickEdit(object):
         return os.path.join(cls.config_folder, "{}_{}_{}.png".format(file, usage, chr(65+index)) )
 
     @classmethod
-    def get_image_by_index(cls, index, size=16):
+    def get_image_by_index(cls, index, size=16, real_thumb=False):
         cls._initialize()
         cache_key = "{}-{}".format(index, size)
         try:
             return cls.cache_images[cache_key]
         except:
-            if cls.use_real_thumbnails:
+            if real_thumb:
                 ### OPTION A: thumbnail of original shape
                 file = cls.get_image_filename_by_index(index, "thumb")
             else:
@@ -180,9 +180,6 @@ class CustomQuickEdit(object):
 
     @classmethod
     def generate_thumbnail(cls, index, shape, size=64):
-        # if not cls.use_real_thumbnails:
-        #     return
-        
         file = cls.get_image_filename_by_index(index, "thumb")
         shape.Export(file, 2) #2=ppShapeFormatPNG, width, height, export-mode: 1=ppRelativeToSlide, 2=ppClipRelativeToSlide, 3=ppScaleToFit, 4=ppScaleXY
 
@@ -609,6 +606,45 @@ def qe_button(i):
             )
 
 
+class FormatLibGallery(bkt.ribbon.Gallery):
+    
+    def __init__(self, **kwargs):
+        parent_id = kwargs.get('id') or ""
+        my_kwargs = dict(
+            label = 'Styles',
+            columns = 5,
+            # image = 'shapetable',
+            image_mso = 'SlidesPerPage4Slides',
+            show_item_label=False,
+            screentip="Custom-Styles Gallerie",
+            # supertip="Füge eine Tabelle aus Standard-Shapes ein",
+            children=[
+                bkt.ribbon.Button(id=parent_id + "_pickup", label="Neuen Style aufnehmen", image_mso="PickUpStyle", on_action=bkt.Callback(CustomQuickEdit.show_pickup_window, shape=True), get_enabled = bkt.apps.ppt_shapes_exactly1_selected,),
+            ]
+        )
+        my_kwargs.update(kwargs)
+
+        super(FormatLibGallery, self).__init__(**my_kwargs)
+
+    def on_action_indexed(self, selected_item, index, context):
+        CustomQuickEdit.apply_custom_style(index, context)
+    
+    def get_item_count(self):
+        return len(CustomQuickEdit.custom_styles)
+        
+    def get_item_label(self, index):
+        return "Style {}".format(index+1)
+    
+    def get_item_screentip(self, index):
+        return "Style {} anwenden".format(index+1)
+        
+    def get_item_supertip(self, index):
+        return CustomQuickEdit.get_supertip(index)
+    
+    def get_item_image(self, index):
+        return CustomQuickEdit.get_image_by_index(index, size=32, real_thumb=True)
+
+
 customformats_group = bkt.ribbon.Group(
     id="bkt_customformats_group",
     label='Styles',
@@ -650,7 +686,8 @@ customformats_group = bkt.ribbon.Group(
                     get_enabled=bkt.Callback(lambda: not CustomQuickEdit.is_default_style())
                 ),
             ]
-        )
+        ),
+        FormatLibGallery(id="customformats_gallery", size="large")
     ]
 )
 
