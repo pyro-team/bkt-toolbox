@@ -13,7 +13,7 @@ class SelectionOps(object):
 
     @classmethod
     def toggle_move_resize(cls, pressed):
-        cls.move_resize = (pressed == True)
+        cls.move_resize = pressed
 
     @staticmethod
     def get_selection_height(areas):

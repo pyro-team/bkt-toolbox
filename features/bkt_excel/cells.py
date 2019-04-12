@@ -301,7 +301,7 @@ class CellsOps(object):
         if not xllib.confirm_no_undo(): return
         for area in areas:
             for cell in iter(area.Cells):
-                if cell.Value2 == None:
+                if cell.Value2 is None:
                     continue
                 cell.Value = "'" + cell.Text
             area.NumberFormat = "@" #Text
@@ -314,7 +314,7 @@ class CellsOps(object):
             #area.NumberFormatLocal = general_format
             #area.Value = application.WorksheetFunction.NumberValue( area )
             for cell in iter(area.Cells):
-                if cell.HasFormula or cell.Value2 == None:
+                if cell.HasFormula or cell.Value2 is None:
                     continue
                 if cell.NumberFormat == "@": #Text
                     cell.NumberFormatLocal = general_format
@@ -330,7 +330,7 @@ class CellsOps(object):
         for area in areas:
             area.NumberFormat = "@" #Text
             for cell in iter(area.Cells):
-                if cell.Value2 == None:
+                if cell.Value2 is None:
                     continue
                 cell.Value = "'" + cell.Text
 
@@ -340,7 +340,7 @@ class CellsOps(object):
         general_format = application.International(xlcon.XlApplicationInternational["xlGeneralFormatName"])
         for area in areas:
             for cell in iter(area.Cells):
-                if cell.HasFormula or cell.Value2 == None or type(cell.Value()) == DateTime:
+                if cell.HasFormula or cell.Value2 is None or isinstance(cell.Value(), DateTime):
                     continue
                 if cell.NumberFormat == "@": #Text
                     cell.NumberFormatLocal = general_format
@@ -443,7 +443,7 @@ class CellsOps(object):
         for cell in cells:
             if cell.Row == 1:
                 continue
-            if cell.Value2 == None:
+            if cell.Value2 is None:
                 try:
                     cell.Value = cell.Offset(-1,0).MergeArea(1).Value()
                     # to_be_filled = xllib.range_union(to_be_filled, cell, application)

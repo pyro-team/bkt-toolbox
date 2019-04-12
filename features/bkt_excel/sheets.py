@@ -413,10 +413,10 @@ class SheetsOps(object):
             #full_path = folder + "\\" + file
             full_path = os.path.join(folder, file)
 
-            if os.path.isdir(full_path) == True:
+            if os.path.isdir(full_path):
                 subfolders.append(full_path)
 
-            if os.path.isfile(full_path) == True:
+            if os.path.isfile(full_path):
                 try:
                     full_path = os.path.normpath(full_path)
                     root,ext = os.path.splitext(file)
