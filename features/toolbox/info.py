@@ -91,12 +91,19 @@ class ToolbarVariations(object):
         from os.path import dirname, realpath, normpath, join
         folders = context.config.feature_folders or []
         folder = join(dirname(realpath(__file__)), "..")
-        print(normpath(join(folder,"toolbox")))
-        if pressed:
+        # print(normpath(join(folder,"toolbox")))
+        # remove both folders just in case
+        try:
             folders.remove(normpath(join(folder,"toolbox")))
+        except ValueError:
+            pass
+        try:
+            folders.remove(normpath(join(folder,"toolbox_widescreen")))
+        except ValueError:
+            pass
+        if pressed:
             folders.insert(0, normpath(join(folder,"toolbox_widescreen")))
         else:
-            folders.remove(normpath(join(folder,"toolbox_widescreen")))
             folders.insert(0, normpath(join(folder,"toolbox")))
         context.config.set_smart("feature_folders", folders)
         #reload bkt using settings module
