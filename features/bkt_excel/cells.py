@@ -436,6 +436,12 @@ class CellsOps(object):
             area.Value = application.WorksheetFunction.Clean(area)
 
     @staticmethod
+    def trim_python(application, cells):
+        if not xllib.confirm_no_undo(): return
+        for cell in cells:
+            cell.Value = cell.Text.strip()
+
+    @staticmethod
     def fill_down(cells, application):
         if not xllib.confirm_no_undo(): return
 
@@ -878,6 +884,15 @@ zellen_inhalt_gruppe = bkt.ribbon.Group(
                         image_mso='TextDirectionContext',
                         supertip="Entferne überflüssige Leerzeichen am Anfang oder Ende aller selektierten Zellen (wie Excel-Funktion GLÄTTEN).",
                         on_action=bkt.Callback(CellsOps.trim, application=True, areas=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'cells_trim_python',
+                        label="Erweitertes Glätten/Kürzen (Trim)",
+                        show_label=True,
+                        # image_mso='TextDirectionContext',
+                        supertip="Entferne überflüssige Leerzeichen am Anfang oder Ende aller selektierten Zellen mit Pythons Strip-Funktion.",
+                        on_action=bkt.Callback(CellsOps.trim_python, application=True, cells=True),
                         get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                     ),
                     bkt.ribbon.Button(
