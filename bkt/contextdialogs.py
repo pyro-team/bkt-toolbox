@@ -8,6 +8,9 @@ import traceback
 from . import dotnet
 wpf = dotnet.import_wpf()
 
+# for getting coordinates for rotated shapes
+from bkt.library.algorithms import get_bounding_nodes
+
 # for Primitives.Popup
 from System.Windows import Controls
 
@@ -380,19 +383,28 @@ class DialogHelpers(object):
         try:
             #window = cls.get_window_from_shape(shape)
             #window = context.app.ActiveWindow
-
+            
+            # consider rotated shapes
+            if shape.rotation != 0:
+                nodes = get_bounding_nodes(shape)
+                shp_x = min( p[0] for p in nodes )
+                shp_y = max( p[1] for p in nodes )
+                # FIXME: this is not ideal for long rotated shapes, find a better way? maybe even rotate the whole contextdialog?
+            else:
+                shp_x, shp_y = shape.left, shape.top+shape.height
+            
             if consider_scaling:
                 scaling_factor = cls.dpi_scaling_factor()
                 # offset -7 for shadow radius
                 # FIXME: window shadow should be outside of client window, see
                 # https://marcin.floryan.pl/blog/2010/08/wpf-drop-shadow-with-windows-dwm-api
-                left = active_window.PointsToScreenPixelsX(shape.left - 7 ) / scaling_factor
-                top  = active_window.PointsToScreenPixelsY(shape.top + shape.height - 7 + 6) / scaling_factor
+                left = active_window.PointsToScreenPixelsX(shp_x - 7 ) / scaling_factor
+                top  = active_window.PointsToScreenPixelsY(shp_y - 7 + 6) / scaling_factor
                 # left = Forms.Control.MousePosition.X/ scaling_factor
                 # top = Forms.Control.MousePosition.Y/ scaling_factor
             else:
-                left = active_window.PointsToScreenPixelsX(shape.left)
-                top  = active_window.PointsToScreenPixelsY(shape.top + shape.height + 4)
+                left = active_window.PointsToScreenPixelsX(shp_x)
+                top  = active_window.PointsToScreenPixelsY(shp_y + 4)
 
             return left, top
         except:
