@@ -1,4 +1,4 @@
-# Unreleased
+# Release 2019-04-18 (2.5)
 
 ## ADDED
   * BKT: Event-Handling, bspw. zum Ausführen von Aktionen bei Start oder Wechsel eines Fensters

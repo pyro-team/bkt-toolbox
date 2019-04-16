@@ -4,7 +4,7 @@
 #define MyAppName "BKT-Toolbox"
 #define MyAppPublisher "Business Kasper"
 #define MyAppVersion "2.5"
-#define MyReleaseDate "190225"
+#define MyReleaseDate "190418"
 ;GetDateTimeString('yymmdd', '', '');
 
 [Setup]
@@ -43,7 +43,7 @@ Name: "custom"; Description: "Benutzerdefinierte Auswahl"; Flags: iscustom
 Name: "powerpoint"; Description: "PowerPoint"; Types: full
 Name: "powerpoint\toolbar"; Description: "PowerPoint Toolbar mit Extras"; Types: full compact custom; Flags: fixed
 Name: "powerpoint\consol"; Description: "Tool zum Konsolidieren und Teilen"; Types: full
-Name: "powerpoint\customformats"; Description: "Benutzerdefiniere Formatvorlagen"; Types: full
+; Name: "powerpoint\customformats"; Description: "Benutzerdefiniere Formatvorlagen"; Types: full
 Name: "powerpoint\quickedit"; Description: "QuickEdit Toolbar (Farbleiste)"; Types: full
 Name: "excel"; Description: "Excel"; Types: full
 Name: "excel\toolbar"; Description: "Excel Toolbar (BETA)"; Types: full
@@ -53,19 +53,16 @@ Name: "visio\toolbar"; Description: "Visio Toolbar (BETA)"; Types: full
 
 [InstallDelete]
 Type: filesandordirs; Name: "{app}\resources\cache"
+Type: filesandordirs; Name: "{app}\resources\settings"
 
 [Files]
 Source: "bin\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "bkt\*"; DestDir: "{app}\bkt"; Flags: ignoreversion recursesubdirs
 Source: "features\*"; DestDir: "{app}\features"; Flags: ignoreversion recursesubdirs
-Source: "installer\*"; DestDir: "{app}\features"; Flags: ignoreversion recursesubdirs
+Source: "installer\*"; DestDir: "{app}\installer"; Flags: ignoreversion recursesubdirs
 Source: "modules\*"; DestDir: "{app}\modules"; Flags: ignoreversion recursesubdirs
-Source: "resources\*"; DestDir: "{app}\resources"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "\registry\local\*,\xml\Microsoft.*.xml"
+Source: "resources\*"; DestDir: "{app}\resources"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "\cache\*,\settings\*,\registry\local\*,\xml\*"
 Source: "documentation\example_feature_folder\*"; DestDir: "{app}\documentation\example_feature_folder"; Flags: ignoreversion recursesubdirs createallsubdirs
-
-Source: "CHANGELOG.md"; DestDir: "{app}\bkt-framework"; Flags: ignoreversion
-Source: "LICENSE.md"; DestDir: "{app}\bkt-framework"; Flags: ignoreversion
-Source: "README.md"; DestDir: "{app}\bkt-framework"; Flags: ignoreversion
 
 Source: "CHANGELOG.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE.md"; DestDir: "{app}"; Flags: ignoreversion
@@ -84,7 +81,7 @@ Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m install --app exc
 Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m install --app visio"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: visio and not excel
 Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m install --app excel --app visio"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: excel and visio
 
-Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m config --add_folder features\ppt_customformats"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint Benutzerdef. Formate aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\customformats
+; Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m config --add_folder features\ppt_customformats"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint Benutzerdef. Formate aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\customformats
 Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m config --add_folder features\ppt_consolidation_split"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint-Konsolidierungstool aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\consol
 Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m config --add_folder features\ppt_quickedit"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint-QuickEdit aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\quickedit
 Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m config --add_folder features\bkt_excel"; WorkingDir: "{app}\installer"; StatusMsg: "Excel-Toolbar aktivieren..."; Flags: runasoriginaluser runhidden; Components: excel\toolbar
@@ -95,3 +92,7 @@ Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m config --add_fold
   
 [UninstallRun]
 Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m install --uninstall"; WorkingDir: "{app}\installer"
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{app}\resources\cache"
+Type: filesandordirs; Name: "{app}\resources\xml"

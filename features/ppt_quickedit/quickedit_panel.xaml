@@ -39,6 +39,25 @@
     <Border BorderThickness="0.5" BorderBrush="RoyalBlue">
     <DockPanel x:Name="DataPanel" Margin="0" Background="WhiteSmoke">
         <DockPanel x:Name="TitleBar" DockPanel.Dock="Top">
+            <DockPanel.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Layout wechseln" Click="change_orientation" />
+                    <Separator />
+                    <MenuItem Header="Zuletzt verwendete Farben anzeigen" IsCheckable="True" IsChecked="{Binding recent_visible}" />
+                    <MenuItem Header="Beim Start automatisch anzeigen" IsCheckable="True" IsChecked="{Binding auto_start}" />
+                    <!-- <MenuItem Header="Links von Folie andocken" IsCheckable="True" IsChecked="{Binding docking_left}" Click="update_docking" /> //FUNKTIONIERT NOCH NICHT ZUVERLÄSSIG -->
+                    <Separator />
+                    <MenuItem Header="Alle Farben neu laden" Click="ForceReload" />
+                    <MenuItem Header="Eigene Farben zurücksetzen" Click="ResetOwnColors" />
+                    <Separator />
+                    <MenuItem Header="Hilfe öffnen" Click="ShowHelp" />
+                    <MenuItem FontFamily="Lucida Sans Typewriter" Header="[SHIFT]: Auswahl" IsEnabled="False" />
+                    <MenuItem FontFamily="Lucida Sans Typewriter" Header=" [STRG]: Linie" IsEnabled="False" />
+                    <MenuItem FontFamily="Lucida Sans Typewriter" Header="  [ALT]: Text" IsEnabled="False" />
+                    <Separator />
+                    <MenuItem Header="Schließen" Click="cancel" />
+                </ContextMenu>
+            </DockPanel.ContextMenu>
             <!-- <Button FontSize="8" FontFamily="Marlett" BorderThickness="0" Focusable="False" Background="Transparent" Foreground="DimGray"
                     Click="change_orientation" DockPanel.Dock="Left" Height="7" Width="7" Padding="0" Content="v"> -->
             <Button BorderThickness="0" Focusable="False" Background="Transparent"
@@ -50,23 +69,6 @@
                         </Canvas>
                     </Viewbox>
                 </Button.Content>
-                <Button.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Layout wechseln" Click="change_orientation" />
-                        <Separator />
-                        <MenuItem Header="Zuletzt verwendete Farben anzeigen" IsCheckable="True" IsChecked="{Binding recent_visible}" />
-                        <MenuItem Header="Beim Start automatisch anzeigen" IsCheckable="True" IsChecked="{Binding auto_start}" />
-                        <!-- <MenuItem Header="Links von Folie andocken" IsCheckable="True" IsChecked="{Binding docking_left}" Click="update_docking" /> //FUNKTIONIERT NOCH NICHT ZUVERLÄSSIG -->
-                        <Separator />
-                        <MenuItem Header="Alle Farben neu laden" Click="ForceReload" />
-                        <MenuItem Header="Eigene Farben zurücksetzen" Click="ResetOwnColors" />
-                        <Separator />
-                        <MenuItem Header="Hilfe öffnen" Click="ShowHelp" />
-                        <MenuItem FontFamily="Lucida Sans Typewriter" Header="[SHIFT]: Auswahl" IsEnabled="False" />
-                        <MenuItem FontFamily="Lucida Sans Typewriter" Header=" [STRG]: Linie" IsEnabled="False" />
-                        <MenuItem FontFamily="Lucida Sans Typewriter" Header="  [ALT]: Text" IsEnabled="False" />
-                    </ContextMenu>
-                </Button.ContextMenu>
             </Button>
             <!-- <Button FontSize="7" FontFamily="Marlett" BorderThickness="0" Background="Transparent" Foreground="DimGray"
                     Click="cancel" DockPanel.Dock="Right" Height="7" Width="7" Padding="0" Content="r" /> -->
