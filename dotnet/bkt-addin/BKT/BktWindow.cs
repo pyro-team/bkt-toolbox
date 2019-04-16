@@ -91,6 +91,30 @@ namespace BKT
             }
         }
 
+        public void ShiftWindowOntoScreen()
+        {
+            DebugMessage("BKT Window: Shift window back onto screen");
+            if (this.Top < SystemParameters.VirtualScreenTop)
+            {
+                this.Top = SystemParameters.VirtualScreenTop;
+            }
+
+            if (this.Left < SystemParameters.VirtualScreenLeft)
+            {
+                this.Left = SystemParameters.VirtualScreenLeft;
+            }
+
+            if (this.Left + this.Width > SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth)
+            {
+                this.Left = SystemParameters.VirtualScreenWidth + SystemParameters.VirtualScreenLeft - this.Width;
+            }
+
+            if (this.Top + this.Height > SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight)
+            {
+                this.Top = SystemParameters.VirtualScreenHeight + SystemParameters.VirtualScreenTop - this.Height;
+            }
+        }
+
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             if (msg == WM_MOUSEACTIVATE)
