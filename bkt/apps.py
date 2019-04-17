@@ -94,9 +94,9 @@ AppEvents.bkt_unload     = AppEventType()
 AppEvents.bkt_invalidate = AppEventType()
 
 #Generic office events
-AppEvents.window_activate   = AppEventType(office=True) #keyword args: presentation, window
-AppEvents.window_deactivate = AppEventType(office=True) #keyword args: presentation, window
-AppEvents.selection_changed = AppEventType(office=True) #keyword args: - #NOTE: sheet selection in excel, window selection in ppt
+AppEvents.window_activate   = AppEventType(office=True) #keyword args: ppt: presentation, window; xls: workbook, windows, visio: window
+AppEvents.window_deactivate = AppEventType(office=True) #keyword args: ppt: presentation, window; xls: workbook, windows, visio: NOT AVAILABLE
+AppEvents.selection_changed = AppEventType(office=True) #keyword args: - #NOTE: sheet selection in excel, window selection in ppt, selection or cell in visio
 
 #PPT-specific events
 AppEvents.slide_selection_changed  = AppEventType(office=True) #keyword args: -
@@ -309,14 +309,20 @@ class AppCallbacksExcel(AppCallbacksBase):
     
     def sheet_selection_changed(self, sheet, target):
         logging.debug("app event sheet_selection_changed")
+
+        self.fire_event(self.events.selection_changed)
         self.invalidate()
 
     def window_activate(self, workbook, window):
         logging.debug("app event window_activate")
+
+        self.fire_event(self.events.window_activate, workbook=workbook, window=window)
         self.invalidate()
 
     def window_deactivate(self, workbook, window):
         logging.debug("app event window_deactivate")
+
+        self.fire_event(self.events.window_deactivate, workbook=workbook, window=window)
         self.invalidate()
 
 
@@ -354,15 +360,44 @@ class AppCallbacksVisio(AppCallbacksBase):
     # ==============================
 
     def bind_app_events(self):
-        self.context.app.SelectionChanged += self.invalidate
-        self.context.app.CellChanged += self.invalidate
-        self.context.app.WindowActivated += self.invalidate
+        
+        if self.context is None:
+            print('WARNING: no addin context available, no application events registered')
+            return
+
+        app = self.context.app
+        if app is None:
+            # for tests without application object
+            print('WARNING: no application available, no application events registered')
+            return
+        
+        app.SelectionChanged += self.selection_changed
+        app.CellChanged += self.cell_changed
+        app.WindowActivated += self.window_activated
+
 
     def unbind_app_events(self):
-        self.context.app.SelectionChanged -= self.invalidate
-        self.context.app.CellChanged -= self.invalidate
-        self.context.app.WindowActivated -= self.invalidate
+        self.context.app.SelectionChanged -= self.selection_changed
+        self.context.app.CellChanged -= self.cell_changed
+        self.context.app.WindowActivated -= self.window_activated
 
+    def selection_changed(self, window):
+        logging.debug("app event selection_changed")
+
+        self.fire_event(self.events.selection_changed)
+        self.invalidate()
+
+    def cell_changed(self, cell):
+        logging.debug("app event cell_changed")
+
+        self.fire_event(self.events.selection_changed)
+        self.invalidate()
+
+    def window_activated(self, window):
+        logging.debug("app event window_activated")
+
+        self.fire_event(self.events.window_activate, window=window)
+        self.invalidate()
 
 
 class AppCallbacksPowerPoint(AppCallbacksBase):
