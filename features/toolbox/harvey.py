@@ -210,7 +210,7 @@ class HarveyBalls(object):
         for n in range(0,harvey_columns)
     ]
     harvey_labels = [
-        '%s/%s' % (n,n_max) if n<=n_max else ''
+        '%s/%s' % (n,n_max) if n<=n_max else ' '
         for [n, n_max] in harvey_buttons
     ]
     
