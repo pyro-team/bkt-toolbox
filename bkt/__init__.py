@@ -19,7 +19,7 @@ if not 'IronPython' in sys.version:
 
 del sys
 
-full_version = 'BKT r18-03-29'
+full_version = 'BKT r19-04-18'
 
 # import modules with less dependencies first
 from bkt.annotation import FeatureContainer

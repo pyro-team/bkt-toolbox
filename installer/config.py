@@ -34,7 +34,8 @@ elif args.migrate is not None:
         old_path = os.path.normpath(os.path.join(os.path.dirname(__file__),'..', '..', 'features'))
         new_path = os.path.normpath(os.path.join(os.path.dirname(__file__),'..', 'features'))
         folders = getattr(helper.config, "feature_folders") or []
-        new_folders = [folder.replace(old_path, new_path) for folder in folders]
+        new_folders = [folder.replace(old_path+"\\", new_path+"\\") for folder in folders] #replace old path with new path
+        new_folders = [folder for folder in new_folders if os.path.exists(folder)] #remove non-existent folders
         print("All folders updated")
 
         helper.config.set_smart("feature_folders", new_folders)

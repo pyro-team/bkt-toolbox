@@ -11,8 +11,8 @@ import bkt
 # reuse settings-menu from bkt-framework
 import modules.settings as settings
 
-version_short = 'v2.4'
-version_long  = 'Powerpoint Toolbox v2.4 / r18-03-29'
+version_short = 'v2.5'
+version_long  = 'Powerpoint Toolbox v2.5 / r19-04-18'
 
 
 # Workaround to activate Tab when new shape is added instead of auto switching to "Format" contextual tab
@@ -91,12 +91,19 @@ class ToolbarVariations(object):
         from os.path import dirname, realpath, normpath, join
         folders = context.config.feature_folders or []
         folder = join(dirname(realpath(__file__)), "..")
-        print(normpath(join(folder,"toolbox")))
-        if pressed:
+        # print(normpath(join(folder,"toolbox")))
+        # remove both folders just in case
+        try:
             folders.remove(normpath(join(folder,"toolbox")))
+        except ValueError:
+            pass
+        try:
+            folders.remove(normpath(join(folder,"toolbox_widescreen")))
+        except ValueError:
+            pass
+        if pressed:
             folders.insert(0, normpath(join(folder,"toolbox_widescreen")))
         else:
-            folders.remove(normpath(join(folder,"toolbox_widescreen")))
             folders.insert(0, normpath(join(folder,"toolbox")))
         context.config.set_smart("feature_folders", folders)
         #reload bkt using settings module
