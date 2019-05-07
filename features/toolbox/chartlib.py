@@ -24,6 +24,18 @@ ColorTranslator = Drawing.ColorTranslator
 Forms = dotnet.import_forms() #required for clipboard functions
 
 
+from threading import Thread
+from contextlib import contextmanager
+
+@contextmanager
+def open_presentation_without_window(context, filename):
+    ''' opens and returns presentation file '''
+    try:
+        presentation = context.app.Presentations.Open(filename, True, False, False)
+        yield presentation
+    finally:
+        presentation.Saved = True
+        presentation.Close()
 
 # TODO
 # ChartLib --> ChartLibMenu
@@ -707,18 +719,32 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     
     def reset_gallery_items(self, context):
         '''Forces Gallery to re-initialize and generate thumbnail-images'''
-        self.init_gallery_items(context, force_thumbnail_generation=True)
+        # reset gallery in a separate thread so core thread is still able to handle the app-events (i.e. presentation open/close).
+        # otherwise when this function is called in a loop, some presentations remain open and block ppt process from being quit.
+        t = Thread(target=self.init_gallery_items, args=(context, True))
+        t.start()
+        t.join()
+        # self.init_gallery_items(context, force_thumbnail_generation=True)
     
     def init_gallery_items(self, context, force_thumbnail_generation=False):
-        # FIXME: use general presentation_open method
-        try:
-            presentation = context.app.Presentations.Open(self.filename, True, False, False)
-            self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation)
-        except:
-            logging.error('error initializing gallery')
-            logging.debug(traceback.format_exc())
-        finally:
-            presentation.Close()
+        with open_presentation_without_window(context, self.filename) as presentation:
+            try:
+                self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation)
+            except:
+                logging.error('error initializing gallery')
+                logging.debug(traceback.format_exc())
+        
+        # try:
+        #     presentation = Charlib.open_presentation_file(context, self.filename)
+        #     # presentation = context.app.Presentations.Open(self.filename, True, False, True) #filename, readonly, untitled, withwindow
+        #     self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation)
+        # except:
+        #     logging.error('error initializing gallery')
+        #     logging.debug(traceback.format_exc())
+        # finally:
+        #     # logging.debug('closing presentation: %s' % self.filename)
+        #     presentation.Saved = True
+        #     presentation.Close()
         
     
     def init_gallery_items_from_presentation(self, presentation, force_thumbnail_generation=False):
