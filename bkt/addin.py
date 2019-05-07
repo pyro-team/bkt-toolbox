@@ -39,12 +39,20 @@ if bkt.config.log_write_file == 'true' or (type(bkt.config.log_write_file) == bo
     except:
         pass
     
-    logging.basicConfig(
-        filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "bkt-debug-py.log"), 
-        filemode='w',
-        format='%(asctime)s %(levelname)s: %(message)s', 
-        level=log_level
-    )
+    logfile = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "bkt-debug-py.log")
+    filehandler = logging.FileHandler(logfile, 'w', 'utf-8')
+    filehandler.setLevel(log_level)
+    filehandler.setFormatter(logging.Formatter(u'%(asctime)s %(levelname)s: %(message)s'))
+    logger = logging.getLogger()
+    logger.setLevel(log_level)
+    logger.addHandler(filehandler)
+
+    # logging.basicConfig(
+    #     filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "bkt-debug-py.log"), 
+    #     filemode='w',
+    #     format='%(asctime)s %(levelname)s: %(message)s', 
+    #     level=log_level
+    # )
 
 
 
