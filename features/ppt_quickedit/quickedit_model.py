@@ -802,9 +802,13 @@ class QuickEdit(object):
 
     @staticmethod
     def show_help():
-        from os import startfile
-        helpfile=os.path.join(os.path.dirname(os.path.realpath(__file__)), "resources", "QuickEdit Help.pdf")
-        os.startfile(helpfile)
+        helpfile = os.path.join(os.path.dirname(os.path.realpath(__file__)), "resources", "QuickEdit Help.pdf")
+        try:
+            from os import startfile
+            os.startfile(helpfile)
+        except:
+            logging.error("QuickEdit: Error opening the help file.")
+            bkt.helpers.message("Fehler beim Öffnen der PDF-Hilfedatei. Bitte Datei manuell öffnen: {}".format(helpfile))
 
 #         help_msg = '''
 # 1. Reihe: Farben des Design-Farbschemas der aktuellen Folie.
