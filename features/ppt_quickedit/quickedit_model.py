@@ -679,7 +679,10 @@ class QuickEdit(object):
                     cls._set_forecolor( selection.TextRange2.Font.Line, color)
                 except: #TypeError, COMException (e.g. if table/table cells are selected)
                     for textframe in pplib.iterate_shape_textframes(shaperange):
-                        cls._set_forecolor( textframe.TextRange.Font.Line, color)
+                        try:
+                            cls._set_forecolor( textframe.TextRange.Font.Line, color)
+                        except:
+                            continue
             elif alt:
                 try:
                     if selection.TextRange2.Count == 0:
@@ -687,7 +690,10 @@ class QuickEdit(object):
                     cls._set_forecolor( selection.TextRange2.Font.Fill, color)
                 except: #TypeError, COMException (e.g. if table/table cells are selected)
                     for textframe in pplib.iterate_shape_textframes(shaperange):
-                        cls._set_forecolor( textframe.TextRange.Font.Fill, color)
+                        try:
+                            cls._set_forecolor( textframe.TextRange.Font.Fill, color)
+                        except:
+                            continue
             elif ctrl or shaperange.Connector == -1: #only connectors selected
                 # if shaperange.HasTable == 0:
                 #     cls._set_forecolor(context, shaperange.Line, color_index)
@@ -745,13 +751,18 @@ class QuickEdit(object):
             #shapes or text selected, apply color
             shaperange = cls._get_shape_range(selection)
             if alt and ctrl:
+                # NOTE: deactivation text outline is not implemented in ppt object model, no workaround available
                 try:
                     if selection.TextRange2.Count == 0:
                         raise Exception("no text selected, fallback to shape")
                     selection.TextRange2.Font.Line.Visible = 0
                 except:
                     for textframe in pplib.iterate_shape_textframes(shaperange):
-                        textframe.TextRange.Font.Line.Visible = 0
+                        try:
+                            textframe.TextRange.Font.Line.Visible = 0
+                        except:
+                            continue
+                bkt.helpers.message("Sorry, aber Microsoft hat die Funktion zur Deaktivierung der Textkontur nicht in die Schnittstelle implementiert.")
             elif alt:
                 try:
                     if selection.TextRange2.Count == 0:
@@ -759,7 +770,10 @@ class QuickEdit(object):
                     selection.TextRange2.Font.Fill.Visible = 0
                 except:
                     for textframe in pplib.iterate_shape_textframes(shaperange):
-                        textframe.TextRange.Font.Fill.Visible = 0
+                        try:
+                            textframe.TextRange.Font.Fill.Visible = 0
+                        except:
+                            continue
             elif ctrl:
                 # if shaperange.HasTable == 0:
                 #     shaperange.Line.Visible = 0
