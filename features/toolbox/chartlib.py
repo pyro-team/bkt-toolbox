@@ -10,8 +10,9 @@ import bkt
 import bkt.library.powerpoint as pplib
 
 import os #for os.path, listdir and makedirs
-# import os.path
-        
+import shelve
+# import time
+
 import logging
 import traceback
 
@@ -48,6 +49,16 @@ def open_presentation_without_window(context, filename):
 THUMBNAIL_POSTFIX = '_thumbnails'
 
 
+class ChartLibCache(object):
+    cache = {}
+
+    @classmethod
+    def init_cache(cls):
+        cache_file = os.path.join( bkt.helpers.get_cache_folder(), "chartlib.cache" )
+        cls.cache = shelve.open(cache_file)
+
+
+
 class ChartLib(object):
     
     def __init__(self, copy_shapes=False):
@@ -68,22 +79,55 @@ class ChartLib(object):
 
         # folder for favorites
         # self.fav_folder = os.path.dirname(os.path.realpath(__file__))
-        self.fav_folder = bkt.helpers.get_fav_folder()
+        # self.fav_folder = bkt.helpers.get_fav_folder()
+        self.fav_folder = None
         
         # init slide_action
         self.copy_shapes_setting = copy_shapes
-        if copy_shapes:
+        # if copy_shapes:
+        #     # copy shapes
+        #     self.slide_action = self.copy_shapes_callback
+        #     self.fav_folder = os.path.join(self.fav_folder, "shapelib")
+        # else:
+        #     # copy full slide
+        #     self.slide_action = self.copy_slide_callback
+        #     self.fav_folder = os.path.join(self.fav_folder, "chartlib")
+        
+        # # add favorite folder as first folder
+        # self.library_folders.insert(0, {'title': "Favoriten", 'folder': self.fav_folder} )
+    
+
+    def init_chartlib(self):
+        logging.debug('initializing chartlib')
+
+        #load gallery items cache
+        ChartLibCache.init_cache()
+
+        if self.copy_shapes_setting:
             # copy shapes
+            subfolder = "shapelib"
             self.slide_action = self.copy_shapes_callback
-            self.fav_folder = os.path.join(self.fav_folder, "shapelib")
+
+            self.library_folders.extend( bkt.config.shape_library_folders or [] )
+            self.library_files.extend( bkt.config.shape_libraries or [] )
+
         else:
             # copy full slide
+            subfolder = "chartlib"
             self.slide_action = self.copy_slide_callback
-            self.fav_folder = os.path.join(self.fav_folder, "chartlib")
+
+            self.library_folders.extend( bkt.config.chart_library_folders or [] )
+            self.library_files.extend( bkt.config.chart_libraries or [] )
+
+        # add from feature-folders
+        for folder in bkt.config.feature_folders:
+            chartlib_folder = os.path.join(folder, subfolder)
+            if os.path.exists(chartlib_folder):
+                self.library_folders.append( { 'title':os.path.basename(os.path.realpath(folder)), 'folder':os.path.join(folder, subfolder)})
         
         # add favorite folder as first folder
+        self.fav_folder = os.path.join(bkt.helpers.get_fav_folder(), subfolder)
         self.library_folders.insert(0, {'title': "Favoriten", 'folder': self.fav_folder} )
-    
     
     
     # ===========
@@ -162,6 +206,10 @@ class ChartLib(object):
           root-file 2
         '''
         
+        #initialize chartlib on first call
+        if not self.fav_folder:
+            self.init_chartlib()
+
         # create menu-items for chartlibrary-directories
         if len(self.library_folders) == 0:
             # create empty menu
@@ -751,14 +799,19 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         # self.init_gallery_items(context, force_thumbnail_generation=True)
     
     def init_gallery_items(self, context, force_thumbnail_generation=False):
-        logging.debug("CHARTLIB: start init gallery for {}".format(self.filename))
-        with open_presentation_without_window(context, self.filename) as presentation:
-            try:
-                self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation)
-            except:
-                logging.error('error initializing gallery')
-                logging.debug(traceback.format_exc())
-        logging.debug("CHARTLIB: finish init gallery for {}".format(self.filename))
+        try:
+            if force_thumbnail_generation:
+                raise KeyError("Thumbnail generation not possible from cache")
+            self.init_gallery_items_from_cache()
+        except KeyError as e:
+            if str(e) == "CACHE_FILEMTIME_INVALID":
+                force_thumbnail_generation = True
+            with open_presentation_without_window(context, self.filename) as presentation:
+                try:
+                    self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation)
+                except:
+                    logging.error('error initializing gallery')
+                    logging.debug(traceback.format_exc())
         
         # try:
         #     presentation = Charlib.open_presentation_file(context, self.filename)
@@ -772,6 +825,17 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         #     presentation.Saved = True
         #     presentation.Close()
         
+    def init_gallery_items_from_cache(self):
+        ''' initialize gallery items from cache if file has not been modified.
+        '''
+        cache = ChartLibCache.cache[self.filename]
+        if os.path.getmtime(self.filename) != cache["file_mtime"]:
+            raise KeyError("CACHE_FILEMTIME_INVALID")
+        self.item_width     = cache["item_width"]
+        self.slide_indices  = cache["slide_indices"]
+        self.labels         = cache["labels"]
+        self.item_count     = cache["item_count"]
+        self.items_initialized = True
     
     def init_gallery_items_from_presentation(self, presentation, force_thumbnail_generation=False):
         ''' initialize gallery items (count, labels, item-widht, item-height... ).
@@ -803,6 +867,17 @@ class ChartLibGallery(bkt.ribbon.Gallery):
 
         # items are initialized and can be displayed
         self.items_initialized = True
+
+        #create cache
+        ChartLibCache.cache[self.filename] = dict(
+            # cache_time      = time.time(),
+            file_mtime      = os.path.getmtime(self.filename),
+            item_width      = self.item_width,
+            slide_indices   = self.slide_indices,
+            labels          = self.labels,
+            item_count      = self.item_count,
+        )
+        ChartLibCache.cache.sync()
 
         # init images, if first thumbnail does not exist
         image_filename = self.get_image_filename(1)
@@ -963,29 +1038,20 @@ class ChartLibGallery(bkt.ribbon.Gallery):
 
 
 charts = ChartLib()
-#charts.root_dir = "S:\\Tooling\\Toolbox-git\\_personal\\chartlib"
-#charts.root_dir=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "_personal", "chartlib")
-charts.library_folders.extend( bkt.config.chart_library_folders or [] )
-charts.library_files.extend( bkt.config.chart_libraries or [] )
+# charts.library_folders.extend( bkt.config.chart_library_folders or [] )
+# charts.library_files.extend( bkt.config.chart_libraries or [] )
 
 shapes = ChartLib( copy_shapes=True )
-#shapes.root_dir = "S:\\Tooling\\Toolbox-git\\_personal\\shapelib"
-#shapes.root_dir=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "_personal", "shapelib")
-shapes.library_folders.extend( bkt.config.shape_library_folders or [] )
-shapes.library_files.extend( bkt.config.shape_libraries or [] )
+# shapes.library_folders.extend( bkt.config.shape_library_folders or [] )
+# shapes.library_files.extend( bkt.config.shape_libraries or [] )
 
 
 # add from feature-folders
-for folder in bkt.config.feature_folders:
-    chartlib_folder = os.path.join(folder, "chartlib")
-    charts.library_folders.append( { 'title':os.path.basename(os.path.realpath(folder)), 'folder':chartlib_folder})
-    shapelib_folder = os.path.join(folder, "shapelib")
-    shapes.library_folders.append( { 'title':os.path.basename(os.path.realpath(folder)), 'folder':shapelib_folder})
-
-
-#bkt.helpers.message(charts.library_folders)
-#bkt.helpers.message(shapes.library_folders)
-
+# for folder in bkt.config.feature_folders:
+#     chartlib_folder = os.path.join(folder, "chartlib")
+#     charts.library_folders.append( { 'title':os.path.basename(os.path.realpath(folder)), 'folder':chartlib_folder})
+#     shapelib_folder = os.path.join(folder, "shapelib")
+#     shapes.library_folders.append( { 'title':os.path.basename(os.path.realpath(folder)), 'folder':shapelib_folder})
 
 
 
@@ -1015,10 +1081,10 @@ shapelib_button = bkt.ribbon.DynamicMenu(
     )
 )
 
-chartlibgroup = bkt.ribbon.Group(
-    label="chartlib",
-    children=[ chartlib_button, shapelib_button]
-)
+# chartlibgroup = bkt.ribbon.Group(
+#     label="chartlib",
+#     children=[ chartlib_button, shapelib_button]
+# )
 
 # bkt.powerpoint.add_tab(
 #     bkt.ribbon.Tab(
