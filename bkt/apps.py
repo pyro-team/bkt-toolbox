@@ -6,7 +6,6 @@ Created on 11.07.2014
 '''
 
 import traceback
-from collections import OrderedDict
 
 import shelve #for resources cache
 import os.path #for resources cache
