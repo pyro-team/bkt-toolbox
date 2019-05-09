@@ -1,3 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import calc
+class BktFeature(object):
+    name            = "Excel InstaCalc"
+    relevant_apps   = ["Microsoft Excel"]
+    
+    @staticmethod
+    def contructor():
+        import calc

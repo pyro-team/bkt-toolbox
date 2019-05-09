@@ -1,3 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import shape_tables
+class BktFeature(object):
+    name            = "PowerPoint Shape-Tabellen"
+    relevant_apps   = ["Microsoft PowerPoint"]
+    
+    @staticmethod
+    def contructor():
+        import shape_tables
