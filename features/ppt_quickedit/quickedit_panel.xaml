@@ -92,7 +92,7 @@
                 <Button Click="ColorNone" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" ToolTip="Keine Farbe / Transparenz" Focusable="False" MouseWheel="ColorNone_Wheel">
                     <!-- <Rectangle Fill="White" Width="12" Height="12" Margin="2" SnapsToDevicePixels="True" Stroke="Black" StrokeThickness="0.5" StrokeDashArray="2.5 2.5" /> -->
                     <!-- <Image Source="{Binding image_nocolor}" Width="12" Height="12" /> -->
-                    <Viewbox Width="15" Height="15" Margin="1">
+                    <Viewbox Width="14" Height="14" Margin="1">
                         <Canvas Width="24" Height="24">
                             <Path Data="M17.12,17.12L12.5,12.5L5.27,5.27L4,6.55L7.32,9.87C6.55,11.32 6,12.79 6,14A6,6 0 0,0 12,20C13.5,20 14.9,19.43 15.96,18.5L18.59,21.13L19.86,19.86L17.12,17.12M18,14C18,10 12,3.2 12,3.2C12,3.2 10.67,4.71 9.27,6.72L17.86,15.31C17.95,14.89 18,14.45 18,14Z" Fill="Black" />
                         </Canvas>
@@ -119,7 +119,7 @@
                 <Button Click="PickupRecent" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" ToolTip="Farbe aufnehmen" Focusable="False">
                     <!-- <Rectangle Fill="White" Width="12" Height="12" Margin="2" SnapsToDevicePixels="True" Stroke="Black" StrokeThickness="0.5" StrokeDashArray="2.5 2.5" /> -->
                     <!-- <Image Source="{Binding image_pickup}" Width="12" Height="12" /> -->
-                    <Viewbox Width="15" Height="15" Margin="1">
+                    <Viewbox Width="14" Height="14" Margin="1">
                         <Canvas Width="24" Height="24">
                             <Path Data="M6.92,19L5,17.08L13.06,9L15,10.94M20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L13.84,6.41L11.91,4.5L10.5,5.91L11.92,7.33L3,16.25V21H7.75L16.67,12.08L18.09,13.5L19.5,12.09L17.58,10.17L20.7,7.05C21.1,6.65 21.1,6 20.71,5.63Z" Fill="Black" />
                         </Canvas>
@@ -146,7 +146,7 @@
                 <ToggleButton IsChecked="{Binding editmode}" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}" ToolTip="Farben ändern an/aus" Focusable="False">
                     <!-- <Rectangle Fill="White" Width="12" Height="12" Margin="2" SnapsToDevicePixels="True" Stroke="Black" StrokeThickness="0.5" StrokeDashArray="2.5 2.5" /> -->
                     <!-- <Image Source="{Binding image_edit}" Width="12" Height="12" /> -->
-                    <Viewbox Width="15" Height="15" Margin="1">
+                    <Viewbox Width="14" Height="14" Margin="1">
                         <Canvas Width="24" Height="24">
                             <!-- <Path Data="M20.71,4.04C21.1,3.65 21.1,3 20.71,2.63L18.37,0.29C18,-0.1 17.35,-0.1 16.96,0.29L15,2.25L18.75,6M17.75,7L14,3.25L4,13.25V17H7.75L17.75,7Z" Fill="Black" /> -->
                             <Path Data="M3.88,3C3.38,3.06 3,3.5 3,4V4L3,5H4L5,5V4L5,3H4L3.88,3M7,3V5H9V3H7M11,3V5H13V3H11M15,3V5H17V3H15M19,3V4L19,5H20L21,5V4L21,3.88C20.94,3.38 20.5,3 20,3H19M3,7V9H5V7H3M19,7V9H21V7H19M3,11V13H5V11H3M19.31,12C19.18,12 19.05,12.05 18.95,12.14L17.39,13.71L16.43,12.75L15.72,13.46L16.43,14.17L11.97,18.63V21H14.35L18.8,16.54L19.5,17.25L20.22,16.54L19.26,15.58L20.82,14.03C21,13.83 21,13.5 20.82,13.31L19.65,12.14C19.56,12.05 19.44,12 19.31,12M3,15V17H5V15H3M17,15L17.97,15.97L13.93,20L12.97,19.04L17,15M3,19V20L3,20.12C3.06,20.62 3.5,21 4,21V21H5V20L5,19H4L3,19M7,19V21H9V19H7Z" Fill="Black" />
