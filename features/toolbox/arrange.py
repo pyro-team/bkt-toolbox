@@ -708,8 +708,11 @@ class ShapeDistance(object):
 class ShapeRotation(object):
     @staticmethod
     def get_enabled(selection):
-        return selection.Type in [2,3] and not selection.ShapeRange.HasTable in [-2, -1]
-        #tables do not support rotation
+        try:
+            return selection.Type in [2,3] and not selection.ShapeRange.HasTable in [-2, -1]
+            #tables do not support rotation
+        except:
+            return False
 
     @staticmethod
     def set_rotation(shapes, value):
