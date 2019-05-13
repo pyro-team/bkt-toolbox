@@ -696,11 +696,15 @@ class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
         super(ThumbnailPopup, self).__init__()
 
     def btnrefresh(self, sender, event):
-        shapes = self._context.shapes
-        if len(shapes) == 1:
-            Thumbnailer.shape_refresh(shapes[0], self._context.app)
-        else:
-            Thumbnailer.shapes_refresh(shapes, self._context.app)
+        try:
+            shapes = self._context.shapes
+            if len(shapes) == 1:
+                Thumbnailer.shape_refresh(shapes[0], self._context.app)
+            else:
+                Thumbnailer.shapes_refresh(shapes, self._context.app)
+        except:
+            bkt.helpers.message("Thumbnail-Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
+            logging.error(traceback.format_exc())
 
 # register dialog
 bkt.powerpoint.context_dialogs.register_dialog(

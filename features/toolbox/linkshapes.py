@@ -578,20 +578,35 @@ class LinkedShapePopup(bkt.ui.WpfWindowAbstract):
         super(LinkedShapePopup, self).__init__()
 
     def btntab(self, sender, event):
-        self._context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
+        try:
+            self._context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
+        except:
+            bkt.helpers.message("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
 
     def btnsync_text(self, sender, event):
-        LinkedShapes.text_linked_shapes(self._context.shapes[-1], self._context)
+        try:
+            LinkedShapes.text_linked_shapes(self._context.shapes[-1], self._context)
+        except:
+            bkt.helpers.message("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
     def btnsync_possize(self, sender, event):
-        LinkedShapes.align_linked_shapes(self._context.shapes[-1], self._context)
-        LinkedShapes.size_linked_shapes(self._context.shapes[-1], self._context)
+        try:
+            LinkedShapes.align_linked_shapes(self._context.shapes[-1], self._context)
+            LinkedShapes.size_linked_shapes(self._context.shapes[-1], self._context)
+        except:
+            bkt.helpers.message("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
     def btnsync_format(self, sender, event):
-        LinkedShapes.format_linked_shapes(self._context.shapes[-1], self._context)
+        try:
+            LinkedShapes.format_linked_shapes(self._context.shapes[-1], self._context)
+        except:
+            bkt.helpers.message("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
     def btnnext(self, sender, event):
-        LinkedShapes.goto_linked_shape(self._context.shapes[-1], self._context)
+        try:
+            LinkedShapes.goto_linked_shape(self._context.shapes[-1], self._context)
+        except:
+            bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
 
 # register dialog
 bkt.powerpoint.context_dialogs.register_dialog(
