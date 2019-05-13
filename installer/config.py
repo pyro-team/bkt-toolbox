@@ -16,7 +16,7 @@ if args.add_folder is not None:
     root_path = os.path.normpath(os.path.join(os.path.dirname(__file__),'..'))
     folders = getattr(helper.config, "feature_folders") or []
     for folder in args.add_folder:
-        folder = folder if os.path.isabs(folder) else os.path.join(root_path, folder)
+        folder = folder if os.path.isabs(folder) else os.path.normpath(os.path.join(root_path, folder))
         if not os.path.exists(folder):
             print("Folder does not exist: " + folder)
         elif folder in folders:

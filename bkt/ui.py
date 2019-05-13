@@ -9,6 +9,7 @@ import System
 Window = System.Windows.Window
 Popup = System.Windows.Controls.Primitives.Popup
 BitmapImage = System.Windows.Media.Imaging.BitmapImage
+BackgroundWorker = System.ComponentModel.BackgroundWorker
 
 import os.path
 
@@ -19,6 +20,8 @@ bkt_addin = dotnet.import_bkt()
 from bkt.library.wpf.notify import NotifyPropertyChangedBase, notify_property
 from bkt.apps import Resources
 
+import logging
+# import traceback
 
 
 # =======================
@@ -415,3 +418,52 @@ def show_user_input(text, title, default=None, multiline=False):
     # form._add_textbox("input", default, multiline)
     # value = form.show()
     # return None if "input" not in value else value["input"]
+
+
+class WpfProgressBar(WpfWindowAbstract):
+    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui_progressbar.xaml')
+
+    def __init__(self, work_func, context=None):
+        super(WpfProgressBar, self).__init__(context=context)
+
+        self.bw = BackgroundWorker()
+        self.bw.WorkerReportsProgress = True
+        self.bw.WorkerSupportsCancellation = True
+        
+        self.bw.DoWork += self.bw_DoWork
+        self.bw.ProgressChanged += self.bw_ProgressChanged
+        self.bw.RunWorkerCompleted += self.bw_RunWorkerCompleted
+
+        self.ContentRendered += self.startProgress
+        self.Closing += self.stopProgress
+
+        self._work_func = work_func
+        # self.Title = title
+
+    def bw_DoWork(self, sender, e):
+        # sender.ReportProgress(2)
+        self._work_func(worker=sender)
+
+    def bw_ProgressChanged(self, sender, e):
+        try:
+            self.progress_bar.Value = e.ProgressPercentage
+            if e.UserState and len(e.UserState.ToString()) > 0:
+                self.progress_text.Text = e.UserState.ToString()
+        except:
+            logging.error("Error updating progress bar")
+            # logging.debug(traceback.format_exc())
+
+    def bw_RunWorkerCompleted(self, sender, e):
+        self.Close()
+    
+    def startProgress(self, sender, e):
+        self.bw.RunWorkerAsync()
+
+    def stopProgress(self, sender, e):
+        if self.bw.IsBusy:
+            e.Cancel = True #cancel closing
+        self.bw.CancelAsync() #send cancel request
+
+def execute_with_progress_bar(work_func, context=None, modal=True):
+    wnd = WpfProgressBar(work_func, context=context)
+    wnd.show_dialog(modal=modal)

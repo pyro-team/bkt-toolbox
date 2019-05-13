@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-def initiate():
-    import visiotoolbox
-
-bkt_feature = {
-    "name": "Visio Toolbox",
-    "relevant_apps": ["Microsoft Visio"],
-    "contructor": initiate,
-}
+class BktFeature(object):
+    name            = "Visio Toolbox"
+    relevant_apps   = ["Microsoft Visio"]
+    
+    @staticmethod
+    def contructor():
+        import visiotoolbox

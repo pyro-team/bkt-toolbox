@@ -1,3 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import customformats
+class BktFeature(object):
+    name            = "PowerPoint Custom Format Styles"
+    relevant_apps   = ["Microsoft PowerPoint"]
+    
+    @staticmethod
+    def contructor():
+        import customformats

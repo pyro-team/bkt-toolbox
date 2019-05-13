@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import circular
-
-
-
-
+class BktFeature(object):
+    name            = "PowerPoint Circlify"
+    relevant_apps   = ["Microsoft PowerPoint"]
+    
+    @staticmethod
+    def contructor():
+        import circular

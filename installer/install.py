@@ -239,7 +239,6 @@ class Installer(object):
             async_startup = False,
             # task_panes = False,
             show_exception = False,
-            # excel_ignore_warnings = False,
             
             modules = [ 'modules.dev', 'modules.settings' ],
             
@@ -253,7 +252,7 @@ class Installer(object):
         # write default config values
         for key,value in default_config.items():
             existing_value = getattr(helper.config, key)
-            if existing_value == None:
+            if existing_value == None or existing_value == '':
                 new_value = value
             elif type(existing_value) == list and type(value) == list:
                 new_value = existing_value + [v for v in value if not v in existing_value]
@@ -384,6 +383,7 @@ def uninstall():
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--uninstall', action='store_true', help='Remove all BKT registry entries')
+    parser.add_argument('-r', '--register_only', action='store_true', help='Only register addin without addin default features')
     parser.add_argument('-a', '--app', action='append', default=['powerpoint'], help='Application in which BKT is activated')
     return parser.parse_args()
 
@@ -411,7 +411,10 @@ def main():
             uninstall()
 
             # start installation
-            install(defaults.default_config, args.app)
+            if args.register_only:
+                install(apps=args.app)
+            else:
+                install(defaults.default_config, args.app)
 
 if __name__ == '__main__':
     main()

@@ -910,6 +910,10 @@ namespace BKT
 
                 python_delegate.ppt_selection_changed(selection);
             } catch (Exception e) {
+                // On error (e.g. unsupported ViewType or ActivePane other than normal), set all value to nothing selected
+                selection_type = 0; //PowerPoint.PpSelectionType.ppSelectionNone
+                selection_shapes = 0;
+                selection_containstextframe = false;
                 LogMessage(e.ToString());
             }
         }
