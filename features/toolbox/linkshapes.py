@@ -413,13 +413,24 @@ def linked_shapes_context_menu(prefix):
                 ])
             ]
         ),
-        bkt.ribbon.Button(
+        bkt.ribbon.Menu(
             id=prefix+'-not-linked-shapes',
             label="Verknüpftes Shape anlegen",
             image_mso='HyperlinkCreate',
             insertBeforeMso='ObjectsGroupMenu',
             get_visible=bkt.Callback(LinkedShapes.not_is_linked_shape, shape=True),
-            on_action=bkt.Callback(LinkedShapes.find_similar_and_link, shape=True, context=True),
+            children=[
+                bkt.ribbon.Button(
+                    id=prefix+"-not-linked-shapes-search",
+                    label="Ähnliche Shapes suchen…",
+                    on_action=bkt.Callback(LinkedShapes.find_similar_and_link, shape=True, context=True),
+                ),
+                bkt.ribbon.Button(
+                    id=prefix+"-not-linked-shapes-create",
+                    label="Dieses Shape kopieren…",
+                    on_action=bkt.Callback(LinkedShapes.copy_to_all, shape=True, context=True),
+                ),
+            ]
         )
     ]
 
