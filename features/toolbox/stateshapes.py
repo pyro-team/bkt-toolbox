@@ -10,6 +10,7 @@ import os.path
 import bkt
 import bkt.library.powerpoint as pplib
 
+import logging
 from System import Array
 
 from bkt import dotnet
@@ -42,6 +43,8 @@ class StateShape(object):
     
     @classmethod
     def switch_state(cls, shape, delta=0, pos=None):
+        if not cls.is_state_shape(shape):
+            raise ValueError("Shape is not a state shape")
         # ungroup shape, to get list of groups inside grouped items
         ungrouped_shapes = shape.Ungroup()
         shapes = list(iter(ungrouped_shapes))
@@ -68,23 +71,39 @@ class StateShape(object):
     @classmethod
     def reset_state(cls, shapes):
         for shape in shapes:
-            cls.switch_state(shape, pos=0)
+            try:
+                cls.switch_state(shape, pos=0)
+            except Exception as e:
+                logging.error("Statehape error resetting state: %s" % str(e))
+                continue
 
     @classmethod
     def next_state(cls, shapes):
         for shape in shapes:
-            cls.switch_state(shape, delta=1)
+            try:
+                cls.switch_state(shape, delta=1)
+            except Exception as e:
+                logging.error("Statehape error switching to next state: %s" % str(e))
+                continue
 
     @classmethod
     def previous_state(cls, shapes):
         for shape in shapes:
-            cls.switch_state(shape, delta=-1)
+            try:
+                cls.switch_state(shape, delta=-1)
+            except Exception as e:
+                logging.error("Statehape error switching to previous state: %s" % str(e))
+                continue
 
     @classmethod
     def set_state(cls, shapes, value):
         value = int(value)
         for shape in shapes:
-            cls.switch_state(shape, pos=value)
+            try:
+                cls.switch_state(shape, pos=value)
+            except Exception as e:
+                logging.error("Statehape error setting state: %s" % str(e))
+                continue
 
     # @classmethod
     # def get_show_all(cls, shape):
@@ -390,10 +409,20 @@ class StateShapePopup(bkt.ui.WpfWindowAbstract):
         super(StateShapePopup, self).__init__()
 
     def btnprev(self, sender, event):
-        StateShape.previous_state(self._context.shapes)
+        try:
+            #always use ShapeRange, never ChildShapeRange
+            shapes = list(iter(self._context.selection.ShapeRange))
+            StateShape.previous_state(shapes)
+        except Exception as e:
+            logging.error("Error in StateShape popup: %s" % str(e))
 
     def btnnext(self, sender, event):
-        StateShape.next_state(self._context.shapes)
+        try:
+            #always use ShapeRange, never ChildShapeRange
+            shapes = list(iter(self._context.selection.ShapeRange))
+            StateShape.next_state(shapes)
+        except Exception as e:
+            logging.error("Error in StateShape popup: %s" % str(e))
 
 # register dialog
 bkt.powerpoint.context_dialogs.register_dialog(

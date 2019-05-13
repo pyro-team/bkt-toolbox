@@ -3,8 +3,9 @@
 
 #define MyAppName "BKT-Toolbox"
 #define MyAppPublisher "Business Kasper"
-#define MyAppVersion "2.5"
-#define MyReleaseDate "190418"
+#define MyAppURL "https://www.bkt-toolbox.de"
+#define MyAppVersion "2.5.1"
+#define MyReleaseDate "190513"
 ;GetDateTimeString('yymmdd', '', '');
 
 [Setup]
@@ -14,6 +15,7 @@
 AppId={{BD924AD8-8870-46C1-AAE1-8999D7B18E51}
 AppName={#MyAppName}
 AppPublisher={#MyAppPublisher}
+AppPublisherURL={#MyAppURL}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
 DefaultDirName={localappdata}\BKT-Toolbox
@@ -30,6 +32,7 @@ PrivilegesRequired=lowest
 WizardStyle=modern
 SetupIconFile=setup\bkt_logo.ico
 WizardSmallImageFile=setup\bkt_logo_55x55.bmp,setup\bkt_logo_64x68.bmp,setup\bkt_logo_83x80.bmp,setup\bkt_logo_110x106.bmp,setup\bkt_logo_138x140.bmp
+UninstallDisplayIcon={uninstallexe}
 
 [Languages]
 ; Name: "english"; MessagesFile: "compiler:Default.isl"
