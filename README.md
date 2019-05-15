@@ -37,6 +37,8 @@ Alternativ kann man das Repository klonen und die Datei `installer\install.bat` 
 
 *In Arbeit*
 
+[Übersicht von **Quick-Tipps** als kleine Animationen](quicktipps.md)
+
 ## Entwicklerdokumentation
 
 *In Arbeit*
