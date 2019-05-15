@@ -420,11 +420,11 @@ class ShapeDistance(object):
         fix_v, fix_h = 1, 1
         if cls.vertical_edges == "center":
             fix_v = 2
-        elif cls.vertical_edges == "bottom":
+        elif cls.vertical_edges == "bottom" or cls.vertical_fix == "bottom":
             fix_v = 3
         if cls.horizontal_edges == "center":
             fix_h = 2
-        elif cls.horizontal_edges == "right":
+        elif cls.horizontal_edges == "right" or cls.horizontal_fix == "right":
             fix_h = 3
         locpin.fixation = (fix_v, fix_h)
         return locpin
@@ -492,7 +492,7 @@ class ShapeDistance(object):
             shapes = shapes[:2]
         
         if cls.vertical_edges == "distance":
-            dis = shapes[1].top-shapes[0].top-shapes[0].height
+            dis = shapes[1].y-shapes[0].y1
         elif cls.vertical_edges == "visual":
             dis = shapes[1].visual_y-shapes[0].visual_y-shapes[0].visual_height
         else:
@@ -542,7 +542,7 @@ class ShapeDistance(object):
             shapes = shapes[:2]
 
         if cls.horizontal_edges == "distance":
-            dis = shapes[1].left-shapes[0].left-shapes[0].width
+            dis = shapes[1].x-shapes[0].x1
         elif cls.horizontal_edges == "visual":
             dis = shapes[1].visual_x-shapes[0].visual_x-shapes[0].visual_width
         else:
