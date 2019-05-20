@@ -20,30 +20,23 @@ Die BKT läuft unter Windows ab Office 2010 in allen aktuellen Office-Versionen.
 
 ## Installation
 
-Am einfachsten geht die Installation über das [Setup](https://github.com/mrflory/bkt-toolbox/releases/latest).
+Am einfachsten geht die Installation über das [Setup](https://github.com/mrflory/bkt-toolbox/releases/latest) (nur für Office 2013+).
 
 Alternativ kann man das Repository klonen und die Datei `installer\install.bat` ausführen. Nach einem Update muss die Datei ggf. neu ausgeführt werden.
 
 ***Hinweise:***
 
- * Es gibt ein separates Setup for Office 2010. Beim Klonen des Repositories muss vor der Installation die Datei `dotnet\build2010.bat`     ausgeführt werden, damit das Addin für Office 2010 kompiliert wird.
- * Die Business Kasper Toolbox ist nach Installation standardmäßig nur in PowerPoint aktiv, 
-    jedoch auch in Excel, Outlook, Word und Visio verfügbar. Dort lässt sich die BKT über den
-    Addin-Dialog aktivieren (Datei > Optionen > Add-Ins)
- * Über den Addin-Dialog lässt sich ferner das BKT-Dev-Plugin aktivieren. Dieses erlaubt
-    Laden und Entladen des Addins zur Laufzeit der Office-Applikation
+ * Es gibt ein separates Setup for Office 2010. Beim Klonen des Repositories muss vor der Installation die Datei `dotnet\build2010.bat`  ausgeführt werden, damit das Addin für Office 2010 kompiliert wird.
+ * Die Business Kasper Toolbox ist nach Installation standardmäßig nur in PowerPoint aktiv, jedoch auch in Excel, Outlook, Word und Visio verfügbar. Dort lässt sich die BKT über den Addin-Dialog aktivieren (Datei > Optionen > Add-Ins)
+ * Über den Addin-Dialog lässt sich ferner das BKT-Dev-Plugin aktivieren. Dieses erlaubt Laden und Entladen des Addins zur Laufzeit der Office-Applikation
 
 ## Anwenderhandbuch
 
-*In Arbeit*
+Ein echtes Handbuch für Anwender existiert (noch) nicht, aber es gibt eine [Übersicht von **Quick-Tipps** als kleine Animationen](quicktipps.md), die euch einige der BKT-Funktionen zeigen.
 
-[Übersicht von **Quick-Tipps** als kleine Animationen](quicktipps.md)
+## Technische Dokumentation
 
-## Entwicklerdokumentation
-
-*In Arbeit*
-
-[Übersicht der Einstellungen in der Konfigurationsdatei](config.md)
+Die Dokumentation für Experimentierfreudige und Entwickler ist verfügbar im [Wiki auf GitHub](https://github.com/mrflory/bkt-toolbox/wiki).
 
 ## Contributions
 
