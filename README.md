@@ -16,7 +16,7 @@ Historically, the BKT was developed in German and unfortunately, we do not have 
 
 ### Documentation
 
-Currently, we only have the [GitHub Wiki](https://github.com/mrflory/bkt-toolbox/wiki) with some English documentation for adventurous users and developers.
+Currently, we only have the [GitHub Wiki](https://github.com/pyro-team/bkt-toolbox/wiki) with some English documentation for adventurous users and developers.
 
 ## System requirements
 
@@ -24,7 +24,7 @@ The BKT runs under Windows from Office 2010 in all current Office versions. A Ma
 
 ## Installation
 
-The easiest way to install is via the [Setup](https://github.com/mrflory/bkt-toolbox/releases/latest) (only for Office 2013+).
+The easiest way to install is via the [Setup](https://github.com/pyro-team/bkt-toolbox/releases/latest) (only for Office 2013+).
 
 Alternatively, you can clone the repository and run the `installer\install.bat` file. After an update, the file may need to be re-run.
 
