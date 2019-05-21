@@ -2050,17 +2050,22 @@ class TableArrange(object):
         # left/top of cols/rows
         agg_widths = [ sum(widths[0:i])  for i in range(len(widths)+1)]
         agg_heights = [ sum(heights[0:i])  for i in range(len(heights)+1)]
-        col_lefts = [table.left +w  for w in agg_widths]
-        row_tops = [table.top +h for h in agg_heights]
+        col_lefts = [table.x +w  for w in agg_widths]
+        row_tops = [table.y +h for h in agg_heights]
         
         for shape in shapes:
-            shape_midpoint = [ shape.left + shape.width/2, shape.top+shape.height/2 ]
+            shape_midpoint = [ shape.center_x, shape.center_y ]
             
             try:
                 # determine target-cell and target-rect
-                col = [c - shape_midpoint[0] >=0 for c in col_lefts].index(True)
-                row = [r - shape_midpoint[1] >=0 for r in row_tops].index(True)
+                try:
+                    col = [c - shape_midpoint[0] >=0 for c in col_lefts].index(True)
+                    row = [r - shape_midpoint[1] >=0 for r in row_tops].index(True)
+                except ValueError:
+                    #no col/row found, shape outside bottom-right boundaries of table
+                    continue
                 if col == 0 or row == 0:
+                    #shape outside top-left boundaries of table
                     continue
                 target_rect = [ col_lefts[col-1], row_tops[row-1], widths[col-1], heights[row-1]   ]
 
@@ -2092,14 +2097,15 @@ class TableArrange(object):
                     target_midpoint[1] = target_rect[1] + target_rect[3]/2
                 
                 # move shape
-                shape.left += target_midpoint[0] - shape_midpoint[0]
-                shape.top  += target_midpoint[1] - shape_midpoint[1]
+                shape.x += target_midpoint[0] - shape_midpoint[0]
+                shape.y  += target_midpoint[1] - shape_midpoint[1]
             
             except:
                 bkt.helpers.exception_as_message()
     
     @classmethod
     def arrange_table_shapes(cls, shapes):
+        shapes = pplib.wrap_shapes(shapes)
         # determine table in shapes-list
         # tables = [s for s in shapes if s.Type == pplib.MsoShapeType['msoTable']]
         tables = [s for s in shapes if s.HasTable == -1]
@@ -2247,15 +2253,17 @@ class TableArrange(object):
                 shape.x1 = min(s.x1 for s in background_shapes)
             # elif cls.horizontal_arrangement == cls.ARRANGE_HCENTER or (cls.horizontal_arrangement == cls.ARRANGE_HAUTO and background_shape.height >= background_shape.width):
             elif cls.horizontal_arrangement in [cls.ARRANGE_HCENTER, cls.ARRANGE_HAUTO]:
-                shape.center_x = min(background_shapes, key=lambda s: s.width).center_x
+                if cls.horizontal_arrangement != cls.ARRANGE_HAUTO or len(background_shapes) > 1 or background_shapes[0].height >= background_shapes[0].width:
+                    shape.center_x = min(background_shapes, key=lambda s: s.width).center_x
 
             if cls.vertical_arrangement == cls.ARRANGE_TOP:
                 shape.y = max(s.y for s in background_shapes)
             elif cls.vertical_arrangement == cls.ARRANGE_BOTTOM:
                 shape.y1 = min(s.y1 for s in background_shapes)
             # elif cls.vertical_arrangement in [cls.ARRANGE_VCENTER,cls.ARRANGE_LCENTER] or (cls.vertical_arrangement == cls.ARRANGE_VAUTO and background_shape.width >= background_shape.height):
-            elif cls.vertical_arrangement in [cls.ARRANGE_VCENTER,cls.ARRANGE_LCENTER, cls.ARRANGE_VAUTO]:
-                shape.center_y = min(background_shapes, key=lambda s: s.height).center_y
+            elif cls.vertical_arrangement in [cls.ARRANGE_VCENTER, cls.ARRANGE_LCENTER, cls.ARRANGE_VAUTO]:
+                if cls.vertical_arrangement != cls.ARRANGE_VAUTO or len(background_shapes) > 1 or background_shapes[0].width >= background_shapes[0].height:
+                    shape.center_y = min(background_shapes, key=lambda s: s.height).center_y
 
 
     @classmethod
@@ -2283,28 +2291,55 @@ class TableArrange(object):
 
     @classmethod
     def _is_shape_within(cls, outer_s, inner_s):
+        #test if center point of inner_s is within bounds of outer_s
         return inner_s.width<=outer_s.width and inner_s.height<=outer_s.height and outer_s.x <= inner_s.center_x <= outer_s.x1 and outer_s.y <= inner_s.center_y <= outer_s.y1
 
 
     @classmethod
     def arrange_overlay_shapes(cls, shapes):
-        # table_shapes = [s for s in shapes if s.Type == pplib.MsoShapeType['msoTable']]
-        # table_shapes = [s for s in shapes if s.HasTable == -1]
-        table_shapes = False
-        par_shapes = False
+        from itertools import chain #chain allows to concatenate lists and return a generator
+
+        shapes = pplib.wrap_shapes(shapes) #all functions support/require wrapped shapes
+
+        table_shapes = []
+        table_childs = []
+        par_shapes = []
+        par_childs = []
+        remaining_shapes = []
+        shape_shapes = []
+
+        #step 1: seperate tables, paragraph shapes, and all the remaining shapes
         for s in shapes:
+            #test if shape is a table
             if s.HasTable == -1:
-                table_shapes = True
-                break #break as soo as one table found
-            if s.HasTextFrame == -1 and s.TextFrame2.TextRange.Paragraphs().Count > 1:
-                par_shapes = True
+                table_shapes.append(s)
+            
+            #test if shape has a paragraph
+            elif s.HasTextFrame == -1 and s.TextFrame2.TextRange.Paragraphs().Count > 1:
+                par_shapes.append(s)
+
+            else:
+                remaining_shapes.append(s)
         
-        if table_shapes:
-            cls.arrange_table_shapes(shapes)
-        elif par_shapes:
-            cls.arrange_paragraph_shapes(shapes)
-        else:
-            cls.arrange_shapes_shapes(shapes)
+        #step 2: from remaining shapes, find shapes within tables and paragraph shapes from step 1
+        for s in remaining_shapes:
+            #get all shapes within tables
+            if any(cls._is_shape_within(o, s) for o in table_shapes):
+                table_childs.append(s)
+            
+            #get all shapes within paragraphs
+            elif any(cls._is_shape_within(o, s) for o in par_shapes):
+                par_childs.append(s)
+            
+            else:
+                shape_shapes.append(s)
+
+        #arrange on table
+        cls.arrange_table_shapes(chain(table_shapes, table_childs))
+        #arrange on paragraph
+        cls.arrange_paragraph_shapes(chain(par_shapes, par_childs))
+        #arrange shapes on shapes
+        cls.arrange_shapes_shapes(shape_shapes)
 
 
 class TALocPin(pplib.LocPin):
