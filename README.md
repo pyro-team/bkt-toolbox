@@ -20,7 +20,7 @@ Die BKT läuft unter Windows ab Office 2010 in allen aktuellen Office-Versionen.
 
 ## Installation
 
-Am einfachsten geht die Installation über das [Setup](https://github.com/mrflory/bkt-toolbox/releases/latest) (nur für Office 2013+).
+Am einfachsten geht die Installation über das [Setup](https://github.com/pyro-team/bkt-toolbox/releases/latest) (nur für Office 2013+).
 
 Alternativ kann man das Repository klonen und die Datei `installer\install.bat` ausführen. Nach einem Update muss die Datei ggf. neu ausgeführt werden.
 
@@ -36,7 +36,7 @@ Ein echtes Handbuch für Anwender existiert (noch) nicht, aber es gibt eine [Üb
 
 ## Technische Dokumentation
 
-Die Dokumentation für Experimentierfreudige und Entwickler ist verfügbar im [Wiki auf GitHub](https://github.com/mrflory/bkt-toolbox/wiki).
+Die Dokumentation für Experimentierfreudige und Entwickler ist verfügbar im [Wiki auf GitHub](https://github.com/pyro-team/bkt-toolbox/wiki).
 
 ## Contributions
 
