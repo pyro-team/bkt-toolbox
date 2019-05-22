@@ -602,7 +602,8 @@ class AddIn(object):
                     logging.error('failed to load feature %s from cache' % module_name)
                     logging.error(traceback.format_exc())
                     _h.message('failed to load feature %s from cache' % module_name)
-                    # _h.message(traceback.format_exc())
+                    if bkt.config.show_exception:
+                        _h.exception_as_message()
                     #TODO: remove cache on error?
 
             for module_name, folder in import_cache['inits.legacy']:
@@ -613,7 +614,8 @@ class AddIn(object):
                     logging.error('failed to load legacy feature %s from cache' % module_name)
                     logging.error(traceback.format_exc())
                     _h.message('failed to load legacy feature %s from cache' % module_name)
-                    # _h.message(traceback.format_exc())
+                    if bkt.config.show_exception:
+                        _h.exception_as_message()
                     #TODO: remove cache on error?
         
         # load and renew cache:
@@ -694,7 +696,8 @@ class AddIn(object):
                         logging.error('failed to load feature-folder %s' % folder)
                         logging.error(traceback.format_exc())
                         _h.message('failed to load feature-folder %s' % folder)
-                        # _h.message(traceback.format_exc())
+                        if bkt.config.show_exception:
+                            _h.exception_as_message()
                         #TODO: Offer user to remove feature folder from config on error
 
                 # backwards compatibility: load module from init.py
@@ -709,7 +712,8 @@ class AddIn(object):
                         logging.error('failed to load legacy feature-folder %s' % folder)
                         logging.error(traceback.format_exc())
                         _h.message('failed to load legacy feature-folder %s' % folder)
-                        # _h.message(traceback.format_exc())
+                        if bkt.config.show_exception:
+                            _h.exception_as_message()
                         #TODO: Offer user to remove feature folder from config on error
             
             #save to cache
