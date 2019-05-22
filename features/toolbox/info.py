@@ -24,24 +24,26 @@ class TabActivator(object):
 
     @classmethod
     def activate_tab_on_new_shape(cls, selection):
-        count_shapes = selection.SlideRange(1).Shapes.Count
         #FIXME: fires also when shape is copy-pasted, but should only fire for real new shapes
         try:
+            count_shapes = selection.SlideRange[1].Shapes.Count
             if selection.type == 2 and count_shapes > cls.shapes_on_slide and selection.ShapeRange[1].Type != 6: #ppSelectionShape, shapes increased, no group
                 #bkt.helpers.message("shape added")
                 cls.context.ribbon.ActivateTab(cls.tab_id)
-                print "tab activator: default tab activated"
+                # print("tab activator: default tab activated")
+            cls.shapes_on_slide = count_shapes
         except:
             pass
-        cls.shapes_on_slide = count_shapes
+            # print("tab activator: failed activating tab")
 
     @classmethod
     def enable(cls, context):
         if not cls.activated and bkt.config.ppt_activate_tab_on_new_shape:
             cls.context = context
             #FIXME: event is not unassigned on reload/unload of addin
-            context.app.WindowSelectionChange += cls.activate_tab_on_new_shape
-            print "tab activator: workaround enabled"
+            # context.app.WindowSelectionChange += cls.activate_tab_on_new_shape
+            bkt.AppEvents.selection_changed += bkt.Callback(cls.activate_tab_on_new_shape, selection=True)
+            # print("tab activator: workaround enabled")
         cls.activated = True
         return True
 
