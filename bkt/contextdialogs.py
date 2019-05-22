@@ -64,7 +64,7 @@ class ContextDialog(object):
             # show as non-blocking dialog
             dialog_window.Show()
             # put focus back on office window
-            active_window.Activate()
+            # active_window.Activate() #NOTE: do not use this: BktWindow-Popup is not stealing focus anymore. if active_window has a modal dialog or messagebox, this causes problems.
             
         return dialog_window
             
@@ -326,7 +326,8 @@ class ContextDialogs(object):
         ''' object sender, MouseEventExtArgs e) '''
         logging.debug("ContextDialogs.mouse_up")
         if not self.drag_started:
-            self.re_show_shape_dialogs()
+            if self.context and DialogHelpers.coordinates_within_slideview_window(e.X, e.Y, self.context):
+                self.re_show_shape_dialogs()
 
     # def mouse_move(self, sender, e):
     #     ''' object sender, MouseEventExtArgs e) '''
@@ -419,7 +420,28 @@ class DialogHelpers(object):
         except:
             logging.error(traceback.format_exc())
     
-    
+    @staticmethod
+    def coordinates_within_slideview_window(x, y, context):
+        ''' returns true if mouse coordinates are within slide '''
+        try:
+            #FIXME: would be better to check actual slide view window instead of slide, because this doesnt work with zoomed in slides
+            active_window = context.app.ActiveWindow
+
+            ### METHOD 1: calculate coordinates of slide and compare
+            page_setup = context.app.ActivePresentation.PageSetup
+            l,t = active_window.PointsToScreenPixelsX(0), active_window.PointsToScreenPixelsY(0)
+            w,h = active_window.PointsToScreenPixelsX(page_setup.SlideWidth), active_window.PointsToScreenPixelsY(page_setup.SlideHeight)
+            return x>l and y>t and x<l+w and y<t+h
+
+            ### METHOD 2: try to find a shape under cursor
+            #FIXME: shape selection frame is actually bigger than shape
+            # x,y = active_window.PointsToScreenPixelsX(x), active_window.PointsToScreenPixelsY(y)
+            # shape = active_window.RangeFromPoint(x,y)
+            # return shape is not None
+        except:
+            return False
+
+
     # FIXME:
     # https://dzimchuk.net/best-way-to-get-dpi-value-in-wpf/
     @staticmethod
