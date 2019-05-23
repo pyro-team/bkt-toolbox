@@ -406,8 +406,7 @@ DropDown     = create_ribbon_control_class('drop_down',     base_cls=ActionRibbo
 Gallery      = create_ribbon_control_class('gallery',       base_cls=ActionRibbonControl, attributes={'default_callback':CallbackTypes.on_action_indexed})
 DynamicMenu  = create_ribbon_control_class('dynamic_menu',  base_cls=ActionRibbonControl, attributes={'default_callback':CallbackTypes.get_content})
 
-LabelControl = create_ribbon_control_class('label_control')
-Label = LabelControl
+Label        = LabelControl = create_ribbon_control_class('label_control')
 ButtonGroup  = create_ribbon_control_class('button_group')
 Separator    = create_ribbon_control_class('separator')
 MenuSeparator = create_ribbon_control_class('menu_separator')
@@ -415,7 +414,7 @@ Item         = create_ribbon_control_class('item')
 
 ContextMenus = create_ribbon_control_class('context_menus',   attributes={'no_id':True})
 ContextMenu  = create_ribbon_control_class('context_menu')
-CommandList  = create_ribbon_control_class('command_list',   attributes={'no_id':True})
+Commands     = CommandList = create_ribbon_control_class('commands',   attributes={'no_id':True})
 Command      = create_ribbon_control_class('command')
 
 #Special backstage elements: see https://msdn.microsoft.com/de-de/library/office/ee691833(v=office.14).aspx and https://msdn.microsoft.com/de-de/library/office/ee815851(v=office.14).aspx
@@ -438,8 +437,7 @@ TaskFormGroup    = create_ribbon_control_class('task_form_group') # > category
 Category         = create_ribbon_control_class('category') # > task
 Task             = create_ribbon_control_class('task') # > group
 Hyperlink        = create_ribbon_control_class('hyperlink')
-ImageControl     = create_ribbon_control_class('image_control')
-Image = ImageControl
+Image            = ImageControl = create_ribbon_control_class('image_control')
 
 
 
