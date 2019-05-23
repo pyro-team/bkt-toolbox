@@ -329,6 +329,26 @@ class QEColorButton(bkt.ui.NotifyPropertyChangedBase):
             self.set_userdefined_theme(value[1], value[2], value[0])
 
 
+class QECatalog(bkt.ui.NotifyPropertyChangedBase):
+    ''' Catalog class for config files, name and whether they are checked '''
+
+    def __init__(self, file, name, checked=False):
+        self.File = file
+        self.Name = name
+        self._checked = checked
+        super(QECatalog, self).__init__()
+
+    @property
+    def Checked(self):
+        return self._checked
+    @Checked.setter
+    def Checked(self, value):
+        self._checked = value
+        # enforce onPropertyChange to ensure correct checked state
+        self.OnPropertyChanged("Checked")
+    
+    # namedtuple("QECatalog", ["file", "name", "checked"])
+
 
 class QuickEdit(object):
 
@@ -374,27 +394,59 @@ class QuickEdit(object):
         QEColorButton('Own 10',    BUTTON_USERDEFINED, 10),
     ]
 
+    _catalogs = [
+        QECatalog("default.json", "Katalog 1", True),
+        QECatalog("default2.json", "Katalog 2", False),
+        QECatalog("default3.json", "Katalog 3", False)
+    ]
+
     config_folder = os.path.join(bkt.helpers.get_fav_folder(), "quickedit")
     current_file = "default.json"
+
+    @classmethod
+    def initialize(cls):
+        cls.current_file = bkt.settings.get("quickedit.default_file", "default.json")
+        cls.read_from_config(cls.current_file)
 
 
     @classmethod
     def save_to_config(cls):
+        import os
         # bkt.console.show_message("%r" % cls._usercolors)
         # bkt.console.show_message(json.dumps(cls._usercolors))
-        file   = os.path.join(cls.config_folder, cls.current_file)
+        file = os.path.join(cls.config_folder, cls.current_file)
         if not os.path.exists(cls.config_folder):
             os.makedirs(cls.config_folder)
+        elif os.path.isfile(file):
+            #make backup
+            backup_file = file[:-5] + "-backup.json"
+            try:
+                os.remove(backup_file)
+            except OSError:
+                pass
+            os.rename(file, backup_file)
+
         values = [v.to_json() for v in cls._userdefined if v.is_defined]
         with io.open(file, 'w') as json_file:
             json.dump(values, json_file)
 
     @classmethod
-    def read_from_config(cls):
-        file   = os.path.join(cls.config_folder, cls.current_file)
+    def read_from_config(cls, filename="default.json"):
+        #store settings
+        cls.current_file = filename
+        bkt.settings["quickedit.default_file"] = filename
+        file = os.path.join(cls.config_folder, filename)
+
+        #update catalog list
+        for cat in cls._catalogs:
+            cat.Checked = cat.File == filename
+        
+        #create default file if not exists
         if not os.path.isfile(file):
             cls.reset_own_colors()
             return
+
+        #load file if exists
         with io.open(file, 'r') as json_file:
             values = json.load(json_file)
         for i,v in enumerate(values):
@@ -516,9 +568,14 @@ class QuickEdit(object):
     def update_pressed(cls, context):
         try:
             shaperange = cls._get_shape_range(context.selection)
-            QEColorButtons.set_active_colors( set([cls._color_key(shaperange.Fill), cls._color_key(shaperange.Line)]) )
+            if shaperange.HasTable:
+                QEColorButtons.set_active_colors( ) #nothing selected
+                # QEColorButtons.set_active_colors( [cls._color_key(shaperange.Fill)] ) #NOTE: this causes a strange behavior when selecting text in a table cell, the whole text gets selected (sometimes)
+            else:
+                QEColorButtons.set_active_colors( set([cls._color_key(shaperange.Fill), cls._color_key(shaperange.Line)]) )
         except:
-            QEColorButtons.set_active_colors( )
+            QEColorButtons.set_active_colors( ) #nothing selected
+            # bkt.helpers.exception_as_message()
 
     @classmethod
     def update_colors(cls, context):
@@ -855,7 +912,7 @@ class QuickEdit(object):
 #         bkt.console.show_message(bkt.ui.endings_to_windows(help_msg))
 
 
-QuickEdit.read_from_config()
+QuickEdit.initialize()
 # bkt.AppEvents.bkt_load += bkt.Callback(QuickEdit.read_from_config)
 
 bkt.AppEvents.selection_changed       += bkt.Callback(QuickEdit.update_pressed, context=True)
