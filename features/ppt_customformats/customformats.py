@@ -58,8 +58,7 @@ class CustomQuickEdit(object):
             return
         
         cls.always_keep_theme_color = bkt.settings.get("customformats.theme_colors", True)
-        cls.default_file = bkt.settings.get("customformats.default_file", "styles.json")
-        cls.current_file = cls.default_file
+        cls.current_file = bkt.settings.get("customformats.default_file", "styles.json")
         
         cls.read_from_config(cls.current_file)
         cls.initialized = True
@@ -84,15 +83,16 @@ class CustomQuickEdit(object):
             # data = json.load(json_file, object_pairs_hook=OrderedDict)
             # bkt.console.show_message("%r" % data)
         cls.current_file = filename
+        bkt.settings["customformats.default_file"] = filename
         cls.clear_cache()
 
-    @classmethod
-    def set_default_style(cls, filename=None):
-        bkt.settings["customformats.default_file"] = filename or cls.current_file
+    # @classmethod
+    # def set_default_style(cls, filename=None):
+    #     bkt.settings["customformats.default_file"] = filename or cls.current_file
     
-    @classmethod
-    def is_default_style(cls, filename=None):
-        return cls.default_file == (filename or cls.current_file)
+    # @classmethod
+    # def is_default_style(cls, filename=None):
+    #     return cls.default_file == (filename or cls.current_file)
 
     @classmethod
     def create_new_style(cls, filename=None):
@@ -679,12 +679,12 @@ customformats_group = bkt.ribbon.Group(
                     # image_mso='ModuleInsert',
                     on_action=bkt.Callback(CustomQuickEdit.create_new_style)
                 ),
-                bkt.ribbon.Button(
-                    label='Aktuellen Katalog als Standard',
-                    # image_mso='ModuleInsert',
-                    on_action=bkt.Callback(CustomQuickEdit.set_default_style),
-                    get_enabled=bkt.Callback(lambda: not CustomQuickEdit.is_default_style())
-                ),
+                # bkt.ribbon.Button(
+                #     label='Aktuellen Katalog als Standard',
+                #     # image_mso='ModuleInsert',
+                #     on_action=bkt.Callback(CustomQuickEdit.set_default_style),
+                #     get_enabled=bkt.Callback(lambda: not CustomQuickEdit.is_default_style())
+                # ),
             ]
         ),
         FormatLibGallery(id="customformats_gallery", size="large")
