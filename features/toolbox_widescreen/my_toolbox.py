@@ -21,6 +21,9 @@ bkt.apps.Resources.root_folders.append(normpath(join(dirname(realpath(__file__))
 # define context-menus and context-tabs
 from toolbox import context_menus
 
+# tab id for tab activator workaround
+info.TabActivator.tab_id = "my_bkt_powerpoint_toolbox"
+
 
 # default ui for shape styling
 styles_group = bkt.ribbon.Group(

@@ -329,6 +329,26 @@ class QEColorButton(bkt.ui.NotifyPropertyChangedBase):
             self.set_userdefined_theme(value[1], value[2], value[0])
 
 
+class QECatalog(bkt.ui.NotifyPropertyChangedBase):
+    ''' Catalog class for config files, name and whether they are checked '''
+
+    def __init__(self, file, name, checked=False):
+        self.File = file
+        self.Name = name
+        self._checked = checked
+        super(QECatalog, self).__init__()
+
+    @property
+    def Checked(self):
+        return self._checked
+    @Checked.setter
+    def Checked(self, value):
+        self._checked = value
+        # enforce onPropertyChange to ensure correct checked state
+        self.OnPropertyChanged("Checked")
+    
+    # namedtuple("QECatalog", ["file", "name", "checked"])
+
 
 class QuickEdit(object):
 
@@ -374,27 +394,59 @@ class QuickEdit(object):
         QEColorButton('Own 10',    BUTTON_USERDEFINED, 10),
     ]
 
+    _catalogs = [
+        QECatalog("default.json", "Katalog 1", True),
+        QECatalog("default2.json", "Katalog 2", False),
+        QECatalog("default3.json", "Katalog 3", False)
+    ]
+
     config_folder = os.path.join(bkt.helpers.get_fav_folder(), "quickedit")
     current_file = "default.json"
+
+    @classmethod
+    def initialize(cls):
+        cls.current_file = bkt.settings.get("quickedit.default_file", "default.json")
+        cls.read_from_config(cls.current_file)
 
 
     @classmethod
     def save_to_config(cls):
+        import os
         # bkt.console.show_message("%r" % cls._usercolors)
         # bkt.console.show_message(json.dumps(cls._usercolors))
-        file   = os.path.join(cls.config_folder, cls.current_file)
+        file = os.path.join(cls.config_folder, cls.current_file)
         if not os.path.exists(cls.config_folder):
             os.makedirs(cls.config_folder)
+        elif os.path.isfile(file):
+            #make backup
+            backup_file = file[:-5] + "-backup.json"
+            try:
+                os.remove(backup_file)
+            except OSError:
+                pass
+            os.rename(file, backup_file)
+
         values = [v.to_json() for v in cls._userdefined if v.is_defined]
         with io.open(file, 'w') as json_file:
             json.dump(values, json_file)
 
     @classmethod
-    def read_from_config(cls):
-        file   = os.path.join(cls.config_folder, cls.current_file)
+    def read_from_config(cls, filename="default.json"):
+        #store settings
+        cls.current_file = filename
+        bkt.settings["quickedit.default_file"] = filename
+        file = os.path.join(cls.config_folder, filename)
+
+        #update catalog list
+        for cat in cls._catalogs:
+            cat.Checked = cat.File == filename
+        
+        #create default file if not exists
         if not os.path.isfile(file):
             cls.reset_own_colors()
             return
+
+        #load file if exists
         with io.open(file, 'r') as json_file:
             values = json.load(json_file)
         for i,v in enumerate(values):
@@ -516,9 +568,14 @@ class QuickEdit(object):
     def update_pressed(cls, context):
         try:
             shaperange = cls._get_shape_range(context.selection)
-            QEColorButtons.set_active_colors( set([cls._color_key(shaperange.Fill), cls._color_key(shaperange.Line)]) )
+            if shaperange.HasTable:
+                QEColorButtons.set_active_colors( ) #nothing selected
+                # QEColorButtons.set_active_colors( [cls._color_key(shaperange.Fill)] ) #NOTE: this causes a strange behavior when selecting text in a table cell, the whole text gets selected (sometimes)
+            else:
+                QEColorButtons.set_active_colors( set([cls._color_key(shaperange.Fill), cls._color_key(shaperange.Line)]) )
         except:
-            QEColorButtons.set_active_colors( )
+            QEColorButtons.set_active_colors( ) #nothing selected
+            # bkt.helpers.exception_as_message()
 
     @classmethod
     def update_colors(cls, context):
@@ -679,7 +736,10 @@ class QuickEdit(object):
                     cls._set_forecolor( selection.TextRange2.Font.Line, color)
                 except: #TypeError, COMException (e.g. if table/table cells are selected)
                     for textframe in pplib.iterate_shape_textframes(shaperange):
-                        cls._set_forecolor( textframe.TextRange.Font.Line, color)
+                        try:
+                            cls._set_forecolor( textframe.TextRange.Font.Line, color)
+                        except:
+                            continue
             elif alt:
                 try:
                     if selection.TextRange2.Count == 0:
@@ -687,7 +747,10 @@ class QuickEdit(object):
                     cls._set_forecolor( selection.TextRange2.Font.Fill, color)
                 except: #TypeError, COMException (e.g. if table/table cells are selected)
                     for textframe in pplib.iterate_shape_textframes(shaperange):
-                        cls._set_forecolor( textframe.TextRange.Font.Fill, color)
+                        try:
+                            cls._set_forecolor( textframe.TextRange.Font.Fill, color)
+                        except:
+                            continue
             elif ctrl or shaperange.Connector == -1: #only connectors selected
                 # if shaperange.HasTable == 0:
                 #     cls._set_forecolor(context, shaperange.Line, color_index)
@@ -745,13 +808,18 @@ class QuickEdit(object):
             #shapes or text selected, apply color
             shaperange = cls._get_shape_range(selection)
             if alt and ctrl:
+                # NOTE: deactivation text outline is not implemented in ppt object model, no workaround available
                 try:
                     if selection.TextRange2.Count == 0:
                         raise Exception("no text selected, fallback to shape")
                     selection.TextRange2.Font.Line.Visible = 0
                 except:
                     for textframe in pplib.iterate_shape_textframes(shaperange):
-                        textframe.TextRange.Font.Line.Visible = 0
+                        try:
+                            textframe.TextRange.Font.Line.Visible = 0
+                        except:
+                            continue
+                bkt.helpers.message("Sorry, aber Microsoft hat die Funktion zur Deaktivierung der Textkontur nicht in die Schnittstelle implementiert.")
             elif alt:
                 try:
                     if selection.TextRange2.Count == 0:
@@ -759,7 +827,10 @@ class QuickEdit(object):
                     selection.TextRange2.Font.Fill.Visible = 0
                 except:
                     for textframe in pplib.iterate_shape_textframes(shaperange):
-                        textframe.TextRange.Font.Fill.Visible = 0
+                        try:
+                            textframe.TextRange.Font.Fill.Visible = 0
+                        except:
+                            continue
             elif ctrl:
                 # if shaperange.HasTable == 0:
                 #     shaperange.Line.Visible = 0
@@ -802,9 +873,13 @@ class QuickEdit(object):
 
     @staticmethod
     def show_help():
-        from os import startfile
-        helpfile=os.path.join(os.path.dirname(os.path.realpath(__file__)), "resources", "QuickEdit Help.pdf")
-        os.startfile(helpfile)
+        helpfile = os.path.join(os.path.dirname(os.path.realpath(__file__)), "resources", "QuickEdit Help.pdf")
+        try:
+            from os import startfile
+            os.startfile(helpfile)
+        except:
+            logging.error("QuickEdit: Error opening the help file.")
+            bkt.helpers.message("Fehler beim Öffnen der PDF-Hilfedatei. Bitte Datei manuell öffnen: {}".format(helpfile))
 
 #         help_msg = '''
 # 1. Reihe: Farben des Design-Farbschemas der aktuellen Folie.
@@ -837,7 +912,7 @@ class QuickEdit(object):
 #         bkt.console.show_message(bkt.ui.endings_to_windows(help_msg))
 
 
-QuickEdit.read_from_config()
+QuickEdit.initialize()
 # bkt.AppEvents.bkt_load += bkt.Callback(QuickEdit.read_from_config)
 
 bkt.AppEvents.selection_changed       += bkt.Callback(QuickEdit.update_pressed, context=True)

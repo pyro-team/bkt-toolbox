@@ -1,3 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import consolsplit
+class BktFeature(object):
+    name            = "PowerPoint Consolidation-Split"
+    relevant_apps   = ["Microsoft PowerPoint"]
+    
+    @staticmethod
+    def contructor():
+        import consolsplit

@@ -7,7 +7,7 @@ Created on 2017-08-16
 import bkt
 # import bkt.library.powerpoint as pplib
 
-from bkt.library.powerpoint import PositionGallery
+from bkt.library.powerpoint import PositionGallery, pt_to_cm
 from bkt.library.algorithms import TableRecognition
 
 #for caching
@@ -43,7 +43,7 @@ class ShapeTables(object):
         return 'Die ausgewählten Shapes werden als Tabelle in den Bereich eingepasst.'
 
     def _prepare_table(self, shapes):
-        # Run table recognition only one time in 200ms
+        # Run table recognition only one time in 500ms
         if self.tr_cache is None or time.time() - self.last_time_tr_cache_changed > 0.5:
             self.tr_cache = TableRecognition(shapes)
             self.tr_cache.run()
@@ -90,6 +90,13 @@ class ShapeTables(object):
     #     else:
     #         tr.align(spacing=value, fit_cells=self.fit_cells, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
 
+
+    def get_resize_cells(self):
+        if bkt.library.system.get_key_state(bkt.library.system.key_code.ALT):
+            return not self.resize_cells
+        else:
+            return self.resize_cells
+
     def enabled_spacing_rows(self, shapes):
         if len(shapes) < 2:
             return False
@@ -106,7 +113,7 @@ class ShapeTables(object):
         # if type(value) == str:
         #     value = float(value.replace(',', '.'))
         # value = max(0,cm_to_pt(value))
-        value = max(0, value)
+        # value = max(0, value)
 
         if self.equal_spacing:
             spacing = value
@@ -114,7 +121,7 @@ class ShapeTables(object):
             spacing = (value, None)
 
         tr = self._prepare_table(shapes)
-        if self.resize_cells:
+        if self.get_resize_cells():
             bounds = tr.get_bounds()
             tr.fit_content(*bounds, spacing=spacing, fit_cells=self.fit_cells)
         else:
@@ -136,7 +143,7 @@ class ShapeTables(object):
         # if type(value) == str:
         #     value = float(value.replace(',', '.'))
         # value = max(0,cm_to_pt(value))
-        value = max(0, value)
+        # value = max(0, value)
 
         if self.equal_spacing:
             spacing = value
@@ -144,7 +151,7 @@ class ShapeTables(object):
             spacing = (None, value)
 
         tr = self._prepare_table(shapes)
-        if self.resize_cells:
+        if self.get_resize_cells():
             bounds = tr.get_bounds()
             tr.fit_content(*bounds, spacing=spacing, fit_cells=self.fit_cells)
         else:
@@ -171,7 +178,7 @@ class ShapeTables(object):
         tr = self._prepare_table(shapes)
         msg = u""
         msg += "Tabellengröße: Zeilen=%d, Spalten=%d\r\n" % tr.dimension
-        # msg += "Median-Abstand: %s cm" % round(pt_to_cm(tr.median_spacing()),2)
+        msg += "Median-Abstand: %s cm" % round(pt_to_cm(tr.median_spacing()),2)
         bkt.helpers.message(msg)
 
     def table_info_desc(self,context):
@@ -211,13 +218,15 @@ class ShapeTables(object):
         tr = self._prepare_table(shapes)
         spacing = tr.min_spacing_cols()
         bounds = tr.get_bounds()
-        tr.fit_content(*bounds, spacing=(None, spacing), fit_cells=True, distribute_cols=True)
+        tr.fit_content(*bounds, spacing=(None, spacing), fit_cells=True) #equalize spacing in first run
+        tr.fit_content(*bounds, spacing=(None, spacing), fit_cells=True, distribute_cols=True) #distribute in second run
 
     def table_distribute_rows(self, shapes):
         tr = self._prepare_table(shapes)
         spacing = tr.min_spacing_rows()
         bounds = tr.get_bounds()
-        tr.fit_content(*bounds, spacing=(spacing, None), fit_cells=True, distribute_rows=True)
+        tr.fit_content(*bounds, spacing=(spacing, None), fit_cells=True) #equalize spacing in first run
+        tr.fit_content(*bounds, spacing=(spacing, None), fit_cells=True, distribute_rows=True) #distribute in second run
 
 
 shape_tables = ShapeTables()
@@ -538,7 +547,7 @@ tabellen_gruppe = bkt.ribbon.Group(
             label=u"Zeilenabstand",
             show_label=False,
             image_mso="VerticalSpacingIncrease",
-            supertip="Ändert den Zeilenabstand der Shapes.",
+            supertip="Ändert den Zeilenabstand der Shapes. [ALT] wechselt zwischen Bewegen und Dehen/Stauchen.",
             on_change = bkt.Callback(shape_tables.set_spacing_rows, shapes=True, shapes_min=2),
             get_text  = bkt.Callback(shape_tables.get_spacing_rows, shapes=True, shapes_min=2),
             get_enabled = bkt.Callback(shape_tables.enabled_spacing_rows, shapes=True),
@@ -550,7 +559,7 @@ tabellen_gruppe = bkt.ribbon.Group(
             label=u"Spaltenabstand",
             show_label=False,
             image_mso="HorizontalSpacingIncrease",
-            supertip="Ändert den Spaltenabstand der Shapes.",
+            supertip="Ändert den Spaltenabstand der Shapes. [ALT] wechselt zwischen Bewegen und Dehen/Stauchen.",
             on_change = bkt.Callback(shape_tables.set_spacing_cols, shapes=True, shapes_min=2),
             get_text  = bkt.Callback(shape_tables.get_spacing_cols, shapes=True, shapes_min=2),
             get_enabled = bkt.Callback(shape_tables.enabled_spacing_cols, shapes=True),

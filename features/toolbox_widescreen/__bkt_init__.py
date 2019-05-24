@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
-def initiate():
-    import my_toolbox
+class BktFeature(object):
+    name            = "PowerPoint Toolbox Widescreen"
+    relevant_apps   = ["Microsoft PowerPoint"]
 
-bkt_feature = {
-    "name": "PowerPoint Toolbox Widescreen",
-    "relevant_apps": ["Microsoft PowerPoint"],
-    "contructor": initiate,
-}
+    conflicts       = ["toolbox", "toolbox_variation"]
+    dependencies    = []
+    
+    @staticmethod
+    def contructor():
+        import my_toolbox

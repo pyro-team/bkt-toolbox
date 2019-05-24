@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
 
+class BktFeature(object):
+    name            = "PowerPoint Toolbox Variation"
+    relevant_apps   = ["Microsoft PowerPoint"]
 
-import my_toolbox
+    conflicts       = ["toolbox", "toolbox_widescreen"]
+    dependencies    = []
+    
+    @staticmethod
+    def contructor():
+        import my_toolbox

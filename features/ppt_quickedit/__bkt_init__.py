@@ -1,3 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import quickedit
+class BktFeature(object):
+    name            = "PowerPoint QuickEdit"
+    relevant_apps   = ["Microsoft PowerPoint"]
+    
+    @staticmethod
+    def contructor():
+        import quickedit

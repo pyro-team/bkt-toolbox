@@ -41,6 +41,8 @@ class QuickEditPanelManager(object):
         windowid = context.addin.GetWindowHandle()
         if windowid in cls.panel_windows:
             if cls.panel_windows[windowid].IsLoaded:
+                #ensure that window is on the screen
+                cls.panel_windows[windowid].ShiftWindowOntoScreen()
                 return #active panel window already exists
             else:
                 cls._close_panel(windowid)
@@ -60,6 +62,7 @@ class QuickEditPanelManager(object):
         panel = cls._create_panel(context)
         panel.SetOwner(windowid)
         panel.Show()
+        panel.ShiftWindowOntoScreen() #ensure that window is on the screen
         cls.panel_windows[windowid] = panel
         panel.update_docking()
 

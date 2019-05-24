@@ -9,12 +9,14 @@ Created on 04.05.2016
 import bkt
 import bkt.library.powerpoint as pplib
 
-import os
-# import os.path
-import System
-        
+import os #for os.path, listdir and makedirs
+import shelve
+# import time
+
 import logging
 import traceback
+
+from System import Array
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
@@ -23,6 +25,19 @@ ColorTranslator = Drawing.ColorTranslator
 
 Forms = dotnet.import_forms() #required for clipboard functions
 
+
+from threading import Thread #used for non-blocking gallery thumbnails refresh
+from contextlib import contextmanager
+
+@contextmanager
+def open_presentation_without_window(context, filename):
+    ''' opens and returns presentation file '''
+    try:
+        presentation = context.app.Presentations.Open(filename, True, False, False) #readonly, untitled, withwindow
+        yield presentation
+    finally:
+        presentation.Saved = True
+        presentation.Close()
 
 
 # TODO
@@ -34,9 +49,17 @@ Forms = dotnet.import_forms() #required for clipboard functions
 THUMBNAIL_POSTFIX = '_thumbnails'
 
 
+class ChartLibCache(object):
+    cache = {}
+
+    @classmethod
+    def init_cache(cls):
+        cache_file = os.path.join( bkt.helpers.get_cache_folder(), "chartlib.cache" )
+        cls.cache = shelve.open(cache_file)
+
+
+
 class ChartLib(object):
-    
-    
     
     def __init__(self, copy_shapes=False):
         '''Constructor. Configures options and slide_action'''
@@ -56,40 +79,73 @@ class ChartLib(object):
 
         # folder for favorites
         # self.fav_folder = os.path.dirname(os.path.realpath(__file__))
-        self.fav_folder = bkt.helpers.get_fav_folder()
+        # self.fav_folder = bkt.helpers.get_fav_folder()
+        self.fav_folder = None
         
         # init slide_action
         self.copy_shapes_setting = copy_shapes
-        if copy_shapes:
+        # if copy_shapes:
+        #     # copy shapes
+        #     self.slide_action = self.copy_shapes_callback
+        #     self.fav_folder = os.path.join(self.fav_folder, "shapelib")
+        # else:
+        #     # copy full slide
+        #     self.slide_action = self.copy_slide_callback
+        #     self.fav_folder = os.path.join(self.fav_folder, "chartlib")
+        
+        # # add favorite folder as first folder
+        # self.library_folders.insert(0, {'title': "Favoriten", 'folder': self.fav_folder} )
+    
+
+    def init_chartlib(self):
+        logging.debug('initializing chartlib')
+
+        #load gallery items cache
+        ChartLibCache.init_cache()
+
+        if self.copy_shapes_setting:
             # copy shapes
+            subfolder = "shapelib"
             self.slide_action = self.copy_shapes_callback
-            self.fav_folder = os.path.join(self.fav_folder, "shapelib")
+
+            self.library_folders.extend( bkt.config.shape_library_folders or [] )
+            self.library_files.extend( bkt.config.shape_libraries or [] )
+
         else:
             # copy full slide
+            subfolder = "chartlib"
             self.slide_action = self.copy_slide_callback
-            self.fav_folder = os.path.join(self.fav_folder, "chartlib")
+
+            self.library_folders.extend( bkt.config.chart_library_folders or [] )
+            self.library_files.extend( bkt.config.chart_libraries or [] )
+
+        # add from feature-folders
+        for folder in bkt.config.feature_folders:
+            chartlib_folder = os.path.join(folder, subfolder)
+            if os.path.exists(chartlib_folder):
+                self.library_folders.append( { 'title':os.path.basename(os.path.realpath(folder)), 'folder':os.path.join(folder, subfolder)})
         
         # add favorite folder as first folder
+        self.fav_folder = os.path.join(bkt.helpers.get_fav_folder(), subfolder)
         self.library_folders.insert(0, {'title': "Favoriten", 'folder': self.fav_folder} )
-    
     
     
     # ===========
     # = Helpers =
     # ===========
     
-    @classmethod
-    def open_presentation_file(cls, context, file):
-        ''' opens and returns presentation file '''
-        # if self.presentations.has_key(file):
-        #     presentation = self.presentations[file]
-        # else:
-        #     # # Parameter: schreibgeschützt, ohne Titel, kein Fenster
-        #     # presentation = context.app.Presentations.Open(file, True, False, False)
-        #     # Parameter: rw-access, ohne Titel, kein Fenster
-        #     presentation = context.app.Presentations.Open(file, False, False, False)
-        #     self.presentations[file] = presentation
-        return context.app.Presentations.Open(file, True, False, False)
+    # @classmethod
+    # def open_presentation_file(cls, context, file):
+    #     ''' opens and returns presentation file '''
+    #     # if self.presentations.has_key(file):
+    #     #     presentation = self.presentations[file]
+    #     # else:
+    #     #     # # Parameter: schreibgeschützt, ohne Titel, kein Fenster
+    #     #     # presentation = context.app.Presentations.Open(file, True, False, False)
+    #     #     # Parameter: rw-access, ohne Titel, kein Fenster
+    #     #     presentation = context.app.Presentations.Open(file, False, False, False)
+    #     #     self.presentations[file] = presentation
+    #     return context.app.Presentations.Open(file, True, False, False)
     
     @classmethod
     def create_or_open_presentation(cls, context, file):
@@ -150,6 +206,10 @@ class ChartLib(object):
           root-file 2
         '''
         
+        #initialize chartlib on first call
+        if not self.fav_folder:
+            self.init_chartlib()
+
         # create menu-items for chartlibrary-directories
         if len(self.library_folders) == 0:
             # create empty menu
@@ -284,10 +344,30 @@ class ChartLib(object):
     def update_thumbnails_and_reset_cashes(self, context):
         if not bkt.helpers.confirmation("Dieser Vorgang kann bei vielen Libraries einige Minuten dauern und nicht abgebrochen werden. Trotzdem fortsetzen?"):
             return
+
+        def loop(worker):
+            try:
+                total = len(self.cached_presentation_galleries)+1
+                current = 1.0
+                worker.ReportProgress(1, "Lade Dateien")
+                for gal in self.cached_presentation_galleries.itervalues():
+                    if worker.CancellationPending == True:
+                        break
+                    if len(gal.filename) > 50:
+                        worker.ReportProgress(current/total*100, "..." + gal.filename[-50:])
+                    else:
+                        worker.ReportProgress(current/total*100, gal.filename)
+                    
+                    gal.reset_gallery_items(context)
+                    current += 1.0
+                worker.ReportProgress(100, "Cache löschen")
+            except:
+                logging.error("Error on refreshing chartlib libraries")
+                logging.debug(traceback.format_exc())
+            finally:
+                self.reset_cashes()
         
-        for gal in self.cached_presentation_galleries.itervalues():
-            gal.reset_gallery_items(context)
-        self.reset_cashes()
+        bkt.ui.execute_with_progress_bar(loop, context, modal=False) #modal=False important so main thread can handle app events and all presentations close properly
 
     def reset_cashes(self):
         ''' cashes for library menus and galleries are deleted '''
@@ -354,6 +434,7 @@ class ChartLib(object):
         except:
             bkt.helpers.exception_as_message()
         finally:
+            pres.Saved = True
             pres.Close()
 
         #Regenerate thumbnails
@@ -384,10 +465,11 @@ class ChartLib(object):
     def get_chartlib_menu_from_file(self, context, filename):
         ''' returns static menu for presentation-file. uses cached menu or generates menu using get_chartlib_menu_from_presentation '''
         if not self.cached_presentation_menus.has_key(filename):
-            presentation = self.open_presentation_file(context, filename)
-            menu = self.get_chartlib_menu_from_presentation(presentation)
-            presentation.Close()
-            self.cached_presentation_menus[filename] = menu
+            # presentation = self.open_presentation_file(context, filename)
+            with open_presentation_without_window(context, filename) as presentation:
+                menu = self.get_chartlib_menu_from_presentation(presentation)
+                # presentation.Close()
+                self.cached_presentation_menus[filename] = menu
         # else:
         #     logging.debug('get_chartlib_menu_from_presentation: reuse menu for %s' % filename)
         return self.cached_presentation_menus[filename]
@@ -504,13 +586,14 @@ class ChartLib(object):
     def copy_slide(cls, context, filename, slide_index):
         ''' Copy slide from chart lib '''
         # open presentation
-        template_presentation = cls.open_presentation_file(context, filename)
-        # copy slide
-        template_presentation.slides.item(int(slide_index)).copy()
-        # paste slide
-        position = context.app.activeWindow.View.Slide.SlideIndex
-        context.app.activeWindow.presentation.slides.paste(position+1)
-        template_presentation.Close()
+        # template_presentation = cls.open_presentation_file(context, filename)
+        with open_presentation_without_window(context, filename) as template_presentation:
+            # copy slide
+            template_presentation.slides.item(int(slide_index)).copy()
+            # paste slide
+            position = context.app.activeWindow.View.Slide.SlideIndex
+            context.app.activeWindow.presentation.slides.paste(position+1)
+            # template_presentation.Close()
     
     @classmethod
     def copy_shapes_callback(cls, context, current_control):
@@ -521,29 +604,30 @@ class ChartLib(object):
     def copy_shapes(cls, context, filename, slide_index):
         ''' Copy shape from shape lib '''
         # open presentation
-        template_presentation = cls.open_presentation_file(context, filename)
-        template_slide = template_presentation.slides.item(int(slide_index))
-        # current slide
-        cur_slide = context.app.activeWindow.View.Slide
-        shape_count = cur_slide.shapes.count
-        # find relevant shapes
-        shape_indices = []
-        shape_index = 1
-        for shape in template_slide.shapes:
-            if shape.type != 14 and shape.visible == -1:
-                # shape is not a placeholder and visible
-                shape_indices.append(shape_index)
-            shape_index+=1
-        # select and copy shapes
-        template_slide.shapes.Range(System.Array[int](shape_indices)).copy()
-        cur_slide.shapes.paste()
-        
-        # group+select shapes
-        if cur_slide.shapes.count - shape_count > 1:
-            cur_slide.shapes.Range(System.Array[int](range(shape_count+1, cur_slide.shapes.count+1))).group().select()
-        else:
-            cur_slide.shapes.item(cur_slide.shapes.count).select()
-        template_presentation.Close()
+        # template_presentation = cls.open_presentation_file(context, filename)
+        with open_presentation_without_window(context, filename) as template_presentation:
+            template_slide = template_presentation.slides.item(int(slide_index))
+            # current slide
+            cur_slide = context.app.activeWindow.View.Slide
+            shape_count = cur_slide.shapes.count
+            # find relevant shapes
+            shape_indices = []
+            shape_index = 1
+            for shape in template_slide.shapes:
+                if shape.type != 14 and shape.visible == -1:
+                    # shape is not a placeholder and visible
+                    shape_indices.append(shape_index)
+                shape_index+=1
+            # select and copy shapes
+            template_slide.shapes.Range(Array[int](shape_indices)).copy()
+            cur_slide.shapes.paste()
+            
+            # group+select shapes
+            if cur_slide.shapes.count - shape_count > 1:
+                cur_slide.shapes.Range(Array[int](range(shape_count+1, cur_slide.shapes.count+1))).group().select()
+            else:
+                cur_slide.shapes.item(cur_slide.shapes.count).select()
+            # template_presentation.Close()
     
     
     
@@ -707,19 +791,51 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     
     def reset_gallery_items(self, context):
         '''Forces Gallery to re-initialize and generate thumbnail-images'''
-        self.init_gallery_items(context, force_thumbnail_generation=True)
+        # reset gallery in a separate thread so core thread is still able to handle the app-events (i.e. presentation open/close).
+        # otherwise when this function is called in a loop, some presentations remain open and block ppt process from being quit.
+        t = Thread(target=self.init_gallery_items, args=(context, True))
+        t.start()
+        t.join()
+        # self.init_gallery_items(context, force_thumbnail_generation=True)
     
     def init_gallery_items(self, context, force_thumbnail_generation=False):
-        # FIXME: use general presentation_open method
         try:
-            presentation = context.app.Presentations.Open(self.filename, True, False, False)
-            self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation)
-        except:
-            logging.error('error initializing gallery')
-            logging.debug(traceback.format_exc())
-        finally:
-            presentation.Close()
+            if force_thumbnail_generation:
+                raise KeyError("Thumbnail generation not possible from cache")
+            self.init_gallery_items_from_cache()
+        except KeyError as e:
+            if str(e) == "CACHE_FILEMTIME_INVALID":
+                force_thumbnail_generation = True
+            with open_presentation_without_window(context, self.filename) as presentation:
+                try:
+                    self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation)
+                except:
+                    logging.error('error initializing gallery')
+                    logging.debug(traceback.format_exc())
         
+        # try:
+        #     presentation = Charlib.open_presentation_file(context, self.filename)
+        #     # presentation = context.app.Presentations.Open(self.filename, True, False, True) #filename, readonly, untitled, withwindow
+        #     self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation)
+        # except:
+        #     logging.error('error initializing gallery')
+        #     logging.debug(traceback.format_exc())
+        # finally:
+        #     # logging.debug('closing presentation: %s' % self.filename)
+        #     presentation.Saved = True
+        #     presentation.Close()
+        
+    def init_gallery_items_from_cache(self):
+        ''' initialize gallery items from cache if file has not been modified.
+        '''
+        cache = ChartLibCache.cache[self.filename]
+        if os.path.getmtime(self.filename) != cache["file_mtime"]:
+            raise KeyError("CACHE_FILEMTIME_INVALID")
+        self.item_width     = cache["item_width"]
+        self.slide_indices  = cache["slide_indices"]
+        self.labels         = cache["labels"]
+        self.item_count     = cache["item_count"]
+        self.items_initialized = True
     
     def init_gallery_items_from_presentation(self, presentation, force_thumbnail_generation=False):
         ''' initialize gallery items (count, labels, item-widht, item-height... ).
@@ -751,6 +867,17 @@ class ChartLibGallery(bkt.ribbon.Gallery):
 
         # items are initialized and can be displayed
         self.items_initialized = True
+
+        #create cache
+        ChartLibCache.cache[self.filename] = dict(
+            # cache_time      = time.time(),
+            file_mtime      = os.path.getmtime(self.filename),
+            item_width      = self.item_width,
+            slide_indices   = self.slide_indices,
+            labels          = self.labels,
+            item_count      = self.item_count,
+        )
+        ChartLibCache.cache.sync()
 
         # init images, if first thumbnail does not exist
         image_filename = self.get_image_filename(1)
@@ -792,7 +919,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         for slide in presentation.slides:
             if slide.shapes.hastitle != False:
                 # select shapes
-                # slide_range = presentation.slides.Range(System.Array[int]([ slide.SlideIndex ]))
+                # slide_range = presentation.slides.Range(Array[int]([ slide.SlideIndex ]))
                 image_filename = self.get_image_filename(slide.SlideIndex)
                 try:
                     # export image as PNG,  2 = ppShapeFormatPNG, 0 = ppShapeFormatGIF
@@ -828,7 +955,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                         shape_indices.append(shape_index)
                     shape_index+=1
                 # select shapes
-                shape_range = slide.shapes.Range(System.Array[int](shape_indices))
+                shape_range = slide.shapes.Range(Array[int](shape_indices))
                 image_filename = self.get_image_filename(slide.SlideIndex)
                 # WAS: image_filename = os.path.join(os.path.splitext(self.filename)[0], str(slide.SlideIndex) + '.png')
                 
@@ -911,29 +1038,20 @@ class ChartLibGallery(bkt.ribbon.Gallery):
 
 
 charts = ChartLib()
-#charts.root_dir = "S:\\Tooling\\Toolbox-git\\_personal\\chartlib"
-#charts.root_dir=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "_personal", "chartlib")
-charts.library_folders.extend( bkt.config.chart_library_folders or [] )
-charts.library_files.extend( bkt.config.chart_libraries or [] )
+# charts.library_folders.extend( bkt.config.chart_library_folders or [] )
+# charts.library_files.extend( bkt.config.chart_libraries or [] )
 
 shapes = ChartLib( copy_shapes=True )
-#shapes.root_dir = "S:\\Tooling\\Toolbox-git\\_personal\\shapelib"
-#shapes.root_dir=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "_personal", "shapelib")
-shapes.library_folders.extend( bkt.config.shape_library_folders or [] )
-shapes.library_files.extend( bkt.config.shape_libraries or [] )
+# shapes.library_folders.extend( bkt.config.shape_library_folders or [] )
+# shapes.library_files.extend( bkt.config.shape_libraries or [] )
 
 
 # add from feature-folders
-for folder in bkt.config.feature_folders:
-    chartlib_folder = os.path.join(folder, "chartlib")
-    charts.library_folders.append( { 'title':os.path.basename(os.path.realpath(folder)), 'folder':chartlib_folder})
-    shapelib_folder = os.path.join(folder, "shapelib")
-    shapes.library_folders.append( { 'title':os.path.basename(os.path.realpath(folder)), 'folder':shapelib_folder})
-
-
-#bkt.helpers.message(charts.library_folders)
-#bkt.helpers.message(shapes.library_folders)
-
+# for folder in bkt.config.feature_folders:
+#     chartlib_folder = os.path.join(folder, "chartlib")
+#     charts.library_folders.append( { 'title':os.path.basename(os.path.realpath(folder)), 'folder':chartlib_folder})
+#     shapelib_folder = os.path.join(folder, "shapelib")
+#     shapes.library_folders.append( { 'title':os.path.basename(os.path.realpath(folder)), 'folder':shapelib_folder})
 
 
 
@@ -963,10 +1081,10 @@ shapelib_button = bkt.ribbon.DynamicMenu(
     )
 )
 
-chartlibgroup = bkt.ribbon.Group(
-    label="chartlib",
-    children=[ chartlib_button, shapelib_button]
-)
+# chartlibgroup = bkt.ribbon.Group(
+#     label="chartlib",
+#     children=[ chartlib_button, shapelib_button]
+# )
 
 # bkt.powerpoint.add_tab(
 #     bkt.ribbon.Tab(
