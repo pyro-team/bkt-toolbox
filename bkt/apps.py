@@ -642,7 +642,7 @@ class Resources(object):
         cache_file = os.path.join( _h.get_cache_folder(), "resources.%s.cache"%category )
         
         try:
-            self._cache = shelve.open(cache_file)
+            self._cache = shelve.open(cache_file, protocol=2)
         except:
             logging.error("Loading resource cache failed")
             logging.debug(traceback.format_exc())
