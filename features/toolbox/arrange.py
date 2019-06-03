@@ -403,16 +403,21 @@ equal_width_button = bkt.ribbon.SplitButton(
 
 class ShapeDistance(object):
     default_sep = 0.2
-    vertical_edges = "distance" #other options: visual, top, center, bottom
-    horizontal_edges = "distance" #other options: visual, left, center, right
-    vertical_fix = "top" #other options: bottom
-    horizontal_fix = "left" #other options: right
+    vertical_edges   = bkt.settings.get("toolbox.shapedis.vertical_edges",   "distance") #other options: visual, top, center, bottom
+    horizontal_edges = bkt.settings.get("toolbox.shapedis.horizontal_edges", "distance") #other options: visual, left, center, right
+    vertical_fix   = bkt.settings.get("toolbox.shapedis.vertical_fix",   "top") #other options: bottom
+    horizontal_fix = bkt.settings.get("toolbox.shapedis.horizontal_fix", "left") #other options: right
 
     #only for euclid distance and angle:
     shape1_locpin = pplib.LocPin(4) #center point as initial locpin
     shape2_locpin = pplib.LocPin(4) #center point as initial locpin
     shape_rotate_with_angle = False #rotate shape if angle is changed
     shape_calc_individually = False #same as ALT-key
+
+    @classmethod
+    def change_settings(cls, name, value):
+        setattr(cls, name, value)
+        bkt.settings["toolbox.shapedis."+name] = value
 
     @classmethod
     def _get_locpin(cls):
@@ -788,14 +793,14 @@ distance_rotation_group = bkt.ribbon.Group(
                         image="shapedis_vdistance",
                         description="Abstand von unterer Kante zu oberer Kante anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_edges=="distance"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_edges", "distance")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_edges", "distance")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Visueller Abstand (bei Rotation)",
                         image="shapedis_vvisual",
                         description="Abstand von visueller unterer Kante zu visueller oberer Kante anzeigen. Hilfreich bei rotierten Shapes.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_edges=="visual"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_edges", "visual")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_edges", "visual")),
                     ),
                     bkt.ribbon.MenuSeparator(),
                     bkt.ribbon.ToggleButton(
@@ -803,21 +808,21 @@ distance_rotation_group = bkt.ribbon.Group(
                         image="shapedis_top",
                         description="Abstand von oberer Kante zu oberer Kante anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_edges=="top"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_edges", "top")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_edges", "top")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Abstand zu Mittelpunkten",
                         image="shapedis_vcenter",
                         description="Abstand von den jeweiligen Mittelpunkten anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_edges=="center"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_edges", "center")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_edges", "center")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Abstand zu unteren Kanten",
                         image="shapedis_bottom",
                         description="Abstand von unterer Kante zu unterer Kante anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_edges=="bottom"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_edges", "bottom")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_edges", "bottom")),
                     ),
                     bkt.ribbon.MenuSeparator(title="Bewegungsrichtung"),
                     bkt.ribbon.ToggleButton(
@@ -825,14 +830,14 @@ distance_rotation_group = bkt.ribbon.Group(
                         image="shapedis_movedown",
                         description="Ändert die Distanz ausgehend vom obersten Shape und schiebt alle anderen nach unten. Temporärer Wechsel auf 'Nach oben' durch [ALT].",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_fix=="top"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_fix", "top")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_fix", "top")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Nach oben",
                         image="shapedis_moveup",
                         description="Ändert die Distanz ausgehend vom untersten Shape und schiebt alle anderen nach oben. Temporärer Wechsel auf 'Nach unten' durch [ALT].",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_fix=="bottom"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_fix", "bottom")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_fix", "bottom")),
                     ),
                 ])
             ]),
@@ -864,14 +869,14 @@ distance_rotation_group = bkt.ribbon.Group(
                         image="shapedis_hdistance",
                         description="Abstand von rechter Kante zu linker Kante anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_edges=="distance"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_edges", "distance")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_edges", "distance")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Visueller Abstand (bei Rotation)",
                         image="shapedis_hvisual",
                         description="Abstand von visueller rechter Kante zu visueller linker Kante. Hilfreich bei rotierten Shapes.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_edges=="visual"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_edges", "visual")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_edges", "visual")),
                     ),
                     bkt.ribbon.MenuSeparator(),
                     bkt.ribbon.ToggleButton(
@@ -879,21 +884,21 @@ distance_rotation_group = bkt.ribbon.Group(
                         image="shapedis_left",
                         description="Abstand von linker Kante zu linker Kante anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_edges=="left"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_edges", "left")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_edges", "left")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Abstand zu Mittelpunkten",
                         image="shapedis_hcenter",
                         description="Abstand von den jeweiligen Mittelpunkten anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_edges=="center"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_edges", "center")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_edges", "center")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Abstand zu rechten Kanten",
                         image="shapedis_right",
                         description="Abstand von rechter Kante zu rechter Kante anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_edges=="right"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_edges", "right")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_edges", "right")),
                     ),
                     bkt.ribbon.MenuSeparator(title="Bewegungsrichtung"),
                     bkt.ribbon.ToggleButton(
@@ -901,14 +906,14 @@ distance_rotation_group = bkt.ribbon.Group(
                         image="shapedis_moveright",
                         description="Ändert die Distanz ausgehend vom linken Shape und schiebt alle anderen nach rechts. Temporärer Wechsel auf 'Nach links' durch [ALT].",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_fix=="left"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_fix", "left")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_fix", "left")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Nach links",
                         image="shapedis_moveleft",
                         description="Ändert die Distanz ausgehend vom rechten Shape und schiebt alle anderen nach links. Temporärer Wechsel auf 'Nach rechts' durch [ALT].",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_fix=="right"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_fix", "right")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_fix", "right")),
                     ),
                 ])
             ]),
