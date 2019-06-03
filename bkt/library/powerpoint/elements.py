@@ -7,7 +7,9 @@ Created on 02.11.2017
 
 import helpers as pplib
 
-from bkt import apps, dotnet, CallbackTypes, Callback
+from collections import deque
+
+from bkt import apps, dotnet, settings, CallbackTypes, Callback
 Drawing = dotnet.import_drawing()
 
 from bkt.ribbon import Button, Gallery, SymbolsGallery, RoundingSpinnerBox, Item
@@ -201,10 +203,13 @@ class ParagraphFormatSpinnerBox(RoundingSpinnerBox):
 
 
 class PPTSymbolsGallery(SymbolsGallery):
+    recent_symbols = deque(settings.get("bkt.recent_symbols", []), maxlen=3)
 
     def on_action_indexed(self, selected_item, index, context, selection, **kwargs):
         ''' create numberd shape according of settings in clicked element '''
         item = self.symbols[index]
+        self._add_to_recent(item)
+
         if selection.Type == 3: #text selected
             selection.TextRange2.Text = "" #remove selected text first and then insert symbol
             self.insert_symbol_into_text(selection.TextRange2, item)
@@ -213,10 +218,18 @@ class PPTSymbolsGallery(SymbolsGallery):
         else:
             self.create_symbol_shape(selection.SlideRange(1), item)
     
+    def _add_to_recent(self, item):
+        PPTSymbolsGallery.recent_symbols.append(item)
+        settings["bkt.recent_symbols"] = PPTSymbolsGallery.recent_symbols
+    
     def insert_symbol_into_text(self, textrange, item):
-        char_inserted = textrange.InsertAfter(item[1]) #symbol text
-        if item[0]:
-            char_inserted.Font.Name = item[0] #font name
+        if item[0]: #font name is given, then insert as symbol
+            placeholder_char = textrange.InsertAfter("X") #append placeholder symbol so that InsertSymbol behaves the same as InsertAfter
+            return placeholder_char.InsertSymbol(item[0], ord(item[1]), -1) #symbol: FontName, CharNumber, Unicode
+        else:
+            return textrange.InsertAfter(item[1]) #append symbol text
+        # if item[0]:
+        #     char_inserted.Font.Name = item[0] #font name
     
     def insert_symbol_into_shapes(self, shapes, item):
         #pplib.iterate_shape_textframes(shapes, lambda textframe: self.insert_symbol_into_text(textframe.TextRange, item))
@@ -234,16 +247,57 @@ class PPTSymbolsGallery(SymbolsGallery):
             1,
             100,100,200,200)
         
-        shape.TextFrame.WordWrap = 0
-        shape.TextFrame.AutoSize = 1 #ppAutoSizeShapeToFitText
-        shape.TextFrame.MarginBottom = 0
-        shape.TextFrame.MarginTop    = 0
-        shape.TextFrame.MarginLeft   = 0
-        shape.TextFrame.MarginRight  = 0
-        if item[0]:
-            shape.TextFrame.TextRange.Font.Name = item[0] #font name
-        shape.TextFrame.TextRange.Text = item[1] #symbol text
+        shape.TextFrame2.WordWrap = 0
+        shape.TextFrame2.AutoSize = 1 #ppAutoSizeShapeToFitText
+        shape.TextFrame2.MarginBottom = 0
+        shape.TextFrame2.MarginTop    = 0
+        shape.TextFrame2.MarginLeft   = 0
+        shape.TextFrame2.MarginRight  = 0
+        self.insert_symbol_into_text(shape.TextFrame2.TextRange, item)
+        # if item[0]:
+        #     shape.TextFrame.TextRange.Font.Name = item[0] #font name
+        # shape.TextFrame.TextRange.Text = item[1] #symbol text
         shape.select()
+
+
+class PPTSymbolsGalleryRecent(PPTSymbolsGallery):
+    @property
+    def symbols(self):
+        return PPTSymbolsGallery.recent_symbols
+    @symbols.setter
+    def symbols(self, value):
+        pass
+
+    def _add_to_recent(self, item):
+        pass
+    
+    def get_item_image(self, index):
+        try:
+            return super(PPTSymbolsGalleryRecent, self).get_item_image(index)
+        except:
+            return super(PPTSymbolsGalleryRecent, self).create_symbol_image("Arial", "?")
+
+    def button_get_label(self, index):
+        try:
+            return self.symbols[index][2]
+        except:
+            return "Undefined"
+    
+    def button_get_visible(self, index):
+        try:
+            return self.symbols[index] is not None
+        except:
+            return False
+    
+    def get_index_as_button(self, index):
+        return Button(
+                    id="{}_button_{}".format(self.id, index),
+                    get_label=Callback(lambda: self.button_get_label(index)),
+                    on_action=Callback(lambda context, selection: self.on_action_indexed(None, index, context, selection)),
+                    get_image=Callback(lambda: self.get_item_image(index)),
+                    get_visible=Callback(lambda: self.button_get_visible(index)),
+                )
+
 
 
 class LocpinGallery(Gallery):

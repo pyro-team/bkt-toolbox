@@ -11,7 +11,6 @@ import bkt.library.powerpoint as pplib
 import fontawesome
 
 
-
 # pt_to_cm_factor = 2.54 / 72;
 # def pt_to_cm(pt):
 #     return float(pt) * pt_to_cm_factor;
@@ -19,6 +18,8 @@ import fontawesome
 #     return float(cm) / pt_to_cm_factor;
 
 class TextPlaceholder(object):
+    recent_placeholder = bkt.settings.get("toolbox.recent_placeholder", "…")
+
     @staticmethod
     def set_text_for_shape(textframe, text=None): #None=delete text
         if text is not None:
@@ -39,7 +40,7 @@ class TextPlaceholder(object):
 
     @classmethod
     def text_replace(cls, shapes):
-        input_text = bkt.ui.show_user_input("Text eingeben, der auf alle Shapes angewendet werden soll (Platzhalter [text] kann für bestehenden Text und [counter] zur Nummerierung verwendet werden):", "Text ersetzen", "…", True)
+        input_text = bkt.ui.show_user_input("Text eingeben, der auf alle Shapes angewendet werden soll (Platzhalter [text] kann für bestehenden Text und [counter] zur Nummerierung verwendet werden):", "Text ersetzen", cls.recent_placeholder, True)
 
         # user_form = bkt.ui.UserInputBox("Text eingeben, der auf alle Shapes angewendet werden soll (Platzhalter [counter] kann zur Nummerierung verwendet werden):", "Text ersetzen")
         # user_form._add_textbox("new_text", "…", True)
@@ -48,6 +49,7 @@ class TextPlaceholder(object):
         # if len(form_return) == 0:
         if input_text is None:
             return
+        cls.recent_placeholder = bkt.settings["toolbox.recent_placeholder"] = input_text
 
         placeholder_count = input_text.count("[text]")
         counter = 1
@@ -98,7 +100,6 @@ At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergr
                     plh.Delete()
 
 
-
 class Characters(object):
     @staticmethod
     def symbol_insert(context):
@@ -125,88 +126,97 @@ class Characters(object):
 
     ### TYPOGRAPHY ###
     typography = [
-        [None, u'\xbb', "Linkes Guillemets"],
-        [None, u'\xab', "Rechtes Guillemets"],
-        [None, u'\xb6', "Paragraph"],
-        [None, u'\u2026', "Auslassungspunkte (Ellipse)", "Auslassungspunkte sind drei kurz aufeinanderfolgende Punkte. Meistens zeigen diese eine Ellipse (Auslassung eines Textteils) an."],
-        [None, u'\u2013', "Gedankenstrich (Halbgeviertstrich/En-Dash)", "Ein Gedankenstrich (sog. Halbgeviertstrich) wie er von Office teilweise automatisch gesetzt wird. Verwendet als Bis-Strich oder Streckenstrich."],
-        [None, u'\u2014', "Waagerechter Strich (Geviertstrich/Em-Dash)"],
-        [None, u'\u2020', "Kreuz"],
-        [None, u'\u2021', "Doppelkreuz"],
-        [None, u'\u25A0', "Schwarzes Quadrat"],
-        [None, u'\u25A1', "Weißes Quadrat"],
-        [None, u'\u2423', "Leerzeichen-Symbol"],
-        [None, u'\xa9',   "Copyright"],
-        [None, u'\xae',   "Registered Trade Mark"],
-        [None, u'\u2122', "Trade Mark"],
-        [None, u'\u2030', "Per mil"],
-        [None, u'\u20AC', "Euro"],
+        (None, u'\xbb', "Linkes Guillemets"),
+        (None, u'\xab', "Rechtes Guillemets"),
+        (None, u'\xb6', "Paragraph"),
+        (None, u'\u2026', "Auslassungspunkte (Ellipse)", "Auslassungspunkte sind drei kurz aufeinanderfolgende Punkte. Meistens zeigen diese eine Ellipse (Auslassung eines Textteils) an."),
+        (None, u'\u2013', "Gedankenstrich (Halbgeviertstrich/En-Dash)", "Ein Gedankenstrich (sog. Halbgeviertstrich) wie er von Office teilweise automatisch gesetzt wird. Verwendet als Bis-Strich oder Streckenstrich."),
+        (None, u'\u2014', "Waagerechter Strich (Geviertstrich/Em-Dash)"),
+        (None, u'\u2020', "Kreuz"),
+        (None, u'\u2021', "Doppelkreuz"),
+        (None, u'\u25A0', "Schwarzes Quadrat"),
+        (None, u'\u25A1', "Weißes Quadrat"),
+        (None, u'\u2423', "Leerzeichen-Symbol"),
+        (None, u'\xa9',   "Copyright"),
+        (None, u'\xae',   "Registered Trade Mark"),
+        (None, u'\u2122', "Trade Mark"),
+        (None, u'\u2030', "Per mil"),
+        (None, u'\u20AC', "Euro"),
+        (None, u'\u1E9E', "Großes Eszett"),
     ]
 
     ### MATH ###
     math = [
-        [None, u'\xb1',   "Plus-Minus-Zeichen", "Ein Plus-Minus-Zeichen einfügen."],
-        [None, u'\u2212', "Echtes Minuszeichen", "Ein echtes Minuszeichen (kein Bindestrich) einfügen."],
-        [None, u'\xd7',   "Echtes Malzeichen (Kreuz)", "Ein echtes Kreuz-Multiplikatorzeichen einfügen."],
-        [None, u'\u22c5', "Echtes Malzeichen (Punkt)", "Ein echtes Punkt-Multiplikatorzeichen einfügen."],
-        [None, u'\u2044', "Echter Bruchstrich", "Einen echten Bruchstrich (ähnlich Schrägstrich) einfügen."],
-        [None, u'\u2248', "Ungefähr Gleich", "Ein Ungefähr Gleich Zeichen einfügen."],
-        [None, u'\u2260', "Ungleich", "Ein Ungleich-Zeichen einfügen."],
-        [None, u'\u2206', "Delta", "Ein Deltazeichen einfügen."], #alt: \u0394 griechisches Delta
-        [None, u'\u2300', "Mittelwert/Durchmesser", "Ein Durchmesserzeichen bzw. Durchschnittszeichen einfügen."], #alt: \xD8 leere menge
-        [None, u'\u2211', "Summenzeichen", "Ein Summenzeichen einfügen."],
-        [None, u'\u221A', "Wurzelzeichen", "Ein Wurzelzeichen einfügen."],
-        [None, u'\u221E', "Unendlich-Zeichen", "Ein Unendlich-Zeichen (liegende Acht) einfügen."],
+        (None, u'\xb1',   "Plus-Minus-Zeichen", "Ein Plus-Minus-Zeichen einfügen."),
+        (None, u'\u2212', "Echtes Minuszeichen", "Ein echtes Minuszeichen (kein Bindestrich) einfügen."),
+        (None, u'\xd7',   "Echtes Malzeichen (Kreuz)", "Ein echtes Kreuz-Multiplikatorzeichen einfügen."),
+        (None, u'\u22c5', "Echtes Malzeichen (Punkt)", "Ein echtes Punkt-Multiplikatorzeichen einfügen."),
+        (None, u'\u2044', "Echter Bruchstrich", "Einen echten Bruchstrich (ähnlich Schrägstrich) einfügen."),
+        (None, u'\u2248', "Ungefähr Gleich", "Ein Ungefähr Gleich Zeichen einfügen."),
+        (None, u'\u2260', "Ungleich", "Ein Ungleich-Zeichen einfügen."),
+        (None, u'\u2206', "Delta", "Ein Deltazeichen einfügen."), #alt: \u0394 griechisches Delta
+        (None, u'\u2300', "Mittelwert/Durchmesser", "Ein Durchmesserzeichen bzw. Durchschnittszeichen einfügen."), #alt: \xD8 leere menge
+        (None, u'\u2211', "Summenzeichen", "Ein Summenzeichen einfügen."),
+        (None, u'\u221A', "Wurzelzeichen", "Ein Wurzelzeichen einfügen."),
+        (None, u'\u221E', "Unendlich-Zeichen", "Ein Unendlich-Zeichen (liegende Acht) einfügen."),
     ]
 
     ### LIST ###
     lists = [
-        [None, u'\u2022', "Aufzählungszeichen (Kreis)", "Ein Aufzählungszeichen (schwarzer Punkt) einfügen."],
-        [None, u'\u2023', "Aufzählungszeichen (Dreieck)", "Ein Aufzählungszeichen (schwarzes Dreieck) einfügen."],
-        [None, u'\u25AA', "Aufzählungszeichen (Quadrat)", "Ein Aufzählungszeichen (schwarzes Quadrat) einfügen."],
-        [None, u'\u2043', "Aufzählungszeichen (Strich)", "Ein Aufzählungszeichen (Bindestrich) einfügen."],
-        [None, u'\u2212', "Echtes Minuszeichen", "Ein echtes Minuszeichen (kein Bindestrich) einfügen."],
-        [None, u'\x2b',   "Pluszeichen", "Ein Pluszeichen einfügen."],
-        [None, u'\u2610', "Box leer"],
-        [None, u'\u2611', "Box Häkchen"],
-        [None, u'\u2612', "Box Kreuzchen"],
-        ["Wingdings", u'J', "Wingdings Smiley gut"],
-        ["Wingdings", u'K', "Wingdings Smiley neutral"],
-        ["Wingdings", u'L', "Wingdings Smiley schlecht"],
-        [None, u'\u2713', "Häkchen", "Ein Häkchen-Symbol einfügen."],
-        [None, u'\u2714', "Häkchen fett", "Ein fettes Häkchen-Symbol einfügen."],
-        [None, u'\u2717', "Kreuzchen geschwungen", "Ein geschwungenes Kreuzchen (passend zu Häkchen) einfügen."],
-        [None, u'\u2718', "Kreuzchen geschwungen fett", "Ein fettes geschwungenes Kreuzchen (passend zu Häkchen) einfügen."],
-        [None, u'\u2715', "Kreuzchen symmetrisch", "Ein symmetrisches Kreuzchen (ähnlich Malzeichen) einfügen."],
-        [None, u'\u2716', "Kreuzchen symmetrisch fett", "Ein fettes symmetrisches Kreuzchen (ähnlich Malzeichen) einfügen."],
-        [None, u'\u2605', "Stern schwarz"],
-        [None, u'\u2606', "Stern weiß"],
-        [None, u'\u261B', "Zeigefinger schwarz"],
-        [None, u'\u261E', "Zeigefinger weiß"],
-        ["Wingdings", u'C', "Wingdings Thumbs-Up"],
-        ["Wingdings", u'D', "Wingdings Thumbs-Down"],
+        (None, u'\u2022', "Aufzählungszeichen (Kreis)", "Ein Aufzählungszeichen (schwarzer Punkt) einfügen."),
+        (None, u'\u2023', "Aufzählungszeichen (Dreieck)", "Ein Aufzählungszeichen (schwarzes Dreieck) einfügen."),
+        (None, u'\u25AA', "Aufzählungszeichen (Quadrat)", "Ein Aufzählungszeichen (schwarzes Quadrat) einfügen."),
+        (None, u'\u2043', "Aufzählungszeichen (Strich)", "Ein Aufzählungszeichen (Bindestrich) einfügen."),
+        (None, u'\u2212', "Echtes Minuszeichen", "Ein echtes Minuszeichen (kein Bindestrich) einfügen."),
+        (None, u'\x2b',   "Pluszeichen", "Ein Pluszeichen einfügen."),
+        (None, u'\u2610', "Box leer"),
+        (None, u'\u2611', "Box Häkchen"),
+        (None, u'\u2612', "Box Kreuzchen"),
+        ("Wingdings", u'J', "Wingdings Smiley gut"),
+        ("Wingdings", u'K', "Wingdings Smiley neutral"),
+        ("Wingdings", u'L', "Wingdings Smiley schlecht"),
+        (None, u'\u2713', "Häkchen", "Ein Häkchen-Symbol einfügen."),
+        (None, u'\u2714', "Häkchen fett", "Ein fettes Häkchen-Symbol einfügen."),
+        (None, u'\u2717', "Kreuzchen geschwungen", "Ein geschwungenes Kreuzchen (passend zu Häkchen) einfügen."),
+        (None, u'\u2718', "Kreuzchen geschwungen fett", "Ein fettes geschwungenes Kreuzchen (passend zu Häkchen) einfügen."),
+        (None, u'\u2715', "Kreuzchen symmetrisch", "Ein symmetrisches Kreuzchen (ähnlich Malzeichen) einfügen."),
+        (None, u'\u2716', "Kreuzchen symmetrisch fett", "Ein fettes symmetrisches Kreuzchen (ähnlich Malzeichen) einfügen."),
+        (None, u'\u2605', "Stern schwarz"),
+        (None, u'\u2606', "Stern weiß"),
+        (None, u'\u261B', "Zeigefinger schwarz"),
+        (None, u'\u261E', "Zeigefinger weiß"),
+        ("Wingdings", u'C', "Wingdings Thumbs-Up"),
+        ("Wingdings", u'D', "Wingdings Thumbs-Down"),
+        ### Default list symbol:
+        # ("Arial",       u'\u2022', "Arial Bullet"),
+        ("Courier New", u'o', "Courier New Kreis"),
+        ("Wingdings",   u'\xa7', "Wingdings Rechteck"),
+        ("Symbol",      u'-', "Symbol Strich"),
+        ("Wingdings",   u'v', "Wingdings Stern"),
+        ("Wingdings",   u'\xd8', "Wingdings Pfeil"),
+        ("Wingdings",   u'\xfc', "Wingdings Häckchen"),
     ]
 
     ### ARROWS ###
     arrows = [
-        [None, u'\u2192', "Pfeil rechts"],
-        [None, u'\u2190', "Pfeil links"],
-        [None, u'\u2191', "Pfeil oben"],
-        [None, u'\u2193', "Pfeil unten"],
-        [None, u'\u2194', "Pfeil links und rechts"],
-        [None, u'\u21C4', "Pfeil links und rechts"],
-        [None, u'\u2197', "Pfeil rechts oben"],
-        [None, u'\u2196', "Pfeil links oben"],
-        [None, u'\u2198', "Pfeil rechts unten"],
-        [None, u'\u2199', "Pfeil links unten"],
-        [None, u'\u2195', "Pfeil oben und unten"],
-        [None, u'\u21C5', "Pfeil oben und unten"],
-        [None, u'\u21E8', "Weißer Pfeil rechts"],
-        [None, u'\u21E6', "Weißer Pfeil links"],
-        [None, u'\u21E7', "Weißer Pfeil oben"],
-        [None, u'\u21E9', "Weißer Pfeil unten"],
-        [None, u'\u21AF', "Blitz"],
-        [None, u'\u21BA', "Kreispfeil gegen den Uhrzeigersinn"],
+        (None, u'\u2192', "Pfeil rechts"),
+        (None, u'\u2190', "Pfeil links"),
+        (None, u'\u2191', "Pfeil oben"),
+        (None, u'\u2193', "Pfeil unten"),
+        (None, u'\u2194', "Pfeil links und rechts"),
+        (None, u'\u21C4', "Pfeil links und rechts"),
+        (None, u'\u2197', "Pfeil rechts oben"),
+        (None, u'\u2196', "Pfeil links oben"),
+        (None, u'\u2198', "Pfeil rechts unten"),
+        (None, u'\u2199', "Pfeil links unten"),
+        (None, u'\u2195', "Pfeil oben und unten"),
+        (None, u'\u21C5', "Pfeil oben und unten"),
+        (None, u'\u21E8', "Weißer Pfeil rechts"),
+        (None, u'\u21E6', "Weißer Pfeil links"),
+        (None, u'\u21E7', "Weißer Pfeil oben"),
+        (None, u'\u21E9', "Weißer Pfeil unten"),
+        (None, u'\u21AF', "Blitz"),
+        (None, u'\u21BA', "Kreispfeil gegen den Uhrzeigersinn"),
     ]
 
     @staticmethod
@@ -214,11 +224,20 @@ class Characters(object):
         return selection.Type == 3
 
 
+recent_symbols = pplib.PPTSymbolsGalleryRecent(
+    id="symbols_recent_gallery",
+    label="Zuletzt verwendet",
+)
 
 character_menu = bkt.ribbon.Menu(
     label="Symbol-Menü",
     children = [
         bkt.mso.button.SymbolInsert(show_label=True),
+        # recent_symbols,
+        bkt.ribbon.MenuSeparator(title="Zuletzt verwendet"),
+        recent_symbols.get_index_as_button(2),
+        recent_symbols.get_index_as_button(1),
+        recent_symbols.get_index_as_button(0),
         bkt.ribbon.MenuSeparator(title="Symbole"),
         bkt.ribbon.Button(
             label='Geschützter Trennstrich [Shift]',
@@ -298,7 +317,7 @@ class InnerMargin(pplib.TextframeSpinnerBox):
 
     @classmethod
     def toggle_all_equal(cls, pressed):
-        cls.all_equal = (pressed == True)
+        cls.all_equal = pressed
 
     @classmethod
     def get_all_equal(cls):
@@ -690,7 +709,9 @@ class BulletStyle(object):
 
     @classmethod
     def _get_bullet_symbol_from_par(cls, par_format):
-        return unichr(par_format.Bullet.Character)
+        if par_format.Bullet.Visible:
+            return unichr(par_format.Bullet.Character)
+        return None
 
     
     @classmethod
@@ -721,7 +742,7 @@ class BulletStyle(object):
             for par in textframe.TextRange.Paragraphs() :
                 indent_level = par.ParagraphFormat.IndentLevel
             
-                if ph_paragraphs[indent_level] == None:
+                if ph_paragraphs[indent_level] is None:
                     continue
 
                 par.ParagraphFormat.Bullet.Style = ph_formats[indent_level].Bullet.Style
