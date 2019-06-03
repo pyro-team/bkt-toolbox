@@ -7,6 +7,7 @@ clr.AddReference("Microsoft.Office.Interop.PowerPoint")
 import Microsoft.Office.Interop.PowerPoint as PowerPoint
 
 import json # required for tags
+from bkt import settings
 
 ptToCmFactor = 2.54 / 72;
 def pt_to_cm(pt):
@@ -298,10 +299,14 @@ Helper class to storage the "loc pin" of shapes for various powerpoint operation
 The "loc pin" is the pin location within the shapes that should be fixed when using shape operations (e.g. changing the size).
 '''
 class LocPin(object):
-    def __init__(self, initial_pin=0):
+    def __init__(self, initial_pin=0, settings_key=None):
         # fix_height = 1 #1=top, 2=middle, 3=bottom
         # fix_width  = 1 #1=left, 2=middle, 3=right
-        self.cur_pin = initial_pin #index in locpins list
+        self.settings_key = settings_key
+        if settings_key:
+            self.cur_pin = settings.get(settings_key, initial_pin)
+        else:
+            self.cur_pin = initial_pin #index in locpins list
         self.locpins = [
             (1,1), (1,2), (1,3),
             (2,1), (2,2), (2,3),
@@ -317,6 +322,8 @@ class LocPin(object):
     @fixation.setter
     def fixation(self, value):
         self.cur_pin = self.locpins.index(value)
+        if self.settings_key:
+            settings[self.settings_key] = self.cur_pin
 
     '''
     index: The index value in the list of tuples that represent the locpin. 0 is (1,1) is top-left, 8 is (3,3) is bottom-right.
@@ -327,6 +334,8 @@ class LocPin(object):
     @index.setter
     def index(self, value):
         self.cur_pin = value
+        if self.settings_key:
+            settings[self.settings_key] = self.cur_pin
 
     def get_fractions(self):
         '''
@@ -338,7 +347,7 @@ class LocPin(object):
         return self.fixation[0]*0.5-0.5, self.fixation[1]*0.5-0.5
 
 # The global locpin instance can be used to achieve a consistent behavior across powerpoint operations. E.g. it is used for both BKT size-spinners.
-GlobalLocPin = LocPin()
+GlobalLocPin = LocPin(settings_key="bkt.global_loc_pin")
 
 
 # ============================
