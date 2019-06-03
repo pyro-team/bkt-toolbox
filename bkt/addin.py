@@ -559,9 +559,9 @@ class AddIn(object):
                     #_h.exception_as_message('failed to load %s' % module)
         
 
-        CACHE_VERSION = "20190509"
+        CACHE_VERSION = "20190603"
         cache_file = os.path.join( _h.get_cache_folder(), "%s.import.cache" % self.context.app_name )
-        import_cache = shelve.open(cache_file)
+        import_cache = shelve.open(cache_file, protocol=2)
 
         # STRUCTURE OF IMPORT CACHE #
         #############################

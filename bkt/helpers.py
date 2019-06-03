@@ -212,7 +212,7 @@ def get_settings_folder():
 class BKTSettings(shelve.Shelf):
 
     def __init__(self):
-        shelve.Shelf.__init__(self, shelve._ClosedDict())
+        shelve.Shelf.__init__(self, shelve._ClosedDict(), protocol=2)
     
     def open(self, filename):
         import anydbm

@@ -55,7 +55,7 @@ class ChartLibCache(object):
     @classmethod
     def init_cache(cls):
         cache_file = os.path.join( bkt.helpers.get_cache_folder(), "chartlib.cache" )
-        cls.cache = shelve.open(cache_file)
+        cls.cache = shelve.open(cache_file, protocol=2)
 
 
 
