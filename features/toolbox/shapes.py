@@ -387,37 +387,19 @@ class ShapesMore(object):
             slide.Shapes.Paste()
     
     @staticmethod
-    def text_to_shape(shape, slide):
-        #find shape index
-        for index, shp in enumerate(slide.shapes):
-            if shape.id == shp.id:
-                shape_index = index+1
-                break
-        else:
-            #shape not found
-            return
-
-        #total shapes
-        shape_count = slide.shapes.count
-        #add temporary shape
-        tmp_shp = slide.shapes.AddShape( pplib.MsoAutoShapeType['msoShapeRectangle']
-            , -10, 0, 10, 10)
-
+    def text_to_shape(shape):
         try:
-            #select shape and temporary shape
-            shapes = pplib.shape_indices_on_slide(slide, [shape_index, shape_count+1])
-            shapes.MergeShapes(4, shape) #MsoMergeCmd: 4=msoMergeSubtract
+            return pplib.convert_text_into_shape(shape)
         except Exception as e:
             logging.error("Text to shape failed with error {}".format(e))
-        else:
-            new_shape = pplib.shape_indices_on_slide(slide, [shape_index])[1]
-            # new_shape.select(replace=False) #select leads to some strange COM error in various other callback.
-            return new_shape
     
     @classmethod
-    def texts_to_shapes(cls, shapes, slide):
+    def texts_to_shapes(cls, shapes):
+        last_shape=None
         for shape in shapes:
-            cls.text_to_shape(shape, slide)
+            last_shape=cls.text_to_shape(shape)
+        if last_shape:
+            last_shape.select()
 
 
 
