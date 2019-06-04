@@ -229,6 +229,14 @@ recent_symbols = pplib.PPTSymbolsGalleryRecent(
     label="Zuletzt verwendet",
 )
 
+def unicode_font_button(font):
+    return bkt.ribbon.ToggleButton(
+        label=font,
+        on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(font)),
+        get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font == font),
+        get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image(font, u"\u2192"))
+    )
+
 character_menu = bkt.ribbon.Menu(
     label="Symbol-Menü",
     children = [
@@ -283,7 +291,31 @@ character_menu = bkt.ribbon.Menu(
             label="Pfeile",
             symbols = Characters.arrows,
         ),
-    ] + fontawesome.symbol_galleries
+    ] + fontawesome.symbol_galleries + [
+        bkt.ribbon.MenuSeparator(title="Einstellungen"),
+        bkt.ribbon.Menu(
+            label="Unicode-Schriftart wählen",
+            image_mso='FontDialogPowerPoint',
+            supertip="Unicode-Zeichen können entweder mit der Standard-Schriftart oder einer speziellen Unicode-Schriftart eingefügt werden. Diese kann hier ausgewählt werden.",
+            children=[
+                bkt.ribbon.ToggleButton(
+                    label='Theme-Schriftart (Standard)',
+                    on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(None)),
+                    get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font is None),
+                ),
+            ] + [
+                unicode_font_button(font)
+                for font in ["Arial", "Arial Unicode MS", "Calibri", "Lucida Sans Unicode", "Segoe UI"]
+            ]
+        ),
+        bkt.ribbon.ToggleButton(
+            label='Symbole in Shapes konvertieren [Shift]',
+            image_mso='TextEffectTransformGallery',
+            supertip='Wenn kein Textfeld ausgewählt ist, wird ein neues Textfeld für das Symbol eingefügt. Wenn diese Funktion aktiviert ist, wird das Textfeld in ein Shape konvertiert. Dies geht auch bei Klick auf ein Symbol mit gedrückter Shift-Taste.',
+            on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_shape),
+            get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.convert_into_shape),
+        ),
+    ]
 )
 
 
