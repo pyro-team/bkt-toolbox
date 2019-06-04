@@ -411,6 +411,31 @@ def set_shape_zorder(shape, value=None, delta=None):
             break
             #zorder reached
 
+def convert_text_into_shape(shape):
+    slide = shape.Parent
+
+    #find shape index
+    for index, shp in enumerate(slide.shapes):
+        if shape.id == shp.id:
+            shape_index = index+1
+            break
+    else:
+        #shape not found
+        return
+
+    #total shapes
+    shape_count = slide.shapes.count
+    #add temporary shape
+    tmp_shp = slide.shapes.AddShape( MsoAutoShapeType['msoShapeRectangle']
+        , -10, 0, 10, 10)
+
+    #select shape and temporary shape
+    shapes = shape_indices_on_slide(slide, [shape_index, shape_count+1])
+    shapes.MergeShapes(4, shape) #MsoMergeCmd: 4=msoMergeSubtract
+
+    return shape_indices_on_slide(slide, [shape_index])[1]
+
+
 # =========================================
 # = Custom BKT tags stored in JSON format =
 # =========================================
