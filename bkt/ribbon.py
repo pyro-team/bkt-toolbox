@@ -1009,6 +1009,7 @@ class ColorGallery(Gallery):
 
 
 class SymbolsGallery(Gallery):
+    fallback_font = "Arial"
     
     def __init__(self, symbols=None, **user_kwargs):
         self.symbols = symbols or [] #list([font, symbol, screentip, supertip], [...])
@@ -1050,7 +1051,7 @@ class SymbolsGallery(Gallery):
         ''' creates an item image with numberd shape according to settings in the specified item '''
         # retrieve item-settings
         item = self.symbols[index]
-        font = item[0] or "Arial" #Fallback font
+        font = item[0] or self.fallback_font #Fallback font
         return SymbolsGallery.create_symbol_image(font, item[1])
 
     def get_item_screentip(self, index):
