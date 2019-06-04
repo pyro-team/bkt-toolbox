@@ -10,6 +10,7 @@ import helpers as pplib
 from collections import deque
 
 from bkt import apps, dotnet, settings, CallbackTypes, Callback
+from bkt.library import system
 Drawing = dotnet.import_drawing()
 
 from bkt.ribbon import Button, Gallery, SymbolsGallery, RoundingSpinnerBox, Item
@@ -201,9 +202,32 @@ class ParagraphFormatSpinnerBox(RoundingSpinnerBox):
 
 
 
+class PPTSymbolsSettings(object):
+    recent_symbols = deque(settings.get("bkt.symbols.recent_symbols", []), maxlen=3)
+    convert_into_shape = settings.get("bkt.symbols.convert_into_shape", False) #always convert newly inserted symbols into shapes
+    unicode_font = settings.get("bkt.symbols.unicode_font", None) #insert unicode characters as symbol with special font (e.g. Arial Unicode)
+
+    @classmethod
+    def add_to_recent(cls, item):
+        cls.recent_symbols.append(item)
+        settings["bkt.symbols.recent_symbols"] = cls.recent_symbols
+    
+    @classmethod
+    def switch_unicode_font(cls, font=None):
+        cls.unicode_font = font #if font else SymbolsGallery.fallback_font
+        settings["bkt.symbols.unicode_font"] = cls.unicode_font
+    
+    @classmethod
+    def switch_convert_into_shape(cls, pressed):
+        cls.convert_into_shape = pressed
+        settings["bkt.symbols.convert_into_shape"] = cls.convert_into_shape
+    
+    @classmethod
+    def get_convert_into_shape(cls):
+        return cls.convert_into_shape or system.get_key_state(system.key_code.SHIFT)
+
 
 class PPTSymbolsGallery(SymbolsGallery):
-    recent_symbols = deque(settings.get("bkt.recent_symbols", []), maxlen=3)
 
     def on_action_indexed(self, selected_item, index, context, selection, **kwargs):
         ''' create numberd shape according of settings in clicked element '''
@@ -217,15 +241,15 @@ class PPTSymbolsGallery(SymbolsGallery):
             self.insert_symbol_into_shapes(pplib.get_shapes_from_selection(selection), item)
         else:
             self.create_symbol_shape(selection.SlideRange(1), item)
-    
+
     def _add_to_recent(self, item):
-        PPTSymbolsGallery.recent_symbols.append(item)
-        settings["bkt.recent_symbols"] = PPTSymbolsGallery.recent_symbols
+        PPTSymbolsSettings.add_to_recent(item)
     
     def insert_symbol_into_text(self, textrange, item):
-        if item[0]: #font name is given, then insert as symbol
+        if item[0] or PPTSymbolsSettings.unicode_font is not None: #font name is given, then insert as symbol
             placeholder_char = textrange.InsertAfter("X") #append placeholder symbol so that InsertSymbol behaves the same as InsertAfter
-            return placeholder_char.InsertSymbol(item[0], ord(item[1]), -1) #symbol: FontName, CharNumber, Unicode
+            font = item[0] if item[0] else PPTSymbolsSettings.unicode_font
+            return placeholder_char.InsertSymbol(font, ord(item[1]), -1) #symbol: FontName, CharNumber (decimal), Unicode=True
         else:
             return textrange.InsertAfter(item[1]) #append symbol text
         # if item[0]:
@@ -257,13 +281,21 @@ class PPTSymbolsGallery(SymbolsGallery):
         # if item[0]:
         #     shape.TextFrame.TextRange.Font.Name = item[0] #font name
         # shape.TextFrame.TextRange.Text = item[1] #symbol text
-        shape.select()
+        if PPTSymbolsSettings.get_convert_into_shape(): #convert into shape
+            try:
+                new_shape = pplib.convert_text_into_shape(shape)
+            except:
+                shape.select()
+            else:
+                new_shape.select()
+        else:
+            shape.select()
 
 
 class PPTSymbolsGalleryRecent(PPTSymbolsGallery):
     @property
     def symbols(self):
-        return PPTSymbolsGallery.recent_symbols
+        return PPTSymbolsSettings.recent_symbols
     @symbols.setter
     def symbols(self, value):
         pass
