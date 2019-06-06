@@ -184,8 +184,9 @@ class ShapeSelector(object):
     
     @classmethod
     def select_within(cls, shapes, slide):
-        for shpMaster in shapes:
-            for shp in slide.Shapes:
+        all_shapes = pplib.wrap_shapes(slide.Shapes)
+        for shpMaster in pplib.wrap_shapes(shapes):
+            for shp in all_shapes:
                 if cls._is_within(shpMaster, shp):
                     shp.Select(replace=False)
     
