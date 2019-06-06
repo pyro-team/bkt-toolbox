@@ -5,7 +5,7 @@ Created on 10.02.2017
 @author: rdebeerst
 '''
 
-import os
+import os.path
 import imp
 
 import bkt
@@ -16,8 +16,9 @@ from bkt.library.powerpoint import PPTSymbolsGallery
 #
 fontsettings = [
     # module-name, font-filename
-    ('fontawesome4', 'FontAwesome'),     
-    ('fontawesome5', 'Font Awesome 5 Free Regular')
+    ('fontawesome4', 'FontAwesome'),
+    ('fontawesome5', 'Font Awesome 5 Free Regular'),
+    ('segoeui', 'Segoe UI'),
 ]
 
 
