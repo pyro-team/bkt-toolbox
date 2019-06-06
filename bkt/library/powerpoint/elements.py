@@ -209,7 +209,12 @@ class PPTSymbolsSettings(object):
 
     @classmethod
     def add_to_recent(cls, item):
-        cls.recent_symbols.append(item)
+        try:
+            #try to remove if already exists and add to beginning
+            cls.recent_symbols.remove(item)
+            cls.recent_symbols.append(item)
+        except ValueError:
+            cls.recent_symbols.append(item)
         settings["bkt.symbols.recent_symbols"] = cls.recent_symbols
     
     @classmethod
@@ -228,6 +233,9 @@ class PPTSymbolsSettings(object):
 
 
 class PPTSymbolsGallery(SymbolsGallery):
+    @property
+    def fallback_font(self):
+        return PPTSymbolsSettings.unicode_font or SymbolsGallery.fallback_font
 
     def on_action_indexed(self, selected_item, index, context, selection, **kwargs):
         ''' create numberd shape according of settings in clicked element '''
@@ -247,9 +255,15 @@ class PPTSymbolsGallery(SymbolsGallery):
     
     def insert_symbol_into_text(self, textrange, item):
         if item[0] or PPTSymbolsSettings.unicode_font is not None: #font name is given, then insert as symbol
-            placeholder_char = textrange.InsertAfter("X") #append placeholder symbol so that InsertSymbol behaves the same as InsertAfter
-            font = item[0] if item[0] else PPTSymbolsSettings.unicode_font
-            return placeholder_char.InsertSymbol(font, ord(item[1]), -1) #symbol: FontName, CharNumber (decimal), Unicode=True
+            font = item[0] or self.fallback_font
+            try:
+                char_number = ord(item[1]) #ord does not work for higher level unicode, e.g. emojis, and throws TypeError
+                placeholder_char = textrange.InsertAfter("X") #append placeholder symbol so that InsertSymbol behaves the same as InsertAfter
+                return placeholder_char.InsertSymbol(font, char_number, -1) #symbol: FontName, CharNumber (decimal), Unicode=True
+            except TypeError:
+                char_inserted = textrange.InsertAfter(item[1]) #append symbol text
+                char_inserted.Font.Name = font #font name
+                return char_inserted
         else:
             return textrange.InsertAfter(item[1]) #append symbol text
         # if item[0]:
@@ -283,6 +297,7 @@ class PPTSymbolsGallery(SymbolsGallery):
         # shape.TextFrame.TextRange.Text = item[1] #symbol text
         if PPTSymbolsSettings.get_convert_into_shape(): #convert into shape
             try:
+                shape.TextFrame2.TextRange.Font.Size = 48
                 new_shape = pplib.convert_text_into_shape(shape)
             except:
                 shape.select()
@@ -298,9 +313,6 @@ class PPTSymbolsGalleryRecent(PPTSymbolsGallery):
         return PPTSymbolsSettings.recent_symbols
     @symbols.setter
     def symbols(self, value):
-        pass
-
-    def _add_to_recent(self, item):
         pass
     
     def get_item_image(self, index):
