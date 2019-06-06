@@ -309,7 +309,7 @@ character_menu = bkt.ribbon.Menu(
             ]
         ),
         bkt.ribbon.ToggleButton(
-            label='Symbole in Shapes konvertieren [Shift]',
+            label='Als Shapes einfügen [Shift]',
             image_mso='TextEffectTransformGallery',
             supertip='Wenn kein Textfeld ausgewählt ist, wird ein neues Textfeld für das Symbol eingefügt. Wenn diese Funktion aktiviert ist, wird das Textfeld in ein Shape konvertiert. Dies geht auch bei Klick auf ein Symbol mit gedrückter Shift-Taste.',
             on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_shape),
