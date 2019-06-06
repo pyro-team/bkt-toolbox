@@ -312,11 +312,23 @@ class TableRecognition(object):
             if cell is not None:
                 return cell
     
+    def column_left(self,col):
+        shapes = [s for s in self.column(col) if s is not None]
+        if not shapes:
+            return 0
+        return min(s.Left for s in shapes)
+    
     def column_width(self,col):
         shapes = [s for s in self.column(col) if s is not None]
         if not shapes:
             return 0
         return max(s.Width for s in shapes)
+    
+    def row_top(self,row):
+        shapes = [s for s in self.table[row] if s is not None]
+        if not shapes:
+            return 0
+        return min(s.Top for s in shapes)
     
     def row_height(self,row):
         shapes = [s for s in self.table[row] if s is not None]
@@ -402,13 +414,15 @@ class TableRecognition(object):
         #set x-start coordinate
         left = []
         if xstart is None:
-            x = self.first_left.Left
+            # x = self.first_left.Left
+            x = self.column_left(0)
         else:
             x = xstart
 
         #set y-start coordinate
         if ystart is None:
-            y = self.first_top.Top
+            # y = self.first_top.Top
+            y = self.row_top(0)
         else:
             y = ystart
 
