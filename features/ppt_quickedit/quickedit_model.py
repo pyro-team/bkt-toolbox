@@ -65,38 +65,15 @@ class PPTColor(object):
     def update_rgb_from_context(self, context):
         if self.color_type == COLOR_RGB:
             raise TypeError("Cannot update RGB value from context")
-        try:
-            ColorScheme = context.app.ActiveWindow.View.Slide.ThemeColorScheme
-        except:
-            ColorScheme = context.app.ActivePresentation.SlideMaster.Theme.ThemeColorScheme
-        # NOTE:
-        # PowerPoints default color picker is using theme color values 13-16 instead of 1-4, however, theme color 13-16 are not defined.
-        # It seems that they are internally mapped to 1-4. So we do the same there to get a better user experience.
-        color_index = self.color_index if self.color_index < 13 else self.color_index-12
-        self.color_rgb = ColorScheme(color_index).RGB
-        #adjust for brightness
-        if self.brightness != 0:
-            # split rgb color in r,g,b
-            color = D.ColorTranslator.FromOle(self.color_rgb)
-            r,g,b = color.R, color.G, color.B
-            # apply brightness factor
-            if self.brightness < 0:
-                r = round(r * (1+self.brightness))
-                g = round(g * (1+self.brightness))
-                b = round(b * (1+self.brightness))
-            else:
-                r = round(r + (255.-r)*self.brightness)
-                g = round(g + (255.-g)*self.brightness)
-                b = round(b + (255.-b)*self.brightness)
-            # store color rgb
-            color = D.Color.FromArgb(r, g, b);
-            self.color_rgb = D.ColorTranslator.ToOle(color)
+
+        self.color_rgb = pplib.ColorHelper.get_rgb_from_theme_index(context, self.color_index, self.brightness)
 
 
     def pickup_from_color_obj(self, color_obj):
         if color_obj.Type == pplib.MsoColorType['msoColorTypeScheme']:
             self.color_type  = COLOR_THEME
             self.color_index = color_obj.ObjectThemeColor
+            # self.color_index = color_obj.SchemeColor
             self.brightness  = color_obj.Brightness
             self.color_rgb   = color_obj.RGB
         else:
@@ -109,6 +86,7 @@ class PPTColor(object):
     def apply_to_color_obj(self, color_obj):
         if self.color_type == COLOR_THEME:
             color_obj.ObjectThemeColor = self.color_index
+            # color_obj.SchemeColor = self.color_index
             color_obj.Brightness = self.brightness
         else:
             color_obj.RGB = self.color_rgb

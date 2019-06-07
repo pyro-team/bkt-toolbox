@@ -859,11 +859,11 @@ class ColorGallery(Gallery):
         if index/10 == 0:
             # theme colors
             themecolor = self._permutation[index %10]+1
-            rgb = self.get_theme_color(slide, index % 10)
+            rgb = self.get_theme_color(context, index % 10)
         elif index/10 in range(1,6):
             # theme color shades
             themecolor = self._permutation[index %10]+1
-            rgb, brightness = self.get_theme_color_shade(slide, index % 10, index/10-1)
+            rgb, brightness = self.get_theme_color_shade(context, index % 10, index/10-1)
         elif index/10 == 6:
             # standard colors
             rgb = self.get_standard_color(index % 10)
@@ -897,13 +897,15 @@ class ColorGallery(Gallery):
 
     #### Theme colors ####
     _theme_colors = ['Dark1', 'Light1', 'Dark2', 'Light2', 'Accent1', 'Accent2', 'Accent3', 'Accent4', 'Accent5', 'Accent6']
-    _permutation  = [1,0, 3,2, 4,5,6,7,8,9]
+    _permutation  = [1,0, 3,2, 4,5,6,7,8,9] #FIXME: for powerpoint we should use indicies 13-16 instead 1-4
 
-    def get_theme_color(self, slide, index):
+    def get_theme_color(self, context, index): #FIXME: this is powerpoint specific and shouldnt be in the ribbon class
         '''
             Returns Office-RGB-value for the given theme-color-index
         '''
-        return slide.ThemeColorScheme(self._permutation[index]+1).RGB
+        import bkt.library.powerpoint as pplib
+        return pplib.ColorHelper.get_rgb_from_theme_index(context, self._permutation[index]+1)
+        # return context.slide.ThemeColorScheme(self._permutation[index]+1).RGB
 
     def get_theme_color_name(self, index):
         '''
@@ -923,13 +925,15 @@ class ColorGallery(Gallery):
         [range(255,256), [-0.05, -0.15, -0.25, -0.35, -0.5] ]
     ]
 
-    def get_theme_color_shade(self, slide, index, shade_index):
+    def get_theme_color_shade(self, context, index, shade_index): #FIXME: this is powerpoint specific and shouldnt be in the ribbon class
         '''
             Returns Office-RGB-value and brightness-factor for the given theme-color-index and shade-index.
             Note that RGB-values can differ from PowerPoint-RGB-values by ~1 (in each color-dimension)
         '''
+        import bkt.library.powerpoint as pplib
         # get theme color rgb
-        rgb = slide.ThemeColorScheme(self._permutation[index]+1).RGB
+        rgb = pplib.ColorHelper.get_rgb_from_theme_index(context, self._permutation[index]+1)
+        # rgb = context.slide.ThemeColorScheme(self._permutation[index]+1).RGB
         color = ColorTranslator.FromOle(rgb)
         r,g,b = color.R, color.G, color.B
         # get factor depending on luminosity

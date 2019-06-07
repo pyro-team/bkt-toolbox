@@ -3,8 +3,12 @@
 # DO NOT REMOVE REFERENCE
 # reference is used by other modules
 import clr
+
 clr.AddReference("Microsoft.Office.Interop.PowerPoint")
 import Microsoft.Office.Interop.PowerPoint as PowerPoint
+
+clr.AddReference('System.Drawing')
+import System.Drawing as Drawing
 
 import json # required for tags
 from bkt import settings
@@ -434,6 +438,87 @@ def convert_text_into_shape(shape):
     shapes.MergeShapes(4, shape) #MsoMergeCmd: 4=msoMergeSubtract
 
     return shape_indices_on_slide(slide, [shape_index])[1]
+
+
+class ColorHelper(object):
+    '''
+    So, puhhh, how to start, ... colors and color indices are a huge mess in PowerPoint (and Office in general).
+    Here is a good article about the mess in Word: http://www.wordarticles.com/Articles/Colours/2007.php
+    Basically, a color object has 2 attributes, ObjectThemeColor and SchemeColor.
+    ObjectThemeColor goes from index 1 to 16. The default color palette is using 5-10 and 13-16 (11+12 are hyperlink colors).
+    SchemeColor goes from 1 to 8, where 7+8 are Hyperlink colors. The ObjectThemeColor indices 13-16 are mappes to 1-4 in SchemeColor internally, not in order, of course.
+    In order to get the correct RGB value, you need to use 2 different functions:
+      - ColorScheme(index) gets the correct value for indices 1-4 (resp. the mapped values of indices 13-16). But ColorScheme is not defined for values >8.
+      - ThemeColorScheme(index) gets the correct value for indices 5-12. ThemeColorScheme is not defined for value >12. For indices 1-4 it will (at least for some themes)
+        provide different RGB values than ColorScheme.
+    Hint: We could only use the ObjectThemeColor attribute with indices 1-10 and live a happy life, but then the default color palette would not indicate the correct "checked"
+    status for the color indices 1-4!
+
+    No coming to theme color shades. The brightness differs depending on HSL-Luminosity of the theme color. So in order to save and restore the same shade across different
+    themes, we need to get the index that maps to the brightness. In order to get the RGB value, we need to adjust the theme color by a brightness factor.
+
+    This class provides helper functions to handle this mess.
+    '''
+
+    @classmethod
+    def theme_color_index_2_color_scheme_index(cls, index):
+        mapping = {
+            13: 2,
+            14: 1,
+            15: 4,
+            16: 3,
+        }
+        return mapping[index]
+    
+    @classmethod
+    def get_color_from_theme_index(cls, context, index): #expect MsoThemeColorSchemeIndex
+        if index > 12:
+            try:
+                ColorScheme = context.slide.ColorScheme
+            except: #if presentation has no slides, the above will fail
+                ColorScheme = context.presentation.SlideMaster.ColorScheme
+            index = cls.theme_color_index_2_color_scheme_index(index)
+        else:
+            try:
+                ColorScheme = context.slide.ThemeColorScheme
+            except: #if presentation has no slides, the above will fail
+                ColorScheme = context.presentation.SlideMaster.Theme.ThemeColorScheme
+        
+        return ColorScheme(index)
+
+    @classmethod
+    def adjust_rgb_brightness(cls, color_rgb, brightness):
+        if brightness == 0:
+            return color_rgb
+        
+        # split rgb color in r,g,b
+        color = Drawing.ColorTranslator.FromOle(color_rgb)
+        r,g,b = color.R, color.G, color.B
+        # apply brightness factor
+        if brightness < 0:
+            r = round(r * (1+brightness))
+            g = round(g * (1+brightness))
+            b = round(b * (1+brightness))
+        else:
+            r = round(r + (255.-r)*brightness)
+            g = round(g + (255.-g)*brightness)
+            b = round(b + (255.-b)*brightness)
+        # store color rgb
+        color = Drawing.Color.FromArgb(r, g, b);
+        return Drawing.ColorTranslator.ToOle(color)
+
+    @classmethod
+    def get_rgb_from_theme_index(cls, context, index, brightness=0, shade_index=None):
+        color = cls.get_color_from_theme_index(context, index).RGB
+        if brightness != 0:
+            color = cls.adjust_rgb_brightness(color, brightness)
+        elif shade_index:
+            pass
+        return color
+    
+    @classmethod
+    def get_shade_index_from_brightness(cls, context, index, brightness):
+        pass
 
 
 # =========================================
