@@ -27,6 +27,234 @@ import helpers
 
 CF_VERSION = "20180824"
 
+class CustomFormat(object):
+    default_settings = {
+        'type':             True,
+        'fill':             True,
+        'line':             True,
+        'textframe2':       True,
+        'paragraphformat':  True,
+        'font':             True,
+        'shadow':           True,
+        'size':             True,
+        'position':         True,
+    }
+
+    def __init__(self, name, style_setting=None, button_setting=None):
+        self.name = name
+
+        settings = CustomFormat.default_settings.copy()
+        if style_setting:
+            settings.update(style_setting)
+        self.style_setting = settings
+        button = {
+            'font': None,
+            'fill': None,
+            'line': None
+        }
+        if button_setting:
+            button.update(button_setting)
+        self.button_setting = button
+        
+        self.filename = None
+        self._formats = OrderedDict()
+
+    def add_format(self, name, formats):
+        self._formats[name] = formats
+    
+    def get_format(self, name):
+        return self._formats[name]
+
+    def get_image_filename(self, folder, usage="button"):
+        if not self.filename:
+            self.filename = self.name #FIXME: test for special characters
+        return os.path.join( folder, "{}_{}.png".format(self.filename, usage) )
+
+    def generate_thumbnail_image(self, folder, shape, size=64):
+        file = self.get_image_filename(folder, "thumb")
+        shape.Export(file, 2) #2=ppShapeFormatPNG, width, height, export-mode: 1=ppRelativeToSlide, 2=ppClipRelativeToSlide, 3=ppScaleToFit, 4=ppScaleXY
+
+        # resize thumbnail image to square
+        if os.path.exists(file):
+            try:
+                # init croped image
+                width = size
+                height = size
+                image = D.Bitmap(file)
+                bmp = D.Bitmap(width, height)
+                graph = D.Graphics.FromImage(bmp)
+                # compute scale
+                scale = min(float(width) / image.Width, float(height) / image.Height)
+                scaleWidth = int(image.Width * scale)
+                scaleHeight = int(image.Height * scale)
+                # set quality
+                graph.InterpolationMode  = D.Drawing2D.InterpolationMode.High
+                graph.CompositingQuality = D.Drawing2D.CompositingQuality.HighQuality
+                graph.SmoothingMode      = D.Drawing2D.SmoothingMode.AntiAlias
+                # redraw and save
+                # logging.debug('crop image from %sx%s to %sx%s. rect %s.%s-%sx%s' % (image.Width, image.Height, width, height, int((width - scaleWidth)/2), int((height - scaleHeight)/2), scaleWidth, scaleHeight))
+                graph.DrawImage(image, D.Rectangle(int((width - scaleWidth)/2), int((height - scaleHeight)/2), scaleWidth, scaleHeight))
+
+                # close and save files
+                image.Dispose()
+                bmp.Save(file)
+                bmp.Dispose()
+            except:
+                logging.error('Creation of croped thumbnail image failed: %s' % file)
+                logging.debug(traceback.format_exc())
+            finally:
+                if image:
+                    image.Dispose()
+                if bmp:
+                    bmp.Dispose()
+        
+    def generate_button_image(self, folder, size=16):
+        file = self.get_image_filename(folder, "button")
+        try:
+            img = D.Bitmap(size, size)
+            g = D.Graphics.FromImage(img)
+            
+            #Draw smooth rectangle/ellipse
+            # g.SmoothingMode = D.Drawing2D.SmoothingMode.AntiAlias
+
+            if self.button_setting["fill"] is not None:
+                background_color = D.ColorTranslator.FromOle(self.button_setting["fill"])
+                brush = D.SolidBrush(background_color)
+                g.FillRectangle(brush, 0,0,size,size)
+            
+            if self.button_setting["line"] is not None:
+                line_color = D.ColorTranslator.FromOle(self.button_setting["line"])
+                pen = D.Pen(line_color,2)
+                g.DrawRectangle(pen, 1,1,size-2,size-2)
+
+            if self.button_setting["font"] is not None:
+                font_color = D.ColorTranslator.FromOle(self.button_setting["font"])
+                text_brush = D.SolidBrush(font_color)
+
+                # set string format
+                strFormat = D.StringFormat()
+                strFormat.Alignment = D.StringAlignment.Center
+                strFormat.LineAlignment = D.StringAlignment.Center
+                
+                # draw string
+                # g.TextRenderingHint = D.Text.TextRenderingHint.AntiAliasGridFit
+                # g.TextRenderingHint = D.Text.TextRenderingHint.AntiAlias
+                g.DrawString(self.name[0],
+                            D.Font("Arial", int(size/3*2), D.FontStyle.Bold, D.GraphicsUnit.Pixel), text_brush, 
+                            D.RectangleF(0,0,size,size), 
+                            strFormat)
+
+            img.Save(file)
+        except:
+            logging.error('Creation of button image failed: %s' % file)
+            logging.debug(traceback.format_exc())
+        finally:
+            if img:
+                img.Dispose()
+
+    def to_json(self):
+        result = OrderedDict()
+        result["version"] = CF_VERSION
+        result["name"]  = self.name
+        result["style_setting"]  = self.style_setting
+        result["button_setting"] = self.button_setting
+        result["filename"] = self._filename
+        result["formats"]  = self._formats
+        return result
+
+    @staticmethod
+    def from_json(value, file=None, index=None):
+        if value["version"] == CF_VERSION:
+            result = CustomFormat(value["name"], value["style_setting"], value["button_setting"])
+            result.filename = value["filename"]
+            for k,v in value["formats"].items():
+                result.add_format(k,v)
+            return result
+        elif value["version"] == "20180824":
+            result = CustomFormat("blablub")
+            return result
+        else:
+            raise ValueError("style conversion not possible. manual migration required.")
+
+    @staticmethod
+    def from_shape(shape, style_setting=None):
+        ### BUTTON SETTINGS
+        button_setting = {}
+        if shape.Fill.Visible == -1:
+            button_setting['fill'] = shape.Fill.ForeColor.RGB
+        if shape.Line.Visible == -1:
+            button_setting['line'] = shape.Line.ForeColor.RGB
+        if shape.HasTextFrame == -1:
+            textrange = shape.TextFrame2.TextRange
+            try:
+                font_fill = textrange.Characters(1).Font.Fill
+            except:
+                font_fill = textrange.Font.Fill
+            if font_fill.Visible == -1:
+                button_setting['font'] = textrange.Font.Fill.ForeColor.RGB
+        
+        result = CustomFormat(CF_VERSION, style_setting, button_setting)
+
+        ### TYPE
+        result.add_format('Type', helpers.ShapeFormats._get_type(shape) )
+        
+        ### BACKGROUND
+        result.add_format('Fill', helpers.ShapeFormats._get_fill(shape.Fill) )
+
+        ### LINE
+        result.add_format('Line', helpers.ShapeFormats._get_line(shape.Line) )
+
+        ### TEXTFRAME
+        if shape.HasTextFrame == -1:
+            result.add_format('TextFrame2', helpers.ShapeFormats._get_textframe(shape.TextFrame2) )
+
+        ### INDENT LEVEL SPECIFIC FORMATS (PARAGRAPH, FONT)
+        if shape.HasTextFrame == -1:
+            indent_levels = OrderedDict()
+            if shape.TextFrame2.TextRange.Paragraphs().Count > 0:
+                # at least one paragraph
+                indent_levels = range(0,6) #indent levels 0 to 5, whereas 0 is used as internal fallback format!
+                for par in shape.TextFrame2.TextRange.Paragraphs():
+                    indent_level = par.ParagraphFormat.IndentLevel
+                    if indent_level == 1 and par.ParagraphFormat.Bullet.Visible == 0:
+                        indent_level = 0 #fallback indent level
+
+                    if indent_level in indent_levels:
+                        indent_levels.remove(indent_level)
+                        indent_levels["IndentLevels"][str(indent_level)] = helpers.ShapeFormats._get_indentlevel_formats(par)
+                if 0 in indent_levels:
+                    #fallback not yet defined
+                    indent_levels["IndentLevels"]["0"] = helpers.ShapeFormats._get_indentlevel_formats(shape.TextFrame2.TextRange.Paragraphs(1,1))
+            else:
+                indent_levels["IndentLevels"]["0"] = helpers.ShapeFormats._get_indentlevel_formats(shape.TextFrame2.TextRange)
+            
+            result.add_format("IndentLevels", indent_levels )
+
+
+        ### SHADOW
+        result.add_format('Shadow', helpers.ShapeFormats._get_shadow(shape.Shadow) )
+        result.add_format('Glow', helpers.ShapeFormats._get_glow(shape.Glow) )
+        result.add_format('SoftEdge', helpers.ShapeFormats._get_softedge(shape.SoftEdge) )
+        result.add_format('Reflection', helpers.ShapeFormats._get_reflection(shape.Reflection) )
+
+        #FIXME: Add: ThreeD, AnimationSettings
+
+        ### SIZE
+        result.add_format('Size', helpers.ShapeFormats._get_size(shape) )
+        
+        ### POSITION
+        result.add_format('Position', helpers.ShapeFormats._get_position(shape) )
+
+        return result
+
+
+
+    #get/set image/thumbnail
+    #pickup
+    #apply
+
+
+
 class CustomQuickEdit(object):
     custom_styles = 5*[None]
     style_settings = {
