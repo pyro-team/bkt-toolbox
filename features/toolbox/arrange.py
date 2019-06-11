@@ -1409,15 +1409,24 @@ class ArrangeAdvanced(object):
     ### detect master shape ###
 
     def get_master_from_shapes(self, shapes):
+        def _test_ref_or_use_fallback(ref):
+            try:
+                ref.left #test if ref still exists
+                return ref
+            except:
+                bkt.helpers.message("Fehler: Referenz wurde nicht gefunden. Fallback zu Ausrichtung am Mastershape innerhalb der Selektion.")
+                ArrangeAdvanced.master = self.fallback_first_last
+                return self.get_master_from_shapes(shapes)
+
         ''' obtain master shape from given shapes according to master-setting '''
         if ArrangeAdvanced.master == "FIXED-SHAPE" and self.ref_shape != None:
-            return self.ref_shape
+            return _test_ref_or_use_fallback(self.ref_shape)
         elif ArrangeAdvanced.master == "FIXED-SLIDE" and self.ref_frame !=None:
-            return self.ref_frame
+            return _test_ref_or_use_fallback(self.ref_frame)
         elif ArrangeAdvanced.master == "FIXED-CONTENTAREA" and self.ref_frame !=None:
-            return self.ref_frame
+            return _test_ref_or_use_fallback(self.ref_frame)
         elif ArrangeAdvanced.master == "FIXED-CUSTOMAREA" and self.ref_frame !=None:
-            return self.ref_frame
+            return _test_ref_or_use_fallback(self.ref_frame)
             
         elif len(shapes) == 1:
             ## fallback if only one shape in selection
