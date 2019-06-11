@@ -327,6 +327,17 @@ class FolienMenu(object):
     @classmethod
     def remove_author(cls, context):
         context.presentation.BuiltInDocumentProperties.item["author"].value = ''
+
+    @classmethod
+    def remove_unused_masters(cls, context):
+        for design in context.presentation.Designs:
+            for cl in list(iter(design.SlideMaster.CustomLayouts)): #list(iter()) required as delete function will not work on all elements otherwise!
+                try:
+                    cl.Delete()
+                except: #deletion fails if layout in use
+                    continue
+            # if design.SlideMaster.CustomLayouts.Count == 0:
+            #     design.Delete()
     
 
 
@@ -449,6 +460,14 @@ slides_group = bkt.ribbon.Group(
                             image_mso='HeaderFooterRemoveHeaderWord',
                             supertip="Lösche leere Platzhalter-Textboxen im gesamten Foliensatz.",
                             on_action=bkt.Callback(FolienMenu.remove_empty_placeholders)
+                        ),
+                        bkt.ribbon.MenuSeparator(title="Folienmaster"),
+                        bkt.ribbon.Button(
+                            id = 'slide_remove_unused_masters',
+                            label='Nicht genutzte Folienmaster entfernen',
+                            image_mso='SlideDelete',
+                            supertip="Lösche alle nicht verwendeten Folienmaster-Layouts in allen Foliendesigns.",
+                            on_action=bkt.Callback(FolienMenu.remove_unused_masters)
                         )
                     ]),
                 ]),
