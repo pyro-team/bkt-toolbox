@@ -7,137 +7,137 @@ from bkt.library.powerpoint import PPTSymbolsGallery
 
 
 symbols_communication_5 = [
-    ["Font Awesome 5 Free Regular", u"\uf2b9", "address book"],
-    ["Font Awesome 5 Free Regular", u"\uf2bb", "address card"],
-    ["Font Awesome 5 Free Regular", u"\uf2c1", "id badge"],
-    ["Font Awesome 5 Free Regular", u"\uf2c2", "id card"],
-    ["Font Awesome 5 Free Solid", u"\uf183", "man"],
-    ["Font Awesome 5 Free Solid", u"\uf0c0", "users"],
-    ["Font Awesome 5 Free Regular", u"\uf2bd", "user circle"],
-    ["Font Awesome 5 Free Regular", u"\uf007", "user"],
-    ["Font Awesome 5 Free Solid", u"\uf007", "user solid"],
-    ["Font Awesome 5 Free Regular", u"\uf2b5", "handshake"],
-    ["Font Awesome 5 Free Regular", u"\uf075", "comment"],
-    ["Font Awesome 5 Free Regular", u"\uf4ad", "commenting"],
-    ["Font Awesome 5 Free Regular", u"\uf086", "comments"],
-    ["Font Awesome 5 Free Solid", u"\uf086", "comments"],
+    ("Font Awesome 5 Free Regular", u"\uf2b9", "address book"),
+    ("Font Awesome 5 Free Regular", u"\uf2bb", "address card"),
+    ("Font Awesome 5 Free Regular", u"\uf2c1", "id badge"),
+    ("Font Awesome 5 Free Regular", u"\uf2c2", "id card"),
+    ("Font Awesome 5 Free Solid", u"\uf183", "man"),
+    ("Font Awesome 5 Free Solid", u"\uf0c0", "users"),
+    ("Font Awesome 5 Free Regular", u"\uf2bd", "user circle"),
+    ("Font Awesome 5 Free Regular", u"\uf007", "user"),
+    ("Font Awesome 5 Free Solid", u"\uf007", "user solid"),
+    ("Font Awesome 5 Free Regular", u"\uf2b5", "handshake"),
+    ("Font Awesome 5 Free Regular", u"\uf075", "comment"),
+    ("Font Awesome 5 Free Regular", u"\uf4ad", "commenting"),
+    ("Font Awesome 5 Free Regular", u"\uf086", "comments"),
+    ("Font Awesome 5 Free Solid", u"\uf086", "comments"),
 ]
 
 
 symbols_itsystems_5 = [
     
-    ["Font Awesome 5 Free Solid", u"\uf108", "desktop"],
-    ["Font Awesome 5 Free Solid", u"\uf109", "laptop"],
-    ["Font Awesome 5 Free Solid", u"\uf3fa", "tablet"],
-    ["Font Awesome 5 Free Solid", u"\uf3cd", "mobile"],
-    ["Font Awesome 5 Free Solid", u"\uf095", "phone"],
-    ["Font Awesome 5 Free Solid", u"\uf1ac", "fax"],
-    ["Font Awesome 5 Free Regular", u"\uf0e0", "mail"],
-    ["Font Awesome 5 Free Solid", u"\uf01c", "inbox"],
-    ["Font Awesome 5 Free Regular", u"\uf11c", "keyboard"],
+    ("Font Awesome 5 Free Solid", u"\uf108", "desktop"),
+    ("Font Awesome 5 Free Solid", u"\uf109", "laptop"),
+    ("Font Awesome 5 Free Solid", u"\uf3fa", "tablet"),
+    ("Font Awesome 5 Free Solid", u"\uf3cd", "mobile"),
+    ("Font Awesome 5 Free Solid", u"\uf095", "phone"),
+    ("Font Awesome 5 Free Solid", u"\uf1ac", "fax"),
+    ("Font Awesome 5 Free Regular", u"\uf0e0", "mail"),
+    ("Font Awesome 5 Free Solid", u"\uf01c", "inbox"),
+    ("Font Awesome 5 Free Regular", u"\uf11c", "keyboard"),
     
-    ["Font Awesome 5 Free Solid", u"\uf0c2", "cloud"],
-    ["Font Awesome 5 Free Solid", u"\uf09e", "rss"],
-    ["Font Awesome 5 Free Solid", u"\uf1eb", "wifi"],
+    ("Font Awesome 5 Free Solid", u"\uf0c2", "cloud"),
+    ("Font Awesome 5 Free Solid", u"\uf09e", "rss"),
+    ("Font Awesome 5 Free Solid", u"\uf1eb", "wifi"),
     
-    ["Font Awesome 5 Free Solid", u"\uf2f6", "sign in"], 
-    ["Font Awesome 5 Free Solid", u"\uf084", "key"],
-    ["Font Awesome 5 Free Solid", u"\uf023", "lock"],
-    ["Font Awesome 5 Free Solid", u"\uf09c", "unlock"],
-    ["Font Awesome 5 Free Solid", u"\uf13e", "unlock"],
-    ["Font Awesome 5 Free Solid", u"\uf3ed", "shield"], 
+    ("Font Awesome 5 Free Solid", u"\uf2f6", "sign in"),
+    ("Font Awesome 5 Free Solid", u"\uf084", "key"),
+    ("Font Awesome 5 Free Solid", u"\uf023", "lock"),
+    ("Font Awesome 5 Free Solid", u"\uf09c", "unlock"),
+    ("Font Awesome 5 Free Solid", u"\uf13e", "unlock"),
+    ("Font Awesome 5 Free Solid", u"\uf3ed", "shield"),
     
-    ["Font Awesome 5 Free Solid", u"\uf19c", "university/bank"],
-    ["Font Awesome 5 Free Solid", u"\uf015", "home"],
-    ["Font Awesome 5 Free Solid", u"\uf1ad", "building"],
+    ("Font Awesome 5 Free Solid", u"\uf19c", "university/bank"),
+    ("Font Awesome 5 Free Solid", u"\uf015", "home"),
+    ("Font Awesome 5 Free Solid", u"\uf1ad", "building"),
     
-    ["Font Awesome 5 Free Solid", u"\uf1b2", "cube"],
-    ["Font Awesome 5 Free Solid", u"\uf1b3", "cubes"],
-    ["Font Awesome 5 Free Solid", u"\uf1c0", "database"],
-    ["Font Awesome 5 Free Solid", u"\uf233", "server"],
-    ["Font Awesome 5 Free Solid", u"\uf2db", "microchip"],
+    ("Font Awesome 5 Free Solid", u"\uf1b2", "cube"),
+    ("Font Awesome 5 Free Solid", u"\uf1b3", "cubes"),
+    ("Font Awesome 5 Free Solid", u"\uf1c0", "database"),
+    ("Font Awesome 5 Free Solid", u"\uf233", "server"),
+    ("Font Awesome 5 Free Solid", u"\uf2db", "microchip"),
     
-    ["Font Awesome 5 Free Solid", u"\uf188", "bug"],
+    ("Font Awesome 5 Free Solid", u"\uf188", "bug"),
 ]
 
 symbols_files_5 = [
-    ["Font Awesome 5 Free Regular", u"\uf07b", "folder"],
-    ["Font Awesome 5 Free Regular", u"\uf07c", "folder open"],
-    ["Font Awesome 5 Free Regular", u"\uf15b", "file"],
-    ["Font Awesome 5 Free Regular", u"\uf0c5", "files"],
-    ["Font Awesome 5 Free Regular", u"\uf15c", "text"],
-    ["Font Awesome 5 Free Regular", u"\uf1c9", "code"],
-    ["Font Awesome 5 Free Regular", u"\uf1c6", "archive"],
-    ["Font Awesome 5 Free Regular", u"\uf1c5", "image"],
-    ["Font Awesome 5 Free Regular", u"\uf1c8", "video"],
-    ["Font Awesome 5 Free Regular", u"\uf1c7", "audio"],
-    ["Font Awesome 5 Free Regular", u"\uf1c1", "pdf"],
-    ["Font Awesome 5 Free Regular", u"\uf1c3", "excel"],
-    ["Font Awesome 5 Free Regular", u"\uf1c4", "powerpoint"],
-    ["Font Awesome 5 Free Regular", u"\uf1c2", "word"],
+    ("Font Awesome 5 Free Regular", u"\uf07b", "folder"),
+    ("Font Awesome 5 Free Regular", u"\uf07c", "folder open"),
+    ("Font Awesome 5 Free Regular", u"\uf15b", "file"),
+    ("Font Awesome 5 Free Regular", u"\uf0c5", "files"),
+    ("Font Awesome 5 Free Regular", u"\uf15c", "text"),
+    ("Font Awesome 5 Free Regular", u"\uf1c9", "code"),
+    ("Font Awesome 5 Free Regular", u"\uf1c6", "archive"),
+    ("Font Awesome 5 Free Regular", u"\uf1c5", "image"),
+    ("Font Awesome 5 Free Regular", u"\uf1c8", "video"),
+    ("Font Awesome 5 Free Regular", u"\uf1c7", "audio"),
+    ("Font Awesome 5 Free Regular", u"\uf1c1", "pdf"),
+    ("Font Awesome 5 Free Regular", u"\uf1c3", "excel"),
+    ("Font Awesome 5 Free Regular", u"\uf1c4", "powerpoint"),
+    ("Font Awesome 5 Free Regular", u"\uf1c2", "word"),
 ]
 
 symbols_analysis_5 = [
-    ["Font Awesome 5 Free Regular", u"\uf080", "bar chart"],
-    ["Font Awesome 5 Free Solid", u"\uf200", "pie chart"],
-    ["Font Awesome 5 Free Solid", u"\uf201", "line chart"],
-    ["Font Awesome 5 Free Solid", u"\uf1fe", "area chart"],
-    ["Font Awesome 5 Free Solid", u"\uf02a", "barcode"],
-    ["Font Awesome 5 Free Solid", u"\uf24e", "balance"],
+    ("Font Awesome 5 Free Regular", u"\uf080", "bar chart"),
+    ("Font Awesome 5 Free Solid", u"\uf200", "pie chart"),
+    ("Font Awesome 5 Free Solid", u"\uf201", "line chart"),
+    ("Font Awesome 5 Free Solid", u"\uf1fe", "area chart"),
+    ("Font Awesome 5 Free Solid", u"\uf02a", "barcode"),
+    ("Font Awesome 5 Free Solid", u"\uf24e", "balance"),
     
-    ["Font Awesome 5 Free Solid", u"\uf005", "star"],
-    ["Font Awesome 5 Free Solid", u"\uf5c0", "star half"],
-    ["Font Awesome 5 Free Regular", u"\uf005", "star empty"],
-    ["Font Awesome 5 Free Solid", u"\uf251", "hourglass start"],
-    ["Font Awesome 5 Free Solid", u"\uf252", "hourglass half"],
-    ["Font Awesome 5 Free Solid", u"\uf253", "hourglass end"],
+    ("Font Awesome 5 Free Solid", u"\uf005", "star"),
+    ("Font Awesome 5 Free Solid", u"\uf5c0", "star half"),
+    ("Font Awesome 5 Free Regular", u"\uf005", "star empty"),
+    ("Font Awesome 5 Free Solid", u"\uf251", "hourglass start"),
+    ("Font Awesome 5 Free Solid", u"\uf252", "hourglass half"),
+    ("Font Awesome 5 Free Solid", u"\uf253", "hourglass end"),
     
-    ["Font Awesome 5 Free Solid", u"\uf244", "battery empty"],
-    ["Font Awesome 5 Free Solid", u"\uf243", "battery 1/4"],
-    ["Font Awesome 5 Free Solid", u"\uf242", "battery 1/2"],
-    ["Font Awesome 5 Free Solid", u"\uf241", "battery 3/4"],
-    ["Font Awesome 5 Free Solid", u"\uf240", "battery full"],
-    ["Font Awesome 5 Free Solid", u"\uf05e", "ban"],
+    ("Font Awesome 5 Free Solid", u"\uf244", "battery empty"),
+    ("Font Awesome 5 Free Solid", u"\uf243", "battery 1/4"),
+    ("Font Awesome 5 Free Solid", u"\uf242", "battery 1/2"),
+    ("Font Awesome 5 Free Solid", u"\uf241", "battery 3/4"),
+    ("Font Awesome 5 Free Solid", u"\uf240", "battery full"),
+    ("Font Awesome 5 Free Solid", u"\uf05e", "ban"),
 
-    ["Font Awesome 5 Free Regular", u"\uf164", "thumbs up"],
-    ["Font Awesome 5 Free Regular", u"\uf165", "thumbs down"],
-    ["Font Awesome 5 Free Solid", u"\uf164", "thumbs up"],
-    ["Font Awesome 5 Free Solid", u"\uf165", "thumbs down"],
+    ("Font Awesome 5 Free Regular", u"\uf164", "thumbs up"),
+    ("Font Awesome 5 Free Regular", u"\uf165", "thumbs down"),
+    ("Font Awesome 5 Free Solid", u"\uf164", "thumbs up"),
+    ("Font Awesome 5 Free Solid", u"\uf165", "thumbs down"),
     
-    ["Font Awesome 5 Free Regular", u"\uf14a", "check square"],
-    ["Font Awesome 5 Free Regular", u"\uf058", "check circle"],
-    ["Font Awesome 5 Free Solid", u"\uf00c", "check"],
-    ["Font Awesome 5 Free Solid", u"\uf00d", "x"],
+    ("Font Awesome 5 Free Regular", u"\uf14a", "check square"),
+    ("Font Awesome 5 Free Regular", u"\uf058", "check circle"),
+    ("Font Awesome 5 Free Solid", u"\uf00c", "check"),
+    ("Font Awesome 5 Free Solid", u"\uf00d", "x"),
 ]
 
 
 symbols_mixed_5 = [
-    ["Font Awesome 5 Free Solid", u"\uf0d0", "magic"],
-    ["Font Awesome 5 Free Solid", u"\uf02d", "book"],
-    ["Font Awesome 5 Free Solid", u"\uf02e", "bookmark"],
-    ["Font Awesome 5 Free Solid", u"\uf0b1", "briefcase"],
-    ["Font Awesome 5 Free Solid", u"\uf140", "bullseye"],
-    ["Font Awesome 5 Free Regular", u"\uf073", "calendar"],
-    ["Font Awesome 5 Free Solid", u"\uf0a3", "certificate"],
-    ["Font Awesome 5 Free Regular", u"\uf017", "clock"],
-    ["Font Awesome 5 Free Solid", u"\uf013", "cog"],
-    ["Font Awesome 5 Free Solid", u"\uf085", "cogs"],
-    ["Font Awesome 5 Free Solid", u"\uf134", "fire extinguisher"],
-    ["Font Awesome 5 Free Solid", u"\uf277", "map signs"],
-    ["Font Awesome 5 Free Solid", u"\uf041", "map marker"],
-    ["Font Awesome 5 Free Regular", u"\uf1ea", "newspaper"],
-    ["Font Awesome 5 Free Regular", u"\uf0eb", "lightbulb"],
-    ["Font Awesome 5 Free Solid", u"\uf08d", "pin"],
-    ["Font Awesome 5 Free Solid", u"\uf074", "random"],
-    ["Font Awesome 5 Free Solid", u"\uf1b8", "recycle"],
-    ["Font Awesome 5 Free Solid", u"\uf021", "refresh"],
-    ["Font Awesome 5 Free Solid", u"\uf135", "rocket"],
-    ["Font Awesome 5 Free Solid", u"\uf002", "search"],
-    ["Font Awesome 5 Free Solid", u"\uf3fd", "tachometer"],
-    ["Font Awesome 5 Free Solid", u"\uf02b", "tag"],
-    ["Font Awesome 5 Free Solid", u"\uf02c", "tags"],
-    ["Font Awesome 5 Free Regular", u"\uf2ed", "trash"],
-    ["Font Awesome 5 Free Solid", u"\uf0ad", "wrench"],
+    ("Font Awesome 5 Free Solid", u"\uf0d0", "magic"),
+    ("Font Awesome 5 Free Solid", u"\uf02d", "book"),
+    ("Font Awesome 5 Free Solid", u"\uf02e", "bookmark"),
+    ("Font Awesome 5 Free Solid", u"\uf0b1", "briefcase"),
+    ("Font Awesome 5 Free Solid", u"\uf140", "bullseye"),
+    ("Font Awesome 5 Free Regular", u"\uf073", "calendar"),
+    ("Font Awesome 5 Free Solid", u"\uf0a3", "certificate"),
+    ("Font Awesome 5 Free Regular", u"\uf017", "clock"),
+    ("Font Awesome 5 Free Solid", u"\uf013", "cog"),
+    ("Font Awesome 5 Free Solid", u"\uf085", "cogs"),
+    ("Font Awesome 5 Free Solid", u"\uf134", "fire extinguisher"),
+    ("Font Awesome 5 Free Solid", u"\uf277", "map signs"),
+    ("Font Awesome 5 Free Solid", u"\uf041", "map marker"),
+    ("Font Awesome 5 Free Regular", u"\uf1ea", "newspaper"),
+    ("Font Awesome 5 Free Regular", u"\uf0eb", "lightbulb"),
+    ("Font Awesome 5 Free Solid", u"\uf08d", "pin"),
+    ("Font Awesome 5 Free Solid", u"\uf074", "random"),
+    ("Font Awesome 5 Free Solid", u"\uf1b8", "recycle"),
+    ("Font Awesome 5 Free Solid", u"\uf021", "refresh"),
+    ("Font Awesome 5 Free Solid", u"\uf135", "rocket"),
+    ("Font Awesome 5 Free Solid", u"\uf002", "search"),
+    ("Font Awesome 5 Free Solid", u"\uf3fd", "tachometer"),
+    ("Font Awesome 5 Free Solid", u"\uf02b", "tag"),
+    ("Font Awesome 5 Free Solid", u"\uf02c", "tags"),
+    ("Font Awesome 5 Free Regular", u"\uf2ed", "trash"),
+    ("Font Awesome 5 Free Solid", u"\uf0ad", "wrench"),
 ]
 
 
@@ -1432,52 +1432,60 @@ categories = [
     ( "Writing", [ "archive", "book", "bookmark", "edit", "envelope", "envelope-open", "eraser", "file", "file-alt", "folder", "folder-open", "keyboard", "newspaper", "paper-plane", "paperclip", "paragraph", "pen", "pen-alt", "pen-square", "pencil-alt", "quote-left", "quote-right", "sticky-note", "thumbtack"] )
 ]
 
-# full font names
-font_name_hash = {
-    'regular': "Font Awesome 5 Free Regular",
-    'solid':   "Font Awesome 5 Free Solid",
-    'brands':  "Font Awesome 5 Brands Regular"
-}
-
-# hash for fa5-icons
-# { icon_name: symbol-gallery-item, ...}
-# symbol-gallery-item = [fontname, character-id, label]
-fa5_icons_hash = {
-    icon_name: [ [ font_name_hash[style], uid, "%s, unicode character %s, %s" % (font_name_hash[style], format(ord(uid), '02x'), icon_name)  ] for style in styles]
-    for (icon_name, uid, styles) in fa5_icons
-}
-
-# create gallery-tuples for each category
-# (category-label, symbol-list)
-# symbol-list = [ symbol-gallery-item, symbol-gallery-item, ... ]
-# symbol-gallery-item = [fontname, character-id, label]
-category_icons = [
-    (label, [ icon for icon_name in icon_names for icon in fa5_icons_hash[icon_name]], 10)
-    for (label, icon_names) in categories
-]
-
-
 # create gallery for each font-style (regular/solid/brands)
 # [ symbol-gallery-item, symbol-gallery-item, ... ]
 # symbol-gallery-item = [fontname, character-id, label]
 symbols_all_regular = [
-    ["Font Awesome 5 Free Regular", uid, icon_name]
+    ("Font Awesome 5 Free Regular", uid, icon_name)
     for (icon_name, uid, styles) in fa5_icons
     if "regular" in styles
 ]
 
 symbols_all_solid = [
-    ["Font Awesome 5 Free Solid", uid, icon_name]
+    ("Font Awesome 5 Free Solid", uid, icon_name)
     for (icon_name, uid, styles) in fa5_icons
     if "solid" in styles
 ]
 
 symbols_all_brands = [
-    ["Font Awesome 5 Brands Regular", uid, icon_name]
+    ("Font Awesome 5 Brands Regular", uid, icon_name)
     for (icon_name, uid, styles) in fa5_icons
     if "brands" in styles
 ]
 
+def get_content_categories():
+    # full font names
+    font_name_hash = {
+        'regular': "Font Awesome 5 Free Regular",
+        'solid':   "Font Awesome 5 Free Solid",
+        'brands':  "Font Awesome 5 Brands Regular"
+    }
+
+    # hash for fa5-icons
+    # { icon_name: symbol-gallery-item, ...}
+    # symbol-gallery-item = [fontname, character-id, label]
+    fa5_icons_hash = {
+        icon_name: [ [ font_name_hash[style], uid, "%s, unicode character %s, %s" % (font_name_hash[style], format(ord(uid), '02x'), icon_name)  ] for style in styles]
+        for (icon_name, uid, styles) in fa5_icons
+    }
+
+    # create gallery-tuples for each category
+    # (category-label, symbol-list)
+    # symbol-list = [ symbol-gallery-item, symbol-gallery-item, ... ]
+    # symbol-gallery-item = [fontname, character-id, label]
+    category_icons = [
+        (label.replace("&", "and"), [ icon for icon_name in icon_names for icon in fa5_icons_hash[icon_name]], 10)
+        for (label, icon_names) in categories
+    ]
+
+    return bkt.ribbon.Menu(
+                xmlns="http://schemas.microsoft.com/office/2009/07/customui",
+                id=None,
+                children=[
+                    PPTSymbolsGallery(label="{} ({})".format(label, len(symbollist)), symbols=symbollist, columns=columns)
+                    for (label, symbollist, columns) in category_icons
+                ]
+            )
 
 
 # define the menu parts
@@ -1497,13 +1505,10 @@ menu_settings = [
 ]
 
 menus = [
-    PPTSymbolsGallery(label=label, symbols=symbollist, columns=columns)
+    PPTSymbolsGallery(label="{} ({})".format(label, len(symbollist)), symbols=symbollist, columns=columns)
     for (label, symbollist, columns) in menu_settings
 ] + [
     # submenu for categories
-    bkt.ribbon.Menu(label="Categories", children=[
-        PPTSymbolsGallery(label=label, symbols=symbollist, columns=columns)
-        for (label, symbollist, columns) in category_icons
-    ])
+    bkt.ribbon.DynamicMenu(label="All Categories", get_content=bkt.Callback(get_content_categories))
 ]
 

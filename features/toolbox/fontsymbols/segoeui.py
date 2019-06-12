@@ -287,8 +287,8 @@ symbols_emoji = [
 menu_title = "Segoe UI"
 
 menus = [
-    PPTSymbolsGallery(label="Segoe UI Symbol", symbols=symbols_symbol, columns=16),
-    PPTSymbolsGallery(label="Segoe UI Emoji", symbols=symbols_emoji, columns=16),
+    PPTSymbolsGallery(label="Segoe UI Symbol ({})".format(len(symbols_symbol)), symbols=symbols_symbol, columns=16),
+    PPTSymbolsGallery(label="Segoe UI Emoji ({})".format(len(symbols_emoji)), symbols=symbols_emoji, columns=16),
 ]
 
 
