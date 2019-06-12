@@ -80,7 +80,7 @@ class BooksOps(object):
             tmp_active_window.SelectedSheets.Copy()
             tmp_window.Close()
             #Copy color scheme
-            fullFileName = tempfile.gettempdir() + "\\bkt_colorscheme.xml"
+            fullFileName = os.path.join(tempfile.gettempdir(), "bkt_colorscheme.xml")
             workbook.Theme.ThemeColorScheme.Save(fullFileName)
             application.ActiveWorkbook.Theme.ThemeColorScheme.Load(fullFileName)
         except:

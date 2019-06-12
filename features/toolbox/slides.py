@@ -92,7 +92,7 @@ class SendOrSaveSlides(object):
 
     @classmethod
     def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False):
-        import tempfile
+        import tempfile, os.path
 
         from bkt import dotnet
         Outlook = dotnet.import_outlook()
@@ -102,7 +102,7 @@ class SendOrSaveSlides(object):
         oMail.Subject = filename
 
         # Kopie speichern und öffnen
-        fullFileName = tempfile.gettempdir() + "\\" + filename
+        fullFileName = os.path.join(tempfile.gettempdir(), filename)
         application.ActiveWindow.Presentation.SaveCopyAs(fullFileName)
         newPres = application.Presentations.Open(fullFileName)
         
