@@ -1280,7 +1280,7 @@ class PictureFormat(object):
             return
 
         import tempfile, os
-        filename = tempfile.gettempdir() + "\\bktimgtransp.png"
+        filename = os.path.join(tempfile.gettempdir(), "bktimgtransp.png")
 
         for shape in shapes:
             if shape.Type != pplib.MsoShapeType["msoPicture"]:
