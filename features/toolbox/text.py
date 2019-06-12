@@ -319,6 +319,13 @@ class Characters(object):
                         on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_shape),
                         get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.convert_into_shape),
                     ),
+                    bkt.ribbon.ToggleButton(
+                        label='Als Bild einfügen [Strg]',
+                        image_mso='PictureRecolorBlackAndWhite',
+                        supertip='Wenn kein Textfeld ausgewählt ist, wird ein neues Textfeld für das Symbol eingefügt. Wenn diese Funktion aktiviert ist, wird das Textfeld in ein Bild konvertiert. Dies geht auch bei Klick auf ein Symbol mit gedrückter Strg-Taste.',
+                        on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_bitmap),
+                        get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.convert_into_bitmap),
+                    ),
                 ]
             )
 
