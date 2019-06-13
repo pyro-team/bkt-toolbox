@@ -13,6 +13,7 @@ import traceback
 import os
 import io
 import json
+import uuid
 
 from collections import OrderedDict
 
@@ -338,7 +339,7 @@ class CustomFormatCatalog(object):
     @classmethod
     def _get_image_filename(cls, index):
         if not cls.custom_styles[index].thumbnail_name:
-            cls.custom_styles[index].thumbnail_name = "{}.png".format( index+1 )
+            cls.custom_styles[index].thumbnail_name = "{}_{}.png".format( index+1, uuid.uuid4().hex ) #use uuid to avoid same filenames (e.g. index can change if styles are deleted)
         
         return os.path.join( cls.config_folder, "{}_thumbs".format(os.path.splitext(cls.current_file)[0]), cls.custom_styles[index].thumbnail_name )
 
