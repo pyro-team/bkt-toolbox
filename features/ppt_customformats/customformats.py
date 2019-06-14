@@ -25,6 +25,10 @@ from helpers import ShapeFormats #local helper functions
 CF_VERSION = "20190613"
 
 class CustomFormat(object):
+    '''
+    This class represents a single custom format (button in gallery) with all style definitions. It has
+    helper function to save and load from json file as well as pickup and apply from/to shape.
+    '''
     default_settings = OrderedDict([
         ('Type',              False),
         ('Fill',              True),
@@ -59,6 +63,7 @@ class CustomFormat(object):
         self.button_setting = button
         
         self.thumbnail_name = None #filename of the thumbnail
+        self.design_name = None #name of Master-Design
         self._formats = OrderedDict()
 
 
@@ -80,13 +85,15 @@ class CustomFormat(object):
         result["style_setting"]  = self.style_setting
         result["button_setting"] = self.button_setting
         result["thumbnail_name"] = self.thumbnail_name
+        result["design_name"]    = self.design_name
         result["formats"]        = self._formats
         return result
 
     @staticmethod
     def from_json(value): #filename+index required for converting older format definitions
         result = CustomFormat(value["name"], value["style_setting"], value["button_setting"])
-        result.thumbnail_name = value["thumbnail_name"]
+        result.thumbnail_name = value.get("thumbnail_name", None)
+        result.design_name    = value.get("design_name", None)
         for k,v in value["formats"].items():
             result.add_format(k,v)
         return result
@@ -111,6 +118,7 @@ class CustomFormat(object):
         
         ### CUSTOM FORMAT CREATION
         result = CustomFormat(shape.name, style_setting, button_setting)
+        result.design_name = shape.Parent.Design.Name
 
         ### TYPE
         result.add_format('Type', ShapeFormats._get_type(shape) )
@@ -211,6 +219,11 @@ class CustomFormat(object):
 
 
 class CustomFormatCatalog(object):
+    '''
+    This class handles the currently active custom format catalog incl. saving and loading catalog files. It also has
+    helper functions to generate the thumbnail images and provide data to the gallery.
+    '''
+
     custom_styles = []
     
     config_folder = os.path.join(bkt.helpers.get_fav_folder(), "custom_formats")
@@ -273,6 +286,10 @@ class CustomFormatCatalog(object):
         cls.current_file = filename
         bkt.settings["customformats.default_file"] = filename
 
+
+    @classmethod
+    def get_custom_style_name(cls, index):
+        return cls.custom_styles[index].name
 
     @classmethod
     def pickup_custom_style(cls, shape, style_setting=None):
@@ -389,15 +406,21 @@ class CustomFormatCatalog(object):
         return filename
 
 
+### TODO: import styles from presentation, replace existing QuickStyleGallery, replace existing pickup-apply buttons, re-generate thumbnail images for each design ###
 
 
 class CustomQuickEdit(object):
+    '''
+    This class orchestrates all custom format functions for the UI and redirects calls to the catalog of custom format.
+    '''
+
     always_keep_theme_color = True #set to true to remain theme color even if RGB value differs due to different color scheme
-    always_consider_indentlevels = True #set to true to remain theme color even if RGB value differs due to different color scheme
+    always_consider_indentlevels = True #set to true to save paragraphformat and font individually for each indent level
 
-    #TODO: option to save into presentation (instead of json file)
-    #TODO: import/export of style definitions
+    temp_custom_format = None #temporary custom format, used for advanced pickup-apply stamp
 
+
+    ### Catalog menu ###
 
     @staticmethod
     def create_new_style(filename=None):
@@ -420,7 +443,8 @@ class CustomQuickEdit(object):
         def style_button(file):
             return bkt.ribbon.ToggleButton(
                 label= file,
-                # image_mso='DeleteThisFolder',
+                screentip="Lade "+file,
+                supertip="Lade Custom-Styles aus dieser Katalog-Datei.",
                 get_pressed=bkt.Callback(lambda: file == CustomFormatCatalog.current_file),
                 on_toggle_action=bkt.Callback(lambda pressed: CustomFormatCatalog.read_from_config(file))
             )
@@ -443,6 +467,7 @@ class CustomQuickEdit(object):
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
                     label='Neuen Style-Katalog anlegen',
+                    supertip="Neuen Katalog mit definierbarem Namen anlegen.",
                     # image_mso='ModuleInsert',
                     on_action=bkt.Callback(CustomQuickEdit.create_new_style)
                 ),
@@ -450,13 +475,15 @@ class CustomQuickEdit(object):
         )
 
 
-    @staticmethod
-    def show_pickup_window(shape):
+    ### Gallery funcions ###
+
+    @classmethod
+    def show_pickup_window(cls, shape):
         from pickup_style import PickupWindow
         PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormat.default_settings, shape=shape)
 
-    @staticmethod
-    def show_edit_window(index):
+    @classmethod
+    def show_edit_window(cls, index):
         from pickup_style import PickupWindow
         PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormatCatalog.custom_styles[index].style_setting, index=index)
 
@@ -475,7 +502,6 @@ class CustomQuickEdit(object):
 
     @classmethod
     def apply_custom_style(cls, index, context):
-
         shift = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
         ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
         # alt   = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
@@ -498,8 +524,31 @@ class CustomQuickEdit(object):
                     CustomFormatCatalog.custom_styles[index].to_shape(shape)
 
 
+    ### Advanced pickup-apply stamp ###
+
+    @classmethod
+    def temp_enabled(cls, selection):
+        return cls.temp_custom_format is not None and (selection.Type == 2 or selection.Type == 3)
+
+    @classmethod
+    def temp_pickup(cls, shape):
+        cls.temp_custom_format = CustomFormat.from_shape(shape)
+
+    @classmethod
+    def temp_apply(cls, shapes):
+        from pickup_style import PickupWindow
+        wnd = PickupWindow.create_and_show_dialog(cls, cls.temp_custom_format.style_setting)
+        
+        if wnd.result:
+            cls.temp_custom_format.style_setting.update(wnd.result)
+            for shape in shapes:
+                cls.temp_custom_format.to_shape(shape)
+
 
 class FormatLibGallery(bkt.ribbon.Gallery):
+    '''
+    This is the gallery element to show custom format styles.
+    '''
     
     def __init__(self, **kwargs):
         parent_id = kwargs.get('id') or ""
@@ -509,10 +558,11 @@ class FormatLibGallery(bkt.ribbon.Gallery):
             image_mso = 'ShapeQuickStylesHome',
             show_item_label=False,
             screentip="Custom-Styles Gallerie",
-            # supertip="Füge eine Tabelle aus Standard-Shapes ein",
+            supertip="Zeigt Übersicht über alle Custom-Styles im aktuellen Katalog.",
             children=[
-                bkt.ribbon.Button(id=parent_id + "_pickup", label="Neuen Style aufnehmen", image_mso="PickUpStyle", on_action=bkt.Callback(CustomQuickEdit.show_pickup_window, shape=True), get_enabled = bkt.apps.ppt_shapes_exactly1_selected,),
-                bkt.ribbon.Button(id=parent_id + "_help", label="[STRG]+Klick für Bearbeiten und Löschen", enabled = False),
+                bkt.ribbon.Button(id=parent_id + "_pickup", label="Neuen Style aufnehmen", supertip="Nimmt Format vom gewählten Shape neu in die Gallerie auf.", image_mso="PickUpStyle", on_action=bkt.Callback(CustomQuickEdit.show_pickup_window, shape=True), get_enabled = bkt.apps.ppt_shapes_exactly1_selected,),
+                bkt.ribbon.Button(id=parent_id + "_help1", label="[STRG]+Klick für Bearbeiten und Löschen", supertip="Bei Klick auf ein Custom-Style mit gedrückter STRG-Taste öffnet sich ein Fenster zur Bearbeitung und Löschung dieses Styles.", enabled = False),
+                bkt.ribbon.Button(id=parent_id + "_help2", label="[SHIFT]+Klick für Anlage neues Shape", supertip="Bei Klick auf ein Custom-Style mit gedrückter SHIFT-Taste wird immer ein neues Shapes in gewähltem Style angelegt.", enabled = False),
             ]
         )
         my_kwargs.update(kwargs)
@@ -547,9 +597,29 @@ customformats_group = bkt.ribbon.Group(
         bkt.ribbon.DynamicMenu(
             id="quickedit_config_menu",
             label="Styles konfiguration",
+            supertip="Style-Katalog laden oder neuen Katalog anlegen.",
             image_mso="ShapeReports",
-            size="large",
+            show_label=False,
+            # size="large",
             get_content = bkt.Callback(CustomQuickEdit.get_styles),
+        ),
+        bkt.ribbon.Button(
+            id="quickedit_temp_apply",
+            label='Format anwenden',
+            image_mso='PasteApplyStyle',
+            supertip="Ausgewählte Formate aus Zwischenspeicher auf selektierte Shapes anwenden.",
+            show_label=False,
+            on_action=bkt.Callback(CustomQuickEdit.temp_apply),
+            get_enabled = bkt.Callback(CustomQuickEdit.temp_enabled),
+        ),
+        bkt.ribbon.Button(
+            id="quickedit_temp_pickup",
+            label='Format aufnehmen',
+            image_mso='PickUpStyle',
+            supertip="Format aus selektiertem Shape in Zwischenspeicher aufnehmen.",
+            show_label=False,
+            on_action=bkt.Callback(CustomQuickEdit.temp_pickup),
+            get_enabled = bkt.apps.ppt_shapes_exactly1_selected,
         ),
     ]
 )

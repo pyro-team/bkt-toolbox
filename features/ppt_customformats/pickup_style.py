@@ -9,26 +9,51 @@ import bkt.ui
 notify_property = bkt.ui.notify_property
 
 from System.Windows import Visibility
-
+from collections import namedtuple
 
 class ViewModel(bkt.ui.ViewModelAsbtract):
-    def __init__(self, settings, name=None):
+    def __init__(self, settings, mode, name=None):
         super(ViewModel, self).__init__()
 
         self.settings = settings
-        if name is not None:
+        self.settings_all = all(self.settings.values())
+        
+        self.show_delete = Visibility.Collapsed
+        if mode == "edit" and name is not None:
             self.title_text = "Style {} bearbeiten".format(name)
             self.show_delete = Visibility.Visible
-        else:
+        elif mode == "new":
             self.title_text = "Neuen Style anlegen"
-            self.show_delete = Visibility.Collapsed
+        else: #apply
+            self.title_text = "Style anwenden"
+
+
+    @notify_property
+    def settings_all(self):
+        return all(self.settings.values())
     
+    @settings_all.setter
+    def settings_all(self, value):
+        for k in self.settings:
+            self.settings[k] = value
+        self.OnPropertyChanged('settings_fill')
+        self.OnPropertyChanged('settings_type')
+        self.OnPropertyChanged('settings_line')
+        self.OnPropertyChanged('settings_textframe')
+        self.OnPropertyChanged('settings_paragraphformat')
+        self.OnPropertyChanged('settings_font')
+        self.OnPropertyChanged('settings_shadow')
+        self.OnPropertyChanged('settings_size')
+        self.OnPropertyChanged('settings_position')
+
+
     @notify_property
     def settings_fill(self):
         return self.settings["Fill"]
     @settings_fill.setter
     def settings_fill(self, value):
         self.settings["Fill"] = value
+        self.OnPropertyChanged('settings_all')
     
     @notify_property
     def settings_type(self):
@@ -36,6 +61,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     @settings_type.setter
     def settings_type(self, value):
         self.settings["Type"] = value
+        self.OnPropertyChanged('settings_all')
     
     @notify_property
     def settings_line(self):
@@ -43,6 +69,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     @settings_line.setter
     def settings_line(self, value):
         self.settings["Line"] = value
+        self.OnPropertyChanged('settings_all')
     
     @notify_property
     def settings_textframe(self):
@@ -50,6 +77,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     @settings_textframe.setter
     def settings_textframe(self, value):
         self.settings["TextFrame"] = value
+        self.OnPropertyChanged('settings_all')
     
     @notify_property
     def settings_paragraphformat(self):
@@ -57,6 +85,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     @settings_paragraphformat.setter
     def settings_paragraphformat(self, value):
         self.settings["ParagraphFormat"] = value
+        self.OnPropertyChanged('settings_all')
     
     @notify_property
     def settings_font(self):
@@ -64,6 +93,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     @settings_font.setter
     def settings_font(self, value):
         self.settings["Font"] = value
+        self.OnPropertyChanged('settings_all')
     
     @notify_property
     def settings_shadow(self):
@@ -74,6 +104,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         self.settings["Glow"] = value
         self.settings["SoftEdge"] = value
         self.settings["Reflection"] = value
+        self.OnPropertyChanged('settings_all')
     
     @notify_property
     def settings_size(self):
@@ -81,6 +112,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     @settings_size.setter
     def settings_size(self, value):
         self.settings["Size"] = value
+        self.OnPropertyChanged('settings_all')
     
     @notify_property
     def settings_position(self):
@@ -88,32 +120,51 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     @settings_position.setter
     def settings_position(self, value):
         self.settings["Position"] = value
+        self.OnPropertyChanged('settings_all')
+
+
 
 
 class PickupWindow(bkt.ui.WpfWindowAbstract):
     _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pickup_style.xaml')
     # _vm_class = ViewModel
 
-    def __init__(self, model, style_setting, shape=None, index=None):
+    def __init__(self, model, style_setting, shape=None, index=None): #modes: new, edit, apply
         self._model = model
+
         self.shape = shape
         self.index = index
+        self.result = None
+        
+        if shape:
+            #new
+            self._vm = ViewModel(style_setting.copy(), "new")
+        elif index is not None:
+            #edit
+            self._vm = ViewModel(style_setting.copy(), "edit", model.get_custom_style_name(index))
+        else:
+            #apply
+            self._vm = ViewModel(style_setting.copy(), "apply")
+
+
         name = None if index is None else index+1
-        self._vm = ViewModel(style_setting.copy(), name)
 
         super(PickupWindow, self).__init__()
 
     def cancel(self, sender, event):
         self.Close()
-    
+
     def pickup_style(self, sender, event):
         self.Close()
         if self.shape:
-            #pickup
+            #new: call pickup method
             self._model.pickup_custom_style(self.shape, self._vm.settings)
         elif self.index is not None:
-            #edit
+            #edit: call edit method
             self._model.edit_custom_style(self.index, self._vm.settings)
+        else:
+            #apply: only save settings to result
+            self.result = self._vm.settings
     
     def delete_style(self, sender, event):
         self.Close()

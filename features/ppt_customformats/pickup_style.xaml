@@ -19,6 +19,8 @@
 
         <Label Content="Standardmäßig anzuwendende Angaben:"/>
         <StackPanel Orientation="Vertical" Margin="15,0,15,5">
+            <fr:CheckBox Header="Alle Werte" IsChecked="{Binding settings_all, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontStyle="Italic" Margin="5" />
+            <Separator />
             <fr:CheckBox Header="Form/Shape-Typ" IsChecked="{Binding settings_type, Mode=TwoWay}" Margin="5" />
             <fr:CheckBox Header="Hintergrund" IsChecked="{Binding settings_fill, Mode=TwoWay}" Margin="5" />
             <fr:CheckBox Header="Rahmen/Linie" IsChecked="{Binding settings_line, Mode=TwoWay}" Margin="5" />
@@ -39,8 +41,8 @@
               <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <StackPanel Orientation="Horizontal" Grid.Column="1">
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Speichern" IsDefault="True" Click="pickup_style"/>
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Löschen" Click="delete_style" Visibility="{Binding show_delete}"/>
+              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Okay"      IsDefault="True" Click="pickup_style"/>
+              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Löschen"                    Click="delete_style" Visibility="{Binding show_delete}"/>
               <Button Margin="5" MinWidth="80" Padding="5,2" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
           </StackPanel>
       </Grid>
