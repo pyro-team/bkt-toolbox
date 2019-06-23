@@ -408,14 +408,16 @@ class ShapeDistance(object):
     vertical_fix   = bkt.settings.get("toolbox.shapedis.vertical_fix",   "top") #other options: bottom
     horizontal_fix = bkt.settings.get("toolbox.shapedis.horizontal_fix", "left") #other options: right
 
-    #only for euclid distance and angle:
+    ### only for euclid distance and angle:
+    shape1_index  = 0 #center-shape-index is either 0 for first selected shape or -1 for last selected shape
     shape1_locpin = pplib.LocPin(4) #center point as initial locpin
     shape2_locpin = pplib.LocPin(4) #center point as initial locpin
     shape_rotate_with_angle = False #rotate shape if angle is changed
-    shape_calc_individually = False #same as ALT-key
+    euclid_multi_shape_mode = "centric" #Options: centric, delta, distribute
 
     @classmethod
     def change_settings(cls, name, value):
+        # change setting and save value
         setattr(cls, name, value)
         bkt.settings["toolbox.shapedis."+name] = value
 
@@ -570,11 +572,29 @@ class ShapeDistance(object):
         else:
             cls.set_shape_sep_horizontal(shapes, 0)
 
-    
+
+    ### Euclidian distance and angle methods ###
+
+    @classmethod
+    def is_mode_centric(cls):
+        return cls.euclid_multi_shape_mode == "centric"
+
+    @classmethod
+    def is_mode_delta(cls):
+        alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+        return alt or cls.euclid_multi_shape_mode == "delta"
+
+    @classmethod
+    def is_mode_distribute(cls):
+        return cls.euclid_multi_shape_mode == "distribute"
+
     @classmethod
     def get_shape_sep_euclid(cls, shapes):
-        shape1 = pplib.wrap_shape(shapes[0], cls.shape1_locpin)
-        shape2 = pplib.wrap_shape(shapes[1], cls.shape2_locpin)
+        '''
+        get euclidian distance from center shape to second shape
+        '''
+        shape1 = pplib.wrap_shape(shapes[cls.shape1_index], cls.shape1_locpin)
+        shape2 = pplib.wrap_shape(shapes[cls.shape1_index+1], cls.shape2_locpin)
         shape1_x, shape1_y = shape1.left, shape1.top
         shape2_x, shape2_y = shape2.left, shape2.top
 
@@ -583,6 +603,9 @@ class ShapeDistance(object):
     
     @classmethod
     def set_shape_sep_euclid(cls, shapes, value):
+        '''
+        set euclidian distance from center shape to all other shapes
+        '''
         def _get_current_distance(shape1, shape2):
             vector = [shape2.left-shape1.left, shape2.top-shape1.top]
             return math.hypot( *vector )
@@ -599,18 +622,21 @@ class ShapeDistance(object):
             return new_vector, shape_rotation
 
 
-        shape1 = pplib.wrap_shape(shapes[0], cls.shape1_locpin)
+        shape1 = pplib.wrap_shape(shapes[cls.shape1_index], cls.shape1_locpin)
         shape1_x, shape1_y = shape1.left, shape1.top
 
-        shapes = pplib.wrap_shapes(shapes[1:], cls.shape2_locpin)
+        shapes = pplib.wrap_shapes(shapes[cls.shape1_index+1:], cls.shape2_locpin)
         # shape2_x, shape2_y = shapes[0].left, shapes[0].top
 
-        alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+        # alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
 
-        if not alt and not cls.shape_calc_individually:
-            for shape in shapes:
+        if cls.is_mode_centric() or cls.is_mode_distribute():
+            for i, shape in enumerate(shapes):
                 try:
-                    delta_distance = value-_get_current_distance(shape1, shape)
+                    if cls.is_mode_centric():
+                        delta_distance = value-_get_current_distance(shape1, shape)
+                    else:
+                        delta_distance = (i+1)*value-_get_current_distance(shape1, shape)
                     new_vector, shape_rotation = _get_new_shape_coords(shape1, shape, delta_distance)
                 except ValueError:
                     continue
@@ -619,24 +645,8 @@ class ShapeDistance(object):
                 # set shape rotation (without using wrapper function)
                 if cls.shape_rotate_with_angle:
                     shape.shape.rotation = shape_rotation
-            # try:
-            #     delta_distance = value-_get_current_distance(shape1, shapes[0])
-            #     new_vector, shape_rotation = _get_new_shape_coords(shape1, shapes[0], delta_distance)
-            # except ValueError:
-            #     return
-
-            # next_x = shape1_x+new_vector[0]
-            # next_y = shape1_y+new_vector[1]
-            # for shape in shapes:
-            #     shape.left = next_x
-            #     shape.top  = next_y
-            #     next_x += new_vector[0]
-            #     next_y += new_vector[1]
-            #     # set shape rotation (without using wrapper function)
-            #     if cls.shape_rotate_with_angle:
-            #         shape.shape.rotation = shape_rotation
         
-        else:
+        else: #is_mode_delta
             delta_distance = value-_get_current_distance(shape1, shapes[0])
             for shape in shapes:
                 try:
@@ -651,8 +661,11 @@ class ShapeDistance(object):
 
     @classmethod
     def get_shape_angle(cls, shapes):
-        shape1 = pplib.wrap_shape(shapes[0], cls.shape1_locpin)
-        shape2 = pplib.wrap_shape(shapes[1], cls.shape2_locpin)
+        '''
+        get euclidian angle from center shape to second shaope
+        '''
+        shape1 = pplib.wrap_shape(shapes[cls.shape1_index], cls.shape1_locpin)
+        shape2 = pplib.wrap_shape(shapes[cls.shape1_index+1], cls.shape2_locpin)
         shape1_x, shape1_y = shape1.left, shape1.top
         shape2_x, shape2_y = shape2.left, shape2.top
 
@@ -661,6 +674,9 @@ class ShapeDistance(object):
 
     @classmethod
     def set_shape_angle(cls, shapes, value):
+        '''
+        set euclidian angle from center shape to all other shapes
+        '''
         def _get_current_angle(shape1, shape2):
             vector = [shape2.left-shape1.left, shape2.top-shape1.top]
             return round(-180/math.pi * math.atan2(vector[1], vector[0]), 1)
@@ -672,18 +688,21 @@ class ShapeDistance(object):
             return new_vector, shape_rotation
 
 
-        shape1 = pplib.wrap_shape(shapes[0], cls.shape1_locpin)
+        shape1 = pplib.wrap_shape(shapes[cls.shape1_index], cls.shape1_locpin)
         shape1_x, shape1_y = shape1.left, shape1.top
 
-        shapes = pplib.wrap_shapes(shapes[1:], cls.shape2_locpin)
+        shapes = pplib.wrap_shapes(shapes[cls.shape1_index+1:], cls.shape2_locpin)
         # shape_rotation = (360-value) % 360
 
-        alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+        # alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
 
-        if not alt and not cls.shape_calc_individually:
-            for shape in shapes:
-                cur_angle = _get_current_angle(shape1, shape)
-                new_vector, shape_rotation = _get_new_shape_coords(shape1, shape, -(cur_angle-value))
+        if cls.is_mode_centric() or cls.is_mode_distribute():
+            for i, shape in enumerate(shapes):
+                if cls.is_mode_centric():
+                    delta_angle = -(_get_current_angle(shape1, shape) - value)
+                else:
+                    delta_angle = -(_get_current_angle(shape1, shape) - value*(i+1))
+                new_vector, shape_rotation = _get_new_shape_coords(shape1, shape, delta_angle)
                 shape2_x, shape2_y = shape.left, shape.top
 
                 # vector = [shape2_x-shape1_x, shape2_y-shape1_y]
@@ -695,7 +714,8 @@ class ShapeDistance(object):
                 # set shape rotation (without using wrapper function)
                 if cls.shape_rotate_with_angle:
                     shape.shape.rotation = shape_rotation
-        else:
+        
+        else: #is_mode_delta
             delta_angle = _get_current_angle(shape1, shapes[0])-value
             for shape in shapes:
                 new_vector, shape_rotation = _get_new_shape_coords(shape1, shape, -delta_angle)
@@ -1018,34 +1038,67 @@ euclid_angle_group = bkt.ribbon.Group(
             screentip="Referenzpunkte festlegen",
             supertip="Referenz- bzw. Ankerpunkte für Distanz und Winkel für erstes Shape und die weitere Shapes festlegen",
             children=[
+                bkt.ribbon.MenuSeparator(title="Zentrum-Shape festlegen"),
                 bkt.ribbon.MenuSeparator(title="Referenzpunkte festlegen"),
                 pplib.LocpinGallery(
-                    label="für erstes Shape",
+                    label="Innerhalb Zentrum-Shape",
                     screentip="Referenz- bzw. Ankerpunkt für Distanz und Winkel",
-                    supertip="Legt den Punkt innerhalb des zuerst ausgewählten Shapes fest, von dem der Abstand bzw. Winkel der Shapes gemessen werden soll.",
+                    supertip="Legt den Punkt innerhalb des Zentrum-Shapes fest, von dem der Abstand bzw. Winkel der Shapes gemessen werden soll.",
                     locpin=ShapeDistance.shape1_locpin,
                 ),
                 pplib.LocpinGallery(
-                    label="für weitere Shapes",
+                    label="Innerhalb weiterer Shapes",
                     screentip="Referenz- bzw. Ankerpunkt für Distanz und Winkel",
                     supertip="Legt den Punkt innerhalb aller weiteren Shapes fest, von dem der Abstand bzw. Winkel der Shapes gemessen werden soll.",
                     locpin=ShapeDistance.shape2_locpin,
                 ),
-                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.MenuSeparator(title="Erweiterte Einstellungen festlegen"),
+                bkt.ribbon.Menu(
+                    label="Zentrum-Shape auswählen",
+                    screentip="Shape im Zentrum auswählen",
+                    supertip="Legt fest welches Shape innerhalb der Selektion im Zentrum stehen sollen.",
+                    children=[
+                        bkt.ribbon.ToggleButton(
+                            label="Zuerst selektiertes Shape (Standard)",
+                            get_pressed=bkt.Callback(lambda: ShapeDistance.shape1_index==0),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "shape1_index", 0)),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Zuletzt selektiertes Shape",
+                            get_pressed=bkt.Callback(lambda: ShapeDistance.shape1_index==-1),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "shape1_index", -1)),
+                        ),
+                    ]
+                ),
+                bkt.ribbon.Menu(
+                    label="Verhalten für >2 Shapes",
+                    screentip="Verhalten bei Auswahl von mehr als 2 Shapes festlegen",
+                    supertip="Bei Auswahl von mehr als 2 Shapes können unterschiedliche Optionen zur Berechnung zwischen Zentrum-Shape und allen weitere Shapes gewählt werden.",
+                    children=[
+                        bkt.ribbon.ToggleButton(
+                            label="Abstand/Winkel einzeln vom Zentrum zu Shapes (Standard)",
+                            get_pressed=bkt.Callback(lambda: ShapeDistance.euclid_multi_shape_mode == "centric"),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "euclid_multi_shape_mode", "centric")),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Abstände/Winkel immer um gleiche Differenz ändern [ALT]",
+                            get_pressed=bkt.Callback(lambda: ShapeDistance.euclid_multi_shape_mode == "delta"),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "euclid_multi_shape_mode", "delta")),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Abstände/Winkel gleichmäßig zwischen Shapes verteilen",
+                            get_pressed=bkt.Callback(lambda: ShapeDistance.euclid_multi_shape_mode == "distribute"),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "euclid_multi_shape_mode", "distribute")),
+                        ),
+                    ]
+                ),
                 bkt.ribbon.ToggleButton(
                     label="Shape-Rotation angleichen",
-                    screentip="Shape-Rotation angeichen an/aus",
+                    screentip="Shape-Rotation an Winkel angeichen an/aus",
                     supertip="Passt die Shape-Rotation an den Abstandsvektor bzw. den Winkel an.",
                     get_pressed=bkt.Callback(lambda: getattr(ShapeDistance, "shape_rotate_with_angle")),
                     on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "shape_rotate_with_angle", pressed)),
                 ),
-                bkt.ribbon.ToggleButton(
-                    label="Shapes individuell anpassen [ALT]",
-                    screentip="Shapes um Delta individuell anpassen",
-                    supertip="Abstand bzw. Winkel wird für jedes Shape um den gleichen Delta-Betrag angepasst. Dies ist identisch zum Gedrückthalten der ALT-Taste.",
-                    get_pressed=bkt.Callback(lambda: getattr(ShapeDistance, "shape_calc_individually")),
-                    on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "shape_calc_individually", pressed)),
-                )
             ]
         )
     ]
