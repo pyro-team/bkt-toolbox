@@ -373,18 +373,18 @@ class PPTSymbolsGalleryRecent(PPTSymbolsGallery):
 
 
 class LocpinGallery(Gallery):
-    def __init__(self, locpin=None, **kwargs):
+    def __init__(self, locpin=None, item_supertip="Shape-Fixpunkt bzw. Fixierung bei Änderung {}", **kwargs):
         self.locpin = locpin or pplib.GlobalLocPin
         self.items = [
-            ("fix_locpin_tl", "Shape-Fixpunkt bzw. Fixierung bei Änderung oben-links"),
-            ("fix_locpin_tm", "Shape-Fixpunkt bzw. Fixierung bei Änderung oben-mitte"),
-            ("fix_locpin_tr", "Shape-Fixpunkt bzw. Fixierung bei Änderung oben-rechts"),
-            ("fix_locpin_ml", "Shape-Fixpunkt bzw. Fixierung bei Änderung mitte-links"),
-            ("fix_locpin_mm", "Shape-Fixpunkt bzw. Fixierung bei Änderung mitte-mitte"),
-            ("fix_locpin_mr", "Shape-Fixpunkt bzw. Fixierung bei Änderung mitte-rechts"),
-            ("fix_locpin_bl", "Shape-Fixpunkt bzw. Fixierung bei Änderung unten-links"),
-            ("fix_locpin_bm", "Shape-Fixpunkt bzw. Fixierung bei Änderung unten-mitte"),
-            ("fix_locpin_br", "Shape-Fixpunkt bzw. Fixierung bei Änderung unten-rechts"), 
+            ("fix_locpin_tl", "Oben-links",   item_supertip.format("oben-links")),
+            ("fix_locpin_tm", "Oben-mitte",   item_supertip.format("oben-mitte")),
+            ("fix_locpin_tr", "Oben-rechts",  item_supertip.format("oben-rechts")),
+            ("fix_locpin_ml", "Mitte-links",  item_supertip.format("mitte-links")),
+            ("fix_locpin_mm", "Mitte-mitte",  item_supertip.format("mitte-mitte")),
+            ("fix_locpin_mr", "Mitte-rechts", item_supertip.format("mitte-rechts")),
+            ("fix_locpin_bl", "Unten-links",  item_supertip.format("unten-links")),
+            ("fix_locpin_bm", "Unten-mitte",  item_supertip.format("unten-mitte")),
+            ("fix_locpin_br", "Unten-rechts", item_supertip.format("unten-rechts")),
         ]
         
         my_kwargs = dict(
@@ -395,7 +395,7 @@ class LocpinGallery(Gallery):
             on_action_indexed  = Callback(self.locpin_on_action_indexed),
             get_selected_item_index = Callback(self.locpin_get_selected_item_index),
             children = [
-                Item(image=gal_item[0], screentip=gal_item[1])
+                Item(image=gal_item[0], screentip=gal_item[1], supertip=gal_item[2])
                 for gal_item in self.items
             ]
         )
