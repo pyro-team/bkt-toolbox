@@ -203,36 +203,40 @@ class TableRecognition(object):
             return 0
         return median(spacings)
     
-    def min_spacing_rows(self):
+    def min_spacing_rows(self, max_rows=None):
         rows, cols = self.dimension
         if rows < 2:
             return 0
         cur_min = float('inf')
-        for i in xrange(1,rows):
+        for i in xrange(1,max_rows or rows): #for speed improvement, we can only iterate first 2 rows
+            row1_bottom = []
+            row2_top    = []
             for j in xrange(cols):
-                cell = self.cell(i,j)
-                top = self.cell(i-1, j)
-                if cell is None or top is None:
-                    continue      
-                spacing_rows = cell.Top - top.Top - top.Height
-                cur_min = min(cur_min, spacing_rows)
-
+                row1_cell = self.cell(i-1,j)
+                if row1_cell is not None:
+                    row1_bottom.append(row1_cell.Top+row1_cell.Height)
+                row2_cell = self.cell(i,j)
+                if row2_cell is not None:
+                    row2_top.append(row2_cell.Top)
+            cur_min = min(cur_min, min(row2_top) - max(row1_bottom))
         return cur_min
     
-    def min_spacing_cols(self):
+    def min_spacing_cols(self, max_cols=None):
         rows, cols = self.dimension
         if cols < 2:
             return 0
         cur_min = float('inf')
-        for i in xrange(rows):
-            for j in xrange(1,cols):
-                cell = self.cell(i,j)
-                left = self.cell(i, j-1)
-                if cell is None or left is None:
-                    continue
-                spacing_cols = cell.Left - left.Left - left.Width
-                cur_min = min(cur_min, spacing_cols)
-
+        for j in xrange(1,max_cols or cols): #for speed improvement, we can only iterate first 2 cols
+            col1_right = []
+            col2_left  = []
+            for i in xrange(rows):
+                col1_cell = self.cell(i,j-1)
+                if col1_cell is not None:
+                    col1_right.append(col1_cell.Left+col1_cell.Width)
+                col2_cell = self.cell(i,j)
+                if col2_cell is not None:
+                    col2_left.append(col2_cell.Left)
+            cur_min = min(cur_min, min(col2_left) - max(col1_right))
         return cur_min
     
     def correct_columns(self):
