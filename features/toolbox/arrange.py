@@ -630,12 +630,13 @@ class ShapeDistance(object):
 
         # alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
 
-        if cls.is_mode_centric() or cls.is_mode_distribute():
+        # if cls.is_mode_centric() or cls.is_mode_distribute():
+        if not cls.is_mode_delta():
             for i, shape in enumerate(shapes):
                 try:
                     if cls.is_mode_centric():
                         delta_distance = value-_get_current_distance(shape1, shape)
-                    else:
+                    else: #is_mode_distribute
                         delta_distance = (i+1)*value-_get_current_distance(shape1, shape)
                     new_vector, shape_rotation = _get_new_shape_coords(shape1, shape, delta_distance)
                 except ValueError:
@@ -696,11 +697,12 @@ class ShapeDistance(object):
 
         # alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
 
-        if cls.is_mode_centric() or cls.is_mode_distribute():
+        # if cls.is_mode_centric() or cls.is_mode_distribute():
+        if not cls.is_mode_delta():
             for i, shape in enumerate(shapes):
                 if cls.is_mode_centric():
                     delta_angle = -(_get_current_angle(shape1, shape) - value)
-                else:
+                else: #is_mode_distribute
                     delta_angle = -(_get_current_angle(shape1, shape) - value*(i+1))
                 new_vector, shape_rotation = _get_new_shape_coords(shape1, shape, delta_angle)
                 shape2_x, shape2_y = shape.left, shape.top
