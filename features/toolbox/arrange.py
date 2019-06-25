@@ -2745,7 +2745,8 @@ class TableFormat(object):
     @classmethod
     def is_table_shape(cls, shape):
         try:
-            return shape.Type == pplib.MsoShapeType["msoTable"]
+            # return shape.Type == pplib.MsoShapeType["msoTable"]
+            return shape.HasTable == -1 #also covers tables in placeholders
         except:
             return False
 
