@@ -385,6 +385,14 @@ class ShapesMore(object):
     def paste_to_slides(slides):
         for slide in slides:
             slide.Shapes.Paste()
+
+    @staticmethod
+    def paste_as_link(slide):
+        try:
+            slide.Shapes.PasteSpecial(Link=True)
+        except:
+            bkt.helpers.message("Das Element in der Zwischenablage unterstützt diesen Einfügetyp nicht.")
+
     
     @staticmethod
     def text_to_shape(shape):

@@ -8,7 +8,7 @@ Created on 06.02.2018
 import bkt
 import bkt.library.powerpoint as pplib
 
-import shapes as mod_shapes
+from shapes import ShapesMore
 
 from collections import OrderedDict
 
@@ -371,8 +371,16 @@ clipboard_group = bkt.ribbon.Group(
                         bkt.ribbon.Button(
                             id='paste_to_slides',
                             label="Auf ausgewählte Folien einfügen",
-                            image_mso='Paste',
-                            on_action=bkt.Callback(mod_shapes.ShapesMore.paste_to_slides, slides=True),
+                            supertip="Zwischenablage auf allen ausgewählten Folien gleichzeitig einfügen.",
+                            image_mso='PasteDuplicate',
+                            on_action=bkt.Callback(ShapesMore.paste_to_slides, slides=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id='paste_as_link',
+                            label="Als Verknüpfung einfügen",
+                            supertip="Zwischenablage als verknüpftes Element (bspw. Bild, OLE-Objekt) einfügen.",
+                            image_mso='PasteLink',
+                            on_action=bkt.Callback(ShapesMore.paste_as_link, slide=True),
                         ),
                     ]
                 )
