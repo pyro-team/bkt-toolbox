@@ -274,18 +274,80 @@ class CustomFormatCatalog(object):
             catalog = json.load(json_file, object_pairs_hook=OrderedDict)
             
             if not isinstance(catalog, OrderedDict) or catalog.get("version", 0) != CF_VERSION:
-                raise Exception("migration needed") #TODO
+                cls._try_migration_from_20180824(catalog, filename)
             elif catalog.get("filename", "") != filename:
                 raise ValueError("catalog file has been renamed")
-            
-            cls.custom_styles = []
-            for style in catalog["styles"]:
-                cls.custom_styles.append(CustomFormat.from_json(style))
-            # data = json.load(json_file, object_pairs_hook=OrderedDict)
-            # bkt.console.show_message("%r" % data)
+            else:
+                cls.custom_styles = []
+                for style in catalog["styles"]:
+                    cls.custom_styles.append(CustomFormat.from_json(style))
+                # data = json.load(json_file, object_pairs_hook=OrderedDict)
+                # bkt.console.show_message("%r" % data)
         cls.current_file = filename
         bkt.settings["customformats.default_file"] = filename
 
+    @classmethod
+    def _try_migration_from_20180824(cls, catalog_dict, filename):
+        style_settings_mapping = {
+            "fill": "Fill",
+            "paragraphformat": "ParagraphFormat",
+            "textframe2": "TextFrame",
+            "line": "Line",
+            "position": "Position",
+            "type": "Type",
+            "font": "Font",
+            "shadow": "Shadow",
+            "size": "Size",
+        }
+        cls.custom_styles = []
+        filename_without_ext = os.path.splitext(filename)[0]
+        thumb_dir = os.path.join( cls.config_folder, "{}_thumbs".format(filename_without_ext) )
+        if not os.path.exists(thumb_dir):
+            os.makedirs(thumb_dir)
+
+        for i,style in enumerate(catalog_dict):
+            if not style:
+                continue
+
+            # rename keys in style settings
+            style_settings = {}
+            for k,v in style["style_settings"].items():
+                style_settings[style_settings_mapping[k]] = v
+            style_settings["Reflection"] = style["style_settings"]["shadow"]
+            style_settings["SoftEdge"] = style["style_settings"]["shadow"]
+            style_settings["Glow"] = style["style_settings"]["shadow"]
+
+            # create button settings
+            button_settings = {
+                'font': style["button_setting"][2],
+                'fill': style["button_setting"][0],
+                'line': style["button_setting"][1],
+            }
+
+            # create empty catalog
+            catalog = CustomFormat("Style {}".format(i+1), style_settings, button_settings)
+
+            # add styles
+            for k in CustomFormat.default_settings.keys():
+                if k in style:
+                    catalog.add_format(k, style[k])
+            if "IndentLevels" in style:
+                catalog.add_format("ParagraphFormat", OrderedDict([(k, v["ParagraphFormat"])for k,v in style["IndentLevels"].items()]) )
+                catalog.add_format("Font", OrderedDict([(k, v["Font"])for k,v in style["IndentLevels"].items()]) )
+            
+            # add catalog
+            cls.custom_styles.append(catalog)
+
+            # move thumbnails
+            new_file = "{}_{}.png".format( i+1, uuid.uuid4().hex )
+            orig_path = os.path.join( cls.config_folder, "{}_thumb_{}.png".format(filename_without_ext, chr(65+i)) )
+            if os.path.exists:
+                os.rename(orig_path, os.path.join(thumb_dir, new_file) )
+                catalog.thumbnail_name = new_file
+        
+        # save new json
+        cls.current_file = filename
+        cls.save_to_config()
 
     @classmethod
     def get_custom_style_name(cls, index):
