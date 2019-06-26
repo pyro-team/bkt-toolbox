@@ -576,11 +576,15 @@ class ColorHelper(object):
         return zip(cls._theme_color_indices, cls._theme_color_names)
 
 
-    ### external functions for extra colors ###
+    ### external functions for recent colors ###
 
     @classmethod
-    def get_extra_colors(cls, context):
-        return context.presentation.ExtraColors
+    def get_recent_color(cls, context, index):
+        return context.presentation.ExtraColors(index)
+
+    @classmethod
+    def get_recent_colors_count(cls, context):
+        return context.presentation.ExtraColors.Count
 
 
 
