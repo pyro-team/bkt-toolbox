@@ -161,7 +161,7 @@ class Thumbnailer(object):
                     bkt.helpers.message("Fehler! Referenz nicht gefunden.")
                     continue
                 #Paste
-                application.ActiveWindow.View.PasteSpecial(Datatype=data_type)
+                application.ActiveWindow.Selection.SlideRange[1].Shapes.PasteSpecial(Datatype=data_type)
                 pasted_shapes += 1
                 #Save tags
                 shape = application.ActiveWindow.Selection.ShapeRange(1)
@@ -171,10 +171,12 @@ class Thumbnailer(object):
             except:
                 #bkt.helpers.exception_as_message()
                 bkt.helpers.message("Fehler! Thumbnail konnte nicht im gewählten Format eingefügt werden.")
+                logging.error(traceback.format_exc())
         
         # select pasted shapes
-        # cur_slide.Shapes.Range(Array[int](range(cur_shapes+1, cur_slide.Shapes.Count+1))).Select()
-        pplib.last_n_shapes_on_slide(cur_slide, pasted_shapes).Select()
+        if pasted_shapes > 0:
+            # cur_slide.Shapes.Range(Array[int](range(cur_shapes+1, cur_slide.Shapes.Count+1))).Select()
+            pplib.last_n_shapes_on_slide(cur_slide, pasted_shapes).Select()
         
         #Restore clipboard
         cls.set_clipboard_data(**data)
@@ -240,7 +242,8 @@ class Thumbnailer(object):
                 except:
                     bkt.helpers.message("Fehler! Folie in der referenzierten Präsentation nicht gefunden.")
             except:
-                bkt.helpers.message("Fehler! Referenzierte Präsentation '%s' nicht gefunden." % slide_path)
+                if bkt.helpers.confirmation("Fehler! Referenzierte Präsentation '%s' nicht gefunden. Neue Datei auswählen?" % slide_path):
+                    cls.replace_file_ref(shape, application)
 
     @classmethod
     def presentation_refresh(cls, application, presentation):
@@ -281,6 +284,9 @@ class Thumbnailer(object):
             return cls._shape_refresh(shape, application)
         except IndexError:
             bkt.helpers.message("Fehler! Folien-Referenz nicht gefunden.")
+        except IOError:
+            if bkt.helpers.confirmation("Fehler! Präsentation aus Folien-Referenz nicht gefunden. Neue Datei auswählen?"):
+                cls.replace_file_ref(shape, application)
         except:
             bkt.helpers.message("Fehler! Thumbnail konnte nicht aktualisiert werden.")
             logging.error("Error updating thumbnail!")
@@ -350,13 +356,34 @@ class Thumbnailer(object):
 
     @classmethod
     def get_clipboard_data(cls, application):
-        data = Forms.Clipboard.GetData(BKT_THUMBNAIL)
-        #bruteforce method to convert data into correct type
-        try:
-            data = tuple(data)
-            data = (list(data[0]), unicode(data[1]))
-        except:
-            raise ValueError("Invalid clipboard format")
+        if Forms.Clipboard.ContainsData(BKT_THUMBNAIL):
+            logging.info("Get thumbnail from BKT_THUMBNAIL clipboard data")
+            try:
+                data = Forms.Clipboard.GetData(BKT_THUMBNAIL)
+                #bruteforce method to convert data into correct type
+                data = tuple(data)
+                data = (list(data[0]), unicode(data[1]))
+            except:
+                raise ValueError("Invalid clipboard format")
+        
+        else:
+            logging.info("Get thumbnail from OLE object in clipboard")
+            try:
+                shp = application.ActiveWindow.Selection.SlideRange[1].Shapes.PasteSpecial(Datatype=10, Link=True) #ppPasteOLEObject
+                try:
+                    shp = shp[1] #PasteSpecial might return a shaperange with 2 references to the same shape
+                except:
+                    pass
+                if not shp.OLEFormat.ProgID.startswith("PowerPoint"):
+                    raise Exception("Invalid program")
+                path,slideid = shp.LinkFormat.SourceFullName.split("!")
+                data = ([slideid], path)
+            except:
+                raise ValueError("Invalid clipboard format")
+                logging.error(traceback.format_exc())
+            finally:
+                if shp:
+                    shp.Delete()
         
         #check consistency of clipboard data
         # if type(data) != tuple or len(data) != 2 or type(data[0]) != list or type(data[1]) != str:
@@ -381,7 +408,8 @@ class Thumbnailer(object):
 
     @classmethod
     def has_clipboard_data(cls):
-        return Forms.Clipboard.ContainsData(BKT_THUMBNAIL)
+        return Forms.Clipboard.ContainsData(BKT_THUMBNAIL) or (Forms.Clipboard.ContainsData("PowerPoint 12.0 Internal Slides") and Forms.Clipboard.ContainsData("Link Source")) #"PowerPoint 14.0 Slides Package"
+        # return Forms.Clipboard.ContainsData(BKT_THUMBNAIL)
 
     @classmethod
     def enabled_paste(cls):
@@ -548,7 +576,7 @@ bkt.powerpoint.add_context_menu(
     bkt.ribbon.ContextMenu(id_mso='ContextMenuPicture', children=[
         bkt.ribbon.Button(
             id='context-thumbnail-refresh',
-            label="Folien-Thumbnail aktualisieren",
+            label="Thumbnail aktualisieren",
             insertBeforeMso='Cut',
             image_mso='PictureChange',
             on_action=bkt.Callback(Thumbnailer.shape_refresh, shape=True, application=True),
@@ -609,24 +637,30 @@ bkt.powerpoint.add_context_menu(
             get_visible=bkt.Callback(Thumbnailer.is_thumbnail, shape=True),
             children=[
                 bkt.ribbon.Button(
-                    id='context-thumbnail-replaceref',
-                    label="Referenz ersetzen mit kopierter Folie",
-                    on_action=bkt.Callback(Thumbnailer.replace_ref, shape=True, application=True),
-                    get_enabled=bkt.Callback(Thumbnailer.enabled_slideref),
+                    id='context-thumbnail-gotoref',
+                    label="Öffnen",
+                    supertip="Referenzierte Datei öffnen und Thumbnail-Folie auswählen.",
+                    on_action=bkt.Callback(Thumbnailer.goto_ref, shape=True, application=True),
                 ),
+                bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
                     id='context-thumbnail-replacefileref',
-                    label="Referenzierte Datei ersetzen…",
+                    label="Datei ersetzen…",
+                    supertip="Öffnet Datei-Auswahldialog um referenzierte Datei zu ersetzen. Die Datei muss die gleiche Folien-ID enthalten.",
                     on_action=bkt.Callback(Thumbnailer.replace_file_ref, shape=True, application=True),
                 ),
                 bkt.ribbon.Button(
-                    id='context-thumbnail-gotoref',
-                    label="Referenzierte Datei öffnen und Folie auswählen",
-                    on_action=bkt.Callback(Thumbnailer.goto_ref, shape=True, application=True),
+                    id='context-thumbnail-replaceref',
+                    label="Überschreiben",
+                    supertip="Aktuelle Folien-Referenz ersetzen mit kopierter Folie aus Zwischenablage.",
+                    on_action=bkt.Callback(Thumbnailer.replace_ref, shape=True, application=True),
+                    get_enabled=bkt.Callback(Thumbnailer.enabled_slideref),
                 ),
+                bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
                     id='context-thumbnail-deleteref',
-                    label="Folien-Referenz löschen",
+                    label="Löschen",
+                    supertip="Folien-Referenz löschen und Thumbnail damit in normales Bild umwandeln.",
                     on_action=bkt.Callback(Thumbnailer.unset_thumbnail, shape=True),
                 ),
             ]
