@@ -8,7 +8,7 @@ Created on 06.07.2016
 import bkt
 import bkt.library.powerpoint as pplib
 
-import fontawesome
+# import fontawesome
 
 
 # pt_to_cm_factor = 2.54 / 72;
@@ -223,123 +223,228 @@ class Characters(object):
     def text_selection(selection):
         return selection.Type == 3
 
+    @classmethod
+    def get_text_menu(cls):
+        import fontawesome
 
-recent_symbols = pplib.PPTSymbolsGalleryRecent(
-    id="symbols_recent_gallery",
-    label="Zuletzt verwendet",
-)
+        def _unicode_font_button(font):
+            return bkt.ribbon.ToggleButton(
+                label=font,
+                on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(font)),
+                get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font == font),
+                get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image(font, u"\u2192"))
+            )
 
-def unicode_font_button(font):
-    return bkt.ribbon.ToggleButton(
-        label=font,
-        on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(font)),
-        get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font == font),
-        get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image(font, u"\u2192"))
-    )
+        recent_symbols = pplib.PPTSymbolsGalleryRecent(
+            id="symbols_recent_gallery",
+            label="Zuletzt verwendet",
+        )
 
-character_menu = bkt.ribbon.Menu(
+        return bkt.ribbon.Menu(
+                xmlns="http://schemas.microsoft.com/office/2009/07/customui",
+                id=None,
+                # label="Symbol-Menü",
+                children=[
+                    bkt.mso.button.SymbolInsert,
+                    bkt.ribbon.MenuSeparator(title="Zuletzt verwendet"),
+                    recent_symbols.get_index_as_button(2),
+                    recent_symbols.get_index_as_button(1),
+                    recent_symbols.get_index_as_button(0),
+                    bkt.ribbon.MenuSeparator(title="Symbole"),
+                    bkt.ribbon.Button(
+                        label='Geschützter Trennstrich',
+                        supertip='Ein geschützter Trennstrich ist ein Symbol zur optionalen Silbentrennung. Der Trennstrich erscheint nur am Zeilenende und bleibt sonst unsichtbar.',
+                        on_action=bkt.Callback(cls.add_protected_hyphen, selection=True),
+                        get_enabled = bkt.Callback(cls.text_selection, selection=True),
+                        get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", "-"))
+                    ),
+                    bkt.ribbon.Button(
+                        label='Geschütztes Leerzeichen',
+                        supertip='Ein geschütztes Leerzeichen erlaubt keinen Zeilenumbruch.',
+                        on_action=bkt.Callback(cls.add_protected_space, selection=True),
+                        get_enabled = bkt.Callback(cls.text_selection, selection=True),
+                        get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", u"\u23B5")) #alt: 2423
+                    ),
+                    bkt.ribbon.Button(
+                        label='Schmales geschütztes Leerzeichen',
+                        supertip='Ein schmales geschütztes Leerzeichen erlaubt keinen Zeilenumbruch und ist bspw. zwischen Buchstaben von Abkürzungen zu verwenden.',
+                        on_action=bkt.Callback(cls.add_protected_narrow_space, selection=True),
+                        get_enabled = bkt.Callback(cls.text_selection, selection=True),
+                        get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", u"\u02FD"))
+                    ),
+
+                    pplib.PPTSymbolsGallery(
+                        id="symbols_typo_gallery",
+                        label="Typografiesymbole",
+                        symbols = cls.typography,
+                    ),
+                    bkt.ribbon.MenuSeparator(),
+
+                    pplib.PPTSymbolsGallery(
+                        id="symbols_math_gallery",
+                        label="Mathesymbole",
+                        symbols = cls.math,
+                    ),
+                    pplib.PPTSymbolsGallery(
+                        id="symbols_lists_gallery",
+                        label="Listensymbole",
+                        symbols = cls.lists,
+                    ),
+                    pplib.PPTSymbolsGallery(
+                        id="symbols_arrow_gallery",
+                        label="Pfeile",
+                        symbols = cls.arrows,
+                    ),
+                ] + fontawesome.symbol_galleries + [
+                    bkt.ribbon.MenuSeparator(title="Einstellungen"),
+                    bkt.ribbon.Menu(
+                        label="Unicode-Schriftart wählen",
+                        image_mso='FontDialogPowerPoint',
+                        supertip="Unicode-Zeichen können entweder mit der Standard-Schriftart oder einer speziellen Unicode-Schriftart eingefügt werden. Diese kann hier ausgewählt werden.",
+                        children=[
+                            bkt.ribbon.ToggleButton(
+                                label='Theme-Schriftart (Standard)',
+                                on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(None)),
+                                get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font is None),
+                            ),
+                        ] + [
+                            _unicode_font_button(font)
+                            for font in ["Arial", "Arial Unicode MS", "Calibri", "Lucida Sans Unicode", "Segoe UI"]
+                        ]
+                    ),
+                    bkt.ribbon.ToggleButton(
+                        label='Als Shapes einfügen [Shift]',
+                        image_mso='TextEffectTransformGallery',
+                        supertip='Wenn kein Textfeld ausgewählt ist, wird ein neues Textfeld für das Symbol eingefügt. Wenn diese Funktion aktiviert ist, wird das Textfeld in ein Shape konvertiert. Dies geht auch bei Klick auf ein Symbol mit gedrückter Shift-Taste.',
+                        on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_shape),
+                        get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.convert_into_shape),
+                    ),
+                    bkt.ribbon.ToggleButton(
+                        label='Als Bild einfügen [Strg]',
+                        image_mso='PictureRecolorBlackAndWhite',
+                        supertip='Wenn kein Textfeld ausgewählt ist, wird ein neues Textfeld für das Symbol eingefügt. Wenn diese Funktion aktiviert ist, wird das Textfeld in ein Bild konvertiert. Dies geht auch bei Klick auf ein Symbol mit gedrückter Strg-Taste.',
+                        on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_bitmap),
+                        get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.convert_into_bitmap),
+                    ),
+                ]
+            )
+
+
+
+#Dynamic menu not compatible with SplitButton, so decided to remove SplitButton
+#TODO: Use MouseKeyHook to register Strg+-/Space key combination in order to add special chars
+symbol_insert_splitbutton = bkt.ribbon.DynamicMenu(
     label="Symbol-Menü",
-    children = [
-        bkt.mso.button.SymbolInsert(show_label=True),
-        # recent_symbols,
-        bkt.ribbon.MenuSeparator(title="Zuletzt verwendet"),
-        recent_symbols.get_index_as_button(2),
-        recent_symbols.get_index_as_button(1),
-        recent_symbols.get_index_as_button(0),
-        bkt.ribbon.MenuSeparator(title="Symbole"),
-        bkt.ribbon.Button(
-            label='Geschützter Trennstrich [Shift]',
-            supertip='Ein geschützter Trennstrich ist ein Symbol zur optionalen Silbentrennung. Der Trennstrich erscheint nur am Zeilenende und bleibt sonst unsichtbar.',
-            on_action=bkt.Callback(Characters.add_protected_hyphen, selection=True),
-            get_enabled = bkt.Callback(Characters.text_selection, selection=True),
-            get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", "-"))
-        ),
-        bkt.ribbon.Button(
-            label='Geschütztes Leerzeichen [Strg]',
-            supertip='Ein geschütztes Leerzeichen erlaubt keinen Zeilenumbruch.',
-            on_action=bkt.Callback(Characters.add_protected_space, selection=True),
-            get_enabled = bkt.Callback(Characters.text_selection, selection=True),
-            get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", u"\u23B5")) #alt: 2423
-        ),
-        bkt.ribbon.Button(
-            label='Schmales geschütztes Leerzeichen',
-            supertip='Ein schmales geschütztes Leerzeichen erlaubt keinen Zeilenumbruch und ist bspw. zwischen Buchstaben von Abkürzungen zu verwenden.',
-            on_action=bkt.Callback(Characters.add_protected_narrow_space, selection=True),
-            get_enabled = bkt.Callback(Characters.text_selection, selection=True),
-            get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", u"\u02FD"))
-        ),
-
-        pplib.PPTSymbolsGallery(
-            id="symbols_typo_gallery",
-            label="Typografiesymbole",
-            symbols = Characters.typography,
-        ),
-        bkt.ribbon.MenuSeparator(),
-
-        pplib.PPTSymbolsGallery(
-            id="symbols_math_gallery",
-            label="Mathesymbole",
-            symbols = Characters.math,
-        ),
-        pplib.PPTSymbolsGallery(
-            id="symbols_lists_gallery",
-            label="Listensymbole",
-            symbols = Characters.lists,
-        ),
-        pplib.PPTSymbolsGallery(
-            id="symbols_arrow_gallery",
-            label="Pfeile",
-            symbols = Characters.arrows,
-        ),
-    ] + fontawesome.symbol_galleries + [
-        bkt.ribbon.MenuSeparator(title="Einstellungen"),
-        bkt.ribbon.Menu(
-            label="Unicode-Schriftart wählen",
-            image_mso='FontDialogPowerPoint',
-            supertip="Unicode-Zeichen können entweder mit der Standard-Schriftart oder einer speziellen Unicode-Schriftart eingefügt werden. Diese kann hier ausgewählt werden.",
-            children=[
-                bkt.ribbon.ToggleButton(
-                    label='Theme-Schriftart (Standard)',
-                    on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(None)),
-                    get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font is None),
-                ),
-            ] + [
-                unicode_font_button(font)
-                for font in ["Arial", "Arial Unicode MS", "Calibri", "Lucida Sans Unicode", "Segoe UI"]
-            ]
-        ),
-        bkt.ribbon.ToggleButton(
-            label='Als Shapes einfügen [Shift]',
-            image_mso='TextEffectTransformGallery',
-            supertip='Wenn kein Textfeld ausgewählt ist, wird ein neues Textfeld für das Symbol eingefügt. Wenn diese Funktion aktiviert ist, wird das Textfeld in ein Shape konvertiert. Dies geht auch bei Klick auf ein Symbol mit gedrückter Shift-Taste.',
-            on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_shape),
-            get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.convert_into_shape),
-        ),
-    ]
-)
-
-
-
-symbol_insert_splitbutton = bkt.ribbon.SplitButton(
     show_label=False,
-    children=[
-        bkt.ribbon.Button(
-            label="Symbol",
-            image_mso="SymbolInsert",
-            screentip="Symbol",
-            supertip="Öffnet den Dialog zum Einfügen von Symbolen.\n\nMit gedrückter Umschalt-Taste wird direkt ein geschützter Trennstrich eingefügt.\n\nMit gedrückter Strg-Taste wird in geschütztes Leerzeichen eingefügt.",
-            on_action=bkt.Callback(Characters.symbol_insert, context=True),
-            get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("SymbolInsert"), context=True),
-        ),
-        #bkt.mso.button.SymbolInsert,
-        character_menu
-    ]
+    image_mso="SymbolInsert",
+    screentip="Symbol",
+    supertip="Öffnet ein Menü mit verschiedenen Gallerien zum schnellen Einfügen von Symbolen und speziellen Zeichen.",
+    get_content = bkt.Callback(
+        Characters.get_text_menu
+    )
 )
 
+# character_menu = bkt.ribbon.Menu(
+#     label="Symbol-Menü",
+#     children = [
+#         bkt.mso.button.SymbolInsert(show_label=True),
+#         # recent_symbols,
+#         bkt.ribbon.MenuSeparator(title="Zuletzt verwendet"),
+#         recent_symbols.get_index_as_button(2),
+#         recent_symbols.get_index_as_button(1),
+#         recent_symbols.get_index_as_button(0),
+#         bkt.ribbon.MenuSeparator(title="Symbole"),
+#         bkt.ribbon.Button(
+#             label='Geschützter Trennstrich [Shift]',
+#             supertip='Ein geschützter Trennstrich ist ein Symbol zur optionalen Silbentrennung. Der Trennstrich erscheint nur am Zeilenende und bleibt sonst unsichtbar.',
+#             on_action=bkt.Callback(Characters.add_protected_hyphen, selection=True),
+#             get_enabled = bkt.Callback(Characters.text_selection, selection=True),
+#             get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", "-"))
+#         ),
+#         bkt.ribbon.Button(
+#             label='Geschütztes Leerzeichen [Strg]',
+#             supertip='Ein geschütztes Leerzeichen erlaubt keinen Zeilenumbruch.',
+#             on_action=bkt.Callback(Characters.add_protected_space, selection=True),
+#             get_enabled = bkt.Callback(Characters.text_selection, selection=True),
+#             get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", u"\u23B5")) #alt: 2423
+#         ),
+#         bkt.ribbon.Button(
+#             label='Schmales geschütztes Leerzeichen',
+#             supertip='Ein schmales geschütztes Leerzeichen erlaubt keinen Zeilenumbruch und ist bspw. zwischen Buchstaben von Abkürzungen zu verwenden.',
+#             on_action=bkt.Callback(Characters.add_protected_narrow_space, selection=True),
+#             get_enabled = bkt.Callback(Characters.text_selection, selection=True),
+#             get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", u"\u02FD"))
+#         ),
+
+#         pplib.PPTSymbolsGallery(
+#             id="symbols_typo_gallery",
+#             label="Typografiesymbole",
+#             symbols = Characters.typography,
+#         ),
+#         bkt.ribbon.MenuSeparator(),
+
+#         pplib.PPTSymbolsGallery(
+#             id="symbols_math_gallery",
+#             label="Mathesymbole",
+#             symbols = Characters.math,
+#         ),
+#         pplib.PPTSymbolsGallery(
+#             id="symbols_lists_gallery",
+#             label="Listensymbole",
+#             symbols = Characters.lists,
+#         ),
+#         pplib.PPTSymbolsGallery(
+#             id="symbols_arrow_gallery",
+#             label="Pfeile",
+#             symbols = Characters.arrows,
+#         ),
+#     ] + fontawesome.symbol_galleries + [
+#         bkt.ribbon.MenuSeparator(title="Einstellungen"),
+#         bkt.ribbon.Menu(
+#             label="Unicode-Schriftart wählen",
+#             image_mso='FontDialogPowerPoint',
+#             supertip="Unicode-Zeichen können entweder mit der Standard-Schriftart oder einer speziellen Unicode-Schriftart eingefügt werden. Diese kann hier ausgewählt werden.",
+#             children=[
+#                 bkt.ribbon.ToggleButton(
+#                     label='Theme-Schriftart (Standard)',
+#                     on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(None)),
+#                     get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font is None),
+#                 ),
+#             ] + [
+#                 unicode_font_button(font)
+#                 for font in ["Arial", "Arial Unicode MS", "Calibri", "Lucida Sans Unicode", "Segoe UI"]
+#             ]
+#         ),
+#         bkt.ribbon.ToggleButton(
+#             label='Als Shapes einfügen [Shift]',
+#             image_mso='TextEffectTransformGallery',
+#             supertip='Wenn kein Textfeld ausgewählt ist, wird ein neues Textfeld für das Symbol eingefügt. Wenn diese Funktion aktiviert ist, wird das Textfeld in ein Shape konvertiert. Dies geht auch bei Klick auf ein Symbol mit gedrückter Shift-Taste.',
+#             on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_shape),
+#             get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.convert_into_shape),
+#         ),
+#     ]
+# )
+
+# symbol_insert_splitbutton = bkt.ribbon.SplitButton(
+#     show_label=False,
+#     children=[
+#         bkt.ribbon.Button(
+#             label="Symbol",
+#             image_mso="SymbolInsert",
+#             screentip="Symbol",
+#             supertip="Öffnet den Dialog zum Einfügen von Symbolen.\n\nMit gedrückter Umschalt-Taste wird direkt ein geschützter Trennstrich eingefügt.\n\nMit gedrückter Strg-Taste wird in geschütztes Leerzeichen eingefügt.",
+#             on_action=bkt.Callback(Characters.symbol_insert, context=True),
+#             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("SymbolInsert"), context=True),
+#         ),
+#         #bkt.mso.button.SymbolInsert,
+#         # character_menu
+#         Characters.get_text_menu()
+#     ]
+# )
 
 
-    
-    
+
+
 
 class InnerMargin(pplib.TextframeSpinnerBox):
     

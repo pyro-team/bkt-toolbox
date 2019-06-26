@@ -205,6 +205,7 @@ class ParagraphFormatSpinnerBox(RoundingSpinnerBox):
 class PPTSymbolsSettings(object):
     recent_symbols = deque(settings.get("bkt.symbols.recent_symbols", []), maxlen=3)
     convert_into_shape = settings.get("bkt.symbols.convert_into_shape", False) #always convert newly inserted symbols into shapes
+    convert_into_bitmap = settings.get("bkt.symbols.convert_into_bitmap", False) #always convert newly inserted symbols into bitmap picture
     unicode_font = settings.get("bkt.symbols.unicode_font", None) #insert unicode characters as symbol with special font (e.g. Arial Unicode)
 
     @classmethod
@@ -225,11 +226,24 @@ class PPTSymbolsSettings(object):
     @classmethod
     def switch_convert_into_shape(cls, pressed):
         cls.convert_into_shape = pressed
+        cls.convert_into_bitmap = False
         settings["bkt.symbols.convert_into_shape"] = cls.convert_into_shape
+        settings["bkt.symbols.convert_into_bitmap"] = cls.convert_into_bitmap
     
     @classmethod
     def get_convert_into_shape(cls):
-        return cls.convert_into_shape or system.get_key_state(system.key_code.SHIFT)
+        return (cls.convert_into_shape or system.get_key_state(system.key_code.SHIFT)) and not system.get_key_state(system.key_code.CTRL)
+    
+    @classmethod
+    def switch_convert_into_bitmap(cls, pressed):
+        cls.convert_into_shape = False
+        cls.convert_into_bitmap = pressed
+        settings["bkt.symbols.convert_into_shape"] = cls.convert_into_shape
+        settings["bkt.symbols.convert_into_bitmap"] = cls.convert_into_bitmap
+    
+    @classmethod
+    def get_convert_into_bitmap(cls):
+        return (cls.convert_into_bitmap or system.get_key_state(system.key_code.CTRL)) and not system.get_key_state(system.key_code.SHIFT)
 
 
 class PPTSymbolsGallery(SymbolsGallery):
@@ -247,8 +261,11 @@ class PPTSymbolsGallery(SymbolsGallery):
             self.insert_symbol_into_text(selection.TextRange2, item)
         elif selection.Type == 2: #shapes selected
             self.insert_symbol_into_shapes(pplib.get_shapes_from_selection(selection), item)
-        else:
-            self.create_symbol_shape(selection.SlideRange(1), item)
+        else: #convert into shape
+            if PPTSymbolsSettings.get_convert_into_bitmap():
+                self.create_symbol_bitmap(selection.SlideRange(1), item)
+            else:
+                self.create_symbol_shape(selection.SlideRange(1), item)
 
     def _add_to_recent(self, item):
         PPTSymbolsSettings.add_to_recent(item)
@@ -305,6 +322,17 @@ class PPTSymbolsGallery(SymbolsGallery):
                 new_shape.select()
         else:
             shape.select()
+
+    def create_symbol_bitmap(self, slide, item):
+        import tempfile, os.path
+
+        font = item[0] or self.fallback_font
+        img = SymbolsGallery.create_symbol_image(font, item[1], 128, 96)
+        tmpfile = os.path.join(tempfile.gettempdir(), "bktymbol.png")
+        img.Save(tmpfile, Drawing.Imaging.ImageFormat.Png)
+        shape = slide.shapes.AddPicture(tmpfile, 0, -1, 200, 200) #FileName, LinkToFile, SaveWithDocument, Left, Top
+        shape.select()
+
 
 
 class PPTSymbolsGalleryRecent(PPTSymbolsGallery):
