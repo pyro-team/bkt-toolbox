@@ -766,11 +766,8 @@ class RoundingSpinnerBox(SpinnerBox):
 
 
 class ColorGallery(Gallery):
-    #FIXME: this ribbon element is powerpoint specific and shouldnt be in the ribbon file but in the powerpoint elements file
     
-    def __init__(self, **user_kwargs):
-        import bkt.library.powerpoint as pplib
-        
+    def __init__(self, color_helper=None, **user_kwargs):
         # default attributes
         kwargs = {
             'show_item_label': 'false',
@@ -794,7 +791,14 @@ class ColorGallery(Gallery):
         # reset gallery_colors, later initialized by get_item_image
         self.gallery_colors = [[0,0,0] for k in range(80)]
         self.theme_colors = [None]*60
-        self.color_helper = pplib.ColorHelper
+        
+        #allow to pass color helper to make this element also available for other office apps than powerpoint
+        #powerpoint color helper is fallback for backwards compatibility
+        if color_helper:
+            self.color_helper = color_helper
+        else:
+            import bkt.library.powerpoint as pplib
+            self.color_helper = pplib.ColorHelper #4 functions required: get_theme_color, get_theme_index, get_recent_color, get_recent_colors_count
     
 
     def on_action_indexed(self, selected_item, index, context, **kwargs):
@@ -957,9 +961,8 @@ class ColorGallery(Gallery):
         '''
             Returns Office-RGB-value for the given recent-color-index
         '''
-        extra_colors = self.color_helper.get_extra_colors(context)
-        if index < extra_colors.count:
-            return extra_colors(index+1)
+        if index < self.recent_count(context):
+            return self.color_helper.get_recent_color(context, index+1)
         else:
             return None, None
 
@@ -967,8 +970,7 @@ class ColorGallery(Gallery):
         '''
             Returns number of recent colors
         '''
-        extra_colors = self.color_helper.get_extra_colors(context)
-        return extra_colors.count
+        return self.color_helper.get_recent_colors_count(context)
 
 
     #### image creation ####
