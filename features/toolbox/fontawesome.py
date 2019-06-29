@@ -20,6 +20,7 @@ fontsettings = [
     ('fontawesome5', 'Font Awesome 5 Free Regular'),
     ('segoeui', 'Segoe UI'),
     ('materialicons', 'Material Icons'),
+    # ('foobar', 'Non-existing test font'),
 ]
 
 
@@ -56,5 +57,13 @@ for fontsetting in fontsettings:
         
         # add font-symbol-galleries
         symbol_galleries += fontsymbolmodule.menus
+    else:
+        symbol_galleries += [
+            bkt.ribbon.MenuSeparator(title=font_name),
+            bkt.ribbon.Button(
+                label="Font nicht installiert",
+                enabled=False
+            )
+        ]
     
 
