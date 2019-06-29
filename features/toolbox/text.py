@@ -223,9 +223,20 @@ class Characters(object):
     def text_selection(selection):
         return selection.Type == 3
 
+
+    @classmethod
+    def get_text_fontawesome(cls):
+        import fontawesome
+
+        return bkt.ribbon.Menu(
+                xmlns="http://schemas.microsoft.com/office/2009/07/customui",
+                id=None,
+                children=fontawesome.symbol_galleries
+            )
+
     @classmethod
     def get_text_menu(cls):
-        import fontawesome
+        # import fontawesome
 
         def _unicode_font_button(font):
             return bkt.ribbon.ToggleButton(
@@ -242,8 +253,13 @@ class Characters(object):
 
         return bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
-                id=None,
-                # label="Symbol-Menü",
+                # id=None,
+                id="symbols_splitbutton",
+                label="Symbol-Menü",
+                show_label=False,
+                image_mso="SymbolInsert",
+                screentip="Symbol",
+                supertip="Öffnet ein Menü mit verschiedenen Gallerien zum schnellen Einfügen von Symbolen und speziellen Zeichen.",
                 children=[
                     bkt.mso.button.SymbolInsert,
                     bkt.ribbon.MenuSeparator(title="Zuletzt verwendet"),
@@ -252,6 +268,7 @@ class Characters(object):
                     recent_symbols.get_index_as_button(0),
                     bkt.ribbon.MenuSeparator(title="Symbole"),
                     bkt.ribbon.Button(
+                        id='symbols_add_protected_hyphen',
                         label='Geschützter Trennstrich',
                         supertip='Ein geschützter Trennstrich ist ein Symbol zur optionalen Silbentrennung. Der Trennstrich erscheint nur am Zeilenende und bleibt sonst unsichtbar.',
                         on_action=bkt.Callback(cls.add_protected_hyphen, selection=True),
@@ -259,6 +276,7 @@ class Characters(object):
                         get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", "-"))
                     ),
                     bkt.ribbon.Button(
+                        id='symbols_add_protected_space',
                         label='Geschütztes Leerzeichen',
                         supertip='Ein geschütztes Leerzeichen erlaubt keinen Zeilenumbruch.',
                         on_action=bkt.Callback(cls.add_protected_space, selection=True),
@@ -266,6 +284,7 @@ class Characters(object):
                         get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", u"\u23B5")) #alt: 2423
                     ),
                     bkt.ribbon.Button(
+                        id='symbols_add_protected_narrow_space',
                         label='Schmales geschütztes Leerzeichen',
                         supertip='Ein schmales geschütztes Leerzeichen erlaubt keinen Zeilenumbruch und ist bspw. zwischen Buchstaben von Abkürzungen zu verwenden.',
                         on_action=bkt.Callback(cls.add_protected_narrow_space, selection=True),
@@ -295,7 +314,14 @@ class Characters(object):
                         label="Pfeile",
                         symbols = cls.arrows,
                     ),
-                ] + fontawesome.symbol_galleries + [
+                # ] + fontawesome.symbol_galleries + [
+                    bkt.ribbon.MenuSeparator(),
+                    bkt.ribbon.DynamicMenu(
+                        id="symbols_icon_fonts",
+                        label="Icon-Fonts",
+                        image_mso="Call",
+                        get_content = bkt.Callback(cls.get_text_fontawesome)
+                    ),
                     bkt.ribbon.MenuSeparator(title="Einstellungen"),
                     bkt.ribbon.Menu(
                         label="Unicode-Schriftart wählen",
@@ -330,102 +356,24 @@ class Characters(object):
             )
 
 
-
-#Dynamic menu not compatible with SplitButton, so decided to remove SplitButton
 #TODO: Use MouseKeyHook to register Strg+-/Space key combination in order to add special chars
-symbol_insert_splitbutton = bkt.ribbon.DynamicMenu(
-    label="Symbol-Menü",
-    show_label=False,
-    image_mso="SymbolInsert",
-    screentip="Symbol",
-    supertip="Öffnet ein Menü mit verschiedenen Gallerien zum schnellen Einfügen von Symbolen und speziellen Zeichen.",
-    get_content = bkt.Callback(
-        Characters.get_text_menu
-    )
-)
 
-# character_menu = bkt.ribbon.Menu(
+#OPTION 1: Dynamic Menu - Cons: Buttons (e.g. hyphen) cannot be added to quick access toolbar
+# symbol_insert_splitbutton = bkt.ribbon.DynamicMenu(
+#     id="symbols_splitbutton",
 #     label="Symbol-Menü",
-#     children = [
-#         bkt.mso.button.SymbolInsert(show_label=True),
-#         # recent_symbols,
-#         bkt.ribbon.MenuSeparator(title="Zuletzt verwendet"),
-#         recent_symbols.get_index_as_button(2),
-#         recent_symbols.get_index_as_button(1),
-#         recent_symbols.get_index_as_button(0),
-#         bkt.ribbon.MenuSeparator(title="Symbole"),
-#         bkt.ribbon.Button(
-#             label='Geschützter Trennstrich [Shift]',
-#             supertip='Ein geschützter Trennstrich ist ein Symbol zur optionalen Silbentrennung. Der Trennstrich erscheint nur am Zeilenende und bleibt sonst unsichtbar.',
-#             on_action=bkt.Callback(Characters.add_protected_hyphen, selection=True),
-#             get_enabled = bkt.Callback(Characters.text_selection, selection=True),
-#             get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", "-"))
-#         ),
-#         bkt.ribbon.Button(
-#             label='Geschütztes Leerzeichen [Strg]',
-#             supertip='Ein geschütztes Leerzeichen erlaubt keinen Zeilenumbruch.',
-#             on_action=bkt.Callback(Characters.add_protected_space, selection=True),
-#             get_enabled = bkt.Callback(Characters.text_selection, selection=True),
-#             get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", u"\u23B5")) #alt: 2423
-#         ),
-#         bkt.ribbon.Button(
-#             label='Schmales geschütztes Leerzeichen',
-#             supertip='Ein schmales geschütztes Leerzeichen erlaubt keinen Zeilenumbruch und ist bspw. zwischen Buchstaben von Abkürzungen zu verwenden.',
-#             on_action=bkt.Callback(Characters.add_protected_narrow_space, selection=True),
-#             get_enabled = bkt.Callback(Characters.text_selection, selection=True),
-#             get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", u"\u02FD"))
-#         ),
-
-#         pplib.PPTSymbolsGallery(
-#             id="symbols_typo_gallery",
-#             label="Typografiesymbole",
-#             symbols = Characters.typography,
-#         ),
-#         bkt.ribbon.MenuSeparator(),
-
-#         pplib.PPTSymbolsGallery(
-#             id="symbols_math_gallery",
-#             label="Mathesymbole",
-#             symbols = Characters.math,
-#         ),
-#         pplib.PPTSymbolsGallery(
-#             id="symbols_lists_gallery",
-#             label="Listensymbole",
-#             symbols = Characters.lists,
-#         ),
-#         pplib.PPTSymbolsGallery(
-#             id="symbols_arrow_gallery",
-#             label="Pfeile",
-#             symbols = Characters.arrows,
-#         ),
-#     ] + fontawesome.symbol_galleries + [
-#         bkt.ribbon.MenuSeparator(title="Einstellungen"),
-#         bkt.ribbon.Menu(
-#             label="Unicode-Schriftart wählen",
-#             image_mso='FontDialogPowerPoint',
-#             supertip="Unicode-Zeichen können entweder mit der Standard-Schriftart oder einer speziellen Unicode-Schriftart eingefügt werden. Diese kann hier ausgewählt werden.",
-#             children=[
-#                 bkt.ribbon.ToggleButton(
-#                     label='Theme-Schriftart (Standard)',
-#                     on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(None)),
-#                     get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font is None),
-#                 ),
-#             ] + [
-#                 unicode_font_button(font)
-#                 for font in ["Arial", "Arial Unicode MS", "Calibri", "Lucida Sans Unicode", "Segoe UI"]
-#             ]
-#         ),
-#         bkt.ribbon.ToggleButton(
-#             label='Als Shapes einfügen [Shift]',
-#             image_mso='TextEffectTransformGallery',
-#             supertip='Wenn kein Textfeld ausgewählt ist, wird ein neues Textfeld für das Symbol eingefügt. Wenn diese Funktion aktiviert ist, wird das Textfeld in ein Shape konvertiert. Dies geht auch bei Klick auf ein Symbol mit gedrückter Shift-Taste.',
-#             on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_shape),
-#             get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.convert_into_shape),
-#         ),
-#     ]
+#     show_label=False,
+#     image_mso="SymbolInsert",
+#     screentip="Symbol",
+#     supertip="Öffnet ein Menü mit verschiedenen Gallerien zum schnellen Einfügen von Symbolen und speziellen Zeichen.",
+#     get_content = bkt.Callback(
+#         Characters.get_text_menu
+#     ),
 # )
 
+#OPTION 2: Splitbutton with regular menu - Cons: Splitbutton is not intuitive and not compatible with dynamic menu
 # symbol_insert_splitbutton = bkt.ribbon.SplitButton(
+#     id="symbols_splitbutton",
 #     show_label=False,
 #     children=[
 #         bkt.ribbon.Button(
@@ -441,6 +389,9 @@ symbol_insert_splitbutton = bkt.ribbon.DynamicMenu(
 #         Characters.get_text_menu()
 #     ]
 # )
+
+#OPTION 3: Regular menu with dynamic menu only for icons fonts
+symbol_insert_splitbutton = Characters.get_text_menu()
 
 
 
