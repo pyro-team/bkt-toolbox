@@ -1177,6 +1177,19 @@ class ShapeFormats(object):
     @classmethod
     def get_item_count(cls):
         return len(cls.transparencies)
+    
+    @classmethod
+    def get_item_label(cls, index):
+        return "%s%%" % cls.transparencies[index]
+    
+    @classmethod
+    def get_item_image(cls, index, context):
+        return cls._get_image_for_transp(cls.transparencies[index], context)
+    
+    @classmethod
+    def _get_image_for_transp(cls, transp, context):
+        return context.python_addin.load_image( "transp_%s" % int(round(transp/10.0)*10) )
+
 
     @classmethod
     def fill_on_action_indexed(cls, selected_item, index, shapes):
@@ -1257,10 +1270,16 @@ fill_transparency_gallery = bkt.ribbon.Gallery(
     get_enabled = bkt.Callback(ShapeFormats.get_fill_enabled),
     on_action_indexed = bkt.Callback(ShapeFormats.fill_on_action_indexed, shapes=True),
     get_selected_item_index = bkt.Callback(ShapeFormats.fill_get_selected_item_index, context=True),
-    children=[
-        bkt.ribbon.Item(label="%s%%" % transp, image="transp_%s" % transp)
-        for transp in ShapeFormats.transparencies
-    ]
+    item_height="16",
+    get_item_count=bkt.Callback(ShapeFormats.get_item_count),
+    get_item_label=bkt.Callback(ShapeFormats.get_item_label),
+    get_item_image=bkt.Callback(ShapeFormats.get_item_image, context=True),
+    ### static definition of children has disadvantage that get_selected_item_index is called even if nothing 
+    ### is selected, leading to an error message on ppt startup if UI error are cative.
+    # children=[
+    #     bkt.ribbon.Item(label="%s%%" % transp, image="transp_%s" % transp)
+    #     for transp in ShapeFormats.transparencies
+    # ]
 )
 
 line_transparency_gallery = bkt.ribbon.Gallery(
@@ -1274,10 +1293,16 @@ line_transparency_gallery = bkt.ribbon.Gallery(
     get_enabled = bkt.Callback(ShapeFormats.get_line_enabled),
     on_action_indexed = bkt.Callback(ShapeFormats.line_on_action_indexed, shapes=True),
     get_selected_item_index = bkt.Callback(ShapeFormats.line_get_selected_item_index, context=True),
-    children=[
-        bkt.ribbon.Item(label="%s%%" % transp, image="transp_%s" % transp)
-        for transp in ShapeFormats.transparencies
-    ]
+    item_height="16",
+    get_item_count=bkt.Callback(ShapeFormats.get_item_count),
+    get_item_label=bkt.Callback(ShapeFormats.get_item_label),
+    get_item_image=bkt.Callback(ShapeFormats.get_item_image, context=True),
+    ### static definition of children has disadvantage that get_selected_item_index is called even if nothing 
+    ### is selected, leading to an error message on ppt startup if UI error are cative.
+    # children=[
+    #     bkt.ribbon.Item(label="%s%%" % transp, image="transp_%s" % transp)
+    #     for transp in ShapeFormats.transparencies
+    # ]
 )
 
 
