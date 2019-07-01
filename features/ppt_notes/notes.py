@@ -6,27 +6,20 @@ Created on 29.03.2017
 '''
 
 import bkt
-# import bkt.library.powerpoint as powerpoint
-# import bkt.library.bezier as bezier
-# import bkt.library.algorithms
-#import System
-from datetime import datetime
-from System import Environment
-import bkt.ui
-
 
 TOOLBOX_NOTE = "TOOLBOX-NOTE"
-TOOLBOX_BACKUP = "TOOLBOX-BACKUP"
-
 
 
 class EditModeShapes(object):
-    color_rgb = 16777062
-    color_theme = 0
-    color_brightness = 0
+    color_rgb = bkt.settings.get("ppt_notes.color_rgb", 16777062)
+    color_theme = bkt.settings.get("ppt_notes.color_theme", 0)
+    color_brightness = bkt.settings.get("ppt_notes.color_brightness", 0)
     
     @classmethod
     def addNote(cls, slide, context):
+        from datetime import datetime
+        from System import Environment
+
         # Positionsanpassung ermitteln (unter existierenden Shape)
         yPosition = 0
         for cShp in slide.shapes:
@@ -118,19 +111,27 @@ class EditModeShapes(object):
         cls.color_rgb = 16777062
         cls.color_theme = 0
         cls.color_brightness = 0
+        cls._save_color()
 
     @classmethod
     def set_color_rgb(cls, color):
         cls.color_rgb = color
         cls.color_theme = 0
         cls.color_brightness = 0
-        pass
+        cls._save_color()
 
     @classmethod
     def set_color_theme(cls, color_index, brightness):
         cls.color_rgb = 0
         cls.color_theme = color_index
         cls.color_brightness = brightness
+        cls._save_color()
+    
+    @classmethod
+    def _save_color(cls):
+        bkt.settings["ppt_notes.color_rgb"] = cls.color_rgb
+        bkt.settings["ppt_notes.color_theme"] = cls.color_theme
+        bkt.settings["ppt_notes.color_brightness"] = cls.color_brightness
 
     @classmethod
     def get_color(cls):
