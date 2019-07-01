@@ -777,8 +777,11 @@ class ColorGallery(Gallery):
             'get_item_image':     Callback(self.get_item_image,    context=True),
             # 'get_item_screentip': Callback(self.get_item_name),
             'get_item_label':     Callback(self.get_item_name,     context=True),
-            'get_selected_item_index':  Callback(self.get_selected_item_index, context=True)
+            # 'get_selected_item_index':  Callback(self.get_selected_item_index, context=True)
         }
+        #only add callback 'get_selected_item_index' if 'get_selected_color' is provided to avoid UI error messages
+        if "get_selected_color" in user_kwargs:
+            kwargs["get_selected_item_index"] = Callback(self.cb_get_selected_item_index, context=True)
         kwargs.update(user_kwargs)
         
         if not 'image' in kwargs and not 'image_mso' in kwargs:
@@ -830,7 +833,7 @@ class ColorGallery(Gallery):
     def get_item_count(self, context):
         return 70 + self.recent_count(context)
     
-    def get_selected_item_index(self, context, **kwargs):
+    def cb_get_selected_item_index(self, context, **kwargs):
         #if self.get_selected_color == None:
         if not 'get_selected_color' in self._callbacks:
             return -1
@@ -1007,6 +1010,9 @@ class SymbolsGallery(Gallery):
             'get_image':                Callback(lambda: self.get_item_image(0) )
             # 'get_selected_item_index':  Callback(self.get_selected_item_index, context=True)
         }
+        #only add callback 'get_selected_item_index' if 'get_selected_symbol' is provided to avoid UI error messages
+        if "get_selected_symbol" in user_kwargs:
+            kwargs["get_selected_item_index"] = Callback(self.cb_get_selected_item_index, context=True)
         kwargs.update(user_kwargs)
 
         super(SymbolsGallery, self).__init__(**kwargs)
@@ -1053,7 +1059,7 @@ class SymbolsGallery(Gallery):
         except:
             return "Fügt das Symbol in aktuellen Text oder neues Shape ein."
     
-    def get_selected_item_index(self, context, **kwargs):
+    def cb_get_selected_item_index(self, context, **kwargs):
         if not 'get_selected_symbol' in self._callbacks:
             return -1
 
