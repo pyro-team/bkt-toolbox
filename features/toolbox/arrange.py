@@ -2772,6 +2772,54 @@ class TableFormat(object):
             shape.table.rows(i+1).height = row_height
 
 
+class EdgeAutoFixer(object):
+    default_threshold = pplib.cm_to_pt(0.3)
+
+    @classmethod
+    def _iterate_all_shapes(cls, shapes, groupitems=True):
+        for shape in shapes:
+            #FIXME: rotated shapes are excluded for now
+            if shape.rotation != 0:
+                continue
+            #connected connectors should not be moved
+            if shape.Connector and (shape.ConnectorFormat.BeginConnected or shape.ConnectorFormat.EndConnected):
+                continue
+            
+            if groupitems and shape.Type == 6: #pplib.MsoShapeType['msoGroup']
+                for gShape in shape.GroupItems:
+                    yield gShape
+            else:
+                yield shape
+    
+    @classmethod
+    def autofix_edges(cls, shapes, threshold=None):
+        #TODO: how to handle aspect-ratio and autosize?
+
+        threshold = threshold or cls.default_threshold
+        # shapes.sort(key=lambda shape: (shape.left, shape.top))
+        shapes.sort(key=lambda shape: shape.x+shape.y)
+
+        # logging.debug("Autofix: top-left")
+        child_shapes = shapes[:]
+        for master_shape in cls._iterate_all_shapes(shapes):
+            child_shapes.remove(master_shape)
+            
+            for shape in cls._iterate_all_shapes(child_shapes):
+                # logging.debug("Autofix: {} x {}".format(master_shape.name, shape.name))
+
+                if abs(shape.x-master_shape.x) < threshold:
+                    shape.x = master_shape.x
+
+                if abs(shape.y-master_shape.y) < threshold:
+                    shape.y = master_shape.y
+
+                if abs(shape.x1-master_shape.x1) < threshold:
+                    # shape.width = master_shape.left+master_shape.width-shape.left
+                    shape.resize_to_x1(master_shape.x1)
+
+                if abs(shape.y1-master_shape.y1) < threshold:
+                    # shape.height = master_shape.top+master_shape.height-shape.top
+                    shape.resize_to_y1(master_shape.y1)
 
 
 
@@ -2877,6 +2925,14 @@ arrange_group = bkt.ribbon.Group(
                             get_enabled = bkt.Callback(TableFormat.is_paste_enabled, shape=True),
                         ),
                     ]
+                ),
+                bkt.ribbon.Button(
+                    id = 'edge_autofixer',
+                    label="Kanten-Autofixer",
+                    image_mso='GridSettings',
+                    supertip="Gleicht minimale Verschiebungen der Kanten der gewählten Shapes aus, indem auf die linkere und obere Kante verschoben und auf die rechte untere Kante vergrößert wird. Schwellwert ist 0.3 cm.",
+                    on_action=bkt.Callback(EdgeAutoFixer.autofix_edges, shapes=True, wrap_shapes=True),
+                    get_enabled = bkt.apps.ppt_shapes_min2_selected,
                 ),
                 bkt.ribbon.MenuSeparator(title="Verknüpfte Shapes"),
                 bkt.ribbon.Button(
