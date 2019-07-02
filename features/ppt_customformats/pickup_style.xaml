@@ -29,7 +29,7 @@
             <fr:CheckBox Header="Schrift-Format (Schriftart, -farbe, etc.)" IsChecked="{Binding settings_font, Mode=TwoWay}" Margin="5" />
             <fr:CheckBox Header="Schatten/Leuchteffekt/etc. (ohne 3D)" IsChecked="{Binding settings_shadow, Mode=TwoWay}" Margin="5" />
             <fr:CheckBox Header="Größe" IsChecked="{Binding settings_size, Mode=TwoWay}" Margin="5" />
-            <fr:CheckBox Header="Position" IsChecked="{Binding settings_position, Mode=TwoWay}" Margin="5" />
+            <fr:CheckBox Header="Position/Rotation" IsChecked="{Binding settings_position, Mode=TwoWay}" Margin="5" />
         </StackPanel>
         <TextBlock TextWrapping="WrapWithOverflow" Width="250" FontStyle="Italic" Margin="5,0,5,15">
             Hinweis: Bei Klick auf die Buttons mit gedrückter STRG-Taste können diese Einstellungen nachträglich geändert werden.
