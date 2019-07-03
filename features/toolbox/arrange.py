@@ -2778,8 +2778,8 @@ class EdgeAutoFixer(object):
     @classmethod
     def _iterate_all_shapes(cls, shapes, groupitems=True):
         for shape in shapes:
-            #FIXME: rotated shapes are excluded for now
-            if shape.rotation != 0:
+            #shapes that are rotated other than 0, 90, 180 or 270 degree are excluded
+            if shape.rotation % 90 != 0:
                 continue
             #connected connectors should not be moved
             if shape.Connector and (shape.ConnectorFormat.BeginConnected or shape.ConnectorFormat.EndConnected):
@@ -2793,11 +2793,11 @@ class EdgeAutoFixer(object):
     
     @classmethod
     def autofix_edges(cls, shapes, threshold=None):
-        #TODO: how to handle aspect-ratio and autosize?
+        #TODO: how to handle aspect-ratio and autosize? rotated shapes? ojects with 0 height/width?
 
         threshold = threshold or cls.default_threshold
         # shapes.sort(key=lambda shape: (shape.left, shape.top))
-        shapes.sort(key=lambda shape: shape.x+shape.y)
+        shapes.sort(key=lambda shape: shape.visual_x+shape.visual_y)
 
         # logging.debug("Autofix: top-left")
         child_shapes = shapes[:]
@@ -2805,21 +2805,22 @@ class EdgeAutoFixer(object):
             child_shapes.remove(master_shape)
             
             for shape in cls._iterate_all_shapes(child_shapes):
-                # logging.debug("Autofix: {} x {}".format(master_shape.name, shape.name))
+                logging.debug("Autofix: {} x {}".format(master_shape.name, shape.name))
 
-                if abs(shape.x-master_shape.x) < threshold:
-                    shape.x = master_shape.x
+                #save values before moving shape
+                visual_x1, visual_y1 = shape.visual_x1, shape.visual_y1
 
-                if abs(shape.y-master_shape.y) < threshold:
-                    shape.y = master_shape.y
+                if 1e-4 < abs(shape.visual_x-master_shape.visual_x) < threshold:
+                    shape.visual_x = master_shape.visual_x
 
-                if abs(shape.x1-master_shape.x1) < threshold:
-                    # shape.width = master_shape.left+master_shape.width-shape.left
-                    shape.resize_to_x1(master_shape.x1)
+                if 1e-4 < abs(shape.visual_y-master_shape.visual_y) < threshold:
+                    shape.visual_y = master_shape.visual_y
 
-                if abs(shape.y1-master_shape.y1) < threshold:
-                    # shape.height = master_shape.top+master_shape.height-shape.top
-                    shape.resize_to_y1(master_shape.y1)
+                if 1e-4 < abs(visual_x1-master_shape.visual_x1) < threshold:
+                    shape.visual_width = master_shape.visual_x1-shape.visual_x
+
+                if 1e-4 < abs(visual_y1-master_shape.visual_y1) < threshold:
+                    shape.visual_height = master_shape.visual_y1-shape.visual_y
 
 
 
