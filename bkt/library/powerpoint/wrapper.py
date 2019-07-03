@@ -176,6 +176,10 @@ class ShapeWrapper(object):
     @property
     def visual_x(self):
         ''' get visual x (=left) position considering rotation '''
+        if self.shape.rotation == 0 or self.shape.rotation == 180:
+            return self.x
+        elif self.shape.rotation == 90 or self.shape.rotation == 270:
+            return self.center_x-self.shape.height/2
         return min( p[0] for p in self.get_bounding_nodes() )
     @visual_x.setter
     def visual_x(self, value):
@@ -183,10 +187,16 @@ class ShapeWrapper(object):
         # delta = self.shape.left - self.visual_x
         # self.shape.left = value + delta
         self.shape.incrementLeft(value-self.visual_x)
+        # force recalculation of bounding notes
+        self.bounding_nodes = None
 
     @property
     def visual_y(self):
         ''' get visual y (=top) position considering rotation '''
+        if self.shape.rotation == 0 or self.shape.rotation == 180:
+            return self.y
+        elif self.shape.rotation == 90 or self.shape.rotation == 270:
+            return self.center_y-self.shape.width/2
         return min( p[1] for p in self.get_bounding_nodes() )
     @visual_y.setter
     def visual_y(self, value):
@@ -194,10 +204,16 @@ class ShapeWrapper(object):
         # delta = self.shape.top - self.visual_y
         # self.shape.top = value + delta
         self.shape.incrementTop(value-self.visual_y)
+        # force recalculation of bounding notes
+        self.bounding_nodes = None
     
     @property
     def visual_x1(self):
         ''' get visual x1 (=right) position considering rotation '''
+        if self.shape.rotation == 0 or self.shape.rotation == 180:
+            return self.x1
+        elif self.shape.rotation == 90 or self.shape.rotation == 270:
+            return self.center_x+self.shape.height/2
         return max( p[0] for p in self.get_bounding_nodes() )
     @visual_x1.setter
     def visual_x1(self, value):
@@ -205,10 +221,16 @@ class ShapeWrapper(object):
         # delta = self.shape.left - self.visual_x1
         # self.shape.left = value + delta
         self.shape.incrementLeft(value-self.visual_x1)
+        # force recalculation of bounding notes
+        self.bounding_nodes = None
 
     @property
     def visual_y1(self):
         ''' get visual y1 (=bottom) position considering rotation '''
+        if self.shape.rotation == 0 or self.shape.rotation == 180:
+            return self.y1
+        elif self.shape.rotation == 90 or self.shape.rotation == 270:
+            return self.center_y+self.shape.width/2
         return max( p[1] for p in self.get_bounding_nodes() )
     @visual_y1.setter
     def visual_y1(self, value):
@@ -216,10 +238,17 @@ class ShapeWrapper(object):
         # delta = self.shape.top - self.visual_y1
         # self.shape.top = value + delta
         self.shape.incrementTop(value-self.visual_y1)
+        # force recalculation of bounding notes
+        self.bounding_nodes = None
 
     @property
     def visual_width(self):
         ''' get visual width considering rotation '''
+        if self.shape.rotation == 0 or self.shape.rotation == 180:
+            return self.shape.width
+        elif self.shape.rotation == 90 or self.shape.rotation == 270:
+            return self.shape.height
+        #else:
         points = self.get_bounding_nodes()
         return max( p[0] for p in points ) - min( p[0] for p in points )
     @visual_width.setter
@@ -228,7 +257,9 @@ class ShapeWrapper(object):
         if self.shape.rotation == 0 or self.shape.rotation == 180:
             self.shape.width = value
         elif self.shape.rotation == 90 or self.shape.rotation == 270:
-            self.shape.height = value
+            cur_x = self.visual_x #save current x
+            self.shape.height = value #might change left edge of shape
+            self.visual_x = cur_x #move back to x, resize always to right
         else:
             delta = value - self.visual_width
             # delta_vector (delta-width, 0) um shape-rotation drehen
@@ -236,13 +267,24 @@ class ShapeWrapper(object):
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
+            # aktuelle position speichern
+            cur_x, cur_y = self.visual_x, self.visual_y
             # shape anpassen
             self.shape.width += delta_vector[0]
             self.shape.height += delta_vector[1]
+            # force recalculation of bounding notes
+            self.bounding_nodes = None
+            # vorherige position wiederherstellen
+            self.visual_x, self.visual_y = cur_x, cur_y
 
     @property
     def visual_height(self):
         ''' get visual height considering rotation '''
+        if self.shape.rotation == 0 or self.shape.rotation == 180:
+            return self.shape.height
+        elif self.shape.rotation == 90 or self.shape.rotation == 270:
+            return self.shape.width
+        #else:
         points = self.get_bounding_nodes()
         return max( p[1] for p in points ) - min( p[1] for p in points )
     @visual_height.setter
@@ -251,7 +293,9 @@ class ShapeWrapper(object):
         if self.shape.rotation == 0 or self.shape.rotation == 180:
             self.shape.height = value
         elif self.shape.rotation == 90 or self.shape.rotation == 270:
-            self.shape.width = value
+            cur_y = self.visual_y #save current y
+            self.shape.width = value #might change top edge of shape
+            self.visual_y = cur_y #move back to y, resize always to bottom
         else:
             delta = value - self.visual_height
             # delta_vector (delta-width, 0) um shape-rotation drehen
@@ -259,9 +303,15 @@ class ShapeWrapper(object):
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
+            # aktuelle position speichern
+            cur_x, cur_y = self.visual_x, self.visual_y
             # shape anpassen
             self.shape.width += delta_vector[0]
             self.shape.height += delta_vector[1]
+            # force recalculation of bounding notes
+            self.bounding_nodes = None
+            # vorherige position wiederherstellen
+            self.visual_x, self.visual_y = cur_x, cur_y
     
 
     @property
