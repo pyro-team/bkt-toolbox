@@ -2798,7 +2798,7 @@ class EdgeAutoFixer(object):
     
     @classmethod
     def autofix_edges(cls, shapes, threshold=None):
-        #TODO: how to handle aspect-ratio and autosize? rotated shapes? ojects with 0 height/width?
+        #TODO: how to handle locked aspect-ratio and autosize? rotated shapes? ojects with 0 height/width?
 
         threshold = threshold or cls.default_threshold
         # shapes.sort(key=lambda shape: (shape.left, shape.top))
@@ -2810,21 +2810,29 @@ class EdgeAutoFixer(object):
             child_shapes.remove(master_shape)
             
             for shape in cls._iterate_all_shapes(child_shapes):
-                logging.debug("Autofix: {} x {}".format(master_shape.name, shape.name))
+                # logging.debug("Autofix1: {} x {}".format(master_shape.name, shape.name))
 
                 #save values before moving shape
-                visual_x1, visual_y1 = shape.visual_x1, shape.visual_y1
+                # visual_x1, visual_y1 = shape.visual_x1, shape.visual_y1
 
                 if 1e-4 < abs(shape.visual_x-master_shape.visual_x) < threshold:
-                    shape.visual_x = master_shape.visual_x
+                    #resize to left edge
+                    delta = master_shape.visual_x - shape.visual_x
+                    shape.visual_x += delta
+                    shape.visual_width -= delta
 
                 if 1e-4 < abs(shape.visual_y-master_shape.visual_y) < threshold:
-                    shape.visual_y = master_shape.visual_y
+                    #resize to top edge
+                    delta = master_shape.visual_y - shape.visual_y
+                    shape.visual_y += delta
+                    shape.visual_height -= delta
 
-                if 1e-4 < abs(visual_x1-master_shape.visual_x1) < threshold:
+                if 1e-4 < abs(shape.visual_x1-master_shape.visual_x1) < threshold:
+                    #resize to right edge
                     shape.visual_width = master_shape.visual_x1-shape.visual_x
 
-                if 1e-4 < abs(visual_y1-master_shape.visual_y1) < threshold:
+                if 1e-4 < abs(shape.visual_y1-master_shape.visual_y1) < threshold:
+                    #resize to bottom edge
                     shape.visual_height = master_shape.visual_y1-shape.visual_y
 
 
