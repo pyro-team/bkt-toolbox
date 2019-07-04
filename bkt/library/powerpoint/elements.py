@@ -390,28 +390,33 @@ class LocpinGallery(Gallery):
         my_kwargs = dict(
             # get_enabled=apps.ppt_shapes_or_text_selected,
             columns="3",
-            item_height="16",
-            item_width="16",
+            item_height="24",
+            item_width="24",
             on_action_indexed  = Callback(self.locpin_on_action_indexed),
-            get_selected_item_index = Callback(self.locpin_get_selected_item_index),
-            children = [
-                Item(image=gal_item[0], screentip=gal_item[1], supertip=gal_item[2])
-                for gal_item in self.items
-            ]
+            get_selected_item_index = Callback(lambda: self.locpin.index),
+            get_item_count = Callback(lambda: len(self.items)),
+            # get_item_label = Callback(lambda index: self.items[index][1]),
+            get_item_image = Callback(self.locpin_get_image, context=True),
+            get_item_screentip = Callback(lambda index: self.items[index][1]),
+            get_item_supertip = Callback(lambda index: self.items[index][2]),
+            # children = [
+            #     Item(image=gal_item[0], screentip=gal_item[1], supertip=gal_item[2])
+            #     for gal_item in self.items
+            # ]
         )
         if not "image" in kwargs and not "image_mso" in kwargs:
-            my_kwargs["get_image"] = Callback(self.locpin_get_image)
+            my_kwargs["get_image"] = Callback(self.locpin_get_image, context=True)
         my_kwargs.update(kwargs)
         super(LocpinGallery, self).__init__(**my_kwargs)
 
     def locpin_on_action_indexed(self, selected_item, index):
         self.locpin.index = index
-
-    def locpin_get_selected_item_index(self):
-        return self.locpin.index
     
-    def locpin_get_image(self, context):
-        return context.python_addin.load_image(self.items[self.locpin.index][0])
+    def locpin_get_image(self, context, index=None):
+        if index is None:
+            return context.python_addin.load_image(self.items[self.locpin.index][0])
+        else:
+            return context.python_addin.load_image(self.items[index][0])
 
 
 class PositionGallery(Gallery):

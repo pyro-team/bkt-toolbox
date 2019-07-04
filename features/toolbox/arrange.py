@@ -2457,12 +2457,17 @@ class TAGallery(bkt.ribbon.Gallery):
             item_height="32",
             item_width="32",
             on_action_indexed  = bkt.Callback(self.locpin_on_action_indexed),
-            get_selected_item_index = bkt.Callback(self.locpin_get_selected_item_index),
-            get_image = bkt.Callback(self.locpin_get_image),
-            children = [
-                bkt.ribbon.Item(image=gal_item[0], screentip=gal_item[1], supertip=gal_item[2])
-                for gal_item in self.items
-            ]
+            get_selected_item_index = bkt.Callback(lambda: self.locpin.index),
+            get_image = bkt.Callback(self.locpin_get_image, context=True),
+            get_item_count = bkt.Callback(lambda: len(self.items)),
+            # get_item_label = bkt.Callback(lambda index: self.items[index][1]),
+            get_item_image = bkt.Callback(self.locpin_get_image, context=True),
+            get_item_screentip = bkt.Callback(lambda index: self.items[index][1]),
+            get_item_supertip = bkt.Callback(lambda index: self.items[index][2]),
+            # children = [
+            #     bkt.ribbon.Item(image=gal_item[0], screentip=gal_item[1], supertip=gal_item[2])
+            #     for gal_item in self.items
+            # ]
         )
         my_kwargs.update(kwargs)
         
@@ -2471,12 +2476,12 @@ class TAGallery(bkt.ribbon.Gallery):
     def locpin_on_action_indexed(self, selected_item, index):
         self.locpin.index = index
         TableArrange.vertical_arrangement, TableArrange.horizontal_arrangement = self.locpin.fixation
-
-    def locpin_get_selected_item_index(self):
-        return self.locpin.index
     
-    def locpin_get_image(self, context):
-        return context.python_addin.load_image(self.items[self.locpin.index][0])
+    def locpin_get_image(self, context, index=None):
+        if index is None:
+            return context.python_addin.load_image(self.items[self.locpin.index][0])
+        else:
+            return context.python_addin.load_image(self.items[index][0])
 
 
 
