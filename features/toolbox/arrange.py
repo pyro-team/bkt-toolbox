@@ -403,16 +403,23 @@ equal_width_button = bkt.ribbon.SplitButton(
 
 class ShapeDistance(object):
     default_sep = 0.2
-    vertical_edges = "distance" #other options: visual, top, center, bottom
-    horizontal_edges = "distance" #other options: visual, left, center, right
-    vertical_fix = "top" #other options: bottom
-    horizontal_fix = "left" #other options: right
+    vertical_edges   = bkt.settings.get("toolbox.shapedis.vertical_edges",   "distance") #other options: visual, top, center, bottom
+    horizontal_edges = bkt.settings.get("toolbox.shapedis.horizontal_edges", "distance") #other options: visual, left, center, right
+    vertical_fix   = bkt.settings.get("toolbox.shapedis.vertical_fix",   "top") #other options: bottom
+    horizontal_fix = bkt.settings.get("toolbox.shapedis.horizontal_fix", "left") #other options: right
 
-    #only for euclid distance and angle:
+    ### only for euclid distance and angle:
+    shape1_index  = 0 #center-shape-index is either 0 for first selected shape or -1 for last selected shape
     shape1_locpin = pplib.LocPin(4) #center point as initial locpin
     shape2_locpin = pplib.LocPin(4) #center point as initial locpin
     shape_rotate_with_angle = False #rotate shape if angle is changed
-    shape_calc_individually = False #same as ALT-key
+    euclid_multi_shape_mode = "centric" #Options: centric, delta, distribute
+
+    @classmethod
+    def change_settings(cls, name, value):
+        # change setting and save value
+        setattr(cls, name, value)
+        bkt.settings["toolbox.shapedis."+name] = value
 
     @classmethod
     def _get_locpin(cls):
@@ -420,11 +427,11 @@ class ShapeDistance(object):
         fix_v, fix_h = 1, 1
         if cls.vertical_edges == "center":
             fix_v = 2
-        elif cls.vertical_edges == "bottom":
+        elif cls.vertical_edges == "bottom" or cls.vertical_fix == "bottom":
             fix_v = 3
         if cls.horizontal_edges == "center":
             fix_h = 2
-        elif cls.horizontal_edges == "right":
+        elif cls.horizontal_edges == "right" or cls.horizontal_fix == "right":
             fix_h = 3
         locpin.fixation = (fix_v, fix_h)
         return locpin
@@ -492,7 +499,7 @@ class ShapeDistance(object):
             shapes = shapes[:2]
         
         if cls.vertical_edges == "distance":
-            dis = shapes[1].top-shapes[0].top-shapes[0].height
+            dis = shapes[1].y-shapes[0].y1
         elif cls.vertical_edges == "visual":
             dis = shapes[1].visual_y-shapes[0].visual_y-shapes[0].visual_height
         else:
@@ -542,7 +549,7 @@ class ShapeDistance(object):
             shapes = shapes[:2]
 
         if cls.horizontal_edges == "distance":
-            dis = shapes[1].left-shapes[0].left-shapes[0].width
+            dis = shapes[1].x-shapes[0].x1
         elif cls.horizontal_edges == "visual":
             dis = shapes[1].visual_x-shapes[0].visual_x-shapes[0].visual_width
         else:
@@ -565,11 +572,29 @@ class ShapeDistance(object):
         else:
             cls.set_shape_sep_horizontal(shapes, 0)
 
-    
+
+    ### Euclidian distance and angle methods ###
+
+    @classmethod
+    def is_mode_centric(cls):
+        return cls.euclid_multi_shape_mode == "centric"
+
+    @classmethod
+    def is_mode_delta(cls):
+        alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+        return alt or cls.euclid_multi_shape_mode == "delta"
+
+    @classmethod
+    def is_mode_distribute(cls):
+        return cls.euclid_multi_shape_mode == "distribute"
+
     @classmethod
     def get_shape_sep_euclid(cls, shapes):
-        shape1 = pplib.wrap_shape(shapes[0], cls.shape1_locpin)
-        shape2 = pplib.wrap_shape(shapes[1], cls.shape2_locpin)
+        '''
+        get euclidian distance from center shape to second shape
+        '''
+        shape1 = pplib.wrap_shape(shapes[cls.shape1_index], cls.shape1_locpin)
+        shape2 = pplib.wrap_shape(shapes[cls.shape1_index+1], cls.shape2_locpin)
         shape1_x, shape1_y = shape1.left, shape1.top
         shape2_x, shape2_y = shape2.left, shape2.top
 
@@ -578,6 +603,9 @@ class ShapeDistance(object):
     
     @classmethod
     def set_shape_sep_euclid(cls, shapes, value):
+        '''
+        set euclidian distance from center shape to all other shapes
+        '''
         def _get_current_distance(shape1, shape2):
             vector = [shape2.left-shape1.left, shape2.top-shape1.top]
             return math.hypot( *vector )
@@ -594,18 +622,22 @@ class ShapeDistance(object):
             return new_vector, shape_rotation
 
 
-        shape1 = pplib.wrap_shape(shapes[0], cls.shape1_locpin)
+        shape1 = pplib.wrap_shape(shapes[cls.shape1_index], cls.shape1_locpin)
         shape1_x, shape1_y = shape1.left, shape1.top
 
-        shapes = pplib.wrap_shapes(shapes[1:], cls.shape2_locpin)
+        shapes = pplib.wrap_shapes(shapes[cls.shape1_index+1:], cls.shape2_locpin)
         # shape2_x, shape2_y = shapes[0].left, shapes[0].top
 
-        alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+        # alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
 
-        if not alt and not cls.shape_calc_individually:
-            for shape in shapes:
+        # if cls.is_mode_centric() or cls.is_mode_distribute():
+        if not cls.is_mode_delta():
+            for i, shape in enumerate(shapes):
                 try:
-                    delta_distance = value-_get_current_distance(shape1, shape)
+                    if cls.is_mode_centric():
+                        delta_distance = value-_get_current_distance(shape1, shape)
+                    else: #is_mode_distribute
+                        delta_distance = (i+1)*value-_get_current_distance(shape1, shape)
                     new_vector, shape_rotation = _get_new_shape_coords(shape1, shape, delta_distance)
                 except ValueError:
                     continue
@@ -614,24 +646,8 @@ class ShapeDistance(object):
                 # set shape rotation (without using wrapper function)
                 if cls.shape_rotate_with_angle:
                     shape.shape.rotation = shape_rotation
-            # try:
-            #     delta_distance = value-_get_current_distance(shape1, shapes[0])
-            #     new_vector, shape_rotation = _get_new_shape_coords(shape1, shapes[0], delta_distance)
-            # except ValueError:
-            #     return
-
-            # next_x = shape1_x+new_vector[0]
-            # next_y = shape1_y+new_vector[1]
-            # for shape in shapes:
-            #     shape.left = next_x
-            #     shape.top  = next_y
-            #     next_x += new_vector[0]
-            #     next_y += new_vector[1]
-            #     # set shape rotation (without using wrapper function)
-            #     if cls.shape_rotate_with_angle:
-            #         shape.shape.rotation = shape_rotation
         
-        else:
+        else: #is_mode_delta
             delta_distance = value-_get_current_distance(shape1, shapes[0])
             for shape in shapes:
                 try:
@@ -646,8 +662,11 @@ class ShapeDistance(object):
 
     @classmethod
     def get_shape_angle(cls, shapes):
-        shape1 = pplib.wrap_shape(shapes[0], cls.shape1_locpin)
-        shape2 = pplib.wrap_shape(shapes[1], cls.shape2_locpin)
+        '''
+        get euclidian angle from center shape to second shaope
+        '''
+        shape1 = pplib.wrap_shape(shapes[cls.shape1_index], cls.shape1_locpin)
+        shape2 = pplib.wrap_shape(shapes[cls.shape1_index+1], cls.shape2_locpin)
         shape1_x, shape1_y = shape1.left, shape1.top
         shape2_x, shape2_y = shape2.left, shape2.top
 
@@ -656,6 +675,9 @@ class ShapeDistance(object):
 
     @classmethod
     def set_shape_angle(cls, shapes, value):
+        '''
+        set euclidian angle from center shape to all other shapes
+        '''
         def _get_current_angle(shape1, shape2):
             vector = [shape2.left-shape1.left, shape2.top-shape1.top]
             return round(-180/math.pi * math.atan2(vector[1], vector[0]), 1)
@@ -667,18 +689,22 @@ class ShapeDistance(object):
             return new_vector, shape_rotation
 
 
-        shape1 = pplib.wrap_shape(shapes[0], cls.shape1_locpin)
+        shape1 = pplib.wrap_shape(shapes[cls.shape1_index], cls.shape1_locpin)
         shape1_x, shape1_y = shape1.left, shape1.top
 
-        shapes = pplib.wrap_shapes(shapes[1:], cls.shape2_locpin)
+        shapes = pplib.wrap_shapes(shapes[cls.shape1_index+1:], cls.shape2_locpin)
         # shape_rotation = (360-value) % 360
 
-        alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+        # alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
 
-        if not alt and not cls.shape_calc_individually:
-            for shape in shapes:
-                cur_angle = _get_current_angle(shape1, shape)
-                new_vector, shape_rotation = _get_new_shape_coords(shape1, shape, -(cur_angle-value))
+        # if cls.is_mode_centric() or cls.is_mode_distribute():
+        if not cls.is_mode_delta():
+            for i, shape in enumerate(shapes):
+                if cls.is_mode_centric():
+                    delta_angle = -(_get_current_angle(shape1, shape) - value)
+                else: #is_mode_distribute
+                    delta_angle = -(_get_current_angle(shape1, shape) - value*(i+1))
+                new_vector, shape_rotation = _get_new_shape_coords(shape1, shape, delta_angle)
                 shape2_x, shape2_y = shape.left, shape.top
 
                 # vector = [shape2_x-shape1_x, shape2_y-shape1_y]
@@ -690,7 +716,8 @@ class ShapeDistance(object):
                 # set shape rotation (without using wrapper function)
                 if cls.shape_rotate_with_angle:
                     shape.shape.rotation = shape_rotation
-        else:
+        
+        else: #is_mode_delta
             delta_angle = _get_current_angle(shape1, shapes[0])-value
             for shape in shapes:
                 new_vector, shape_rotation = _get_new_shape_coords(shape1, shape, -delta_angle)
@@ -788,14 +815,14 @@ distance_rotation_group = bkt.ribbon.Group(
                         image="shapedis_vdistance",
                         description="Abstand von unterer Kante zu oberer Kante anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_edges=="distance"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_edges", "distance")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_edges", "distance")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Visueller Abstand (bei Rotation)",
                         image="shapedis_vvisual",
                         description="Abstand von visueller unterer Kante zu visueller oberer Kante anzeigen. Hilfreich bei rotierten Shapes.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_edges=="visual"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_edges", "visual")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_edges", "visual")),
                     ),
                     bkt.ribbon.MenuSeparator(),
                     bkt.ribbon.ToggleButton(
@@ -803,21 +830,21 @@ distance_rotation_group = bkt.ribbon.Group(
                         image="shapedis_top",
                         description="Abstand von oberer Kante zu oberer Kante anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_edges=="top"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_edges", "top")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_edges", "top")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Abstand zu Mittelpunkten",
                         image="shapedis_vcenter",
                         description="Abstand von den jeweiligen Mittelpunkten anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_edges=="center"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_edges", "center")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_edges", "center")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Abstand zu unteren Kanten",
                         image="shapedis_bottom",
                         description="Abstand von unterer Kante zu unterer Kante anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_edges=="bottom"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_edges", "bottom")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_edges", "bottom")),
                     ),
                     bkt.ribbon.MenuSeparator(title="Bewegungsrichtung"),
                     bkt.ribbon.ToggleButton(
@@ -825,14 +852,14 @@ distance_rotation_group = bkt.ribbon.Group(
                         image="shapedis_movedown",
                         description="Ändert die Distanz ausgehend vom obersten Shape und schiebt alle anderen nach unten. Temporärer Wechsel auf 'Nach oben' durch [ALT].",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_fix=="top"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_fix", "top")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_fix", "top")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Nach oben",
                         image="shapedis_moveup",
                         description="Ändert die Distanz ausgehend vom untersten Shape und schiebt alle anderen nach oben. Temporärer Wechsel auf 'Nach unten' durch [ALT].",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.vertical_fix=="bottom"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "vertical_fix", "bottom")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("vertical_fix", "bottom")),
                     ),
                 ])
             ]),
@@ -864,14 +891,14 @@ distance_rotation_group = bkt.ribbon.Group(
                         image="shapedis_hdistance",
                         description="Abstand von rechter Kante zu linker Kante anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_edges=="distance"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_edges", "distance")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_edges", "distance")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Visueller Abstand (bei Rotation)",
                         image="shapedis_hvisual",
                         description="Abstand von visueller rechter Kante zu visueller linker Kante. Hilfreich bei rotierten Shapes.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_edges=="visual"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_edges", "visual")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_edges", "visual")),
                     ),
                     bkt.ribbon.MenuSeparator(),
                     bkt.ribbon.ToggleButton(
@@ -879,21 +906,21 @@ distance_rotation_group = bkt.ribbon.Group(
                         image="shapedis_left",
                         description="Abstand von linker Kante zu linker Kante anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_edges=="left"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_edges", "left")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_edges", "left")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Abstand zu Mittelpunkten",
                         image="shapedis_hcenter",
                         description="Abstand von den jeweiligen Mittelpunkten anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_edges=="center"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_edges", "center")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_edges", "center")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Abstand zu rechten Kanten",
                         image="shapedis_right",
                         description="Abstand von rechter Kante zu rechter Kante anzeigen.",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_edges=="right"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_edges", "right")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_edges", "right")),
                     ),
                     bkt.ribbon.MenuSeparator(title="Bewegungsrichtung"),
                     bkt.ribbon.ToggleButton(
@@ -901,14 +928,14 @@ distance_rotation_group = bkt.ribbon.Group(
                         image="shapedis_moveright",
                         description="Ändert die Distanz ausgehend vom linken Shape und schiebt alle anderen nach rechts. Temporärer Wechsel auf 'Nach links' durch [ALT].",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_fix=="left"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_fix", "left")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_fix", "left")),
                     ),
                     bkt.ribbon.ToggleButton(
                         label="Nach links",
                         image="shapedis_moveleft",
                         description="Ändert die Distanz ausgehend vom rechten Shape und schiebt alle anderen nach links. Temporärer Wechsel auf 'Nach rechts' durch [ALT].",
                         get_pressed=bkt.Callback(lambda: ShapeDistance.horizontal_fix=="right"),
-                        on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "horizontal_fix", "right")),
+                        on_toggle_action=bkt.Callback(lambda pressed: ShapeDistance.change_settings("horizontal_fix", "right")),
                     ),
                 ])
             ]),
@@ -1013,34 +1040,67 @@ euclid_angle_group = bkt.ribbon.Group(
             screentip="Referenzpunkte festlegen",
             supertip="Referenz- bzw. Ankerpunkte für Distanz und Winkel für erstes Shape und die weitere Shapes festlegen",
             children=[
+                bkt.ribbon.MenuSeparator(title="Zentrum-Shape festlegen"),
                 bkt.ribbon.MenuSeparator(title="Referenzpunkte festlegen"),
                 pplib.LocpinGallery(
-                    label="für erstes Shape",
+                    label="Innerhalb Zentrum-Shape",
                     screentip="Referenz- bzw. Ankerpunkt für Distanz und Winkel",
-                    supertip="Legt den Punkt innerhalb des zuerst ausgewählten Shapes fest, von dem der Abstand bzw. Winkel der Shapes gemessen werden soll.",
+                    supertip="Legt den Punkt innerhalb des Zentrum-Shapes fest, von dem der Abstand bzw. Winkel der Shapes gemessen werden soll.",
                     locpin=ShapeDistance.shape1_locpin,
                 ),
                 pplib.LocpinGallery(
-                    label="für weitere Shapes",
+                    label="Innerhalb weiterer Shapes",
                     screentip="Referenz- bzw. Ankerpunkt für Distanz und Winkel",
                     supertip="Legt den Punkt innerhalb aller weiteren Shapes fest, von dem der Abstand bzw. Winkel der Shapes gemessen werden soll.",
                     locpin=ShapeDistance.shape2_locpin,
                 ),
-                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.MenuSeparator(title="Erweiterte Einstellungen festlegen"),
+                bkt.ribbon.Menu(
+                    label="Zentrum-Shape auswählen",
+                    screentip="Shape im Zentrum auswählen",
+                    supertip="Legt fest welches Shape innerhalb der Selektion im Zentrum stehen sollen.",
+                    children=[
+                        bkt.ribbon.ToggleButton(
+                            label="Zuerst selektiertes Shape (Standard)",
+                            get_pressed=bkt.Callback(lambda: ShapeDistance.shape1_index==0),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "shape1_index", 0)),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Zuletzt selektiertes Shape",
+                            get_pressed=bkt.Callback(lambda: ShapeDistance.shape1_index==-1),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "shape1_index", -1)),
+                        ),
+                    ]
+                ),
+                bkt.ribbon.Menu(
+                    label="Verhalten für >2 Shapes",
+                    screentip="Verhalten bei Auswahl von mehr als 2 Shapes festlegen",
+                    supertip="Bei Auswahl von mehr als 2 Shapes können unterschiedliche Optionen zur Berechnung zwischen Zentrum-Shape und allen weitere Shapes gewählt werden.",
+                    children=[
+                        bkt.ribbon.ToggleButton(
+                            label="Abstand/Winkel einzeln vom Zentrum zu Shapes (Standard)",
+                            get_pressed=bkt.Callback(lambda: ShapeDistance.euclid_multi_shape_mode == "centric"),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "euclid_multi_shape_mode", "centric")),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Abstände/Winkel immer um gleiche Differenz ändern [ALT]",
+                            get_pressed=bkt.Callback(lambda: ShapeDistance.euclid_multi_shape_mode == "delta"),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "euclid_multi_shape_mode", "delta")),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Abstände/Winkel gleichmäßig zwischen Shapes verteilen",
+                            get_pressed=bkt.Callback(lambda: ShapeDistance.euclid_multi_shape_mode == "distribute"),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "euclid_multi_shape_mode", "distribute")),
+                        ),
+                    ]
+                ),
                 bkt.ribbon.ToggleButton(
                     label="Shape-Rotation angleichen",
-                    screentip="Shape-Rotation angeichen an/aus",
+                    screentip="Shape-Rotation an Winkel angeichen an/aus",
                     supertip="Passt die Shape-Rotation an den Abstandsvektor bzw. den Winkel an.",
                     get_pressed=bkt.Callback(lambda: getattr(ShapeDistance, "shape_rotate_with_angle")),
                     on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "shape_rotate_with_angle", pressed)),
                 ),
-                bkt.ribbon.ToggleButton(
-                    label="Shapes individuell anpassen [ALT]",
-                    screentip="Shapes um Delta individuell anpassen",
-                    supertip="Abstand bzw. Winkel wird für jedes Shape um den gleichen Delta-Betrag angepasst. Dies ist identisch zum Gedrückthalten der ALT-Taste.",
-                    get_pressed=bkt.Callback(lambda: getattr(ShapeDistance, "shape_calc_individually")),
-                    on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "shape_calc_individually", pressed)),
-                )
             ]
         )
     ]
@@ -1404,15 +1464,24 @@ class ArrangeAdvanced(object):
     ### detect master shape ###
 
     def get_master_from_shapes(self, shapes):
+        def _test_ref_or_use_fallback(ref):
+            try:
+                ref.left #test if ref still exists
+                return ref
+            except:
+                bkt.helpers.message("Fehler: Referenz wurde nicht gefunden. Fallback zu Ausrichtung am Mastershape innerhalb der Selektion.")
+                ArrangeAdvanced.master = self.fallback_first_last
+                return self.get_master_from_shapes(shapes)
+
         ''' obtain master shape from given shapes according to master-setting '''
         if ArrangeAdvanced.master == "FIXED-SHAPE" and self.ref_shape != None:
-            return self.ref_shape
+            return _test_ref_or_use_fallback(self.ref_shape)
         elif ArrangeAdvanced.master == "FIXED-SLIDE" and self.ref_frame !=None:
-            return self.ref_frame
+            return _test_ref_or_use_fallback(self.ref_frame)
         elif ArrangeAdvanced.master == "FIXED-CONTENTAREA" and self.ref_frame !=None:
-            return self.ref_frame
+            return _test_ref_or_use_fallback(self.ref_frame)
         elif ArrangeAdvanced.master == "FIXED-CUSTOMAREA" and self.ref_frame !=None:
-            return self.ref_frame
+            return _test_ref_or_use_fallback(self.ref_frame)
             
         elif len(shapes) == 1:
             ## fallback if only one shape in selection
@@ -2050,17 +2119,22 @@ class TableArrange(object):
         # left/top of cols/rows
         agg_widths = [ sum(widths[0:i])  for i in range(len(widths)+1)]
         agg_heights = [ sum(heights[0:i])  for i in range(len(heights)+1)]
-        col_lefts = [table.left +w  for w in agg_widths]
-        row_tops = [table.top +h for h in agg_heights]
+        col_lefts = [table.x +w  for w in agg_widths]
+        row_tops = [table.y +h for h in agg_heights]
         
         for shape in shapes:
-            shape_midpoint = [ shape.left + shape.width/2, shape.top+shape.height/2 ]
+            shape_midpoint = [ shape.center_x, shape.center_y ]
             
             try:
                 # determine target-cell and target-rect
-                col = [c - shape_midpoint[0] >=0 for c in col_lefts].index(True)
-                row = [r - shape_midpoint[1] >=0 for r in row_tops].index(True)
+                try:
+                    col = [c - shape_midpoint[0] >=0 for c in col_lefts].index(True)
+                    row = [r - shape_midpoint[1] >=0 for r in row_tops].index(True)
+                except ValueError:
+                    #no col/row found, shape outside bottom-right boundaries of table
+                    continue
                 if col == 0 or row == 0:
+                    #shape outside top-left boundaries of table
                     continue
                 target_rect = [ col_lefts[col-1], row_tops[row-1], widths[col-1], heights[row-1]   ]
 
@@ -2092,14 +2166,15 @@ class TableArrange(object):
                     target_midpoint[1] = target_rect[1] + target_rect[3]/2
                 
                 # move shape
-                shape.left += target_midpoint[0] - shape_midpoint[0]
-                shape.top  += target_midpoint[1] - shape_midpoint[1]
+                shape.x += target_midpoint[0] - shape_midpoint[0]
+                shape.y  += target_midpoint[1] - shape_midpoint[1]
             
             except:
                 bkt.helpers.exception_as_message()
     
     @classmethod
     def arrange_table_shapes(cls, shapes):
+        shapes = pplib.wrap_shapes(shapes)
         # determine table in shapes-list
         # tables = [s for s in shapes if s.Type == pplib.MsoShapeType['msoTable']]
         tables = [s for s in shapes if s.HasTable == -1]
@@ -2247,15 +2322,17 @@ class TableArrange(object):
                 shape.x1 = min(s.x1 for s in background_shapes)
             # elif cls.horizontal_arrangement == cls.ARRANGE_HCENTER or (cls.horizontal_arrangement == cls.ARRANGE_HAUTO and background_shape.height >= background_shape.width):
             elif cls.horizontal_arrangement in [cls.ARRANGE_HCENTER, cls.ARRANGE_HAUTO]:
-                shape.center_x = min(background_shapes, key=lambda s: s.width).center_x
+                if cls.horizontal_arrangement != cls.ARRANGE_HAUTO or len(background_shapes) > 1 or background_shapes[0].height >= background_shapes[0].width:
+                    shape.center_x = min(background_shapes, key=lambda s: s.width).center_x
 
             if cls.vertical_arrangement == cls.ARRANGE_TOP:
                 shape.y = max(s.y for s in background_shapes)
             elif cls.vertical_arrangement == cls.ARRANGE_BOTTOM:
                 shape.y1 = min(s.y1 for s in background_shapes)
             # elif cls.vertical_arrangement in [cls.ARRANGE_VCENTER,cls.ARRANGE_LCENTER] or (cls.vertical_arrangement == cls.ARRANGE_VAUTO and background_shape.width >= background_shape.height):
-            elif cls.vertical_arrangement in [cls.ARRANGE_VCENTER,cls.ARRANGE_LCENTER, cls.ARRANGE_VAUTO]:
-                shape.center_y = min(background_shapes, key=lambda s: s.height).center_y
+            elif cls.vertical_arrangement in [cls.ARRANGE_VCENTER, cls.ARRANGE_LCENTER, cls.ARRANGE_VAUTO]:
+                if cls.vertical_arrangement != cls.ARRANGE_VAUTO or len(background_shapes) > 1 or background_shapes[0].width >= background_shapes[0].height:
+                    shape.center_y = min(background_shapes, key=lambda s: s.height).center_y
 
 
     @classmethod
@@ -2283,28 +2360,55 @@ class TableArrange(object):
 
     @classmethod
     def _is_shape_within(cls, outer_s, inner_s):
+        #test if center point of inner_s is within bounds of outer_s
         return inner_s.width<=outer_s.width and inner_s.height<=outer_s.height and outer_s.x <= inner_s.center_x <= outer_s.x1 and outer_s.y <= inner_s.center_y <= outer_s.y1
 
 
     @classmethod
     def arrange_overlay_shapes(cls, shapes):
-        # table_shapes = [s for s in shapes if s.Type == pplib.MsoShapeType['msoTable']]
-        # table_shapes = [s for s in shapes if s.HasTable == -1]
-        table_shapes = False
-        par_shapes = False
+        from itertools import chain #chain allows to concatenate lists and return a generator
+
+        shapes = pplib.wrap_shapes(shapes) #all functions support/require wrapped shapes
+
+        table_shapes = []
+        table_childs = []
+        par_shapes = []
+        par_childs = []
+        remaining_shapes = []
+        shape_shapes = []
+
+        #step 1: seperate tables, paragraph shapes, and all the remaining shapes
         for s in shapes:
+            #test if shape is a table
             if s.HasTable == -1:
-                table_shapes = True
-                break #break as soo as one table found
-            if s.HasTextFrame == -1 and s.TextFrame2.TextRange.Paragraphs().Count > 1:
-                par_shapes = True
+                table_shapes.append(s)
+            
+            #test if shape has a paragraph
+            elif s.HasTextFrame == -1 and s.TextFrame2.TextRange.Paragraphs().Count > 1:
+                par_shapes.append(s)
+
+            else:
+                remaining_shapes.append(s)
         
-        if table_shapes:
-            cls.arrange_table_shapes(shapes)
-        elif par_shapes:
-            cls.arrange_paragraph_shapes(shapes)
-        else:
-            cls.arrange_shapes_shapes(shapes)
+        #step 2: from remaining shapes, find shapes within tables and paragraph shapes from step 1
+        for s in remaining_shapes:
+            #get all shapes within tables
+            if any(cls._is_shape_within(o, s) for o in table_shapes):
+                table_childs.append(s)
+            
+            #get all shapes within paragraphs
+            elif any(cls._is_shape_within(o, s) for o in par_shapes):
+                par_childs.append(s)
+            
+            else:
+                shape_shapes.append(s)
+
+        #arrange on table
+        cls.arrange_table_shapes(chain(table_shapes, table_childs))
+        #arrange on paragraph
+        cls.arrange_paragraph_shapes(chain(par_shapes, par_childs))
+        #arrange shapes on shapes
+        cls.arrange_shapes_shapes(shape_shapes)
 
 
 class TALocPin(pplib.LocPin):
@@ -2353,12 +2457,17 @@ class TAGallery(bkt.ribbon.Gallery):
             item_height="32",
             item_width="32",
             on_action_indexed  = bkt.Callback(self.locpin_on_action_indexed),
-            get_selected_item_index = bkt.Callback(self.locpin_get_selected_item_index),
-            get_image = bkt.Callback(self.locpin_get_image),
-            children = [
-                bkt.ribbon.Item(image=gal_item[0], screentip=gal_item[1], supertip=gal_item[2])
-                for gal_item in self.items
-            ]
+            get_selected_item_index = bkt.Callback(lambda: self.locpin.index),
+            get_image = bkt.Callback(self.locpin_get_image, context=True),
+            get_item_count = bkt.Callback(lambda: len(self.items)),
+            # get_item_label = bkt.Callback(lambda index: self.items[index][1]),
+            get_item_image = bkt.Callback(self.locpin_get_image, context=True),
+            get_item_screentip = bkt.Callback(lambda index: self.items[index][1]),
+            get_item_supertip = bkt.Callback(lambda index: self.items[index][2]),
+            # children = [
+            #     bkt.ribbon.Item(image=gal_item[0], screentip=gal_item[1], supertip=gal_item[2])
+            #     for gal_item in self.items
+            # ]
         )
         my_kwargs.update(kwargs)
         
@@ -2367,12 +2476,12 @@ class TAGallery(bkt.ribbon.Gallery):
     def locpin_on_action_indexed(self, selected_item, index):
         self.locpin.index = index
         TableArrange.vertical_arrangement, TableArrange.horizontal_arrangement = self.locpin.fixation
-
-    def locpin_get_selected_item_index(self):
-        return self.locpin.index
     
-    def locpin_get_image(self, context):
-        return context.python_addin.load_image(self.items[self.locpin.index][0])
+    def locpin_get_image(self, context, index=None):
+        if index is None:
+            return context.python_addin.load_image(self.items[self.locpin.index][0])
+        else:
+            return context.python_addin.load_image(self.items[index][0])
 
 
 
@@ -2641,7 +2750,8 @@ class TableFormat(object):
     @classmethod
     def is_table_shape(cls, shape):
         try:
-            return shape.Type == pplib.MsoShapeType["msoTable"]
+            # return shape.Type == pplib.MsoShapeType["msoTable"]
+            return shape.HasTable == -1 #also covers tables in placeholders
         except:
             return False
 
@@ -2667,6 +2777,63 @@ class TableFormat(object):
             shape.table.rows(i+1).height = row_height
 
 
+class EdgeAutoFixer(object):
+    default_threshold = pplib.cm_to_pt(0.3)
+
+    @classmethod
+    def _iterate_all_shapes(cls, shapes, groupitems=True):
+        for shape in shapes:
+            #shapes that are rotated other than 0, 90, 180 or 270 degree are excluded
+            if shape.rotation % 90 != 0:
+                continue
+            #connected connectors should not be moved
+            if shape.Connector and (shape.ConnectorFormat.BeginConnected or shape.ConnectorFormat.EndConnected):
+                continue
+            
+            if groupitems and shape.Type == 6: #pplib.MsoShapeType['msoGroup']
+                for gShape in shape.GroupItems:
+                    yield gShape
+            else:
+                yield shape
+    
+    @classmethod
+    def autofix_edges(cls, shapes, threshold=None):
+        #TODO: how to handle locked aspect-ratio and autosize? rotated shapes? ojects with 0 height/width?
+
+        threshold = threshold or cls.default_threshold
+        # shapes.sort(key=lambda shape: (shape.left, shape.top))
+        shapes.sort(key=lambda shape: shape.visual_x+shape.visual_y)
+
+        # logging.debug("Autofix: top-left")
+        child_shapes = shapes[:]
+        for master_shape in cls._iterate_all_shapes(shapes):
+            child_shapes.remove(master_shape)
+            
+            for shape in cls._iterate_all_shapes(child_shapes):
+                # logging.debug("Autofix1: {} x {}".format(master_shape.name, shape.name))
+
+                #save values before moving shape
+                # visual_x1, visual_y1 = shape.visual_x1, shape.visual_y1
+
+                if 1e-4 < abs(shape.visual_x-master_shape.visual_x) < threshold:
+                    #resize to left edge
+                    delta = master_shape.visual_x - shape.visual_x
+                    shape.visual_x += delta
+                    shape.visual_width -= delta
+
+                if 1e-4 < abs(shape.visual_y-master_shape.visual_y) < threshold:
+                    #resize to top edge
+                    delta = master_shape.visual_y - shape.visual_y
+                    shape.visual_y += delta
+                    shape.visual_height -= delta
+
+                if 1e-4 < abs(shape.visual_x1-master_shape.visual_x1) < threshold:
+                    #resize to right edge
+                    shape.visual_width = master_shape.visual_x1-shape.visual_x
+
+                if 1e-4 < abs(shape.visual_y1-master_shape.visual_y1) < threshold:
+                    #resize to bottom edge
+                    shape.visual_height = master_shape.visual_y1-shape.visual_y
 
 
 
@@ -2772,6 +2939,14 @@ arrange_group = bkt.ribbon.Group(
                             get_enabled = bkt.Callback(TableFormat.is_paste_enabled, shape=True),
                         ),
                     ]
+                ),
+                bkt.ribbon.Button(
+                    id = 'edge_autofixer',
+                    label="Kanten-Autofixer",
+                    image_mso='GridSettings',
+                    supertip="Gleicht minimale Verschiebungen der Kanten der gewählten Shapes aus, indem auf die linkere und obere Kante verschoben und auf die rechte untere Kante vergrößert wird. Schwellwert ist 0.3 cm.",
+                    on_action=bkt.Callback(EdgeAutoFixer.autofix_edges, shapes=True, wrap_shapes=True),
+                    get_enabled = bkt.apps.ppt_shapes_min2_selected,
                 ),
                 bkt.ribbon.MenuSeparator(title="Verknüpfte Shapes"),
                 bkt.ribbon.Button(

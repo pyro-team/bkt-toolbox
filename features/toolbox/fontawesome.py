@@ -5,7 +5,7 @@ Created on 10.02.2017
 @author: rdebeerst
 '''
 
-import os
+import os.path
 import imp
 
 import bkt
@@ -16,8 +16,11 @@ from bkt.library.powerpoint import PPTSymbolsGallery
 #
 fontsettings = [
     # module-name, font-filename
-    ('fontawesome4', 'FontAwesome'),     
-    ('fontawesome5', 'Font Awesome 5 Free Regular')
+    ('fontawesome4', 'FontAwesome'),
+    ('fontawesome5', 'Font Awesome 5 Free Regular'),
+    ('segoeui', 'Segoe UI'),
+    ('materialicons', 'Material Icons'),
+    # ('foobar', 'Non-existing test font'),
 ]
 
 
@@ -54,5 +57,13 @@ for fontsetting in fontsettings:
         
         # add font-symbol-galleries
         symbol_galleries += fontsymbolmodule.menus
+    else:
+        symbol_galleries += [
+            bkt.ribbon.MenuSeparator(title=font_name),
+            bkt.ribbon.Button(
+                label="Font nicht installiert",
+                enabled=False
+            )
+        ]
     
 

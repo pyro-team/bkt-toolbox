@@ -2,32 +2,37 @@
 
 <img src="documentation/screenshot.png">
 
-## Einführung
+## Introduction
 
-Die BKT besteht aus 2 Teilen, dem BKT-Framework und der BKT-Toolbox. Das Framework bietet eine einfach Möglichkeit, um Office-Addins für PowerPoint, Excel, Word, Outlook oder Visio in Python zu schreiben. Die BKT-Toolbox gibt es aktuell für PowerPoint, Excel und Visio.
+The BKT consists of 2 parts, the BKT Framework and the BKT Toolbox. The framework offers an easy way to write office add-ins for PowerPoint, Excel, Word, Outlook or Visio in Python. The BKT Toolbox is currently available for PowerPoint, Excel and Visio.
 
-Die PowerPoint-Toolbox fügt mehrere Tabs hinzu, die einen strukturierten Zugriff auf alle Standard-Funktionen von PowerPoint bieten, ergänzt um viele bisher fehlende Funktionen.
+The PowerPoint Toolbox adds multiple tabs that provide structured access to all of PowerPoint's standard features, plus many missing features.
 
-Die BKT wird von uns in der Freizeit entwickelt, daher können wir keinen Support anbieten oder auf spezielle Wünsche eingehen.
+The BKT is developed by us in our spare time, so we cannot offer support or respond to special requests.
 
-## Systemvoraussetzungen
+### Language
 
-Die BKT läuft unter Windows ab Office 2010 in allen aktuellen Office-Versionen. Eine Mac-Version ist nicht verfügbar, da die entsprechende Office-Schnittstelle (COM-Addin) im Mac-Office nicht von Microsoft angeboten wird.
+Historically, the BKT was developed in German and unfortunately, we do not have the time to translate the whole toolbox. We hope that most functions are self-explanatory. If you have experience in multi-language python projects, feel free to support us.
+
+### Documentation
+
+Currently, we only have the [GitHub Wiki](https://github.com/pyro-team/bkt-toolbox/wiki) with some English documentation for adventurous users and developers.
+
+## System requirements
+
+The BKT runs under Windows from Office 2010 in all current Office versions. A Mac version is not available because Microsoft does not offer the corresponding Office interface (COM add-in) in the Mac Office.
 
 ## Installation
 
-Am einfachsten geht die Installation über das [Setup](https://github.com/mrflory/bkt-toolbox/releases/latest).
+The easiest way to install is via the [Setup](https://github.com/pyro-team/bkt-toolbox/releases/latest) (only for Office 2013+).
 
-Alternativ kann man das Repository klonen und die Datei `installer\install.bat` ausführen. Nach einem Update muss die Datei ggf. neu ausgeführt werden.
+Alternatively, you can clone the repository and run the `installer\install.bat` file. After an update, the file may need to be re-run.
 
-***Hinweise:***
+***Notes:***
 
- * Es gibt ein separates Setup for Office 2010. Beim Klonen des Repositories muss vor der Installation die Datei `dotnet\build2010.bat`     ausgeführt werden, damit das Addin für Office 2010 kompiliert wird.
- * Die Business Kasper Toolbox ist nach Installation standardmäßig nur in PowerPoint aktiv, 
-    jedoch auch in Excel, Outlook, Word und Visio verfügbar. Dort lässt sich die BKT über den
-    Addin-Dialog aktivieren (Datei > Optionen > Add-Ins)
- * Über den Addin-Dialog lässt sich ferner das BKT-Dev-Plugin aktivieren. Dieses erlaubt
-    Laden und Entladen des Addins zur Laufzeit der Office-Applikation
+ * There is a separate setup for Office 2010. When cloning the repository, the file `dotnet\build2010.bat` must be executed before installation to compile the addin for Office 2010.
+ * The Business Kasper Toolbox is only active in PowerPoint by default after installation, but also available in Excel, Outlook, Word and Visio. There, the BKT can be accessed via the Activate Addin dialog (File > Options > Add-Ins)
+ * The Addin dialog can also be used to activate the BKT Dev Plugin. This allows loading and unloading the addin at runtime of the office application.
 
 ## Contributions
 

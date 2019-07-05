@@ -385,39 +385,29 @@ class ShapesMore(object):
     def paste_to_slides(slides):
         for slide in slides:
             slide.Shapes.Paste()
+
+    @staticmethod
+    def paste_as_link(slide):
+        try:
+            slide.Shapes.PasteSpecial(Link=True)
+        except:
+            bkt.helpers.message("Das Element in der Zwischenablage unterstützt diesen Einfügetyp nicht.")
+
     
     @staticmethod
-    def text_to_shape(shape, slide):
-        #find shape index
-        for index, shp in enumerate(slide.shapes):
-            if shape.id == shp.id:
-                shape_index = index+1
-                break
-        else:
-            #shape not found
-            return
-
-        #total shapes
-        shape_count = slide.shapes.count
-        #add temporary shape
-        tmp_shp = slide.shapes.AddShape( pplib.MsoAutoShapeType['msoShapeRectangle']
-            , -10, 0, 10, 10)
-
+    def text_to_shape(shape):
         try:
-            #select shape and temporary shape
-            shapes = pplib.shape_indices_on_slide(slide, [shape_index, shape_count+1])
-            shapes.MergeShapes(4, shape) #MsoMergeCmd: 4=msoMergeSubtract
+            return pplib.convert_text_into_shape(shape)
         except Exception as e:
             logging.error("Text to shape failed with error {}".format(e))
-        else:
-            new_shape = pplib.shape_indices_on_slide(slide, [shape_index])[1]
-            # new_shape.select(replace=False) #select leads to some strange COM error in various other callback.
-            return new_shape
     
     @classmethod
-    def texts_to_shapes(cls, shapes, slide):
+    def texts_to_shapes(cls, shapes):
+        last_shape=None
         for shape in shapes:
-            cls.text_to_shape(shape, slide)
+            last_shape=cls.text_to_shape(shape)
+        if last_shape:
+            last_shape.select()
 
 
 
@@ -1187,6 +1177,19 @@ class ShapeFormats(object):
     @classmethod
     def get_item_count(cls):
         return len(cls.transparencies)
+    
+    @classmethod
+    def get_item_label(cls, index):
+        return "%s%%" % cls.transparencies[index]
+    
+    @classmethod
+    def get_item_image(cls, index, context):
+        return cls._get_image_for_transp(cls.transparencies[index], context)
+    
+    @classmethod
+    def _get_image_for_transp(cls, transp, context):
+        return context.python_addin.load_image( "transp_%s" % int(round(transp/10.0)*10) )
+
 
     @classmethod
     def fill_on_action_indexed(cls, selected_item, index, shapes):
@@ -1267,10 +1270,16 @@ fill_transparency_gallery = bkt.ribbon.Gallery(
     get_enabled = bkt.Callback(ShapeFormats.get_fill_enabled),
     on_action_indexed = bkt.Callback(ShapeFormats.fill_on_action_indexed, shapes=True),
     get_selected_item_index = bkt.Callback(ShapeFormats.fill_get_selected_item_index, context=True),
-    children=[
-        bkt.ribbon.Item(label="%s%%" % transp, image="transp_%s" % transp)
-        for transp in ShapeFormats.transparencies
-    ]
+    item_height="16",
+    get_item_count=bkt.Callback(ShapeFormats.get_item_count),
+    get_item_label=bkt.Callback(ShapeFormats.get_item_label),
+    get_item_image=bkt.Callback(ShapeFormats.get_item_image, context=True),
+    ### static definition of children has disadvantage that get_selected_item_index is called even if nothing 
+    ### is selected, leading to an error message on ppt startup if UI error are cative.
+    # children=[
+    #     bkt.ribbon.Item(label="%s%%" % transp, image="transp_%s" % transp)
+    #     for transp in ShapeFormats.transparencies
+    # ]
 )
 
 line_transparency_gallery = bkt.ribbon.Gallery(
@@ -1284,10 +1293,16 @@ line_transparency_gallery = bkt.ribbon.Gallery(
     get_enabled = bkt.Callback(ShapeFormats.get_line_enabled),
     on_action_indexed = bkt.Callback(ShapeFormats.line_on_action_indexed, shapes=True),
     get_selected_item_index = bkt.Callback(ShapeFormats.line_get_selected_item_index, context=True),
-    children=[
-        bkt.ribbon.Item(label="%s%%" % transp, image="transp_%s" % transp)
-        for transp in ShapeFormats.transparencies
-    ]
+    item_height="16",
+    get_item_count=bkt.Callback(ShapeFormats.get_item_count),
+    get_item_label=bkt.Callback(ShapeFormats.get_item_label),
+    get_item_image=bkt.Callback(ShapeFormats.get_item_image, context=True),
+    ### static definition of children has disadvantage that get_selected_item_index is called even if nothing 
+    ### is selected, leading to an error message on ppt startup if UI error are cative.
+    # children=[
+    #     bkt.ribbon.Item(label="%s%%" % transp, image="transp_%s" % transp)
+    #     for transp in ShapeFormats.transparencies
+    # ]
 )
 
 
@@ -1298,7 +1313,7 @@ class PictureFormat(object):
             return
 
         import tempfile, os
-        filename = tempfile.gettempdir() + "\\bktimgtransp.png"
+        filename = os.path.join(tempfile.gettempdir(), "bktimgtransp.png")
 
         for shape in shapes:
             if shape.Type != pplib.MsoShapeType["msoPicture"]:

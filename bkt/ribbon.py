@@ -406,8 +406,7 @@ DropDown     = create_ribbon_control_class('drop_down',     base_cls=ActionRibbo
 Gallery      = create_ribbon_control_class('gallery',       base_cls=ActionRibbonControl, attributes={'default_callback':CallbackTypes.on_action_indexed})
 DynamicMenu  = create_ribbon_control_class('dynamic_menu',  base_cls=ActionRibbonControl, attributes={'default_callback':CallbackTypes.get_content})
 
-LabelControl = create_ribbon_control_class('label_control')
-Label = LabelControl
+Label        = LabelControl = create_ribbon_control_class('label_control')
 ButtonGroup  = create_ribbon_control_class('button_group')
 Separator    = create_ribbon_control_class('separator')
 MenuSeparator = create_ribbon_control_class('menu_separator')
@@ -415,7 +414,7 @@ Item         = create_ribbon_control_class('item')
 
 ContextMenus = create_ribbon_control_class('context_menus',   attributes={'no_id':True})
 ContextMenu  = create_ribbon_control_class('context_menu')
-CommandList  = create_ribbon_control_class('command_list',   attributes={'no_id':True})
+Commands     = CommandList = create_ribbon_control_class('commands',   attributes={'no_id':True})
 Command      = create_ribbon_control_class('command')
 
 #Special backstage elements: see https://msdn.microsoft.com/de-de/library/office/ee691833(v=office.14).aspx and https://msdn.microsoft.com/de-de/library/office/ee815851(v=office.14).aspx
@@ -438,8 +437,7 @@ TaskFormGroup    = create_ribbon_control_class('task_form_group') # > category
 Category         = create_ribbon_control_class('category') # > task
 Task             = create_ribbon_control_class('task') # > group
 Hyperlink        = create_ribbon_control_class('hyperlink')
-ImageControl     = create_ribbon_control_class('image_control')
-Image = ImageControl
+Image            = ImageControl = create_ribbon_control_class('image_control')
 
 
 
@@ -769,19 +767,21 @@ class RoundingSpinnerBox(SpinnerBox):
 
 class ColorGallery(Gallery):
     
-    def __init__(self, **user_kwargs):
-        
+    def __init__(self, color_helper=None, **user_kwargs):
         # default attributes
         kwargs = {
             'show_item_label': 'false',
             'columns': 10,
             'on_action_indexed':  Callback(self.on_action_indexed, context=True),
             'get_item_count':     Callback(self.get_item_count,    context=True),
-            'get_item_image':     Callback(self.get_item_image,    context=True, slides=True, slide=True),
+            'get_item_image':     Callback(self.get_item_image,    context=True),
             # 'get_item_screentip': Callback(self.get_item_name),
-            'get_item_label':     Callback(self.get_item_name),
-            'get_selected_item_index':  Callback(self.get_selected_item_index, context=True)
+            'get_item_label':     Callback(self.get_item_name,     context=True),
+            # 'get_selected_item_index':  Callback(self.get_selected_item_index, context=True)
         }
+        #only add callback 'get_selected_item_index' if 'get_selected_color' is provided to avoid UI error messages
+        if "get_selected_color" in user_kwargs:
+            kwargs["get_selected_item_index"] = Callback(self.cb_get_selected_item_index, context=True)
         kwargs.update(user_kwargs)
         
         if not 'image' in kwargs and not 'image_mso' in kwargs:
@@ -793,6 +793,15 @@ class ColorGallery(Gallery):
         
         # reset gallery_colors, later initialized by get_item_image
         self.gallery_colors = [[0,0,0] for k in range(80)]
+        self.theme_colors = [None]*60
+        
+        #allow to pass color helper to make this element also available for other office apps than powerpoint
+        #powerpoint color helper is fallback for backwards compatibility
+        if color_helper:
+            self.color_helper = color_helper
+        else:
+            import bkt.library.powerpoint as pplib
+            self.color_helper = pplib.ColorHelper #4 functions required: get_theme_color, get_theme_index, get_recent_color, get_recent_colors_count
     
 
     def on_action_indexed(self, selected_item, index, context, **kwargs):
@@ -824,7 +833,7 @@ class ColorGallery(Gallery):
     def get_item_count(self, context):
         return 70 + self.recent_count(context)
     
-    def get_selected_item_index(self, context, **kwargs):
+    def cb_get_selected_item_index(self, context, **kwargs):
         #if self.get_selected_color == None:
         if not 'get_selected_color' in self._callbacks:
             return -1
@@ -843,13 +852,12 @@ class ColorGallery(Gallery):
             gallery_colors_list = [ None if x is None else [x[0], int(x[1]*100)]  for x in self.gallery_colors]
             check = [theme_brightness_rgb[0], int(theme_brightness_rgb[1]*100)]
 
-        if check in gallery_colors_list:
-            #bkt.helpers.log(str(index))
+        try:
             return gallery_colors_list.index(check)
-        else:
+        except ValueError:
             return -1
 
-    def get_item_image(self, context, slide, index):
+    def get_item_image(self, context, index):
         '''
             Returns image as System.Drawing.Bitmap-object for the given gallery-item-index.
         '''
@@ -860,12 +868,12 @@ class ColorGallery(Gallery):
         # get rgb-value and brightness
         if index/10 == 0:
             # theme colors
-            themecolor = self._permutation[index %10]+1
-            rgb = self.get_theme_color(slide, index % 10)
-        elif index/10 in range(1,6):
+            color = self.get_theme_color(context, index)
+            rgb, themecolor = color.rgb, color.theme_index
+        elif index/10 < 6:
             # theme color shades
-            themecolor = self._permutation[index %10]+1
-            rgb, brightness = self.get_theme_color_shade(slide, index % 10, index/10-1)
+            color = self.get_theme_color_shade(context, index, index/10-1)
+            rgb, themecolor, brightness = color.rgb, color.theme_index, color.brightness
         elif index/10 == 6:
             # standard colors
             rgb = self.get_standard_color(index % 10)
@@ -881,14 +889,14 @@ class ColorGallery(Gallery):
         else:
             return self.get_color_image(rgb)
 
-    def get_item_name(self, index):
+    def get_item_name(self, context, index):
         '''
             Returns the label for the given gallery-item-index.
         '''
         if index/10 == 0:
-            return self.get_theme_color_name(index % 10)
-        elif index/10 in range(1,6):
-            return self.get_theme_color_shade_name(index % 10, index/10)
+            return self.get_theme_color_name(context, index)
+        elif index/10 < 6:
+            return self.get_theme_color_shade_name(context, index, index/10-1)
         elif index/10 == 6:
             return self.get_standard_color_name(index % 10)
         elif index/10 == 7:
@@ -898,64 +906,38 @@ class ColorGallery(Gallery):
 
 
     #### Theme colors ####
-    _theme_colors = ['Dark1', 'Light1', 'Dark2', 'Light2', 'Accent1', 'Accent2', 'Accent3', 'Accent4', 'Accent5', 'Accent6']
-    _permutation  = [1,0, 3,2, 4,5,6,7,8,9]
 
-    def get_theme_color(self, slide, index):
+    def get_theme_color(self, context, index):
         '''
             Returns Office-RGB-value for the given theme-color-index
         '''
-        return slide.ThemeColorScheme(self._permutation[index]+1).RGB
+        if not self.theme_colors[index]:
+            self.theme_colors[index] = self.color_helper.get_theme_color(context, self.color_helper.get_theme_index(index))
+        return self.theme_colors[index]
 
-    def get_theme_color_name(self, index):
+    def get_theme_color_name(self, context, index):
         '''
             Returns name for the given theme-color-index
         '''
-        return self._theme_colors[self._permutation[index]]
+        return self.get_theme_color(context, index).name
 
 
     #### Theme color shades ####
-    _theme_color_shades = [
-        # depending on HSL-Luminosity, different brightness-values are used
-        # brightness-values = percentage brighter  (darker if negative)
-        [range(0,1),     [ 0.5,   0.35,  0.25,  0.15,  0.05] ],
-        [range(1,51),    [ 0.9,   0.75,  0.50,  0.25,  0.1] ],
-        [range(51,204),  [ 0.8,   0.6,   0.4,  -0.25, -0.5] ],
-        [range(204,255), [-0.1,  -0.25, -0.50, -0.75, -0.9] ],
-        [range(255,256), [-0.05, -0.15, -0.25, -0.35, -0.5] ]
-    ]
 
-    def get_theme_color_shade(self, slide, index, shade_index):
+    def get_theme_color_shade(self, context, index, shade_index):
         '''
             Returns Office-RGB-value and brightness-factor for the given theme-color-index and shade-index.
             Note that RGB-values can differ from PowerPoint-RGB-values by ~1 (in each color-dimension)
         '''
-        # get theme color rgb
-        rgb = slide.ThemeColorScheme(self._permutation[index]+1).RGB
-        color = ColorTranslator.FromOle(rgb)
-        r,g,b = color.R, color.G, color.B
-        # get factor depending on luminosity
-        l = color.GetBrightness()*255
-        factors =  [factors for factors in self._theme_color_shades if round(l) in factors[0]][0][1]
-        factor = factors[shade_index]
-        # apply factor
-        if factor < 0:
-            r = round(r * (1+factor))
-            g = round(g * (1+factor))
-            b = round(b * (1+factor))
-        else:
-            r = round(r + (255.-r)*factor)
-            g = round(g + (255.-g)*factor)
-            b = round(b + (255.-b)*factor)
-        # return color
-        color = Color.FromArgb(r, g, b);
-        return ColorTranslator.ToOle(color), factor
+        if not self.theme_colors[index]:
+            self.theme_colors[index] = self.color_helper.get_theme_color(context, self.color_helper.get_theme_index(index), shade_index=shade_index)
+        return self.theme_colors[index]
 
-    def get_theme_color_shade_name(self, index, shade_index):
+    def get_theme_color_shade_name(self, context, index, shade_index):
         '''
             Returns name for the given theme-color-index and shade-index
         '''
-        return self._theme_colors[index] + ' shade ' + str(shade_index)
+        return self.get_theme_color_shade(context, index, shade_index).name
 
 
 
@@ -982,8 +964,8 @@ class ColorGallery(Gallery):
         '''
             Returns Office-RGB-value for the given recent-color-index
         '''
-        if index < context.app.activewindow.presentation.extraColors.count:
-            return context.app.activewindow.presentation.extraColors(index+1)
+        if index < self.recent_count(context):
+            return self.color_helper.get_recent_color(context, index+1)
         else:
             return None, None
 
@@ -991,7 +973,7 @@ class ColorGallery(Gallery):
         '''
             Returns number of recent colors
         '''
-        return context.app.activewindow.presentation.extraColors.count
+        return self.color_helper.get_recent_colors_count(context)
 
 
     #### image creation ####
@@ -1011,6 +993,7 @@ class ColorGallery(Gallery):
 
 
 class SymbolsGallery(Gallery):
+    fallback_font = "Arial"
     
     def __init__(self, symbols=None, **user_kwargs):
         self.symbols = symbols or [] #list([font, symbol, screentip, supertip], [...])
@@ -1027,6 +1010,9 @@ class SymbolsGallery(Gallery):
             'get_image':                Callback(lambda: self.get_item_image(0) )
             # 'get_selected_item_index':  Callback(self.get_selected_item_index, context=True)
         }
+        #only add callback 'get_selected_item_index' if 'get_selected_symbol' is provided to avoid UI error messages
+        if "get_selected_symbol" in user_kwargs:
+            kwargs["get_selected_item_index"] = Callback(self.cb_get_selected_item_index, context=True)
         kwargs.update(user_kwargs)
 
         super(SymbolsGallery, self).__init__(**kwargs)
@@ -1052,7 +1038,7 @@ class SymbolsGallery(Gallery):
         ''' creates an item image with numberd shape according to settings in the specified item '''
         # retrieve item-settings
         item = self.symbols[index]
-        font = item[0] or "Arial" #Fallback font
+        font = item[0] or self.fallback_font #Fallback font
         return SymbolsGallery.create_symbol_image(font, item[1])
 
     def get_item_screentip(self, index):
@@ -1073,7 +1059,7 @@ class SymbolsGallery(Gallery):
         except:
             return "Fügt das Symbol in aktuellen Text oder neues Shape ein."
     
-    def get_selected_item_index(self, context, **kwargs):
+    def cb_get_selected_item_index(self, context, **kwargs):
         if not 'get_selected_symbol' in self._callbacks:
             return -1
 

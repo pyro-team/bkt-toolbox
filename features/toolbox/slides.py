@@ -92,7 +92,7 @@ class SendOrSaveSlides(object):
 
     @classmethod
     def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False):
-        import tempfile
+        import tempfile, os.path
 
         from bkt import dotnet
         Outlook = dotnet.import_outlook()
@@ -102,7 +102,7 @@ class SendOrSaveSlides(object):
         oMail.Subject = filename
 
         # Kopie speichern und öffnen
-        fullFileName = tempfile.gettempdir() + "\\" + filename
+        fullFileName = os.path.join(tempfile.gettempdir(), filename)
         application.ActiveWindow.Presentation.SaveCopyAs(fullFileName)
         newPres = application.Presentations.Open(fullFileName)
         
@@ -256,7 +256,18 @@ class FolienMenu(object):
         except:
             pass
         
-        
+    @classmethod
+    def _iterate_all_shapes(cls, context, groupitems=False):
+        slides = context.app.ActivePresentation.Slides
+        for slide in slides:
+            for shape in slide.shapes:
+                if groupitems and shape.Type == 6: #pplib.MsoShapeType['msoGroup']
+                    for gShape in shape.GroupItems:
+                        yield gShape
+                else:
+                    yield shape
+
+
     @classmethod
     def remove_transitions(cls, context):
         slides = context.app.ActivePresentation.Slides
@@ -265,10 +276,8 @@ class FolienMenu(object):
     
     @classmethod
     def remove_animations(cls, context):
-        slides = context.app.ActivePresentation.Slides
-        for slide in slides:
-            for shape in slide.shapes:
-                shape.AnimationSettings.Animate = 0
+        for shape in cls._iterate_all_shapes(context):
+            shape.AnimationSettings.Animate = 0
 
     @classmethod
     def remove_hidden_slides(cls, context):
@@ -299,13 +308,11 @@ class FolienMenu(object):
 
     @classmethod
     def remove_doublespaces(cls, context):
-        slides = context.app.ActivePresentation.Slides
-        for slide in slides:
-            for shape in slide.shapes:
-                if shape.HasTextFrame == -1:
-                    found = True
-                    while found is not None:
-                        found = shape.TextFrame.TextRange.Replace("  ", " ")
+        for shape in cls._iterate_all_shapes(context, groupitems=True):
+            if shape.HasTextFrame == -1:
+                found = True
+                while found is not None:
+                    found = shape.TextFrame.TextRange.Replace("  ", " ")
     
     @classmethod
     def remove_empty_placeholders(cls, context):
@@ -318,16 +325,34 @@ class FolienMenu(object):
 
     @classmethod
     def blackwhite_gray_scale(cls, context):
-        slides = context.app.ActivePresentation.Slides
-        for sld in slides:
-            for shape in slide.shapes:
-                if shape.BlackWhiteMode == 1:
-                    shape.BlackWhiteMode = 2
+        for shape in cls._iterate_all_shapes(context, groupitems=True):
+            if shape.BlackWhiteMode == 1:
+                shape.BlackWhiteMode = 2
 
     @classmethod
     def remove_author(cls, context):
         context.presentation.BuiltInDocumentProperties.item["author"].value = ''
+
+    @classmethod
+    def remove_unused_masters(cls, context):
+        for design in context.presentation.Designs:
+            for cl in list(iter(design.SlideMaster.CustomLayouts)): #list(iter()) required as delete function will not work on all elements otherwise!
+                try:
+                    cl.Delete()
+                except: #deletion fails if layout in use
+                    continue
+            # if design.SlideMaster.CustomLayouts.Count == 0:
+            #     design.Delete()
     
+
+    @classmethod
+    def break_links(cls, context):
+        for shape in cls._iterate_all_shapes(context, groupitems=True):
+            try:
+                shape.LinkFormat.BreakLink()
+            except:
+                pass
+
 
 
 
@@ -413,6 +438,13 @@ slides_group = bkt.ribbon.Group(
                             supertip="Autor aus den Dokumenteneigenschaften entfernen.",
                             on_action=bkt.Callback(FolienMenu.remove_author)
                         ),
+                        bkt.ribbon.Button(
+                            id = 'presentation_break_links',
+                            label='Externe Verknüpfungen entfernen',
+                            image_mso='HyperlinkRemove',
+                            supertip="Hebt den Link von verknüpften Objekten (bspw. Bilder und OLE-Objekten) auf.",
+                            on_action=bkt.Callback(FolienMenu.break_links)
+                        ),
                         bkt.ribbon.MenuSeparator(title="Animationen"),
                         bkt.ribbon.Button(
                             id = 'slide_remove_transitions',
@@ -449,6 +481,14 @@ slides_group = bkt.ribbon.Group(
                             image_mso='HeaderFooterRemoveHeaderWord',
                             supertip="Lösche leere Platzhalter-Textboxen im gesamten Foliensatz.",
                             on_action=bkt.Callback(FolienMenu.remove_empty_placeholders)
+                        ),
+                        bkt.ribbon.MenuSeparator(title="Folienmaster"),
+                        bkt.ribbon.Button(
+                            id = 'slide_remove_unused_masters',
+                            label='Nicht genutzte Folienmaster entfernen',
+                            image_mso='SlideDelete',
+                            supertip="Lösche alle nicht verwendeten Folienmaster-Layouts in allen Foliendesigns.",
+                            on_action=bkt.Callback(FolienMenu.remove_unused_masters)
                         )
                     ]),
                 ]),

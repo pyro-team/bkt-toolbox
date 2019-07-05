@@ -242,6 +242,7 @@ class AddIn(object):
         #logging.debug("invoking callback: %s --- args=%s --- kwargs=%s" % (callback, args, kwargs))
         try:
             self.context.current_control = my_control
+            self.context.customui_control = control
             #kwargs.update(self.context.resolve_callback.resolve_arguments(callback.invocation_context))
             #return_value= self.app_callbacks.invoke_callback(callback, *args, **kwargs)
             return_value= self.context.invoke_callback(callback, *args, **kwargs)
@@ -287,8 +288,9 @@ class AddIn(object):
         
         return return_value
             
-    def get_enabled_ppt_shapes_or_text_selected(self, control):
-        return (self.context.app.ActiveWindow.selection.Type == 2 or self.context.app.ActiveWindow.selection.Type == 3)
+    #@deprecated
+    # def get_enabled_ppt_shapes_or_text_selected(self, control):
+    #     return (self.context.app.ActiveWindow.selection.Type == 2 or self.context.app.ActiveWindow.selection.Type == 3)
     
     
     
@@ -559,9 +561,9 @@ class AddIn(object):
                     #_h.exception_as_message('failed to load %s' % module)
         
 
-        CACHE_VERSION = "20190509"
+        CACHE_VERSION = "20190603"
         cache_file = os.path.join( _h.get_cache_folder(), "%s.import.cache" % self.context.app_name )
-        import_cache = shelve.open(cache_file)
+        import_cache = shelve.open(cache_file, protocol=2)
 
         # STRUCTURE OF IMPORT CACHE #
         #############################
@@ -602,7 +604,8 @@ class AddIn(object):
                     logging.error('failed to load feature %s from cache' % module_name)
                     logging.error(traceback.format_exc())
                     _h.message('failed to load feature %s from cache' % module_name)
-                    # _h.message(traceback.format_exc())
+                    if bkt.config.show_exception:
+                        _h.exception_as_message()
                     #TODO: remove cache on error?
 
             for module_name, folder in import_cache['inits.legacy']:
@@ -613,7 +616,8 @@ class AddIn(object):
                     logging.error('failed to load legacy feature %s from cache' % module_name)
                     logging.error(traceback.format_exc())
                     _h.message('failed to load legacy feature %s from cache' % module_name)
-                    # _h.message(traceback.format_exc())
+                    if bkt.config.show_exception:
+                        _h.exception_as_message()
                     #TODO: remove cache on error?
         
         # load and renew cache:
@@ -694,7 +698,8 @@ class AddIn(object):
                         logging.error('failed to load feature-folder %s' % folder)
                         logging.error(traceback.format_exc())
                         _h.message('failed to load feature-folder %s' % folder)
-                        # _h.message(traceback.format_exc())
+                        if bkt.config.show_exception:
+                            _h.exception_as_message()
                         #TODO: Offer user to remove feature folder from config on error
 
                 # backwards compatibility: load module from init.py
@@ -709,7 +714,8 @@ class AddIn(object):
                         logging.error('failed to load legacy feature-folder %s' % folder)
                         logging.error(traceback.format_exc())
                         _h.message('failed to load legacy feature-folder %s' % folder)
-                        # _h.message(traceback.format_exc())
+                        if bkt.config.show_exception:
+                            _h.exception_as_message()
                         #TODO: Offer user to remove feature folder from config on error
             
             #save to cache

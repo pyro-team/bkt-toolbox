@@ -1,3 +1,31 @@
+# Release 2019-07-05 (2.5.2)
+
+  * Custom formats: Complete refactoring with gallery as selection and function for pickup-apply of individual formats
+  * QuickEdit: 3 catalogs for own colors selectable (with mouse wheel); improvement with shades of the theme colors (use of shade index instead of brightness)
+  * Symbol menu: Last used symbols, dynamic icon font menu, insert as shape or image, unicode font selectable
+  * PPT-Thumbnails: Paste now also possible via "normal" copying (from OLE project, but only for one slide)
+  * Extended (euclidian) distance: Configurable behavior when selecting more than 2 shapes
+  * New feature for statistics (count, sum) of selected shapes 'ppt_statistics' (must be activated)
+  * New feature to adjust the edges 'Edge autofixer' in the position menu
+  * Shape distance to the left or top now works correctly
+  * Arrangement in tables/paragraphs/shapes now significantly improved
+  * Shape-Tables: Negative distances possible, function to distribute width/height equally
+  * Storage of various settings in user settings (e.g. Global LocPin, ShapeDistance mode, Placeholder text, Recent symbols, etc.)
+  * Function to remove unused master layouts, as well as remove all external links
+  * Focus problem with popups fixed
+  * Avoid error message by invalid return of get_selected_item_index
+  * ColorGallery is now also available in Excel
+
+
+# Release 2019-05-13 (2.5.1)
+
+  * QuickEdit: UI enhancements
+  * Chartlib: Library refresh is using threads, progress bar and cache
+  * Unicode support for log files
+  * Error handling for popups added
+  * Improvement of the import cache incl. conflict handling
+
+
 # Release 2019-04-18 (2.5)
 
 ## ADDED

@@ -49,6 +49,17 @@
                     <Separator />
                     <MenuItem Header="Alle Farben neu laden" Click="ForceReload" />
                     <MenuItem Header="Eigene Farben zurücksetzen" Click="ResetOwnColors" />
+                    <MenuItem Header="Katalog für eigene Farben" ItemsSource="{Binding catalogs}" Click="change_file">
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="{x:Type MenuItem}">
+                                <Setter Property="Header" Value="{Binding Path=Name}" />
+                                <Setter Property="Tag" Value="{Binding Path=File}" />
+                                <!-- <Setter Property="Click" Value="change_file" /> -->
+                                <Setter Property="IsCheckable" Value="True" />
+                                <Setter Property="IsChecked" Value="{Binding Path=Checked}" />
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
                     <Separator />
                     <MenuItem Header="Hilfe öffnen" Click="ShowHelp" />
                     <MenuItem FontFamily="Lucida Sans Typewriter" Header="[SHIFT]: Auswahl" IsEnabled="False" />
@@ -143,7 +154,7 @@
             <!-- <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" /> -->
             
             <WrapPanel Margin="2" Orientation="{Binding inner_orientation}">
-                <ToggleButton IsChecked="{Binding editmode}" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}" ToolTip="Farben ändern an/aus" Focusable="False">
+                <ToggleButton IsChecked="{Binding editmode}" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}" ToolTip="Farben ändern an/aus" Focusable="False" MouseWheel="Catalog_Wheel">
                     <!-- <Rectangle Fill="White" Width="12" Height="12" Margin="2" SnapsToDevicePixels="True" Stroke="Black" StrokeThickness="0.5" StrokeDashArray="2.5 2.5" /> -->
                     <!-- <Image Source="{Binding image_edit}" Width="12" Height="12" /> -->
                     <Viewbox Width="14" Height="14" Margin="1">

@@ -40,15 +40,16 @@ class PPTColor(object):
         return cls(COLOR_RGB, color_rgb=color_rgb)
     
     @classmethod
-    def new_theme(cls, color_index, brightness, color_rgb=None):
-        return cls(COLOR_THEME, color_index, brightness, color_rgb)
+    def new_theme(cls, color_index, brightness, color_rgb=None, shade_index=None):
+        return cls(COLOR_THEME, color_index, brightness, color_rgb, shade_index)
 
 
-    def __init__(self, color_type=COLOR_RGB, color_index=None, brightness=None, color_rgb=None):
+    def __init__(self, color_type=COLOR_RGB, color_index=None, brightness=None, color_rgb=None, shade_index=None):
         self.color_type  = color_type
         self.color_index = color_index
         self.brightness  = brightness
         self.color_rgb   = color_rgb
+        self.shade_index = shade_index #-1=not yet defined, set index on next update_from_context; None=ignore, only use brightness
     
     def __eq__(self, other):
         if isinstance(other, PPTColor):
@@ -65,50 +66,40 @@ class PPTColor(object):
     def update_rgb_from_context(self, context):
         if self.color_type == COLOR_RGB:
             raise TypeError("Cannot update RGB value from context")
-        try:
-            ColorScheme = context.app.ActiveWindow.View.Slide.ThemeColorScheme
-        except:
-            ColorScheme = context.app.ActivePresentation.SlideMaster.Theme.ThemeColorScheme
-        # NOTE:
-        # PowerPoints default color picker is using theme color values 13-16 instead of 1-4, however, theme color 13-16 are not defined.
-        # It seems that they are internally mapped to 1-4. So we do the same there to get a better user experience.
-        color_index = self.color_index if self.color_index < 13 else self.color_index-12
-        self.color_rgb = ColorScheme(color_index).RGB
-        #adjust for brightness
-        if self.brightness != 0:
-            # split rgb color in r,g,b
-            color = D.ColorTranslator.FromOle(self.color_rgb)
-            r,g,b = color.R, color.G, color.B
-            # apply brightness factor
-            if self.brightness < 0:
-                r = round(r * (1+self.brightness))
-                g = round(g * (1+self.brightness))
-                b = round(b * (1+self.brightness))
-            else:
-                r = round(r + (255.-r)*self.brightness)
-                g = round(g + (255.-g)*self.brightness)
-                b = round(b + (255.-b)*self.brightness)
-            # store color rgb
-            color = D.Color.FromArgb(r, g, b);
-            self.color_rgb = D.ColorTranslator.ToOle(color)
+
+        if self.shade_index == -1:
+            color = pplib.ColorHelper.get_theme_color(context, self.color_index, brightness=self.brightness)
+            self.shade_index = color.shade_index
+            logging.debug("QuickEdit: shade index changed to %s" % str(self.shade_index))
+        elif self.shade_index is not None:
+            color = pplib.ColorHelper.get_theme_color(context, self.color_index, shade_index=self.shade_index)
+            self.brightness = color.brightness
+            logging.debug("QuickEdit: brightness changed to %s" % str(self.brightness))
+        else:
+            color = pplib.ColorHelper.get_theme_color(context, self.color_index, brightness=self.brightness)
+        self.color_rgb = color.rgb
 
 
     def pickup_from_color_obj(self, color_obj):
         if color_obj.Type == pplib.MsoColorType['msoColorTypeScheme']:
             self.color_type  = COLOR_THEME
             self.color_index = color_obj.ObjectThemeColor
+            # self.color_index = color_obj.SchemeColor
             self.brightness  = color_obj.Brightness
             self.color_rgb   = color_obj.RGB
+            self.shade_index = -1 #-1: shade index will be set on first update
         else:
             self.color_type  = COLOR_RGB
             self.color_index = None
             self.brightness  = None
             self.color_rgb   = color_obj.RGB
+            self.shade_index = None
         return self
     
     def apply_to_color_obj(self, color_obj):
         if self.color_type == COLOR_THEME:
             color_obj.ObjectThemeColor = self.color_index
+            # color_obj.SchemeColor = self.color_index
             color_obj.Brightness = self.brightness
         else:
             color_obj.RGB = self.color_rgb
@@ -116,7 +107,7 @@ class PPTColor(object):
 
     def get_color_tuple(self):
         if self.color_type == COLOR_THEME:
-            return (COLOR_THEME, self.color_index, self.brightness)
+            return (COLOR_THEME, self.color_index, int(100*self.brightness)) #convert brightness to int to avoid floating point comparison problems
         else:
             return (COLOR_RGB, self.color_rgb)
     
@@ -248,9 +239,9 @@ class QEColorButton(bkt.ui.NotifyPropertyChangedBase):
         # self.color_type = COLOR_RGB | COLOR_USERDEFINED
         self.set_color( PPTColor.new_rgb(color_rgb) )
 
-    def set_userdefined_theme(self, color_index, brightness=0, color_rgb=None):
+    def set_userdefined_theme(self, color_index, brightness=0, color_rgb=None, shade_index=None):
         # self.color_type = COLOR_THEME | COLOR_USERDEFINED
-        self.set_color( PPTColor.new_theme(color_index, brightness, color_rgb) )
+        self.set_color( PPTColor.new_theme(color_index, brightness, color_rgb, shade_index) )
 
 
     def get_checked(self):
@@ -318,32 +309,56 @@ class QEColorButton(bkt.ui.NotifyPropertyChangedBase):
 
     def to_json(self):
         if self.is_rgb_color:
-            return (self._color.color_rgb, None, None)
+            return (self._color.color_rgb, None, None, None)
         else:
-            return (self._color.color_rgb, self._color.color_index, float(self._color.brightness)) #explicitly convert to float for json!
+            return (self._color.color_rgb, self._color.color_index, float(self._color.brightness), self._color.shade_index) #explicitly convert to float for json!
 
     def from_json(self, value):
         if value[1] is None:
             self.set_userdefined_rgb(value[0])
-        else:
+        elif len(value) == 3:
             self.set_userdefined_theme(value[1], value[2], value[0])
+        else:
+            self.set_userdefined_theme(value[1], value[2], value[0], value[3])
 
+
+class QECatalog(bkt.ui.NotifyPropertyChangedBase):
+    ''' Catalog class for config files, name and whether they are checked '''
+
+    def __init__(self, file, name, checked=False):
+        self.File = file
+        self.Name = name
+        self._checked = checked
+        super(QECatalog, self).__init__()
+
+    @property
+    def Checked(self):
+        return self._checked
+    @Checked.setter
+    def Checked(self, value):
+        self._checked = value
+        # enforce onPropertyChange to ensure correct checked state
+        self.OnPropertyChanged("Checked")
+    
+    # namedtuple("QECatalog", ["file", "name", "checked"])
 
 
 class QuickEdit(object):
 
     #### Theme colors ####
     _colors = [
-        QEColorButton('Background 1', BUTTON_THEME, 14),
-        QEColorButton('Text 1',       BUTTON_THEME, 13),
-        QEColorButton('Background 2', BUTTON_THEME, 16),
-        QEColorButton('Text 2',       BUTTON_THEME, 15),
-        QEColorButton('Accent 1',     BUTTON_THEME, 5),
-        QEColorButton('Accent 2',     BUTTON_THEME, 6),
-        QEColorButton('Accent 3',     BUTTON_THEME, 7),
-        QEColorButton('Accent 4',     BUTTON_THEME, 8),
-        QEColorButton('Accent 5',     BUTTON_THEME, 9),
-        QEColorButton('Accent 6',     BUTTON_THEME, 10),
+        # QEColorButton('Background 1', BUTTON_THEME, 14),
+        # QEColorButton('Text 1',       BUTTON_THEME, 13),
+        # QEColorButton('Background 2', BUTTON_THEME, 16),
+        # QEColorButton('Text 2',       BUTTON_THEME, 15),
+        # QEColorButton('Accent 1',     BUTTON_THEME, 5),
+        # QEColorButton('Accent 2',     BUTTON_THEME, 6),
+        # QEColorButton('Accent 3',     BUTTON_THEME, 7),
+        # QEColorButton('Accent 4',     BUTTON_THEME, 8),
+        # QEColorButton('Accent 5',     BUTTON_THEME, 9),
+        # QEColorButton('Accent 6',     BUTTON_THEME, 10),
+        QEColorButton(name,     BUTTON_THEME, index)
+        for index,name in pplib.ColorHelper.get_theme_colors()
     ]
 
     #### Extra/Recent Colors ####
@@ -374,27 +389,59 @@ class QuickEdit(object):
         QEColorButton('Own 10',    BUTTON_USERDEFINED, 10),
     ]
 
+    _catalogs = [
+        QECatalog("default.json", "Katalog 1", True),
+        QECatalog("default2.json", "Katalog 2", False),
+        QECatalog("default3.json", "Katalog 3", False)
+    ]
+
     config_folder = os.path.join(bkt.helpers.get_fav_folder(), "quickedit")
     current_file = "default.json"
+
+    @classmethod
+    def initialize(cls):
+        cls.current_file = bkt.settings.get("quickedit.default_file", "default.json")
+        cls.read_from_config(cls.current_file)
 
 
     @classmethod
     def save_to_config(cls):
+        import os
         # bkt.console.show_message("%r" % cls._usercolors)
         # bkt.console.show_message(json.dumps(cls._usercolors))
-        file   = os.path.join(cls.config_folder, cls.current_file)
+        file = os.path.join(cls.config_folder, cls.current_file)
         if not os.path.exists(cls.config_folder):
             os.makedirs(cls.config_folder)
+        elif os.path.isfile(file):
+            #make backup
+            backup_file = file[:-5] + "-backup.json"
+            try:
+                os.remove(backup_file)
+            except OSError:
+                pass
+            os.rename(file, backup_file)
+
         values = [v.to_json() for v in cls._userdefined if v.is_defined]
         with io.open(file, 'w') as json_file:
             json.dump(values, json_file)
 
     @classmethod
-    def read_from_config(cls):
-        file   = os.path.join(cls.config_folder, cls.current_file)
+    def read_from_config(cls, filename="default.json"):
+        #store settings
+        cls.current_file = filename
+        bkt.settings["quickedit.default_file"] = filename
+        file = os.path.join(cls.config_folder, filename)
+
+        #update catalog list
+        for cat in cls._catalogs:
+            cat.Checked = cat.File == filename
+        
+        #create default file if not exists
         if not os.path.isfile(file):
             cls.reset_own_colors()
             return
+
+        #load file if exists
         with io.open(file, 'r') as json_file:
             values = json.load(json_file)
         for i,v in enumerate(values):
@@ -481,7 +528,7 @@ class QuickEdit(object):
             # cls._add_own_color(context, color)
             # color.set_userdefined_rgb(new_color)
             qebutton.set_color(new_color)
-            # cls.update_colors(context)
+            cls.update_colors(context) #update colors here in order to define shade_index
             cls.update_pressed(context)
             cls.save_to_config()
 
@@ -516,9 +563,14 @@ class QuickEdit(object):
     def update_pressed(cls, context):
         try:
             shaperange = cls._get_shape_range(context.selection)
-            QEColorButtons.set_active_colors( set([cls._color_key(shaperange.Fill), cls._color_key(shaperange.Line)]) )
+            if shaperange.HasTable:
+                QEColorButtons.set_active_colors( ) #nothing selected
+                # QEColorButtons.set_active_colors( [cls._color_key(shaperange.Fill)] ) #NOTE: this causes a strange behavior when selecting text in a table cell, the whole text gets selected (sometimes)
+            else:
+                QEColorButtons.set_active_colors( set([cls._color_key(shaperange.Fill), cls._color_key(shaperange.Line)]) )
         except:
-            QEColorButtons.set_active_colors( )
+            QEColorButtons.set_active_colors( ) #nothing selected
+            # bkt.helpers.exception_as_message()
 
     @classmethod
     def update_colors(cls, context):
@@ -855,7 +907,7 @@ class QuickEdit(object):
 #         bkt.console.show_message(bkt.ui.endings_to_windows(help_msg))
 
 
-QuickEdit.read_from_config()
+QuickEdit.initialize()
 # bkt.AppEvents.bkt_load += bkt.Callback(QuickEdit.read_from_config)
 
 bkt.AppEvents.selection_changed       += bkt.Callback(QuickEdit.update_pressed, context=True)

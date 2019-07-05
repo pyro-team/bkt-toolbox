@@ -37,6 +37,7 @@ class AppContext(object):
         self._config = config
         self._settings = settings
         # uninitialized values
+        self.customui_control = None
         self.current_control = None
         # caching of arguments
         self.cache = {}

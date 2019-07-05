@@ -18,20 +18,22 @@ class ShapeWrapper(object):
     @property
     def left(self):
         ''' get left position considering locpin setting '''
-        return self.shape.left + self.locpin.get_fractions()[1]*self.shape.width
+        return round(self.shape.left + self.locpin.get_fractions()[1]*self.shape.width, 3) #max precision for position in ppt is 3 decimal places
     @left.setter
     def left(self, value):
         ''' set left position considering locpin setting '''
-        self.shape.left = value - self.locpin.get_fractions()[1]*self.shape.width
+        # self.shape.left = value - self.locpin.get_fractions()[1]*self.shape.width
+        self.shape.incrementLeft(value-self.left)
     
     @property
     def top(self):
         ''' get top position considering locpin setting '''
-        return self.shape.top + self.locpin.get_fractions()[0]*self.shape.height
+        return round(self.shape.top + self.locpin.get_fractions()[0]*self.shape.height, 3) #max precision for position in ppt is 3 decimal places
     @top.setter
     def top(self, value):
         ''' set top position considering locpin setting '''
-        self.shape.top = value - self.locpin.get_fractions()[0]*self.shape.height
+        # self.shape.top = value - self.locpin.get_fractions()[0]*self.shape.height
+        self.shape.incrementTop(value-self.top)
 
     @property
     def width(self):
@@ -97,7 +99,7 @@ class ShapeWrapper(object):
     @x.setter
     def x(self, value):
         ''' set left position '''
-        self.shape.left = value
+        self.shape.incrementLeft(value-self.x) #using IncrementLeft() has advantage that connected connectors are not moved; setting left directly has strange effect on connectors
 
     @property
     def y(self):
@@ -106,7 +108,7 @@ class ShapeWrapper(object):
     @y.setter
     def y(self, value):
         ''' set top position '''
-        self.shape.top = value
+        self.shape.incrementTop(value-self.y) #using IncrementTop() has advantage that connected connectors are not moved; setting top directly has strange effect on connectors
 
     @property
     def x1(self):
@@ -115,7 +117,7 @@ class ShapeWrapper(object):
     @x1.setter
     def x1(self, value):
         ''' set right position '''
-        self.shape.left = value-self.shape.width
+        self.shape.incrementLeft(value-self.x1)
 
     @property
     def y1(self):
@@ -124,7 +126,30 @@ class ShapeWrapper(object):
     @y1.setter
     def y1(self, value):
         ''' set bottom position '''
-        self.shape.top = value-self.shape.height
+        self.shape.incrementTop(value-self.y1)
+
+
+    def resize_to_x(self, value):
+        ''' resize shape to given left edge (x-value) '''
+        self.shape.width += self.x-value
+        self.x = value
+
+    def resize_to_y(self, value):
+        ''' resize shape to given top edge (y-value) '''
+        self.shape.height += self.y-value
+        self.y = value
+
+    def resize_to_x1(self, value):
+        ''' resize shape to given right edge (x1-value) '''
+        self.shape.width = value-self.x
+
+    def resize_to_y1(self, value):
+        ''' resize shape to given bottom edge (y1-value) '''
+        self.shape.height = value-self.y
+    
+    def transpose(self):
+        ''' switch shape height and width '''
+        self.width,self.height = self.height,self.width
 
 
     @property
@@ -134,7 +159,8 @@ class ShapeWrapper(object):
     @center_x.setter
     def center_x(self, value):
         ''' set center x position '''
-        self.shape.left = value - self.shape.width/2
+        # self.shape.left = value - self.shape.width/2
+        self.shape.incrementLeft(value-self.center_x)
     
     @property
     def center_y(self):
@@ -143,52 +169,86 @@ class ShapeWrapper(object):
     @center_y.setter
     def center_y(self, value):
         ''' set center y position '''
-        self.shape.top = value - self.shape.height/2
+        # self.shape.top = value - self.shape.height/2
+        self.shape.incrementTop(value-self.center_y)
 
 
     @property
     def visual_x(self):
         ''' get visual x (=left) position considering rotation '''
+        if self.shape.rotation == 0 or self.shape.rotation == 180:
+            return self.x
+        elif self.shape.rotation == 90 or self.shape.rotation == 270:
+            return self.center_x-self.shape.height/2
         return min( p[0] for p in self.get_bounding_nodes() )
     @visual_x.setter
     def visual_x(self, value):
         ''' set visual x (=left) position considering rotation '''
-        delta = self.shape.left - self.visual_x
-        self.shape.left = value + delta
+        # delta = self.shape.left - self.visual_x
+        # self.shape.left = value + delta
+        self.shape.incrementLeft(value-self.visual_x)
+        # force recalculation of bounding notes
+        self.bounding_nodes = None
 
     @property
     def visual_y(self):
         ''' get visual y (=top) position considering rotation '''
+        if self.shape.rotation == 0 or self.shape.rotation == 180:
+            return self.y
+        elif self.shape.rotation == 90 or self.shape.rotation == 270:
+            return self.center_y-self.shape.width/2
         return min( p[1] for p in self.get_bounding_nodes() )
     @visual_y.setter
     def visual_y(self, value):
         ''' set visual y (=top) position considering rotation '''
-        delta = self.shape.top - self.visual_y
-        self.shape.top = value + delta
+        # delta = self.shape.top - self.visual_y
+        # self.shape.top = value + delta
+        self.shape.incrementTop(value-self.visual_y)
+        # force recalculation of bounding notes
+        self.bounding_nodes = None
     
     @property
     def visual_x1(self):
         ''' get visual x1 (=right) position considering rotation '''
+        if self.shape.rotation == 0 or self.shape.rotation == 180:
+            return self.x1
+        elif self.shape.rotation == 90 or self.shape.rotation == 270:
+            return self.center_x+self.shape.height/2
         return max( p[0] for p in self.get_bounding_nodes() )
     @visual_x1.setter
     def visual_x1(self, value):
         ''' set visual x1 (=right) position considering rotation '''
-        delta = self.shape.left - self.visual_x1
-        self.shape.left = value + delta
+        # delta = self.shape.left - self.visual_x1
+        # self.shape.left = value + delta
+        self.shape.incrementLeft(value-self.visual_x1)
+        # force recalculation of bounding notes
+        self.bounding_nodes = None
 
     @property
     def visual_y1(self):
         ''' get visual y1 (=bottom) position considering rotation '''
+        if self.shape.rotation == 0 or self.shape.rotation == 180:
+            return self.y1
+        elif self.shape.rotation == 90 or self.shape.rotation == 270:
+            return self.center_y+self.shape.width/2
         return max( p[1] for p in self.get_bounding_nodes() )
     @visual_y1.setter
     def visual_y1(self, value):
         ''' set visual y1 (=bottom) position considering rotation '''
-        delta = self.shape.top - self.visual_y1
-        self.shape.top = value + delta
+        # delta = self.shape.top - self.visual_y1
+        # self.shape.top = value + delta
+        self.shape.incrementTop(value-self.visual_y1)
+        # force recalculation of bounding notes
+        self.bounding_nodes = None
 
     @property
     def visual_width(self):
         ''' get visual width considering rotation '''
+        if self.shape.rotation == 0 or self.shape.rotation == 180:
+            return self.shape.width
+        elif self.shape.rotation == 90 or self.shape.rotation == 270:
+            return self.shape.height
+        #else:
         points = self.get_bounding_nodes()
         return max( p[0] for p in points ) - min( p[0] for p in points )
     @visual_width.setter
@@ -197,7 +257,9 @@ class ShapeWrapper(object):
         if self.shape.rotation == 0 or self.shape.rotation == 180:
             self.shape.width = value
         elif self.shape.rotation == 90 or self.shape.rotation == 270:
-            self.shape.height = value
+            cur_x = self.visual_x #save current x
+            self.shape.height = value #might change left edge of shape
+            self.visual_x = cur_x #move back to x, resize always to right
         else:
             delta = value - self.visual_width
             # delta_vector (delta-width, 0) um shape-rotation drehen
@@ -205,13 +267,24 @@ class ShapeWrapper(object):
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
+            # aktuelle position speichern
+            cur_x, cur_y = self.visual_x, self.visual_y
             # shape anpassen
             self.shape.width += delta_vector[0]
             self.shape.height += delta_vector[1]
+            # force recalculation of bounding notes
+            self.bounding_nodes = None
+            # vorherige position wiederherstellen
+            self.visual_x, self.visual_y = cur_x, cur_y
 
     @property
     def visual_height(self):
         ''' get visual height considering rotation '''
+        if self.shape.rotation == 0 or self.shape.rotation == 180:
+            return self.shape.height
+        elif self.shape.rotation == 90 or self.shape.rotation == 270:
+            return self.shape.width
+        #else:
         points = self.get_bounding_nodes()
         return max( p[1] for p in points ) - min( p[1] for p in points )
     @visual_height.setter
@@ -220,7 +293,9 @@ class ShapeWrapper(object):
         if self.shape.rotation == 0 or self.shape.rotation == 180:
             self.shape.height = value
         elif self.shape.rotation == 90 or self.shape.rotation == 270:
-            self.shape.width = value
+            cur_y = self.visual_y #save current y
+            self.shape.width = value #might change top edge of shape
+            self.visual_y = cur_y #move back to y, resize always to bottom
         else:
             delta = value - self.visual_height
             # delta_vector (delta-width, 0) um shape-rotation drehen
@@ -228,17 +303,26 @@ class ShapeWrapper(object):
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
+            # aktuelle position speichern
+            cur_x, cur_y = self.visual_x, self.visual_y
             # shape anpassen
             self.shape.width += delta_vector[0]
             self.shape.height += delta_vector[1]
+            # force recalculation of bounding notes
+            self.bounding_nodes = None
+            # vorherige position wiederherstellen
+            self.visual_x, self.visual_y = cur_x, cur_y
     
+
     @property
     def text(self):
+        ''' get text if shape has textframe, otherwise None '''
         if self.shape.HasTextFrame == 0 or self.shape.TextFrame.HasText == 0:
             return None
         return self.shape.TextFrame.TextRange.Text
     @text.setter
     def text(self, value):
+        ''' set text if shape has textframe; delete text if None is provided '''
         if self.shape.HasTextFrame == 0:
             raise AttributeError("Shape has no textframe")
         if value is None:
@@ -253,11 +337,14 @@ class ShapeWrapper(object):
             self.bounding_nodes = algos.get_bounding_nodes(self.shape)
         return self.bounding_nodes
 
-    # @property
-    # def rotation(self):
-    #     return self.shape.rotation
-    # @rotation.setter
-    # def rotation(self, value):
+    @property
+    def rotation(self):
+        ''' get shape rotation '''
+        return self.shape.rotation
+    @rotation.setter
+    def rotation(self, value):
+        ''' set shape rotation '''
+        self.shape.incrementRotation(value-self.rotation)
 
     #     points = self.get_bounding_nodes()
     #     pivotX, pivotY = points[0]

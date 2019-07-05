@@ -7,7 +7,7 @@ Created on 2017-08-16
 import bkt
 # import bkt.library.powerpoint as pplib
 
-from bkt.library.powerpoint import PositionGallery
+from bkt.library.powerpoint import PositionGallery, pt_to_cm, LocPin, LocpinGallery
 from bkt.library.algorithms import TableRecognition
 
 #for caching
@@ -23,8 +23,9 @@ import time
 class ShapeTables(object):
     resize_cells = False
     fit_cells = False
-    alignment_horizontal = "left"
-    alignment_vertical = "top"
+    alignment_locpin = LocPin()
+    # alignment_horizontal = "left"
+    # alignment_vertical = "top"
     equal_spacing = False
 
     # contentarea = {"left": None, "top": None, "width": None, "height": None}
@@ -38,12 +39,29 @@ class ShapeTables(object):
             on_position_change = bkt.Callback(self.table_contentarea_fit),
             get_item_supertip = bkt.Callback(self.get_item_supertip)
         )
+        self.locpin_gallery = LocpinGallery(
+            id="table_alignment",
+            label="Shape-Ausrichtung",
+            image_mso="ObjectAlignMenu",
+            supertip="Legt Ausrichtung der Shapes innerhalb der Tabellenzellen fest.",
+            item_height="32",
+            item_width="32",
+            locpin=self.alignment_locpin,
+            item_supertip="Shapes werden bei Shape-Anordnung in Tabellenzellen {} angeordnet.",
+        )
     
+    @property
+    def alignment_horizontal(self):
+        return ["left", "center", "right"][self.alignment_locpin.fixation[1]-1]
+    @property
+    def alignment_vertical(self):
+        return ["top", "middle", "bottom"][self.alignment_locpin.fixation[0]-1]
+
     def get_item_supertip(self, index):
         return 'Die ausgewählten Shapes werden als Tabelle in den Bereich eingepasst.'
 
     def _prepare_table(self, shapes):
-        # Run table recognition only one time in 200ms
+        # Run table recognition only one time in 500ms
         if self.tr_cache is None or time.time() - self.last_time_tr_cache_changed > 0.5:
             self.tr_cache = TableRecognition(shapes)
             self.tr_cache.run()
@@ -90,6 +108,13 @@ class ShapeTables(object):
     #     else:
     #         tr.align(spacing=value, fit_cells=self.fit_cells, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
 
+
+    def get_resize_cells(self):
+        if bkt.library.system.get_key_state(bkt.library.system.key_code.ALT):
+            return not self.resize_cells
+        else:
+            return self.resize_cells
+
     def enabled_spacing_rows(self, shapes):
         if len(shapes) < 2:
             return False
@@ -98,7 +123,7 @@ class ShapeTables(object):
 
     def get_spacing_rows(self, shapes):
         tr = self._prepare_table(shapes)
-        res = tr.min_spacing_rows()
+        res = tr.min_spacing_rows(max_rows=2)
         return res
         # return round(pt_to_cm(res), 2)
 
@@ -106,7 +131,7 @@ class ShapeTables(object):
         # if type(value) == str:
         #     value = float(value.replace(',', '.'))
         # value = max(0,cm_to_pt(value))
-        value = max(0, value)
+        # value = max(0, value)
 
         if self.equal_spacing:
             spacing = value
@@ -114,7 +139,7 @@ class ShapeTables(object):
             spacing = (value, None)
 
         tr = self._prepare_table(shapes)
-        if self.resize_cells:
+        if self.get_resize_cells():
             bounds = tr.get_bounds()
             tr.fit_content(*bounds, spacing=spacing, fit_cells=self.fit_cells)
         else:
@@ -128,7 +153,7 @@ class ShapeTables(object):
 
     def get_spacing_cols(self, shapes):
         tr = self._prepare_table(shapes)
-        res = tr.min_spacing_cols()
+        res = tr.min_spacing_cols(max_cols=2)
         return res
         # return round(pt_to_cm(res), 2)
 
@@ -136,7 +161,7 @@ class ShapeTables(object):
         # if type(value) == str:
         #     value = float(value.replace(',', '.'))
         # value = max(0,cm_to_pt(value))
-        value = max(0, value)
+        # value = max(0, value)
 
         if self.equal_spacing:
             spacing = value
@@ -144,7 +169,7 @@ class ShapeTables(object):
             spacing = (None, value)
 
         tr = self._prepare_table(shapes)
-        if self.resize_cells:
+        if self.get_resize_cells():
             bounds = tr.get_bounds()
             tr.fit_content(*bounds, spacing=spacing, fit_cells=self.fit_cells)
         else:
@@ -171,7 +196,7 @@ class ShapeTables(object):
         tr = self._prepare_table(shapes)
         msg = u""
         msg += "Tabellengröße: Zeilen=%d, Spalten=%d\r\n" % tr.dimension
-        # msg += "Median-Abstand: %s cm" % round(pt_to_cm(tr.median_spacing()),2)
+        msg += "Median-Abstand: %s cm" % round(pt_to_cm(tr.median_spacing()),2)
         bkt.helpers.message(msg)
 
     def table_info_desc(self,context):
@@ -211,13 +236,15 @@ class ShapeTables(object):
         tr = self._prepare_table(shapes)
         spacing = tr.min_spacing_cols()
         bounds = tr.get_bounds()
-        tr.fit_content(*bounds, spacing=(None, spacing), fit_cells=True, distribute_cols=True)
+        tr.fit_content(*bounds, spacing=(None, spacing), fit_cells=True) #equalize spacing in first run
+        tr.fit_content(*bounds, spacing=(None, spacing), fit_cells=True, distribute_cols=True) #distribute in second run
 
     def table_distribute_rows(self, shapes):
         tr = self._prepare_table(shapes)
         spacing = tr.min_spacing_rows()
         bounds = tr.get_bounds()
-        tr.fit_content(*bounds, spacing=(spacing, None), fit_cells=True, distribute_rows=True)
+        tr.fit_content(*bounds, spacing=(spacing, None), fit_cells=True) #equalize spacing in first run
+        tr.fit_content(*bounds, spacing=(spacing, None), fit_cells=True, distribute_rows=True) #distribute in second run
 
 
 shape_tables = ShapeTables()
@@ -288,75 +315,7 @@ tabellen_gruppe = bkt.ribbon.Group(
                 ])
             ]
         ),
-        bkt.ribbon.Menu(
-            id="table_alignment",
-            label="Shape-Ausrichtung",
-            image_mso="ObjectAlignMenu",
-            supertip="Legt Ausrichtung der Shapes innerhalb der Tabellenzellen fest.",
-            children=[
-                # bkt.ribbon.MenuSeparator(title="Zellen einpassen"),
-                # bkt.ribbon.ToggleButton(
-                #     id = 'toggle_table_fit_cells',
-                #     label="Shapes in Zellen einpassen",
-                #     show_label=True,
-                #     image='table_fit_cells',
-                #     screentip="Zellen einpassen an/aus",
-                #     supertip="Setzt die Shape-Größe auf die Größe der Tabellenzelle. Je nach gewähltem Modus werden die Shapes dabei verschoben oder vergrößert bzw. verkleinert.",
-                #     on_toggle_action=bkt.Callback(lambda pressed: setattr(shape_tables, 'fit_cells', pressed)),
-                #     get_pressed=bkt.Callback(lambda : shape_tables.fit_cells),
-                # ),
-                bkt.ribbon.MenuSeparator(title="Horizontale Anordnung"),
-                bkt.ribbon.CheckBox(
-                    id="table_alignment_left",
-                    label="Links",
-                    screentip="Shapes links anordnen",
-                    supertip="Shapes werden bei Shape-Anordnung in Tabellenzellen links angeordnet.",
-                    on_toggle_action=bkt.Callback(lambda pressed: setattr(shape_tables, 'alignment_horizontal', "left") ),
-                    get_pressed=bkt.Callback(lambda : shape_tables.alignment_horizontal == "left")
-                ),
-                bkt.ribbon.CheckBox(
-                    id="table_alignment_center",
-                    label="Zentriert",
-                    screentip="Shapes zentriert anordnen",
-                    supertip="Shapes werden bei Shape-Anordnung in Tabellenzellen horizontal zentriert angeordnet.",
-                    on_toggle_action=bkt.Callback(lambda pressed: setattr(shape_tables, 'alignment_horizontal', "center") ),
-                    get_pressed=bkt.Callback(lambda : shape_tables.alignment_horizontal == "center")
-                ),
-                bkt.ribbon.CheckBox(
-                    id="table_alignment_right",
-                    label="Rechts",
-                    screentip="Shapes rechts anordnen",
-                    supertip="Shapes werden bei Shape-Anordnung in Tabellenzellen rechts angeordnet.",
-                    on_toggle_action=bkt.Callback(lambda pressed: setattr(shape_tables, 'alignment_horizontal', "right") ),
-                    get_pressed=bkt.Callback(lambda : shape_tables.alignment_horizontal == "right")
-                ),
-                bkt.ribbon.MenuSeparator(title="Vertikale Anordnung"),
-                bkt.ribbon.CheckBox(
-                    id="table_alignment_top",
-                    label="Oben",
-                    screentip="Shapes oben anordnen",
-                    supertip="Shapes werden bei Shape-Anordnung in Tabellenzellen/Textabsätzen oben angeordnet.",
-                    on_toggle_action=bkt.Callback(lambda pressed: setattr(shape_tables, 'alignment_vertical', "top") ),
-                    get_pressed=bkt.Callback(lambda : shape_tables.alignment_vertical == "top")
-                ),
-                bkt.ribbon.CheckBox(
-                    id="table_alignment_middle",
-                    label="Mitte",
-                    screentip="Shapes mittig anordnen",
-                    supertip="Shapes werden bei Shape-Anordnung in Tabellenzellen/Textabsätzen vertikal zentriert angeordnet.",
-                    on_toggle_action=bkt.Callback(lambda pressed: setattr(shape_tables, 'alignment_vertical', "middle") ),
-                    get_pressed=bkt.Callback(lambda : shape_tables.alignment_vertical == "middle")
-                ),
-                bkt.ribbon.CheckBox(
-                    id="table_alignment_bottom",
-                    label="Unten",
-                    screentip="Shapes unten anordnen",
-                    supertip="Shapes werden bei Shape-Anordnung in Tabellenzellen/Textabsätzen unten angeordnet.",
-                    on_toggle_action=bkt.Callback(lambda pressed: setattr(shape_tables, 'alignment_vertical', "bottom") ),
-                    get_pressed=bkt.Callback(lambda : shape_tables.alignment_vertical == "bottom")
-                )
-            ]
-        ),
+        shape_tables.locpin_gallery,
         bkt.ribbon.Menu(
             image='shape_table_transpose',
             label="Tabelle anpassen",
@@ -538,7 +497,7 @@ tabellen_gruppe = bkt.ribbon.Group(
             label=u"Zeilenabstand",
             show_label=False,
             image_mso="VerticalSpacingIncrease",
-            supertip="Ändert den Zeilenabstand der Shapes.",
+            supertip="Ändert den Zeilenabstand der Shapes. [ALT] wechselt zwischen Bewegen und Dehen/Stauchen.",
             on_change = bkt.Callback(shape_tables.set_spacing_rows, shapes=True, shapes_min=2),
             get_text  = bkt.Callback(shape_tables.get_spacing_rows, shapes=True, shapes_min=2),
             get_enabled = bkt.Callback(shape_tables.enabled_spacing_rows, shapes=True),
@@ -550,7 +509,7 @@ tabellen_gruppe = bkt.ribbon.Group(
             label=u"Spaltenabstand",
             show_label=False,
             image_mso="HorizontalSpacingIncrease",
-            supertip="Ändert den Spaltenabstand der Shapes.",
+            supertip="Ändert den Spaltenabstand der Shapes. [ALT] wechselt zwischen Bewegen und Dehen/Stauchen.",
             on_change = bkt.Callback(shape_tables.set_spacing_cols, shapes=True, shapes_min=2),
             get_text  = bkt.Callback(shape_tables.get_spacing_cols, shapes=True, shapes_min=2),
             get_enabled = bkt.Callback(shape_tables.enabled_spacing_cols, shapes=True),

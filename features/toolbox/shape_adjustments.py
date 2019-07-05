@@ -12,6 +12,7 @@ from bkt.library.powerpoint import pt_to_cm, cm_to_pt
 import logging
 
 class ShapeAdjustments(object):
+    adjustment_nums_all = [(1,2), (3,4), (5,6), (7,8)]
     adjustment_nums = (1,2)
 
     @classmethod
@@ -19,6 +20,17 @@ class ShapeAdjustments(object):
         cls.adjustment_nums = value
         context.ribbon.InvalidateControl("anfasser1")
         context.ribbon.InvalidateControl("anfasser2")
+
+    @classmethod
+    def adjustment_nums_next(cls, context):
+        cur_index = cls.adjustment_nums_all.index(cls.adjustment_nums)
+        cls.set_adjustment_nums(cls.adjustment_nums_all[(cur_index+1)%4], context)
+    @classmethod
+    def adjustment_nums_prev(cls, context):
+        cur_index = cls.adjustment_nums_all.index(cls.adjustment_nums)
+        cls.set_adjustment_nums(cls.adjustment_nums_all[cur_index-1], context)
+
+
 
     allowed_shape_types = [
         pplib.MsoShapeType['msoAutoShape'],
@@ -114,7 +126,8 @@ class ShapeAdjustments(object):
 
     @classmethod
     def get_label(cls):
-        return "Werte %s u. %s" % cls.adjustment_nums
+        return "%s und %s" % cls.adjustment_nums
+        # return "Werte %s u. %s" % cls.adjustment_nums
 
     @classmethod
     def get_shape_type(cls, shape):
@@ -213,6 +226,33 @@ class ShapeAdjustments(object):
                 #     shape.adjustments.item[i] = master.adjustments.item[i]
 
 
+    @classmethod
+    def get_shape_details(cls, shape):
+        def _get_key_by_value(search_dict, value):
+            try:
+                return search_dict.keys()[search_dict.values().index(value)]
+            except:
+                return "?"
+
+        import bkt.console
+        infomsg  = "{:16} {:3} - {}\n".format("ID+Name:", shape.id, shape.name)
+        shape_type = cls.get_shape_type(shape)
+        shape_autotype = cls.get_shape_autotype(shape)
+        infomsg += "{:16} {:3} - {}\n".format("Shape-Typ:", shape_type, _get_key_by_value(pplib.MsoShapeType, shape_type))
+        infomsg += "{:16} {:3} - {}\n".format("Auto-Shape-Typ:", shape_autotype, _get_key_by_value(pplib.MsoAutoShapeType, shape_autotype))
+        infomsg += "{:16} {:3}\n\n".format("Adjust.-Werte:", shape.adjustments.count)
+
+        infomsg += "│ {:2} {:>8} │ {:10} {:>6} {:>6} │\n".format("#", "Wert", "ref", "min", "max")
+        infomsg += "├─────────────┼──────────────────────────┤\n"
+        for i in range(1,shape.adjustments.count+1):
+            try:
+                bktlib = cls.auto_shape_type_settings[shape_autotype][i-1]
+            except:
+                bktlib = dict(ref="", min="", max="")
+            infomsg += "│ {:<2} {:8.4} │ {:10} {:>6} {:>6} │\n".format(i, shape.adjustments.item[i], bktlib["ref"], bktlib["min"], bktlib["max"])
+
+        bkt.console.show_message(bkt.ui.endings_to_windows(infomsg))
+
 
 
 adjustments_group = bkt.ribbon.Group(
@@ -221,84 +261,66 @@ adjustments_group = bkt.ribbon.Group(
     image_mso='ShapeArc',
     children=[
         # bkt.ribbon.Label(label="Rund./Spitzen"),
-        bkt.ribbon.Menu(
-            # label=u"Rund./Spitz.",
-            get_label=bkt.Callback(ShapeAdjustments.get_label),
-            screentip="Anfasser-Werte wechseln",
-            supertip="Anfasser beeinflussen die Shape-Form, bspw. die Rundung an Ecken oder die Spitze von Pfeilen. Je nach Shape-Typ kann es bis zu 8 Anfasser-Werte geben, die manuell gesetzt werden können. Hier kann paarweise zwischen den Werten umgeschaltet werden.",
-            children = [
-                bkt.ribbon.MenuSeparator(title="Rundungen/Spitzen/Ecken"),
-                bkt.ribbon.ToggleButton(
-                    label="Werte 1 und 2",
-                    screentip="Anfasser-Werte Nr. 1 und 2 in Spinner-Boxen anpassen",
-                    on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((1,2), context), context=True),
-                    get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (1,2)),
-                ),
-                bkt.ribbon.ToggleButton(
-                    label="Werte 3 und 4",
-                    screentip="Anfasser-Werte Nr. 3 und 4 in Spinner-Boxen anpassen",
-                    on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((3,4), context), context=True),
-                    get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (3,4)),
-                ),
-                bkt.ribbon.ToggleButton(
-                    label="Werte 5 und 6",
-                    screentip="Anfasser-Werte Nr. 5 und 6 in Spinner-Boxen anpassen",
-                    on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((5,6), context), context=True),
-                    get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (5,6)),
-                ),
-                bkt.ribbon.ToggleButton(
-                    label="Werte 7 und 8",
-                    screentip="Anfasser-Werte Nr. 7 und 8 in Spinner-Boxen anpassen",
-                    on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((7,8), context), context=True),
-                    get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (7,8)),
-                ),
-                bkt.ribbon.MenuSeparator(),
+        bkt.ribbon.Box(box_style="horizontal",
+            children=[
                 bkt.ribbon.Button(
-                    label="Alle Shapes angleichen",
-                    image_mso='ShapeArc',
-                    screentip="Shape-Anfasser-Werte für alle ausgewählten Shapes entsprechend des zuerst gewählten Shapes angleichen",
-                    on_action=bkt.Callback(ShapeAdjustments.equalize_adjustments, shapes=True),
+                    label="<", #"#«",
+                    on_action=bkt.Callback(ShapeAdjustments.adjustment_nums_prev, context=True),
+                ),
+                bkt.ribbon.Menu(
+                    # label=u"Rund./Spitz.",
+                    get_label=bkt.Callback(ShapeAdjustments.get_label),
+                    screentip="Anfasser-Werte wechseln",
+                    supertip="Anfasser beeinflussen die Shape-Form, bspw. die Rundung an Ecken oder die Spitze von Pfeilen. Je nach Shape-Typ kann es bis zu 8 Anfasser-Werte geben, die manuell gesetzt werden können. Hier kann paarweise zwischen den Werten umgeschaltet werden.",
+                    children = [
+                        bkt.ribbon.MenuSeparator(title="Rundungen/Spitzen/Ecken"),
+                        bkt.ribbon.ToggleButton(
+                            label="Werte 1 und 2",
+                            screentip="Anfasser-Werte Nr. 1 und 2 in Spinner-Boxen anpassen",
+                            on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((1,2), context), context=True),
+                            get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (1,2)),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Werte 3 und 4",
+                            screentip="Anfasser-Werte Nr. 3 und 4 in Spinner-Boxen anpassen",
+                            on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((3,4), context), context=True),
+                            get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (3,4)),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Werte 5 und 6",
+                            screentip="Anfasser-Werte Nr. 5 und 6 in Spinner-Boxen anpassen",
+                            on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((5,6), context), context=True),
+                            get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (5,6)),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Werte 7 und 8",
+                            screentip="Anfasser-Werte Nr. 7 und 8 in Spinner-Boxen anpassen",
+                            on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((7,8), context), context=True),
+                            get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (7,8)),
+                        ),
+                        bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.Button(
+                            label="Alle Shapes angleichen",
+                            image_mso='ShapeArc',
+                            supertip="Shape-Anfasser-Werte für alle ausgewählten Shapes entsprechend des zuerst gewählten Shapes angleichen",
+                            on_action=bkt.Callback(ShapeAdjustments.equalize_adjustments, shapes=True),
+                        ),
+                        bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.Button(
+                            label="Shape-Details anzeigen",
+                            image_mso='PropertiesForm',
+                            supertip="Zeigt ein Fenster mit ausführlichen Informationen über das gewählte Shape an",
+                            on_action=bkt.Callback(ShapeAdjustments.get_shape_details, shape=True),
+                            get_enabled=bkt.apps.ppt_shapes_exactly1_selected,
+                        ),
+                    ]
+                ),
+                bkt.ribbon.Button(
+                    label=">", #"»",
+                    on_action=bkt.Callback(ShapeAdjustments.adjustment_nums_next, context=True),
                 ),
             ]
         ),
-        # bkt.ribbon.Box(
-        #     box_style="horizontal",
-        #     children = [
-        #         bkt.ribbon.Label(label="Seite"),
-        #         bkt.ribbon.ButtonGroup(
-        #             children = [
-        #                 bkt.ribbon.ToggleButton(
-        #                     label="1",
-        #                     # screentip="Anfasser-Werte Nr. 1 und 2 in Spinner-Boxen anpassen",
-        #                     on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((1,2), context), context=True),
-        #                     get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (1,2)),
-        #                     # get_enabled = bkt.Callback(lambda shapes : ShapeAdjustments.get_enabled(shapes[0], 1)),
-        #                 ),
-        #                 bkt.ribbon.ToggleButton(
-        #                     label="2",
-        #                     # screentip="Anfasser-Werte Nr. 1 und 2 in Spinner-Boxen anpassen",
-        #                     on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((3,4), context), context=True),
-        #                     get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (3,4)),
-        #                     # get_enabled = bkt.Callback(lambda shapes : ShapeAdjustments.get_enabled(shapes[0], 3)),
-        #                 ),
-        #                 bkt.ribbon.ToggleButton(
-        #                     label="3",
-        #                     # screentip="Anfasser-Werte Nr. 1 und 2 in Spinner-Boxen anpassen",
-        #                     on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((5,6), context), context=True),
-        #                     get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (5,6)),
-        #                     # get_enabled = bkt.Callback(lambda shapes : ShapeAdjustments.get_enabled(shapes[0], 5)),
-        #                 ),
-        #                 bkt.ribbon.ToggleButton(
-        #                     label="4",
-        #                     # screentip="Anfasser-Werte Nr. 1 und 2 in Spinner-Boxen anpassen",
-        #                     on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((7,8), context), context=True),
-        #                     get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (7,8)),
-        #                     # get_enabled = bkt.Callback(lambda shapes : ShapeAdjustments.get_enabled(shapes[0], 7)),
-        #                 ),
-        #             ]
-        #         ),
-        #     ]
-        # ),
         bkt.ribbon.RoundingSpinnerBox(
             id=u"anfasser1",
             label=u"Anfasser 1",

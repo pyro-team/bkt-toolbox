@@ -7,7 +7,10 @@ Created on 02.11.2017
 
 import helpers as pplib
 
-from bkt import apps, dotnet, CallbackTypes, Callback
+from collections import deque
+
+from bkt import apps, dotnet, settings, CallbackTypes, Callback
+from bkt.library import system
 Drawing = dotnet.import_drawing()
 
 from bkt.ribbon import Button, Gallery, SymbolsGallery, RoundingSpinnerBox, Item
@@ -199,24 +202,89 @@ class ParagraphFormatSpinnerBox(RoundingSpinnerBox):
 
 
 
+class PPTSymbolsSettings(object):
+    recent_symbols = deque(settings.get("bkt.symbols.recent_symbols", []), maxlen=3)
+    convert_into_shape = settings.get("bkt.symbols.convert_into_shape", False) #always convert newly inserted symbols into shapes
+    convert_into_bitmap = settings.get("bkt.symbols.convert_into_bitmap", False) #always convert newly inserted symbols into bitmap picture
+    unicode_font = settings.get("bkt.symbols.unicode_font", None) #insert unicode characters as symbol with special font (e.g. Arial Unicode)
+
+    @classmethod
+    def add_to_recent(cls, item):
+        try:
+            #try to remove if already exists and add to beginning
+            cls.recent_symbols.remove(item)
+            cls.recent_symbols.append(item)
+        except ValueError:
+            cls.recent_symbols.append(item)
+        settings["bkt.symbols.recent_symbols"] = cls.recent_symbols
+    
+    @classmethod
+    def switch_unicode_font(cls, font=None):
+        cls.unicode_font = font #if font else SymbolsGallery.fallback_font
+        settings["bkt.symbols.unicode_font"] = cls.unicode_font
+    
+    @classmethod
+    def switch_convert_into_shape(cls, pressed):
+        cls.convert_into_shape = pressed
+        cls.convert_into_bitmap = False
+        settings["bkt.symbols.convert_into_shape"] = cls.convert_into_shape
+        settings["bkt.symbols.convert_into_bitmap"] = cls.convert_into_bitmap
+    
+    @classmethod
+    def get_convert_into_shape(cls):
+        return (cls.convert_into_shape or system.get_key_state(system.key_code.SHIFT)) and not system.get_key_state(system.key_code.CTRL)
+    
+    @classmethod
+    def switch_convert_into_bitmap(cls, pressed):
+        cls.convert_into_shape = False
+        cls.convert_into_bitmap = pressed
+        settings["bkt.symbols.convert_into_shape"] = cls.convert_into_shape
+        settings["bkt.symbols.convert_into_bitmap"] = cls.convert_into_bitmap
+    
+    @classmethod
+    def get_convert_into_bitmap(cls):
+        return (cls.convert_into_bitmap or system.get_key_state(system.key_code.CTRL)) and not system.get_key_state(system.key_code.SHIFT)
+
 
 class PPTSymbolsGallery(SymbolsGallery):
+    @property
+    def fallback_font(self):
+        return PPTSymbolsSettings.unicode_font or SymbolsGallery.fallback_font
 
     def on_action_indexed(self, selected_item, index, context, selection, **kwargs):
         ''' create numberd shape according of settings in clicked element '''
         item = self.symbols[index]
+        self._add_to_recent(item)
+
         if selection.Type == 3: #text selected
             selection.TextRange2.Text = "" #remove selected text first and then insert symbol
             self.insert_symbol_into_text(selection.TextRange2, item)
         elif selection.Type == 2: #shapes selected
             self.insert_symbol_into_shapes(pplib.get_shapes_from_selection(selection), item)
-        else:
-            self.create_symbol_shape(selection.SlideRange(1), item)
+        else: #convert into shape
+            if PPTSymbolsSettings.get_convert_into_bitmap():
+                self.create_symbol_bitmap(selection.SlideRange(1), item)
+            else:
+                self.create_symbol_shape(selection.SlideRange(1), item)
+
+    def _add_to_recent(self, item):
+        PPTSymbolsSettings.add_to_recent(item)
     
     def insert_symbol_into_text(self, textrange, item):
-        char_inserted = textrange.InsertAfter(item[1]) #symbol text
-        if item[0]:
-            char_inserted.Font.Name = item[0] #font name
+        if item[0] or PPTSymbolsSettings.unicode_font is not None: #font name is given, then insert as symbol
+            font = item[0] or self.fallback_font
+            try:
+                char_number = ord(item[1]) #ord does not work for higher level unicode, e.g. emojis, and throws TypeError
+                placeholder_char = textrange.InsertAfter("X") #append placeholder symbol so that InsertSymbol behaves the same as InsertAfter
+                return placeholder_char.InsertSymbol(font, char_number, -1) #symbol: FontName, CharNumber (decimal), Unicode=True
+            except TypeError:
+                char_inserted = textrange.InsertAfter(item[1]) #append symbol text
+                char_inserted.Font.Name = font #font name
+                return char_inserted
+        else:
+            return textrange.InsertAfter(item[1]) #append symbol text
+        # if item[0]:
+        #     char_inserted.Font.Name = item[0] #font name
     
     def insert_symbol_into_shapes(self, shapes, item):
         #pplib.iterate_shape_textframes(shapes, lambda textframe: self.insert_symbol_into_text(textframe.TextRange, item))
@@ -234,58 +302,121 @@ class PPTSymbolsGallery(SymbolsGallery):
             1,
             100,100,200,200)
         
-        shape.TextFrame.WordWrap = 0
-        shape.TextFrame.AutoSize = 1 #ppAutoSizeShapeToFitText
-        shape.TextFrame.MarginBottom = 0
-        shape.TextFrame.MarginTop    = 0
-        shape.TextFrame.MarginLeft   = 0
-        shape.TextFrame.MarginRight  = 0
-        if item[0]:
-            shape.TextFrame.TextRange.Font.Name = item[0] #font name
-        shape.TextFrame.TextRange.Text = item[1] #symbol text
+        shape.TextFrame2.WordWrap = 0
+        shape.TextFrame2.AutoSize = 1 #ppAutoSizeShapeToFitText
+        shape.TextFrame2.MarginBottom = 0
+        shape.TextFrame2.MarginTop    = 0
+        shape.TextFrame2.MarginLeft   = 0
+        shape.TextFrame2.MarginRight  = 0
+        self.insert_symbol_into_text(shape.TextFrame2.TextRange, item)
+        # if item[0]:
+        #     shape.TextFrame.TextRange.Font.Name = item[0] #font name
+        # shape.TextFrame.TextRange.Text = item[1] #symbol text
+        if PPTSymbolsSettings.get_convert_into_shape(): #convert into shape
+            try:
+                shape.TextFrame2.TextRange.Font.Size = 48
+                new_shape = pplib.convert_text_into_shape(shape)
+            except:
+                shape.select()
+            else:
+                new_shape.select()
+        else:
+            shape.select()
+
+    def create_symbol_bitmap(self, slide, item):
+        import tempfile, os.path
+
+        font = item[0] or self.fallback_font
+        img = SymbolsGallery.create_symbol_image(font, item[1], 128, 96)
+        tmpfile = os.path.join(tempfile.gettempdir(), "bktymbol.png")
+        img.Save(tmpfile, Drawing.Imaging.ImageFormat.Png)
+        shape = slide.shapes.AddPicture(tmpfile, 0, -1, 200, 200) #FileName, LinkToFile, SaveWithDocument, Left, Top
         shape.select()
 
 
+
+class PPTSymbolsGalleryRecent(PPTSymbolsGallery):
+    @property
+    def symbols(self):
+        return PPTSymbolsSettings.recent_symbols
+    @symbols.setter
+    def symbols(self, value):
+        pass
+    
+    def get_item_image(self, index):
+        try:
+            return super(PPTSymbolsGalleryRecent, self).get_item_image(index)
+        except:
+            return super(PPTSymbolsGalleryRecent, self).create_symbol_image("Arial", "?")
+
+    def button_get_label(self, index):
+        try:
+            return self.symbols[index][2]
+        except:
+            return "Undefined"
+    
+    def button_get_visible(self, index):
+        try:
+            return self.symbols[index] is not None
+        except:
+            return False
+    
+    def get_index_as_button(self, index):
+        return Button(
+                    id="{}_button_{}".format(self.id, index),
+                    get_label=Callback(lambda: self.button_get_label(index)),
+                    on_action=Callback(lambda context, selection: self.on_action_indexed(None, index, context, selection)),
+                    get_image=Callback(lambda: self.get_item_image(index)),
+                    get_visible=Callback(lambda: self.button_get_visible(index)),
+                )
+
+
+
 class LocpinGallery(Gallery):
-    def __init__(self, locpin=None, **kwargs):
+    def __init__(self, locpin=None, item_supertip="Shape-Fixpunkt bzw. Fixierung bei Änderung {}", **kwargs):
         self.locpin = locpin or pplib.GlobalLocPin
         self.items = [
-            ("fix_locpin_tl", "Shape-Fixpunkt bzw. Fixierung bei Änderung oben-links"),
-            ("fix_locpin_tm", "Shape-Fixpunkt bzw. Fixierung bei Änderung oben-mitte"),
-            ("fix_locpin_tr", "Shape-Fixpunkt bzw. Fixierung bei Änderung oben-rechts"),
-            ("fix_locpin_ml", "Shape-Fixpunkt bzw. Fixierung bei Änderung mitte-links"),
-            ("fix_locpin_mm", "Shape-Fixpunkt bzw. Fixierung bei Änderung mitte-mitte"),
-            ("fix_locpin_mr", "Shape-Fixpunkt bzw. Fixierung bei Änderung mitte-rechts"),
-            ("fix_locpin_bl", "Shape-Fixpunkt bzw. Fixierung bei Änderung unten-links"),
-            ("fix_locpin_bm", "Shape-Fixpunkt bzw. Fixierung bei Änderung unten-mitte"),
-            ("fix_locpin_br", "Shape-Fixpunkt bzw. Fixierung bei Änderung unten-rechts"), 
+            ("fix_locpin_tl", "Oben-links",   item_supertip.format("oben-links")),
+            ("fix_locpin_tm", "Oben-mitte",   item_supertip.format("oben-mitte")),
+            ("fix_locpin_tr", "Oben-rechts",  item_supertip.format("oben-rechts")),
+            ("fix_locpin_ml", "Mitte-links",  item_supertip.format("mitte-links")),
+            ("fix_locpin_mm", "Mitte-mitte",  item_supertip.format("mitte-mitte")),
+            ("fix_locpin_mr", "Mitte-rechts", item_supertip.format("mitte-rechts")),
+            ("fix_locpin_bl", "Unten-links",  item_supertip.format("unten-links")),
+            ("fix_locpin_bm", "Unten-mitte",  item_supertip.format("unten-mitte")),
+            ("fix_locpin_br", "Unten-rechts", item_supertip.format("unten-rechts")),
         ]
         
         my_kwargs = dict(
             # get_enabled=apps.ppt_shapes_or_text_selected,
             columns="3",
-            item_height="16",
-            item_width="16",
+            item_height="24",
+            item_width="24",
             on_action_indexed  = Callback(self.locpin_on_action_indexed),
-            get_selected_item_index = Callback(self.locpin_get_selected_item_index),
-            children = [
-                Item(image=gal_item[0], screentip=gal_item[1])
-                for gal_item in self.items
-            ]
+            get_selected_item_index = Callback(lambda: self.locpin.index),
+            get_item_count = Callback(lambda: len(self.items)),
+            # get_item_label = Callback(lambda index: self.items[index][1]),
+            get_item_image = Callback(self.locpin_get_image, context=True),
+            get_item_screentip = Callback(lambda index: self.items[index][1]),
+            get_item_supertip = Callback(lambda index: self.items[index][2]),
+            # children = [
+            #     Item(image=gal_item[0], screentip=gal_item[1], supertip=gal_item[2])
+            #     for gal_item in self.items
+            # ]
         )
         if not "image" in kwargs and not "image_mso" in kwargs:
-            my_kwargs["get_image"] = Callback(self.locpin_get_image)
+            my_kwargs["get_image"] = Callback(self.locpin_get_image, context=True)
         my_kwargs.update(kwargs)
         super(LocpinGallery, self).__init__(**my_kwargs)
 
     def locpin_on_action_indexed(self, selected_item, index):
         self.locpin.index = index
-
-    def locpin_get_selected_item_index(self):
-        return self.locpin.index
     
-    def locpin_get_image(self, context):
-        return context.python_addin.load_image(self.items[self.locpin.index][0])
+    def locpin_get_image(self, context, index=None):
+        if index is None:
+            return context.python_addin.load_image(self.items[self.locpin.index][0])
+        else:
+            return context.python_addin.load_image(self.items[index][0])
 
 
 class PositionGallery(Gallery):

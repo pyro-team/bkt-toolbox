@@ -10,12 +10,13 @@ notify_property = bkt.ui.notify_property
 
 from bkt.callbacks import WpfActionCallback
 
-from quickedit_model import QuickEdit, QEColorButton, QEColorButtons
+from quickedit_model import QuickEdit, QEColorButton, QEColorButtons, QECatalog
 
 from System.Collections.ObjectModel import ObservableCollection
 from System.Windows.Controls import Orientation
 from System.Windows import Visibility
 
+from time import time
 
 # class ColorButton(bkt.ui.NotifyPropertyChangedBase):
 #     def __init__(self, index, color):
@@ -57,6 +58,10 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         self._viewstate = viewstate
 
         self._editmode  = False
+        
+        self._catalogs = ObservableCollection[QECatalog]()
+        for cat in QuickEdit._catalogs:
+            self._catalogs.Add(cat)
 
         # self.image_pickup  = bkt.ui.load_bitmapimage("qe_pickup")
         # self.image_nocolor = bkt.ui.load_bitmapimage("qe_nocolor")
@@ -88,7 +93,7 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         #     self._colors_own.Add(ColorButton(i, color))
 
     def update_buttons(self):
-        for btn in self.colors_theme:
+        for btn in self._colors_theme:
             btn.OnPropertyChanged("Color")
             btn.OnPropertyChanged("Checked")
         for btn in self._colors_recent:
@@ -210,6 +215,18 @@ class ViewModel(bkt.ui.ViewModelSingleton):
     #     self.OnPropertyChanged("window_orientation")
 
 
+    @notify_property
+    def catalogs(self):
+        return self._catalogs
+    @catalogs.setter
+    def catalogs(self, value):
+        self._catalogs = value
+    
+    # def update_files(self):
+    #     for cat in self._catalogs:
+    #         cat.OnPropertyChanged("Checked")
+
+
 class QuickEditPanel(bkt.ui.WpfWindowAbstract):
     _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'quickedit_panel.xaml')
     # _vm_class = ViewModel
@@ -234,6 +251,8 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
             if bkt.helpers.confirmation("Dies scheint dein erster Start von QuickEdit zu sein. Soll die Anleitung (PDF) geöffnet werden?"):
                 QuickEdit.show_help()
 
+        self._last_catalog_change = 0
+
         super(QuickEditPanel, self).__init__(context)
 
     def _get_color(self, button):
@@ -255,6 +274,26 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
         self._vm.orientation_mode = (self._vm.orientation_mode+1) %4
         # self.Width, self.Height = self.Height, self.Width
     
+    def change_file(self, sender, event):
+        try:
+            file = event.OriginalSource.Tag
+            QuickEdit.read_from_config(file)
+            QuickEdit.update_pressed(self._context)
+        except:
+            pass
+    
+    def Catalog_Wheel(self, sender, event):
+        try:
+            if time() - self._last_catalog_change < 0.2: #change catalog only after 200ms
+                raise RuntimeError("too many scroll activities")
+            current_index = [c.Checked for c in QuickEdit._catalogs].index(True)
+            direction = 1 if event.Delta < 0 else -1
+            next_index = (current_index+direction) % len(QuickEdit._catalogs)
+            QuickEdit.read_from_config(QuickEdit._catalogs[next_index].File)
+            QuickEdit.update_pressed(self._context)
+            self._last_catalog_change = time()
+        except:
+            pass
 
     @WpfActionCallback
     def ForceReload(self, sender, event):
