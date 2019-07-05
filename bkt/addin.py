@@ -242,6 +242,7 @@ class AddIn(object):
         #logging.debug("invoking callback: %s --- args=%s --- kwargs=%s" % (callback, args, kwargs))
         try:
             self.context.current_control = my_control
+            self.context.customui_control = control
             #kwargs.update(self.context.resolve_callback.resolve_arguments(callback.invocation_context))
             #return_value= self.app_callbacks.invoke_callback(callback, *args, **kwargs)
             return_value= self.context.invoke_callback(callback, *args, **kwargs)
@@ -287,8 +288,9 @@ class AddIn(object):
         
         return return_value
             
-    def get_enabled_ppt_shapes_or_text_selected(self, control):
-        return (self.context.app.ActiveWindow.selection.Type == 2 or self.context.app.ActiveWindow.selection.Type == 3)
+    #@deprecated
+    # def get_enabled_ppt_shapes_or_text_selected(self, control):
+    #     return (self.context.app.ActiveWindow.selection.Type == 2 or self.context.app.ActiveWindow.selection.Type == 3)
     
     
     
