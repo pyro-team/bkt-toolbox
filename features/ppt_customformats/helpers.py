@@ -12,6 +12,7 @@ from collections import OrderedDict
 
 class ShapeFormats(object):
     always_keep_theme_color = True
+    always_consider_indentlevels = True
 
     @classmethod
     def mult_setattr(cls, obj, name, value):
@@ -47,11 +48,50 @@ class ShapeFormats(object):
         dict_ref['%s.TintAndShade' % arr_key] = float(color_obj.TintAndShade)
 
     @classmethod
-    def _get_indentlevel_formats(cls, textrange_object):
-        tmp = OrderedDict()
-        tmp["ParagraphFormat"] = cls._get_paragraphformat(textrange_object.ParagraphFormat)
-        tmp["Font"] = cls._get_font(textrange_object.Font)
-        return tmp
+    def _get_indentlevels(cls, textframe_object, what): #paragraph or font
+        indent_levels = OrderedDict()
+        if textframe_object.TextRange.Paragraphs().Count > 0:
+            # at least one paragraph
+            indent_level_range = range(0,6) #indent levels 0 to 5, whereas 0 is used as internal fallback format!
+            for par in textframe_object.TextRange.Paragraphs():
+                indent_level = par.ParagraphFormat.IndentLevel
+                if indent_level == 1 and par.ParagraphFormat.Bullet.Visible == 0:
+                    indent_level = 0 #fallback indent level
+
+                if indent_level in indent_level_range:
+                    indent_level_range.remove(indent_level)
+                    indent_levels[str(indent_level)] = cls._get_indentlevel_formats(par, what)
+            if 0 in indent_level_range:
+                #fallback not yet defined
+                indent_levels["0"] = cls._get_indentlevel_formats(textframe_object.TextRange.Paragraphs(1,1), what)
+        else:
+            indent_levels["0"] = cls._get_indentlevel_formats(textframe_object.TextRange, what)
+        return indent_levels
+
+    @classmethod
+    def _get_indentlevel_formats(cls, textrange_object, what):
+        if what == "paragraph":
+            return cls._get_paragraphformat(textrange_object.ParagraphFormat)
+        else:
+            return cls._get_font(textrange_object.Font)
+    
+    @classmethod
+    def _set_indentlevels(cls, textframe_object, what, indentlevels_dict):
+        if cls.always_consider_indentlevels and textframe_object.TextRange.Paragraphs().Count > 0:
+            for par in textframe_object.TextRange.Paragraphs():
+                indent_level = str(par.ParagraphFormat.IndentLevel)
+                if indent_level not in indentlevels_dict or (indent_level == "1" and par.ParagraphFormat.Bullet.Visible == 0):
+                    indent_level = "0"
+                cls._set_indentlevel_formats(par, what, indentlevels_dict[indent_level])
+        else:
+            cls._set_indentlevel_formats(textframe_object.TextRange, what, indentlevels_dict["0"])
+
+    @classmethod
+    def _set_indentlevel_formats(cls, textrange_object, what, what_dict):
+        if what == "paragraph":
+            cls._set_paragraphformat(textrange_object.ParagraphFormat, what_dict)
+        else:
+            cls._set_font(textrange_object.Font, what_dict)
 
     @classmethod
     def _get_type(cls, shape):
