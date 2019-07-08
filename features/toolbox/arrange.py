@@ -2797,19 +2797,22 @@ class EdgeAutoFixer(object):
                 yield shape
     
     @classmethod
-    def autofix_edges(cls, shapes, threshold=None):
+    def autofix_edges(cls, shapes, threshold=None, groupitems=True):
         #TODO: how to handle locked aspect-ratio and autosize? rotated shapes? ojects with 0 height/width?
 
         threshold = threshold or cls.default_threshold
+
+        shapes = pplib.wrap_shapes(cls._iterate_all_shapes(shapes, groupitems))
+
         # shapes.sort(key=lambda shape: (shape.left, shape.top))
         shapes.sort(key=lambda shape: shape.visual_x+shape.visual_y)
 
         # logging.debug("Autofix: top-left")
         child_shapes = shapes[:]
-        for master_shape in cls._iterate_all_shapes(shapes):
+        for master_shape in shapes:
             child_shapes.remove(master_shape)
             
-            for shape in cls._iterate_all_shapes(child_shapes):
+            for shape in child_shapes:
                 # logging.debug("Autofix1: {} x {}".format(master_shape.name, shape.name))
 
                 #save values before moving shape
@@ -2945,7 +2948,7 @@ arrange_group = bkt.ribbon.Group(
                     label="Kanten-Autofixer",
                     image_mso='GridSettings',
                     supertip="Gleicht minimale Verschiebungen der Kanten der gewählten Shapes aus, indem auf die linkere und obere Kante verschoben und auf die rechte untere Kante vergrößert wird. Schwellwert ist 0.3 cm.",
-                    on_action=bkt.Callback(EdgeAutoFixer.autofix_edges, shapes=True, wrap_shapes=True),
+                    on_action=bkt.Callback(EdgeAutoFixer.autofix_edges, shapes=True),
                     get_enabled = bkt.apps.ppt_shapes_min2_selected,
                 ),
                 bkt.ribbon.MenuSeparator(title="Verknüpfte Shapes"),
