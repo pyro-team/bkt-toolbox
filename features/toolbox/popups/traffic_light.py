@@ -157,31 +157,8 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
             self._context.app.ActiveWindow.Activate()
         except:
             logging.error(traceback.format_exc())
-    
 
 
-# ======================
-# = register UI in BKT =
-# ======================
 
-# register dialog
-logging.debug("traffic light: registering dialog")
-bkt.powerpoint.context_dialogs.register_dialog(
-    bkt.contextdialogs.ContextDialog(
-        id=Ampel.BKT_DIALOG_AMPEL,
-        module=None,
-        window_class=TrafficPopup
-    )
-)
-
-
-# ribbon button, for usage elsewhere
-traffic_light_create_button = bkt.ribbon.Button(
-    label="Ampel",
-    image="traffic_light",
-    screentip='Status-Ampel erstellen',
-    supertip="Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden.",
-    on_action=bkt.Callback(Ampel.create)
-)
-
-
+def create_window(context):
+    return TrafficPopup(context)

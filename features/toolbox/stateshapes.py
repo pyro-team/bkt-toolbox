@@ -424,11 +424,6 @@ class StateShapePopup(bkt.ui.WpfWindowAbstract):
         except Exception as e:
             logging.error("Error in StateShape popup: %s" % str(e))
 
-# register dialog
-bkt.powerpoint.context_dialogs.register_dialog(
-    bkt.contextdialogs.ContextDialog(
-        id=StateShape.BKT_DIALOG_TAG,
-        module=None,
-        window_class=StateShapePopup
-    )
-)
+
+def create_window(context):
+    return StateShapePopup(context)

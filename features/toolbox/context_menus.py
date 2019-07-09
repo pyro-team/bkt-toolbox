@@ -181,3 +181,14 @@ bkt.powerpoint.add_contextual_tab(
 )
 
 
+
+
+
+# ==========
+# = POPUPS =
+# ==========
+
+
+bkt.powerpoint.context_dialogs.register("BKT_PROCESS_CHEVRONS", "toolbox.processshapes") #process chevrons
+bkt.powerpoint.context_dialogs.register("BKT_DIALOG_AMPEL3", "toolbox.popups.traffic_light") #traffic light
+bkt.powerpoint.context_dialogs.register("BKT_DIALOG_STATESHAPE", "toolbox.stateshapes") #stateshapes, e.g. likert scale
