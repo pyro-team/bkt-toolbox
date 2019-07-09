@@ -13,6 +13,7 @@ import shapes as mod_shapes
 import info
 import agenda
 import linkshapes
+import processshapes
 
 
 # =================
@@ -22,8 +23,8 @@ import linkshapes
 bkt.powerpoint.add_context_menu(
     bkt.ribbon.ContextMenu(id_mso='ContextMenuObjectsGroup', children=[
         bkt.ribbon.Button(id='context-arrange-header-group', label="Überschrift anordnen", insertBeforeMso='Cut', image="headered_pentagon",
-            on_action=bkt.Callback(lambda shape: mod_shapes.Pentagon.update_pentagon_group(shape), shapes=True, shape=True),
-            get_visible=bkt.Callback(lambda shape: mod_shapes.Pentagon.is_headered_group(shape), shapes=True, shape=True)
+            on_action=bkt.Callback(lambda shape: processshapes.Pentagon.update_pentagon_group(shape), shapes=True, shape=True),
+            get_visible=bkt.Callback(lambda shape: processshapes.Pentagon.is_headered_group(shape), shapes=True, shape=True)
         ),
         bkt.ribbon.MenuSeparator(insertBeforeMso='Cut')
     ])
@@ -32,8 +33,8 @@ bkt.powerpoint.add_context_menu(
 bkt.powerpoint.add_context_menu(
     bkt.ribbon.ContextMenu(id_mso='ContextMenuShapeFreeform', children=[
         bkt.ribbon.Button(id='context-arrange-header', label="Überschrift anordnen", insertBeforeMso='Cut', image="headered_pentagon",
-            on_action=bkt.Callback(lambda shape, context: mod_shapes.Pentagon.search_body_and_update_header(list(iter(context.app.activewindow.view.slide.shapes)), shape), shapes=True, shape=True, context=True),
-            get_visible=bkt.Callback(lambda shape: mod_shapes.Pentagon.is_header_shape(shape), shapes=True, shape=True)
+            on_action=bkt.Callback(lambda shape, context: processshapes.Pentagon.search_body_and_update_header(list(iter(context.app.activewindow.view.slide.shapes)), shape), shapes=True, shape=True, context=True),
+            get_visible=bkt.Callback(lambda shape: processshapes.Pentagon.is_header_shape(shape), shapes=True, shape=True)
         ),
         bkt.ribbon.MenuSeparator(insertBeforeMso='Cut')
     ])

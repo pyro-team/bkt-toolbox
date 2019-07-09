@@ -18,12 +18,6 @@ import text
 import harvey
 import stateshapes
 
-#import popups
-import popups.traffic_light as traffic_light
-
-#import System
-from System import Guid, Array
-
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
@@ -247,6 +241,8 @@ class ShapesMore(object):
 
     @staticmethod
     def generateTracker(shapes, context):
+        from System import Array, Guid
+
         sld = context.app.ActivePresentation.Slides(context.app.ActiveWindow.View.Slide.SlideIndex)
         
         shapeCount = len(shapes)
@@ -411,195 +407,20 @@ class ShapesMore(object):
 
 
 
-class Pentagon(bkt.FeatureContainer):
-    
-    @classmethod
-    def create_headered_pentagon(cls, slide):
-        ''' creates a headered pentagon on the given slide '''
-        shapeCount = slide.shapes.count
-        # shapes erstellen
-        pentagon = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapePentagon'] , 100, 100, 400,200)
-        header = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeRectangle'], 100, 100, 400,30)
-
-        pentagon.TextFrame.TextRange.Text = "Content"
-        header.TextFrame.TextRange.Text = "Header"
-
-        pentagon.Fill.ForeColor.ObjectThemeColor = pplib.MsoThemeColorIndex['msoThemeColorBackground1']
-        header.Fill.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText1']
-        #header.Fill.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorBackground2']
-        pentagon.TextFrame.TextRange.Font.Color.ObjectThemeColor = pplib.MsoThemeColorIndex['msoThemeColorText1']
-        header.TextFrame.TextRange.Font.Color.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorBackground1']
-        #header.TextFrame.TextRange.Font.Color.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText2']
-
-        pentagon.Line.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText1']
-        header.Line.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText1']
-
-        pentagon.Adjustments.item[1] = 0.2
-
-        # margin top
-        pentagon.textFrame.MarginTop = 36
-
-        # align top/left
-        pentagon.TextFrame.VerticalAnchor = 1 # Top
-        pentagon.TextFrame.TextRange.ParagraphFormat.Alignment = 1 # Left
-        header.TextFrame.TextRange.ParagraphFormat.Alignment = 1 # Left
-        
-        # gruppieren/selektieren
-        grp = slide.Shapes.Range(Array[int]([shapeCount+1, shapeCount+2])).group()
-        grp.select()
-
-        #cls.update_pentagon_group(grp)
-        cls.update_pentagon_header(pentagon, header)
-
-    @classmethod
-    def create_headered_chevron(cls, slide):
-        ''' creates a headered pentagon on the given slide '''
-        shapeCount = slide.shapes.count
-        # shapes erstellen
-        pentagon = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeChevron'] , 100, 100, 400,200)
-        header = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeRectangle'], 100, 100, 400,30)
-
-        pentagon.TextFrame.TextRange.Text = "Content"
-        header.TextFrame.TextRange.Text = "Header"
-
-        pentagon.Fill.ForeColor.ObjectThemeColor = pplib.MsoThemeColorIndex['msoThemeColorBackground1']
-        header.Fill.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText1']
-        #header.Fill.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorBackground2']
-        pentagon.TextFrame.TextRange.Font.Color.ObjectThemeColor = pplib.MsoThemeColorIndex['msoThemeColorText1']
-        header.TextFrame.TextRange.Font.Color.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorBackground1']
-        #header.TextFrame.TextRange.Font.Color.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText2']
-
-        pentagon.Line.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText1']
-        header.Line.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText1']
-
-        pentagon.Adjustments.item[1] = 0.2
-
-        # margin top
-        pentagon.textFrame.MarginTop = 36
-
-        #margin left
-        header.textFrame.MarginLeft = 16
-
-        # align top/left
-        pentagon.TextFrame.VerticalAnchor = 1 # Top
-        pentagon.TextFrame.TextRange.ParagraphFormat.Alignment = 1 # Left
-        header.TextFrame.TextRange.ParagraphFormat.Alignment = 1 # Left
-        
-        # gruppieren/selektieren
-        grp = slide.Shapes.Range(Array[int]([shapeCount+1, shapeCount+2])).group()
-        grp.select()
-
-        #cls.update_pentagon_group(grp)
-        cls.update_header(pentagon, header)
-    
-    
-    @classmethod
-    def update_pentagon_group(cls, shape):
-        ''' updates the header of a group-shape (header + pentagon-body) '''
-        body, header = cls.get_body_and_header_from_group(shape)
-        if body:
-            cls.update_header(body, header)
-    
-    
-    @classmethod
-    def update_header(cls, body, header):
-        if body.AutoShapeType == pplib.MsoAutoShapeType['msoShapePentagon']:
-            cls.update_pentagon_header(body, header)
-        elif body.AutoShapeType == pplib.MsoAutoShapeType['msoShapeChevron']:
-            cls.update_chevron_header(body, header)
-    
-    @classmethod
-    def update_pentagon_header(cls, pentagon, header):
-        ''' updates the header of the given pentagon '''
-        offset = pentagon.Adjustments.item[1] * min(pentagon.width, pentagon.height)
-
-        # header punkt links oben / links unten
-        header.left = pentagon.left
-        header.top = pentagon.top
-        # header punkt rechts oben
-        header.Nodes.SetPosition(2, pentagon.left + pentagon.width - offset, pentagon.top)
-        # header punkt rechts unten
-        header.Nodes.SetPosition(3, pentagon.left + pentagon.width - offset + ( header.height/(pentagon.height/2) * offset), pentagon.top + header.height)
-
-    @classmethod
-    def update_chevron_header(cls, chevron, header):
-        ''' updates the header of the given pentagon '''
-        cls.update_pentagon_header(chevron, header)
-        
-        # header punkt links unten
-        offset = chevron.Adjustments.item[1] * min(chevron.width, chevron.height)
-        header.Nodes.SetPosition(4, chevron.left + ( header.height/(chevron.height/2) * offset), chevron.top + header.height)
-        
-        
-
-    @classmethod
-    def is_headered_group(cls, shape):
-        ''' returns true for group-shapes (header+body) '''
-        pentagon, header = cls.get_body_and_header_from_group(shape)
-        return pentagon != None
-
-    @classmethod
-    def is_header_shape(cls, shape):
-        ''' returns true for header-shapes (Freeforms) '''
-        return shape.Type == pplib.MsoShapeType['msoFreeform'] or (shape.Type == pplib.MsoShapeType['msoGraphic'] and shape.AutoShapeType == pplib.MsoAutoShapeType['msoShapeNotPrimitive'])
-    
-    @classmethod
-    def is_body_shape(cls, shape):
-        ''' returns true for body-shapes (Pentagon, Chevron, ...) '''
-        return shape.AutoShapeType in [pplib.MsoAutoShapeType['msoShapePentagon'], pplib.MsoAutoShapeType['msoShapeChevron']]
-
-    @classmethod
-    def search_body_and_update_header(cls, shapes, shape):
-        ''' for the pentagon represented by the given shape (header, body, or group header+body), the header position and size are updated '''
-        header = shape
-        body = cls.find_corresponding_body_shape(shapes, header)
-        cls.update_header(body, header)
-        
-
-    @classmethod
-    def find_corresponding_body_shape(cls, shapes, header):
-        ''' given a shape-list and a header, the body-shape corresponding to the header in the list is returned
-            the body shape is identified by its AutoShapeType
-            if multiple possible body shapes are found, the body shape is choosen by its position,
-            i.e. header-top-left-corner must lie inside the body shape
-        '''
-        possible_shapes = []
-        # find body shapes
-        for shape in shapes:
-            if cls.is_body_shape(shape):
-                possible_shapes.append(shape)
-        # choose element
-        if len(possible_shapes) == 0:
-            return None
-        elif len(possible_shapes) == 1:
-            return possible_shapes[0]
-        else:
-            # choose element with smallest distance of top-left corners (roughly)
-            distances = []
-            for shape in possible_shapes:
-                distances.append(abs(shape.top-header.top) + abs(shape.left-header.left))
-            return possible_shapes[distances.index(min(distances))]
-            
-
-
-    @classmethod
-    def get_body_and_header_from_group(cls, shape):
-        ''' for a given group-shape (header + body-shape), the corresponding header and body are retured '''
-        if not shape.Type == pplib.MsoShapeType['msoGroup']:
-            return None, None
-        if not shape.GroupItems.Count == 2:
-            return None, None
-
-        if cls.is_body_shape(shape.GroupItems(1)) and cls.is_header_shape(shape.GroupItems(2)):
-            return shape.GroupItems(1), shape.GroupItems(2)
-        elif cls.is_body_shape(shape.GroupItems(2)) and cls.is_header_shape(shape.GroupItems(1)):
-            return shape.GroupItems(2), shape.GroupItems(1)
-        else:
-            return None, None
-
 
 
 class ShapeDialogs(object):
+    
+    @staticmethod
+    def shape_split(shapes):
+        from dialogs.shape_split import ShapeSplitWindow
+        ShapeSplitWindow.create_and_show_dialog(shapes)
+    
+    @staticmethod
+    def create_traffic_light(slide):
+        from popups.traffic_light import Ampel
+        Ampel.create(slide)
+    
     @staticmethod
     def show_segmented_circle_dialog(slide):
         from dialogs.circular_segments import SegmentedCircleWindow
@@ -607,8 +428,19 @@ class ShapeDialogs(object):
 
     @staticmethod
     def show_process_chevrons_dialog(slide):
+        from processshapes import ProcessChevrons
         from dialogs.shape_process import ProcessWindow
-        ProcessWindow.create_and_show_dialog(slide)
+        ProcessWindow.create_and_show_dialog(slide, ProcessChevrons)
+
+    @staticmethod
+    def create_headered_pentagon(slide):
+        from processshapes import Pentagon
+        Pentagon.create_headered_pentagon(slide)
+
+    @staticmethod
+    def create_headered_chevron(slide):
+        from processshapes import Pentagon
+        Pentagon.create_headered_chevron(slide)
 
 
 
@@ -1341,13 +1173,6 @@ class PictureFormat(object):
             os.remove(filename)
 
 
-class ShapeDialogActions(object):
-    
-    @staticmethod
-    def shape_split(shapes):
-        from dialogs.shape_split import ShapeSplitWindow
-        ShapeSplitWindow.create_and_show_dialog(shapes)
-
 
 
 class ShapeTableGallery(bkt.ribbon.Gallery):
@@ -1583,14 +1408,6 @@ shapes_group = bkt.ribbon.Group(
             children = [
                 bkt.ribbon.MenuSeparator(title="Einfügehilfen"),
                 bkt.ribbon.Button(
-                    id = 'standard_process',
-                    label = u"Prozesspfeile…",
-                    image = "process_chevrons",
-                    screentip="Prozess-Pfeile einfügen",
-                    supertip="Erstelle Standard Prozess-Pfeile.",
-                    on_action=bkt.Callback(ShapeDialogs.show_process_chevrons_dialog)
-                ),
-                bkt.ribbon.Button(
                     id = 'segmented_circle',
                     label = u"Kreissegmente…",
                     image = "segmented_circle",
@@ -1643,12 +1460,20 @@ shapes_group = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.MenuSeparator(title="Interaktive Formen"),
                 bkt.ribbon.Button(
+                    id = 'standard_process',
+                    label = u"Prozesspfeile…",
+                    image = "process_chevrons",
+                    screentip="Prozess-Pfeile einfügen",
+                    supertip="Erstelle Standard Prozess-Pfeile.",
+                    on_action=bkt.Callback(ShapeDialogs.show_process_chevrons_dialog, slide=True)
+                ),
+                bkt.ribbon.Button(
                     id = 'headered_pentagon',
                     label = u"Prozessschritt mit Kopfzeile",
                     image = "headered_pentagon",
                     screentip="Prozess-Schritt-Shape mit Kopfzeile erstellen",
                     supertip="Erstelle einen Prozess-Pfeil mit Header-Shape. Das Header-Shape kann im Prozess-Pfeil über Kontext-Menü des Header-Shapes passend angeordnet werden.",
-                    on_action=bkt.Callback(Pentagon.create_headered_pentagon)
+                    on_action=bkt.Callback(ShapeDialogs.create_headered_pentagon, slide=True)
                 ),
                 bkt.ribbon.Button(
                     id = 'headered_chevron',
@@ -1656,10 +1481,16 @@ shapes_group = bkt.ribbon.Group(
                     image = "headered_chevron",
                     screentip="Prozess-Schritt-Shape mit Kopfzeile erstellen",
                     supertip="Erstelle einen Prozess-Pfeil mit Header-Shape. Das Header-Shape kann im Prozess-Pfeil über Kontext-Menü des Header-Shapes passend angeordnet werden.",
-                    on_action=bkt.Callback(Pentagon.create_headered_chevron)
+                    on_action=bkt.Callback(ShapeDialogs.create_headered_chevron, slide=True)
                 ),
                 harvey.harvey_create_button,
-                traffic_light.traffic_light_create_button,
+                bkt.ribbon.Button(
+                    label="Ampel",
+                    image="traffic_light",
+                    screentip='Status-Ampel erstellen',
+                    supertip="Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden.",
+                    on_action=bkt.Callback(ShapeDialogs.create_traffic_light, slide=True)
+                ),
                 stateshapes.likert_button,
                 bkt.ribbon.MenuSeparator(title="Verbindungsflächen"),
                 bkt.ribbon.Button(
@@ -1692,7 +1523,7 @@ shapes_group = bkt.ribbon.Group(
                     image="split_horizontal",
                     screentip="Shapes teilen oder vervielfachen",
                     supertip="Shape horizontal/vertikal in mehrere Shapes teilen oder verfielfachen.",
-                    on_action=bkt.Callback(ShapeDialogActions.shape_split),
+                    on_action=bkt.Callback(ShapeDialogs.shape_split),
                     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
                 ),
                 bkt.mso.control.ObjectEditPoints,
