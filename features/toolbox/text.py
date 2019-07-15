@@ -914,11 +914,11 @@ class TextShapes(object):
     
     @staticmethod
     def addUnderlinedTextbox(slide, presentation):
-        # Shape rechts oben auf slide erstellen
+        # Textbox erstellen, damit Standardformatierung der Textbox genommen wird
         shp = slide.shapes.AddTextbox( 1 #msoTextOrientationHorizontal
             , 100, 100, 200, 50)
         # Shape-Typ ist links-rechts-Pfeil, weil es die passenden Connector-Ecken hat
-        shp.AutoShapeType = 37 #msoShapeLeftRightArrow
+        shp.AutoShapeType = pplib.MsoAutoShapeType['msoShapeLeftRightArrow']
         # Shape-Anpassung, so dass es wie ein Rechteck aussieht
         shp.Adjustments.item[1] = 1
         shp.Adjustments.item[2] = 0
@@ -936,33 +936,38 @@ class TextShapes(object):
         connector.ConnectorFormat.EndConnect(ConnectedShape=shp, ConnectionSite=7)
         
         # Default Formatierung
-        connector.Line.ForeColor.RGB = 0
+        color = shp.TextFrame.TextRange.Font.Color
+        if color.Type == pplib.MsoColorType["msoColorTypeScheme"]:
+            connector.Line.ForeColor.ObjectThemeColor = color.ObjectThemeColor
+            connector.Line.ForeColor.Brightness = color.Brightness
+        else:
+            connector.Line.ForeColor.RGB = color.RGB
         connector.Line.Weight = 1.5
-        shp.TextFrame.MarginBottom = 0
-        shp.TextFrame.MarginTop    = 0
-        shp.TextFrame.MarginLeft   = 0
-        shp.TextFrame.MarginRight  = 0
+        # shp.TextFrame.MarginBottom = 0
+        # shp.TextFrame.MarginTop    = 0
+        # shp.TextFrame.MarginLeft   = 0
+        # shp.TextFrame.MarginRight  = 0
 
         # Text auswählen
-        shp.TextFrame.TextRange.Select()
+        shp.TextFrame2.TextRange.Select()
     
     
     @staticmethod
     def addSticker(slide, presentation):
-        # Shape rechts oben auf slide erstellen
-        shp = slide.shapes.AddShape( pplib.MsoAutoShapeType['msoShapeRectangle']
+        # Textbox erstellen, damit Standardformatierung der Textbox genommen wird
+        shp = slide.shapes.AddTextbox( 1 #msoTextOrientationHorizontal
             , 0, 60, 100, 20)
         # Shape-Typ ist links-rechts-Pfeil, weil es die passenden Connector-Ecken hat
-        shp.AutoShapeType = 37 #msoShapeLeftRightArrow
+        shp.AutoShapeType = pplib.MsoAutoShapeType['msoShapeLeftRightArrow']
         # Shape-Anpassung, so dass es wie ein Rechteck aussieht
         shp.Adjustments.item[1] = 1
         shp.Adjustments.item[2] = 0
         # Shape-Stil
-        shp.Line.Weight = 0.75
+        # shp.Line.Weight = 0.75
         shp.Fill.Visible = 0 #msoFalse
         shp.Line.Visible = 0 #msoFalse
         # Text-Stil
-        shp.TextFrame.TextRange.Font.Color.RGB = 0
+        # shp.TextFrame.TextRange.Font.Color.RGB = 0
         shp.TextFrame.TextRange.Font.Size = 14
         shp.TextFrame.TextRange.ParagraphFormat.Alignment = 3 #ppAlignRight
         shp.TextFrame.TextRange.ParagraphFormat.Bullet.Visible = False
@@ -975,26 +980,38 @@ class TextShapes(object):
         shp.TextFrame.MarginLeft   = 0
         shp.TextFrame.MarginRight  = 0
         # Text
-        shp.TextFrame.TextRange.text = "tbd"
+        shp.TextFrame.TextRange.text = "DRAFT"
+        # Position
+        shp.Top = 15
         shp.Left = presentation.PageSetup.SlideWidth  - shp.width - 15
 
         # Connectoren erstellen und mit Connector-Ecken des Shapes verbinden
-        connector = slide.shapes.AddConnector(Type=1 #msoConnectorStraight
+        connector1 = slide.shapes.AddConnector(Type=1 #msoConnectorStraight
             , BeginX=0, BeginY=0, EndX=100, EndY=100)
-        connector.ConnectorFormat.BeginConnect(ConnectedShape=shp, ConnectionSite=1)
-        connector.ConnectorFormat.EndConnect(ConnectedShape=shp, ConnectionSite=3)
-        connector.Line.ForeColor.RGB = 0
-        connector.Line.Weight = 0.75
+        connector1.ConnectorFormat.BeginConnect(ConnectedShape=shp, ConnectionSite=1)
+        connector1.ConnectorFormat.EndConnect(ConnectedShape=shp, ConnectionSite=3)
+        connector1.Line.ForeColor.RGB = 0
+        connector1.Line.Weight = 0.75
 
-        connector = slide.shapes.AddConnector(Type=1 #msoConnectorStraight
+        connector2 = slide.shapes.AddConnector(Type=1 #msoConnectorStraight
             , BeginX=0, BeginY=0, EndX=100, EndY=100)
-        connector.ConnectorFormat.BeginConnect(ConnectedShape=shp, ConnectionSite=5)
-        connector.ConnectorFormat.EndConnect(ConnectedShape=shp, ConnectionSite=7)
-        connector.Line.ForeColor.RGB = 0
-        connector.Line.Weight = 0.75
+        connector2.ConnectorFormat.BeginConnect(ConnectedShape=shp, ConnectionSite=5)
+        connector2.ConnectorFormat.EndConnect(ConnectedShape=shp, ConnectionSite=7)
+        connector2.Line.ForeColor.RGB = 0
+        connector2.Line.Weight = 0.75
+
+        color = shp.TextFrame.TextRange.Font.Color
+        if color.Type == pplib.MsoColorType["msoColorTypeScheme"]:
+            connector1.Line.ForeColor.ObjectThemeColor = color.ObjectThemeColor
+            connector1.Line.ForeColor.Brightness = color.Brightness
+            connector2.Line.ForeColor.ObjectThemeColor = color.ObjectThemeColor
+            connector2.Line.ForeColor.Brightness = color.Brightness
+        else:
+            connector1.Line.ForeColor.RGB = color.RGB
+            connector2.Line.ForeColor.RGB = color.RGB
 
         # Text auswählen
-        shp.TextFrame.TextRange.Select()
+        shp.TextFrame2.TextRange.Select()
     
 
 class TextOnShape(object):
@@ -1044,7 +1061,7 @@ class TextOnShape(object):
         for shp in shapes:
             #if shp.TextFrame.TextRange.text != "":
             if shp.HasTextFrame == -1 and shp.TextFrame.HasText == -1:
-                shpTxt = context.app.ActivePresentation.Slides(context.app.ActiveWindow.View.Slide.SlideIndex).shapes.AddTextbox(
+                shpTxt = context.slide.shapes.AddTextbox(
                     1, #msoTextOrientationHorizontal
                     shp.Left, shp.Top, shp.Width, shp.Height)
                 # WordWrap / AutoSize
@@ -1064,7 +1081,10 @@ class TextOnShape(object):
                 # Text kopieren
                 shp.TextFrame2.TextRange.Copy()
                 shpTxt.TextFrame2.TextRange.Paste()
-                shp.TextFrame2.TextRange.Text = ""
+                shp.TextFrame2.DeleteText()
+                # Größe wiederherstellen
+                shp.Height = shpTxt.Height
+                shp.Width = shpTxt.Width
                 # Textfeld selektieren
                 shpTxt.Select(0)
     
