@@ -1091,24 +1091,27 @@ class TextOnShape(object):
 
 class SplitTextShapes(object):
 
-    @classmethod
-    def paragraph_height(cls, par, with_par_spaces=True):
-        parHeight = par.Lines().Count * cls.line_height(par) * 1.0
-        if with_par_spaces:
-            parHeight = parHeight + max(0, par.ParagraphFormat.SpaceBefore) + max(0, par.ParagraphFormat.SpaceAfter)
-        return parHeight
+
+    ### This method was required in Office 2007 were BoundXXX methods were not available
+    # @classmethod
+    # def paragraph_height(cls, par, with_par_spaces=True):
+    #     parHeight = par.Lines().Count * cls.line_height(par) * 1.0
+    #     if with_par_spaces:
+    #         parHeight = parHeight + max(0, par.ParagraphFormat.SpaceBefore) + max(0, par.ParagraphFormat.SpaceAfter)
+    #     return parHeight
     
-    
-    @staticmethod
-    def line_height(par):
-        if par.ParagraphFormat.LineRuleWithin == -1:
-            # spacing = number of lines
-            # Annahme zur Korrektur der Abstände: Abstand zwischen zwei Zeilen ist 0.2pt
-            return par.Font.Size * (max(0, par.ParagraphFormat.SpaceWithin) + 0.2)
-        else:
-            # spacing = number of pt
-            # Annahme zur Korrektur der Abstände: Abstand zwischen zwei Zeilen ist 0.2pt
-            return par.ParagraphFormat.SpaceWithin #+ 0.1 * .Font.Size
+
+    ### This method was required in Office 2007 were BoundXXX methods were not available
+    # @staticmethod
+    # def line_height(par):
+    #     if par.ParagraphFormat.LineRuleWithin == -1:
+    #         # spacing = number of lines
+    #         # Annahme zur Korrektur der Abstände: Abstand zwischen zwei Zeilen ist 0.2pt
+    #         return par.Font.Size * (max(0, par.ParagraphFormat.SpaceWithin) + 0.2)
+    #     else:
+    #         # spacing = number of pt
+    #         # Annahme zur Korrektur der Abstände: Abstand zwischen zwei Zeilen ist 0.2pt
+    #         return par.ParagraphFormat.SpaceWithin #+ 0.1 * .Font.Size
     
     
     @staticmethod
@@ -1121,62 +1124,75 @@ class SplitTextShapes(object):
     def splitShapesByParagraphs(cls, shapes, context):
         for shp in shapes:
             # if shp.TextFrame2.TextRange.Text != "":
-            if shp.TextFrame.HasText == -1 and shp.TextFrame.TextRange.Paragraphs().Count > 1:
+            if shp.HasTextFrame == -1 and shp.TextFrame.HasText == -1 and shp.TextFrame.TextRange.Paragraphs().Count > 1:
                 #Shape exklusiv markieren (alle anderen deselektieren)
-                shp.Select(-1) # msoTrue
+                # shp.Select(-1) # msoTrue
 
-                for parIndex in range(2, shp.TextFrame.TextRange.Paragraphs().Count+1):
-                    par = shp.TextFrame.TextRange.Paragraphs(parIndex)
+                par_count = shp.TextFrame2.TextRange.Paragraphs().Count
+                for par_index in range(2, par_count+1):
+                    par = shp.TextFrame2.TextRange.Paragraphs(par_index)
+                    # Leere Paragraphen überspringen
+                    if par.text in ["", "\r"]:
+                        continue
                     # Shape dublizieren
                     shpCopy = shp.Duplicate()
                     shpCopy.Select(0) # msoFalse
-                    shpCopy.Top  = shp.Top
+                    shpCopy.Top  = par.BoundTop - shp.TextFrame2.MarginTop + par.ParagraphFormat.SpaceBefore
                     shpCopy.Left = shp.Left
+                    
                     # Absaetze 1..i-1 entfernen und Shape entsprechend verschieben
-                    for index in range(1, parIndex):
-                        # Textbox Position entsprechend Absatzhoehe anpassen
-                        shpCopy.Top = shpCopy.Top + cls.paragraph_height(shpCopy.TextFrame.TextRange.Paragraphs(1))
-                        # Absatz entfernen
-                        shpCopy.TextFrame.TextRange.Paragraphs(1).Delete()
+                    shpCopy.TextFrame2.TextRange.Paragraphs(1, par_index-1).Delete()
+                    # for index in range(1, par_index):
+                    #     # Textbox Position entsprechend Absatzhoehe anpassen
+                    #     # shpCopy.Top = shpCopy.Top + cls.paragraph_height(shpCopy.TextFrame2.TextRange.Paragraphs(1))
+                    #     # Absatz entfernen
+                    #     shpCopy.TextFrame2.TextRange.Paragraphs(1).Delete()
+                    
                     # Absaetze i+1..n entfernen
-                    for index in range(parIndex + 1, shp.TextFrame.TextRange.Paragraphs().Count + 1):
-                        shpCopy.TextFrame.TextRange.Paragraphs(2).Delete()
+                    shpCopy.TextFrame2.TextRange.Paragraphs(2, shpCopy.TextFrame2.TextRange.Paragraphs().Count-1).Delete()
+                    # for index in range(par_index + 1, shp.TextFrame2.TextRange.Paragraphs().Count + 1):
+                    #     shpCopy.TextFrame2.TextRange.Paragraphs(2).Delete()
 
                     # Letztes CR-Zeichen loeschen
-                    cls.trim_newline_character(shpCopy.TextFrame.TextRange)
+                    cls.trim_newline_character(shpCopy.TextFrame2.TextRange)
 
                     # Shape Hoehe abhaengig von Absaetzhoehe
-                    shpCopy.Height = cls.paragraph_height(shpCopy.TextFrame.TextRange.Paragraphs(1)) + shpCopy.TextFrame.MarginTop + shpCopy.TextFrame.MarginBottom
+                    # shpCopy.Height = cls.paragraph_height(shpCopy.TextFrame.TextRange.Paragraphs(1)) + shpCopy.TextFrame2.MarginTop + shpCopy.TextFrame2.MarginBottom
+                    shpCopy.Height = par.BoundHeight + shp.TextFrame2.MarginTop + shp.TextFrame2.MarginBottom - par.ParagraphFormat.SpaceBefore - par.ParagraphFormat.SpaceAfter
+                    if par_index == par_count:
+                        #last paragraph does not have spaceafter
+                        shpCopy.Height += par.ParagraphFormat.SpaceAfter
 
                     # --> ein Absatz bleibt übrig
 
                 # letzten Shape nach unten schieben
-                shpCopy.Top = max(shpCopy.Top, shp.Top + shp.Height - shpCopy.Height)
+                # shpCopy.Top = max(shpCopy.Top, shp.Top + shp.Height - shpCopy.Height)
 
                 # Absaetze 2..n im Original-Shape entfernen
-                shp.TextFrame.TextRange.Paragraphs(2, shp.TextFrame.TextRange.Paragraphs().Count-1).Delete()
+                shp.TextFrame2.TextRange.Paragraphs(2, par_count-1).Delete()
 
                 # Letztes CR-Zeichen loeschen
-                cls.trim_newline_character(shp.TextFrame.TextRange)
+                cls.trim_newline_character(shp.TextFrame2.TextRange)
                 # Textbox Hoehe an Absatzhoehe anpassen
-                shp.Height = cls.paragraph_height(shp.TextFrame.TextRange.Paragraphs(1)) + shp.TextFrame.MarginTop + shp.TextFrame.MarginBottom
+                # shp.Height = cls.paragraph_height(shp.TextFrame2.TextRange.Paragraphs(1)) + shp.TextFrame2.MarginTop + shp.TextFrame2.MarginBottom
+                shp.Height = shp.TextFrame2.TextRange.Paragraphs(1).BoundHeight + shp.TextFrame2.MarginTop + shp.TextFrame2.MarginBottom
                 
                 #Verteilung bei 2 Shapes führt zu Fehler
-                if context.app.ActiveWindow.Selection.ShapeRange.Count > 2:
-                    # Objekte vertikal verteilen
-                    context.app.ActiveWindow.Selection.ShapeRange.Distribute(
-                        1, #msoDistributeVertically
-                        0) #msoFalse)
+                # if context.app.ActiveWindow.Selection.ShapeRange.Count > 2:
+                #     # Objekte vertikal verteilen
+                #     context.app.ActiveWindow.Selection.ShapeRange.Distribute(
+                #         1, #msoDistributeVertically
+                #         0) #msoFalse)
 
-    @staticmethod
-    def joinShapesWithText(shapes):
+    @classmethod
+    def joinShapesWithText(cls, shapes):
         # Shapes nach top sortieren
         shapes = sorted(shapes, key=lambda shape: shape.Top)
         # Anapssung Größe des ersten Shapes (Master-Shape)
-        shpMaster = shapes[0]
+        shpMaster = shapes.pop(0) #shapes[0]
         shpMaster.Height = max(shpMaster.Height, shapes[-1].Top + shapes[-1].Height - shpMaster.Top)
 
-        for shp in shapes[1:]:
+        for shp in shapes: #[1:]:
             # Text aus Shape kopieren
             shp.TextFrame2.TextRange.Copy()
             # neuen Absatz in Master-Shape erstellen
@@ -1189,8 +1205,7 @@ class SplitTextShapes(object):
             # Text in Master-Shape einfuegen
             txtRange.Paste()
             # Letztes CR-Zeichen loeschen
-            if txtRange.Characters(txtRange.Length, 1).Text == "\r":
-                txtRange.Characters(txtRange.Length, 1).Delete()
+            cls.trim_newline_character(txtRange)
             # Shape loeschen
             shp.Delete()
     
