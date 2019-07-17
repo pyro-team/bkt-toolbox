@@ -310,6 +310,12 @@ class Thumbnailer(object):
             with ThumbnailerTags(new_shp.Tags) as tags_new:
                 tags_new.set_thumbnail(**tags_old.data)
 
+        #handle thumbnail in group
+        group = None
+        if is_group_child(shape):
+            group = pplib.GroupManager(shape.ParentGroup)
+            group.ungroup()
+
         new_shp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_THUMBNAIL)
 
         new_shp.PictureFormat.crop.ShapeHeight = shape.PictureFormat.crop.ShapeHeight 
@@ -326,12 +332,12 @@ class Thumbnailer(object):
         shape.PickUp()
         new_shp.Apply()
 
-        #handle thumbnail in group #FIXME: need for multiple ungroup actions?
-        if is_group_child(shape):
-            shape.ParentGroup.Ungroup().Select()
+        #handle thumbnail in group (part 2)
+        if group:
+            group.select()
             shape.Delete()
             new_shp.Select(False)
-            application.ActiveWindow.Selection.ShapeRange.Group()
+            group.regroup(application.ActiveWindow.Selection.ShapeRange)
             new_shp.Select()
         else:
             shape.Delete()
