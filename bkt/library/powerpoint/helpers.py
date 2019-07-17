@@ -440,6 +440,23 @@ def convert_text_into_shape(shape):
 
     return shape_indices_on_slide(slide, [shape_index])[1]
 
+def get_dict_from_tags(shape_tags):
+    d = dict()
+    for i in range(shape_tags.count):
+        d[shape_tags.name(i+1)] = shape_tags.value(i+1)
+    return d
+
+def set_tags_from_dict(tags_dict, shape_tags):
+    for k,v in tags_dict.items():
+        shape_tags.add(k,v)
+
+
+
+
+# ======================
+# = Color helper class =
+# ======================
+
 
 class ColorHelper(object):
     '''
@@ -818,3 +835,85 @@ class BoundingFrame(object):
         bf.height = shapes[0].visual_y1 - bf.top
 
         return bf
+
+
+
+# ==========================
+# = Group helper functions =
+# ==========================
+
+class GroupManager(object):
+    def __init__(self, group, additional_attrs=[]):
+        self._group   = group
+        self._ungroup = None
+
+        self._name = group.name
+        self._tags = get_dict_from_tags(group.tags)
+        self._rotation = group.rotation
+
+        self._attr = {n:getattr(group, n) for n in additional_attrs}
+
+    def __getattr__(self, name):
+        # provides easy access to shape properties
+        return getattr(self._group, name)
+
+    # def __setattr__(self, name, value):
+    #     # provides easy access to shape properties
+    #     setattr(self._group, name, value)
+
+    @property
+    def child_items(self):
+        if self._group:
+            return list(iter(self._group.GroupItems))
+        else:
+            return list(iter(self._ungroup))
+    
+    @property
+    def shape(self):
+        if not self._group:
+            raise SystemError("not a group")
+        return self._group
+
+    def select(self, replace=True):
+        try:
+            if self._group:
+                self._group.select(replace=replace)
+            else:
+                self._ungroup.select(replace=replace)
+        except EnvironmentError:
+            # Select(replace=False) sometimes throws "Invalid request.  To select a shape, its view must be active.", e.g. right after duplicating the shape
+            if self._group:
+                self._group.select()
+            else:
+                self._ungroup.select()
+
+    def refresh(self):
+        self.ungroup()
+        self.regroup()
+
+    def prepare_ungroup(self):
+        self._group.rotation = 0
+
+    def ungroup(self):
+        if not self._group:
+            raise SystemError("not a group")
+
+        self.prepare_ungroup()
+        self._ungroup = self._group.ungroup()
+        self._group = None
+        return self
+    
+    def regroup(self, new_shape_range=None):
+        self._ungroup = new_shape_range or self._ungroup
+        if not self._ungroup:
+            raise SystemError("not ungrouped")
+
+        self._group = self._ungroup.group()
+        self._ungroup = None
+
+        self._group.name = self._name
+        set_tags_from_dict(self._tags, self._group.tags)
+        for k,v in self._attr.items():
+            setattr(self._group, k, v)
+        self._group.rotation = self._rotation
+        return self
