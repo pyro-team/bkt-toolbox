@@ -17,7 +17,28 @@ import os.path
 
 class ProcessChevrons(object):
     BKT_DIALOG_TAG = "BKT_PROCESS_CHEVRONS"
+
+    @classmethod
+    def is_convertible(cls, shape):
+        try:
+            allowed_types = [pplib.MsoAutoShapeType['msoShapePentagon'], pplib.MsoAutoShapeType['msoShapeChevron']]
+            return shape.Type == pplib.MsoShapeType['msoGroup'] and \
+                not cls.is_process_chevrons(shape) and \
+                all(shp.AutoShapeType in allowed_types for shp in shape.GroupItems)
+        except:
+            return False
     
+    @classmethod
+    def convert_to_process_chevrons(cls, shape):
+        cls._add_tags(shape)
+
+    @classmethod
+    def is_process_chevrons(cls, shape):
+        try:
+            return shape.Tags(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY) == cls.BKT_DIALOG_TAG
+        except:
+            return False
+
     @classmethod
     def _add_tags(cls, shape):
         shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
@@ -60,14 +81,25 @@ class ProcessChevrons(object):
         return grp
 
     @classmethod
-    def add_chevron(cls, shape):
+    def add_chevron(cls, shapes):
+        for shape in shapes:
+            cls._add_chevron(shape)
+
+    @classmethod
+    def _add_chevron(cls, shape):
         slide = shape.parent
 
-        cur_size = shape.width
-        cur_rot = shape.rotation
+        group = pplib.GroupManager(shape, additional_attrs=["width"])
+        group.prepare_ungroup()
 
-        shape.rotation = 0
-        group_shapes = sorted(iter(shape.GroupItems), key=lambda s: s.left)
+        # cur_size = shape.width
+        # cur_rot  = shape.rotation
+        # cur_name = shape.name
+
+        # shape.rotation = 0
+        # group_shapes = sorted(iter(shape.GroupItems), key=lambda s: s.left)
+        group_shapes = group.child_items
+        group_shapes.sort(key=lambda s: s.left)
         ref_shape = group_shapes[-1]
         dis_shape = group_shapes[-2]
 
@@ -77,29 +109,48 @@ class ProcessChevrons(object):
         distance = ref_shape.left - dis_shape.left-dis_shape.width
         new_shape.left = ref_shape.left+ref_shape.width+distance
 
-        grp = cls._refresh_group(shape)
-        grp.width = cur_size
-        grp.rotation = cur_rot
-        grp.select()
+        # grp = cls._refresh_group(shape)
+        # grp.width    = cur_size
+        # grp.rotation = cur_rot
+        # grp.name     = cur_name
+        # grp.select()
+        group.refresh()
+        group.select(False)
+        return group.shape
 
     @classmethod
-    def remove_chevron(cls, shape):
+    def remove_chevron(cls, shapes):
+        for shape in shapes:
+            cls._remove_chevron(shape)
+
+    @classmethod
+    def _remove_chevron(cls, shape):
         if shape.GroupItems.Count < 3:
             return
 
-        cur_size = shape.width
-        cur_rot = shape.rotation
+        group = pplib.GroupManager(shape, additional_attrs=["width"])
+        group.prepare_ungroup()
 
-        shape.rotation = 0
-        group_shapes = sorted(iter(shape.GroupItems), key=lambda s: s.left)
+        # cur_size = shape.width
+        # cur_rot  = shape.rotation
+        # cur_name = shape.name
+
+        # shape.rotation = 0
+        # group_shapes = sorted(iter(shape.GroupItems), key=lambda s: s.left)
+        group_shapes = group.child_items
+        group_shapes.sort(key=lambda s: s.left)
         ref_shape = group_shapes[-1]
         
         ref_shape.delete()
 
-        grp = cls._refresh_group(shape)
-        grp.width = cur_size
-        grp.rotation = cur_rot
-        grp.select()
+        # grp = cls._refresh_group(shape)
+        # grp.width    = cur_size
+        # grp.rotation = cur_rot
+        # grp.name     = cur_name
+        # grp.select()
+        group.refresh()
+        group.select(False)
+        return group.shape
 
 
 class ProcessChevronsPopup(bkt.ui.WpfWindowAbstract):
@@ -116,14 +167,14 @@ class ProcessChevronsPopup(bkt.ui.WpfWindowAbstract):
 
     def btnplus(self, sender, event):
         try:
-            ProcessChevrons.add_chevron(self._context.selection.ShapeRange[1])
+            ProcessChevrons.add_chevron(list(iter(self._context.selection.ShapeRange)))
         except:
             bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
             # bkt.helpers.exception_as_message()
 
     def btnminus(self, sender, event):
         try:
-            ProcessChevrons.remove_chevron(self._context.selection.ShapeRange[1])
+            ProcessChevrons.remove_chevron(list(iter(self._context.selection.ShapeRange)))
         except:
             bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
             # bkt.helpers.exception_as_message()
