@@ -14,6 +14,8 @@ import info
 import agenda
 import linkshapes
 import processshapes
+import language
+import slides
 
 
 # =================
@@ -25,6 +27,10 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(id='context-arrange-header-group', label="Überschrift anordnen", insertBeforeMso='Cut', image="headered_pentagon",
             on_action=bkt.Callback(lambda shape: processshapes.Pentagon.update_pentagon_group(shape), shapes=True, shape=True),
             get_visible=bkt.Callback(lambda shape: processshapes.Pentagon.is_headered_group(shape), shapes=True, shape=True)
+        ),
+        bkt.ribbon.Button(id='context-convert-process', label="In Prozess konvertieren", insertBeforeMso='Cut', image="process_chevrons",
+            on_action=bkt.Callback(lambda shape: processshapes.ProcessChevrons.convert_to_process_chevrons(shape), shape=True),
+            get_visible=bkt.Callback(lambda shape: processshapes.ProcessChevrons.is_convertible(shape), shape=True)
         ),
         bkt.ribbon.MenuSeparator(insertBeforeMso='Cut')
     ])
@@ -149,6 +155,38 @@ bkt.powerpoint.add_context_menu(
             image_mso='Paste',
             on_action=bkt.Callback(mod_shapes.ShapesMore.paste_to_slides, slides=True),
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
+        ),
+        bkt.ribbon.MenuSeparator(insertAfterMso='SlideBackgroundFormatDialog'),
+        bkt.ribbon.Menu(
+            id="context-lang-change",
+            label="Sprache ändern",
+            image_mso="GroupLanguage",
+            insertAfterMso='SlideBackgroundFormatDialog',
+            children=[
+                language.LangSetter.get_button(lang, "-cm")
+                for lang in language.LangSetter.langs
+            ]
+        ),
+        bkt.ribbon.Menu(
+            id="context-export-slides",
+            label="Folien exportieren",
+            image_mso="SaveSelectionToTextBoxGallery",
+            insertAfterMso='SlideBackgroundFormatDialog',
+            children=[
+                bkt.ribbon.Button(
+                    id = 'context-export-save_slides',
+                    label='Ausgewählte Folien speichern',
+                    image_mso='SaveSelectionToTextBoxGallery',
+                    supertip="Speichert die ausgewählten Folien in einer neuen Präsentation.",
+                    on_action=bkt.Callback(slides.FolienMenu.saveSlidesDialog)
+                ),
+                bkt.ribbon.Button(
+                    id = 'context-export-send_slides',
+                    label='Ausgewählte Folien senden',
+                    image_mso='FileSendAsAttachment',
+                    on_action=bkt.Callback(slides.FolienMenu.sendSlidesDialog)
+                ),
+            ]
         ),
     ])
 )
