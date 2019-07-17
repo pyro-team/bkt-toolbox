@@ -46,8 +46,10 @@ class StateShape(object):
         if not cls.is_state_shape(shape):
             raise ValueError("Shape is not a state shape")
         # ungroup shape, to get list of groups inside grouped items
-        ungrouped_shapes = shape.Ungroup()
-        shapes = list(iter(ungrouped_shapes))
+        # ungrouped_shapes = shape.Ungroup()
+        # shapes = list(iter(ungrouped_shapes))
+        group = pplib.GroupManager(shape).ungroup()
+        shapes = group.child_items
         # shapes.sort(key=lambda s: s.ZOrderPosition)
         # pos = min(max(pos, len(shapes)-1), -(len(shapes)-1)) #pos between -/+ number of shapes in group
         for i, s in enumerate(shapes):
@@ -59,13 +61,15 @@ class StateShape(object):
 
         pos = (pos + delta) % len(shapes)
         shapes[pos].visible = True
-        grp = ungrouped_shapes.Group()
-        grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
-        try:
-            #sometimes throws "Invalid request.  To select a shape, its view must be active.", e.g. right after duplicating the shape
-            grp.Select(replace=False)
-        except:
-            grp.Select()
+        group.regroup()
+        group.select(replace=False)
+        # grp = ungrouped_shapes.Group()
+        # grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
+        # try:
+        #     #sometimes throws "Invalid request.  To select a shape, its view must be active.", e.g. right after duplicating the shape
+        #     grp.Select(replace=False)
+        # except:
+        #     grp.Select()
 
 
     @classmethod
