@@ -2778,7 +2778,9 @@ class TableFormat(object):
 
 
 class EdgeAutoFixer(object):
-    default_threshold = pplib.cm_to_pt(0.3)
+    threshold = pplib.cm_to_pt(0.3)
+    groupitems = True
+    order_key = "diagonal-down"
 
     @classmethod
     def _iterate_all_shapes(cls, shapes, groupitems=True):
@@ -2797,15 +2799,27 @@ class EdgeAutoFixer(object):
                 yield shape
     
     @classmethod
-    def autofix_edges(cls, shapes, threshold=None, groupitems=True):
-        #TODO: how to handle locked aspect-ratio and autosize? rotated shapes? ojects with 0 height/width?
+    def autofix_edges(cls, shapes):
+        cls._autofix_edges(shapes, cls.threshold, cls.groupitems, cls.order_key)
+    
+    @classmethod
+    def _autofix_edges(cls, shapes, threshold=None, groupitems=True, order_key="diagonal-down"):
+        #TODO: how to handle locked aspect-ratio and autosize? rotated shapes? ojects with 0 height/width? exclude placeholders?
 
-        threshold = threshold or cls.default_threshold
+        threshold = threshold or pplib.cm_to_pt(0.3)
 
         shapes = pplib.wrap_shapes(cls._iterate_all_shapes(shapes, groupitems))
 
         # shapes.sort(key=lambda shape: (shape.left, shape.top))
-        shapes.sort(key=lambda shape: shape.visual_x+shape.visual_y)
+        order_keys = {
+            "diagonal-down": [lambda shape: shape.visual_x+shape.visual_y, False],
+            "diagonal-up":   [lambda shape: shape.visual_x+shape.visual_y, True],
+            "left-right": [lambda shape: (shape.visual_x,shape.visual_y), False],
+            "top-bottom": [lambda shape: (shape.visual_y,shape.visual_x), False],
+            "right-left": [lambda shape: (shape.visual_x,shape.visual_y), True],
+            "bottom-top": [lambda shape: (shape.visual_y,shape.visual_x), True],
+        }
+        shapes.sort(key=order_keys[order_key][0], reverse=order_keys[order_key][1])
 
         # logging.debug("Autofix: top-left")
         child_shapes = shapes[:]
