@@ -60,6 +60,13 @@ class Swap(object):
         for i in range(len(shapes)-2, -1, -1):
             shapes[i+1].top = shapes[i].top
         shapes[0].top = t
+
+    @classmethod
+    def multi_swap_zorder(cls, shapes):
+        all_zorders = [s.ZOrderPosition for s in shapes]
+        for i in range(len(shapes)-2, -1, -1):
+            pplib.set_shape_zorder(shapes[i+1], value=all_zorders[i])
+        pplib.set_shape_zorder(shapes[0], value=all_zorders[-1])
     
     @classmethod
     def multi_swap_pos_size(cls, shapes):
@@ -170,6 +177,15 @@ swap_button = bkt.ribbon.SplitButton(
                 screentip="Tausche y-Position",
                 supertip="Tausche die y-Position (Abstand vom oberen Folienrand) der markierten Shapes.",
                 on_action=bkt.Callback(Swap.multi_swap_top, shapes=True, shapes_min=2),
+                # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            ),
+            bkt.ribbon.Button(
+                id = 'swap_zorder',
+                label="Tausche Z-Order",
+                show_label=True,
+                screentip="Tausche Z-Order-Position",
+                supertip="Tausche die Z-Order-Position der markierten Shapes.",
+                on_action=bkt.Callback(Swap.multi_swap_zorder, shapes=True, shapes_min=2),
                 # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
             ),
             bkt.ribbon.MenuSeparator(),

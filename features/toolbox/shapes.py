@@ -96,6 +96,19 @@ class PositionSize(object):
         else:
             return [shapes[0].ZOrderPosition, None] #force ambiguous mode
 
+    @staticmethod
+    def front_to_back(shapes):
+        shapes = sorted(shapes, key=lambda shape: shape.ZOrderPosition, reverse=False)
+        target_zorder = shapes.pop(0).ZOrderPosition-1
+        for shape in shapes:
+            pplib.set_shape_zorder(shape, value=target_zorder)
+
+    @staticmethod
+    def back_to_front(shapes):
+        shapes = sorted(shapes, key=lambda shape: shape.ZOrderPosition, reverse=True)
+        target_zorder = shapes.pop(0).ZOrderPosition+1
+        for shape in shapes:
+            pplib.set_shape_zorder(shape, value=target_zorder)
 
     @staticmethod
     def shape_lock_aspect_ratio(shapes, pressed):
@@ -180,6 +193,21 @@ spinner_zorder = bkt.ribbon.RoundingSpinnerBox(
         children=[
             bkt.mso.control.ObjectBringToFront,
             bkt.mso.control.ObjectSendToBack,
+            bkt.ribbon.MenuSeparator(),
+            bkt.ribbon.Button(
+                label="Vordere nach hinten",
+                supertip="Bringt alle vordere Shapes hinter das hinterste Shape",
+                image_mso="ObjectSendBackward",
+                get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                on_action=bkt.Callback(PositionSize.front_to_back, shapes=True),
+            ),
+            bkt.ribbon.Button(
+                label="Hintere nach vorne",
+                supertip="Bringt alle hinteren Shapes vor das vorderste Shape",
+                image_mso="ObjectBringForward",
+                get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                on_action=bkt.Callback(PositionSize.back_to_front, shapes=True),
+            ),
         ],
     ),
 )
