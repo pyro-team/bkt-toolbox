@@ -359,12 +359,83 @@ GlobalLocPin = LocPin(settings_key="bkt.global_loc_pin")
 # = Generic helper functions =
 # ============================
 
+
+def shape_is_group_child(shape):
+    try:
+        return shape.ParentGroup.Id != ""
+    except SystemError:
+        return False
+
+
 def shape_indices_on_slide(slide, indices):
     import System.Array # to create int-Arrays
     return slide.Shapes.Range(System.Array[int](indices))
 
-def last_n_shapes_on_slide(slide,n):
+def last_n_shapes_on_slide(slide, n):
     return shape_indices_on_slide(slide, range(slide.shapes.Count + 1 -n, slide.shapes.Count + 1))
+
+def shape_names_on_slide(slide, names):
+    #NOTE: If there are multiple shapes with the same name, only one of them is returned!
+    #NOTE: This function is also looking for shapes within groups.
+    import System.Array # to create str-Arrays
+    return slide.Shapes.Range(System.Array[str](names))
+
+def shapes_to_range(shapes):
+    '''
+    Here is another powerpoint fuckup, it is quite complicated to create a shaperange from a list of shapes.
+    -> Slide.Shapes.Range(Array) either requires a list of shape indices or shape names.
+    1. My first approach was to use shape names, but they are not unique and if names are replaced in VBA (to make them unique) you cannot
+       restore the original name without destroying localization of names. Also, you cannot easily determine if there are multiple shapes
+       with the same name as slide.Shapes.Range(Name).Count always return 1, so you have to iterate over all names before.
+    2. My new approach is to use shape indices, but the shape does not have an index number, only an ID. In order to get the index number
+       you have to iterate over all slide.shapes and compare with the shape your looking for. Luckily, we can leverage pythons dict for that.
+    '''
+
+    ###############
+    ### Approach 2:
+    import System.Array # to create int-Arrays
+    #shape indices and range-function are different if shapes are within a group
+    if shape_is_group_child(shapes[0]):
+        all_shapes = shapes[0].ParentGroup.GroupItems
+    else:
+        all_shapes = shapes[0].Parent.Shapes
+    #create mapping dict from all shape ids to shape indices
+    shape_id2idx = {s.id: i+1 for i,s in enumerate(all_shapes)}
+    #get indices of shapes
+    indices = []
+    for s in shapes:
+        try:
+            indices.append(shape_id2idx[s.id])
+        except (KeyError, EnvironmentError):
+            pass #just ignore missing shapes
+    #return range
+    return all_shapes.Range(System.Array[int](indices))
+
+    ###############
+    ### Approach 1:
+    ### Note: This approach does not properly support shapes within groups
+    # import uuid
+    # try:
+    #     slide = shapes[0].Parent
+    #     #set unique names
+    #     all_names = [s.name for s in slide.shapes]
+    #     orig_names = []
+    #     select_names = []
+    #     for i,shp in enumerate(shapes):
+    #         #only replace original names if not unique as localized names will be destroyd in this step
+    #         if all_names.count(shp.name) > 1:
+    #             #save original name and replace name with unique one
+    #             orig_names.append((i, shp.name))
+    #             shp.name = str(uuid.uuid4())
+    #         select_names.append(shp.name)
+    #     # before return is executed, the finally statement restores original shape names
+    #     return shape_names_on_slide(slide, select_names)
+    # finally:
+    #     #restore names
+    #     if orig_names:
+    #         for i,name in orig_names:
+    #             shapes[i].name = name
+
 
 def get_shapes_from_selection(selection):
     # ShapeRange accessible if shape or text selected
