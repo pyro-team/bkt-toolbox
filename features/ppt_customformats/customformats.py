@@ -480,6 +480,7 @@ class CustomQuickEdit(object):
     always_consider_indentlevels = True #set to true to save paragraphformat and font individually for each indent level
 
     temp_custom_format = None #temporary custom format, used for advanced pickup-apply stamp
+    temp_settings_done = False #set to True the first time apply style settings have been defined
 
 
     ### Catalog menu ###
@@ -595,14 +596,24 @@ class CustomQuickEdit(object):
     @classmethod
     def temp_pickup(cls, shape):
         cls.temp_custom_format = CustomFormat.from_shape(shape)
+        cls.temp_settings_done = False
 
     @classmethod
     def temp_apply(cls, shapes):
-        from pickup_style import PickupWindow
-        wnd = PickupWindow.create_and_show_dialog(cls, cls.temp_custom_format.style_setting)
+        ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
+
+        do_apply = True
+        if ctrl or not cls.temp_settings_done:
+            from pickup_style import PickupWindow
+            wnd = PickupWindow.create_and_show_dialog(cls, cls.temp_custom_format.style_setting)
         
-        if wnd.result:
-            cls.temp_custom_format.style_setting.update(wnd.result)
+            if wnd.result:
+                cls.temp_custom_format.style_setting.update(wnd.result)
+                cls.temp_settings_done = True
+            else:
+                do_apply = False
+        
+        if do_apply:
             for shape in shapes:
                 cls.temp_custom_format.to_shape(shape)
 
@@ -669,7 +680,7 @@ customformats_group = bkt.ribbon.Group(
             id="quickedit_temp_apply",
             label='Format anwenden',
             image_mso='PasteApplyStyle',
-            supertip="Ausgewählte Formate aus Zwischenspeicher auf selektierte Shapes anwenden.",
+            supertip="Ausgewählte Formate aus Zwischenspeicher auf selektierte Shapes anwenden.\n\nMit STRG kann die Auswahl der Formate erneut bearbeitet werden.",
             show_label=False,
             on_action=bkt.Callback(CustomQuickEdit.temp_apply),
             get_enabled = bkt.Callback(CustomQuickEdit.temp_enabled),
