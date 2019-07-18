@@ -265,83 +265,105 @@ pos_size_group = bkt.ribbon.Group(
 
 
 
-class ShapesMore(object):
+class TrackerShape(object):
+
+    @classmethod
+    def generateTracker(cls, shapes, context):
+        import uuid
+        from linkshapes import LinkedShapes
+
+        #shapes to copy formatting
+        shapes_count = len(shapes)
+        highlight_shape = shapes[0]
+        default_shape = shapes[1]
+        slide_width = context.app.ActivePresentation.PageSetup.SlideWidth
+
+        #copy and paste shapes (note: shapes can also be part of a group)
+        pplib.shapes_to_range(shapes).copy()
+        grp = context.slide.shapes.paste().group()
+
+        # format unselected elements
+        for shp in grp.GroupItems:
+            if shp.HasTextFrame:
+                shp.TextFrame.DeleteText()
+            default_shape.PickUp()
+            shp.Apply()
+
+        # generate unique GUID fpr tracker (items)
+        tracker_guid = str(uuid.uuid4())
+
+        # format each selected element and paste tracker as image
+        for i in range(1, shapes_count+1):
+            highlight_shape.PickUp()
+            new_grp = grp.Duplicate()
+            
+            new_grp.GroupItems(i).Apply()
+            new_grp.Copy()
+
+            tracker = context.slide.shapes.PasteSpecial(DataType=6) # ppPastePNG = 6
+            tracker.Tags.Add("tracker_id", tracker_guid)
+
+            new_grp.Delete()
+
+            tracker.Height = cm_to_pt(1.5)
+            tracker.left = slide_width - cm_to_pt(3.0) - shapes_count*cm_to_pt(1/1.5) + cm_to_pt(i/1.5)
+            tracker.top = cm_to_pt(3.0) + cm_to_pt(i/1.5)
+
+        #delete duplicated shapes
+        grp.Delete()
+        all_trackers = pplib.last_n_shapes_on_slide(context.slide, shapes_count)
+        all_trackers_list = list(iter(all_trackers))
+
+        #select all tracker
+        all_trackers.select()
+
+        #make trackers linked shapes
+        LinkedShapes.link_shapes(all_trackers_list)
+
+        #ask to distribute trackers
+        if bkt.helpers.confirmation("Tracker auf Folgefolien verteilen?"):
+            cls.distributeTracker(all_trackers_list, context)
+            all_trackers_list[0].select()
 
     @staticmethod
-    def generateTracker(shapes, context):
-        from System import Array, Guid
-
-        sld = context.app.ActivePresentation.Slides(context.app.ActiveWindow.View.Slide.SlideIndex)
-        
-        shapeCount = len(shapes)
-        highlightShape = shapes[0]
-        defaultShape = shapes[1]
-        slideWidth = context.app.ActivePresentation.PageSetup.SlideWidth
-        
-        shpCounter = 0
-        selShapes = Array.CreateInstance(str, shapeCount)
-        for shp in shapes:
-            selShapes[shpCounter] = shp.Name
-            shpCounter += 1
-        
-        grp = sld.Shapes.Range(selShapes).Group()
-        
-        # duplicate group of shapes
-        alterGrp = grp.duplicate()
-        grp.ungroup()
-        
-        # format unselected elements
-        for shp in alterGrp:
-            shp.TextFrame.TextRange.Text = ""
-            defaultShape.PickUp()
-            shp.Apply()
-        
-        # generate unique GUID fpr tracker (items)
-        tracker_guid = str(Guid.NewGuid())
-        
-        # format each selected element and paste tracker as image
-        for curPosition in range(1, shapeCount+1):
-            highlightShape.PickUp()
-            curGrp = alterGrp.duplicate()
-            curGrp.GroupItems(curPosition).Apply()
-            curGrp.Copy()
-            
-            tracker = sld.shapes.PasteSpecial(DataType=6) # ppPastePNG = 6
-            tracker.Tags.Add("tracker_id", tracker_guid)
-            
-            curGrp.delete()
-            
-            tracker.Height = cm_to_pt(1.5)
-            tracker.left = slideWidth - cm_to_pt(3.0) + cm_to_pt(curPosition/1.5)
-            tracker.top = cm_to_pt(3.0) + cm_to_pt(curPosition/1.5)
-        
-        alterGrp.delete()
-
+    def isTracker(shape):
+        return shape.Tags.Item("tracker_id") != ""
 
     @staticmethod
     def alignTracker(shape, context):
         tracker_id = shape.Tags.Item("tracker_id")
+        if not tracker_id:
+            return
         
-        if tracker_id != "":            
-            tracker_position_left = shape.left
-            tracker_position_top = shape.top
-            tracker_rotation = shape.Rotation
-            tracker_heigth = shape.Height
-            tracker_width = shape.Width
-            tracker_lock_ar = shape.LockAspectRatio
-            
-            for sld in context.app.ActivePresentation.Slides:
-                for cShp in sld.shapes:
-                    if cShp.Tags.Item("tracker_id") == tracker_id:
-                        cShp.LockAspectRatio = 0 #msoFalse
-                        cShp.left, cShp.top = tracker_position_left, tracker_position_top
-                        cShp.Height, cShp.Width = tracker_heigth, tracker_width
-                        cShp.Rotation = tracker_rotation
-                        cShp.LockAspectRatio = tracker_lock_ar
-
+        tracker_position_left = shape.left
+        tracker_position_top = shape.top
+        tracker_rotation = shape.Rotation
+        tracker_heigth = shape.Height
+        tracker_width = shape.Width
+        tracker_lock_ar = shape.LockAspectRatio
+        
+        for sld in context.app.ActivePresentation.Slides:
+            for cShp in sld.shapes:
+                if cShp.Tags.Item("tracker_id") == tracker_id:
+                    cShp.LockAspectRatio = 0 #msoFalse
+                    cShp.left, cShp.top = tracker_position_left, tracker_position_top
+                    cShp.Height, cShp.Width = tracker_heigth, tracker_width
+                    cShp.Rotation = tracker_rotation
+                    cShp.LockAspectRatio = tracker_lock_ar
 
     @staticmethod
-    def distributeTracker(shapes, context):
+    def removeTracker(shape, context):
+        tracker_id = shape.Tags.Item("tracker_id")
+        if not tracker_id:
+            return
+        
+        for sld in context.app.ActivePresentation.Slides:
+            for cShp in sld.shapes:
+                if cShp.Tags.Item("tracker_id") == tracker_id:
+                    cShp.Delete()
+
+    @classmethod
+    def distributeTracker(cls, shapes, context):
         cur_slide_index = shapes[0].Parent.SlideIndex
         max_index = context.app.ActivePresentation.Slides.Count
         for shape in shapes[1:]:
@@ -349,9 +371,11 @@ class ShapesMore(object):
             shape.Cut()
             context.app.ActivePresentation.Slides[cur_slide_index].Shapes.Paste()
 
-        ShapesMore.alignTracker(shapes[0], context)
+        cls.alignTracker(shapes[0], context)
 
-    
+
+
+class ShapesMore(object):
 
     @staticmethod
     def addHorizontalConnector(shapes, context):
@@ -1452,10 +1476,11 @@ shapes_group = bkt.ribbon.Group(
                 ),
                 NumberShapesGallery(id='number-labels-gallery'),
                 bkt.ribbon.Menu(
-                    label='Tracker',
+                    label='Grafik-Tracker',
                     image = "Tracker",
                     screentip="Tracker erstellen oder ausrichten",
-                    supertip="Einen Tracker aus einer Auswahl erstellen, verteilen und ausrichten.",
+                    supertip="Einen Tracker aus einer Auswahl als Bild erstellen, verteilen und ausrichten.",
+                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
                     children = [
                         bkt.ribbon.Button(
                             id = 'tracker',
@@ -1463,7 +1488,7 @@ shapes_group = bkt.ribbon.Group(
                             #image = "Tracker",
                             screentip="Tracker aus Auswahl erstellen",
                             supertip="Erstelle aus den markierten Shapes einen Tracker.\nDer Shape-Stil für Highlights wird aus dem zuerst markierten Shape (in der Regel oben links) bestimmt. Der Shape-Stil für alle anderen Shapes wird aus dem als zweites markierten Shape bestimmt.",
-                            on_action=bkt.Callback(ShapesMore.generateTracker, shapes=True, shapes_min=2, context=True),
+                            on_action=bkt.Callback(TrackerShape.generateTracker, shapes=True, shapes_min=2, context=True),
                             get_enabled = bkt.apps.ppt_shapes_min2_selected,
                         ),
                         bkt.ribbon.Button(
@@ -1472,17 +1497,27 @@ shapes_group = bkt.ribbon.Group(
                             #image = "Tracker",
                             screentip="Alle Tracker verteilen",
                             supertip="Verteilen der ausgewählten Tracker auf die Folgefolien und ausrichten.",
-                            on_action=bkt.Callback(ShapesMore.distributeTracker, shapes=True, shapes_min=2, context=True),
+                            on_action=bkt.Callback(TrackerShape.distributeTracker, shapes=True, shapes_min=2, context=True),
                             get_enabled = bkt.apps.ppt_shapes_min2_selected,
                         ),
+                        bkt.ribbon.MenuSeparator(),
                         bkt.ribbon.Button(
                             id = 'tracker_align',
                             label = u"Alle Tracker ausrichten",
                             #image = "Tracker",
                             screentip="Alle Tracker ausrichten",
                             supertip="Ausrichten (Position, Größe, Rotation) aller Tracker (auf allen Folien) anhand des ausgewählten Tracker.",
-                            on_action=bkt.Callback(ShapesMore.alignTracker, shape=True, context=True),
-                            get_enabled = bkt.apps.ppt_shapes_exactly1_selected,
+                            on_action=bkt.Callback(TrackerShape.alignTracker, shape=True, context=True),
+                            get_enabled = bkt.Callback(TrackerShape.isTracker, shape=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'tracker_remove',
+                            label = u"Alle Tracker löschen",
+                            #image = "Tracker",
+                            screentip="Alle Tracker löschen",
+                            supertip="Löschen aller Tracker (auf allen Folien) anhand des ausgewählten Tracker.",
+                            on_action=bkt.Callback(TrackerShape.removeTracker, shape=True, context=True),
+                            get_enabled = bkt.Callback(TrackerShape.isTracker, shape=True),
                         ),
                     ]
                 ),
