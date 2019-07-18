@@ -10,17 +10,14 @@ import bkt
 
 # import toolbox modules with ui
 import arrange
-import harvey
 import info
 import language
-# import placeholder
-import shape_adjustments
-import shape_selection
-# import shapes_split
-import shapes as mod_shapes
-import slides
-import stateshapes
 import text
+import shape_adjustments
+import stateshapes
+import slides
+import shapes as mod_shapes
+import shape_selection
 
 
 

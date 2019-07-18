@@ -55,9 +55,6 @@ class SplitShapes(object):
 
 
 
-#FIXME: no dependency to circular wanted here
-#from circular import CircularArrangement
-
 
 class MultiplyShapes(object):
     
