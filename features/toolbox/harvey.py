@@ -39,7 +39,8 @@ class HarveyBalls(object):
 
         # gruppieren
         # grp = slide.Shapes.Range(System.Array[int]([shapeCount+1, shapeCount+2])).group()
-        grp = powerpoint.shape_indices_on_slide(slide, [shapeCount+1, shapeCount+2]).group()
+        # grp = powerpoint.shape_indices_on_slide(slide, [shapeCount+1, shapeCount+2]).group()
+        grp = powerpoint.last_n_shapes_on_slide(slide, 2).group()
         grp.LockAspectRatio = -1 #msoTrue
 
         # Fuellstand einstellen

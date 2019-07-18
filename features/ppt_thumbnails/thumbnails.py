@@ -294,12 +294,6 @@ class Thumbnailer(object):
 
     @classmethod
     def _shape_refresh(cls, shape, application):
-        def is_group_child(shp):
-            try:
-                return shp.ParentGroup.Id != ""
-            except:
-                return False
-
         with ThumbnailerTags(shape.Tags) as tags_old:
             #Copy
             cls.find_and_copy_object(application, **tags_old.data)
@@ -312,7 +306,7 @@ class Thumbnailer(object):
 
         #handle thumbnail in group
         group = None
-        if is_group_child(shape):
+        if pplib.shape_is_group_child(shape):
             group = pplib.GroupManager(shape.ParentGroup)
             group.ungroup()
 

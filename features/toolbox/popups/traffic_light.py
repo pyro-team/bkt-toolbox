@@ -4,6 +4,7 @@ import logging
 import os.path
 
 import bkt
+import bkt.library.powerpoint as pplib
 
 # wpf basics
 # import clr
@@ -31,11 +32,11 @@ class Ampel(object):
     def create(cls, slide):
         logging.debug("create ampel 3")
 
-        from System import Array
+        # from System import Array
 
         # slide=cls.context.app.activewindow.selection.sliderange[1]
 
-        shapeCount = slide.shapes.count
+        # shapeCount = slide.shapes.count
         shapes = [
             slide.shapes.addshape(1, 100, 100, 30, 80), #rect
             slide.shapes.addshape(9, 105, 105, 20, 20), #red
@@ -47,7 +48,8 @@ class Ampel(object):
             shape.line.weight = 0.75
             shape.line.ForeColor.RGB = 0
         # gruppieren
-        grp = slide.Shapes.Range(Array[int](range(shapeCount+1, shapeCount+5))).group()
+        # grp = slide.Shapes.Range(Array[int](range(shapeCount+1, shapeCount+5))).group()
+        grp = pplib.last_n_shapes_on_slide(slide, 4).group()
         grp.select()
         grp.LockAspectRatio = -1 #msoTrue
         grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_AMPEL)

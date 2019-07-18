@@ -229,18 +229,20 @@ class LikertScale(object):
 
     @classmethod
     def _create_single_scale(cls, slide, shape_type=1, state=0, total=3, visible=0):
-        shapecount = slide.Shapes.Count
+        # shapecount = slide.Shapes.Count
         left = 90
         for i in range(total):
             left += cls.size + cls.spacing
             s = slide.Shapes.AddShape( shape_type, left, 100, cls.size, cls.size )
+            s.Line.Weight = 0.75
             s.Line.ForeColor.RGB = cls.color_line
             if i < state:
                 s.Fill.ForeColor.RGB = cls.color_filled
             else:
                 s.Fill.ForeColor.RGB = cls.color_empty
 
-        grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total))).group()
+        # grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total))).group()
+        grp = pplib.last_n_shapes_on_slide(slide, total).group()
         grp.Visible = visible
         return grp
 
@@ -251,7 +253,8 @@ class LikertScale(object):
             cls._create_single_scale(slide, shape_type, i, total)
         
         slide.Shapes.Range(shapecount+1).visible = -1 #make first visible
-        grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total+1))).group()
+        # grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total+1))).group()
+        grp = pplib.last_n_shapes_on_slide(slide, total+1).group()
         grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, StateShape.BKT_DIALOG_TAG)
         grp.select()
 
