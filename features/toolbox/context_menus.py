@@ -156,7 +156,6 @@ bkt.powerpoint.add_context_menu(
             on_action=bkt.Callback(mod_shapes.ShapesMore.paste_to_slides, slides=True),
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
         ),
-        bkt.ribbon.MenuSeparator(insertAfterMso='SlideBackgroundFormatDialog'),
         bkt.ribbon.Menu(
             id="context-lang-change",
             label="Sprache ändern",
@@ -169,25 +168,26 @@ bkt.powerpoint.add_context_menu(
         ),
         bkt.ribbon.Menu(
             id="context-export-slides",
-            label="Folien exportieren",
+            label="Ausgewählte Folien exportieren",
             image_mso="SaveSelectionToTextBoxGallery",
             insertAfterMso='SlideBackgroundFormatDialog',
             children=[
                 bkt.ribbon.Button(
                     id = 'context-export-save_slides',
-                    label='Ausgewählte Folien speichern',
+                    label='Speichern',
                     image_mso='SaveSelectionToTextBoxGallery',
                     supertip="Speichert die ausgewählten Folien in einer neuen Präsentation.",
                     on_action=bkt.Callback(slides.FolienMenu.saveSlidesDialog)
                 ),
                 bkt.ribbon.Button(
                     id = 'context-export-send_slides',
-                    label='Ausgewählte Folien senden',
+                    label='Senden',
                     image_mso='FileSendAsAttachment',
                     on_action=bkt.Callback(slides.FolienMenu.sendSlidesDialog)
                 ),
             ]
         ),
+        bkt.ribbon.MenuSeparator(insertAfterMso='SlideBackgroundFormatDialog'),
     ])
 )
 

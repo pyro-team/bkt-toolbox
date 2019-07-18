@@ -196,14 +196,14 @@ spinner_zorder = bkt.ribbon.RoundingSpinnerBox(
             bkt.ribbon.MenuSeparator(),
             bkt.ribbon.Button(
                 label="Vordere nach hinten",
-                supertip="Bringt alle vordere Shapes hinter das hinterste Shape",
+                supertip="Bringt alle vordere Shapes genau hinter das hinterste Shape",
                 image_mso="ObjectSendBackward",
                 get_enabled=bkt.apps.ppt_shapes_min2_selected,
                 on_action=bkt.Callback(PositionSize.front_to_back, shapes=True),
             ),
             bkt.ribbon.Button(
                 label="Hintere nach vorne",
-                supertip="Bringt alle hinteren Shapes vor das vorderste Shape",
+                supertip="Bringt alle hinteren Shapes genau vor das vorderste Shape",
                 image_mso="ObjectBringForward",
                 get_enabled=bkt.apps.ppt_shapes_min2_selected,
                 on_action=bkt.Callback(PositionSize.back_to_front, shapes=True),
