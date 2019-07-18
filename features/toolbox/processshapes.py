@@ -73,14 +73,6 @@ class ProcessChevrons(object):
 
 
     @classmethod
-    def _refresh_group(cls, shape):
-        #ungroup+group required so new shapes are properly added to group and counted in groupitems
-        grp = shape.Ungroup()
-        grp = grp.Group()
-        cls._add_tags(grp)
-        return grp
-
-    @classmethod
     def add_chevron(cls, shapes):
         for shape in shapes:
             cls._add_chevron(shape)
@@ -92,11 +84,6 @@ class ProcessChevrons(object):
         group = pplib.GroupManager(shape, additional_attrs=["width"])
         group.prepare_ungroup()
 
-        # cur_size = shape.width
-        # cur_rot  = shape.rotation
-        # cur_name = shape.name
-
-        # shape.rotation = 0
         # group_shapes = sorted(iter(shape.GroupItems), key=lambda s: s.left)
         group_shapes = group.child_items
         group_shapes.sort(key=lambda s: s.left)
@@ -109,11 +96,6 @@ class ProcessChevrons(object):
         distance = ref_shape.left - dis_shape.left-dis_shape.width
         new_shape.left = ref_shape.left+ref_shape.width+distance
 
-        # grp = cls._refresh_group(shape)
-        # grp.width    = cur_size
-        # grp.rotation = cur_rot
-        # grp.name     = cur_name
-        # grp.select()
         group.refresh()
         group.select(False)
         return group.shape
@@ -131,11 +113,6 @@ class ProcessChevrons(object):
         group = pplib.GroupManager(shape, additional_attrs=["width"])
         group.prepare_ungroup()
 
-        # cur_size = shape.width
-        # cur_rot  = shape.rotation
-        # cur_name = shape.name
-
-        # shape.rotation = 0
         # group_shapes = sorted(iter(shape.GroupItems), key=lambda s: s.left)
         group_shapes = group.child_items
         group_shapes.sort(key=lambda s: s.left)
@@ -143,11 +120,6 @@ class ProcessChevrons(object):
         
         ref_shape.delete()
 
-        # grp = cls._refresh_group(shape)
-        # grp.width    = cur_size
-        # grp.rotation = cur_rot
-        # grp.name     = cur_name
-        # grp.select()
         group.refresh()
         group.select(False)
         return group.shape
