@@ -885,6 +885,14 @@ class BulletStyle(object):
 
 
 class TextShapes(object):
+    sticker_alignment = bkt.settings.get("toolbox.sticker_alignment", "right")
+    sticker_fontsize = bkt.settings.get("toolbox.sticker_fontsize", 14)
+
+    @classmethod
+    def settings_setter(cls, name, value):
+        setattr(cls, name, value)
+        bkt.settings["toolbox."+name] = value
+
     @staticmethod
     def textbox_insert(context, pressed):
         if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
@@ -952,8 +960,8 @@ class TextShapes(object):
         shp.TextFrame2.TextRange.Select()
     
     
-    @staticmethod
-    def addSticker(slide, presentation):
+    @classmethod
+    def addSticker(cls, slide, presentation, sticker_text="DRAFT"):
         # Textbox erstellen, damit Standardformatierung der Textbox genommen wird
         shp = slide.shapes.AddTextbox( 1 #msoTextOrientationHorizontal
             , 0, 60, 100, 20)
@@ -968,8 +976,7 @@ class TextShapes(object):
         shp.Line.Visible = 0 #msoFalse
         # Text-Stil
         # shp.TextFrame.TextRange.Font.Color.RGB = 0
-        shp.TextFrame.TextRange.Font.Size = 14
-        shp.TextFrame.TextRange.ParagraphFormat.Alignment = 3 #ppAlignRight
+        shp.TextFrame.TextRange.Font.Size = cls.sticker_fontsize
         shp.TextFrame.TextRange.ParagraphFormat.Bullet.Visible = False
         # Autosize / Text nicht umbrechen
         shp.TextFrame.WordWrap = 0 #msoFalse
@@ -980,10 +987,20 @@ class TextShapes(object):
         shp.TextFrame.MarginLeft   = 0
         shp.TextFrame.MarginRight  = 0
         # Text
-        shp.TextFrame.TextRange.text = "DRAFT"
-        # Position
+        shp.TextFrame.TextRange.text = sticker_text
+        # Top-Position
         shp.Top = 15
-        shp.Left = presentation.PageSetup.SlideWidth  - shp.width - 15
+
+        # Text alignment + Left-Position
+        if cls.sticker_alignment == "left":
+            shp.TextFrame.TextRange.ParagraphFormat.Alignment = 1 #ppAlignLeft
+            shp.Left = 15
+        elif cls.sticker_alignment == "center":
+            shp.TextFrame.TextRange.ParagraphFormat.Alignment = 2 #ppAlignCenter
+            shp.Left = presentation.PageSetup.SlideWidth/2 - shp.width/2
+        else: #right
+            shp.TextFrame.TextRange.ParagraphFormat.Alignment = 3 #ppAlignRight
+            shp.Left = presentation.PageSetup.SlideWidth - shp.width - 15
 
         # Connectoren erstellen und mit Connector-Ecken des Shapes verbinden
         connector1 = slide.shapes.AddConnector(Type=1 #msoConnectorStraight
@@ -1216,13 +1233,92 @@ text_menu = bkt.ribbon.Menu(
     children=[
         bkt.ribbon.MenuSeparator(title="Textformen einfügen"),
         bkt.mso.control.TextBoxInsert,
-        bkt.ribbon.Button(
-            id = 'sticker',
-            label = u"Sticker",
-            image = "Sticker",
-            screentip="Sticker einfügen",
-            supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide ein.",
-            on_action=bkt.Callback(TextShapes.addSticker)
+        bkt.ribbon.SplitButton(
+            children=[
+                bkt.ribbon.Button(
+                    id = 'sticker',
+                    label = u"Sticker",
+                    image = "Sticker",
+                    screentip="Sticker einfügen",
+                    supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide ein.",
+                    on_action=bkt.Callback(TextShapes.addSticker, slide=True, presentation=True)
+                ),
+                bkt.ribbon.Menu(children=[
+                    bkt.ribbon.Button(
+                        label = u"DRAFT-Sticker",
+                        image = "Sticker",
+                        screentip="DRAFT-Sticker einfügen",
+                        supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text DRAFT ein.",
+                        on_action=bkt.Callback(TextShapes.addSticker, slide=True, presentation=True)
+                    ),
+                    bkt.ribbon.Button(
+                        label = u"BACKUP-Sticker",
+                        screentip="BACKUP-Sticker einfügen",
+                        on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "BACKUP"), slide=True, presentation=True)
+                    ),
+                    bkt.ribbon.Button(
+                        label = u"FOR DISCUSSION-Sticker",
+                        screentip="FOR DISCUSSION-Sticker einfügen",
+                        on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "FOR DISCUSSION"), slide=True, presentation=True)
+                    ),
+                    bkt.ribbon.Button(
+                        label = u"ILLUSTRATIVE-Sticker",
+                        screentip="ILLUSTRATIVE-Sticker einfügen",
+                        on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "ILLUSTRATIVE"), slide=True, presentation=True)
+                    ),
+                    bkt.ribbon.Button(
+                        label = u"CONFIDENTIAL-Sticker",
+                        screentip="CONFIDENTIAL-Sticker einfügen",
+                        on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "CONFIDENTIAL"), slide=True, presentation=True)
+                    ),
+                    bkt.ribbon.MenuSeparator(),
+                    bkt.ribbon.Menu(
+                        label="Ausrichtung",
+                        children=[
+                            bkt.ribbon.ToggleButton(
+                                label="Links",
+                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_alignment == "left"),
+                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_alignment", "left")),
+                            ),
+                            bkt.ribbon.ToggleButton(
+                                label="Mitte",
+                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_alignment == "center"),
+                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_alignment", "center")),
+                            ),
+                            bkt.ribbon.ToggleButton(
+                                label="Rechts",
+                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_alignment == "right"),
+                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_alignment", "right")),
+                            ),
+                        ]
+                    ),
+                    bkt.ribbon.Menu(
+                        label="Schriftgröße",
+                        children=[
+                            bkt.ribbon.ToggleButton(
+                                label="10",
+                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 10),
+                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 10)),
+                            ),
+                            bkt.ribbon.ToggleButton(
+                                label="11",
+                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 11),
+                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 11)),
+                            ),
+                            bkt.ribbon.ToggleButton(
+                                label="12",
+                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 12),
+                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 12)),
+                            ),
+                            bkt.ribbon.ToggleButton(
+                                label="14",
+                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 14),
+                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 14)),
+                            ),
+                        ]
+                    ),
+                ])
+            ]
         ),
         bkt.ribbon.Button(
             id = 'underlined_textbox',
