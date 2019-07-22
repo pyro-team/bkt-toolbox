@@ -2794,9 +2794,14 @@ class TableFormat(object):
 
 
 class EdgeAutoFixer(object):
-    threshold = pplib.cm_to_pt(0.3)
-    groupitems = True
-    order_key = "diagonal-down"
+    threshold  = bkt.settings.get("toolbox.autofixer_threshold", 0.3)
+    groupitems = bkt.settings.get("toolbox.autofixer_groupitems", True)
+    order_key  = bkt.settings.get("toolbox.autofixer_order_key", "diagonal-down")
+
+    @classmethod
+    def settings_setter(cls, name, value):
+        bkt.settings["toolbox.autofixer_"+name] = value
+        setattr(cls, name, value)
 
     @classmethod
     def _iterate_all_shapes(cls, shapes, groupitems=True):
@@ -2815,8 +2820,32 @@ class EdgeAutoFixer(object):
                 yield shape
     
     @classmethod
+    def get_image(cls, context):
+        if cls.order_key == "diagonal-down":
+            return context.python_addin.load_image("autofixer_dd")
+        elif cls.order_key == "top-down":
+            return context.python_addin.load_image("autofixer_td")
+        else:
+            return context.python_addin.load_image("autofixer_lr")
+
+    @classmethod
+    def autofix_edges_diagonal_down(cls, shapes):
+        cls.settings_setter("order_key", "diagonal-down")
+        cls.autofix_edges(shapes)
+    
+    @classmethod
+    def autofix_edges_left_right(cls, shapes):
+        cls.settings_setter("order_key", "left-right")
+        cls.autofix_edges(shapes)
+    
+    @classmethod
+    def autofix_edges_top_down(cls, shapes):
+        cls.settings_setter("order_key", "top-down")
+        cls.autofix_edges(shapes)
+
+    @classmethod
     def autofix_edges(cls, shapes):
-        cls._autofix_edges(shapes, cls.threshold, cls.groupitems, cls.order_key)
+        cls._autofix_edges(shapes, pplib.cm_to_pt(cls.threshold), cls.groupitems, cls.order_key)
     
     @classmethod
     def _autofix_edges(cls, shapes, threshold=None, groupitems=True, order_key="diagonal-down"):
@@ -2831,9 +2860,9 @@ class EdgeAutoFixer(object):
             "diagonal-down": [lambda shape: shape.visual_x+shape.visual_y, False],
             "diagonal-up":   [lambda shape: shape.visual_x+shape.visual_y, True],
             "left-right": [lambda shape: (shape.visual_x,shape.visual_y), False],
-            "top-bottom": [lambda shape: (shape.visual_y,shape.visual_x), False],
+            "top-down":   [lambda shape: (shape.visual_y,shape.visual_x), False],
             "right-left": [lambda shape: (shape.visual_x,shape.visual_y), True],
-            "bottom-top": [lambda shape: (shape.visual_y,shape.visual_x), True],
+            "bottom-up":  [lambda shape: (shape.visual_y,shape.visual_x), True],
         }
         shapes.sort(key=order_keys[order_key][0], reverse=order_keys[order_key][1])
 
@@ -2973,13 +3002,81 @@ arrange_group = bkt.ribbon.Group(
                         ),
                     ]
                 ),
-                bkt.ribbon.Button(
-                    id = 'edge_autofixer',
-                    label="Kanten-Autofixer",
-                    image_mso='GridSettings',
-                    supertip="Gleicht minimale Verschiebungen der Kanten der gewählten Shapes aus, indem auf die linkere und obere Kante verschoben und auf die rechte untere Kante vergrößert wird. Schwellwert ist 0.3 cm.",
-                    on_action=bkt.Callback(EdgeAutoFixer.autofix_edges, shapes=True),
-                    get_enabled = bkt.apps.ppt_shapes_min2_selected,
+                bkt.ribbon.SplitButton(
+                    id = 'edge_autofixer_splitbutton',
+                    children=[
+                        bkt.ribbon.Button(
+                            id = 'edge_autofixer',
+                            label="Kanten-Autofixer",
+                            # image_mso='GridSettings',
+                            get_image=bkt.Callback(EdgeAutoFixer.get_image, context=True),
+                            supertip="Gleicht minimale Verschiebungen der Kanten der gewählten Shapes aus.",
+                            on_action=bkt.Callback(EdgeAutoFixer.autofix_edges, shapes=True),
+                            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                        ),
+                        bkt.ribbon.Menu(
+                            label="Kanten-Autofixer Menü",
+                            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                            children=[
+                                bkt.ribbon.Button(
+                                    id = 'edge_autofixer-dd',
+                                    label="Kanten-Autofixer diagonal von links-oben",
+                                    image='autofixer_dd',
+                                    supertip="Gleicht minimale Verschiebungen der Kanten der gewählten Shapes aus durch Vergrößerung auf Shapes links-oberhalb der anzupassenden Shapes.",
+                                    on_action=bkt.Callback(EdgeAutoFixer.autofix_edges_diagonal_down, shapes=True),
+                                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                                ),
+                                bkt.ribbon.Button(
+                                    id = 'edge_autofixer-td',
+                                    label="Kanten-Autofixer von oben nach unten",
+                                    image='autofixer_td',
+                                    supertip="Gleicht minimale Verschiebungen der Kanten der gewählten Shapes aus durch Vergrößerung auf Shapes links der anzupassenden Shapes.",
+                                    on_action=bkt.Callback(EdgeAutoFixer.autofix_edges_top_down, shapes=True),
+                                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                                ),
+                                bkt.ribbon.Button(
+                                    id = 'edge_autofixer-lr',
+                                    label="Kanten-Autofixer von links nach rechts",
+                                    image='autofixer_lr',
+                                    supertip="Gleicht minimale Verschiebungen der Kanten der gewählten Shapes aus durch Vergrößerung auf Shapes oberhalb der anzupassenden Shapes.",
+                                    on_action=bkt.Callback(EdgeAutoFixer.autofix_edges_left_right, shapes=True),
+                                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                                ),
+                                bkt.ribbon.MenuSeparator(),
+                                bkt.ribbon.ToggleButton(
+                                    label="Gruppen-Elemente einzeln anpassen",
+                                    supertip="Gibt an ob Elemente einer Gruppe einzeln betrachtet werden, oder die gesamte Gruppe als Ganzes.",
+                                    get_pressed=bkt.Callback(lambda: EdgeAutoFixer.groupitems is True),
+                                    on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("groupitems", pressed)),
+                                ),
+                                bkt.ribbon.Menu(
+                                    label="Toleranz ändern",
+                                    screentip="Kanten-Autofixer Toleranz",
+                                    supertip="Schwellwert für Kanten-Autofixer anpassen.",
+                                    children=[
+                                        bkt.ribbon.ToggleButton(
+                                            label="Klein 0,1cm",
+                                            screentip="Toleranz klein 0,1cm",
+                                            get_pressed=bkt.Callback(lambda: EdgeAutoFixer.threshold == 0.1),
+                                            on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("threshold", 0.1)),
+                                        ),
+                                        bkt.ribbon.ToggleButton(
+                                            label="Mittel 0,3cm",
+                                            screentip="Toleranz mittel 0,3cm",
+                                            get_pressed=bkt.Callback(lambda: EdgeAutoFixer.threshold == 0.3),
+                                            on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("threshold", 0.3)),
+                                        ),
+                                        bkt.ribbon.ToggleButton(
+                                            label="Groß 1 cm",
+                                            screentip="Toleranz groß 1 cm",
+                                            get_pressed=bkt.Callback(lambda: EdgeAutoFixer.threshold == 1.0),
+                                            on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("threshold", 1.0)),
+                                        ),
+                                    ]
+                                ),
+                            ]
+                        ),
+                    ]
                 ),
                 bkt.ribbon.MenuSeparator(title="Verknüpfte Shapes"),
                 bkt.ribbon.Button(
