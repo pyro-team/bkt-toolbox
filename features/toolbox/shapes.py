@@ -614,11 +614,11 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
             get_image=bkt.Callback(lambda: self.get_item_image(0) ),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
             children=[
-                bkt.ribbon.Button(id=parent_id + "_pos_left", label="Position links oben",    on_action=bkt.Callback(self.set_pos_top_left), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-top-left')),
+                bkt.ribbon.Button(id=parent_id + "_pos_left", label="Position links oben", screentip="Nummerierungs-Shapes links-oben",    on_action=bkt.Callback(self.set_pos_top_left), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-top-left')),
                     supertip="Nummerierungs-Shapes links oben auf dem zugehörigen Shape platzieren"),
-                bkt.ribbon.Button(id=parent_id + "_pos-right", label="Position rechts oben",   on_action=bkt.Callback(self.set_pos_top_right), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-top-right')),
+                bkt.ribbon.Button(id=parent_id + "_pos-right", label="Position rechts oben", screentip="Nummerierungs-Shapes rechts-oben", on_action=bkt.Callback(self.set_pos_top_right), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-top-right')),
                     supertip="Nummerierungs-Shapes rechts oben auf dem zugehörigen Shape platzieren"),
-                bkt.ribbon.Button(id=parent_id + "_pos-offset", label="Versetzt positionieren", on_action=bkt.Callback(self.toggle_pos_offset), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-offset')),
+                bkt.ribbon.Button(id=parent_id + "_pos-offset", label="Versetzt positionieren", screentip="Nummerierungs-Shapes versetzt positionieren", on_action=bkt.Callback(self.toggle_pos_offset), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-offset')),
                     supertip="Standardmäßig werden Nummerierungs-Shapes genau am Rand des zugehörigen Shapes ausgerichtet.\n\nIst \"Versetzt positionieren\" aktiviert, werden die Nummerierungs-Shapes etwas weiter außerhalb des zugehörigen Shapes plaziert, so dass der Mittelpunkt des Nummerierungs-Shapes auf der Ecke liegt.")
             ],
             **kwargs

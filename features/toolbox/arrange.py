@@ -824,7 +824,7 @@ distance_rotation_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeDistance.set_shape_sep_vertical_zero, shapes=True),
                 ),
-                bkt.ribbon.Menu(item_size="large", children=[
+                bkt.ribbon.Menu(label="Vertikaler Abstand Einstellungen", item_size="large", children=[
                     bkt.ribbon.MenuSeparator(title="Vertikaler Abstand"),
                     bkt.ribbon.ToggleButton(
                         label="Shape-Abstand (Standard)",
@@ -900,7 +900,7 @@ distance_rotation_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeDistance.set_shape_sep_horizontal_zero, shapes=True),
                 ),
-                bkt.ribbon.Menu(item_size="large", children=[
+                bkt.ribbon.Menu(label="Horizontaler Abstand Einstellungen", item_size="large", children=[
                     bkt.ribbon.MenuSeparator(title="Horizontaler Abstand"),
                     bkt.ribbon.ToggleButton(
                         label="Shape-Abstand (Standard)",
@@ -976,7 +976,7 @@ distance_rotation_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeRotation.set_rotation_zero, shapes=True),
                 ),
-                bkt.ribbon.Menu(children=[
+                bkt.ribbon.Menu(label="Rotation und Spiegelung Menü", children=[
                     bkt.ribbon.MenuSeparator(title="Rotation"),
                     bkt.ribbon.Button(
                         label="Auf 0 Grad setzen",

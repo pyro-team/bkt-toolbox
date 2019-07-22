@@ -241,6 +241,7 @@ class Characters(object):
         def _unicode_font_button(font):
             return bkt.ribbon.ToggleButton(
                 label=font,
+                screentip="Unicode-Schriftart "+font,
                 on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(font)),
                 get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font == font),
                 get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image(font, u"\u2192"))
@@ -330,6 +331,7 @@ class Characters(object):
                         children=[
                             bkt.ribbon.ToggleButton(
                                 label='Theme-Schriftart (Standard)',
+                                screentip="Unicode-Schrift entspricht Theme-Schriftart",
                                 on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(None)),
                                 get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font is None),
                             ),
@@ -341,6 +343,7 @@ class Characters(object):
                     bkt.ribbon.ToggleButton(
                         label='Als Shapes einfügen [Shift]',
                         image_mso='TextEffectTransformGallery',
+                        screentip="Als Shape einfügen ein/aus",
                         supertip='Wenn kein Textfeld ausgewählt ist, wird ein neues Textfeld für das Symbol eingefügt. Wenn diese Funktion aktiviert ist, wird das Textfeld in ein Shape konvertiert. Dies geht auch bei Klick auf ein Symbol mit gedrückter Shift-Taste.',
                         on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_shape),
                         get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.convert_into_shape),
@@ -348,6 +351,7 @@ class Characters(object):
                     bkt.ribbon.ToggleButton(
                         label='Als Bild einfügen [Strg]',
                         image_mso='PictureRecolorBlackAndWhite',
+                        screentip="Als Bild einfügen ein/aus",
                         supertip='Wenn kein Textfeld ausgewählt ist, wird ein neues Textfeld für das Symbol eingefügt. Wenn diese Funktion aktiviert ist, wird das Textfeld in ein Bild konvertiert. Dies geht auch bei Klick auf ein Symbol mit gedrückter Strg-Taste.',
                         on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_bitmap),
                         get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.convert_into_bitmap),
@@ -1234,6 +1238,7 @@ text_menu = bkt.ribbon.Menu(
         bkt.ribbon.MenuSeparator(title="Textformen einfügen"),
         bkt.mso.control.TextBoxInsert,
         bkt.ribbon.SplitButton(
+            id="sticker_splitbutton",
             children=[
                 bkt.ribbon.Button(
                     id = 'sticker',
@@ -1243,8 +1248,9 @@ text_menu = bkt.ribbon.Menu(
                     supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide ein.",
                     on_action=bkt.Callback(TextShapes.addSticker, slide=True, presentation=True)
                 ),
-                bkt.ribbon.Menu(children=[
+                bkt.ribbon.Menu(label="Sticker Menü", children=[
                     bkt.ribbon.Button(
+                        id="sticker_draft",
                         label = u"DRAFT-Sticker",
                         image = "Sticker",
                         screentip="DRAFT-Sticker einfügen",
@@ -1252,21 +1258,25 @@ text_menu = bkt.ribbon.Menu(
                         on_action=bkt.Callback(TextShapes.addSticker, slide=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
+                        id="sticker_backup",
                         label = u"BACKUP-Sticker",
                         screentip="BACKUP-Sticker einfügen",
                         on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "BACKUP"), slide=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
+                        id="sticker_discussion",
                         label = u"FOR DISCUSSION-Sticker",
                         screentip="FOR DISCUSSION-Sticker einfügen",
                         on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "FOR DISCUSSION"), slide=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
+                        id="sticker_illustrative",
                         label = u"ILLUSTRATIVE-Sticker",
                         screentip="ILLUSTRATIVE-Sticker einfügen",
                         on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "ILLUSTRATIVE"), slide=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
+                        id="sticker_confidential",
                         label = u"CONFIDENTIAL-Sticker",
                         screentip="CONFIDENTIAL-Sticker einfügen",
                         on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "CONFIDENTIAL"), slide=True, presentation=True)
@@ -1277,16 +1287,19 @@ text_menu = bkt.ribbon.Menu(
                         children=[
                             bkt.ribbon.ToggleButton(
                                 label="Links",
+                                screentip="Sticker-Ausrichtung Links",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_alignment == "left"),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_alignment", "left")),
                             ),
                             bkt.ribbon.ToggleButton(
                                 label="Mitte",
+                                screentip="Sticker-Ausrichtung Mitte",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_alignment == "center"),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_alignment", "center")),
                             ),
                             bkt.ribbon.ToggleButton(
                                 label="Rechts",
+                                screentip="Sticker-Ausrichtung Rechts",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_alignment == "right"),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_alignment", "right")),
                             ),
@@ -1297,21 +1310,25 @@ text_menu = bkt.ribbon.Menu(
                         children=[
                             bkt.ribbon.ToggleButton(
                                 label="10",
+                                screentip="Sticker-Schriftgröße 10",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 10),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 10)),
                             ),
                             bkt.ribbon.ToggleButton(
                                 label="11",
+                                screentip="Sticker-Schriftgröße 11",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 11),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 11)),
                             ),
                             bkt.ribbon.ToggleButton(
                                 label="12",
+                                screentip="Sticker-Schriftgröße 12",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 12),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 12)),
                             ),
                             bkt.ribbon.ToggleButton(
                                 label="14",
+                                screentip="Sticker-Schriftgröße 14",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 14),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 14)),
                             ),
@@ -1341,6 +1358,7 @@ text_menu = bkt.ribbon.Menu(
         bkt.ribbon.ColorGallery(
             id = 'bullet_color',
             label=u'Farbe ändern',
+            screentip="Bullet Point Farbe ändern",
             on_rgb_color_change = bkt.Callback(BulletStyle.set_bullet_color_rgb, selection=True, shapes=True),
             on_theme_color_change = bkt.Callback(BulletStyle.set_bullet_theme_color, selection=True, shapes=True),
             get_selected_color = bkt.Callback(BulletStyle.get_bullet_color_rgb, selection=True, shapes=True),
@@ -1349,6 +1367,7 @@ text_menu = bkt.ribbon.Menu(
                 bkt.ribbon.Button(
                     id="bullet_color_auto",
                     label="Automatisch",
+                    screentip="Bullet Point Farbe automatisch bestimmen",
                     on_action=bkt.Callback(BulletStyle.set_bullet_color_auto, selection=True, shapes=True),
                     image_mso="ColorBlack",
                 ),
@@ -1408,6 +1427,7 @@ text_menu = bkt.ribbon.Menu(
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
         ),
         bkt.ribbon.SplitButton(
+            id = 'text_replace_splitbutton',
             get_enabled=bkt.apps.ppt_shapes_or_text_selected,
             children=[
                 bkt.ribbon.Button(
@@ -1423,6 +1443,7 @@ text_menu = bkt.ribbon.Menu(
                         id = 'text_tbd',
                         label="… mit »tbd«",
                         image_mso='TextDialog',
+                        screentip="Text mit »tbd« ersetzen",
                         supertip="Text aller gewählten Shapes mit 'tbd' ersetzen.",
                         on_action=bkt.Callback(TextPlaceholder.text_tbd, shapes=True),
                     ),
@@ -1430,6 +1451,7 @@ text_menu = bkt.ribbon.Menu(
                         id = 'text_lorem',
                         label="… mit Lorem ipsum",
                         image_mso='TextDialog',
+                        screentip="Text mit Lorem ipsum ersetzen",
                         supertip="Text aller gewählten Shapes mit langem 'Lorem ipsum'-Platzhaltertext ersetzen.",
                         on_action=bkt.Callback(TextPlaceholder.text_lorem, shapes=True),
                     ),
@@ -1437,6 +1459,7 @@ text_menu = bkt.ribbon.Menu(
                         id = 'text_counter',
                         label="… mit Nummerierung",
                         image_mso='TextDialog',
+                        screentip="Text mit Nummerierung ersetzen",
                         supertip="Text aller gewählten Shapes durch Nummerierung ersetzen.",
                         on_action=bkt.Callback(TextPlaceholder.text_counter, shapes=True),
                     ),
@@ -1445,6 +1468,7 @@ text_menu = bkt.ribbon.Menu(
                         id = 'text_replace2',
                         label="… mit benutzerdefiniertem Text",
                         image_mso='ReplaceDialog',
+                        screentip="Text mit eigener Eingabe ersetzen",
                         supertip="Text aller gewählten Shapes mit im Dialogfeld eingegebenen Text ersetzen.",
                         on_action=bkt.Callback(TextPlaceholder.text_replace, shapes=True),
                         get_enabled=bkt.apps.ppt_shapes_or_text_selected,
@@ -1456,9 +1480,11 @@ text_menu = bkt.ribbon.Menu(
 )
 
 text_splitbutton = bkt.ribbon.SplitButton(
+    id="textbox_insert_splitbutton",
     show_label=False,
     children=[
         bkt.ribbon.ToggleButton(
+            id="textbox_insert",
             label="Textfeld einfügen",
             image_mso="TextBoxInsert",
             screentip="Textfeld zeichnen",

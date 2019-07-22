@@ -293,6 +293,7 @@ stateshape_gruppe = bkt.ribbon.Group(
                     get_enabled=bkt.Callback(StateShape.is_convertable_to_state_shape),
                 ),
                 bkt.ribbon.Menu(
+                    label="Wechselshapes-Menü",
                     children=[
                         bkt.ribbon.Button(
                             id="stateshape_convert2",

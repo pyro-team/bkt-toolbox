@@ -353,7 +353,7 @@ class PPTSymbolsGalleryRecent(PPTSymbolsGallery):
         try:
             return self.symbols[index][2]
         except:
-            return "Undefined"
+            return "Zuletzt verwendet: Undefined"
     
     def button_get_visible(self, index):
         try:
