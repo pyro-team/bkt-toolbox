@@ -114,6 +114,36 @@ class PositionSize(object):
     def shape_lock_aspect_ratio(shapes, pressed):
         for shape in shapes:
             shape.LockAspectRatio = -1 if pressed else 0
+    
+    @staticmethod
+    def set_height_to_width(shapes):
+        for shape in shapes:
+            shape.height = shape.width
+    
+    @staticmethod
+    def set_width_to_height(shapes):
+        for shape in shapes:
+            shape.width = shape.height
+    
+    @staticmethod
+    def swap_width_and_height(shapes):
+        for shape in shapes:
+            shape.height, shape.width = shape.width, shape.height
+    
+    @staticmethod
+    def set_top_to_left(shapes):
+        for shape in shapes:
+            shape.top = shape.left
+    
+    @staticmethod
+    def set_left_to_top(shapes):
+        for shape in shapes:
+            shape.left = shape.top
+    
+    @staticmethod
+    def swap_left_and_top(shapes):
+        for shape in shapes:
+            shape.top, shape.left = shape.left, shape.top
 
 
 spinner_top = bkt.ribbon.RoundingSpinnerBox(
@@ -128,7 +158,20 @@ spinner_top = bkt.ribbon.RoundingSpinnerBox(
     get_text=bkt.Callback(PositionSize.get_top, shapes=True, wrap_shapes=True),
     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
     convert="pt_to_cm",
-    image_element=pplib.LocpinGallery(image_mso='ObjectNudgeDown')
+    image_element=pplib.LocpinGallery(image_mso='ObjectNudgeDown', children=[
+        bkt.ribbon.Button(
+            label="Oben = Links",
+            image="possize_t2l",
+            screentip="Oben = Links setzen",
+            on_action=bkt.Callback(PositionSize.set_top_to_left, shapes=True, wrap_shapes=True)
+        ),
+        bkt.ribbon.Button(
+            label="Oben ⇄ Links",
+            image="possize_swap_tl",
+            screentip="Oben und Links tauschen",
+            on_action=bkt.Callback(PositionSize.swap_left_and_top, shapes=True, wrap_shapes=True)
+        ),
+    ])
 )
 
 spinner_left = bkt.ribbon.RoundingSpinnerBox(
@@ -143,7 +186,20 @@ spinner_left = bkt.ribbon.RoundingSpinnerBox(
     get_text=bkt.Callback(PositionSize.get_left, shapes=True, wrap_shapes=True),
     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
     convert="pt_to_cm",
-    image_element=pplib.LocpinGallery(image_mso='ObjectNudgeRight')
+    image_element=pplib.LocpinGallery(image_mso='ObjectNudgeRight', children=[
+        bkt.ribbon.Button(
+            label="Links = Oben",
+            image="possize_l2t",
+            screentip="Links = Oben setzen",
+            on_action=bkt.Callback(PositionSize.set_left_to_top, shapes=True, wrap_shapes=True)
+        ),
+        bkt.ribbon.Button(
+            label="Links ⇄ Oben",
+            image="possize_swap_tl",
+            screentip="Links und Oben tauschen",
+            on_action=bkt.Callback(PositionSize.swap_left_and_top, shapes=True, wrap_shapes=True)
+        ),
+    ])
 )
 
 spinner_height = bkt.ribbon.RoundingSpinnerBox(
@@ -158,7 +214,20 @@ spinner_height = bkt.ribbon.RoundingSpinnerBox(
     get_text=bkt.Callback(PositionSize.get_height, shapes=True, wrap_shapes=True),
     get_enabled=bkt.apps.ppt_shapes_or_text_selected,
     convert="pt_to_cm",
-    image_element=pplib.LocpinGallery(image_mso='ShapeHeight')
+    image_element=pplib.LocpinGallery(image_mso='ShapeHeight', children=[
+        bkt.ribbon.Button(
+            label="Höhe = Breite",
+            image="possize_h2w",
+            screentip="Höhe = Breite setzen",
+            on_action=bkt.Callback(PositionSize.set_height_to_width, shapes=True, wrap_shapes=True)
+        ),
+        bkt.ribbon.Button(
+            label="Höhe ⇄ Breite",
+            image="possize_swap_hw",
+            screentip="Höhe und Breite tauschen",
+            on_action=bkt.Callback(PositionSize.swap_width_and_height, shapes=True, wrap_shapes=True)
+        ),
+    ])
 )
 
 spinner_width = bkt.ribbon.RoundingSpinnerBox(
@@ -173,7 +242,20 @@ spinner_width = bkt.ribbon.RoundingSpinnerBox(
     get_text=bkt.Callback(PositionSize.get_width, shapes=True, wrap_shapes=True),
     get_enabled=bkt.apps.ppt_shapes_or_text_selected,
     convert="pt_to_cm",
-    image_element=pplib.LocpinGallery(image_mso='ShapeWidth')
+    image_element=pplib.LocpinGallery(image_mso='ShapeWidth', children=[
+        bkt.ribbon.Button(
+            label="Breite = Höhe",
+            image="possize_w2h",
+            screentip="Breite = Höhe setzen",
+            on_action=bkt.Callback(PositionSize.set_width_to_height, shapes=True, wrap_shapes=True)
+        ),
+        bkt.ribbon.Button(
+            label="Breite ⇄ Höhe",
+            image="possize_swap_hw",
+            screentip="Breite und Höhe tauschen",
+            on_action=bkt.Callback(PositionSize.swap_width_and_height, shapes=True, wrap_shapes=True)
+        ),
+    ])
 )
 
 spinner_zorder = bkt.ribbon.RoundingSpinnerBox(
