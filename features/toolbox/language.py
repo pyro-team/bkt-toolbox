@@ -30,13 +30,31 @@ class LangSetter(object):
             )
 
     @classmethod
+    def _get_words_in_selection(cls, selection):
+        cursor_start = selection.TextRange2.Start
+        cursor_end   = cursor_start + selection.TextRange2.Length
+        words = selection.TextRange2.Parent.TextRange.Words()
+        word_first = words.Count #set last word as default
+        word_last  = word_last   #set last word as default
+        for i,word in enumerate(words):
+            word_end = word.Start+word.Length
+            if i < word_first and cursor_start < word_end:
+                word_first = i+1
+            if i < word_last and cursor_end < word_end:
+                word_last = i+1
+                break #we can stop loop here
+        return selection.TextRange2.Parent.TextRange.Words(word_first, word_last-word_first+1)
+
+    @classmethod
     def set_language(cls, selection, presentation, langCode):
         shapes = pplib.get_shapes_from_selection(selection)
         slides = pplib.get_slides_from_selection(selection)
 
         # Set language for selected text, shapes, slides or whole presentation
-        if selection.Type == 3 and selection.TextRange2.Length > 0: #text selected
-            selection.TextRange2.LanguageID = langCode
+        if selection.Type == 3: #text selected
+            textrange = cls._get_words_in_selection(selection)
+            textrange.LanguageID = langCode
+            # selection.TextRange2.LanguageID = langCode
         elif len(shapes) > 0:
             #bkt.helpers.message("Setze Sprache für Shapes: " + str(len(shapes)))
             cls.set_language_for_shapes(shapes, langCode)
@@ -61,6 +79,17 @@ class LangSetter(object):
     def set_language_for_shapes(cls, shapes, langCode, from_selection=True):
         for textframe in pplib.iterate_shape_textframes(shapes, from_selection):
             textframe.TextRange.LanguageID = langCode
+    
+    @classmethod
+    def get_dynamicmenu_content(cls):
+        return bkt.ribbon.Menu(
+            xmlns="http://schemas.microsoft.com/office/2009/07/customui",
+            id=None,
+            children=[
+                cls.get_button(lang)
+                for lang in cls.langs
+            ]
+        )
 
 
 sprachen_gruppe = bkt.ribbon.Group(
