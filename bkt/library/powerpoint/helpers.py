@@ -914,6 +914,9 @@ class BoundingFrame(object):
 # ==========================
 
 class GroupManager(object):
+    '''
+    This is a helper class to handle more complicated group actions without affecting the groups name, tags and rotation
+    '''
     def __init__(self, group, additional_attrs=[]):
         self._group   = group
         self._ungroup = None
@@ -921,8 +924,11 @@ class GroupManager(object):
         self._name = group.name
         self._tags = get_dict_from_tags(group.tags)
         self._rotation = group.rotation
+        self._zorder   = group.ZOrderPosition
 
         self._attr = {n:getattr(group, n) for n in additional_attrs}
+
+        self._ungroup_prepared = False
 
     def __getattr__(self, name):
         # provides easy access to shape properties
@@ -934,6 +940,9 @@ class GroupManager(object):
 
     @property
     def child_items(self):
+        '''
+        Get group child items as list, depending if group is already ungrouped or not
+        '''
         if self._group:
             return list(iter(self._group.GroupItems))
         else:
@@ -941,11 +950,18 @@ class GroupManager(object):
     
     @property
     def shape(self):
+        '''
+        Get group shape. Throws error if already ungrouped
+        '''
         if not self._group:
             raise SystemError("not a group")
         return self._group
 
     def select(self, replace=True):
+        '''
+        Either select group or all child shapes (if ungrouped).
+        Due to random error when selecting, try a second time without replace parameter if first time fails.
+        '''
         try:
             if self._group:
                 self._group.select(replace=replace)
@@ -959,22 +975,45 @@ class GroupManager(object):
                 self._ungroup.select()
 
     def refresh(self):
+        '''
+        Refresh the group, means ungroup and regroup in order to fix corruption,
+        e.g. if child shape is duplicated it is not properly added to the group until this method is performed
+        '''
         self.ungroup()
         self.regroup()
 
     def prepare_ungroup(self):
+        '''
+        Method is executed right before ungroup action in order to set rotation to 0.
+        '''
         self._group.rotation = 0
+        self._ungroup_prepared = True
 
-    def ungroup(self):
+    def post_regroup(self):
+        '''
+        Method is executed right after regroup action in order to set rotation to original rotation.
+        '''
+        self._group.rotation = self._rotation
+        self._ungroup_prepared = False
+
+    def ungroup(self, prepare=True):
+        '''
+        Perform ungroup with rotation=0. If prepare=False, prepare-method is not called and rotation is not set to 0.
+        '''
         if not self._group:
             raise SystemError("not a group")
 
-        self.prepare_ungroup()
+        if prepare:
+            self.prepare_ungroup()
         self._ungroup = self._group.ungroup()
         self._group = None
         return self
     
     def regroup(self, new_shape_range=None):
+        '''
+        Perform regroup (actually group) and reset all attributes (name, tags, rotation) to original values.
+        If new_shpae_range is given, the stored shape-range from ungroup is replaced with the given shape-range.
+        '''
         self._ungroup = new_shape_range or self._ungroup
         if not self._ungroup:
             raise SystemError("not ungrouped")
@@ -982,9 +1021,58 @@ class GroupManager(object):
         self._group = self._ungroup.group()
         self._ungroup = None
 
+        #restore name
         self._group.name = self._name
+        #restore tags
         set_tags_from_dict(self._tags, self._group.tags)
+        #restore additional parameter, e.g. width in process chevrons example
         for k,v in self._attr.items():
             setattr(self._group, k, v)
-        self._group.rotation = self._rotation
+        #restore zorder
+        set_shape_zorder(self._group, value=self._zorder)
+        #call post_regroup to reset rotation
+        if self._ungroup_prepared:
+            self.post_regroup()
         return self
+    
+    def add_child_items(self, shapes):
+        '''
+        Add shape(s) to group without modifying the group.
+        '''
+        if not self._group:
+            raise SystemError("not a group")
+        
+        ### FIXME: position changes using this method!
+        # #add shapes to temporary group
+        # temp_grp = shapes_to_range([self.shape]+shapes).group()
+        # #rotate original group to 0
+        # temp_grp.rotation = - self._rotation
+        # temp_grp.ungroup()
+        # #create new group and reset rotation
+        # self.ungroup()
+        ###
+
+        self.ungroup(prepare=False)
+        self.regroup(new_shape_range=shapes_to_range(self.child_items+shapes))
+        return self
+
+    def recursive_ungroup(self):
+        '''
+        Ungroup the group and all its sub-groups until no more groups exist.
+        '''
+        if not self._group:
+            raise SystemError("not a group")
+
+        def _ungroup(shape_range):
+            for s in shape_range:
+                if s.Type == MsoShapeType["msoGroup"]:
+                    for s2 in _ungroup(s.ungroup()):
+                        yield s2
+                else:
+                    yield s
+
+        self._ungroup = shapes_to_range( list(_ungroup(self._group.ungroup())) )
+        self._group = None
+        return self
+
+

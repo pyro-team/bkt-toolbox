@@ -2899,6 +2899,32 @@ class EdgeAutoFixer(object):
 
 
 
+class GroupsMore(object):
+    @staticmethod
+    def add_into_group(shapes):
+        if shapes[0].Type == pplib.MsoShapeType['msoGroup']:
+            master = pplib.GroupManager(shapes.pop(0))
+            master.add_child_items(shapes).select()
+        elif shapes[-1].Type == pplib.MsoShapeType['msoGroup']:
+            master = pplib.GroupManager(shapes.pop(-1))
+            master.add_child_items(shapes).select()
+        else:
+            pplib.shapes_to_range(shapes).group().select()
+    
+    @staticmethod
+    def contains_group(shapes):
+        return any(shp.Type == pplib.MsoShapeType['msoGroup'] for shp in shapes)
+
+    @staticmethod
+    def recursive_ungroup(shapes):
+        for shape in shapes:
+            if shape.Type == pplib.MsoShapeType['msoGroup']:
+                grp = pplib.GroupManager(shape)
+                grp.recursive_ungroup().select(False)
+
+
+
+
 
 arrange_group = bkt.ribbon.Group(
     id="bkt_align_group",
@@ -3077,6 +3103,25 @@ arrange_group = bkt.ribbon.Group(
                             ]
                         ),
                     ]
+                ),
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Button(
+                    id = 'add_into_group',
+                    label="In Gruppe einfügen",
+                    image_mso="ObjectsRegroup",
+                    screentip="Shapes in Gruppe einfügen",
+                    supertip="Sofern das zuerst oder zuletzt markierte Shape eine Gruppe ist, werden alle anderen Shapes in diese Gruppe eingefügt. Anderenfalls werden alle Shapes gruppiert.",
+                    on_action=bkt.Callback(GroupsMore.add_into_group, shapes=True),
+                    get_enabled = bkt.apps.ppt_shapes_min2_selected,
+                ),
+                bkt.ribbon.Button(
+                    id = 'recursive_ungroup',
+                    label="Rekursives Gruppe aufheben",
+                    image_mso="ObjectsUngroup",
+                    screentip="Gruppe aufheben rekursiv ausführen",
+                    supertip="Wendet Gruppe aufheben solange an, bis alle verschachtelten Gruppen aufgelöst sind.",
+                    on_action=bkt.Callback(GroupsMore.recursive_ungroup, shapes=True),
+                    get_enabled = bkt.Callback(GroupsMore.contains_group, shapes=True),
                 ),
                 bkt.ribbon.MenuSeparator(title="Verknüpfte Shapes"),
                 bkt.ribbon.Button(
