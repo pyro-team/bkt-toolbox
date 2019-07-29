@@ -19,6 +19,10 @@ import bkt.library.powerpoint as pplib
 
 class TextPlaceholder(object):
     recent_placeholder = bkt.settings.get("toolbox.recent_placeholder", "…")
+    #labels for counter, but max 0..25
+    label_a = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+    label_A = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+    label_I = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI']
 
     @staticmethod
     def set_text_for_shape(textframe, text=None): #None=delete text
@@ -40,7 +44,7 @@ class TextPlaceholder(object):
 
     @classmethod
     def text_replace(cls, shapes):
-        input_text = bkt.ui.show_user_input("Text eingeben, der auf alle Shapes angewendet werden soll (Platzhalter [text] kann für bestehenden Text und [counter] zur Nummerierung verwendet werden):", "Text ersetzen", cls.recent_placeholder, True)
+        input_text = bkt.ui.show_user_input("Text eingeben, der auf alle Shapes angewendet werden soll (Platzhalter [text] kann für bestehenden Text und [counter], [counter-a], [counter-A], [counter-I] zur Nummerierung verwendet werden):", "Text ersetzen", cls.recent_placeholder, True)
 
         # user_form = bkt.ui.UserInputBox("Text eingeben, der auf alle Shapes angewendet werden soll (Platzhalter [counter] kann zur Nummerierung verwendet werden):", "Text ersetzen")
         # user_form._add_textbox("new_text", "…", True)
@@ -55,6 +59,9 @@ class TextPlaceholder(object):
         counter = 1
         for textframe in pplib.iterate_shape_textframes(shapes):
             new_text = input_text.replace("[counter]", str(counter))
+            new_text = new_text.replace("[counter-a]", cls.label_a[counter-1%26])
+            new_text = new_text.replace("[counter-A]", cls.label_A[counter-1%26])
+            new_text = new_text.replace("[counter-I]", cls.label_I[counter-1%26])
             
             if placeholder_count > 1:
                 #replace placeholder with text, might loose existing formatting
@@ -1086,7 +1093,8 @@ class TextOnShape(object):
                     1, #msoTextOrientationHorizontal
                     shp.Left, shp.Top, shp.Width, shp.Height)
                 # WordWrap / AutoSize
-                shpTxt.TextFrame2.WordWrap = -1 #msoTrue
+                # shpTxt.TextFrame2.WordWrap = -1 #msoTrue
+                shpTxt.TextFrame2.WordWrap = shp.TextFrame2.WordWrap
                 shpTxt.TextFrame2.AutoSize = 0 #ppAutoSizeNone
                 shpTxt.Height   = shp.Height
                 shpTxt.Rotation = shp.Rotation
@@ -1108,6 +1116,16 @@ class TextOnShape(object):
                 shp.Width = shpTxt.Width
                 # Textfeld selektieren
                 shpTxt.Select(0)
+    
+    ### context menu callbacks ###
+
+    @staticmethod
+    def is_outable(shape):
+        return shape.HasTextFrame == -1 and shape.TextFrame.HasText == -1 and shape.Type not in [pplib.MsoShapeType['msoTextBox'], pplib.MsoShapeType['msoPlaceholder']]
+    
+    @staticmethod
+    def is_mergable(shapes):
+        return len(shapes) == 2 and (shapes[0].Type == pplib.MsoShapeType['msoTextBox'] or shapes[1].Type == pplib.MsoShapeType['msoTextBox'])
     
 
 class SplitTextShapes(object):
@@ -1209,8 +1227,15 @@ class SplitTextShapes(object):
     def joinShapesWithText(cls, shapes):
         # Shapes nach top sortieren
         shapes = sorted(shapes, key=lambda shape: shape.Top)
-        # Anapssung Größe des ersten Shapes (Master-Shape)
-        shpMaster = shapes.pop(0) #shapes[0]
+        # Anapssung Größe des ersten Shapes (Master-Shape) mit TextFrame
+        for i in range(len(shapes)):
+            shpMaster = shapes.pop(i) #shapes[0]
+            if shpMaster.HasTextFrame:
+                break
+        else:
+            # no shape with textframe found
+            return
+        
         shpMaster.Height = max(shpMaster.Height, shapes[-1].Top + shapes[-1].Height - shpMaster.Top)
 
         for shp in shapes: #[1:]:
@@ -1229,6 +1254,16 @@ class SplitTextShapes(object):
             cls.trim_newline_character(txtRange)
             # Shape loeschen
             shp.Delete()
+    
+    ### context menu callbacks ###
+
+    @staticmethod
+    def is_splitable(shape):
+        return shape.HasTextFrame == -1 and shape.TextFrame2.TextRange.Paragraphs().Count>1
+    
+    @staticmethod
+    def is_joinable(shapes):
+        return any(shp.HasTextFrame == -1 and shp.TextFrame2.HasText == -1 for shp in shapes)
     
 
 
@@ -1397,7 +1432,7 @@ text_menu = bkt.ribbon.Menu(
             image_mso = "TableCellCustomMarginsDialog",
             screentip="Text auf Shape zerlegen",
             supertip="Überführe jeweils den Textinhalt der markierten Shapes in ein separates Text-Shape.",
-            on_action=bkt.Callback(TextOnShape.textOutOfShape),
+            on_action=bkt.Callback(TextOnShape.textOutOfShape, shapes=True, context=True),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
         ),
         bkt.ribbon.MenuSeparator(),
@@ -1406,7 +1441,7 @@ text_menu = bkt.ribbon.Menu(
             label = u"Shape-Text zerlegen",
             image_mso = "TraceDependents",
             supertip="Zerlege die markierten Shapes anhand der Text-Absätze in mehrere Shapes. Pro Absatz wird ein Shape mit dem entsprechenden Text angelegt.",
-            on_action=bkt.Callback(SplitTextShapes.splitShapesByParagraphs),
+            on_action=bkt.Callback(SplitTextShapes.splitShapesByParagraphs, shapes=True, context=True),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
         ),
         bkt.ribbon.Button(
@@ -1414,7 +1449,7 @@ text_menu = bkt.ribbon.Menu(
             label = u"Shape-Text zusammenführen",
             image_mso = "TracePrecedents",
             supertip="Führe die markierten Shapes in ein Shape zusammen. Der Text aller Shapes wird übernommen und aneinandergehängt.",
-            on_action=bkt.Callback(SplitTextShapes.joinShapesWithText),
+            on_action=bkt.Callback(SplitTextShapes.joinShapesWithText, shapes=True),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
         ),
         bkt.ribbon.MenuSeparator(),
