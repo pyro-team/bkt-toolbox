@@ -750,6 +750,8 @@ class ShapeDistance(object):
 
 
 class ShapeRotation(object):
+    locpin = pplib.LocPin(4, "toolbox.rotation_locpin") #center point as initial locpin
+
     @staticmethod
     def get_enabled(selection):
         try:
@@ -758,16 +760,18 @@ class ShapeRotation(object):
         except:
             return False
 
-    @staticmethod
-    def set_rotation(shapes, value):
+    @classmethod
+    def set_rotation(cls, shapes, value):
+        shapes = pplib.wrap_shapes(shapes, cls.locpin)
         bkt.apply_delta_on_ALT_key(
             lambda shape, value: setattr(shape, 'rotation', value), 
             lambda shape: shape.rotation, 
             shapes, value)
 
-    @staticmethod
-    def get_rotation(shapes):
-        return shapes[0].rotation
+    @classmethod
+    def get_rotation(cls, shapes):
+        shape = pplib.wrap_shape(shapes[0], cls.locpin)
+        return shape.rotation
 
     @classmethod
     def set_rotation_zero(cls, shapes):
@@ -979,6 +983,12 @@ distance_rotation_group = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.Menu(label="Rotation und Spiegelung Menü", children=[
                     bkt.ribbon.MenuSeparator(title="Rotation"),
+                    pplib.LocpinGallery(
+                        label="Ankerpunkt beim Rotieren",
+                        screentip="Ankerpunkt beim Rotieren festlegen",
+                        supertip="Legt den Punkt fest, der beim Rotieren der Shapes fixiert sein soll.",
+                        locpin=ShapeRotation.locpin,
+                    ),
                     bkt.ribbon.Button(
                         label="Auf 0 Grad setzen",
                         screentip="Shape-Rotation auf 0 Grad setzen",
