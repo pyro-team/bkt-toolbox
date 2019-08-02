@@ -297,11 +297,18 @@ class Pentagon(object):
         return shape.AutoShapeType in [pplib.MsoAutoShapeType['msoShapePentagon'], pplib.MsoAutoShapeType['msoShapeChevron']]
 
     @classmethod
-    def search_body_and_update_header(cls, shapes, shape):
+    def search_body_and_update_header(cls, context, shape):
         ''' for the pentagon represented by the given shape (header, body, or group header+body), the header position and size are updated '''
         header = shape
+        if pplib.shape_is_group_child(header):
+            shapes = list(iter(shape.ParentGroup.GroupItems))
+        else:
+            shapes = list(iter(context.slide.shapes))
         body = cls.find_corresponding_body_shape(shapes, header)
-        cls.update_header(body, header)
+        if not body:
+            bkt.helpers.message("Fehler: Zugehöriges Prozess-Shape nicht gefunden!")
+        else:
+            cls.update_header(body, header)
         
 
     @classmethod
