@@ -9,6 +9,7 @@ class ShapeWrapper(object):
     def __init__(self, shape, locpin=None):
         self.shape = shape
         self.locpin = locpin or GlobalLocPin
+        self.locpin_nodes = None
         self.bounding_nodes = None
 
     def __getattr__(self, name):
@@ -149,7 +150,20 @@ class ShapeWrapper(object):
     
     def transpose(self):
         ''' switch shape height and width '''
+        orig_lar = self.shape.LockAspectRatio
+        self.shape.LockAspectRatio = 0
         self.width,self.height = self.height,self.width
+        self.shape.LockAspectRatio = orig_lar
+    
+    def square(self, w2h=True):
+        ''' square shape by setting width to height (if w2h=True) or height to width '''
+        orig_lar = self.shape.LockAspectRatio
+        self.shape.LockAspectRatio = 0
+        if w2h:
+            self.width = self.height
+        else:
+            self.height = self.width
+        self.shape.LockAspectRatio = orig_lar
 
 
     @property
@@ -188,7 +202,7 @@ class ShapeWrapper(object):
         # self.shape.left = value + delta
         self.shape.incrementLeft(value-self.visual_x)
         # force recalculation of bounding notes
-        self.bounding_nodes = None
+        self.reset_caches()
 
     @property
     def visual_y(self):
@@ -205,7 +219,7 @@ class ShapeWrapper(object):
         # self.shape.top = value + delta
         self.shape.incrementTop(value-self.visual_y)
         # force recalculation of bounding notes
-        self.bounding_nodes = None
+        self.reset_caches()
     
     @property
     def visual_x1(self):
@@ -222,7 +236,7 @@ class ShapeWrapper(object):
         # self.shape.left = value + delta
         self.shape.incrementLeft(value-self.visual_x1)
         # force recalculation of bounding notes
-        self.bounding_nodes = None
+        self.reset_caches()
 
     @property
     def visual_y1(self):
@@ -239,7 +253,7 @@ class ShapeWrapper(object):
         # self.shape.top = value + delta
         self.shape.incrementTop(value-self.visual_y1)
         # force recalculation of bounding notes
-        self.bounding_nodes = None
+        self.reset_caches()
 
     @property
     def visual_width(self):
@@ -263,7 +277,7 @@ class ShapeWrapper(object):
         else:
             delta = value - self.visual_width
             # delta_vector (delta-width, 0) um shape-rotation drehen
-            delta_vector = algos.rotate_point(delta, 0, 0, 0, self.shape.rotation)
+            delta_vector = algos.rotate_point2(delta, 0, self.shape)
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
@@ -273,7 +287,7 @@ class ShapeWrapper(object):
             self.shape.width += delta_vector[0]
             self.shape.height += delta_vector[1]
             # force recalculation of bounding notes
-            self.bounding_nodes = None
+            self.reset_caches()
             # vorherige position wiederherstellen
             self.visual_x, self.visual_y = cur_x, cur_y
 
@@ -299,7 +313,7 @@ class ShapeWrapper(object):
         else:
             delta = value - self.visual_height
             # delta_vector (delta-width, 0) um shape-rotation drehen
-            delta_vector = algos.rotate_point(0, delta, 0, 0, self.shape.rotation)
+            delta_vector = algos.rotate_point2(0, delta, self.shape)
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
@@ -309,10 +323,33 @@ class ShapeWrapper(object):
             self.shape.width += delta_vector[0]
             self.shape.height += delta_vector[1]
             # force recalculation of bounding notes
-            self.bounding_nodes = None
+            self.reset_caches()
             # vorherige position wiederherstellen
             self.visual_x, self.visual_y = cur_x, cur_y
     
+    @property
+    def locpin_x(self):
+        ''' get x-coordinates of locpin '''
+        points = self.get_locpin_nodes()
+        return points[self.locpin.index][0]
+    @locpin_x.setter
+    def locpin_x(self, value):
+        ''' set x-coordinates of locpin '''
+        self.shape.incrementLeft(value-self.locpin_x)
+        # force recalculation of bounding notes
+        self.reset_caches()
+    
+    @property
+    def locpin_y(self):
+        ''' get y-coordinates of locpin '''
+        points = self.get_locpin_nodes()
+        return points[self.locpin.index][1]
+    @locpin_y.setter
+    def locpin_y(self, value):
+        ''' set y-coordinates of locpin '''
+        self.shape.incrementTop(value-self.locpin_y)
+        # force recalculation of bounding notes
+        self.reset_caches()
 
     @property
     def text(self):
@@ -330,12 +367,26 @@ class ShapeWrapper(object):
         else:
             self.shape.TextFrame.TextRange.Text = value
 
-    
+    def reset_caches(self):
+        self.bounding_nodes = None
+        self.locpin_nodes = None
+
     def get_bounding_nodes(self, force_update=False):
         ''' get and cache bounding points '''
         if force_update or not self.bounding_nodes:
             self.bounding_nodes = algos.get_bounding_nodes(self.shape)
         return self.bounding_nodes
+    
+    def get_locpin_nodes(self, force_update=False):
+        ''' get and cache loc pin points '''
+        points = self.get_bounding_nodes(force_update) #left-top, left-bottom, right-bottom, right-top
+        if force_update or not self.locpin_nodes:
+            self.locpin_nodes = [
+                points[0], algos.mid_point([points[0], points[3]]), points[3],
+                algos.mid_point([points[0], points[1]]), algos.mid_point(points), algos.mid_point([points[3], points[2]]),
+                points[1], algos.mid_point([points[1], points[2]]), points[2],
+            ]
+        return self.locpin_nodes
 
     @property
     def rotation(self):
@@ -344,7 +395,15 @@ class ShapeWrapper(object):
     @rotation.setter
     def rotation(self, value):
         ''' set shape rotation '''
+        #save current locpin position
+        top, left = self.locpin_y, self.locpin_x
+        #rotate
         self.shape.incrementRotation(value-self.rotation)
+        #reset caches to force recalculation of locpins
+        self.reset_caches()
+        #restore locpin position
+        self.locpin_y = top
+        self.locpin_x = left
 
     #     points = self.get_bounding_nodes()
     #     pivotX, pivotY = points[0]
