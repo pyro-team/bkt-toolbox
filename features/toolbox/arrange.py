@@ -15,6 +15,7 @@ import math
 import os.path
 
 from linkshapes import LinkedShapes
+from shapes import PositionSize
 
 class Swap(object):
     locpin = pplib.LocPin()
@@ -3290,8 +3291,44 @@ arrange_group = bkt.ribbon.Group(
         bkt.mso.control.ObjectsGroup,
         bkt.mso.control.ObjectsUngroup,
         bkt.mso.control.ObjectsRegroup,
-        bkt.mso.control.ObjectBringToFrontMenu,
-        bkt.mso.control.ObjectSendToBackMenu,
+        # bkt.mso.control.ObjectBringToFrontMenu,
+        bkt.ribbon.SplitButton(
+            id="bkt_bringtofront_menu",
+            show_label=False,
+            children=[
+                bkt.mso.button.ObjectBringToFront,
+                bkt.ribbon.Menu(label="Vordergrund-Menü", children=[
+                    bkt.mso.control.ObjectBringToFront,
+                    bkt.mso.control.ObjectBringForward,
+                    bkt.ribbon.Button(
+                        label="Hintere nach vorne",
+                        supertip="Bringt alle hinteren Shapes genau vor das vorderste Shape",
+                        image="zorder_back_to_front",
+                        get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                        on_action=bkt.Callback(PositionSize.back_to_front, shapes=True),
+                    ),
+                ])
+            ]
+        ),
+        # bkt.mso.control.ObjectSendToBackMenu,
+        bkt.ribbon.SplitButton(
+            id="bkt_sendtoback_menu",
+            show_label=False,
+            children=[
+                bkt.mso.button.ObjectSendToBack,
+                bkt.ribbon.Menu(label="Hintergrund-Menü", children=[
+                    bkt.mso.control.ObjectSendToBack,
+                    bkt.mso.control.ObjectSendBackward,
+                    bkt.ribbon.Button(
+                        label="Vordere nach hinten",
+                        supertip="Bringt alle vordere Shapes genau hinter das hinterste Shape",
+                        image="zorder_front_to_back",
+                        get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                        on_action=bkt.Callback(PositionSize.front_to_back, shapes=True),
+                    ),
+                ])
+            ]
+        ),
 
         tablearrange_button
 

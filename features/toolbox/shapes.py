@@ -98,15 +98,15 @@ class PositionSize(object):
 
     @staticmethod
     def front_to_back(shapes):
-        shapes = sorted(shapes, key=lambda shape: shape.ZOrderPosition, reverse=False)
-        target_zorder = shapes.pop(0).ZOrderPosition-1
+        shapes = sorted(shapes, key=lambda shape: shape.ZOrderPosition, reverse=True)
+        target_zorder = shapes.pop(-1).ZOrderPosition
         for shape in shapes:
             pplib.set_shape_zorder(shape, value=target_zorder)
 
     @staticmethod
     def back_to_front(shapes):
-        shapes = sorted(shapes, key=lambda shape: shape.ZOrderPosition, reverse=True)
-        target_zorder = shapes.pop(0).ZOrderPosition+1
+        shapes = sorted(shapes, key=lambda shape: shape.ZOrderPosition, reverse=False)
+        target_zorder = shapes.pop(-1).ZOrderPosition
         for shape in shapes:
             pplib.set_shape_zorder(shape, value=target_zorder)
 
@@ -118,17 +118,17 @@ class PositionSize(object):
     @staticmethod
     def set_height_to_width(shapes):
         for shape in shapes:
-            shape.height = shape.width
+            shape.square(w2h=False)
     
     @staticmethod
     def set_width_to_height(shapes):
         for shape in shapes:
-            shape.width = shape.height
+            shape.square(w2h=True)
     
     @staticmethod
     def swap_width_and_height(shapes):
         for shape in shapes:
-            shape.height, shape.width = shape.width, shape.height
+            shape.transpose()
     
     @staticmethod
     def set_top_to_left(shapes):
@@ -279,14 +279,14 @@ spinner_zorder = bkt.ribbon.RoundingSpinnerBox(
             bkt.ribbon.Button(
                 label="Vordere nach hinten",
                 supertip="Bringt alle vordere Shapes genau hinter das hinterste Shape",
-                image_mso="ObjectSendBackward",
+                image="zorder_front_to_back",
                 get_enabled=bkt.apps.ppt_shapes_min2_selected,
                 on_action=bkt.Callback(PositionSize.front_to_back, shapes=True),
             ),
             bkt.ribbon.Button(
                 label="Hintere nach vorne",
                 supertip="Bringt alle hinteren Shapes genau vor das vorderste Shape",
-                image_mso="ObjectBringForward",
+                image="zorder_back_to_front",
                 get_enabled=bkt.apps.ppt_shapes_min2_selected,
                 on_action=bkt.Callback(PositionSize.back_to_front, shapes=True),
             ),
