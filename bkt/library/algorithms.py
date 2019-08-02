@@ -62,9 +62,14 @@ def get_bounds(shapes):
     return get_bounds2(points)
 
 def rotate_point(x, y, x0, y0, deg):
-    ''' rotate (x,y) arround (x0, y0) '''
-    theta = deg*2*math.pi/360
+    ''' rotate (x,y) arround (x0, y0) by degree '''
+    # theta = deg*2*math.pi/360
+    theta = math.radians(deg)
     return x0+(x-x0)*math.cos(theta)+(y-y0)*math.sin(theta), y0-(x-x0)*math.sin(theta)+(y-y0)*math.cos(theta)
+
+def rotate_point2(x, y, shape):
+    ''' rotate (x,y) arround (0,0) by shape rotation '''
+    return rotate_point(x, y, 0, 0, 360-shape.rotation)
 
 def get_bounding_nodes(shape):
     ''' compute bounding nodes (surrounding-square) for rotated shapes '''
@@ -74,7 +79,7 @@ def get_bounding_nodes(shape):
     y0 = shape.top + shape.height/2
 
     rotated_points = [
-        list(rotate_point(p[0], p[1], x0, y0, shape.rotation))
+        list(rotate_point(p[0], p[1], x0, y0, 360-shape.rotation)) #rotation in ppt is inverted
         for p in points
     ]
     return rotated_points
