@@ -220,7 +220,7 @@ class CircularArrangement(object):
         
         # Segments starten rechts im Kreis
         # Alle Punkte um 90 Grad nach links drehen, damit erstes Objekt oben steht
-        points = [ cls.rotate_point(p[0], p[1], 0, 0, 90)  for p in points]
+        points = [ algorithms.rotate_point(p[0], p[1], 0, 0, 90)  for p in points]
         
         # Punkte skalieren (Höhe/Breite)
         points = [ [ width/2 * p[0], height/2 * p[1] ]   for p in points]
@@ -266,11 +266,6 @@ class CircularArrangement(object):
     @classmethod
     def arrange_circular_fixed_pressed(cls):
         return cls.fixed_radius == True
-        
-    @staticmethod
-    def rotate_point(x, y, x0, y0, deg):
-        theta = deg*2*math.pi/360
-        return x0+(x-x0)*math.cos(theta)+(y-y0)*math.sin(theta), y0-(x-x0)*math.sin(theta)+(y-y0)*math.cos(theta)
 
 
 
