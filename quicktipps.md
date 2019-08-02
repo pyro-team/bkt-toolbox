@@ -8,6 +8,7 @@
 1. [Textzeichen in einzelne Shapes umwandeln](#textzeichen-in-einzelne-shapes-umwandeln)
 1. [Fokus auf Kontext-Menüband Shape-Format verhindern](#fokus-auf-kontext-menüband-shape-format-verhindern)
 1. [Tastenkombinationen beim Anordnen und Spinner-Boxen](#tastenkombinationen-beim-anordnen-und-spinner-boxen)
+1. [Benutzerdefinierte Formate/Style](#benutzerdefinierte-formate)
 1. *more to come...*
 
 ---
@@ -69,3 +70,10 @@ _Hinweis: In der neuesten BKT-Version geht dies auch in den BKT-Einstellungen (B
 <img src="documentation/quicktipp-samesize.gif">
 
 Viele Buttons und Textboxen erlaubt mittels `Strg` oder `Shift` Taste schnellen Zugriff auf Unterfunktionen oder Variation der Schrittweite der Spinner-Boxen.
+
+
+## Benutzerdefinierte Formate
+
+<img src="documentation/quicktipp-customformats.gif">
+
+Seit Version 2.5.2 kann man eigene Formate speichern und anwenden. Dabei kann man auswählen, welche Bereiche angepasst werden sollen. Auch verschiedene Listen-Einrückungen werden berücksichtigt. Zu guter letzt werden mehrere Bibliotheken unterstützt und es gibt sogar eine Pickup-Apply Funktion. _Hinweis: Das Feature muss bei der Installation aktiviert werden._
