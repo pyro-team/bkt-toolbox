@@ -625,16 +625,17 @@ class ShapesMore(object):
         if pasted_shapes.count > 1:
             pasted_shapes = pasted_shapes.group()
         
-        #restore position and zorder
-        pasted_shapes.top = shape.top
-        pasted_shapes.left = shape.left
-        pasted_shapes.rotation = shape.rotation
-        pplib.set_shape_zorder(pasted_shapes, value=shape.ZOrderPosition)
+        #restore size
         if keep_size:
             pasted_shapes.LockAspectRatio = 0
             pasted_shapes.width = shape.width
             pasted_shapes.height = shape.height
             pasted_shapes.LockAspectRatio = shape.LockAspectRatio
+        #restore position and zorder
+        pasted_shapes.top = shape.top
+        pasted_shapes.left = shape.left
+        pasted_shapes.rotation = shape.rotation
+        pplib.set_shape_zorder(pasted_shapes, value=shape.ZOrderPosition)
 
         if pplib.shape_is_group_child(shape):
             #replace shape in group
@@ -644,6 +645,8 @@ class ShapesMore(object):
         else:
             #replace shape
             shape.delete()
+        
+        pasted_shapes.select()
 
     
     @staticmethod
