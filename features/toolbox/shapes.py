@@ -618,6 +618,32 @@ class ShapesMore(object):
             slide.Shapes.PasteSpecial(Link=True)
         except:
             bkt.helpers.message("Das Element in der Zwischenablage unterstützt diesen Einfügetyp nicht.")
+    
+    @staticmethod
+    def paste_and_replace(slide, shape, keep_size=True):
+        pasted_shapes = slide.Shapes.Paste()
+        if pasted_shapes.count > 1:
+            pasted_shapes = pasted_shapes.group()
+        
+        #restore position and zorder
+        pasted_shapes.top = shape.top
+        pasted_shapes.left = shape.left
+        pasted_shapes.rotation = shape.rotation
+        pplib.set_shape_zorder(pasted_shapes, value=shape.ZOrderPosition)
+        if keep_size:
+            pasted_shapes.LockAspectRatio = 0
+            pasted_shapes.width = shape.width
+            pasted_shapes.height = shape.height
+            pasted_shapes.LockAspectRatio = shape.LockAspectRatio
+
+        if pplib.shape_is_group_child(shape):
+            #replace shape in group
+            master = pplib.GroupManager(shape.ParentGroup)
+            master.add_child_items(pasted_shapes)
+            shape.delete()
+        else:
+            #replace shape
+            shape.delete()
 
     
     @staticmethod
