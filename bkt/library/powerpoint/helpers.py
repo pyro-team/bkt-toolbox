@@ -652,7 +652,6 @@ class ColorHelper(object):
             try:
                 shade_index = cls.get_shade_index_from_brightness(color_rgb, brightness)
             except ValueError:
-                print("not found")
                 shade_index = None
         
         color_rgb = cls.adjust_rgb_brightness(color_rgb, brightness)
