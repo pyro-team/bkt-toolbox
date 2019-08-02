@@ -1779,7 +1779,8 @@ class ArrangeAdvanced(object):
         else:
             delta = value - self.get_shape_width(shape)
             # delta_vector (delta-width, 0) um shape-rotation drehen
-            delta_vector = self.rotate_point(delta, 0, 0, 0, shape.rotation)
+            # delta_vector = self.rotate_point(delta, 0, 0, 0, shape.rotation)
+            delta_vector = algos.rotate_point2(delta, 0, shape)
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
@@ -1817,7 +1818,8 @@ class ArrangeAdvanced(object):
         else:
             delta = value - self.get_shape_height(shape)
             # delta_vector (0, delta-height) um shape-rotation drehen
-            delta_vector = self.rotate_point(0, delta, 0, 0, shape.rotation)
+            # delta_vector = self.rotate_point(0, delta, 0, 0, shape.rotation)
+            delta_vector = algos.rotate_point2(0, delta, shape)
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
@@ -1830,23 +1832,19 @@ class ArrangeAdvanced(object):
 
     def get_shape_bounding_nodes(self, shape):
         ''' compute bounding nodes (surrounding-square) for rotated shapes '''
-        points = [ [ shape.left, shape.top ], [shape.left, shape.top+shape.height], [shape.left+shape.width, shape.top+shape.height], [shape.left+shape.width, shape.top] ]
+        return algos.get_bounding_nodes(shape)
+        # points = [ [ shape.left, shape.top ], [shape.left, shape.top+shape.height], [shape.left+shape.width, shape.top+shape.height], [shape.left+shape.width, shape.top] ]
 
-        x0 = shape.left + shape.width/2
-        y0 = shape.top + shape.height/2
+        # x0 = shape.left + shape.width/2
+        # y0 = shape.top + shape.height/2
 
-        rotated_points = [
-            list(self.rotate_point(p[0], p[1], x0, y0, shape.rotation))
-            for p in points
-        ]
-        return rotated_points
+        # rotated_points = [
+        #     list(algos.rotate_point(p[0], p[1], x0, y0, 360-shape.rotation))
+        #     for p in points
+        # ]
+        # return rotated_points
 
 
-    def rotate_point(self, x, y, x0, y0, deg):
-        ''' rotate (x,y) arround (x0, y0) '''
-        theta = deg*2*math.pi/360
-        return x0+(x-x0)*math.cos(theta)+(y-y0)*math.sin(theta), y0-(x-x0)*math.sin(theta)+(y-y0)*math.cos(theta)
-    
 
     ### ui generation functions ###
     def get_master_button(self, postfix="", **kwargs):
