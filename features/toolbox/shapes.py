@@ -457,47 +457,143 @@ class TrackerShape(object):
 
 
 
+class ShapeConnectorTags(pplib.BKTTag):
+    TAG_NAME = "BKT_SHAPE_CONNECTORS"
+
+class ShapeConnectors(object):
+
+    @staticmethod
+    def is_connector(shape):
+        return shape.Tags.Item(ShapeConnectorTags.TAG_NAME) != ''
+
+    @staticmethod
+    def _find_shape_by_id(slide, shape_id):
+        for shp in slide.shapes:
+            if shp.id == shape_id:
+                return shp
+        else:
+            raise IndexError("shape id not found on slide")
+    
+    @staticmethod
+    def _set_connector_shape_nodes(shape_connector, shape1, shape2, shape1_side="bottom", shape2_side="top"):
+        from bkt.library.algorithms import get_bounding_nodes, mid_point
+        from math import atan2
+
+        #get_boundin_nodes returns nodes counter-clockwise: left-top, left-bottom, right-bottom, right-top
+        shape1_nodes = get_bounding_nodes(shape1)
+        shape2_nodes = get_bounding_nodes(shape2)
+
+        sides2points = {
+            'top': (0,3),
+            'right': (3,2),
+            'bottom': (1,2),
+            'left': (0,1),
+        }
+
+        shape1_p1, shape1_p2 = sides2points[shape1_side]
+        shape2_p1, shape2_p2 = sides2points[shape2_side]
+
+        connector_nodes = [shape1_nodes[shape1_p1], shape1_nodes[shape1_p2], shape2_nodes[shape2_p1], shape2_nodes[shape2_p2]]
+        #correct ordering is the key to set nodes, here clockwise ordering (left-top, right-top, right-bottom, left-bottom)
+        mid_point = mid_point(connector_nodes)
+        connector_nodes.sort(key=lambda p: atan2(p[1]-mid_point[1], p[0]-mid_point[0]))
+
+        #convert shape into freeform by adding and deleting node (not sure if this is required)
+        shape_connector.Nodes.Insert(1, 0, 0, 0, 0) #msoSegmentLine, msoEditingAuto, x, y
+        shape_connector.Nodes.Delete(2)
+        # set nodes (rectangle has 5 nodes as start and end node are the same)
+        shape_connector.Nodes.SetPosition(1, connector_nodes[0][0], connector_nodes[0][1]) #top-left start node
+        shape_connector.Nodes.SetPosition(2, connector_nodes[1][0], connector_nodes[1][1]) #top-right node
+        shape_connector.Nodes.SetPosition(3, connector_nodes[2][0], connector_nodes[2][1]) #bottom-right node
+        shape_connector.Nodes.SetPosition(4, connector_nodes[3][0], connector_nodes[3][1]) #bottom-left node
+        shape_connector.Nodes.SetPosition(5, connector_nodes[0][0], connector_nodes[0][1]) #top-left end node
+
+    @classmethod
+    def update_connector_shape(cls, context, shape):
+        with ShapeConnectorTags(shape.Tags) as tags:
+            slide = context.slide
+            try:
+                shape1 = cls._find_shape_by_id(slide, tags["shape1_id"])
+                shape2 = cls._find_shape_by_id(slide, tags["shape2_id"])
+            except IndexError:
+                bkt.helpers.message("Fehler: Verbundenes Shape nicht gefunden!")
+            else:
+                cls._set_connector_shape_nodes(shape, shape1, shape2, tags["shape1_side"], tags["shape2_side"])
+
+    @classmethod
+    def add_connector_shape(cls, slide, shape1, shape2, shape1_side="bottom", shape2_side="top"):
+        shp_connector = slide.shapes.AddShape(
+            1, #msoShapeRectangle
+            1,1, #left-top
+            10,10 #width-height
+        )
+
+        cls._set_connector_shape_nodes(shp_connector, shape1, shape2, shape1_side, shape2_side)
+
+        # shp_connector.Fill.ForeColor.RGB = 12566463 #193
+        shp_connector.Fill.ForeColor.ObjectThemeColor = 16 #Background 2
+        # shp_connector.Line.ForeColor.RGB = 8355711 # 127 127 127
+        shp_connector.Line.ForeColor.ObjectThemeColor = 15 #Text 2
+        # shp_connector.Line.Weight = 0.75
+        shp_connector.Line.Visible = -1 #msoTrue
+
+        with ShapeConnectorTags(shp_connector.Tags) as tags:
+            tags["shape1_id"]   = shape1.id
+            tags["shape1_side"] = shape1_side
+            tags["shape2_id"]   = shape2.id
+            tags["shape2_side"] = shape2_side
+
+        return shp_connector
+
+
+    @classmethod
+    def addHorizontalConnector(cls, shapes, context):
+        shapes = sorted(shapes, key=lambda shape: shape.Left)
+
+        cls.add_connector_shape(context.slide, shapes[0], shapes[1], "right", "left").select()
+
+        # shpLeft  = shapes[0]
+        # shpRight = shapes[1]
+
+        # shpConnector = context.app.ActivePresentation.Slides(context.app.ActiveWindow.View.Slide.SlideIndex).shapes.AddShape(
+        #     1, #msoShapeRectangle
+        #     shpLeft.Left + shpLeft.Width, shpLeft.Top,
+        #     shpRight.Left - shpLeft.Left - shpLeft.width, shpLeft.Height)
+        # # node 2: top right
+        # shpConnector.Nodes.SetPosition(2, shpRight.Left, shpRight.Top)
+        # # node 3: bottom right
+        # shpConnector.Nodes.SetPosition(3, shpRight.Left, shpRight.Top + shpRight.Height)
+        # shpConnector.Fill.ForeColor.RGB = 12566463 #193
+        # shpConnector.Line.ForeColor.RGB = 8355711 # 127 127 127
+        # shpConnector.Line.Weight = 0.75
+        # shpConnector.Select()
+
+    @classmethod
+    def addVerticalConnector(cls, shapes, context):
+        shapes = sorted(shapes, key=lambda shape: shape.Top)
+
+        cls.add_connector_shape(context.slide, shapes[0], shapes[1], "bottom", "top").select()
+
+        # shpTop = shapes[0]
+        # shpBottom = shapes[1]
+
+        # shpConnector = context.app.ActivePresentation.Slides(context.app.ActiveWindow.View.Slide.SlideIndex).shapes.AddShape(
+        #     1, #msoShapeRectangle,
+        #     shpTop.Left, shpTop.Top + shpTop.Height,
+        #     shpTop.Width, shpBottom.Top - shpTop.Top - shpTop.Height)
+
+        # # node 3: bottom right
+        # shpConnector.Nodes.SetPosition(3, shpBottom.Left + shpBottom.width, shpBottom.Top)
+        # # node 4: bottom left
+        # shpConnector.Nodes.SetPosition(4, shpBottom.Left, shpBottom.Top)
+        # shpConnector.Fill.ForeColor.RGB = 12566463 # 193
+        # shpConnector.Line.ForeColor.RGB = 8355711 # 127 127 127
+        # shpConnector.Line.Weight = 0.75
+        # shpConnector.Select()
+
+
 class ShapesMore(object):
 
-    @staticmethod
-    def addHorizontalConnector(shapes, context):
-        shapes = sorted(shapes, key=lambda shape: shape.Left)
-        shpLeft  = shapes[0]
-        shpRight = shapes[1]
-
-        shpConnector = context.app.ActivePresentation.Slides(context.app.ActiveWindow.View.Slide.SlideIndex).shapes.AddShape(
-            1, #msoShapeRectangle
-            shpLeft.Left + shpLeft.Width, shpLeft.Top,
-            shpRight.Left - shpLeft.Left - shpLeft.width, shpLeft.Height)
-        # node 2: top right
-        shpConnector.Nodes.SetPosition(2, shpRight.Left, shpRight.Top)
-        # node 3: bottom right
-        shpConnector.Nodes.SetPosition(3, shpRight.Left, shpRight.Top + shpRight.Height)
-        shpConnector.Fill.ForeColor.RGB = 12566463 #193
-        shpConnector.Line.ForeColor.RGB = 8355711 # 127 127 127
-        shpConnector.Line.Weight = 0.75
-        shpConnector.Select()
-
-    @staticmethod
-    def addVerticalConnector(shapes, context):
-        shapes = sorted(shapes, key=lambda shape: shape.Top)
-        shpTop = shapes[0]
-        shpBottom = shapes[1]
-
-        shpConnector = context.app.ActivePresentation.Slides(context.app.ActiveWindow.View.Slide.SlideIndex).shapes.AddShape(
-            1, #msoShapeRectangle,
-            shpTop.Left, shpTop.Top + shpTop.Height,
-            shpTop.Width, shpBottom.Top - shpTop.Top - shpTop.Height)
-
-        # node 3: bottom right
-        shpConnector.Nodes.SetPosition(3, shpBottom.Left + shpBottom.width, shpBottom.Top)
-        # node 4: bottom left
-        shpConnector.Nodes.SetPosition(4, shpBottom.Left, shpBottom.Top)
-        shpConnector.Fill.ForeColor.RGB = 12566463 # 193
-        shpConnector.Line.ForeColor.RGB = 8355711 # 127 127 127
-        shpConnector.Line.Weight = 0.75
-        shpConnector.Select()
-    
     @staticmethod
     def hide_shapes(shapes):
         for shape in shapes:
@@ -1643,7 +1739,7 @@ shapes_group = bkt.ribbon.Group(
                     label = u"Horizontale Verbindungsfläche",
                     image = "ConnectorHorizontal",
                     supertip="Erstelle eine horizontale Verbindungsfläche zwischen den vertikalen Seiten (links/rechts) von zwei Shapes.",
-                    on_action=bkt.Callback(ShapesMore.addHorizontalConnector, context=True, shapes=True, shapes_min=2, shapes_max=2),
+                    on_action=bkt.Callback(ShapeConnectors.addHorizontalConnector, context=True, shapes=True, shapes_min=2, shapes_max=2),
                     get_enabled = bkt.apps.ppt_shapes_exactly2_selected,
                 ),
                 bkt.ribbon.Button(
@@ -1651,8 +1747,17 @@ shapes_group = bkt.ribbon.Group(
                     label = u"Vertikale Verbindungsfläche",
                     image = "ConnectorVertical",
                     supertip="Erstelle eine vertikale Verbindungsfläche zwischen den horizontalen Seiten (oben/unten) von zwei Shapes.",
-                    on_action=bkt.Callback(ShapesMore.addVerticalConnector, context=True, shapes=True, shapes_min=2, shapes_max=2),
+                    on_action=bkt.Callback(ShapeConnectors.addVerticalConnector, context=True, shapes=True, shapes_min=2, shapes_max=2),
                     get_enabled = bkt.apps.ppt_shapes_exactly2_selected,
+                ),
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Button(
+                    id = 'connector_update',
+                    label = u"Verbindungsfläche neu verbinden",
+                    image = "ConnectorUpdate",
+                    supertip="Aktualisiere die Verbindungsfläche nachdem sich die verbundenen Shapes geändert haben.",
+                    on_action=bkt.Callback(ShapeConnectors.update_connector_shape, context=True, shape=True),
+                    get_enabled = bkt.Callback(ShapeConnectors.is_connector, shape=True),
                 ),
             ]
         ),
