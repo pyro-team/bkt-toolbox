@@ -2922,6 +2922,10 @@ class GroupsMore(object):
         else:
             pplib.shapes_to_range(shapes).group().select()
     
+    @classmethod
+    def visible_add_into_group(cls, shapes):
+        return len(shapes) > 1 and cls.contains_group(shapes)
+    
     @staticmethod
     def contains_group(shapes):
         return any(shp.Type == pplib.MsoShapeType['msoGroup'] for shp in shapes)
