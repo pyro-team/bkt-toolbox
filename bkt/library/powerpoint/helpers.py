@@ -1041,18 +1041,24 @@ class GroupManager(object):
         if not self._group:
             raise SystemError("not a group")
         
-        ### FIXME: position changes using this method!
-        # #add shapes to temporary group
-        # temp_grp = shapes_to_range([self.shape]+shapes).group()
-        # #rotate original group to 0
-        # temp_grp.rotation = - self._rotation
-        # temp_grp.ungroup()
-        # #create new group and reset rotation
-        # self.ungroup()
-        ###
-
-        self.ungroup(prepare=False)
+        #store position of first shape in group
+        shape_to_restore_pos = self.shape.GroupItems[1]
+        orig_left, orig_top = shape_to_restore_pos.left, shape_to_restore_pos.top
+        #add shapes to temporary group
+        temp_grp = shapes_to_range([self.shape]+shapes).group()
+        #rotate original group to 0
+        temp_grp.rotation = - self._rotation
+        temp_grp.ungroup()
+        #create new group and reset rotation
+        self.ungroup()
         self.regroup(new_shape_range=shapes_to_range(self.child_items+shapes))
+        #restore position
+        self.shape.left -= shape_to_restore_pos.left-orig_left
+        self.shape.top  -= shape_to_restore_pos.top-orig_top
+
+        ### Simple method without considering rotation:
+        # self.ungroup(prepare=False)
+        # self.regroup(new_shape_range=shapes_to_range(self.child_items+shapes))
         return self
 
     def recursive_ungroup(self):
