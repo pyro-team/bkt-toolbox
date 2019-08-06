@@ -8,6 +8,25 @@ import logging
 
 import bkt.library.powerpoint as pplib
 from collections import OrderedDict
+from functools import wraps
+
+
+def textframe_group_check(func):
+    @wraps(func)
+    def wrapper(cls, textframe_obj, *args, **kwargs):
+        try:
+            shape = textframe_obj.Parent
+            if shape.Type == pplib.MsoShapeType["msoGroup"]:
+                logging.debug("customformats: found group")
+                for shp in shape.GroupItems:
+                    func(cls, shp.TextFrame2, *args, **kwargs)
+            else:
+                logging.debug("customformats: found non-group")
+                func(cls, textframe_obj, *args, **kwargs)
+        except Exception as e:
+            logging.debug("customformats: group check failed " + str(e))
+            func(cls, textframe_obj, *args, **kwargs)
+    return wrapper
 
 
 class ShapeFormats(object):
@@ -76,6 +95,7 @@ class ShapeFormats(object):
             return cls._get_font(textrange_object.Font)
     
     @classmethod
+    @textframe_group_check
     def _set_indentlevels(cls, textframe_object, what, indentlevels_dict):
         if cls.always_consider_indentlevels and textframe_object.TextRange.Paragraphs().Count > 0:
             for par in textframe_object.TextRange.Paragraphs():

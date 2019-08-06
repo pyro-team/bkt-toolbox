@@ -617,6 +617,10 @@ class CustomQuickEdit(object):
             for shape in shapes:
                 cls.temp_custom_format.to_shape(shape)
 
+    @staticmethod
+    def show_caveats():
+        bkt.helpers.message("Aufgrund von PowerPoint-Bugs gibt es folgende Einschränkungen:\r\n- Textkontur kann gesetzt, aber nicht wieder entfernt werden\r\n- Verläufe (insb. Winkel) werden nicht immer richtig übertragen\r\n- Schatten werden nicht auf Gruppen angewendet\r\n- Abschluss-/Anschlusstyp bei Linien werden nicht gesetzt")
+
 
 class FormatLibGallery(bkt.ribbon.Gallery):
     '''
@@ -636,6 +640,7 @@ class FormatLibGallery(bkt.ribbon.Gallery):
                 bkt.ribbon.Button(id=parent_id + "_pickup", label="Neuen Style aufnehmen", supertip="Nimmt Format vom gewählten Shape neu in die Gallerie auf.", image_mso="PickUpStyle", on_action=bkt.Callback(CustomQuickEdit.show_pickup_window, shape=True), get_enabled = bkt.apps.ppt_shapes_exactly1_selected,),
                 bkt.ribbon.Button(id=parent_id + "_help1", label="[STRG]+Klick für Bearbeiten und Löschen", supertip="Bei Klick auf ein Custom-Style mit gedrückter STRG-Taste öffnet sich ein Fenster zur Bearbeitung und Löschung dieses Styles.", enabled = False),
                 bkt.ribbon.Button(id=parent_id + "_help2", label="[SHIFT]+Klick für Anlage neues Shape", supertip="Bei Klick auf ein Custom-Style mit gedrückter SHIFT-Taste wird immer ein neues Shapes in gewähltem Style angelegt.", enabled = False),
+                bkt.ribbon.Button(id=parent_id + "_help3", label="Einschränkungen durch PowerPoint-Bugs", on_action=bkt.Callback(CustomQuickEdit.show_caveats)),
             ]
         )
         my_kwargs.update(kwargs)
