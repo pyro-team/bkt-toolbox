@@ -246,7 +246,7 @@ class AddIn(object):
             #kwargs.update(self.context.resolve_callback.resolve_arguments(callback.invocation_context))
             #return_value= self.app_callbacks.invoke_callback(callback, *args, **kwargs)
             return_value= self.context.invoke_callback(callback, *args, **kwargs)
-            logging.debug("return value=%s" % return_value)
+            logging.debug("return value={}".format(return_value))
             
             if callback.callback_type == bkt.callbacks.CallbackTypes.get_content:
                 # get_content return ribbon-menu-object
@@ -259,7 +259,7 @@ class AddIn(object):
                     logging.warning("Unexpected return-type in callback for get_content: got %s, expected %s" % (type(menu), bkt.ribbon.Menu))
                     return_value = str(menu)
                 
-                logging.debug("get_content returned:\n %s" % (return_value))
+                logging.debug("get_content returned:\n {}".format(return_value))
             
         except:
             logging.error("invoke callback failed for\ncallback-type=" + str(callback_type) + "\ncallback=" + str(callback))
