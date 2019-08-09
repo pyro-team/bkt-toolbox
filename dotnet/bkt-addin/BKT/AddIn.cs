@@ -388,7 +388,7 @@ namespace BKT
                 paths.Add(ipy_addin_path);
                 LogMessage("addin_path " + ipy_addin_path + " added to sys.path");
             }
-            DebugMessage("Python SysModule path= " + paths);
+            DebugMessage("Python SysModule path= " + ipy_addin_path);
             
             // add debug path
             if(debug_enabled) {
@@ -427,7 +427,7 @@ namespace BKT
             DebugMessage("OnConnection2 called");
             
             try {
-                // determine host
+                // determine host and bind events
                 DetermineHostApplication(application);
                 
                 // reset
@@ -511,11 +511,41 @@ namespace BKT
                 DebugMessage("error dertermining host application (maybe visio interop not installed)");
             }
         }
+
+        private void UnbindHostApplicationEvents()
+        {
+            //proper unbinding of events to avoid error "Microsoft.CSharp.RuntimeBinder.RuntimeBinderException" after addin reload
+            try {
+                if (host == HostApplication.PowerPoint)
+                {
+                    UnbindPowerPointEvents((PowerPoint.Application)context.app);
+                }
+                else if (host == HostApplication.Excel)
+                {
+                    UnbindExcelEvents((Excel.Application)context.app);
+                }
+                else if (host == HostApplication.Word)
+                {
+                    UnbindWordEvents((Word.Application)context.app);
+                }
+                else
+                {
+                    DebugMessage("no unbinding for host application");
+                }
+            } catch (Exception) {
+                DebugMessage("error unbinding host application events");
+            }
+        }
         
         
         public void OnDisconnection(ext_DisconnectMode remove_mode, ref Array custom)
         {    
             LogMessage("OnDisconnection: instance_id=" + instance_id);
+            try {
+                UnbindHostApplicationEvents();
+            } catch (Exception e) {
+                LogMessage(e.ToString());
+            }
             try {
                 if(!broken) {
                     python_delegate.on_destroy();
@@ -795,10 +825,21 @@ namespace BKT
         
         // EXCEL
         
+        private Excel.AppEvents_WorkbookOpenEventHandler events_xls_open = null;
+        private Excel.AppEvents_NewWorkbookEventHandler events_xls_new = null;
         private void BindExcelEvents(Excel.Application application)
         {
-            ((Excel.AppEvents_Event)application).WorkbookOpen += new Excel.AppEvents_WorkbookOpenEventHandler(Excel_WorkbookOpen);
-            ((Excel.AppEvents_Event)application).NewWorkbook += new Excel.AppEvents_NewWorkbookEventHandler(Excel_NewWorkbook);
+            events_xls_open = new Excel.AppEvents_WorkbookOpenEventHandler(Excel_WorkbookOpen);
+            events_xls_new = new Excel.AppEvents_NewWorkbookEventHandler(Excel_NewWorkbook);
+            ((Excel.AppEvents_Event)application).WorkbookOpen += events_xls_open;
+            ((Excel.AppEvents_Event)application).NewWorkbook += events_xls_new;
+        }
+
+        private void UnbindExcelEvents(Excel.Application application)
+        {
+            ((Excel.AppEvents_Event)application).WorkbookOpen -= events_xls_open;
+            ((Excel.AppEvents_Event)application).NewWorkbook -= events_xls_new;
+            DebugMessage("Excel events unbinded");
         }
         
         private void Excel_NewWorkbook(Excel.Workbook workbook)
@@ -828,13 +869,27 @@ namespace BKT
         }
         
         // POWER POINT
+
+        private PowerPoint.EApplication_PresentationOpenEventHandler events_ppt_presentation_open = null;
+        private PowerPoint.EApplication_NewPresentationEventHandler events_ppt_new_presentation = null;
+        private PowerPoint.EApplication_WindowSelectionChangeEventHandler events_ppt_win_sel_change = null;
         
         private void BindPowerPointEvents(PowerPoint.Application application)
         {
-            //FIXME: On addin reload, these events cause a Microsoft.CSharp.RuntimeBinder.RuntimeBinderException as events are not unbinded!
-            ((PowerPoint.EApplication_Event)application).PresentationOpen += new PowerPoint.EApplication_PresentationOpenEventHandler(PowerPoint_PresentatonOpen);
-            ((PowerPoint.EApplication_Event)application).NewPresentation += new PowerPoint.EApplication_NewPresentationEventHandler(PowerPoint_NewPresentation);
-            ((PowerPoint.EApplication_Event)application).WindowSelectionChange += new PowerPoint.EApplication_WindowSelectionChangeEventHandler(PowerPoint_WindowSelectionChange);
+            events_ppt_presentation_open = new PowerPoint.EApplication_PresentationOpenEventHandler(PowerPoint_PresentatonOpen);
+            events_ppt_new_presentation = new PowerPoint.EApplication_NewPresentationEventHandler(PowerPoint_NewPresentation);
+            events_ppt_win_sel_change = new PowerPoint.EApplication_WindowSelectionChangeEventHandler(PowerPoint_WindowSelectionChange);
+            ((PowerPoint.EApplication_Event)application).PresentationOpen += events_ppt_presentation_open;
+            ((PowerPoint.EApplication_Event)application).NewPresentation += events_ppt_new_presentation;
+            ((PowerPoint.EApplication_Event)application).WindowSelectionChange += events_ppt_win_sel_change;
+        }
+
+        private void UnbindPowerPointEvents(PowerPoint.Application application)
+        {
+            ((PowerPoint.EApplication_Event)application).PresentationOpen -= events_ppt_presentation_open;
+            ((PowerPoint.EApplication_Event)application).NewPresentation -= events_ppt_new_presentation;
+            ((PowerPoint.EApplication_Event)application).WindowSelectionChange -= events_ppt_win_sel_change;
+            DebugMessage("Powerpoint events unbinded");
         }
         
         private void PowerPoint_NewPresentation(PowerPoint.Presentation presentation)
@@ -865,7 +920,7 @@ namespace BKT
 
         private void PowerPoint_WindowSelectionChange(PowerPoint.Selection selection)
         {
-            DebugMessage("PowerPoint: window selection changed");
+            DebugMessage("PowerPoint: window selection changed instance="+instance_id);
             try {
                 selection_type = (int)selection.Type;
 
@@ -950,10 +1005,20 @@ namespace BKT
         
         // WORD
         
+        private Word.ApplicationEvents4_DocumentOpenEventHandler events_word_open = null;
+        private Word.ApplicationEvents4_NewDocumentEventHandler events_word_new = null;
         private void BindWordEvents(Word.Application application)
         {
-            ((Word.ApplicationEvents4_Event)application).DocumentOpen += new Word.ApplicationEvents4_DocumentOpenEventHandler(Word_DocumentOpen);
-            ((Word.ApplicationEvents4_Event)application).NewDocument += new Word.ApplicationEvents4_NewDocumentEventHandler(Word_NewDocument);
+            events_word_open = new Word.ApplicationEvents4_DocumentOpenEventHandler(Word_DocumentOpen);
+            events_word_new = new Word.ApplicationEvents4_NewDocumentEventHandler(Word_NewDocument);
+            ((Word.ApplicationEvents4_Event)application).DocumentOpen += events_word_open;
+            ((Word.ApplicationEvents4_Event)application).NewDocument += events_word_new;
+        }
+        private void UnbindWordEvents(Word.Application application)
+        {
+            ((Word.ApplicationEvents4_Event)application).DocumentOpen -= events_word_open;
+            ((Word.ApplicationEvents4_Event)application).NewDocument -= events_word_new;
+            DebugMessage("Word events unbinded");
         }
         
         private void Word_NewDocument(Word.Document document)
