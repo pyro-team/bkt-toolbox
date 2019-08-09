@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import division #always force float-division, for int divison use //
+
 from helpers import GlobalLocPin
 import bkt.library.algorithms as algos
 import math
@@ -277,7 +279,7 @@ class ShapeWrapper(object):
         else:
             delta = value - self.visual_width
             # delta_vector (delta-width, 0) um shape-rotation drehen
-            delta_vector = algos.rotate_point2(delta, 0, self.shape)
+            delta_vector = algos.rotate_point_by_shape_rotation(delta, 0, self.shape)
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
@@ -313,7 +315,7 @@ class ShapeWrapper(object):
         else:
             delta = value - self.visual_height
             # delta_vector (delta-width, 0) um shape-rotation drehen
-            delta_vector = algos.rotate_point2(0, delta, self.shape)
+            delta_vector = algos.rotate_point_by_shape_rotation(0, delta, self.shape)
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
@@ -404,28 +406,6 @@ class ShapeWrapper(object):
         #restore locpin position
         self.locpin_y = top
         self.locpin_x = left
-
-    #     points = self.get_bounding_nodes()
-    #     pivotX, pivotY = points[0]
-    #     midX, midY = algos.mid_point(points)
-
-    #     print("midx %s, midy %s" % (midX, midY))
-
-    #     delta = value-self.shape.rotation
-    #     # theta = delta*2*math.pi/360
-
-    #     # dx = self.center_x - pivotX #+ (self.shape.left-visual_x)
-    #     # dy = self.center_y - pivotY
-        
-    #     # newx = dx*math.cos(theta) - dy*math.sin(theta)
-    #     # newy = dx*math.sin(theta) + dy*math.cos(theta)
-
-    #     newx, newy = algos.rotate_point(self.center_x, self.center_y, pivotX, pivotY, delta)
-
-    #     self.center_x = newx
-    #     self.center_y = newy
-
-    #     self.shape.rotation = value
 
 
 

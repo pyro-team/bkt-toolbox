@@ -1780,7 +1780,7 @@ class ArrangeAdvanced(object):
             delta = value - self.get_shape_width(shape)
             # delta_vector (delta-width, 0) um shape-rotation drehen
             # delta_vector = self.rotate_point(delta, 0, 0, 0, shape.rotation)
-            delta_vector = algos.rotate_point2(delta, 0, shape)
+            delta_vector = algos.rotate_point_by_shape_rotation(delta, 0, shape)
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
@@ -1819,7 +1819,7 @@ class ArrangeAdvanced(object):
             delta = value - self.get_shape_height(shape)
             # delta_vector (0, delta-height) um shape-rotation drehen
             # delta_vector = self.rotate_point(0, delta, 0, 0, shape.rotation)
-            delta_vector = algos.rotate_point2(0, delta, shape)
+            delta_vector = algos.rotate_point_by_shape_rotation(0, delta, shape)
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
