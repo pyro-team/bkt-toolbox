@@ -444,11 +444,11 @@ class ShapeDistance(object):
         fix_v, fix_h = 1, 1
         if cls.vertical_edges == "center":
             fix_v = 2
-        elif cls.vertical_edges == "bottom" or cls.vertical_fix == "bottom":
+        elif cls.vertical_edges == "bottom": #or cls.vertical_fix == "bottom":
             fix_v = 3
         if cls.horizontal_edges == "center":
             fix_h = 2
-        elif cls.horizontal_edges == "right" or cls.horizontal_fix == "right":
+        elif cls.horizontal_edges == "right": #or cls.horizontal_fix == "right":
             fix_h = 3
         locpin.fixation = (fix_v, fix_h)
         return locpin
@@ -490,7 +490,7 @@ class ShapeDistance(object):
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.top, shape.left), reverse=cls.get_vertical_fix()=="bottom")
+        shapes.sort(key=lambda shape: (shape.y, shape.x), reverse=cls.get_vertical_fix()=="bottom")
 
         top = shapes[0].top if cls.vertical_edges != "visual" else shapes[0].visual_y
         for shape in shapes:
@@ -508,7 +508,7 @@ class ShapeDistance(object):
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.top, shape.left))
+        shapes.sort(key=lambda shape: (shape.y, shape.x))
         
         if cls.vertical_fix=="bottom":
             shapes = shapes[-2:]
@@ -527,7 +527,7 @@ class ShapeDistance(object):
     @classmethod
     def get_horizontal_fix(cls):
         if bkt.library.system.get_key_state(bkt.library.system.key_code.ALT):
-            if cls.vertical_fix == "right":
+            if cls.horizontal_fix == "right":
                 return "left"
             else:
                 return "right"
@@ -540,7 +540,7 @@ class ShapeDistance(object):
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.left, shape.top), reverse=cls.get_horizontal_fix()=="right")
+        shapes.sort(key=lambda shape: (shape.x, shape.y), reverse=cls.get_horizontal_fix()=="right")
 
         left = shapes[0].left if cls.horizontal_edges != "visual" else shapes[0].visual_x
         for shape in shapes:
@@ -558,7 +558,7 @@ class ShapeDistance(object):
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.left, shape.top))
+        shapes.sort(key=lambda shape: (shape.x, shape.y))
         
         if cls.horizontal_fix=="right":
             shapes = shapes[-2:]
@@ -1163,14 +1163,13 @@ class MasterShapeDialog(bkt.contextdialogs.ContextDialog):
 
 class ArrangeAdvanced(object):
     #class variables:
-    ptToCmFactor = 2.54 / 72
     # FIXME: master should be an instance-variable, other classes should get an ArrangeAdvanced-instance by dependency injection
     master = "LAST"
     fallback_first_last = "LAST"
     master_indicator = True
 
     #instance variables:
-    margin = 0 / ptToCmFactor
+    margin = 0
     resize = False
     ref_shape = None
     ref_frame = None
@@ -1221,7 +1220,7 @@ class ArrangeAdvanced(object):
 
     def __init__(self):
         #instance variables:
-        margin = 0 / self.ptToCmFactor
+        margin = 0
         resize = False
         ref_shape = None
         ref_frame = None
@@ -1528,11 +1527,11 @@ class ArrangeAdvanced(object):
 
     def set_margin(self, value, context):
         ''' callback to set margin-value '''
-        self.margin = value / self.ptToCmFactor
+        self.margin = value
 
     def get_margin(self):
         ''' returns current margin-value '''
-        return round(self.margin * self.ptToCmFactor,2)
+        return self.margin
 
     def set_moving(self, pressed):
         ''' callback to switch between moving/resizing-option '''
@@ -1981,7 +1980,8 @@ arrange_advanced_group = bkt.ribbon.Group(
             id='arrange_distance',
             label="Ausrichtungsabstand",
             show_label=False,
-            round_cm=True, image_mso="HorizontalSpacingIncrease", on_change=bkt.Callback(arrange_advaced.set_margin), get_text=bkt.Callback(arrange_advaced.get_margin),
+            round_cm=True, convert="pt_to_cm",
+            image_mso="HorizontalSpacingIncrease", on_change=bkt.Callback(arrange_advaced.set_margin), get_text=bkt.Callback(arrange_advaced.get_margin),
             screentip="Abstand bei Ausrichtung",
             supertip="Eingestellter Abstand wird bei der Ausrichtung von Shapes links/rechts berücksichtigt.\n\nDer Abstand wird addiert: bei Ausrichtung der linken/oberen Kante (des zu verschiebenden Shapes) und bei Ausrichtung der Shape-Mitte an der linken/oberen Kante des Mastershapes.\n\nDer Abstand wird subtrahiert: bei Ausrichtung der rechten/unteren Kante (des zu verschiebenden Shapes) und bei Ausrichtung der Shape-Mitte an der rechten/unteren Kante des Mastershapes."
         ),
