@@ -1,3 +1,23 @@
+# Unreleased (2.5.3)
+
+  * Popup for process chevrons shapes (add/remove chevrons)
+  * Split paragraphs into shapes feature is ignoring empty paragraphs and uses better positioning of new shapes
+  * Sticker and Underlined textbox support dark themes
+  * Multiple sticker texts and sticker settings can be adjusted
+  * Slide export and language settings are now in thumbnail menu
+  * Edge autofixer can be configured to some extend
+  * Feature to swap Z-Order and feature to place shape just behind/before shape
+  * Refactoring and improvement of tracker-generator
+  * Refactoring and improvement of shape-connector between 2 shapes (now supporting update/re-connect and rotated shapes)
+  * Refactoring of circular arrangement to avoid small movements and allow to define angle of first shape
+  * Fixes and configuration options for autofix edges feature
+  * Process chevrons, stateshapes and ppt-thumbnails now properly support rotation
+  * Small helper functions for swapping position and size
+  * Added various text operations and language settings to shape context menus
+  * Added function to add shape into group and recursively ungroup shapes
+  * Various small fixes
+
+
 # Release 2019-07-05 (2.5.2)
 
   * Custom formats: Complete refactoring with gallery as selection and function for pickup-apply of individual formats
