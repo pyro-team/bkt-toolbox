@@ -27,6 +27,15 @@ class StateShape(object):
         except:
             return False
 
+    @classmethod
+    def convert_to_state_shape(cls, shapes):
+        for shape in shapes:
+            try:
+                shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
+                cls.switch_state(shape, pos=0)
+            except Exception as e:
+                logging.error("Error converting to state stape: %s" % str(e))
+                continue
 
     @classmethod
     def is_state_shape(cls, shape):
@@ -289,7 +298,7 @@ stateshape_gruppe = bkt.ribbon.Group(
                     image_mso='GroupSmartArtQuickStyles',
                     screentip="Gruppierte Shapes in ein Wechselshape konvertieren",
                     supertip="Bei gruppierten Shapes (Wechsel-Shapes) kann zwischen den Shapes innerhalb der Gruppe gewechselt werden, d.h. es ist immer nur ein Shape der Gruppe sichtbar. Dies ist bspw. nützlich für Ampeln, Skalen, etc.",
-                    on_action=bkt.Callback(StateShape.reset_state),
+                    on_action=bkt.Callback(StateShape.convert_to_state_shape),
                     get_enabled=bkt.Callback(StateShape.is_convertable_to_state_shape),
                 ),
                 bkt.ribbon.Menu(
@@ -301,7 +310,7 @@ stateshape_gruppe = bkt.ribbon.Group(
                             image_mso='GroupSmartArtQuickStyles',
                             screentip="Gruppierte Shapes in ein Wechselshape konvertieren",
                             supertip="Bei gruppierten Shapes (Wechsel-Shapes) kann zwischen den Shapes innerhalb der Gruppe gewechselt werden, d.h. es ist immer nur ein Shape der Gruppe sichtbar. Dies ist bspw. nützlich für Ampeln, Skalen, etc.",
-                            on_action=bkt.Callback(StateShape.reset_state),
+                            on_action=bkt.Callback(StateShape.convert_to_state_shape),
                             get_enabled=bkt.Callback(StateShape.is_convertable_to_state_shape),
                         ),
                         # bkt.ribbon.ToggleButton(
