@@ -9,6 +9,7 @@
 1. [Fokus auf Kontext-Menüband Shape-Format verhindern](#fokus-auf-kontext-menüband-shape-format-verhindern)
 1. [Tastenkombinationen beim Anordnen und Spinner-Boxen](#tastenkombinationen-beim-anordnen-und-spinner-boxen)
 1. [Benutzerdefinierte Formate/Style](#benutzerdefinierte-formate)
+1. [Shapes in Tabellen, Paragraphen, oder anderen Shapes anordnen](#shapes-in-tabellen-paragraphen-oder-anderen-shapes-anordnen)
 1. *more to come...*
 
 ---
@@ -77,3 +78,10 @@ Viele Buttons und Textboxen erlaubt mittels `Strg` oder `Shift` Taste schnellen 
 <img src="documentation/quicktipp-customformats.gif">
 
 Seit Version 2.5.2 kann man eigene Formate speichern und anwenden. Dabei kann man auswählen, welche Bereiche angepasst werden sollen. Auch verschiedene Listen-Einrückungen werden berücksichtigt. Zu guter letzt werden mehrere Bibliotheken unterstützt und es gibt sogar eine Pickup-Apply Funktion. _Hinweis: Das Feature muss bei der Installation aktiviert werden._
+
+
+## Shapes in Tabellen, Paragraphen, oder anderen Shapes anordnen
+
+<img src="documentation/quicktipp-shapes_shapes_alignment.gif">
+
+Es gibt eine sehr mächtige Funktion um Shapes innerhalb von Tabellenzellen, Paragraphen oder anderen Shapes auszurichten. Die Positionierung wird automatisch abhängig von den darunterliegenden Shapes bestimmt, kann aber auch manuell festgelegt werden. Funktioniert die automatische Erkennung nicht, kann die Shape-Anordnungs-Funktion auch manuell gewählt werden.
