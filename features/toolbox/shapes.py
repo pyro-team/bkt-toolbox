@@ -820,6 +820,8 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
             supertip="Fügt für jedes markierte Shape ein Nummerierungs-Shape ein. Nummerierung und Styling entsprechend der Auswahl. Markierte Shapes werden entsprechend der Selektions-Reihenfolge durchnummeriert.",
             get_image=bkt.Callback(lambda: self.get_item_image(0) ),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+            item_width=24,
+            item_height=24,
             children=[
                 bkt.ribbon.Button(id=parent_id + "_pos_left", label="Position links oben", screentip="Nummerierungs-Shapes links-oben",    on_action=bkt.Callback(self.set_pos_top_left), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-top-left')),
                     supertip="Nummerierungs-Shapes links oben auf dem zugehörigen Shape platzieren"),
@@ -857,12 +859,11 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         item = self.items[index]
         
         # create bitmap, define pen/brush
-        size = 30
+        size = 48
         img = Drawing.Bitmap(size, size)
         g = Drawing.Graphics.FromImage(img)
-        color_black = Drawing.ColorTranslator.FromOle(0)
-        pen = Drawing.Pen(color_black,1)
-        brush = Drawing.SolidBrush(color_black)
+        # color_black = Drawing.ColorTranslator.FromOle(0)
+        color_black = Drawing.Color.Black
         
         #Draw smooth rectangle/ellipse
         g.SmoothingMode = Drawing.Drawing2D.SmoothingMode.AntiAlias
@@ -880,7 +881,7 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         else: # light
             # create white circle/rectangle
             text_brush = Drawing.Brushes.Black
-            pen = Drawing.Pen(color_black,1)
+            pen = Drawing.Pen(color_black,2)
 
             if item['shape_type'] == 'circle':
                 g.DrawEllipse(pen, 2,1, size-4, size-4)
@@ -896,7 +897,7 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAliasGridFit
         # g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
         g.DrawString(str(getattr(NumberedShapes, 'label_' + item['label'])[index%int(self.columns)]),
-                     Drawing.Font("Arial", 18, Drawing.FontStyle.Bold, Drawing.GraphicsUnit.Pixel), text_brush, 
+                     Drawing.Font("Arial", 32, Drawing.FontStyle.Bold, Drawing.GraphicsUnit.Pixel), text_brush, 
                      # Drawing.Font("Arial", 7, Drawing.FontStyle.Bold), text_brush, 
                      Drawing.RectangleF(1, 2, size, size-1), 
                      strFormat)
@@ -926,23 +927,7 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         if pressed:
             return self.get_check_image()
         else:
-            return None
-
-    def get_check_image(self):
-        size = 16
-        img = Drawing.Bitmap(size, size)
-        g = Drawing.Graphics.FromImage(img)
-        
-        text_brush = Drawing.Brushes.Black
-        strFormat = Drawing.StringFormat()
-        strFormat.Alignment = Drawing.StringAlignment.Center
-        strFormat.LineAlignment = Drawing.StringAlignment.Center
-        g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
-        g.DrawString('',
-                     Drawing.Font("Wingdings", 14, Drawing.GraphicsUnit.Pixel), text_brush,
-                     Drawing.RectangleF(2, 3, size, size),
-                     strFormat)
-        return img
+            return self.get_check_image(checked=False)
 
 
 
@@ -1543,23 +1528,7 @@ class ShapeTableGallery(bkt.ribbon.Gallery):
         if self._margin == margin:
             return self.get_check_image()
         else:
-            return None
-
-    def get_check_image(self):
-        size = 16
-        img = Drawing.Bitmap(size, size)
-        g = Drawing.Graphics.FromImage(img)
-        
-        text_brush = Drawing.Brushes.Black
-        strFormat = Drawing.StringFormat()
-        strFormat.Alignment = Drawing.StringAlignment.Center
-        strFormat.LineAlignment = Drawing.StringAlignment.Center
-        g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
-        g.DrawString('',
-                     Drawing.Font("Wingdings", 14, Drawing.GraphicsUnit.Pixel), text_brush,
-                     Drawing.RectangleF(2, 3, size, size),
-                     strFormat)
-        return img
+            return self.get_check_image(checked=False)
     
 
 class ChessTableGallery(ShapeTableGallery):

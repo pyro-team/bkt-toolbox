@@ -16,10 +16,6 @@ from .annotation import AbstractAnnotationObject
 
 Drawing = bkt.dotnet.import_drawing()
 Bitmap = Drawing.Bitmap
-Graphics = Drawing.Graphics
-SolidBrush = Drawing.SolidBrush
-Color = Drawing.Color
-ColorTranslator = Drawing.ColorTranslator
 
 import uuid
 import sys, inspect
@@ -403,7 +399,7 @@ CheckBox     = create_ribbon_control_class('check_box',     base_cls=ActionRibbo
 EditBox      = create_ribbon_control_class('edit_box',      base_cls=ActionRibbonControl, attributes={'default_callback':CallbackTypes.on_change})
 ComboBox     = create_ribbon_control_class('combo_box',     base_cls=ActionRibbonControl, attributes={'default_callback':CallbackTypes.on_change})
 DropDown     = create_ribbon_control_class('drop_down',     base_cls=ActionRibbonControl, attributes={'default_callback':CallbackTypes.on_action_indexed})
-Gallery      = create_ribbon_control_class('gallery',       base_cls=ActionRibbonControl, attributes={'default_callback':CallbackTypes.on_action_indexed})
+GalleryMso   = create_ribbon_control_class('gallery',       base_cls=ActionRibbonControl, attributes={'default_callback':CallbackTypes.on_action_indexed})
 DynamicMenu  = create_ribbon_control_class('dynamic_menu',  base_cls=ActionRibbonControl, attributes={'default_callback':CallbackTypes.get_content})
 
 Label        = LabelControl = create_ribbon_control_class('label_control')
@@ -468,6 +464,29 @@ class CustomUI(TypedRibbonControl):
 # ===============================
 # = Specialized Ribbon Controls =
 # ===============================
+
+class Gallery(GalleryMso):
+    def get_check_image(self, checked=True):
+        if not checked:
+            return None
+
+        size = 32
+        img = Bitmap(size, size)
+        g = Drawing.Graphics.FromImage(img)
+
+        text_brush = Drawing.Brushes.DimGray
+        strFormat = Drawing.StringFormat()
+        strFormat.Alignment = Drawing.StringAlignment.Center
+        strFormat.LineAlignment = Drawing.StringAlignment.Center
+        g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
+        g.DrawString(u"\uE10B",
+                    Drawing.Font("Segoe UI Symbol", 24, Drawing.GraphicsUnit.Pixel), text_brush,
+                    # Drawing.RectangleF(2, 3, size, size),
+                    Drawing.RectangleF(1, 2, size, size-1), 
+                    strFormat)
+
+        return img
+
 
 class SpinnerBox(Box):
     _python_name = 'spinner_box'
@@ -766,6 +785,7 @@ class RoundingSpinnerBox(SpinnerBox):
 
 
 class ColorGallery(Gallery):
+    item_size = 14
     
     def __init__(self, color_helper=None, **user_kwargs):
         # default attributes
@@ -777,7 +797,9 @@ class ColorGallery(Gallery):
             'get_item_image':     Callback(self.get_item_image,    context=True),
             # 'get_item_screentip': Callback(self.get_item_name),
             'get_item_label':     Callback(self.get_item_name,     context=True),
-            # 'get_selected_item_index':  Callback(self.get_selected_item_index, context=True)
+            # 'get_selected_item_index':  Callback(self.get_selected_item_index, context=True),
+            'item_width': self.item_size,
+            'item_height': self.item_size,
         }
         #only add callback 'get_selected_item_index' if 'get_selected_color' is provided to avoid UI error messages
         if "get_selected_color" in user_kwargs:
@@ -984,16 +1006,29 @@ class ColorGallery(Gallery):
         '''
         # Farbe on the fly erstellen
         # http://msdn.microsoft.com/en-us/library/aa287582(v=vs.71).aspx
-        color = ColorTranslator.FromOle(rgb)
-        img = Bitmap(12, 12)
-        for x in range(0, img.Height):
-            for y in range(0, img.Width):
-                img.SetPixel(x, y, color);
+        size = self.item_size*2
+        img = Bitmap(size, size)
+        g = Drawing.Graphics.FromImage(img)
+
+        if rgb is not None:
+            color = Drawing.ColorTranslator.FromOle(rgb)
+            g.Clear(color)
+
+        color_grey = Drawing.Color.FromArgb(230,230,230)
+        pen = Drawing.Pen(color_grey,1)
+        # pen.Alignment = Drawing.Drawing2D.PenAlignment.Inset
+        g.DrawRectangle(pen, 0,0, size-1, size-1) #left, top, width, height
+
+        # for x in range(0, img.Height):
+        #     for y in range(0, img.Width):
+        #         img.SetPixel(x, y, color);
+
         return img
 
 
 class SymbolsGallery(Gallery):
     fallback_font = "Arial"
+    item_size = 32
     
     def __init__(self, symbols=None, **user_kwargs):
         self.symbols = symbols or [] #list([font, symbol, screentip, supertip], [...])
@@ -1007,8 +1042,10 @@ class SymbolsGallery(Gallery):
             # 'get_item_image':     Callback(self.get_item_image),
             # 'get_item_screentip': Callback(self.get_item_screentip),
             # 'get_item_supertip':  Callback(self.get_item_supertip),
-            'get_image':                Callback(lambda: self.get_item_image(0) )
-            # 'get_selected_item_index':  Callback(self.get_selected_item_index, context=True)
+            'get_image':                Callback(lambda: self.get_item_image(0) ),
+            # 'get_selected_item_index':  Callback(self.get_selected_item_index, context=True),
+            'item_width': self.item_size,
+            'item_height': self.item_size,
         }
         #only add callback 'get_selected_item_index' if 'get_selected_symbol' is provided to avoid UI error messages
         if "get_selected_symbol" in user_kwargs:
@@ -1076,10 +1113,10 @@ class SymbolsGallery(Gallery):
             return -1
         
     @staticmethod
-    def create_symbol_image(font, text, size=32, fontsize=24):
+    def create_symbol_image(font, text, size=64, fontsize=54):
         # create bitmap, define pen/brush
         img = Bitmap(size, size)
-        g = Graphics.FromImage(img)
+        g = Drawing.Graphics.FromImage(img)
         
         text_brush = Drawing.Brushes.Black
         # set string format

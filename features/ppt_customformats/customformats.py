@@ -423,7 +423,7 @@ class CustomFormatCatalog(object):
         return os.path.join( cls.config_folder, "{}_thumbs".format(os.path.splitext(cls.current_file)[0]), cls.custom_styles[index].thumbnail_name )
 
     @classmethod
-    def _generate_thumbnail_image(cls, index, shape, size=64):
+    def _generate_thumbnail_image(cls, index, shape, size=128):
         filename = cls._get_image_filename(index)
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename))
@@ -636,6 +636,7 @@ class FormatLibGallery(bkt.ribbon.Gallery):
             show_item_label=False,
             screentip="Custom-Styles Gallerie",
             supertip="Zeigt Übersicht über alle Custom-Styles im aktuellen Katalog.",
+            item_height=64, item_width=64,
             children=[
                 bkt.ribbon.Button(id=parent_id + "_pickup", label="Neuen Style aufnehmen", supertip="Nimmt Format vom gewählten Shape neu in die Gallerie auf.", image_mso="PickUpStyle", on_action=bkt.Callback(CustomQuickEdit.show_pickup_window, shape=True), get_enabled = bkt.apps.ppt_shapes_exactly1_selected,),
                 bkt.ribbon.Button(id=parent_id + "_help1", label="[STRG]+Klick für Bearbeiten und Löschen", supertip="Bei Klick auf ein Custom-Style mit gedrückter STRG-Taste öffnet sich ein Fenster zur Bearbeitung und Löschung dieses Styles.", enabled = False),
