@@ -19,6 +19,7 @@ fontsettings = [
     ('fontawesome4', 'FontAwesome'),
     ('fontawesome5', 'Font Awesome 5 Free Regular'),
     ('segoeui', 'Segoe UI'),
+    ('segoemdl2', 'Segoe MDL2 Assets'),
     ('materialicons', 'Material Icons'),
     # ('foobar', 'Non-existing test font'),
 ]
