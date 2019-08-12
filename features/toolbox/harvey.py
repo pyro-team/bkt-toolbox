@@ -235,7 +235,7 @@ class HarveyBalls(object):
     def get_harvey_item_image(self, index):
         return self.get_harvey_image(self.harvey_buttons[index][0]*1. / self.harvey_buttons[index][1] )
 
-    def get_harvey_image(self, percent, size=16):
+    def get_harvey_image(self, percent, size=32):
         img = Drawing.Bitmap(size, size)
         if percent < 0 or percent > 1:
             color = Drawing.ColorTranslator.FromHtml('#ffffff00')
@@ -247,7 +247,7 @@ class HarveyBalls(object):
         #Draw smooth rectangle/ellipse
         g.SmoothingMode = Drawing.Drawing2D.SmoothingMode.AntiAlias
 
-        g.DrawEllipse(Drawing.Pen(color,1), 2,2, size-5, size-5)
+        g.DrawEllipse(Drawing.Pen(color,2), 2,2, size-5, size-5)
         g.FillPie(Drawing.SolidBrush(color), Drawing.Rectangle(1,1,size-3,size-3), -90, percent*360. )
         return img
     
@@ -267,6 +267,7 @@ def harvey_color_gallery(**kwargs):
         on_theme_color_change = bkt.Callback(harvey_balls.color_gallery_theme_color_change, shapes=True),
         get_selected_color    = bkt.Callback(harvey_balls.get_selected_color, shapes=True),
         get_enabled           = bkt.Callback(harvey_balls.change_harvey_enabled, shapes=True),
+        item_width=16, item_height=16,
         **kwargs
     )
 
@@ -285,6 +286,7 @@ def harvey_size_gallery(**kwargs):
         get_item_supertip = bkt.Callback(lambda index: "Passe den Füllstand eines Harvey-Balls entsprechend der Auswahl an."),
         get_enabled       = bkt.Callback(harvey_balls.change_harvey_enabled, shapes=True),
         get_item_image    = bkt.Callback(harvey_balls.get_harvey_item_image),
+        item_width=16, item_height=16,
         **kwargs
     )
 
