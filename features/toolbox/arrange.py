@@ -441,15 +441,18 @@ class ShapeDistance(object):
     @classmethod
     def _get_locpin(cls):
         locpin = pplib.LocPin()
-        fix_v, fix_h = 1, 1
+        fix_v, fix_h = 1, 1 #visual and distance will use this locpin, but they will use x/x1/y/y1 properties anyway
+
         if cls.vertical_edges == "center":
             fix_v = 2
-        elif cls.vertical_edges == "bottom": #or cls.vertical_fix == "bottom":
+        elif cls.vertical_edges == "bottom":
             fix_v = 3
+        
         if cls.horizontal_edges == "center":
             fix_h = 2
-        elif cls.horizontal_edges == "right": #or cls.horizontal_fix == "right":
+        elif cls.horizontal_edges == "right":
             fix_h = 3
+        
         locpin.fixation = (fix_v, fix_h)
         return locpin
 
@@ -490,17 +493,46 @@ class ShapeDistance(object):
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.y, shape.x), reverse=cls.get_vertical_fix()=="bottom")
 
-        top = shapes[0].top if cls.vertical_edges != "visual" else shapes[0].visual_y
+        vertical_fix = cls.get_vertical_fix()
+        if vertical_fix=="bottom":
+            shapes.sort(key=lambda shape: (shape.y1, shape.x1), reverse=True)
+        else:
+            shapes.sort(key=lambda shape: (shape.y, shape.x))
+
+        if cls.vertical_edges == "visual" and vertical_fix=="bottom":
+            cur_y = shapes[0].visual_y1
+        elif cls.vertical_edges == "visual": #vertical_fix=top
+            cur_y = shapes[0].visual_y
+        
+        elif cls.vertical_edges == "distance" and vertical_fix=="bottom":
+            cur_y = shapes[0].y1
+        elif cls.vertical_edges == "distance": #vertical_fix=top
+            cur_y = shapes[0].y
+
+        else:
+            cur_y = shapes[0].top
+        
         for shape in shapes:
             if cls.vertical_edges == "visual":
-                shape.visual_y = top
+                if vertical_fix=="bottom":
+                    shape.visual_y1 = cur_y
+                else:
+                    shape.visual_y = cur_y
                 delta = shape.visual_height + value
+            elif cls.vertical_edges == "distance":
+                if vertical_fix=="bottom":
+                    shape.y1 = cur_y
+                else:
+                    shape.y = cur_y
+                delta = shape.height + value
             else:
-                shape.top = top
-                delta = shape.height + value if cls.vertical_edges == "distance" else value
-            top = top-delta if cls.get_vertical_fix()=="bottom" else top+delta
+                shape.top = cur_y
+                delta = value
+            if vertical_fix=="bottom":
+                cur_y -= delta
+            else:
+                cur_y += delta
 
     @classmethod
     def get_shape_sep_vertical(cls, shapes):
@@ -508,11 +540,12 @@ class ShapeDistance(object):
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.y, shape.x))
         
         if cls.vertical_fix=="bottom":
+            shapes.sort(key=lambda shape: (shape.y1, shape.x1))
             shapes = shapes[-2:]
         else:
+            shapes.sort(key=lambda shape: (shape.y, shape.x))
             shapes = shapes[:2]
         
         if cls.vertical_edges == "distance":
@@ -540,17 +573,46 @@ class ShapeDistance(object):
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.x, shape.y), reverse=cls.get_horizontal_fix()=="right")
 
-        left = shapes[0].left if cls.horizontal_edges != "visual" else shapes[0].visual_x
+        horizontal_fix = cls.get_horizontal_fix()
+        if horizontal_fix=="right":
+            shapes.sort(key=lambda shape: (shape.x1, shape.y1), reverse=True)
+        else:
+            shapes.sort(key=lambda shape: (shape.x, shape.y))
+
+        if cls.horizontal_edges == "visual" and horizontal_fix=="right":
+            cur_x = shapes[0].visual_x1
+        elif cls.horizontal_edges == "visual": #horizontal_fix=left
+            cur_x = shapes[0].visual_x
+        
+        elif cls.horizontal_edges == "distance" and horizontal_fix=="right":
+            cur_x = shapes[0].x1
+        elif cls.horizontal_edges == "distance": #horizontal_fix=left
+            cur_x = shapes[0].x
+
+        else:
+            cur_x = shapes[0].left
+        
         for shape in shapes:
             if cls.horizontal_edges == "visual":
-                shape.visual_x = left
+                if horizontal_fix=="right":
+                    shape.visual_x1 = cur_x
+                else:
+                    shape.visual_x = cur_x
                 delta = shape.visual_width + value
+            elif cls.horizontal_edges == "distance":
+                if horizontal_fix=="right":
+                    shape.x1 = cur_x
+                else:
+                    shape.x = cur_x
+                delta = shape.width + value
             else:
-                shape.left = left
-                delta = shape.width + value if cls.horizontal_edges == "distance" else value
-            left = left-delta if cls.get_horizontal_fix()=="right" else left+delta
+                shape.left = cur_x
+                delta = value
+            if horizontal_fix=="right":
+                cur_x -= delta
+            else:
+                cur_x += delta
 
     @classmethod
     def get_shape_sep_horizontal(cls, shapes):
@@ -558,11 +620,12 @@ class ShapeDistance(object):
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.x, shape.y))
         
         if cls.horizontal_fix=="right":
+            shapes.sort(key=lambda shape: (shape.x1, shape.y1))
             shapes = shapes[-2:]
         else:
+            shapes.sort(key=lambda shape: (shape.x, shape.y))
             shapes = shapes[:2]
 
         if cls.horizontal_edges == "distance":
