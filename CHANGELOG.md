@@ -15,6 +15,7 @@
   * Small helper functions for swapping position and size
   * Added various text operations and language settings to shape context menus
   * Added function to add shape into group and recursively ungroup shapes
+  * CustomFormats now properly supports connectors
   * Various small fixes
 
 

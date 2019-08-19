@@ -594,12 +594,14 @@ class CustomQuickEdit(object):
     @classmethod
     def show_pickup_window(cls, shape):
         from pickup_style import PickupWindow
-        PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormat.default_settings, shape=shape)
+        wnd = PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormat.default_settings, shape=shape)
+        return wnd.result
 
     @classmethod
     def show_edit_window(cls, index):
         from pickup_style import PickupWindow
-        PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormatCatalog.custom_styles[index].style_setting, index=index)
+        wnd = PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormatCatalog.custom_styles[index].style_setting, index=index)
+        return wnd.result
 
 
     @staticmethod
@@ -620,10 +622,14 @@ class CustomQuickEdit(object):
         ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
         # alt   = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
 
-        if ctrl:
-            cls.show_edit_window(index)
+        apply_style = True
         
-        else:
+        if ctrl:
+            ### EDIT STYLE ###
+            result = cls.show_edit_window(index)
+            apply_style = result is not None
+        
+        if apply_style:
             ### APPLY STYLE ###
 
             ShapeFormats.always_keep_theme_color = cls.always_keep_theme_color
