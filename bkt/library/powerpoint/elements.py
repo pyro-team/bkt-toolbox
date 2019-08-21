@@ -316,7 +316,8 @@ class PPTSymbolsGallery(SymbolsGallery):
         # shape.TextFrame.TextRange.Text = item[1] #symbol text
         if PPTSymbolsSettings.get_convert_into_shape(): #convert into shape
             try:
-                shape.TextFrame2.TextRange.Font.Size = 48
+                shape.TextFrame2.TextRange.Font.Size = 60
+                shape.TextFrame2.TextRange.ParagraphFormat.Bullet.Visible = 0
                 new_shape = pplib.convert_text_into_shape(shape)
             except:
                 shape.select()
