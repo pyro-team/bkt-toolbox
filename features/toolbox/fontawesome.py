@@ -21,6 +21,7 @@ fontsettings = [
     ('segoeui', 'Segoe UI'),
     ('segoemdl2', 'Segoe MDL2 Assets'),
     ('materialicons', 'Material Icons'),
+    ('fabricmdl2', 'Fabric MDL2 Assets'),
     # ('foobar', 'Non-existing test font'),
 ]
 
