@@ -285,6 +285,10 @@ class CustomFormatCatalog(object):
                     
                     #all further migrations
                     catalog = cls._try_migration_from_20190613(catalog)
+
+                    #check version again
+                    if catalog.get("version", 0) != CF_VERSION:
+                        raise ValueError("invalid version number. migration incomplete.")
                     
                     #migration successful, save file to config later
                     catalog_migration = True
