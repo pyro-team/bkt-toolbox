@@ -327,7 +327,7 @@ class PPTSymbolsGallery(SymbolsGallery):
         import tempfile, os.path
 
         font = item[0] or self.fallback_font
-        img = SymbolsGallery.create_symbol_image(font, item[1], 128, 96)
+        img = SymbolsGallery.create_symbol_image(font, item[1], 400, None)
         tmpfile = os.path.join(tempfile.gettempdir(), "bktymbol.png")
         img.Save(tmpfile, Drawing.Imaging.ImageFormat.Png)
         shape = slide.shapes.AddPicture(tmpfile, 0, -1, 200, 200) #FileName, LinkToFile, SaveWithDocument, Left, Top
