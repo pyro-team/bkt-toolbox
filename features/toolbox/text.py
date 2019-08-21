@@ -166,6 +166,8 @@ class Characters(object):
         (None, u'\u2211', "Summenzeichen", "Ein Summenzeichen einfügen."),
         (None, u'\u221A', "Wurzelzeichen", "Ein Wurzelzeichen einfügen."),
         (None, u'\u221E', "Unendlich-Zeichen", "Ein Unendlich-Zeichen (liegende Acht) einfügen."),
+        (None, u'\u2264', "Kleiner-Gleich", "Ein kleiner oder gleich Zeichen einfügen."),
+        (None, u'\u2265', "Größer-Gleich", "Ein größer oder gleich Zeichen einfügen."),
     ]
 
     ### LIST ###
