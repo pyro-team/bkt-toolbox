@@ -11,7 +11,7 @@ import bkt.library.powerpoint as pplib
 
 import os #for os.path, listdir and makedirs
 import shelve
-# import time
+import time
 
 import logging
 import traceback
@@ -590,6 +590,8 @@ class ChartLib(object):
         with open_presentation_without_window(context, filename) as template_presentation:
             # copy slide
             template_presentation.slides.item(int(slide_index)).copy()
+            #wait some time to avoid EnvironmentError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
+            time.sleep(.200)
             # paste slide
             position = context.app.activeWindow.View.Slide.SlideIndex
             context.app.activeWindow.presentation.slides.paste(position+1)
@@ -620,6 +622,8 @@ class ChartLib(object):
                 shape_index+=1
             # select and copy shapes
             template_slide.shapes.Range(Array[int](shape_indices)).copy()
+            #wait some time to avoid EnvironmentError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
+            time.sleep(.200)
             cur_slide.shapes.paste()
             
             # group+select shapes
