@@ -131,6 +131,7 @@ class LinkedShapes(object):
     @classmethod
     def unlink_shape(cls, shape):
         shape.Tags.Delete(BKT_LINK_UUID)
+        shape.Tags.Delete(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY)
     
     @classmethod
     def unlink_all_shapes(cls, shape, context):
@@ -321,6 +322,12 @@ class LinkedShapes(object):
         shape.ZOrder(0)
         for cShp in cls._iterate_linked_shapes(shape, context):
             cShp.ZOrder(0) #0=msoBringToFront, 1=msoSendToBack
+
+    @classmethod
+    def linked_shapes_custom(cls, shape, context):
+        for cShp in cls._iterate_linked_shapes(shape, context):
+            cShp.LockAspectRatio = -1
+            cShp.Width = 147.418
 
 
 
@@ -549,6 +556,14 @@ linkshapes_tab = bkt.ribbon.Tab(
                     supertip="Alle verknüpften Shapes auf allen Folien mit ausgewähltem Shape ersetzen.",
                     on_action=bkt.Callback(LinkedShapes.replace_with_this, shape=True, context=True),
                 ),
+                ### Custom action
+                # bkt.ribbon.Button(
+                #     id = 'linked_shapes_custom',
+                #     label="Custom Action",
+                #     image_mso="HappyFace",
+                #     on_action=bkt.Callback(LinkedShapes.linked_shapes_custom, shape=True, context=True),
+                #     # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                # ),
             ]
         ),
         bkt.ribbon.Group(
