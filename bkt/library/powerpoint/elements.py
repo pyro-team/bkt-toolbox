@@ -256,10 +256,12 @@ class PPTSymbolsGallery(SymbolsGallery):
         item = self.symbols[index]
         self._add_to_recent(item)
 
-        if selection.Type == 3: #text selected
+        shift_or_ctrl = system.get_key_state(system.key_code.CTRL) or system.get_key_state(system.key_code.SHIFT)
+
+        if selection.Type == 3 and not shift_or_ctrl: #text selected
             selection.TextRange2.Text = "" #remove selected text first and then insert symbol
             self.insert_symbol_into_text(selection.TextRange2, item)
-        elif selection.Type == 2: #shapes selected
+        elif selection.Type == 2 and not shift_or_ctrl: #shapes selected
             self.insert_symbol_into_shapes(pplib.get_shapes_from_selection(selection), item)
         else: #convert into shape
             if PPTSymbolsSettings.get_convert_into_bitmap():
