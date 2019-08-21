@@ -509,7 +509,9 @@ def convert_text_into_shape(shape):
     shapes = shape_indices_on_slide(slide, [shape_index, shape_count+1])
     shapes.MergeShapes(4, shape) #MsoMergeCmd: 4=msoMergeSubtract
 
-    return shape_indices_on_slide(slide, [shape_index])[1]
+    new_shape = shape_indices_on_slide(slide, [shape_index])[1]
+    new_shape.LockAspectRatio = -1
+    return new_shape
 
 def get_dict_from_tags(shape_tags):
     d = dict()
