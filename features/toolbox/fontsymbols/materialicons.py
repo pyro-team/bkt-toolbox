@@ -15,14 +15,24 @@ from collections import OrderedDict,defaultdict
 
 menu_title = 'Material Icons'
 
+symbols_common = [
+    ("Material Icons", u"\uE853", "account circle"),
+    ("Material Icons", u"\uE897", "lock"),
+    ("Material Icons", u"\uE8DC", "thumbs up"),
+    ("Material Icons", u"\uE8DB", "thumbs down"),
+    ("Material Icons", u"\uE0B0", "call"),
+    ("Material Icons", u"\uE0B7", "chat"),
+    ("Material Icons", u"\uE0BE", "email"),
+    ("Material Icons", u"\uE2BD", "cloud"),
+    ("Material Icons", u"\uE7EF", "group"),
+    ("Material Icons", u"\uE7FD", "person"),
+    ("Material Icons", u"\uE55F", "place"),
+    ("Material Icons", u"\uE80B", "public"),
+]
+
 menu_settings = [
     # menu label,          list of symbols,       icons per row
-    # ('IT-System',          symbols_itsystems,           6  ),
-    # ('Kommunikation',      symbols_communication,       6  ),
-    # ('Dateien',            symbols_files,               6  ),
-    # ('Analyse/Bewertung',  symbols_analysis,            6  ),
-    # ('Mixed',              symbols_mixed,               6  ),
-    # ('All',                symbols_all,                16  )
+    ('Wichtige',          symbols_common,           6  ),
 ]
 
 def get_content_categories():
@@ -35,7 +45,7 @@ def get_content_categories():
     categories = defaultdict(list)
     for char in chars['categories']:
         for ico in char['icons']:
-            t=("Material Icons", unichr(int(ico['codepoint'], 16)), ico['name'])
+            t=("Material Icons", unichr(int(ico['codepoint'], 16)), ico['name'], ", ".join(ico.get('keywords', [])))
             categories[char['name'].capitalize()].append(t)
     
     return bkt.ribbon.Menu(

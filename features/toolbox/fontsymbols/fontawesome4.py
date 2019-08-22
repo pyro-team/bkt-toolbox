@@ -191,7 +191,11 @@ def get_content_categories():
     # categories = OrderedDict()
     categories = defaultdict(list)
     for char in chars['icons']:
-        t=("FontAwesome", unichr(int(char['unicode'], 16)), char['name'])
+        uc = unichr(int(char['unicode'], 16))
+        try:
+            t=("FontAwesome", uc, char['name'], ", ".join(char['filter']))
+        except:
+            t=("FontAwesome", uc, char['name'])
         for cat in char['categories']:
             categories[cat].append(t)
             # try:
