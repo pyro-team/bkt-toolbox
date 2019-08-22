@@ -200,7 +200,7 @@ class ContextDialogs(object):
             # 1 = ppSelectionSlide
             # 2 = ppSelectionShape
             # 3 = ppSelectionText
-            if selection.type == 2:
+            if not self.drag_started and selection.type == 2:
                 shapes = list(iter(selection.ShapeRange))
             
                 if len(shapes) == 1:
