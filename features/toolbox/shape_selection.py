@@ -390,6 +390,8 @@ clipboard_group = bkt.ribbon.Group(
                             on_action=bkt.Callback(ShapesMore.paste_and_replace, slide=True, shape=True),
                             get_enabled=bkt.apps.ppt_shapes_exactly1_selected,
                         ),
+                        bkt.ribbon.MenuSeparator(),
+                        bkt.mso.button.ShowClipboard,
                     ]
                 )
             ]
