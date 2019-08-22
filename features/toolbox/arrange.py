@@ -13,6 +13,7 @@ from bkt.library.powerpoint import pt_to_cm, cm_to_pt
 
 import math
 import os.path
+from heapq import nsmallest, nlargest
 
 from linkshapes import LinkedShapes
 from shapes import PositionSize
@@ -542,11 +543,14 @@ class ShapeDistance(object):
             return
         
         if cls.vertical_fix=="bottom":
-            shapes.sort(key=lambda shape: (shape.y1, shape.x1))
-            shapes = shapes[-2:]
+            # shapes.sort(key=lambda shape: (shape.y1, shape.x1))
+            # shapes = shapes[-2:]
+            shapes = nlargest(2, shapes, key=lambda shape: (shape.y1, shape.x1))
+            shapes.reverse()
         else:
-            shapes.sort(key=lambda shape: (shape.y, shape.x))
-            shapes = shapes[:2]
+            # shapes.sort(key=lambda shape: (shape.y, shape.x))
+            # shapes = shapes[:2]
+            shapes = nsmallest(2, shapes, key=lambda shape: (shape.y, shape.x))
         
         if cls.vertical_edges == "distance":
             dis = shapes[1].y-shapes[0].y1
@@ -622,11 +626,14 @@ class ShapeDistance(object):
             return
         
         if cls.horizontal_fix=="right":
-            shapes.sort(key=lambda shape: (shape.x1, shape.y1))
-            shapes = shapes[-2:]
+            # shapes.sort(key=lambda shape: (shape.x1, shape.y1))
+            # shapes = shapes[-2:]
+            shapes = nlargest(2, shapes, key=lambda shape: (shape.x1, shape.y1))
+            shapes.reverse()
         else:
-            shapes.sort(key=lambda shape: (shape.x, shape.y))
-            shapes = shapes[:2]
+            # shapes.sort(key=lambda shape: (shape.x, shape.y))
+            # shapes = shapes[:2]
+            shapes = nsmallest(2, shapes, key=lambda shape: (shape.x, shape.y))
 
         if cls.horizontal_edges == "distance":
             dis = shapes[1].x-shapes[0].x1
