@@ -3007,6 +3007,17 @@ class GroupsMore(object):
 
 
 
+class ArrangeCenter(object):
+    @staticmethod
+    def shape_in_center(center_shape, around_shapes):
+        midpoint = algos.mid_point_shapes(around_shapes)
+        center_shape.left = midpoint[0] - center_shape.width/2.0
+        center_shape.top = midpoint[1] - center_shape.height/2.0
+    
+    @classmethod
+    def arrange_shapes(cls, shapes):
+        cls.shape_in_center(shapes.pop(-1), shapes)
+
 
 
 arrange_group = bkt.ribbon.Group(
@@ -3186,6 +3197,15 @@ arrange_group = bkt.ribbon.Group(
                             ]
                         ),
                     ]
+                ),
+                bkt.ribbon.Button(
+                    id = 'arrange_shape_center',
+                    label="Shape in Mitte positionieren",
+                    image_mso="DiagramRadialInsertClassic",
+                    screentip="Letztes Shape in Mittelpunkt positionieren",
+                    supertip="Setzt das zuletzt markierte Shape in den gewichteten Mittelpunkt aller anderen markierten Shapes.",
+                    on_action=bkt.Callback(ArrangeCenter.arrange_shapes, shapes=True),
+                    get_enabled = bkt.apps.ppt_shapes_min2_selected,
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
