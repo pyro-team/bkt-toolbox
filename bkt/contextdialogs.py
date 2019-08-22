@@ -388,9 +388,12 @@ class DialogHelpers(object):
             # consider rotated shapes
             if shape.rotation != 0:
                 nodes = get_bounding_nodes(shape)
-                shp_x = min( p[0] for p in nodes )
-                shp_y = max( p[1] for p in nodes )
-                # FIXME: this is not ideal for long rotated shapes, find a better way? maybe even rotate the whole contextdialog?
+                # shp_x = min( p[0] for p in nodes )
+                # shp_y = max( p[1] for p in nodes )
+                # use point at lowest corner
+                # nodes.sort(key=lambda p: (-p[1], p[0]))
+                p_index = min(range(4), key=lambda i: (-nodes[i][1], nodes[i][0])) #range(4)=range(len(nodes))
+                shp_x, shp_y = nodes[p_index]
             else:
                 shp_x, shp_y = shape.left, shape.top+shape.height
             
