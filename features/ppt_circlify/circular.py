@@ -33,6 +33,7 @@ class CircularArrangement(object):
     
     rotated = False
     fixed_radius = False
+    centerpoint = False
 
     width = cm_to_pt(10.0)
     height = cm_to_pt(8.5)
@@ -88,6 +89,15 @@ class CircularArrangement(object):
         shape_midpoints = [ [s.left+s.width/2, s.top+s.height/2] for s in shapes]
         cls.midpoint = algorithms.mid_point(shape_midpoints)
 
+        # compute if centerpoint exists
+        if algorithms.is_close(shape_midpoints[0][0], cls.midpoint[0], 0.1) and algorithms.is_close(shape_midpoints[0][1], cls.midpoint[1], 0.1):
+            cls.centerpoint = True
+            #exclude centerpoint from further calculations
+            del shape_midpoints[0]
+            shapes = shapes[1:]
+        else:
+            cls.centerpoint = False
+
         # compute all vectors from midpoints to shapes
         vectors = [[sm[0]-cls.midpoint[0], sm[1]-cls.midpoint[1]] for sm in shape_midpoints]
 
@@ -117,7 +127,7 @@ class CircularArrangement(object):
         # cls.height = 2*radius_y
 
         # compute options
-        cls.fixed_radius = cls.height == cls.width
+        cls.fixed_radius = algorithms.is_close(cls.height, cls.width, 0.1)
         cls.rotated = any(shapes[0].rotation != s.rotation for s in shapes)
 
         #debug drawings
@@ -180,19 +190,28 @@ class CircularArrangement(object):
         # # Punkte verschieben anhand midpoint
         # points = [ [ p[0] + midpoint[0], p[1] + midpoint[1] ]   for p in points]
 
+        # if centerpoint-shape is active, lead first shape out for remaining calculation
+        if cls.centerpoint:
+            shapes = shapes[1:]
+        
         points = algorithms.get_ellipse_points(len(shapes), width/2.0, height/2.0, segment_start-90, midpoint)
         return points
     
     @classmethod
     def arrange_circular_wargs(cls, shapes, midpoint, width, height, segment_start):
         points = cls.determine_points(shapes, midpoint, width, height, segment_start)
+
+        if cls.centerpoint:
+            center_shape = shapes.pop(0)
+            center_shape.left = midpoint[0] - center_shape.width /2
+            center_shape.top  = midpoint[1] - center_shape.height /2
         
         for i in range(0, len(shapes)):
             shapes[i].left = points[i][0] - shapes[i].width /2
             shapes[i].top  = points[i][1] - shapes[i].height /2
             
             if cls.rotated:
-                shapes[i].rotation = 360/len(shapes)*i
+                shapes[i].rotation = (360/len(shapes)*i +segment_start)%360
             else:
                 shapes[i].rotation = shapes[0].rotation
         
@@ -213,6 +232,14 @@ class CircularArrangement(object):
     @classmethod
     def arrange_circular_fixed_pressed(cls):
         return cls.fixed_radius
+
+    @classmethod
+    def arrange_circular_centerpoint(cls, pressed):
+        cls.centerpoint = pressed
+
+    @classmethod
+    def arrange_circular_centerpoint_pressed(cls):
+        return cls.centerpoint
 
 
 
@@ -237,26 +264,32 @@ group_circlify = bkt.ribbon.Group(
                     label="Kreisanordnung Optionen",
                     item_size="large",
                     children=[
-                        bkt.ribbon.MenuSeparator(title="Shapes drehen:"),
+                        bkt.ribbon.MenuSeparator(title="Optionen:"),
                         bkt.ribbon.ToggleButton(
-                            label="Rotation an/aus",
+                            label="Shape-Rotation an/aus",
                             image_mso="ObjectRotateFree",
                             description="Objekte in der Kreisanordnung entsprechend ihrer Position im Kreis rotieren",
                             on_toggle_action=bkt.Callback(CircularArrangement.arrange_circular_rotated),
                             get_pressed=bkt.Callback(CircularArrangement.arrange_circular_rotated_pressed)
                         ),
-                        bkt.ribbon.MenuSeparator(title="Radius gleichstellen:"),
                         bkt.ribbon.ToggleButton(
-                            label="Breite = Höhe",
+                            label="Kreis (Breite = Höhe) an/aus",
                             description="Bei Veränderung der Höhe wird auch die Breite geändert und umgekehrt",
                             image_mso="ShapeDonut",
                             on_toggle_action=bkt.Callback(CircularArrangement.arrange_circular_fixed),
                             get_pressed=bkt.Callback(CircularArrangement.arrange_circular_fixed_pressed)
                         ),
-                        bkt.ribbon.MenuSeparator(title="Radius setzen:"),
+                        bkt.ribbon.ToggleButton(
+                            label="Erstes Shapes in Mitte",
+                            description="Das zuerst selektierte Shape wird in den Kreis-Mittelpunkt gesetzt",
+                            image_mso="DiagramTargetInsertClassic",
+                            on_toggle_action=bkt.Callback(CircularArrangement.arrange_circular_centerpoint),
+                            get_pressed=bkt.Callback(CircularArrangement.arrange_circular_centerpoint_pressed)
+                        ),
+                        bkt.ribbon.MenuSeparator(title="Funktionen:"),
                         bkt.ribbon.Button(
-                            label="Aktuellen Radius interpolieren",
-                            description="Es wird versucht den aktuellen Radius und Anfangswinekl der ausgewählten Shapes näherungsweise zu bestimmen",
+                            label="Aktuelle Parameter interpolieren",
+                            description="Es wird versucht den aktuellen Radius, Anfangswinkel und die Optionen der ausgewählten Shapes näherungsweise zu bestimmen",
                             image_mso="DiagramRadialInsertClassic",
                             on_action=bkt.Callback(CircularArrangement.determine_ellipse_params, shapes=True, shapes_min=3),
                             get_enabled="PythonGetEnabled",
@@ -291,7 +324,7 @@ group_circlify = bkt.ribbon.Group(
             label="Drehung",
             round_int = True,
             huge_step = 45,
-            image_mso="Repeat",
+            image_mso="DiagramCycleInsertClassic",
             show_label=False,
             supertip="Winkel des ersten Shapes gibt die Drehung der Kreisanornung an.",
             on_change=bkt.Callback(CircularArrangement.set_segment_start, shapes=True, shapes_min=3),
