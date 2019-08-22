@@ -158,6 +158,18 @@ class ChartLib(object):
             newpres.SaveAs(file)
             return newpres
     
+    @staticmethod
+    def _save_paste(obj, *args, **kwargs):
+        for _ in range(3):
+            try:
+                return obj.paste(*args, **kwargs)
+            except EnvironmentError:
+                logging.debug("chartlib pasting error, waiting for 50ms")
+                #wait some time to avoid EnvironmentError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
+                time.sleep(.50)
+                #FIXME: maybe better way to check if clipboard actually contains "something"
+        else:
+            raise EnvironmentError("pasting not successfull")
     
     # ====================================
     # = Menus for folders and subfolders =
@@ -406,7 +418,8 @@ class ChartLib(object):
             if not self.copy_shapes_setting:
                 #Copy slides
                 context.selection.SlideRange.Copy()
-                pres.Slides.Paste()
+                # pres.Slides.Paste()
+                self._save_paste(pres.Slides)
             else:
                 #Copy each shape individually
                 for shape in context.shapes:
@@ -425,7 +438,8 @@ class ChartLib(object):
                     else:
                         slide.Background.Fill.ForeColor.RGB = orig_bg.RGB
                     
-                    new_shp = slide.Shapes.Paste()
+                    # new_shp = slide.Shapes.Paste()
+                    new_shp = self._save_paste(slide.Shapes)
                     new_shp.Left = (pres.PageSetup.SlideWidth - new_shp.Width)*0.5
                     new_shp.Top  = (pres.PageSetup.SlideHeight - new_shp.Height)*0.5
                     slide.Shapes.Title.Textframe.TextRange.Text = title
@@ -590,11 +604,10 @@ class ChartLib(object):
         with open_presentation_without_window(context, filename) as template_presentation:
             # copy slide
             template_presentation.slides.item(int(slide_index)).copy()
-            #wait some time to avoid EnvironmentError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
-            time.sleep(.200)
             # paste slide
             position = context.app.activeWindow.View.Slide.SlideIndex
-            context.app.activeWindow.presentation.slides.paste(position+1)
+            # context.app.activeWindow.presentation.slides.paste(position+1)
+            cls._save_paste(context.app.activeWindow.presentation.slides, position+1)
             # template_presentation.Close()
     
     @classmethod
@@ -622,9 +635,8 @@ class ChartLib(object):
                 shape_index+=1
             # select and copy shapes
             template_slide.shapes.Range(Array[int](shape_indices)).copy()
-            #wait some time to avoid EnvironmentError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
-            time.sleep(.200)
-            cur_slide.shapes.paste()
+            # cur_slide.shapes.paste()
+            cls._save_paste(cur_slide.shapes)
             
             # group+select shapes
             if cur_slide.shapes.count - shape_count > 1:
