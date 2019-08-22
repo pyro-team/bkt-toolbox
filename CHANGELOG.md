@@ -9,10 +9,11 @@
   * Feature to swap Z-Order and feature to place shape just behind/before shape
   * Refactoring and improvement of tracker-generator
   * Refactoring and improvement of shape-connector between 2 shapes (now supporting update/re-connect and rotated shapes)
-  * Refactoring of circular arrangement to avoid small movements and allow to define angle of first shape
+  * Refactoring of circular arrangement to avoid small movements and allow to define angle of first shape and center shape
   * Fixes and configuration options for autofix edges feature
   * Process chevrons, stateshapes and ppt-thumbnails now properly support rotation
   * Small helper functions for swapping position and size
+  * Allow to set anchor point for shape rotation
   * Added various text operations and language settings to shape context menus
   * Added function to add shape into group and recursively ungroup shapes
   * CustomFormats now properly supports connectors
