@@ -27,6 +27,15 @@ class StateShape(object):
         except:
             return False
 
+    @classmethod
+    def convert_to_state_shape(cls, shapes):
+        for shape in shapes:
+            try:
+                shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
+                cls.switch_state(shape, pos=0)
+            except Exception as e:
+                logging.error("Error converting to state stape: %s" % str(e))
+                continue
 
     @classmethod
     def is_state_shape(cls, shape):
@@ -46,8 +55,10 @@ class StateShape(object):
         if not cls.is_state_shape(shape):
             raise ValueError("Shape is not a state shape")
         # ungroup shape, to get list of groups inside grouped items
-        ungrouped_shapes = shape.Ungroup()
-        shapes = list(iter(ungrouped_shapes))
+        # ungrouped_shapes = shape.Ungroup()
+        # shapes = list(iter(ungrouped_shapes))
+        group = pplib.GroupManager(shape).ungroup()
+        shapes = group.child_items
         # shapes.sort(key=lambda s: s.ZOrderPosition)
         # pos = min(max(pos, len(shapes)-1), -(len(shapes)-1)) #pos between -/+ number of shapes in group
         for i, s in enumerate(shapes):
@@ -59,13 +70,15 @@ class StateShape(object):
 
         pos = (pos + delta) % len(shapes)
         shapes[pos].visible = True
-        grp = ungrouped_shapes.Group()
-        grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
-        try:
-            #sometimes throws "Invalid request.  To select a shape, its view must be active.", e.g. right after duplicating the shape
-            grp.Select(replace=False)
-        except:
-            grp.Select()
+        group.regroup()
+        group.select(replace=False)
+        # grp = ungrouped_shapes.Group()
+        # grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
+        # try:
+        #     #sometimes throws "Invalid request.  To select a shape, its view must be active.", e.g. right after duplicating the shape
+        #     grp.Select(replace=False)
+        # except:
+        #     grp.Select()
 
 
     @classmethod
@@ -123,35 +136,89 @@ class StateShape(object):
             s.visible = True
         ungrouped_shapes.Group().Select()
 
-    @classmethod
-    def set_color_fill_rgb(cls, shapes, color):
-        for shape in shapes:
-            for s in list(iter(shape.GroupItems)):
-                if s.Fill.visible == -1 and s.Fill.ForeColor.RGB != 16777215: #white
-                    s.Fill.ForeColor.RGB = color
 
     @classmethod
-    def set_color_fill_theme(cls, shapes, color_index, brightness):
+    def set_color_fill1(cls, shapes, color_setter):
         for shape in shapes:
-            for s in list(iter(shape.GroupItems)):
-                if s.Fill.visible == -1 and s.Fill.ForeColor.RGB != 16777215: #white
-                    s.Fill.ForeColor.ObjectThemeColor = color_index
-                    s.Fill.ForeColor.Brightness = brightness
+            ref_shape = shape.GroupItems[1]
+            ref_color = ref_shape.Fill.ForeColor.RGB
+            ref_visible = ref_shape.Fill.Visible == -1
+            for s in shape.GroupItems:
+                if ref_visible and s.Fill.ForeColor.RGB == ref_color or not ref_visible and s.Fill.Visible == 0:
+                    color_setter(s.Fill)
+
+    @classmethod
+    def set_color_fill2(cls, shapes, color_setter):
+        for shape in shapes:
+            ref_shape = shape.GroupItems[1]
+            ref_color = ref_shape.Fill.ForeColor.RGB if ref_shape.Fill.Visible == -1 else None
+            for s in shape.GroupItems:
+                if s.Fill.Visible == -1 and s.Fill.ForeColor.RGB != ref_color:
+                    color_setter(s.Fill)
+
+
+    @classmethod
+    def set_color_fill_rgb1(cls, shapes, color):
+        def set_rgb_color(fill_obj):
+            fill_obj.Visible = -1
+            fill_obj.ForeColor.RGB = color
+        cls.set_color_fill1(shapes, set_rgb_color)
+
+    @classmethod
+    def set_color_fill_theme1(cls, shapes, color_index, brightness):
+        def set_theme_color(fill_obj):
+            fill_obj.Visible = -1
+            fill_obj.ForeColor.ObjectThemeColor = color_index
+            fill_obj.ForeColor.Brightness = brightness
+        cls.set_color_fill1(shapes, set_theme_color)
+
+    @classmethod
+    def set_color_fill_none1(cls, shapes):
+        def set_none_color(fill_obj):
+            fill_obj.Visible = 0
+        cls.set_color_fill1(shapes, set_none_color)
+
+
+    @classmethod
+    def set_color_fill_rgb2(cls, shapes, color):
+        def set_rgb_color(fill_obj):
+            fill_obj.ForeColor.RGB = color
+        cls.set_color_fill2(shapes, set_rgb_color)
+
+    @classmethod
+    def set_color_fill_theme2(cls, shapes, color_index, brightness):
+        def set_theme_color(fill_obj):
+            fill_obj.ForeColor.ObjectThemeColor = color_index
+            fill_obj.ForeColor.Brightness = brightness
+        cls.set_color_fill2(shapes, set_theme_color)
+
 
     @classmethod
     def set_color_line_rgb(cls, shapes, color):
-        for shape in shapes:
-            for s in list(iter(shape.GroupItems)):
-                if s.Line.visible == -1 and s.Line.ForeColor.RGB != 16777215: #white
-                    s.Line.ForeColor.RGB = color
+        def set_rgb_color(line_obj):
+            line_obj.ForeColor.RGB = color
+        cls.set_color_line(shapes, set_rgb_color)
 
     @classmethod
     def set_color_line_theme(cls, shapes, color_index, brightness):
+        def set_theme_color(line_obj):
+            line_obj.ForeColor.ObjectThemeColor = color_index
+            line_obj.ForeColor.Brightness = brightness
+        cls.set_color_line(shapes, set_theme_color)
+
+    @classmethod
+    def set_color_line(cls, shapes, color_setter):
         for shape in shapes:
-            for s in list(iter(shape.GroupItems)):
-                if s.Line.visible == -1 and s.Line.ForeColor.RGB != 16777215: #white
-                    s.Line.ForeColor.ObjectThemeColor = color_index
-                    s.Line.ForeColor.Brightness = brightness
+            ref_color = None
+            for s in shape.GroupItems:
+                if ref_color is None:
+                    if s.Line.visible == -1:
+                        ref_color = s.Line.ForeColor.RGB
+                    else:
+                        continue
+                if s.Line.visible == -1 and s.Line.ForeColor.RGB == ref_color:
+                    color_setter(s.Line)
+
 
     @staticmethod
     def show_help():
@@ -159,7 +226,7 @@ class StateShape(object):
         bkt.helpers.message("TODO: show help file, image, or something...")
 
 
-class LikertScale(object):
+class LikertScale(bkt.ribbon.Gallery):
     spacing = 5
     size = 20
     color_line = 0
@@ -175,6 +242,21 @@ class LikertScale(object):
         for m in likert_sizes
     ]
     
+    def __init__(self, **kwargs):
+        parent_id = kwargs.get('id') or ""
+        my_kwargs = dict(
+            label = 'Likert-Scale',
+            image = 'likert',
+            columns = self.likert_columns,
+            screentip="Likert-Scale als Wechselshape einfügen",
+            supertip="Eine Likert-Scale als Wechselshape einfügen. Über die Wechselshape-Funktionen kann der Füllstand, sowie die Farben verändert werden.",
+            item_width=5*16,
+            item_height=16,
+        )
+        my_kwargs.update(kwargs)
+
+        super(LikertScale, self).__init__(**my_kwargs)
+
     @classmethod
     def get_item_count(cls):
         return len(cls.likert_buttons)
@@ -192,8 +274,8 @@ class LikertScale(object):
         cls._create_stateshape_scale(slide, cls.likert_buttons[index][0], cls.likert_buttons[index][1]),
 
     @staticmethod
-    def get_likert_image(size=16, count=3, shape=1):
-        img = Drawing.Bitmap(5*16, size)
+    def get_likert_image(size_factor=2, count=3, shape=1):
+        img = Drawing.Bitmap(5*16*size_factor, 16*size_factor)
         color_black = Drawing.ColorTranslator.FromOle(0)
         color_grey  = Drawing.ColorTranslator.FromOle(14540253)
         color_white = Drawing.ColorTranslator.FromOle(16777215)
@@ -202,7 +284,7 @@ class LikertScale(object):
         #Draw smooth rectangle/ellipse
         g.SmoothingMode = Drawing.Drawing2D.SmoothingMode.AntiAlias
 
-        pen    = Drawing.Pen(color_black,1)
+        pen    = Drawing.Pen(color_black,1*size_factor)
         brush1 = Drawing.SolidBrush(color_grey)
         brush2 = Drawing.SolidBrush(color_white)
         star_points = [(0,6),(5,8),(5,12),(8,9),(12,10),(10,6),(12,2),(8,3),(5,0),(5,4)]
@@ -211,32 +293,34 @@ class LikertScale(object):
         for i in range(count):
             brush = brush2 if i>0 else brush1
             if shape == 92: #star
-                points = Array[Drawing.Point]([Drawing.Point(left+l,t) for t,l in star_points])
+                points = Array[Drawing.Point]([Drawing.Point(left+l*size_factor,t*size_factor) for t,l in star_points])
                 g.FillPolygon(brush, points)
                 g.DrawPolygon(pen, points)
             elif shape == 9: #oval
-                g.FillEllipse(brush, left, 2, 12, 12) #left, top, width, height
-                g.DrawEllipse(pen, left, 2, 12, 12) #left, top, width, height
+                g.FillEllipse(brush, left, 2, 12*size_factor, 12*size_factor) #left, top, width, height
+                g.DrawEllipse(pen, left, 2, 12*size_factor, 12*size_factor) #left, top, width, height
             else: #fallback shape=1 rectangle
-                g.FillRectangle(brush, left, 2, 12, 12) #left, top, width, height
-                g.DrawRectangle(pen, left, 2, 12, 12) #left, top, width, height
-            left += 16
+                g.FillRectangle(brush, left, 2, 12*size_factor, 12*size_factor) #left, top, width, height
+                g.DrawRectangle(pen, left, 2, 12*size_factor, 12*size_factor) #left, top, width, height
+            left += 16*size_factor
         return img
 
     @classmethod
     def _create_single_scale(cls, slide, shape_type=1, state=0, total=3, visible=0):
-        shapecount = slide.Shapes.Count
+        # shapecount = slide.Shapes.Count
         left = 90
         for i in range(total):
             left += cls.size + cls.spacing
             s = slide.Shapes.AddShape( shape_type, left, 100, cls.size, cls.size )
+            s.Line.Weight = 0.75
             s.Line.ForeColor.RGB = cls.color_line
             if i < state:
                 s.Fill.ForeColor.RGB = cls.color_filled
             else:
                 s.Fill.ForeColor.RGB = cls.color_empty
 
-        grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total))).group()
+        # grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total))).group()
+        grp = pplib.last_n_shapes_on_slide(slide, total).group()
         grp.Visible = visible
         return grp
 
@@ -247,24 +331,14 @@ class LikertScale(object):
             cls._create_single_scale(slide, shape_type, i, total)
         
         slide.Shapes.Range(shapecount+1).visible = -1 #make first visible
-        grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total+1))).group()
+        # grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total+1))).group()
+        grp = pplib.last_n_shapes_on_slide(slide, total+1).group()
         grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, StateShape.BKT_DIALOG_TAG)
         grp.select()
 
 
 
-likert_button = bkt.ribbon.Gallery(
-        label = 'Likert-Scale',
-        image = 'likert',
-        screentip="Likert-Scale als Wechselshape einfügen",
-        supertip="Eine Likert-Scale als Wechselshape einfügen. Über die Wechselshape-Funktionen kann der Füllstand, sowie die Farben verändert werden.",
-        columns=str(LikertScale.likert_columns),
-        on_action_indexed = bkt.Callback(LikertScale.on_action_indexed, slide=True),
-        get_item_count    = bkt.Callback(LikertScale.get_item_count),
-        get_item_screentip = bkt.Callback(LikertScale.get_item_screentip),
-        # get_item_supertip = bkt.Callback(lambda index: "Passe den Füllstand eines Harvey-Balls entsprechend der Auswahl an."),
-        get_item_image    = bkt.Callback(LikertScale.get_item_image),
-    )
+likert_button = LikertScale(id="likert_insert")
 
 
 stateshape_gruppe = bkt.ribbon.Group(
@@ -282,10 +356,11 @@ stateshape_gruppe = bkt.ribbon.Group(
                     image_mso='GroupSmartArtQuickStyles',
                     screentip="Gruppierte Shapes in ein Wechselshape konvertieren",
                     supertip="Bei gruppierten Shapes (Wechsel-Shapes) kann zwischen den Shapes innerhalb der Gruppe gewechselt werden, d.h. es ist immer nur ein Shape der Gruppe sichtbar. Dies ist bspw. nützlich für Ampeln, Skalen, etc.",
-                    on_action=bkt.Callback(StateShape.reset_state),
+                    on_action=bkt.Callback(StateShape.convert_to_state_shape),
                     get_enabled=bkt.Callback(StateShape.is_convertable_to_state_shape),
                 ),
                 bkt.ribbon.Menu(
+                    label="Wechselshapes-Menü",
                     children=[
                         bkt.ribbon.Button(
                             id="stateshape_convert2",
@@ -293,9 +368,10 @@ stateshape_gruppe = bkt.ribbon.Group(
                             image_mso='GroupSmartArtQuickStyles',
                             screentip="Gruppierte Shapes in ein Wechselshape konvertieren",
                             supertip="Bei gruppierten Shapes (Wechsel-Shapes) kann zwischen den Shapes innerhalb der Gruppe gewechselt werden, d.h. es ist immer nur ein Shape der Gruppe sichtbar. Dies ist bspw. nützlich für Ampeln, Skalen, etc.",
-                            on_action=bkt.Callback(StateShape.reset_state),
+                            on_action=bkt.Callback(StateShape.convert_to_state_shape),
                             get_enabled=bkt.Callback(StateShape.is_convertable_to_state_shape),
                         ),
+                        bkt.ribbon.MenuSeparator(),
                         # bkt.ribbon.ToggleButton(
                         bkt.ribbon.Button(
                             id="stateshape_show_all",
@@ -361,14 +437,32 @@ stateshape_gruppe = bkt.ribbon.Group(
             image_mso="RecolorColorPicker",
             children=[
                 bkt.ribbon.ColorGallery(
-                    id="stateshape_color_fill",
-                    label = 'Hintergrund ändern',
+                    id="stateshape_color_fill1",
+                    label = 'Farbe 1 (Hintergrund) ändern',
                     image_mso = 'ShapeFillColorPicker',
-                    screentip="Farbe eines Wechsel-Shapes ändern",
-                    supertip="Passt die Hintergrundfarbe aller Shapes im Wechsel-Shape an. Dabei werden nicht gefüllte und weiß gefüllte Shapes nicht verändert.",
-                    on_rgb_color_change   = bkt.Callback(StateShape.set_color_fill_rgb, shapes=True),
-                    on_theme_color_change = bkt.Callback(StateShape.set_color_fill_theme, shapes=True),
-                    # get_selected_color    = bkt.Callback(StateShape.get_selected_color, shapes=True),
+                    screentip="Hintergrundfarbe eines Wechsel-Shapes ändern",
+                    supertip="Passt die Hintergrundfarbe aller Shapes im Wechsel-Shape an. Die Hintergrundfarbe ist die Farbe des zuerst gefundenen Shapes.",
+                    on_rgb_color_change   = bkt.Callback(StateShape.set_color_fill_rgb1, shapes=True),
+                    on_theme_color_change = bkt.Callback(StateShape.set_color_fill_theme1, shapes=True),
+                    # get_selected_color    = bkt.Callback(StateShape.get_selected_color1, shapes=True),
+                    get_enabled           = bkt.Callback(StateShape.are_state_shapes),
+                    children=[
+                        bkt.ribbon.Button(
+                            label="Kein Hintergrund",
+                            screentip="Wechsel-Shape Hintergrundfarbe transparent",
+                            on_action=bkt.Callback(StateShape.set_color_fill_none1, shapes=True),
+                        ),
+                    ]
+                ),
+                bkt.ribbon.ColorGallery(
+                    id="stateshape_color_fill2",
+                    label = 'Farbe 2 (Vordergrund) ändern',
+                    image_mso = 'ShapeFillColorPicker',
+                    screentip="Vordergrundfarbe eines Wechsel-Shapes ändern",
+                    supertip="Passt die Vordergrundfarbe aller Shapes im Wechsel-Shape an. Die Vordergrundfarbe ist jede Farbe ungleich der Hintergrundfarbe.",
+                    on_rgb_color_change   = bkt.Callback(StateShape.set_color_fill_rgb2, shapes=True),
+                    on_theme_color_change = bkt.Callback(StateShape.set_color_fill_theme2, shapes=True),
+                    # get_selected_color    = bkt.Callback(StateShape.get_selected_color2, shapes=True),
                     get_enabled           = bkt.Callback(StateShape.are_state_shapes),
                 ),
                 bkt.ribbon.ColorGallery(
@@ -376,10 +470,10 @@ stateshape_gruppe = bkt.ribbon.Group(
                     label = 'Linie ändern',
                     image_mso = 'ShapeOutlineColorPicker',
                     screentip="Linie eines Wechsel-Shapes ändern",
-                    supertip="Passt die Linienfarbe aller Shapes im Wechsel-Shape an. Dabei werden Shape ohne Linie oder mit weißer Linie nicht verändert.",
+                    supertip="Passt die Linienfarbe aller Shapes im Wechsel-Shape an, die der ersten gefundenen Linienfarbe entsprechen.",
                     on_rgb_color_change   = bkt.Callback(StateShape.set_color_line_rgb, shapes=True),
                     on_theme_color_change = bkt.Callback(StateShape.set_color_line_theme, shapes=True),
-                    # get_selected_color    = bkt.Callback(StateShape.get_selected_color, shapes=True),
+                    # get_selected_color    = bkt.Callback(StateShape.get_selected_line, shapes=True),
                     get_enabled           = bkt.Callback(StateShape.are_state_shapes),
                 ),
             ]
@@ -424,11 +518,6 @@ class StateShapePopup(bkt.ui.WpfWindowAbstract):
         except Exception as e:
             logging.error("Error in StateShape popup: %s" % str(e))
 
-# register dialog
-bkt.powerpoint.context_dialogs.register_dialog(
-    bkt.contextdialogs.ContextDialog(
-        id=StateShape.BKT_DIALOG_TAG,
-        module=None,
-        window_class=StateShapePopup
-    )
-)
+
+def create_window(context):
+    return StateShapePopup(context)

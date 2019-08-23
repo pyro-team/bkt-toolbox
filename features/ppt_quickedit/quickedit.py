@@ -59,12 +59,19 @@ class QuickEditPanelManager(object):
     @classmethod
     def _show_panel(cls, context, windowid):
         logging.debug("show panel for window %s" % windowid)
-        panel = cls._create_panel(context)
-        panel.SetOwner(windowid)
-        panel.Show()
-        panel.ShiftWindowOntoScreen() #ensure that window is on the screen
-        cls.panel_windows[windowid] = panel
-        panel.update_docking()
+        try:
+            panel = cls._create_panel(context)
+            panel.SetOwner(windowid)
+            panel.Show()
+            panel.ShiftWindowOntoScreen() #ensure that window is on the screen
+            cls.panel_windows[windowid] = panel
+            panel.update_docking()
+        except Exception as e:
+            logging.error("panel activation failed with error: {}".format(e))
+            if bkt.config.show_exception:
+                bkt.helpers.exception_as_message()
+            else:
+                bkt.helpers.message("Unbekannter Fehler beim Anzeigen des QuickEdit-Panels!")
 
     @classmethod
     def _close_panel(cls, windowid):

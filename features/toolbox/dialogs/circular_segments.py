@@ -8,6 +8,7 @@ import logging
 
 import bkt.library.bezier as bezier
 import bkt.library.algorithms as algorithms
+import bkt.library.powerpoint as pplib
 
 
 # ===================================================================
@@ -24,7 +25,7 @@ class SegmentedCircle(object):
         aussenKurve = bezier.kreisSegmente(num_segments, size_outer, [200,200])
         innenKurve  = bezier.kreisSegmente(num_segments, size_inner, [200,200])
 
-        shapeCount = slide.shapes.count
+        # shapeCount = slide.shapes.count
 
         def addNodesForCurves(ffb, kurven):
             for k in kurven:
@@ -60,7 +61,8 @@ class SegmentedCircle(object):
             shp.nodes.setposition( 1, aK[0][0][0],     aK[0][0][1])
 
         #slide.Shapes.Range(array('l', [i + shapeCount for i in range(0,len(aussenKurve))])).Group.select
-        slide.Shapes.Range(Array[int]([i+shapeCount+1 for i in range(0,len(aussenKurve))])).group().select()
+        # slide.Shapes.Range(Array[int]([i+shapeCount+1 for i in range(0,len(aussenKurve))])).group().select()
+        pplib.last_n_shapes_on_slide(slide, num_segments).group().select()
 
 
 # =======================

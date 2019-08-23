@@ -13,8 +13,10 @@ from bkt.library.powerpoint import pt_to_cm, cm_to_pt
 
 import math
 import os.path
+from heapq import nsmallest, nlargest
 
 from linkshapes import LinkedShapes
+from shapes import PositionSize
 
 class Swap(object):
     locpin = pplib.LocPin()
@@ -60,6 +62,13 @@ class Swap(object):
         for i in range(len(shapes)-2, -1, -1):
             shapes[i+1].top = shapes[i].top
         shapes[0].top = t
+
+    @classmethod
+    def multi_swap_zorder(cls, shapes):
+        all_zorders = [s.ZOrderPosition for s in shapes]
+        for i in range(len(shapes)-2, -1, -1):
+            pplib.set_shape_zorder(shapes[i+1], value=all_zorders[i])
+        pplib.set_shape_zorder(shapes[0], value=all_zorders[-1])
     
     @classmethod
     def multi_swap_pos_size(cls, shapes):
@@ -170,6 +179,15 @@ swap_button = bkt.ribbon.SplitButton(
                 screentip="Tausche y-Position",
                 supertip="Tausche die y-Position (Abstand vom oberen Folienrand) der markierten Shapes.",
                 on_action=bkt.Callback(Swap.multi_swap_top, shapes=True, shapes_min=2),
+                # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            ),
+            bkt.ribbon.Button(
+                id = 'swap_zorder',
+                label="Tausche Z-Order",
+                show_label=True,
+                screentip="Tausche Z-Order-Position",
+                supertip="Tausche die Z-Order-Position der markierten Shapes.",
+                on_action=bkt.Callback(Swap.multi_swap_zorder, shapes=True, shapes_min=2),
                 # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
             ),
             bkt.ribbon.MenuSeparator(),
@@ -424,15 +442,18 @@ class ShapeDistance(object):
     @classmethod
     def _get_locpin(cls):
         locpin = pplib.LocPin()
-        fix_v, fix_h = 1, 1
+        fix_v, fix_h = 1, 1 #visual and distance will use this locpin, but they will use x/x1/y/y1 properties anyway
+
         if cls.vertical_edges == "center":
             fix_v = 2
-        elif cls.vertical_edges == "bottom" or cls.vertical_fix == "bottom":
+        elif cls.vertical_edges == "bottom":
             fix_v = 3
+        
         if cls.horizontal_edges == "center":
             fix_h = 2
-        elif cls.horizontal_edges == "right" or cls.horizontal_fix == "right":
+        elif cls.horizontal_edges == "right":
             fix_h = 3
+        
         locpin.fixation = (fix_v, fix_h)
         return locpin
 
@@ -473,17 +494,46 @@ class ShapeDistance(object):
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.top, shape.left), reverse=cls.get_vertical_fix()=="bottom")
 
-        top = shapes[0].top if cls.vertical_edges != "visual" else shapes[0].visual_y
+        vertical_fix = cls.get_vertical_fix()
+        if vertical_fix=="bottom":
+            shapes.sort(key=lambda shape: (shape.y1, shape.x1), reverse=True)
+        else:
+            shapes.sort(key=lambda shape: (shape.y, shape.x))
+
+        if cls.vertical_edges == "visual" and vertical_fix=="bottom":
+            cur_y = shapes[0].visual_y1
+        elif cls.vertical_edges == "visual": #vertical_fix=top
+            cur_y = shapes[0].visual_y
+        
+        elif cls.vertical_edges == "distance" and vertical_fix=="bottom":
+            cur_y = shapes[0].y1
+        elif cls.vertical_edges == "distance": #vertical_fix=top
+            cur_y = shapes[0].y
+
+        else:
+            cur_y = shapes[0].top
+        
         for shape in shapes:
             if cls.vertical_edges == "visual":
-                shape.visual_y = top
+                if vertical_fix=="bottom":
+                    shape.visual_y1 = cur_y
+                else:
+                    shape.visual_y = cur_y
                 delta = shape.visual_height + value
+            elif cls.vertical_edges == "distance":
+                if vertical_fix=="bottom":
+                    shape.y1 = cur_y
+                else:
+                    shape.y = cur_y
+                delta = shape.height + value
             else:
-                shape.top = top
-                delta = shape.height + value if cls.vertical_edges == "distance" else value
-            top = top-delta if cls.get_vertical_fix()=="bottom" else top+delta
+                shape.top = cur_y
+                delta = value
+            if vertical_fix=="bottom":
+                cur_y -= delta
+            else:
+                cur_y += delta
 
     @classmethod
     def get_shape_sep_vertical(cls, shapes):
@@ -491,12 +541,16 @@ class ShapeDistance(object):
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.top, shape.left))
         
         if cls.vertical_fix=="bottom":
-            shapes = shapes[-2:]
+            # shapes.sort(key=lambda shape: (shape.y1, shape.x1))
+            # shapes = shapes[-2:]
+            shapes = nlargest(2, shapes, key=lambda shape: (shape.y1, shape.x1))
+            shapes.reverse()
         else:
-            shapes = shapes[:2]
+            # shapes.sort(key=lambda shape: (shape.y, shape.x))
+            # shapes = shapes[:2]
+            shapes = nsmallest(2, shapes, key=lambda shape: (shape.y, shape.x))
         
         if cls.vertical_edges == "distance":
             dis = shapes[1].y-shapes[0].y1
@@ -510,7 +564,7 @@ class ShapeDistance(object):
     @classmethod
     def get_horizontal_fix(cls):
         if bkt.library.system.get_key_state(bkt.library.system.key_code.ALT):
-            if cls.vertical_fix == "right":
+            if cls.horizontal_fix == "right":
                 return "left"
             else:
                 return "right"
@@ -523,17 +577,46 @@ class ShapeDistance(object):
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.left, shape.top), reverse=cls.get_horizontal_fix()=="right")
 
-        left = shapes[0].left if cls.horizontal_edges != "visual" else shapes[0].visual_x
+        horizontal_fix = cls.get_horizontal_fix()
+        if horizontal_fix=="right":
+            shapes.sort(key=lambda shape: (shape.x1, shape.y1), reverse=True)
+        else:
+            shapes.sort(key=lambda shape: (shape.x, shape.y))
+
+        if cls.horizontal_edges == "visual" and horizontal_fix=="right":
+            cur_x = shapes[0].visual_x1
+        elif cls.horizontal_edges == "visual": #horizontal_fix=left
+            cur_x = shapes[0].visual_x
+        
+        elif cls.horizontal_edges == "distance" and horizontal_fix=="right":
+            cur_x = shapes[0].x1
+        elif cls.horizontal_edges == "distance": #horizontal_fix=left
+            cur_x = shapes[0].x
+
+        else:
+            cur_x = shapes[0].left
+        
         for shape in shapes:
             if cls.horizontal_edges == "visual":
-                shape.visual_x = left
+                if horizontal_fix=="right":
+                    shape.visual_x1 = cur_x
+                else:
+                    shape.visual_x = cur_x
                 delta = shape.visual_width + value
+            elif cls.horizontal_edges == "distance":
+                if horizontal_fix=="right":
+                    shape.x1 = cur_x
+                else:
+                    shape.x = cur_x
+                delta = shape.width + value
             else:
-                shape.left = left
-                delta = shape.width + value if cls.horizontal_edges == "distance" else value
-            left = left-delta if cls.get_horizontal_fix()=="right" else left+delta
+                shape.left = cur_x
+                delta = value
+            if horizontal_fix=="right":
+                cur_x -= delta
+            else:
+                cur_x += delta
 
     @classmethod
     def get_shape_sep_horizontal(cls, shapes):
@@ -541,12 +624,16 @@ class ShapeDistance(object):
             shapes = cls.get_wrapped_shapes(shapes)
         except:
             return
-        shapes.sort(key=lambda shape: (shape.left, shape.top))
         
         if cls.horizontal_fix=="right":
-            shapes = shapes[-2:]
+            # shapes.sort(key=lambda shape: (shape.x1, shape.y1))
+            # shapes = shapes[-2:]
+            shapes = nlargest(2, shapes, key=lambda shape: (shape.x1, shape.y1))
+            shapes.reverse()
         else:
-            shapes = shapes[:2]
+            # shapes.sort(key=lambda shape: (shape.x, shape.y))
+            # shapes = shapes[:2]
+            shapes = nsmallest(2, shapes, key=lambda shape: (shape.x, shape.y))
 
         if cls.horizontal_edges == "distance":
             dis = shapes[1].x-shapes[0].x1
@@ -733,6 +820,8 @@ class ShapeDistance(object):
 
 
 class ShapeRotation(object):
+    locpin = pplib.LocPin(4, "toolbox.rotation_locpin") #center point as initial locpin
+
     @staticmethod
     def get_enabled(selection):
         try:
@@ -741,16 +830,18 @@ class ShapeRotation(object):
         except:
             return False
 
-    @staticmethod
-    def set_rotation(shapes, value):
+    @classmethod
+    def set_rotation(cls, shapes, value):
+        shapes = pplib.wrap_shapes(shapes, cls.locpin)
         bkt.apply_delta_on_ALT_key(
             lambda shape, value: setattr(shape, 'rotation', value), 
             lambda shape: shape.rotation, 
             shapes, value)
 
-    @staticmethod
-    def get_rotation(shapes):
-        return shapes[0].rotation
+    @classmethod
+    def get_rotation(cls, shapes):
+        shape = pplib.wrap_shape(shapes[0], cls.locpin)
+        return shape.rotation
 
     @classmethod
     def set_rotation_zero(cls, shapes):
@@ -808,7 +899,7 @@ distance_rotation_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeDistance.set_shape_sep_vertical_zero, shapes=True),
                 ),
-                bkt.ribbon.Menu(item_size="large", children=[
+                bkt.ribbon.Menu(label="Vertikaler Abstand Einstellungen", item_size="large", children=[
                     bkt.ribbon.MenuSeparator(title="Vertikaler Abstand"),
                     bkt.ribbon.ToggleButton(
                         label="Shape-Abstand (Standard)",
@@ -884,7 +975,7 @@ distance_rotation_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeDistance.set_shape_sep_horizontal_zero, shapes=True),
                 ),
-                bkt.ribbon.Menu(item_size="large", children=[
+                bkt.ribbon.Menu(label="Horizontaler Abstand Einstellungen", item_size="large", children=[
                     bkt.ribbon.MenuSeparator(title="Horizontaler Abstand"),
                     bkt.ribbon.ToggleButton(
                         label="Shape-Abstand (Standard)",
@@ -960,8 +1051,14 @@ distance_rotation_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeRotation.set_rotation_zero, shapes=True),
                 ),
-                bkt.ribbon.Menu(children=[
+                bkt.ribbon.Menu(label="Rotation und Spiegelung Menü", children=[
                     bkt.ribbon.MenuSeparator(title="Rotation"),
+                    pplib.LocpinGallery(
+                        label="Ankerpunkt beim Rotieren",
+                        screentip="Ankerpunkt beim Rotieren festlegen",
+                        supertip="Legt den Punkt fest, der beim Rotieren der Shapes fixiert sein soll.",
+                        locpin=ShapeRotation.locpin,
+                    ),
                     bkt.ribbon.Button(
                         label="Auf 0 Grad setzen",
                         screentip="Shape-Rotation auf 0 Grad setzen",
@@ -1136,14 +1233,13 @@ class MasterShapeDialog(bkt.contextdialogs.ContextDialog):
 
 class ArrangeAdvanced(object):
     #class variables:
-    ptToCmFactor = 2.54 / 72
     # FIXME: master should be an instance-variable, other classes should get an ArrangeAdvanced-instance by dependency injection
     master = "LAST"
     fallback_first_last = "LAST"
     master_indicator = True
 
     #instance variables:
-    margin = 0 / ptToCmFactor
+    margin = 0
     resize = False
     ref_shape = None
     ref_frame = None
@@ -1194,7 +1290,7 @@ class ArrangeAdvanced(object):
 
     def __init__(self):
         #instance variables:
-        margin = 0 / self.ptToCmFactor
+        margin = 0
         resize = False
         ref_shape = None
         ref_frame = None
@@ -1501,11 +1597,11 @@ class ArrangeAdvanced(object):
 
     def set_margin(self, value, context):
         ''' callback to set margin-value '''
-        self.margin = value / self.ptToCmFactor
+        self.margin = value
 
     def get_margin(self):
         ''' returns current margin-value '''
-        return round(self.margin * self.ptToCmFactor,2)
+        return self.margin
 
     def set_moving(self, pressed):
         ''' callback to switch between moving/resizing-option '''
@@ -1752,7 +1848,8 @@ class ArrangeAdvanced(object):
         else:
             delta = value - self.get_shape_width(shape)
             # delta_vector (delta-width, 0) um shape-rotation drehen
-            delta_vector = self.rotate_point(delta, 0, 0, 0, shape.rotation)
+            # delta_vector = self.rotate_point(delta, 0, 0, 0, shape.rotation)
+            delta_vector = algos.rotate_point_by_shape_rotation(delta, 0, shape)
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
@@ -1790,7 +1887,8 @@ class ArrangeAdvanced(object):
         else:
             delta = value - self.get_shape_height(shape)
             # delta_vector (0, delta-height) um shape-rotation drehen
-            delta_vector = self.rotate_point(0, delta, 0, 0, shape.rotation)
+            # delta_vector = self.rotate_point(0, delta, 0, 0, shape.rotation)
+            delta_vector = algos.rotate_point_by_shape_rotation(0, delta, shape)
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
@@ -1803,23 +1901,19 @@ class ArrangeAdvanced(object):
 
     def get_shape_bounding_nodes(self, shape):
         ''' compute bounding nodes (surrounding-square) for rotated shapes '''
-        points = [ [ shape.left, shape.top ], [shape.left, shape.top+shape.height], [shape.left+shape.width, shape.top+shape.height], [shape.left+shape.width, shape.top] ]
+        return algos.get_bounding_nodes(shape)
+        # points = [ [ shape.left, shape.top ], [shape.left, shape.top+shape.height], [shape.left+shape.width, shape.top+shape.height], [shape.left+shape.width, shape.top] ]
 
-        x0 = shape.left + shape.width/2
-        y0 = shape.top + shape.height/2
+        # x0 = shape.left + shape.width/2
+        # y0 = shape.top + shape.height/2
 
-        rotated_points = [
-            list(self.rotate_point(p[0], p[1], x0, y0, shape.rotation))
-            for p in points
-        ]
-        return rotated_points
+        # rotated_points = [
+        #     list(algos.rotate_point(p[0], p[1], x0, y0, 360-shape.rotation))
+        #     for p in points
+        # ]
+        # return rotated_points
 
 
-    def rotate_point(self, x, y, x0, y0, deg):
-        ''' rotate (x,y) arround (x0, y0) '''
-        theta = deg*2*math.pi/360
-        return x0+(x-x0)*math.cos(theta)+(y-y0)*math.sin(theta), y0-(x-x0)*math.sin(theta)+(y-y0)*math.cos(theta)
-    
 
     ### ui generation functions ###
     def get_master_button(self, postfix="", **kwargs):
@@ -1956,7 +2050,8 @@ arrange_advanced_group = bkt.ribbon.Group(
             id='arrange_distance',
             label="Ausrichtungsabstand",
             show_label=False,
-            round_cm=True, image_mso="HorizontalSpacingIncrease", on_change=bkt.Callback(arrange_advaced.set_margin), get_text=bkt.Callback(arrange_advaced.get_margin),
+            round_cm=True, convert="pt_to_cm",
+            image_mso="HorizontalSpacingIncrease", on_change=bkt.Callback(arrange_advaced.set_margin), get_text=bkt.Callback(arrange_advaced.get_margin),
             screentip="Abstand bei Ausrichtung",
             supertip="Eingestellter Abstand wird bei der Ausrichtung von Shapes links/rechts berücksichtigt.\n\nDer Abstand wird addiert: bei Ausrichtung der linken/oberen Kante (des zu verschiebenden Shapes) und bei Ausrichtung der Shape-Mitte an der linken/oberen Kante des Mastershapes.\n\nDer Abstand wird subtrahiert: bei Ausrichtung der rechten/unteren Kante (des zu verschiebenden Shapes) und bei Ausrichtung der Shape-Mitte an der rechten/unteren Kante des Mastershapes."
         ),
@@ -2778,7 +2873,14 @@ class TableFormat(object):
 
 
 class EdgeAutoFixer(object):
-    default_threshold = pplib.cm_to_pt(0.3)
+    threshold  = bkt.settings.get("toolbox.autofixer_threshold", 0.3)
+    groupitems = bkt.settings.get("toolbox.autofixer_groupitems", True)
+    order_key  = bkt.settings.get("toolbox.autofixer_order_key", "diagonal-down")
+
+    @classmethod
+    def settings_setter(cls, name, value):
+        bkt.settings["toolbox.autofixer_"+name] = value
+        setattr(cls, name, value)
 
     @classmethod
     def _iterate_all_shapes(cls, shapes, groupitems=True):
@@ -2797,19 +2899,58 @@ class EdgeAutoFixer(object):
                 yield shape
     
     @classmethod
-    def autofix_edges(cls, shapes, threshold=None):
-        #TODO: how to handle locked aspect-ratio and autosize? rotated shapes? ojects with 0 height/width?
+    def get_image(cls, context):
+        if cls.order_key == "diagonal-down":
+            return context.python_addin.load_image("autofixer_dd")
+        elif cls.order_key == "top-down":
+            return context.python_addin.load_image("autofixer_td")
+        else:
+            return context.python_addin.load_image("autofixer_lr")
 
-        threshold = threshold or cls.default_threshold
+    @classmethod
+    def autofix_edges_diagonal_down(cls, shapes):
+        cls.settings_setter("order_key", "diagonal-down")
+        cls.autofix_edges(shapes)
+    
+    @classmethod
+    def autofix_edges_left_right(cls, shapes):
+        cls.settings_setter("order_key", "left-right")
+        cls.autofix_edges(shapes)
+    
+    @classmethod
+    def autofix_edges_top_down(cls, shapes):
+        cls.settings_setter("order_key", "top-down")
+        cls.autofix_edges(shapes)
+
+    @classmethod
+    def autofix_edges(cls, shapes):
+        cls._autofix_edges(shapes, pplib.cm_to_pt(cls.threshold), cls.groupitems, cls.order_key)
+    
+    @classmethod
+    def _autofix_edges(cls, shapes, threshold=None, groupitems=True, order_key="diagonal-down"):
+        #TODO: how to handle locked aspect-ratio and autosize? rotated shapes? ojects with 0 height/width? exclude placeholders?
+
+        threshold = threshold or pplib.cm_to_pt(0.3)
+
+        shapes = pplib.wrap_shapes(cls._iterate_all_shapes(shapes, groupitems))
+
         # shapes.sort(key=lambda shape: (shape.left, shape.top))
-        shapes.sort(key=lambda shape: shape.visual_x+shape.visual_y)
+        order_keys = {
+            "diagonal-down": [lambda shape: shape.visual_x+shape.visual_y, False],
+            "diagonal-up":   [lambda shape: shape.visual_x+shape.visual_y, True],
+            "left-right": [lambda shape: (shape.visual_x,shape.visual_y), False],
+            "top-down":   [lambda shape: (shape.visual_y,shape.visual_x), False],
+            "right-left": [lambda shape: (shape.visual_x,shape.visual_y), True],
+            "bottom-up":  [lambda shape: (shape.visual_y,shape.visual_x), True],
+        }
+        shapes.sort(key=order_keys[order_key][0], reverse=order_keys[order_key][1])
 
         # logging.debug("Autofix: top-left")
         child_shapes = shapes[:]
-        for master_shape in cls._iterate_all_shapes(shapes):
+        for master_shape in shapes:
             child_shapes.remove(master_shape)
             
-            for shape in cls._iterate_all_shapes(child_shapes):
+            for shape in child_shapes:
                 # logging.debug("Autofix1: {} x {}".format(master_shape.name, shape.name))
 
                 #save values before moving shape
@@ -2835,6 +2976,47 @@ class EdgeAutoFixer(object):
                     #resize to bottom edge
                     shape.visual_height = master_shape.visual_y1-shape.visual_y
 
+
+
+class GroupsMore(object):
+    @staticmethod
+    def add_into_group(shapes):
+        if shapes[0].Type == pplib.MsoShapeType['msoGroup']:
+            master = pplib.GroupManager(shapes.pop(0))
+            master.add_child_items(shapes).select()
+        elif shapes[-1].Type == pplib.MsoShapeType['msoGroup']:
+            master = pplib.GroupManager(shapes.pop(-1))
+            master.add_child_items(shapes).select()
+        else:
+            pplib.shapes_to_range(shapes).group().select()
+    
+    @classmethod
+    def visible_add_into_group(cls, shapes):
+        return len(shapes) > 1 and cls.contains_group(shapes)
+    
+    @staticmethod
+    def contains_group(shapes):
+        return any(shp.Type == pplib.MsoShapeType['msoGroup'] for shp in shapes)
+
+    @staticmethod
+    def recursive_ungroup(shapes):
+        for shape in shapes:
+            if shape.Type == pplib.MsoShapeType['msoGroup']:
+                grp = pplib.GroupManager(shape)
+                grp.recursive_ungroup().select(False)
+
+
+
+class ArrangeCenter(object):
+    @staticmethod
+    def shape_in_center(center_shape, around_shapes):
+        midpoint = algos.mid_point_shapes(around_shapes)
+        center_shape.left = midpoint[0] - center_shape.width/2.0
+        center_shape.top = midpoint[1] - center_shape.height/2.0
+    
+    @classmethod
+    def arrange_shapes(cls, shapes):
+        cls.shape_in_center(shapes.pop(-1), shapes)
 
 
 
@@ -2940,13 +3122,109 @@ arrange_group = bkt.ribbon.Group(
                         ),
                     ]
                 ),
+                bkt.ribbon.SplitButton(
+                    id = 'edge_autofixer_splitbutton',
+                    children=[
+                        bkt.ribbon.Button(
+                            id = 'edge_autofixer',
+                            label="Kanten-Autofixer",
+                            # image_mso='GridSettings',
+                            get_image=bkt.Callback(EdgeAutoFixer.get_image, context=True),
+                            supertip="Gleicht minimale Verschiebungen der Kanten der gewählten Shapes aus.",
+                            on_action=bkt.Callback(EdgeAutoFixer.autofix_edges, shapes=True),
+                            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                        ),
+                        bkt.ribbon.Menu(
+                            label="Kanten-Autofixer Menü",
+                            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                            children=[
+                                bkt.ribbon.Button(
+                                    id = 'edge_autofixer-dd',
+                                    label="Kanten-Autofixer diagonal von links-oben",
+                                    image='autofixer_dd',
+                                    supertip="Gleicht minimale Verschiebungen der Kanten der gewählten Shapes aus durch Vergrößerung auf Shapes links-oberhalb der anzupassenden Shapes.",
+                                    on_action=bkt.Callback(EdgeAutoFixer.autofix_edges_diagonal_down, shapes=True),
+                                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                                ),
+                                bkt.ribbon.Button(
+                                    id = 'edge_autofixer-td',
+                                    label="Kanten-Autofixer von oben nach unten",
+                                    image='autofixer_td',
+                                    supertip="Gleicht minimale Verschiebungen der Kanten der gewählten Shapes aus durch Vergrößerung auf Shapes links der anzupassenden Shapes.",
+                                    on_action=bkt.Callback(EdgeAutoFixer.autofix_edges_top_down, shapes=True),
+                                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                                ),
+                                bkt.ribbon.Button(
+                                    id = 'edge_autofixer-lr',
+                                    label="Kanten-Autofixer von links nach rechts",
+                                    image='autofixer_lr',
+                                    supertip="Gleicht minimale Verschiebungen der Kanten der gewählten Shapes aus durch Vergrößerung auf Shapes oberhalb der anzupassenden Shapes.",
+                                    on_action=bkt.Callback(EdgeAutoFixer.autofix_edges_left_right, shapes=True),
+                                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                                ),
+                                bkt.ribbon.MenuSeparator(),
+                                bkt.ribbon.ToggleButton(
+                                    label="Gruppen-Elemente einzeln anpassen",
+                                    supertip="Gibt an ob Elemente einer Gruppe einzeln betrachtet werden, oder die gesamte Gruppe als Ganzes.",
+                                    get_pressed=bkt.Callback(lambda: EdgeAutoFixer.groupitems is True),
+                                    on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("groupitems", pressed)),
+                                ),
+                                bkt.ribbon.Menu(
+                                    label="Toleranz ändern",
+                                    screentip="Kanten-Autofixer Toleranz",
+                                    supertip="Schwellwert für Kanten-Autofixer anpassen.",
+                                    children=[
+                                        bkt.ribbon.ToggleButton(
+                                            label="Klein 0,1cm",
+                                            screentip="Toleranz klein 0,1cm",
+                                            get_pressed=bkt.Callback(lambda: EdgeAutoFixer.threshold == 0.1),
+                                            on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("threshold", 0.1)),
+                                        ),
+                                        bkt.ribbon.ToggleButton(
+                                            label="Mittel 0,3cm",
+                                            screentip="Toleranz mittel 0,3cm",
+                                            get_pressed=bkt.Callback(lambda: EdgeAutoFixer.threshold == 0.3),
+                                            on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("threshold", 0.3)),
+                                        ),
+                                        bkt.ribbon.ToggleButton(
+                                            label="Groß 1 cm",
+                                            screentip="Toleranz groß 1 cm",
+                                            get_pressed=bkt.Callback(lambda: EdgeAutoFixer.threshold == 1.0),
+                                            on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("threshold", 1.0)),
+                                        ),
+                                    ]
+                                ),
+                            ]
+                        ),
+                    ]
+                ),
                 bkt.ribbon.Button(
-                    id = 'edge_autofixer',
-                    label="Kanten-Autofixer",
-                    image_mso='GridSettings',
-                    supertip="Gleicht minimale Verschiebungen der Kanten der gewählten Shapes aus, indem auf die linkere und obere Kante verschoben und auf die rechte untere Kante vergrößert wird. Schwellwert ist 0.3 cm.",
-                    on_action=bkt.Callback(EdgeAutoFixer.autofix_edges, shapes=True, wrap_shapes=True),
+                    id = 'arrange_shape_center',
+                    label="Shape in Mitte positionieren",
+                    image_mso="DiagramRadialInsertClassic",
+                    screentip="Letztes Shape in Mittelpunkt positionieren",
+                    supertip="Setzt das zuletzt markierte Shape in den gewichteten Mittelpunkt aller anderen markierten Shapes.",
+                    on_action=bkt.Callback(ArrangeCenter.arrange_shapes, shapes=True),
                     get_enabled = bkt.apps.ppt_shapes_min2_selected,
+                ),
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Button(
+                    id = 'add_into_group',
+                    label="In Gruppe einfügen",
+                    image_mso="ObjectsRegroup",
+                    screentip="Shapes in Gruppe einfügen",
+                    supertip="Sofern das zuerst oder zuletzt markierte Shape eine Gruppe ist, werden alle anderen Shapes in diese Gruppe eingefügt. Anderenfalls werden alle Shapes gruppiert.",
+                    on_action=bkt.Callback(GroupsMore.add_into_group, shapes=True),
+                    get_enabled = bkt.apps.ppt_shapes_min2_selected,
+                ),
+                bkt.ribbon.Button(
+                    id = 'recursive_ungroup',
+                    label="Rekursives Gruppe aufheben",
+                    image_mso="ObjectsUngroup",
+                    screentip="Gruppe aufheben rekursiv ausführen",
+                    supertip="Wendet Gruppe aufheben solange an, bis alle verschachtelten Gruppen aufgelöst sind.",
+                    on_action=bkt.Callback(GroupsMore.recursive_ungroup, shapes=True),
+                    get_enabled = bkt.Callback(GroupsMore.contains_group, shapes=True),
                 ),
                 bkt.ribbon.MenuSeparator(title="Verknüpfte Shapes"),
                 bkt.ribbon.Button(
@@ -3115,8 +3393,44 @@ arrange_group = bkt.ribbon.Group(
         bkt.mso.control.ObjectsGroup,
         bkt.mso.control.ObjectsUngroup,
         bkt.mso.control.ObjectsRegroup,
-        bkt.mso.control.ObjectBringToFrontMenu,
-        bkt.mso.control.ObjectSendToBackMenu,
+        # bkt.mso.control.ObjectBringToFrontMenu,
+        bkt.ribbon.SplitButton(
+            id="bkt_bringtofront_menu",
+            show_label=False,
+            children=[
+                bkt.mso.button.ObjectBringToFront,
+                bkt.ribbon.Menu(label="Vordergrund-Menü", children=[
+                    bkt.mso.control.ObjectBringToFront,
+                    bkt.mso.control.ObjectBringForward,
+                    bkt.ribbon.Button(
+                        label="Hintere nach vorne",
+                        supertip="Bringt alle hinteren Shapes genau vor das vorderste Shape",
+                        image="zorder_back_to_front",
+                        get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                        on_action=bkt.Callback(PositionSize.back_to_front, shapes=True),
+                    ),
+                ])
+            ]
+        ),
+        # bkt.mso.control.ObjectSendToBackMenu,
+        bkt.ribbon.SplitButton(
+            id="bkt_sendtoback_menu",
+            show_label=False,
+            children=[
+                bkt.mso.button.ObjectSendToBack,
+                bkt.ribbon.Menu(label="Hintergrund-Menü", children=[
+                    bkt.mso.control.ObjectSendToBack,
+                    bkt.mso.control.ObjectSendBackward,
+                    bkt.ribbon.Button(
+                        label="Vordere nach hinten",
+                        supertip="Bringt alle vordere Shapes genau hinter das hinterste Shape",
+                        image="zorder_front_to_back",
+                        get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                        on_action=bkt.Callback(PositionSize.front_to_back, shapes=True),
+                    ),
+                ])
+            ]
+        ),
 
         tablearrange_button
 

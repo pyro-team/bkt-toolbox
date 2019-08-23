@@ -294,12 +294,6 @@ class Thumbnailer(object):
 
     @classmethod
     def _shape_refresh(cls, shape, application):
-        def is_group_child(shp):
-            try:
-                return shp.ParentGroup.Id != ""
-            except:
-                return False
-
         with ThumbnailerTags(shape.Tags) as tags_old:
             #Copy
             cls.find_and_copy_object(application, **tags_old.data)
@@ -309,6 +303,12 @@ class Thumbnailer(object):
             #Duplicate tags
             with ThumbnailerTags(new_shp.Tags) as tags_new:
                 tags_new.set_thumbnail(**tags_old.data)
+
+        #handle thumbnail in group
+        group = None
+        if pplib.shape_is_group_child(shape):
+            group = pplib.GroupManager(shape.ParentGroup)
+            group.ungroup()
 
         new_shp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_THUMBNAIL)
 
@@ -326,12 +326,12 @@ class Thumbnailer(object):
         shape.PickUp()
         new_shp.Apply()
 
-        #handle thumbnail in group #FIXME: need for multiple ungroup actions?
-        if is_group_child(shape):
-            shape.ParentGroup.Ungroup().Select()
+        #handle thumbnail in group (part 2)
+        if group:
+            group.select()
             shape.Delete()
             new_shp.Select(False)
-            application.ActiveWindow.Selection.ShapeRange.Group()
+            group.regroup(application.ActiveWindow.Selection.ShapeRange)
             new_shp.Select()
         else:
             shape.Delete()

@@ -159,9 +159,11 @@ class PickupWindow(bkt.ui.WpfWindowAbstract):
         if self.shape:
             #new: call pickup method
             self._model.pickup_custom_style(self.shape, self._vm.settings)
+            self.result = True
         elif self.index is not None:
             #edit: call edit method
             self._model.edit_custom_style(self.index, self._vm.settings)
+            self.result = True
         else:
             #apply: only save settings to result
             self.result = self._vm.settings

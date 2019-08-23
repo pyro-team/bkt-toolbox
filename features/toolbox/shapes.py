@@ -18,12 +18,6 @@ import text
 import harvey
 import stateshapes
 
-#import popups
-import popups.traffic_light as traffic_light
-
-#import System
-from System import Guid, Array
-
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
@@ -102,11 +96,54 @@ class PositionSize(object):
         else:
             return [shapes[0].ZOrderPosition, None] #force ambiguous mode
 
+    @staticmethod
+    def front_to_back(shapes):
+        shapes = sorted(shapes, key=lambda shape: shape.ZOrderPosition, reverse=True)
+        target_zorder = shapes.pop(-1).ZOrderPosition
+        for shape in shapes:
+            pplib.set_shape_zorder(shape, value=target_zorder)
+
+    @staticmethod
+    def back_to_front(shapes):
+        shapes = sorted(shapes, key=lambda shape: shape.ZOrderPosition, reverse=False)
+        target_zorder = shapes.pop(-1).ZOrderPosition
+        for shape in shapes:
+            pplib.set_shape_zorder(shape, value=target_zorder)
 
     @staticmethod
     def shape_lock_aspect_ratio(shapes, pressed):
         for shape in shapes:
             shape.LockAspectRatio = -1 if pressed else 0
+    
+    @staticmethod
+    def set_height_to_width(shapes):
+        for shape in shapes:
+            shape.square(w2h=False)
+    
+    @staticmethod
+    def set_width_to_height(shapes):
+        for shape in shapes:
+            shape.square(w2h=True)
+    
+    @staticmethod
+    def swap_width_and_height(shapes):
+        for shape in shapes:
+            shape.transpose()
+    
+    @staticmethod
+    def set_top_to_left(shapes):
+        for shape in shapes:
+            shape.top = shape.left
+    
+    @staticmethod
+    def set_left_to_top(shapes):
+        for shape in shapes:
+            shape.left = shape.top
+    
+    @staticmethod
+    def swap_left_and_top(shapes):
+        for shape in shapes:
+            shape.top, shape.left = shape.left, shape.top
 
 
 spinner_top = bkt.ribbon.RoundingSpinnerBox(
@@ -121,7 +158,20 @@ spinner_top = bkt.ribbon.RoundingSpinnerBox(
     get_text=bkt.Callback(PositionSize.get_top, shapes=True, wrap_shapes=True),
     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
     convert="pt_to_cm",
-    image_element=pplib.LocpinGallery(image_mso='ObjectNudgeDown')
+    image_element=pplib.LocpinGallery(image_mso='ObjectNudgeDown', children=[
+        bkt.ribbon.Button(
+            label="Oben = Links",
+            image="possize_t2l",
+            screentip="Oben = Links setzen",
+            on_action=bkt.Callback(PositionSize.set_top_to_left, shapes=True, wrap_shapes=True)
+        ),
+        bkt.ribbon.Button(
+            label="Oben ⇄ Links",
+            image="possize_swap_tl",
+            screentip="Oben und Links tauschen",
+            on_action=bkt.Callback(PositionSize.swap_left_and_top, shapes=True, wrap_shapes=True)
+        ),
+    ])
 )
 
 spinner_left = bkt.ribbon.RoundingSpinnerBox(
@@ -136,7 +186,20 @@ spinner_left = bkt.ribbon.RoundingSpinnerBox(
     get_text=bkt.Callback(PositionSize.get_left, shapes=True, wrap_shapes=True),
     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
     convert="pt_to_cm",
-    image_element=pplib.LocpinGallery(image_mso='ObjectNudgeRight')
+    image_element=pplib.LocpinGallery(image_mso='ObjectNudgeRight', children=[
+        bkt.ribbon.Button(
+            label="Links = Oben",
+            image="possize_l2t",
+            screentip="Links = Oben setzen",
+            on_action=bkt.Callback(PositionSize.set_left_to_top, shapes=True, wrap_shapes=True)
+        ),
+        bkt.ribbon.Button(
+            label="Links ⇄ Oben",
+            image="possize_swap_tl",
+            screentip="Links und Oben tauschen",
+            on_action=bkt.Callback(PositionSize.swap_left_and_top, shapes=True, wrap_shapes=True)
+        ),
+    ])
 )
 
 spinner_height = bkt.ribbon.RoundingSpinnerBox(
@@ -151,7 +214,20 @@ spinner_height = bkt.ribbon.RoundingSpinnerBox(
     get_text=bkt.Callback(PositionSize.get_height, shapes=True, wrap_shapes=True),
     get_enabled=bkt.apps.ppt_shapes_or_text_selected,
     convert="pt_to_cm",
-    image_element=pplib.LocpinGallery(image_mso='ShapeHeight')
+    image_element=pplib.LocpinGallery(image_mso='ShapeHeight', children=[
+        bkt.ribbon.Button(
+            label="Höhe = Breite",
+            image="possize_h2w",
+            screentip="Höhe = Breite setzen",
+            on_action=bkt.Callback(PositionSize.set_height_to_width, shapes=True, wrap_shapes=True)
+        ),
+        bkt.ribbon.Button(
+            label="Höhe ⇄ Breite",
+            image="possize_swap_hw",
+            screentip="Höhe und Breite tauschen",
+            on_action=bkt.Callback(PositionSize.swap_width_and_height, shapes=True, wrap_shapes=True)
+        ),
+    ])
 )
 
 spinner_width = bkt.ribbon.RoundingSpinnerBox(
@@ -166,7 +242,20 @@ spinner_width = bkt.ribbon.RoundingSpinnerBox(
     get_text=bkt.Callback(PositionSize.get_width, shapes=True, wrap_shapes=True),
     get_enabled=bkt.apps.ppt_shapes_or_text_selected,
     convert="pt_to_cm",
-    image_element=pplib.LocpinGallery(image_mso='ShapeWidth')
+    image_element=pplib.LocpinGallery(image_mso='ShapeWidth', children=[
+        bkt.ribbon.Button(
+            label="Breite = Höhe",
+            image="possize_w2h",
+            screentip="Breite = Höhe setzen",
+            on_action=bkt.Callback(PositionSize.set_width_to_height, shapes=True, wrap_shapes=True)
+        ),
+        bkt.ribbon.Button(
+            label="Breite ⇄ Höhe",
+            image="possize_swap_hw",
+            screentip="Breite und Höhe tauschen",
+            on_action=bkt.Callback(PositionSize.swap_width_and_height, shapes=True, wrap_shapes=True)
+        ),
+    ])
 )
 
 spinner_zorder = bkt.ribbon.RoundingSpinnerBox(
@@ -186,6 +275,21 @@ spinner_zorder = bkt.ribbon.RoundingSpinnerBox(
         children=[
             bkt.mso.control.ObjectBringToFront,
             bkt.mso.control.ObjectSendToBack,
+            bkt.ribbon.MenuSeparator(),
+            bkt.ribbon.Button(
+                label="Vordere nach hinten",
+                supertip="Bringt alle vordere Shapes genau hinter das hinterste Shape",
+                image="zorder_front_to_back",
+                get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                on_action=bkt.Callback(PositionSize.front_to_back, shapes=True),
+            ),
+            bkt.ribbon.Button(
+                label="Hintere nach vorne",
+                supertip="Bringt alle hinteren Shapes genau vor das vorderste Shape",
+                image="zorder_back_to_front",
+                get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                on_action=bkt.Callback(PositionSize.back_to_front, shapes=True),
+            ),
         ],
     ),
 )
@@ -243,81 +347,105 @@ pos_size_group = bkt.ribbon.Group(
 
 
 
-class ShapesMore(object):
+class TrackerShape(object):
+
+    @classmethod
+    def generateTracker(cls, shapes, context):
+        import uuid
+        from linkshapes import LinkedShapes
+
+        #shapes to copy formatting
+        shapes_count = len(shapes)
+        highlight_shape = shapes[0]
+        default_shape = shapes[1]
+        slide_width = context.app.ActivePresentation.PageSetup.SlideWidth
+
+        #copy and paste shapes (note: shapes can also be part of a group)
+        pplib.shapes_to_range(shapes).copy()
+        grp = context.slide.shapes.paste().group()
+
+        # format unselected elements
+        for shp in grp.GroupItems:
+            if shp.HasTextFrame:
+                shp.TextFrame.DeleteText()
+            default_shape.PickUp()
+            shp.Apply()
+
+        # generate unique GUID fpr tracker (items)
+        tracker_guid = str(uuid.uuid4())
+
+        # format each selected element and paste tracker as image
+        for i in range(1, shapes_count+1):
+            highlight_shape.PickUp()
+            new_grp = grp.Duplicate()
+            
+            new_grp.GroupItems(i).Apply()
+            new_grp.Copy()
+
+            tracker = context.slide.shapes.PasteSpecial(DataType=6) # ppPastePNG = 6
+            tracker.Tags.Add("tracker_id", tracker_guid)
+
+            new_grp.Delete()
+
+            tracker.Height = cm_to_pt(1.5)
+            tracker.left = slide_width - cm_to_pt(3.0) - shapes_count*cm_to_pt(1/1.5) + cm_to_pt(i/1.5)
+            tracker.top = cm_to_pt(3.0) + cm_to_pt(i/1.5)
+
+        #delete duplicated shapes
+        grp.Delete()
+        all_trackers = pplib.last_n_shapes_on_slide(context.slide, shapes_count)
+        all_trackers_list = list(iter(all_trackers))
+
+        #select all tracker
+        all_trackers.select()
+
+        #make trackers linked shapes
+        LinkedShapes.link_shapes(all_trackers_list)
+
+        #ask to distribute trackers
+        if bkt.helpers.confirmation("Tracker auf Folgefolien verteilen?"):
+            cls.distributeTracker(all_trackers_list, context)
+            all_trackers_list[0].select()
 
     @staticmethod
-    def generateTracker(shapes, context):
-        sld = context.app.ActivePresentation.Slides(context.app.ActiveWindow.View.Slide.SlideIndex)
-        
-        shapeCount = len(shapes)
-        highlightShape = shapes[0]
-        defaultShape = shapes[1]
-        slideWidth = context.app.ActivePresentation.PageSetup.SlideWidth
-        
-        shpCounter = 0
-        selShapes = Array.CreateInstance(str, shapeCount)
-        for shp in shapes:
-            selShapes[shpCounter] = shp.Name
-            shpCounter += 1
-        
-        grp = sld.Shapes.Range(selShapes).Group()
-        
-        # duplicate group of shapes
-        alterGrp = grp.duplicate()
-        grp.ungroup()
-        
-        # format unselected elements
-        for shp in alterGrp:
-            shp.TextFrame.TextRange.Text = ""
-            defaultShape.PickUp()
-            shp.Apply()
-        
-        # generate unique GUID fpr tracker (items)
-        tracker_guid = str(Guid.NewGuid())
-        
-        # format each selected element and paste tracker as image
-        for curPosition in range(1, shapeCount+1):
-            highlightShape.PickUp()
-            curGrp = alterGrp.duplicate()
-            curGrp.GroupItems(curPosition).Apply()
-            curGrp.Copy()
-            
-            tracker = sld.shapes.PasteSpecial(DataType=6) # ppPastePNG = 6
-            tracker.Tags.Add("tracker_id", tracker_guid)
-            
-            curGrp.delete()
-            
-            tracker.Height = cm_to_pt(1.5)
-            tracker.left = slideWidth - cm_to_pt(3.0) + cm_to_pt(curPosition/1.5)
-            tracker.top = cm_to_pt(3.0) + cm_to_pt(curPosition/1.5)
-        
-        alterGrp.delete()
-
+    def isTracker(shape):
+        return shape.Tags.Item("tracker_id") != ""
 
     @staticmethod
     def alignTracker(shape, context):
         tracker_id = shape.Tags.Item("tracker_id")
+        if not tracker_id:
+            return
         
-        if tracker_id != "":            
-            tracker_position_left = shape.left
-            tracker_position_top = shape.top
-            tracker_rotation = shape.Rotation
-            tracker_heigth = shape.Height
-            tracker_width = shape.Width
-            tracker_lock_ar = shape.LockAspectRatio
-            
-            for sld in context.app.ActivePresentation.Slides:
-                for cShp in sld.shapes:
-                    if cShp.Tags.Item("tracker_id") == tracker_id:
-                        cShp.LockAspectRatio = 0 #msoFalse
-                        cShp.left, cShp.top = tracker_position_left, tracker_position_top
-                        cShp.Height, cShp.Width = tracker_heigth, tracker_width
-                        cShp.Rotation = tracker_rotation
-                        cShp.LockAspectRatio = tracker_lock_ar
-
+        tracker_position_left = shape.left
+        tracker_position_top = shape.top
+        tracker_rotation = shape.Rotation
+        tracker_heigth = shape.Height
+        tracker_width = shape.Width
+        tracker_lock_ar = shape.LockAspectRatio
+        
+        for sld in context.app.ActivePresentation.Slides:
+            for cShp in sld.shapes:
+                if cShp.Tags.Item("tracker_id") == tracker_id:
+                    cShp.LockAspectRatio = 0 #msoFalse
+                    cShp.left, cShp.top = tracker_position_left, tracker_position_top
+                    cShp.Height, cShp.Width = tracker_heigth, tracker_width
+                    cShp.Rotation = tracker_rotation
+                    cShp.LockAspectRatio = tracker_lock_ar
 
     @staticmethod
-    def distributeTracker(shapes, context):
+    def removeTracker(shape, context):
+        tracker_id = shape.Tags.Item("tracker_id")
+        if not tracker_id:
+            return
+        
+        for sld in context.app.ActivePresentation.Slides:
+            for cShp in sld.shapes:
+                if cShp.Tags.Item("tracker_id") == tracker_id:
+                    cShp.Delete()
+
+    @classmethod
+    def distributeTracker(cls, shapes, context):
         cur_slide_index = shapes[0].Parent.SlideIndex
         max_index = context.app.ActivePresentation.Slides.Count
         for shape in shapes[1:]:
@@ -325,49 +453,147 @@ class ShapesMore(object):
             shape.Cut()
             context.app.ActivePresentation.Slides[cur_slide_index].Shapes.Paste()
 
-        ShapesMore.alignTracker(shapes[0], context)
+        cls.alignTracker(shapes[0], context)
 
-    
+
+
+class ShapeConnectorTags(pplib.BKTTag):
+    TAG_NAME = "BKT_SHAPE_CONNECTORS"
+
+class ShapeConnectors(object):
 
     @staticmethod
-    def addHorizontalConnector(shapes, context):
-        shapes = sorted(shapes, key=lambda shape: shape.Left)
-        shpLeft  = shapes[0]
-        shpRight = shapes[1]
+    def is_connector(shape):
+        return shape.Tags.Item(ShapeConnectorTags.TAG_NAME) != ''
 
-        shpConnector = context.app.ActivePresentation.Slides(context.app.ActiveWindow.View.Slide.SlideIndex).shapes.AddShape(
+    @staticmethod
+    def _find_shape_by_id(slide, shape_id):
+        for shp in slide.shapes:
+            if shp.id == shape_id:
+                return shp
+        else:
+            raise IndexError("shape id not found on slide")
+    
+    @staticmethod
+    def _set_connector_shape_nodes(shape_connector, shape1, shape2, shape1_side="bottom", shape2_side="top"):
+        from bkt.library.algorithms import get_bounding_nodes, mid_point
+        from math import atan2
+
+        #get_boundin_nodes returns nodes counter-clockwise: left-top, left-bottom, right-bottom, right-top
+        shape1_nodes = get_bounding_nodes(shape1)
+        shape2_nodes = get_bounding_nodes(shape2)
+
+        sides2points = {
+            'top': (0,3),
+            'right': (3,2),
+            'bottom': (1,2),
+            'left': (0,1),
+        }
+
+        shape1_p1, shape1_p2 = sides2points[shape1_side]
+        shape2_p1, shape2_p2 = sides2points[shape2_side]
+
+        connector_nodes = [shape1_nodes[shape1_p1], shape1_nodes[shape1_p2], shape2_nodes[shape2_p1], shape2_nodes[shape2_p2]]
+        #correct ordering is the key to set nodes, here clockwise ordering (left-top, right-top, right-bottom, left-bottom)
+        mid_point = mid_point(connector_nodes)
+        connector_nodes.sort(key=lambda p: atan2(p[1]-mid_point[1], p[0]-mid_point[0]))
+
+        #convert shape into freeform by adding and deleting node (not sure if this is required)
+        shape_connector.Nodes.Insert(1, 0, 0, 0, 0) #msoSegmentLine, msoEditingAuto, x, y
+        shape_connector.Nodes.Delete(2)
+        # set nodes (rectangle has 5 nodes as start and end node are the same)
+        shape_connector.Nodes.SetPosition(1, connector_nodes[0][0], connector_nodes[0][1]) #top-left start node
+        shape_connector.Nodes.SetPosition(2, connector_nodes[1][0], connector_nodes[1][1]) #top-right node
+        shape_connector.Nodes.SetPosition(3, connector_nodes[2][0], connector_nodes[2][1]) #bottom-right node
+        shape_connector.Nodes.SetPosition(4, connector_nodes[3][0], connector_nodes[3][1]) #bottom-left node
+        shape_connector.Nodes.SetPosition(5, connector_nodes[0][0], connector_nodes[0][1]) #top-left end node
+
+    @classmethod
+    def update_connector_shape(cls, context, shape):
+        with ShapeConnectorTags(shape.Tags) as tags:
+            slide = context.slide
+            try:
+                shape1 = cls._find_shape_by_id(slide, tags["shape1_id"])
+                shape2 = cls._find_shape_by_id(slide, tags["shape2_id"])
+            except IndexError:
+                bkt.helpers.message("Fehler: Verbundenes Shape nicht gefunden!")
+            else:
+                cls._set_connector_shape_nodes(shape, shape1, shape2, tags["shape1_side"], tags["shape2_side"])
+
+    @classmethod
+    def add_connector_shape(cls, slide, shape1, shape2, shape1_side="bottom", shape2_side="top"):
+        shp_connector = slide.shapes.AddShape(
             1, #msoShapeRectangle
-            shpLeft.Left + shpLeft.Width, shpLeft.Top,
-            shpRight.Left - shpLeft.Left - shpLeft.width, shpLeft.Height)
-        # node 2: top right
-        shpConnector.Nodes.SetPosition(2, shpRight.Left, shpRight.Top)
-        # node 3: bottom right
-        shpConnector.Nodes.SetPosition(3, shpRight.Left, shpRight.Top + shpRight.Height)
-        shpConnector.Fill.ForeColor.RGB = 12566463 #193
-        shpConnector.Line.ForeColor.RGB = 8355711 # 127 127 127
-        shpConnector.Line.Weight = 0.75
-        shpConnector.Select()
+            1,1, #left-top
+            10,10 #width-height
+        )
 
-    @staticmethod
-    def addVerticalConnector(shapes, context):
+        cls._set_connector_shape_nodes(shp_connector, shape1, shape2, shape1_side, shape2_side)
+
+        # shp_connector.Fill.ForeColor.RGB = 12566463 #193
+        shp_connector.Fill.ForeColor.ObjectThemeColor = 16 #Background 2
+        # shp_connector.Line.ForeColor.RGB = 8355711 # 127 127 127
+        shp_connector.Line.ForeColor.ObjectThemeColor = 15 #Text 2
+        # shp_connector.Line.Weight = 0.75
+        shp_connector.Line.Visible = -1 #msoTrue
+
+        with ShapeConnectorTags(shp_connector.Tags) as tags:
+            tags["shape1_id"]   = shape1.id
+            tags["shape1_side"] = shape1_side
+            tags["shape2_id"]   = shape2.id
+            tags["shape2_side"] = shape2_side
+
+        return shp_connector
+
+
+    @classmethod
+    def addHorizontalConnector(cls, shapes, context):
+        shapes = sorted(shapes, key=lambda shape: shape.Left)
+
+        cls.add_connector_shape(context.slide, shapes[0], shapes[1], "right", "left").select()
+
+        # shpLeft  = shapes[0]
+        # shpRight = shapes[1]
+
+        # shpConnector = context.app.ActivePresentation.Slides(context.app.ActiveWindow.View.Slide.SlideIndex).shapes.AddShape(
+        #     1, #msoShapeRectangle
+        #     shpLeft.Left + shpLeft.Width, shpLeft.Top,
+        #     shpRight.Left - shpLeft.Left - shpLeft.width, shpLeft.Height)
+        # # node 2: top right
+        # shpConnector.Nodes.SetPosition(2, shpRight.Left, shpRight.Top)
+        # # node 3: bottom right
+        # shpConnector.Nodes.SetPosition(3, shpRight.Left, shpRight.Top + shpRight.Height)
+        # shpConnector.Fill.ForeColor.RGB = 12566463 #193
+        # shpConnector.Line.ForeColor.RGB = 8355711 # 127 127 127
+        # shpConnector.Line.Weight = 0.75
+        # shpConnector.Select()
+
+    @classmethod
+    def addVerticalConnector(cls, shapes, context):
         shapes = sorted(shapes, key=lambda shape: shape.Top)
-        shpTop = shapes[0]
-        shpBottom = shapes[1]
 
-        shpConnector = context.app.ActivePresentation.Slides(context.app.ActiveWindow.View.Slide.SlideIndex).shapes.AddShape(
-            1, #msoShapeRectangle,
-            shpTop.Left, shpTop.Top + shpTop.Height,
-            shpTop.Width, shpBottom.Top - shpTop.Top - shpTop.Height)
+        cls.add_connector_shape(context.slide, shapes[0], shapes[1], "bottom", "top").select()
 
-        # node 3: bottom right
-        shpConnector.Nodes.SetPosition(3, shpBottom.Left + shpBottom.width, shpBottom.Top)
-        # node 4: bottom left
-        shpConnector.Nodes.SetPosition(4, shpBottom.Left, shpBottom.Top)
-        shpConnector.Fill.ForeColor.RGB = 12566463 # 193
-        shpConnector.Line.ForeColor.RGB = 8355711 # 127 127 127
-        shpConnector.Line.Weight = 0.75
-        shpConnector.Select()
-    
+        # shpTop = shapes[0]
+        # shpBottom = shapes[1]
+
+        # shpConnector = context.app.ActivePresentation.Slides(context.app.ActiveWindow.View.Slide.SlideIndex).shapes.AddShape(
+        #     1, #msoShapeRectangle,
+        #     shpTop.Left, shpTop.Top + shpTop.Height,
+        #     shpTop.Width, shpBottom.Top - shpTop.Top - shpTop.Height)
+
+        # # node 3: bottom right
+        # shpConnector.Nodes.SetPosition(3, shpBottom.Left + shpBottom.width, shpBottom.Top)
+        # # node 4: bottom left
+        # shpConnector.Nodes.SetPosition(4, shpBottom.Left, shpBottom.Top)
+        # shpConnector.Fill.ForeColor.RGB = 12566463 # 193
+        # shpConnector.Line.ForeColor.RGB = 8355711 # 127 127 127
+        # shpConnector.Line.Weight = 0.75
+        # shpConnector.Select()
+
+
+class ShapesMore(object):
+
     @staticmethod
     def hide_shapes(shapes):
         for shape in shapes:
@@ -392,6 +618,35 @@ class ShapesMore(object):
             slide.Shapes.PasteSpecial(Link=True)
         except:
             bkt.helpers.message("Das Element in der Zwischenablage unterstützt diesen Einfügetyp nicht.")
+    
+    @staticmethod
+    def paste_and_replace(slide, shape, keep_size=True):
+        pasted_shapes = slide.Shapes.Paste()
+        if pasted_shapes.count > 1:
+            pasted_shapes = pasted_shapes.group()
+        
+        #restore size
+        if keep_size:
+            pasted_shapes.LockAspectRatio = 0
+            pasted_shapes.width = shape.width
+            pasted_shapes.height = shape.height
+            pasted_shapes.LockAspectRatio = shape.LockAspectRatio
+        #restore position and zorder
+        pasted_shapes.top = shape.top
+        pasted_shapes.left = shape.left
+        pasted_shapes.rotation = shape.rotation
+        pplib.set_shape_zorder(pasted_shapes, value=shape.ZOrderPosition)
+
+        if pplib.shape_is_group_child(shape):
+            #replace shape in group
+            master = pplib.GroupManager(shape.ParentGroup)
+            master.add_child_items(pasted_shapes)
+            shape.delete()
+        else:
+            #replace shape
+            shape.delete()
+        
+        pasted_shapes.select()
 
     
     @staticmethod
@@ -411,195 +666,20 @@ class ShapesMore(object):
 
 
 
-class Pentagon(bkt.FeatureContainer):
-    
-    @classmethod
-    def create_headered_pentagon(cls, slide):
-        ''' creates a headered pentagon on the given slide '''
-        shapeCount = slide.shapes.count
-        # shapes erstellen
-        pentagon = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapePentagon'] , 100, 100, 400,200)
-        header = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeRectangle'], 100, 100, 400,30)
-
-        pentagon.TextFrame.TextRange.Text = "Content"
-        header.TextFrame.TextRange.Text = "Header"
-
-        pentagon.Fill.ForeColor.ObjectThemeColor = pplib.MsoThemeColorIndex['msoThemeColorBackground1']
-        header.Fill.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText1']
-        #header.Fill.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorBackground2']
-        pentagon.TextFrame.TextRange.Font.Color.ObjectThemeColor = pplib.MsoThemeColorIndex['msoThemeColorText1']
-        header.TextFrame.TextRange.Font.Color.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorBackground1']
-        #header.TextFrame.TextRange.Font.Color.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText2']
-
-        pentagon.Line.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText1']
-        header.Line.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText1']
-
-        pentagon.Adjustments.item[1] = 0.2
-
-        # margin top
-        pentagon.textFrame.MarginTop = 36
-
-        # align top/left
-        pentagon.TextFrame.VerticalAnchor = 1 # Top
-        pentagon.TextFrame.TextRange.ParagraphFormat.Alignment = 1 # Left
-        header.TextFrame.TextRange.ParagraphFormat.Alignment = 1 # Left
-        
-        # gruppieren/selektieren
-        grp = slide.Shapes.Range(Array[int]([shapeCount+1, shapeCount+2])).group()
-        grp.select()
-
-        #cls.update_pentagon_group(grp)
-        cls.update_pentagon_header(pentagon, header)
-
-    @classmethod
-    def create_headered_chevron(cls, slide):
-        ''' creates a headered pentagon on the given slide '''
-        shapeCount = slide.shapes.count
-        # shapes erstellen
-        pentagon = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeChevron'] , 100, 100, 400,200)
-        header = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeRectangle'], 100, 100, 400,30)
-
-        pentagon.TextFrame.TextRange.Text = "Content"
-        header.TextFrame.TextRange.Text = "Header"
-
-        pentagon.Fill.ForeColor.ObjectThemeColor = pplib.MsoThemeColorIndex['msoThemeColorBackground1']
-        header.Fill.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText1']
-        #header.Fill.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorBackground2']
-        pentagon.TextFrame.TextRange.Font.Color.ObjectThemeColor = pplib.MsoThemeColorIndex['msoThemeColorText1']
-        header.TextFrame.TextRange.Font.Color.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorBackground1']
-        #header.TextFrame.TextRange.Font.Color.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText2']
-
-        pentagon.Line.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText1']
-        header.Line.ForeColor.ObjectThemeColor   = pplib.MsoThemeColorIndex['msoThemeColorText1']
-
-        pentagon.Adjustments.item[1] = 0.2
-
-        # margin top
-        pentagon.textFrame.MarginTop = 36
-
-        #margin left
-        header.textFrame.MarginLeft = 16
-
-        # align top/left
-        pentagon.TextFrame.VerticalAnchor = 1 # Top
-        pentagon.TextFrame.TextRange.ParagraphFormat.Alignment = 1 # Left
-        header.TextFrame.TextRange.ParagraphFormat.Alignment = 1 # Left
-        
-        # gruppieren/selektieren
-        grp = slide.Shapes.Range(Array[int]([shapeCount+1, shapeCount+2])).group()
-        grp.select()
-
-        #cls.update_pentagon_group(grp)
-        cls.update_header(pentagon, header)
-    
-    
-    @classmethod
-    def update_pentagon_group(cls, shape):
-        ''' updates the header of a group-shape (header + pentagon-body) '''
-        body, header = cls.get_body_and_header_from_group(shape)
-        if body:
-            cls.update_header(body, header)
-    
-    
-    @classmethod
-    def update_header(cls, body, header):
-        if body.AutoShapeType == pplib.MsoAutoShapeType['msoShapePentagon']:
-            cls.update_pentagon_header(body, header)
-        elif body.AutoShapeType == pplib.MsoAutoShapeType['msoShapeChevron']:
-            cls.update_chevron_header(body, header)
-    
-    @classmethod
-    def update_pentagon_header(cls, pentagon, header):
-        ''' updates the header of the given pentagon '''
-        offset = pentagon.Adjustments.item[1] * min(pentagon.width, pentagon.height)
-
-        # header punkt links oben / links unten
-        header.left = pentagon.left
-        header.top = pentagon.top
-        # header punkt rechts oben
-        header.Nodes.SetPosition(2, pentagon.left + pentagon.width - offset, pentagon.top)
-        # header punkt rechts unten
-        header.Nodes.SetPosition(3, pentagon.left + pentagon.width - offset + ( header.height/(pentagon.height/2) * offset), pentagon.top + header.height)
-
-    @classmethod
-    def update_chevron_header(cls, chevron, header):
-        ''' updates the header of the given pentagon '''
-        cls.update_pentagon_header(chevron, header)
-        
-        # header punkt links unten
-        offset = chevron.Adjustments.item[1] * min(chevron.width, chevron.height)
-        header.Nodes.SetPosition(4, chevron.left + ( header.height/(chevron.height/2) * offset), chevron.top + header.height)
-        
-        
-
-    @classmethod
-    def is_headered_group(cls, shape):
-        ''' returns true for group-shapes (header+body) '''
-        pentagon, header = cls.get_body_and_header_from_group(shape)
-        return pentagon != None
-
-    @classmethod
-    def is_header_shape(cls, shape):
-        ''' returns true for header-shapes (Freeforms) '''
-        return shape.Type == pplib.MsoShapeType['msoFreeform'] or (shape.Type == pplib.MsoShapeType['msoGraphic'] and shape.AutoShapeType == pplib.MsoAutoShapeType['msoShapeNotPrimitive'])
-    
-    @classmethod
-    def is_body_shape(cls, shape):
-        ''' returns true for body-shapes (Pentagon, Chevron, ...) '''
-        return shape.AutoShapeType in [pplib.MsoAutoShapeType['msoShapePentagon'], pplib.MsoAutoShapeType['msoShapeChevron']]
-
-    @classmethod
-    def search_body_and_update_header(cls, shapes, shape):
-        ''' for the pentagon represented by the given shape (header, body, or group header+body), the header position and size are updated '''
-        header = shape
-        body = cls.find_corresponding_body_shape(shapes, header)
-        cls.update_header(body, header)
-        
-
-    @classmethod
-    def find_corresponding_body_shape(cls, shapes, header):
-        ''' given a shape-list and a header, the body-shape corresponding to the header in the list is returned
-            the body shape is identified by its AutoShapeType
-            if multiple possible body shapes are found, the body shape is choosen by its position,
-            i.e. header-top-left-corner must lie inside the body shape
-        '''
-        possible_shapes = []
-        # find body shapes
-        for shape in shapes:
-            if cls.is_body_shape(shape):
-                possible_shapes.append(shape)
-        # choose element
-        if len(possible_shapes) == 0:
-            return None
-        elif len(possible_shapes) == 1:
-            return possible_shapes[0]
-        else:
-            # choose element with smallest distance of top-left corners (roughly)
-            distances = []
-            for shape in possible_shapes:
-                distances.append(abs(shape.top-header.top) + abs(shape.left-header.left))
-            return possible_shapes[distances.index(min(distances))]
-            
-
-
-    @classmethod
-    def get_body_and_header_from_group(cls, shape):
-        ''' for a given group-shape (header + body-shape), the corresponding header and body are retured '''
-        if not shape.Type == pplib.MsoShapeType['msoGroup']:
-            return None, None
-        if not shape.GroupItems.Count == 2:
-            return None, None
-
-        if cls.is_body_shape(shape.GroupItems(1)) and cls.is_header_shape(shape.GroupItems(2)):
-            return shape.GroupItems(1), shape.GroupItems(2)
-        elif cls.is_body_shape(shape.GroupItems(2)) and cls.is_header_shape(shape.GroupItems(1)):
-            return shape.GroupItems(2), shape.GroupItems(1)
-        else:
-            return None, None
-
 
 
 class ShapeDialogs(object):
+    
+    @staticmethod
+    def shape_split(shapes):
+        from dialogs.shape_split import ShapeSplitWindow
+        ShapeSplitWindow.create_and_show_dialog(shapes)
+    
+    @staticmethod
+    def create_traffic_light(slide):
+        from popups.traffic_light import Ampel
+        Ampel.create(slide)
+    
     @staticmethod
     def show_segmented_circle_dialog(slide):
         from dialogs.circular_segments import SegmentedCircleWindow
@@ -607,8 +687,19 @@ class ShapeDialogs(object):
 
     @staticmethod
     def show_process_chevrons_dialog(slide):
+        from processshapes import ProcessChevrons
         from dialogs.shape_process import ProcessWindow
-        ProcessWindow.create_and_show_dialog(slide)
+        ProcessWindow.create_and_show_dialog(slide, ProcessChevrons)
+
+    @staticmethod
+    def create_headered_pentagon(slide):
+        from processshapes import Pentagon
+        Pentagon.create_headered_pentagon(slide)
+
+    @staticmethod
+    def create_headered_chevron(slide):
+        from processshapes import Pentagon
+        Pentagon.create_headered_chevron(slide)
 
 
 
@@ -729,12 +820,14 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
             supertip="Fügt für jedes markierte Shape ein Nummerierungs-Shape ein. Nummerierung und Styling entsprechend der Auswahl. Markierte Shapes werden entsprechend der Selektions-Reihenfolge durchnummeriert.",
             get_image=bkt.Callback(lambda: self.get_item_image(0) ),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+            item_width=24,
+            item_height=24,
             children=[
-                bkt.ribbon.Button(id=parent_id + "_pos_left", label="Position links oben",    on_action=bkt.Callback(self.set_pos_top_left), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-top-left')),
+                bkt.ribbon.Button(id=parent_id + "_pos_left", label="Position links oben", screentip="Nummerierungs-Shapes links-oben",    on_action=bkt.Callback(self.set_pos_top_left), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-top-left')),
                     supertip="Nummerierungs-Shapes links oben auf dem zugehörigen Shape platzieren"),
-                bkt.ribbon.Button(id=parent_id + "_pos-right", label="Position rechts oben",   on_action=bkt.Callback(self.set_pos_top_right), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-top-right')),
+                bkt.ribbon.Button(id=parent_id + "_pos-right", label="Position rechts oben", screentip="Nummerierungs-Shapes rechts-oben", on_action=bkt.Callback(self.set_pos_top_right), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-top-right')),
                     supertip="Nummerierungs-Shapes rechts oben auf dem zugehörigen Shape platzieren"),
-                bkt.ribbon.Button(id=parent_id + "_pos-offset", label="Versetzt positionieren", on_action=bkt.Callback(self.toggle_pos_offset), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-offset')),
+                bkt.ribbon.Button(id=parent_id + "_pos-offset", label="Versetzt positionieren", screentip="Nummerierungs-Shapes versetzt positionieren", on_action=bkt.Callback(self.toggle_pos_offset), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-offset')),
                     supertip="Standardmäßig werden Nummerierungs-Shapes genau am Rand des zugehörigen Shapes ausgerichtet.\n\nIst \"Versetzt positionieren\" aktiviert, werden die Nummerierungs-Shapes etwas weiter außerhalb des zugehörigen Shapes plaziert, so dass der Mittelpunkt des Nummerierungs-Shapes auf der Ecke liegt.")
             ],
             **kwargs
@@ -766,12 +859,11 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         item = self.items[index]
         
         # create bitmap, define pen/brush
-        size = 30
+        size = 48
         img = Drawing.Bitmap(size, size)
         g = Drawing.Graphics.FromImage(img)
-        color_black = Drawing.ColorTranslator.FromOle(0)
-        pen = Drawing.Pen(color_black,1)
-        brush = Drawing.SolidBrush(color_black)
+        # color_black = Drawing.ColorTranslator.FromOle(0)
+        color_black = Drawing.Color.Black
         
         #Draw smooth rectangle/ellipse
         g.SmoothingMode = Drawing.Drawing2D.SmoothingMode.AntiAlias
@@ -789,7 +881,7 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         else: # light
             # create white circle/rectangle
             text_brush = Drawing.Brushes.Black
-            pen = Drawing.Pen(color_black,1)
+            pen = Drawing.Pen(color_black,2)
 
             if item['shape_type'] == 'circle':
                 g.DrawEllipse(pen, 2,1, size-4, size-4)
@@ -805,7 +897,7 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAliasGridFit
         # g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
         g.DrawString(str(getattr(NumberedShapes, 'label_' + item['label'])[index%int(self.columns)]),
-                     Drawing.Font("Arial", 18, Drawing.FontStyle.Bold, Drawing.GraphicsUnit.Pixel), text_brush, 
+                     Drawing.Font("Arial", 32, Drawing.FontStyle.Bold, Drawing.GraphicsUnit.Pixel), text_brush, 
                      # Drawing.Font("Arial", 7, Drawing.FontStyle.Bold), text_brush, 
                      Drawing.RectangleF(1, 2, size, size-1), 
                      strFormat)
@@ -835,23 +927,7 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         if pressed:
             return self.get_check_image()
         else:
-            return None
-
-    def get_check_image(self):
-        size = 16
-        img = Drawing.Bitmap(size, size)
-        g = Drawing.Graphics.FromImage(img)
-        
-        text_brush = Drawing.Brushes.Black
-        strFormat = Drawing.StringFormat()
-        strFormat.Alignment = Drawing.StringAlignment.Center
-        strFormat.LineAlignment = Drawing.StringAlignment.Center
-        g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
-        g.DrawString('',
-                     Drawing.Font("Wingdings", 14, Drawing.GraphicsUnit.Pixel), text_brush,
-                     Drawing.RectangleF(2, 3, size, size),
-                     strFormat)
-        return img
+            return self.get_check_image(checked=False)
 
 
 
@@ -1341,13 +1417,6 @@ class PictureFormat(object):
             os.remove(filename)
 
 
-class ShapeDialogActions(object):
-    
-    @staticmethod
-    def shape_split(shapes):
-        from dialogs.shape_split import ShapeSplitWindow
-        ShapeSplitWindow.create_and_show_dialog(shapes)
-
 
 
 class ShapeTableGallery(bkt.ribbon.Gallery):
@@ -1459,23 +1528,7 @@ class ShapeTableGallery(bkt.ribbon.Gallery):
         if self._margin == margin:
             return self.get_check_image()
         else:
-            return None
-
-    def get_check_image(self):
-        size = 16
-        img = Drawing.Bitmap(size, size)
-        g = Drawing.Graphics.FromImage(img)
-        
-        text_brush = Drawing.Brushes.Black
-        strFormat = Drawing.StringFormat()
-        strFormat.Alignment = Drawing.StringAlignment.Center
-        strFormat.LineAlignment = Drawing.StringAlignment.Center
-        g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
-        g.DrawString('',
-                     Drawing.Font("Wingdings", 14, Drawing.GraphicsUnit.Pixel), text_brush,
-                     Drawing.RectangleF(2, 3, size, size),
-                     strFormat)
-        return img
+            return self.get_check_image(checked=False)
     
 
 class ChessTableGallery(ShapeTableGallery):
@@ -1583,14 +1636,6 @@ shapes_group = bkt.ribbon.Group(
             children = [
                 bkt.ribbon.MenuSeparator(title="Einfügehilfen"),
                 bkt.ribbon.Button(
-                    id = 'standard_process',
-                    label = u"Prozesspfeile…",
-                    image = "process_chevrons",
-                    screentip="Prozess-Pfeile einfügen",
-                    supertip="Erstelle Standard Prozess-Pfeile.",
-                    on_action=bkt.Callback(ShapeDialogs.show_process_chevrons_dialog)
-                ),
-                bkt.ribbon.Button(
                     id = 'segmented_circle',
                     label = u"Kreissegmente…",
                     image = "segmented_circle",
@@ -1607,10 +1652,11 @@ shapes_group = bkt.ribbon.Group(
                 ),
                 NumberShapesGallery(id='number-labels-gallery'),
                 bkt.ribbon.Menu(
-                    label='Tracker',
+                    label='Grafik-Tracker',
                     image = "Tracker",
                     screentip="Tracker erstellen oder ausrichten",
-                    supertip="Einen Tracker aus einer Auswahl erstellen, verteilen und ausrichten.",
+                    supertip="Einen Tracker aus einer Auswahl als Bild erstellen, verteilen und ausrichten.",
+                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
                     children = [
                         bkt.ribbon.Button(
                             id = 'tracker',
@@ -1618,7 +1664,7 @@ shapes_group = bkt.ribbon.Group(
                             #image = "Tracker",
                             screentip="Tracker aus Auswahl erstellen",
                             supertip="Erstelle aus den markierten Shapes einen Tracker.\nDer Shape-Stil für Highlights wird aus dem zuerst markierten Shape (in der Regel oben links) bestimmt. Der Shape-Stil für alle anderen Shapes wird aus dem als zweites markierten Shape bestimmt.",
-                            on_action=bkt.Callback(ShapesMore.generateTracker, shapes=True, shapes_min=2, context=True),
+                            on_action=bkt.Callback(TrackerShape.generateTracker, shapes=True, shapes_min=2, context=True),
                             get_enabled = bkt.apps.ppt_shapes_min2_selected,
                         ),
                         bkt.ribbon.Button(
@@ -1627,28 +1673,46 @@ shapes_group = bkt.ribbon.Group(
                             #image = "Tracker",
                             screentip="Alle Tracker verteilen",
                             supertip="Verteilen der ausgewählten Tracker auf die Folgefolien und ausrichten.",
-                            on_action=bkt.Callback(ShapesMore.distributeTracker, shapes=True, shapes_min=2, context=True),
+                            on_action=bkt.Callback(TrackerShape.distributeTracker, shapes=True, shapes_min=2, context=True),
                             get_enabled = bkt.apps.ppt_shapes_min2_selected,
                         ),
+                        bkt.ribbon.MenuSeparator(),
                         bkt.ribbon.Button(
                             id = 'tracker_align',
                             label = u"Alle Tracker ausrichten",
                             #image = "Tracker",
                             screentip="Alle Tracker ausrichten",
                             supertip="Ausrichten (Position, Größe, Rotation) aller Tracker (auf allen Folien) anhand des ausgewählten Tracker.",
-                            on_action=bkt.Callback(ShapesMore.alignTracker, shape=True, context=True),
-                            get_enabled = bkt.apps.ppt_shapes_exactly1_selected,
+                            on_action=bkt.Callback(TrackerShape.alignTracker, shape=True, context=True),
+                            get_enabled = bkt.Callback(TrackerShape.isTracker, shape=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'tracker_remove',
+                            label = u"Alle Tracker löschen",
+                            #image = "Tracker",
+                            screentip="Alle Tracker löschen",
+                            supertip="Löschen aller Tracker (auf allen Folien) anhand des ausgewählten Tracker.",
+                            on_action=bkt.Callback(TrackerShape.removeTracker, shape=True, context=True),
+                            get_enabled = bkt.Callback(TrackerShape.isTracker, shape=True),
                         ),
                     ]
                 ),
                 bkt.ribbon.MenuSeparator(title="Interaktive Formen"),
+                bkt.ribbon.Button(
+                    id = 'standard_process',
+                    label = u"Prozesspfeile…",
+                    image = "process_chevrons",
+                    screentip="Prozess-Pfeile einfügen",
+                    supertip="Erstelle Standard Prozess-Pfeile.",
+                    on_action=bkt.Callback(ShapeDialogs.show_process_chevrons_dialog, slide=True)
+                ),
                 bkt.ribbon.Button(
                     id = 'headered_pentagon',
                     label = u"Prozessschritt mit Kopfzeile",
                     image = "headered_pentagon",
                     screentip="Prozess-Schritt-Shape mit Kopfzeile erstellen",
                     supertip="Erstelle einen Prozess-Pfeil mit Header-Shape. Das Header-Shape kann im Prozess-Pfeil über Kontext-Menü des Header-Shapes passend angeordnet werden.",
-                    on_action=bkt.Callback(Pentagon.create_headered_pentagon)
+                    on_action=bkt.Callback(ShapeDialogs.create_headered_pentagon, slide=True)
                 ),
                 bkt.ribbon.Button(
                     id = 'headered_chevron',
@@ -1656,10 +1720,16 @@ shapes_group = bkt.ribbon.Group(
                     image = "headered_chevron",
                     screentip="Prozess-Schritt-Shape mit Kopfzeile erstellen",
                     supertip="Erstelle einen Prozess-Pfeil mit Header-Shape. Das Header-Shape kann im Prozess-Pfeil über Kontext-Menü des Header-Shapes passend angeordnet werden.",
-                    on_action=bkt.Callback(Pentagon.create_headered_chevron)
+                    on_action=bkt.Callback(ShapeDialogs.create_headered_chevron, slide=True)
                 ),
                 harvey.harvey_create_button,
-                traffic_light.traffic_light_create_button,
+                bkt.ribbon.Button(
+                    label="Ampel",
+                    image="traffic_light",
+                    screentip='Status-Ampel erstellen',
+                    supertip="Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden.",
+                    on_action=bkt.Callback(ShapeDialogs.create_traffic_light, slide=True)
+                ),
                 stateshapes.likert_button,
                 bkt.ribbon.MenuSeparator(title="Verbindungsflächen"),
                 bkt.ribbon.Button(
@@ -1667,7 +1737,7 @@ shapes_group = bkt.ribbon.Group(
                     label = u"Horizontale Verbindungsfläche",
                     image = "ConnectorHorizontal",
                     supertip="Erstelle eine horizontale Verbindungsfläche zwischen den vertikalen Seiten (links/rechts) von zwei Shapes.",
-                    on_action=bkt.Callback(ShapesMore.addHorizontalConnector, context=True, shapes=True, shapes_min=2, shapes_max=2),
+                    on_action=bkt.Callback(ShapeConnectors.addHorizontalConnector, context=True, shapes=True, shapes_min=2, shapes_max=2),
                     get_enabled = bkt.apps.ppt_shapes_exactly2_selected,
                 ),
                 bkt.ribbon.Button(
@@ -1675,8 +1745,17 @@ shapes_group = bkt.ribbon.Group(
                     label = u"Vertikale Verbindungsfläche",
                     image = "ConnectorVertical",
                     supertip="Erstelle eine vertikale Verbindungsfläche zwischen den horizontalen Seiten (oben/unten) von zwei Shapes.",
-                    on_action=bkt.Callback(ShapesMore.addVerticalConnector, context=True, shapes=True, shapes_min=2, shapes_max=2),
+                    on_action=bkt.Callback(ShapeConnectors.addVerticalConnector, context=True, shapes=True, shapes_min=2, shapes_max=2),
                     get_enabled = bkt.apps.ppt_shapes_exactly2_selected,
+                ),
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Button(
+                    id = 'connector_update',
+                    label = u"Verbindungsfläche neu verbinden",
+                    image = "ConnectorUpdate",
+                    supertip="Aktualisiere die Verbindungsfläche nachdem sich die verbundenen Shapes geändert haben.",
+                    on_action=bkt.Callback(ShapeConnectors.update_connector_shape, context=True, shape=True),
+                    get_enabled = bkt.Callback(ShapeConnectors.is_connector, shape=True),
                 ),
             ]
         ),
@@ -1692,7 +1771,7 @@ shapes_group = bkt.ribbon.Group(
                     image="split_horizontal",
                     screentip="Shapes teilen oder vervielfachen",
                     supertip="Shape horizontal/vertikal in mehrere Shapes teilen oder verfielfachen.",
-                    on_action=bkt.Callback(ShapeDialogActions.shape_split),
+                    on_action=bkt.Callback(ShapeDialogs.shape_split),
                     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
                 ),
                 bkt.mso.control.ObjectEditPoints,

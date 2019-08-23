@@ -8,6 +8,25 @@ import logging
 
 import bkt.library.powerpoint as pplib
 from collections import OrderedDict
+from functools import wraps
+
+
+def textframe_group_check(func):
+    @wraps(func)
+    def wrapper(cls, textframe_obj, *args, **kwargs):
+        try:
+            shape = textframe_obj.Parent
+            if shape.Type == pplib.MsoShapeType["msoGroup"]:
+                logging.debug("customformats: found group")
+                for shp in shape.GroupItems:
+                    func(cls, shp.TextFrame2, *args, **kwargs)
+            else:
+                logging.debug("customformats: found non-group")
+                func(cls, textframe_obj, *args, **kwargs)
+        except Exception as e:
+            logging.debug("customformats: group check failed " + str(e))
+            func(cls, textframe_obj, *args, **kwargs)
+    return wrapper
 
 
 class ShapeFormats(object):
@@ -76,6 +95,7 @@ class ShapeFormats(object):
             return cls._get_font(textrange_object.Font)
     
     @classmethod
+    @textframe_group_check
     def _set_indentlevels(cls, textframe_object, what, indentlevels_dict):
         if cls.always_consider_indentlevels and textframe_object.TextRange.Paragraphs().Count > 0:
             for par in textframe_object.TextRange.Paragraphs():
@@ -96,7 +116,11 @@ class ShapeFormats(object):
     @classmethod
     def _get_type(cls, shape):
         tmp = OrderedDict()
-        tmp['AutoShapeType']  = shape.AutoShapeType
+        if shape.Connector == -1:
+            tmp['ConnectorFormat.Type'] = shape.ConnectorFormat.Type
+        else:
+            #for connectors, autoshapetype is -2 and throws error setting this value
+            tmp['AutoShapeType']  = shape.AutoShapeType
         tmp['VerticalFlip']   = shape.VerticalFlip #method
         tmp['HorizontalFlip'] = shape.HorizontalFlip #method
         tmp['Adjustments'] = [
@@ -107,7 +131,11 @@ class ShapeFormats(object):
     @classmethod
     def _set_type(cls, shape, type_dict):
         logging.debug("customformats: set type")
-        shape.AutoShapeType = type_dict["AutoShapeType"]
+
+        if shape.Connector == -1 and "ConnectorFormat.Type" in type_dict:
+            shape.ConnectorFormat.Type = type_dict["ConnectorFormat.Type"]
+        elif "AutoShapeType" in type_dict:
+            shape.AutoShapeType = type_dict["AutoShapeType"]
 
         if shape.VerticalFlip != type_dict["VerticalFlip"]:
             shape.Flip(1) #msoFlipVertical
@@ -232,6 +260,14 @@ class ShapeFormats(object):
             tmp['DashStyle'] = line_object.DashStyle
             tmp['Weight'] = float(line_object.Weight)
             tmp['Transparency'] = float(line_object.Transparency)
+            tmp['InsetPen'] = line_object.InsetPen
+            #the following properties are relevant for connectors and special shapes, e.g. freeform-line. other shapes will throw ValueError
+            tmp['BeginArrowheadLength'] = line_object.BeginArrowheadLength
+            tmp['BeginArrowheadStyle']  = line_object.BeginArrowheadStyle
+            tmp['BeginArrowheadWidth']  = line_object.BeginArrowheadWidth
+            tmp['EndArrowheadLength'] = line_object.EndArrowheadLength
+            tmp['EndArrowheadStyle']  = line_object.EndArrowheadStyle
+            tmp['EndArrowheadWidth']  = line_object.EndArrowheadWidth
         else:
             tmp['Visible'] = 0
         return tmp
@@ -387,11 +423,14 @@ class ShapeFormats(object):
         #Bullet points
         if parfor_object.Bullet.Visible == -1:
             tmp['Bullet.Visible'] = -1
-            tmp['Bullet.Type'] = parfor_object.Bullet.Type
-            tmp['Bullet.Style'] = parfor_object.Bullet.Style
-            tmp['Bullet.StartValue'] = parfor_object.Bullet.StartValue
+            btype = parfor_object.Bullet.Type
+            tmp['Bullet.Type'] = btype
+            if btype == 1: #ppBulletUnnumbered
+                tmp['Bullet.Character'] = parfor_object.Bullet.Character
+            elif btype == 2: #ppBulletNumbered
+                tmp['Bullet.Style'] = parfor_object.Bullet.Style
+                tmp['Bullet.StartValue'] = parfor_object.Bullet.StartValue
             tmp['Bullet.RelativeSize'] = float(parfor_object.Bullet.RelativeSize)
-            tmp['Bullet.Character'] = parfor_object.Bullet.Character
             if parfor_object.Bullet.UseTextFont == -1:
                 tmp['Bullet.UseTextFont'] = -1
             else:
@@ -401,6 +440,7 @@ class ShapeFormats(object):
             else:
                 cls._write_color_to_array(tmp, parfor_object.Bullet.Font.Fill.ForeColor, 'Bullet.Font.Fill.ForeColor')
         else:
+            tmp['Bullet.Type'] = 0
             tmp['Bullet.Visible'] = 0
         
         tmp['FirstLineIndent'] = float(parfor_object.FirstLineIndent)

@@ -359,12 +359,83 @@ GlobalLocPin = LocPin(settings_key="bkt.global_loc_pin")
 # = Generic helper functions =
 # ============================
 
+
+def shape_is_group_child(shape):
+    try:
+        return shape.ParentGroup.Id != ""
+    except SystemError:
+        return False
+
+
 def shape_indices_on_slide(slide, indices):
     import System.Array # to create int-Arrays
     return slide.Shapes.Range(System.Array[int](indices))
 
-def last_n_shapes_on_slide(slide,n):
+def last_n_shapes_on_slide(slide, n):
     return shape_indices_on_slide(slide, range(slide.shapes.Count + 1 -n, slide.shapes.Count + 1))
+
+def shape_names_on_slide(slide, names):
+    #NOTE: If there are multiple shapes with the same name, only one of them is returned!
+    #NOTE: This function is also looking for shapes within groups.
+    import System.Array # to create str-Arrays
+    return slide.Shapes.Range(System.Array[str](names))
+
+def shapes_to_range(shapes):
+    '''
+    Here is another powerpoint fuckup, it is quite complicated to create a shaperange from a list of shapes.
+    -> Slide.Shapes.Range(Array) either requires a list of shape indices or shape names.
+    1. My first approach was to use shape names, but they are not unique and if names are replaced in VBA (to make them unique) you cannot
+       restore the original name without destroying localization of names. Also, you cannot easily determine if there are multiple shapes
+       with the same name as slide.Shapes.Range(Name).Count always return 1, so you have to iterate over all names before.
+    2. My new approach is to use shape indices, but the shape does not have an index number, only an ID. In order to get the index number
+       you have to iterate over all slide.shapes and compare with the shape your looking for. Luckily, we can leverage pythons dict for that.
+    '''
+
+    ###############
+    ### Approach 2:
+    import System.Array # to create int-Arrays
+    #shape indices and range-function are different if shapes are within a group
+    if shape_is_group_child(shapes[0]):
+        all_shapes = shapes[0].ParentGroup.GroupItems
+    else:
+        all_shapes = shapes[0].Parent.Shapes
+    #create mapping dict from all shape ids to shape indices
+    shape_id2idx = {s.id: i+1 for i,s in enumerate(all_shapes)}
+    #get indices of shapes
+    indices = []
+    for s in shapes:
+        try:
+            indices.append(shape_id2idx[s.id])
+        except (KeyError, EnvironmentError):
+            pass #just ignore missing shapes
+    #return range
+    return all_shapes.Range(System.Array[int](indices))
+
+    ###############
+    ### Approach 1:
+    ### Note: This approach does not properly support shapes within groups
+    # import uuid
+    # try:
+    #     slide = shapes[0].Parent
+    #     #set unique names
+    #     all_names = [s.name for s in slide.shapes]
+    #     orig_names = []
+    #     select_names = []
+    #     for i,shp in enumerate(shapes):
+    #         #only replace original names if not unique as localized names will be destroyd in this step
+    #         if all_names.count(shp.name) > 1:
+    #             #save original name and replace name with unique one
+    #             orig_names.append((i, shp.name))
+    #             shp.name = str(uuid.uuid4())
+    #         select_names.append(shp.name)
+    #     # before return is executed, the finally statement restores original shape names
+    #     return shape_names_on_slide(slide, select_names)
+    # finally:
+    #     #restore names
+    #     if orig_names:
+    #         for i,name in orig_names:
+    #             shapes[i].name = name
+
 
 def get_shapes_from_selection(selection):
     # ShapeRange accessible if shape or text selected
@@ -438,7 +509,26 @@ def convert_text_into_shape(shape):
     shapes = shape_indices_on_slide(slide, [shape_index, shape_count+1])
     shapes.MergeShapes(4, shape) #MsoMergeCmd: 4=msoMergeSubtract
 
-    return shape_indices_on_slide(slide, [shape_index])[1]
+    new_shape = shape_indices_on_slide(slide, [shape_index])[1]
+    new_shape.LockAspectRatio = -1
+    return new_shape
+
+def get_dict_from_tags(shape_tags):
+    d = dict()
+    for i in range(shape_tags.count):
+        d[shape_tags.name(i+1)] = shape_tags.value(i+1)
+    return d
+
+def set_tags_from_dict(tags_dict, shape_tags):
+    for k,v in tags_dict.items():
+        shape_tags.add(k,v)
+
+
+
+
+# ======================
+# = Color helper class =
+# ======================
 
 
 class ColorHelper(object):
@@ -564,7 +654,6 @@ class ColorHelper(object):
             try:
                 shade_index = cls.get_shade_index_from_brightness(color_rgb, brightness)
             except ValueError:
-                print("not found")
                 shade_index = None
         
         color_rgb = cls.adjust_rgb_brightness(color_rgb, brightness)
@@ -818,3 +907,179 @@ class BoundingFrame(object):
         bf.height = shapes[0].visual_y1 - bf.top
 
         return bf
+
+
+
+# ==========================
+# = Group helper functions =
+# ==========================
+
+class GroupManager(object):
+    '''
+    This is a helper class to handle more complicated group actions without affecting the groups name, tags and rotation
+    '''
+    def __init__(self, group, additional_attrs=[]):
+        self._group   = group
+        self._ungroup = None
+
+        self._name = group.name
+        self._tags = get_dict_from_tags(group.tags)
+        self._rotation = group.rotation
+        self._zorder   = group.ZOrderPosition
+
+        self._attr = {n:getattr(group, n) for n in additional_attrs}
+
+        self._ungroup_prepared = False
+
+    def __getattr__(self, name):
+        # provides easy access to shape properties
+        return getattr(self._group, name)
+
+    # def __setattr__(self, name, value):
+    #     # provides easy access to shape properties
+    #     setattr(self._group, name, value)
+
+    @property
+    def child_items(self):
+        '''
+        Get group child items as list, depending if group is already ungrouped or not
+        '''
+        if self._group:
+            return list(iter(self._group.GroupItems))
+        else:
+            return list(iter(self._ungroup))
+    
+    @property
+    def shape(self):
+        '''
+        Get group shape. Throws error if already ungrouped
+        '''
+        if not self._group:
+            raise SystemError("not a group")
+        return self._group
+
+    def select(self, replace=True):
+        '''
+        Either select group or all child shapes (if ungrouped).
+        Due to random error when selecting, try a second time without replace parameter if first time fails.
+        '''
+        try:
+            if self._group:
+                self._group.select(replace=replace)
+            else:
+                self._ungroup.select(replace=replace)
+        except EnvironmentError:
+            # Select(replace=False) sometimes throws "Invalid request.  To select a shape, its view must be active.", e.g. right after duplicating the shape
+            if self._group:
+                self._group.select()
+            else:
+                self._ungroup.select()
+
+    def refresh(self):
+        '''
+        Refresh the group, means ungroup and regroup in order to fix corruption,
+        e.g. if child shape is duplicated it is not properly added to the group until this method is performed
+        '''
+        self.ungroup()
+        self.regroup()
+
+    def prepare_ungroup(self):
+        '''
+        Method is executed right before ungroup action in order to set rotation to 0.
+        '''
+        self._group.rotation = 0
+        self._ungroup_prepared = True
+
+    def post_regroup(self):
+        '''
+        Method is executed right after regroup action in order to set rotation to original rotation.
+        '''
+        self._group.rotation = self._rotation
+        self._ungroup_prepared = False
+
+    def ungroup(self, prepare=True):
+        '''
+        Perform ungroup with rotation=0. If prepare=False, prepare-method is not called and rotation is not set to 0.
+        '''
+        if not self._group:
+            raise SystemError("not a group")
+
+        if prepare:
+            self.prepare_ungroup()
+        self._ungroup = self._group.ungroup()
+        self._group = None
+        return self
+    
+    def regroup(self, new_shape_range=None):
+        '''
+        Perform regroup (actually group) and reset all attributes (name, tags, rotation) to original values.
+        If new_shpae_range is given, the stored shape-range from ungroup is replaced with the given shape-range.
+        '''
+        self._ungroup = new_shape_range or self._ungroup
+        if not self._ungroup:
+            raise SystemError("not ungrouped")
+
+        self._group = self._ungroup.group()
+        self._ungroup = None
+
+        #restore name
+        self._group.name = self._name
+        #restore tags
+        set_tags_from_dict(self._tags, self._group.tags)
+        #restore additional parameter, e.g. width in process chevrons example
+        for k,v in self._attr.items():
+            setattr(self._group, k, v)
+        #restore zorder
+        set_shape_zorder(self._group, value=self._zorder)
+        #call post_regroup to reset rotation
+        if self._ungroup_prepared:
+            self.post_regroup()
+        return self
+    
+    def add_child_items(self, shapes):
+        '''
+        Add shape(s) to group without modifying the group.
+        '''
+        if not self._group:
+            raise SystemError("not a group")
+        
+        #store position of first shape in group
+        shape_to_restore_pos = self.shape.GroupItems[1]
+        orig_left, orig_top = shape_to_restore_pos.left, shape_to_restore_pos.top
+        #add shapes to temporary group
+        temp_grp = shapes_to_range([self.shape]+shapes).group()
+        #rotate original group to 0
+        temp_grp.rotation = - self._rotation
+        temp_grp.ungroup()
+        #create new group and reset rotation
+        self.ungroup()
+        self.regroup(new_shape_range=shapes_to_range(self.child_items+shapes))
+        #restore position
+        self.shape.left -= shape_to_restore_pos.left-orig_left
+        self.shape.top  -= shape_to_restore_pos.top-orig_top
+
+        ### Simple method without considering rotation:
+        # self.ungroup(prepare=False)
+        # self.regroup(new_shape_range=shapes_to_range(self.child_items+shapes))
+        return self
+
+    def recursive_ungroup(self):
+        '''
+        Ungroup the group and all its sub-groups until no more groups exist.
+        '''
+        if not self._group:
+            raise SystemError("not a group")
+
+        def _ungroup(shape_range):
+            for s in shape_range:
+                if s.Type == MsoShapeType["msoGroup"]:
+                    for s2 in _ungroup(s.ungroup()):
+                        yield s2
+                else:
+                    yield s
+
+        self._ungroup = shapes_to_range( list(_ungroup(self._group.ungroup())) )
+        self._group = None
+        return self
+
+

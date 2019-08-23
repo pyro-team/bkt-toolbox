@@ -265,6 +265,7 @@ adjustments_group = bkt.ribbon.Group(
             children=[
                 bkt.ribbon.Button(
                     label="<", #"#«",
+                    screentip="Vorherige Anfasser-Werte anzeigen",
                     on_action=bkt.Callback(ShapeAdjustments.adjustment_nums_prev, context=True),
                 ),
                 bkt.ribbon.Menu(
@@ -317,6 +318,7 @@ adjustments_group = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.Button(
                     label=">", #"»",
+                    screentip="Nächste Anfasser-Werte anzeigen",
                     on_action=bkt.Callback(ShapeAdjustments.adjustment_nums_next, context=True),
                 ),
             ]

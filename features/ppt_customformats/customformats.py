@@ -22,7 +22,7 @@ D = bkt.dotnet.import_drawing()
 from helpers import ShapeFormats #local helper functions
 
 
-CF_VERSION = "20190613"
+CF_VERSION = "20190814"
 
 class CustomFormat(object):
     '''
@@ -272,10 +272,34 @@ class CustomFormatCatalog(object):
             return
         with io.open(file, 'r') as json_file:
             catalog = json.load(json_file, object_pairs_hook=OrderedDict)
+            catalog_migration = False
             
             if not isinstance(catalog, OrderedDict) or catalog.get("version", 0) != CF_VERSION:
-                cls._try_migration_from_20180824(catalog, filename)
-            elif catalog.get("filename", "") != filename:
+                #pre-migration TODO: create backup-file
+                bkt.helpers.message("Einmalige Migration des Katalogformats erforderlich. Diese wird nun gestartet.")
+
+                try:
+                    #migration from old list-format
+                    if isinstance(catalog, list):
+                        catalog = cls._try_migration_from_20180824(catalog, filename)
+                    
+                    #all further migrations
+                    catalog = cls._try_migration_from_20190613(catalog)
+
+                    #check version again
+                    if catalog.get("version", 0) != CF_VERSION:
+                        raise ValueError("invalid version number. migration incomplete.")
+                    
+                    #migration successful, save file to config later
+                    catalog_migration = True
+                    bkt.helpers.message("Migration erfolgreich. Katalog wird nun geladen.")
+                except:
+                    bkt.helpers.message("Migration fehlgeschlagen!")
+                    logging.error("Customformats: Migration failed")
+                    logging.error(traceback.format_exc())
+                    return
+            
+            if catalog.get("filename", "") != filename:
                 raise ValueError("catalog file has been renamed")
             else:
                 cls.custom_styles = []
@@ -285,9 +309,36 @@ class CustomFormatCatalog(object):
                 # bkt.console.show_message("%r" % data)
         cls.current_file = filename
         bkt.settings["customformats.default_file"] = filename
+        # after migration writenew json
+        if catalog_migration:
+            cls.save_to_config()
 
     @classmethod
-    def _try_migration_from_20180824(cls, catalog_dict, filename):
+    def _try_migration_from_20190613(cls, catalog):
+        if catalog.get("version", 0) != "20190613":
+            logging.debug("Customformats: No conversion from 20190613 required")
+            return catalog
+        # cls.custom_styles = []
+        for style in catalog["styles"]:
+            if "ParagraphFormat" in style["formats"]:
+                for i in style["formats"]["ParagraphFormat"].keys():
+                    try:
+                        #remove some definitions form bullet formatting to allow numbered bullet lists
+                        if style["formats"]["ParagraphFormat"][i]['Bullet.Visible'] == -1:
+                            if style["formats"]["ParagraphFormat"][i]['Bullet.Type'] == 1: #ppBulletUnnumbered
+                                del style["formats"]["ParagraphFormat"][i]['Bullet.Style']
+                                del style["formats"]["ParagraphFormat"][i]['Bullet.StartValue']
+                            elif style["formats"]["ParagraphFormat"][i]['Bullet.Type'] == 2: #ppBulletNumbered
+                                del style["formats"]["ParagraphFormat"][i]['Bullet.Character']
+                    except:
+                        logging.error("Customformats: Error converting a style from 20190613")
+            # cls.custom_styles.append(CustomFormat.from_json(style))
+        catalog["version"] = "20190814"
+        return catalog
+
+
+    @classmethod
+    def _try_migration_from_20180824(cls, catalog_list, filename):
         style_settings_mapping = {
             "fill": "Fill",
             "paragraphformat": "ParagraphFormat",
@@ -299,13 +350,18 @@ class CustomFormatCatalog(object):
             "shadow": "Shadow",
             "size": "Size",
         }
-        cls.custom_styles = []
+        # cls.custom_styles = []
         filename_without_ext = os.path.splitext(filename)[0]
         thumb_dir = os.path.join( cls.config_folder, "{}_thumbs".format(filename_without_ext) )
         if not os.path.exists(thumb_dir):
             os.makedirs(thumb_dir)
+        
+        catalog_dict = OrderedDict()
+        catalog_dict["version"] = "20190613"
+        catalog_dict["filename"] = filename
+        catalog_dict["styles"] = []
 
-        for i,style in enumerate(catalog_dict):
+        for i,style in enumerate(catalog_list):
             if not style:
                 continue
 
@@ -324,30 +380,29 @@ class CustomFormatCatalog(object):
                 'line': style["button_setting"][1],
             }
 
-            # create empty catalog
-            catalog = CustomFormat("Style {}".format(i+1), style_settings, button_settings)
+            # create empty customformat
+            customformat = CustomFormat("Style {}".format(i+1), style_settings, button_settings)
 
             # add styles
             for k in CustomFormat.default_settings.keys():
                 if k in style:
-                    catalog.add_format(k, style[k])
+                    customformat.add_format(k, style[k])
             if "IndentLevels" in style:
-                catalog.add_format("ParagraphFormat", OrderedDict([(k, v["ParagraphFormat"])for k,v in style["IndentLevels"].items()]) )
-                catalog.add_format("Font", OrderedDict([(k, v["Font"])for k,v in style["IndentLevels"].items()]) )
-            
-            # add catalog
-            cls.custom_styles.append(catalog)
+                customformat.add_format("ParagraphFormat", OrderedDict([(k, v["ParagraphFormat"])for k,v in style["IndentLevels"].items()]) )
+                customformat.add_format("Font", OrderedDict([(k, v["Font"])for k,v in style["IndentLevels"].items()]) )
 
             # move thumbnails
             new_file = "{}_{}.png".format( i+1, uuid.uuid4().hex )
             orig_path = os.path.join( cls.config_folder, "{}_thumb_{}.png".format(filename_without_ext, chr(65+i)) )
             if os.path.exists:
                 os.rename(orig_path, os.path.join(thumb_dir, new_file) )
-                catalog.thumbnail_name = new_file
+                customformat.thumbnail_name = new_file
+            
+            # add customformat
+            # cls.custom_styles.append(customformat)
+            catalog_dict["styles"].append(customformat.to_json())
         
-        # save new json
-        cls.current_file = filename
-        cls.save_to_config()
+        return catalog_dict
 
     @classmethod
     def get_custom_style_name(cls, index):
@@ -423,7 +478,7 @@ class CustomFormatCatalog(object):
         return os.path.join( cls.config_folder, "{}_thumbs".format(os.path.splitext(cls.current_file)[0]), cls.custom_styles[index].thumbnail_name )
 
     @classmethod
-    def _generate_thumbnail_image(cls, index, shape, size=64):
+    def _generate_thumbnail_image(cls, index, shape, size=128):
         filename = cls._get_image_filename(index)
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename))
@@ -480,6 +535,7 @@ class CustomQuickEdit(object):
     always_consider_indentlevels = True #set to true to save paragraphformat and font individually for each indent level
 
     temp_custom_format = None #temporary custom format, used for advanced pickup-apply stamp
+    temp_settings_done = False #set to True the first time apply style settings have been defined
 
 
     ### Catalog menu ###
@@ -542,12 +598,14 @@ class CustomQuickEdit(object):
     @classmethod
     def show_pickup_window(cls, shape):
         from pickup_style import PickupWindow
-        PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormat.default_settings, shape=shape)
+        wnd = PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormat.default_settings, shape=shape)
+        return wnd.result
 
     @classmethod
     def show_edit_window(cls, index):
         from pickup_style import PickupWindow
-        PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormatCatalog.custom_styles[index].style_setting, index=index)
+        wnd = PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormatCatalog.custom_styles[index].style_setting, index=index)
+        return wnd.result
 
 
     @staticmethod
@@ -568,10 +626,14 @@ class CustomQuickEdit(object):
         ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
         # alt   = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
 
-        if ctrl:
-            cls.show_edit_window(index)
+        apply_style = True
         
-        else:
+        if ctrl:
+            ### EDIT STYLE ###
+            result = cls.show_edit_window(index)
+            apply_style = result is not None
+        
+        if apply_style:
             ### APPLY STYLE ###
 
             ShapeFormats.always_keep_theme_color = cls.always_keep_theme_color
@@ -595,16 +657,30 @@ class CustomQuickEdit(object):
     @classmethod
     def temp_pickup(cls, shape):
         cls.temp_custom_format = CustomFormat.from_shape(shape)
+        cls.temp_settings_done = False
 
     @classmethod
     def temp_apply(cls, shapes):
-        from pickup_style import PickupWindow
-        wnd = PickupWindow.create_and_show_dialog(cls, cls.temp_custom_format.style_setting)
+        ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
+
+        do_apply = True
+        if ctrl or not cls.temp_settings_done:
+            from pickup_style import PickupWindow
+            wnd = PickupWindow.create_and_show_dialog(cls, cls.temp_custom_format.style_setting)
         
-        if wnd.result:
-            cls.temp_custom_format.style_setting.update(wnd.result)
+            if wnd.result:
+                cls.temp_custom_format.style_setting.update(wnd.result)
+                cls.temp_settings_done = True
+            else:
+                do_apply = False
+        
+        if do_apply:
             for shape in shapes:
                 cls.temp_custom_format.to_shape(shape)
+
+    @staticmethod
+    def show_caveats():
+        bkt.helpers.message("Aufgrund von PowerPoint-Bugs gibt es folgende Einschränkungen:\r\n- Textkontur kann gesetzt, aber nicht wieder entfernt werden\r\n- Verläufe (insb. Winkel) werden nicht immer richtig übertragen\r\n- Schatten werden nicht auf Gruppen angewendet\r\n- Abschluss-/Anschlusstyp bei Linien werden nicht gesetzt")
 
 
 class FormatLibGallery(bkt.ribbon.Gallery):
@@ -621,10 +697,12 @@ class FormatLibGallery(bkt.ribbon.Gallery):
             show_item_label=False,
             screentip="Custom-Styles Gallerie",
             supertip="Zeigt Übersicht über alle Custom-Styles im aktuellen Katalog.",
+            item_height=64, item_width=64,
             children=[
                 bkt.ribbon.Button(id=parent_id + "_pickup", label="Neuen Style aufnehmen", supertip="Nimmt Format vom gewählten Shape neu in die Gallerie auf.", image_mso="PickUpStyle", on_action=bkt.Callback(CustomQuickEdit.show_pickup_window, shape=True), get_enabled = bkt.apps.ppt_shapes_exactly1_selected,),
                 bkt.ribbon.Button(id=parent_id + "_help1", label="[STRG]+Klick für Bearbeiten und Löschen", supertip="Bei Klick auf ein Custom-Style mit gedrückter STRG-Taste öffnet sich ein Fenster zur Bearbeitung und Löschung dieses Styles.", enabled = False),
                 bkt.ribbon.Button(id=parent_id + "_help2", label="[SHIFT]+Klick für Anlage neues Shape", supertip="Bei Klick auf ein Custom-Style mit gedrückter SHIFT-Taste wird immer ein neues Shapes in gewähltem Style angelegt.", enabled = False),
+                bkt.ribbon.Button(id=parent_id + "_help3", label="Einschränkungen durch PowerPoint-Bugs", supertip="Liste von funktionalen Einschränkungen durch interne PowerPoint-Bugs anzeigen", image_mso="Risks", on_action=bkt.Callback(CustomQuickEdit.show_caveats)),
             ]
         )
         my_kwargs.update(kwargs)
@@ -669,7 +747,7 @@ customformats_group = bkt.ribbon.Group(
             id="quickedit_temp_apply",
             label='Format anwenden',
             image_mso='PasteApplyStyle',
-            supertip="Ausgewählte Formate aus Zwischenspeicher auf selektierte Shapes anwenden.",
+            supertip="Ausgewählte Formate aus Zwischenspeicher auf selektierte Shapes anwenden.\n\nMit STRG kann die Auswahl der Formate erneut bearbeitet werden.",
             show_label=False,
             on_action=bkt.Callback(CustomQuickEdit.temp_apply),
             get_enabled = bkt.Callback(CustomQuickEdit.temp_enabled),

@@ -4,8 +4,8 @@
 #define MyAppName "BKT-Toolbox"
 #define MyAppPublisher "Business Kasper"
 #define MyAppURL "https://www.bkt-toolbox.de"
-#define MyAppVersion "2.5.2"
-#define MyReleaseDate "190705"
+#define MyAppVersion "2.5.3"
+#define MyReleaseDate "190823"
 ;GetDateTimeString('yymmdd', '', '');
 
 [Setup]
@@ -21,6 +21,8 @@ AppVersion={#MyAppVersion}
 DefaultDirName={localappdata}\BKT-Toolbox
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
+; NOTE: DisableDirPage auto would not ask for location if previous installation is found
+DisableDirPage=no
 ;DisableReadyPage=yes
 OutputDir=_releases
 OutputBaseFilename=bkt_install_r{#MyReleaseDate}

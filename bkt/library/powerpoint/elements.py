@@ -256,10 +256,12 @@ class PPTSymbolsGallery(SymbolsGallery):
         item = self.symbols[index]
         self._add_to_recent(item)
 
-        if selection.Type == 3: #text selected
+        shift_or_ctrl = system.get_key_state(system.key_code.CTRL) or system.get_key_state(system.key_code.SHIFT)
+
+        if selection.Type == 3 and not shift_or_ctrl: #text selected
             selection.TextRange2.Text = "" #remove selected text first and then insert symbol
             self.insert_symbol_into_text(selection.TextRange2, item)
-        elif selection.Type == 2: #shapes selected
+        elif selection.Type == 2 and not shift_or_ctrl: #shapes selected
             self.insert_symbol_into_shapes(pplib.get_shapes_from_selection(selection), item)
         else: #convert into shape
             if PPTSymbolsSettings.get_convert_into_bitmap():
@@ -314,7 +316,8 @@ class PPTSymbolsGallery(SymbolsGallery):
         # shape.TextFrame.TextRange.Text = item[1] #symbol text
         if PPTSymbolsSettings.get_convert_into_shape(): #convert into shape
             try:
-                shape.TextFrame2.TextRange.Font.Size = 48
+                shape.TextFrame2.TextRange.Font.Size = 60
+                shape.TextFrame2.TextRange.ParagraphFormat.Bullet.Visible = 0
                 new_shape = pplib.convert_text_into_shape(shape)
             except:
                 shape.select()
@@ -327,7 +330,7 @@ class PPTSymbolsGallery(SymbolsGallery):
         import tempfile, os.path
 
         font = item[0] or self.fallback_font
-        img = SymbolsGallery.create_symbol_image(font, item[1], 128, 96)
+        img = SymbolsGallery.create_symbol_image(font, item[1], 400, None)
         tmpfile = os.path.join(tempfile.gettempdir(), "bktymbol.png")
         img.Save(tmpfile, Drawing.Imaging.ImageFormat.Png)
         shape = slide.shapes.AddPicture(tmpfile, 0, -1, 200, 200) #FileName, LinkToFile, SaveWithDocument, Left, Top
@@ -353,7 +356,7 @@ class PPTSymbolsGalleryRecent(PPTSymbolsGallery):
         try:
             return self.symbols[index][2]
         except:
-            return "Undefined"
+            return "Zuletzt verwendet: Undefined"
     
     def button_get_visible(self, index):
         try:
@@ -392,10 +395,11 @@ class LocpinGallery(Gallery):
             columns="3",
             item_height="24",
             item_width="24",
+            show_item_label=False,
             on_action_indexed  = Callback(self.locpin_on_action_indexed),
             get_selected_item_index = Callback(lambda: self.locpin.index),
             get_item_count = Callback(lambda: len(self.items)),
-            # get_item_label = Callback(lambda index: self.items[index][1]),
+            get_item_label = Callback(lambda index: self.items[index][1]),
             get_item_image = Callback(self.locpin_get_image, context=True),
             get_item_screentip = Callback(lambda index: self.items[index][1]),
             get_item_supertip = Callback(lambda index: self.items[index][2]),

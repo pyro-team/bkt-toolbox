@@ -223,6 +223,24 @@ class BKTSettings(shelve.Shelf):
             logging.debug(traceback.format_exc())
             exception_as_message()
             self.dict = dict() #fallback to empty dict
+    
+    def get(self, key, default=None):
+        try:
+            # super(BKTSettings, self).get(key, default) #doesnt work as Shelf is not a new-style object
+            if key in self.dict:
+                return self[key]
+            return default
+        except EOFError:
+            logging.error("EOF-Error in settings for getting key {}. Reset to default value: {}".format(key, default))
+            exception_as_message("Settings database corrupt for key {}. Trying to repair now.".format(key))
+
+            #settings database corrupt, trying to fix it
+            if default is None:
+                del self[key]
+            else:
+                self[key] = default
+
+            return default
 
 #load global setting database
 settings = BKTSettings()

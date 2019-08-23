@@ -382,6 +382,16 @@ clipboard_group = bkt.ribbon.Group(
                             image_mso='PasteLink',
                             on_action=bkt.Callback(ShapesMore.paste_as_link, slide=True),
                         ),
+                        bkt.ribbon.Button(
+                            id='paste_and_replace',
+                            label="Mit Zwischenablage ersetzen",
+                            supertip="Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
+                            image_mso='PasteSingleCellExcelTableDestinationFormatting',
+                            on_action=bkt.Callback(ShapesMore.paste_and_replace, slide=True, shape=True),
+                            get_enabled=bkt.apps.ppt_shapes_exactly1_selected,
+                        ),
+                        bkt.ribbon.MenuSeparator(),
+                        bkt.mso.button.ShowClipboard,
                     ]
                 )
             ]

@@ -9,7 +9,7 @@ Created on 24.07.2014
 import bkt
 
 # import toolbox modules with ui
-from toolbox import arrange, harvey, info, language, shape_adjustments, shape_selection, shapes as mod_shapes, slides, stateshapes, text
+from toolbox import arrange, info, language, text, shape_adjustments, stateshapes, slides, shapes as mod_shapes, shape_selection
 
 
 # FIXME: this should be easier

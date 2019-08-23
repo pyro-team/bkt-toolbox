@@ -8,7 +8,7 @@ import bkt
 # import bkt.library.powerpoint as pplib
 
 from bkt.library.powerpoint import PositionGallery, pt_to_cm, LocPin, LocpinGallery
-from bkt.library.algorithms import TableRecognition
+from bkt.library.table import TableRecognition
 
 #for caching
 import time
