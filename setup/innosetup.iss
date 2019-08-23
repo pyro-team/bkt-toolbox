@@ -21,6 +21,8 @@ AppVersion={#MyAppVersion}
 DefaultDirName={localappdata}\BKT-Toolbox
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
+; NOTE: DisableDirPage auto would not ask for location if previous installation is found
+DisableDirPage=no
 ;DisableReadyPage=yes
 OutputDir=_releases
 OutputBaseFilename=bkt_install_r{#MyReleaseDate}
