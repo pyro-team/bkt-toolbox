@@ -1,4 +1,4 @@
-# Unreleased (2.5.3)
+# Release 2019-08-23 (2.5.3)
 
   * Popup for process chevrons shapes (add/remove chevrons)
   * Split paragraphs into shapes feature is ignoring empty paragraphs and uses better positioning of new shapes
