@@ -2999,12 +2999,25 @@ class GroupsMore(object):
         return any(shp.Type == pplib.MsoShapeType['msoGroup'] for shp in shapes)
 
     @staticmethod
+    def is_or_within_group(shape):
+        return shape.Type == pplib.MsoShapeType['msoGroup'] or pplib.shape_is_group_child(shape)
+
+    @staticmethod
     def recursive_ungroup(shapes):
         for shape in shapes:
             if shape.Type == pplib.MsoShapeType['msoGroup']:
                 grp = pplib.GroupManager(shape)
                 grp.recursive_ungroup().select(False)
 
+    @staticmethod
+    def select_all_groupitems(shape):
+        if shape.Type == pplib.MsoShapeType['msoGroup']:
+            all_shapes = list(iter(shape.GroupItems))
+        elif pplib.shape_is_group_child(shape):
+            all_shapes = list(iter(shape.ParentGroup.GroupItems))
+        else:
+            return
+        pplib.shapes_to_range(all_shapes).select()
 
 
 class ArrangeCenter(object):
@@ -3225,6 +3238,15 @@ arrange_group = bkt.ribbon.Group(
                     supertip="Wendet Gruppe aufheben solange an, bis alle verschachtelten Gruppen aufgelöst sind.",
                     on_action=bkt.Callback(GroupsMore.recursive_ungroup, shapes=True),
                     get_enabled = bkt.Callback(GroupsMore.contains_group, shapes=True),
+                ),
+                bkt.ribbon.Button(
+                    id = 'select_all_groupitems',
+                    label="Elemente der Gruppe markieren",
+                    image_mso="ObjectsMultiSelect",
+                    screentip="Alle Elemente der Gruppe markieren",
+                    supertip="Markiert alle Elemente innerhalb der Gruppe.",
+                    on_action=bkt.Callback(GroupsMore.select_all_groupitems, shape=True),
+                    get_enabled = bkt.Callback(GroupsMore.is_or_within_group, shape=True),
                 ),
                 bkt.ribbon.MenuSeparator(title="Verknüpfte Shapes"),
                 bkt.ribbon.Button(
