@@ -777,3 +777,6 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
         customformats_group,
     ]
 ), extend=True)
+
+
+bkt.powerpoint.add_lazy_replacement("ShapeQuickStylesHome", FormatLibGallery(id="customformats_gallery-rep", show_label=False), )
