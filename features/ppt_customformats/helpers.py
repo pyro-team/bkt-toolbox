@@ -252,15 +252,15 @@ class ShapeFormats(object):
     def _get_line(cls, line_object):
         tmp = OrderedDict()
         if line_object.Visible == -1:
-            #FIXME: Add support for line gradient
+            #NOTE: Line gradient not supported via VBA
             tmp['Visible'] = -1
             cls._write_color_to_array(tmp, line_object.ForeColor, 'ForeColor')
             cls._write_color_to_array(tmp, line_object.BackColor, 'BackColor')
             tmp['Style'] = line_object.Style
             tmp['DashStyle'] = line_object.DashStyle
             tmp['Weight'] = float(line_object.Weight)
-            tmp['Transparency'] = float(line_object.Transparency)
-            tmp['InsetPen'] = line_object.InsetPen
+            tmp['Transparency'] = max(0, float(line_object.Transparency)) #NOTE: transparency can be -2.14748e+09 if line gradient is active
+            # tmp['InsetPen'] = line_object.InsetPen #NOTE: this property is not accessible via UI as it was default until PPT97
             #the following properties are relevant for connectors and special shapes, e.g. freeform-line. other shapes will throw ValueError
             tmp['BeginArrowheadLength'] = line_object.BeginArrowheadLength
             tmp['BeginArrowheadStyle']  = line_object.BeginArrowheadStyle
@@ -375,18 +375,19 @@ class ShapeFormats(object):
     @classmethod
     def _get_font(cls, font_object):
         tmp = OrderedDict()
-        #Font color
-        if font_object.Fill.Visible == -1:
-            tmp['Fill.Visible'] = -1
-            cls._write_color_to_array(tmp, font_object.Fill.ForeColor, 'Fill.ForeColor')
-        else:
-            tmp['Fill.Visible'] = 0
-        #Font line color
-        if font_object.Line.Visible == -1:
-            tmp['Line.Visible'] = -1
-            cls._write_color_to_array(tmp, font_object.Line.ForeColor, 'Line.ForeColor')
-        else:
-            tmp['Line.Visible'] = 0
+        # #Font color
+        # if font_object.Fill.Visible == -1:
+        #     tmp['Fill.Visible'] = -1
+        #     cls._write_color_to_array(tmp, font_object.Fill.ForeColor, 'Fill.ForeColor')
+        # else:
+        #     tmp['Fill.Visible'] = 0
+        # #Font line color
+        # if font_object.Line.Visible == -1:
+        #     tmp['Line.Visible'] = -1
+        #     cls._write_color_to_array(tmp, font_object.Line.ForeColor, 'Line.ForeColor')
+        # else:
+        #     tmp['Line.Visible'] = 0 #NOTE: this is not working in VBA
+        
         #Font setting
         tmp['Name'] = font_object.Name
         tmp['Size'] = float(font_object.Size)
@@ -399,13 +400,46 @@ class ShapeFormats(object):
         tmp['Strike'] = font_object.Strike
         tmp['Kerning'] = float(font_object.Kerning)
         tmp['Spacing'] = float(font_object.Spacing)
-        #FIXME: Add Glow, Highlight, Shadow, Reflection...
+        
+        #Fill, line and all effects objects
+        tmp['Fill']       = cls._get_fill(font_object.Fill)
+        tmp['Line']       = cls._get_line(font_object.Line)
+        tmp['Glow']       = cls._get_glow(font_object.Glow)
+        tmp['Reflection'] = cls._get_reflection(font_object.Reflection)
+        tmp['Shadow']     = cls._get_shadow(font_object.Shadow)
+        #NOTE: Highlight property is not accessible via UI and cannot be disabled via VBA, so we don't use it
         return tmp
     @classmethod
     def _set_font(cls, font_object, font_dict):
         logging.debug("customformats: set font")
         for key, value in font_dict.items():
-            cls.mult_setattr(font_object, key, value)
+            if key == "Fill":
+                try:
+                    cls._set_fill(font_object.Fill, value)
+                except:
+                    logging.error("customformats: error in setting font fill")
+            elif key == "Line":
+                try:
+                    cls._set_line(font_object.Line, value)
+                except:
+                    logging.error("customformats: error in setting font line")
+            elif key == "Shadow":
+                try:
+                    cls._set_shadow(font_object.Shadow, value)
+                except:
+                    logging.error("customformats: error in setting font shadow")
+            elif key == "Glow":
+                try:
+                    cls._set_glow(font_object.Glow, value)
+                except:
+                    logging.error("customformats: error in setting font glow")
+            elif key == "Reflection":
+                try:
+                    cls._set_reflection(font_object.Reflection, value)
+                except:
+                    logging.error("customformats: error in setting font reflection")
+            else:
+                cls.mult_setattr(font_object, key, value)
     
     @classmethod
     def _get_paragraphformat(cls, parfor_object):
@@ -447,7 +481,6 @@ class ShapeFormats(object):
         tmp['LeftIndent'] = float(parfor_object.LeftIndent)
         tmp['RightIndent'] = float(parfor_object.RightIndent)
         tmp['HangingPunctuation'] = parfor_object.HangingPunctuation
-        #FIXME: value -2 indicates different values per paragraph, so get values from first paragraph
         return tmp
     @classmethod
     def _set_paragraphformat(cls, parfor_object, parfor_dict):
