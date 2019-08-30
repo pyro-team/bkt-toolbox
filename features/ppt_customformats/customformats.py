@@ -144,7 +144,7 @@ class CustomFormat(object):
         result.add_format('SoftEdge', ShapeFormats._get_softedge(shape.SoftEdge) )
         result.add_format('Reflection', ShapeFormats._get_reflection(shape.Reflection) )
 
-        #TODO: Add ThreeD, AnimationSettings
+        #TODO: Add ThreeD, AnimationSettings, PictureEffects
 
         ### SIZE
         result.add_format('Size', ShapeFormats._get_size(shape) )
@@ -523,7 +523,7 @@ class CustomFormatCatalog(object):
         return filename
 
 
-### TODO: import styles from presentation, replace existing QuickStyleGallery, replace existing pickup-apply buttons, re-generate thumbnail images for each design ###
+### TODO: import styles from presentation, replace existing pickup-apply buttons, re-generate thumbnail images for each design ###
 
 
 class CustomQuickEdit(object):
@@ -680,7 +680,7 @@ class CustomQuickEdit(object):
 
     @staticmethod
     def show_caveats():
-        bkt.helpers.message("Aufgrund von PowerPoint-Bugs gibt es folgende Einschränkungen:\r\n- Textkontur kann gesetzt, aber nicht wieder entfernt werden\r\n- Verläufe (insb. Winkel) werden nicht immer richtig übertragen\r\n- Schatten werden nicht auf Gruppen angewendet\r\n- Abschluss-/Anschlusstyp bei Linien werden nicht gesetzt")
+        bkt.helpers.message("Aufgrund von PowerPoint-Bugs gibt es folgende Einschränkungen:\r\n- Textkontur kann gesetzt, aber nicht wieder entfernt werden\r\n- Farb-Verläufe werden nur für Hintergrund (nicht Linien) unterstützt\r\n- Farb-Verläufe (insb. Winkel) werden nicht immer richtig übertragen\r\n- Schatten werden nicht auf Gruppen angewendet\r\n- Abschluss-/Anschlusstyp bei Linien werden nicht gesetzt")
 
 
 class FormatLibGallery(bkt.ribbon.Gallery):
