@@ -35,7 +35,8 @@ class ShapeAdjustments(object):
     allowed_shape_types = [
         pplib.MsoShapeType['msoAutoShape'],
         pplib.MsoShapeType['msoTextBox'],
-        pplib.MsoShapeType['msoCallout']
+        pplib.MsoShapeType['msoCallout'],
+        pplib.MsoShapeType['msoPicture'],
     ]
     
     auto_shape_type_settings = {
