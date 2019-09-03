@@ -699,7 +699,10 @@ class QuickEdit(object):
                 cls.pickup_own_color(qebutton, context)
         elif shift or selection.Type not in [2,3]:
             #select shapes by color
-            shapes = list(iter(selection.SlideRange[1].Shapes))
+            if selection.HasChildShapeRange:
+                shapes = selection.ShapeRange[1].GroupItems
+            else:
+                shapes = selection.SlideRange[1].Shapes
             # color_rgb = cls._get_color_rgb(context, color_index)
             for shape in shapes:
                 try:
@@ -782,7 +785,10 @@ class QuickEdit(object):
 
         if shift or selection.Type not in [2,3]:
             #select shapes by color
-            shapes = list(iter(selection.SlideRange[1].Shapes))
+            if selection.HasChildShapeRange:
+                shapes = selection.ShapeRange[1].GroupItems
+            else:
+                shapes = selection.SlideRange[1].Shapes
             for shape in shapes:
                 try:
                     if alt and ctrl:
