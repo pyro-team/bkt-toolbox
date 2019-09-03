@@ -27,6 +27,7 @@ class ShapeSelector(object):
     
     key_functions["fill_type"] =      lambda shp: (shp.Fill.Visible, shp.Fill.Type)
     key_functions["fill_color"] =     lambda shp: (shp.Fill.Visible, shp.Fill.BackColor.RGB, shp.Fill.ForeColor.RGB)
+    key_functions["fill_transp"] =    lambda shp: (shp.Fill.Visible, shp.Fill.Transparency)
     
     key_functions["line_weight"] =    lambda shp: (shp.Line.Visible, shp.Line.Weight)
     key_functions["line_style"] =     lambda shp: (shp.Line.Visible, shp.Line.Style, shp.Line.DashStyle)

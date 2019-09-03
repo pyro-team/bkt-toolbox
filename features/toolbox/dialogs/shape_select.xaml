@@ -48,6 +48,7 @@
             <StackPanel Orientation="Horizontal" Margin="5">
                 <fr:CheckBox Header="Art (Einfarbig/Verlauf/Muster)" IsChecked="{Binding shape_keys[fill_type], Mode=TwoWay}" Margin="5,0" />
                 <fr:CheckBox Header="Farbe" IsChecked="{Binding shape_keys[fill_color], Mode=TwoWay}" Margin="5,0" />
+                <fr:CheckBox Header="Transparenz" IsChecked="{Binding shape_keys[fill_transp], Mode=TwoWay}" Margin="5,0" />
             </StackPanel>
         </GroupBox>
 
