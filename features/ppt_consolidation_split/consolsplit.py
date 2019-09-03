@@ -5,10 +5,15 @@ Created on 2017-11-09
 '''
 
 import bkt
+import bkt.library.powerpoint as pplib
+
+import logging
 import os
+from string import maketrans
 from System import Array #SlideRange
 
 class ConsolSplit(object):
+    trans_table = maketrans('\t\n\r\f\v', '     ')
 
     @classmethod
     def consolidate_ppt_slides(cls, application, presentation):
@@ -35,7 +40,7 @@ class ConsolSplit(object):
     @classmethod
     def export_slide(cls, application, slides, full_name):
         slides[0].Parent.SaveCopyAs(full_name)
-        newPres = application.Presentations.Open(full_name)
+        newPres = application.Presentations.Open(full_name, False, False, False) #readonly, untitled, withwindow
 
         slideIds = [slide.SlideIndex for slide in slides]
         removeIds = list(set(range(1,newPres.Slides.Count+1)) - set(slideIds))
@@ -53,12 +58,23 @@ class ConsolSplit(object):
         newPres.Close()
     
     @classmethod
-    def split_slides_to_ppt(cls, application, presentation, slides):
+    def _get_safe_filename(cls, title):
+        title = title.encode('ascii', 'ignore') #remove unicode characters
+        title = title.translate(cls.trans_table, '\/:*?"<>|') #replace special whitespace chacaters with space, also delete not allowed characters
+        title = title[:32] #max 32 characters of title
+        title = title.strip() #remove whitespaces at beginning and end
+        return title
+    
+    @classmethod
+    def split_slides_to_ppt(cls, context, slides):
         # if not presentation.Path:
         #     bkt.helpers.message("Bitte erst Datei speichern.")
         #     return
 
-        save_pattern = "[slidenumber]_[slidetitle]"
+        application = context.app
+        presentation = context.presentation
+
+        # save_pattern = "[slidenumber]_[slidetitle]"
         
         fileDialog = application.FileDialog(4) #msoFileDialogFolderPicker
         if presentation.Path:
@@ -71,37 +87,57 @@ class ConsolSplit(object):
         if not os.path.isdir(folder):
             return
 
+        save_pattern = bkt.ui.show_user_input("Bitte Dateinamen-Pattern eingeben:", "Dateiname eingeben", "[slidenumber]_[slidetitle]")
+        if save_pattern is None:
+            return
+
         def _get_name(slide):
             try:
-                title = slide.Shapes.Title.TextFrame.TextRange.Text
-                for c in '\/:*?"<>|': #delete not allowd characters
-                    title = title.replace(c, '')
-                title = title.strip()
+                title = cls._get_safe_filename(slide.Shapes.Title.TextFrame.TextRange.Text)
             except:
                 title = "UNKNOWN"
             
-            filename = save_pattern.replace("[slidenumber]", str(slide.SlideIndex)).replace("[slidetitle]", title[:32]) #max 32 characters of title
+            filename = save_pattern.replace("[slidenumber]", str(slide.SlideIndex)).replace("[slidetitle]", title)
             return os.path.join(folder, filename + ".pptx") #FIXME: file ending according to current presentation
 
-        # for slide in slides:
-        for slide in presentation.Slides:
-            cls.export_slide(application, [slide], _get_name(slide))
+        def loop(worker):
+            error = False
+            slides_current = 1.0
+            slides_total = presentation.Slides.Count
+            worker.ReportProgress(0)
+            for slide in presentation.Slides:
+                worker.ReportProgress(slides_current/slides_total*100)
+                slides_current += 1.0
+                try:
+                    cls.export_slide(application, [slide], _get_name(slide))
+                except Exception as e:
+                    logging.error("split_slides_to_ppt error %r" % e)
+                    error = True
 
-        bkt.helpers.message("Export abgeschlossen")
+            worker.ReportProgress(100)
+            if error:
+                bkt.helpers.message("Export mit Fehlern abgeschlossen")
+            else:
+                bkt.helpers.message("Export erfolgreich abgeschlossen")
+            os.startfile(folder)
+
+        bkt.ui.execute_with_progress_bar(loop, context, modal=False) #modal=False important so main thread can handle app events and all presentations close properly
     
     @classmethod
-    def split_sections_to_ppt(cls, application, presentation, slides):
+    def split_sections_to_ppt(cls, context, slides):
         # if not presentation.Path:
         #     bkt.helpers.message("Bitte erst Datei speichern.")
         #     return
+
+        application = context.app
+        presentation = context.presentation
 
         sections = presentation.SectionProperties
         if sections.count < 2:
             bkt.helpers.message("Präsentation hat weniger als 2 Abschnitte!")
             return
 
-        save_pattern = "[sectionnumber]_[sectiontitle]"
-        # save_pattern = "[sectiontitle]"
+        # save_pattern = "[sectionnumber]_[sectiontitle]"
         
         fileDialog = application.FileDialog(4) #msoFileDialogFolderPicker
         if presentation.Path:
@@ -114,27 +150,49 @@ class ConsolSplit(object):
         if not os.path.isdir(folder):
             return
 
+        save_pattern = bkt.ui.show_user_input("Bitte Dateinamen-Pattern eingeben:", "Dateiname eingeben", "[sectionnumber]_[sectiontitle]")
+        if save_pattern is None:
+            return
+
         def _get_name(index):
             try:
-                title = sections.Name(index)
-                for c in '\/:*?"<>|': #delete not allowd characters
-                    title = title.replace(c, '')
-                title = title.strip()
+                title = cls._get_safe_filename(sections.Name(index))
             except:
                 title = "UNKNOWN"
             
-            filename = save_pattern.replace("[sectionnumber]", str(index)).replace("[sectiontitle]", title[:32]) #max 32 characters of title
+            filename = save_pattern.replace("[sectionnumber]", str(index)).replace("[sectiontitle]", title)
             return os.path.join(folder, filename + ".pptx") #FIXME: file ending according to current presentation
 
-        for i in range(sections.count):
-            start = sections.FirstSlide(i+1)
-            if start == -1:
-                continue #empty section
-            count = sections.SlidesCount(i+1)
-            slides = list(iter( presentation.Slides.Range( Array[int](range(start, start+count)) ) ))
-            cls.export_slide(application, slides, _get_name(i+1))
+        def loop(worker):
+            error = False
+            sections_current = 1.0
+            sections_total = sections.count
+            worker.ReportProgress(0)
+            for i in range(sections.count):
+                worker.ReportProgress(sections_current/sections_total*100)
+                sections_current += 1.0
+                try:
+                    start = sections.FirstSlide(i+1)
+                    if start == -1:
+                        continue #empty section
+                    count = sections.SlidesCount(i+1)
+                    slides = list(iter( presentation.Slides.Range( Array[int](range(start, start+count)) ) ))
+                    cls.export_slide(application, slides, _get_name(i+1))
+                except Exception as e:
+                    logging.error("split_sections_to_ppt error %r" % e)
+                    error = True
+                    continue
 
-        bkt.helpers.message("Export abgeschlossen")
+            worker.ReportProgress(100)
+            if error:
+                bkt.helpers.message("Export mit Fehlern abgeschlossen")
+            else:
+                bkt.helpers.message("Export erfolgreich abgeschlossen")
+            os.startfile(folder)
+
+        bkt.ui.execute_with_progress_bar(loop, context, modal=False) #modal=False important so main thread can handle app events and all presentations close properly
+
+
 
 
 # consolsplit_gruppe = bkt.ribbon.Group(
@@ -226,14 +284,14 @@ bkt.powerpoint.add_backstage_control(
                                             label="Folien einzeln speichern",
                                             image_mso='ThemeSaveCurrent',
                                             description="Jede Folie einzeln speichern. Die Dateien werden mit Foliennummer nummeriert und nach Folientitel benannt.",
-                                            on_action=bkt.Callback(ConsolSplit.split_slides_to_ppt, application=True, presentation=True, slides=True),
+                                            on_action=bkt.Callback(ConsolSplit.split_slides_to_ppt, context=True, slides=True),
                                             is_definitive=True,
                                         ),
                                         bkt.ribbon.Button(
                                             label="Abschnitte einzeln speichern",
-                                            image_mso='ThemeSaveCurrent',
+                                            image_mso='SectionAdd',
                                             description="Jeden Abschnitt einzeln speichern. Die Dateien werden nummeriert und nach Abschnittstitel benannt.",
-                                            on_action=bkt.Callback(ConsolSplit.split_sections_to_ppt, application=True, presentation=True, slides=True),
+                                            on_action=bkt.Callback(ConsolSplit.split_sections_to_ppt, context=True, slides=True),
                                             is_definitive=True,
                                         ),
                                     ]
@@ -245,7 +303,7 @@ bkt.powerpoint.add_backstage_control(
                         bkt.ribbon.Label(label="Alle Folien in einzelne PowerPoint-Dateien im gewählten Ordner speichern."),
                         bkt.ribbon.Label(label="Dieser Vorgang kann bei großen Dateien und vielen Folien einige Zeit in Anspruch nehmen!"),
                     ]),
-                ])
+                ]),
             ])
         ]
     )
