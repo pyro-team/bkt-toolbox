@@ -208,8 +208,8 @@ class FolderToSlides(object):
         
         ref_frame = pplib.BoundingFrame(master_slide, contentarea=True)
 
-        all_files.sort(reverse=True)
-        for root, full_path in all_files:
+        # all_files.sort(reverse=True)
+        for root, full_path in reversed(all_files):
             #create slide
             new_slide = master_slide.Duplicate()
             # new_slide.Layout = 11 #ppLayoutTitleOnly
@@ -247,7 +247,7 @@ class FolderToSlides(object):
             if ext in cls.filetypes:
                 all_files.append((root, full_path))
 
-        cls._files_to_slides(context, all_files)
+        cls._files_to_slides(context, sorted(all_files))
 
     @classmethod
     def pictures_to_slides(cls, context):
