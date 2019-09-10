@@ -64,6 +64,13 @@ class ShapeSelector(object):
         logging.debug("ShapeSelector._selectByKeys: select done")
 
     @staticmethod
+    def _get_all_shapes(context):
+        if context.selection.HasChildShapeRange:
+            return context.selection.ShapeRange[1].GroupItems
+        else:
+            return context.slide.Shapes
+
+    @staticmethod
     def selectionForm(context):
         from dialogs.shape_select import SelectWindow
         wnd = SelectWindow(ShapeSelector, context)
@@ -98,64 +105,32 @@ class ShapeSelector(object):
             cls.selectShapes(context, master_shapes)
             logging.debug("ShapeSelector.selectByKeys: unselect done")
         
-        if context.selection.HasChildShapeRange:
-            cls._selectByKeys(master_shapes, context.selection.ShapeRange[1].GroupItems, keys)
-        else:
-            cls._selectByKeys(master_shapes, context.slides[0].Shapes, keys)
-
-    # @staticmethod
-    # def selectByShape(shapes, slide):
-    #     #slide.Application.ActiveWindow.Selection.Unselect()
-    #     for shpMaster in shapes:
-    #         for shp in slide.Shapes:
-    #             try:
-    #                 if shp.Type == shpMaster.Type and shp.AutoShapeType == shpMaster.AutoShapeType:
-    #                     shp.Select(replace=False)
-    #             except:
-    #                 pass
-    
-    # @staticmethod
-    # def selectByFill(shapes, slide):
-    #     #slide.Application.ActiveWindow.Selection.Unselect()
-    #     for shpMaster in shapes:
-    #         for shp in slide.Shapes:
-    #             try:
-    #                 if shp.Fill.Type == shpMaster.Fill.Type and shp.Fill.ForeColor.RGB == shpMaster.Fill.ForeColor.RGB:
-    #                     shp.Select(replace=False)
-    #             except:
-    #                 pass
-    
-    # @staticmethod
-    # def selectByLine(shapes, slide):
-    #     #slide.Application.ActiveWindow.Selection.Unselect()
-    #     for shpMaster in shapes:
-    #         for shp in slide.shapes:
-    #             try:
-    #                 if shp.Line.DashStyle == shpMaster.Line.DashStyle and shp.Line.ForeColor.RGB == shpMaster.Line.ForeColor.RGB:
-    #                     shp.Select(replace=False)
-    #             except:
-    #                 pass
+        cls._selectByKeys(master_shapes, cls._get_all_shapes(context), keys)
 
     
-    @staticmethod
-    def invert_selection(slide, selection):
-        
+    @classmethod
+    def invert_selection(cls, context):
+        selection = context.selection
         if selection.Type == 2 or selection.Type == 3:
             # shapes or text selected
-            selected_shapes = list(iter(selection.shaperange))
+            if selection.HasChildShapeRange:
+                selected_shapes = list(iter(selection.childshaperange))
+            else:
+                selected_shapes = list(iter(selection.shaperange))
         else:
             # slide selected
             selected_shapes = []
         
-        slide_shapes = list(iter(slide.shapes))
+        all_shapes = cls._get_all_shapes(context)
         
-        new_shape_selection = [shape for shape in slide_shapes if not shape in selected_shapes]
+        new_shape_selection = [shape for shape in all_shapes if not shape in selected_shapes]
         if len(new_shape_selection) == 0:
             selection.Unselect()
         else:
-            new_shape_selection[0].Select(replace=True)
-            for shape in new_shape_selection:
-                shape.Select(replace=False)
+            pplib.shapes_to_range(new_shape_selection).Select()
+            # new_shape_selection[0].Select(replace=True)
+            # for shape in new_shape_selection:
+            #     shape.Select(replace=False)
 
     @classmethod
     def _is_within(cls, outer, inner):
@@ -176,33 +151,33 @@ class ShapeSelector(object):
         #         shp1.Top < shp2.Top+shp2.Height and shp1.Top+shp1.Height > shp2.Top)
     
     @classmethod
-    def select_overlapping(cls, shapes, slide):
-        all_shapes = pplib.wrap_shapes(slide.Shapes)
-        for shpMaster in pplib.wrap_shapes(shapes):
+    def select_overlapping(cls, context):
+        all_shapes = pplib.wrap_shapes(cls._get_all_shapes(context))
+        for shpMaster in pplib.wrap_shapes(context.shapes):
             for shp in all_shapes:
                 if cls._has_overlap(shpMaster, shp):
                     shp.Select(replace=False)
     
     @classmethod
-    def select_within(cls, shapes, slide):
-        all_shapes = pplib.wrap_shapes(slide.Shapes)
-        for shpMaster in pplib.wrap_shapes(shapes):
+    def select_within(cls, context):
+        all_shapes = pplib.wrap_shapes(cls._get_all_shapes(context))
+        for shpMaster in pplib.wrap_shapes(context.shapes):
             for shp in all_shapes:
                 if cls._is_within(shpMaster, shp):
                     shp.Select(replace=False)
     
     @classmethod
-    def select_containing(cls, shapes, slide):
-        all_shapes = pplib.wrap_shapes(slide.Shapes)
-        for shpMaster in pplib.wrap_shapes(shapes):
+    def select_containing(cls, context):
+        all_shapes = pplib.wrap_shapes(cls._get_all_shapes(context))
+        for shpMaster in pplib.wrap_shapes(context.shapes):
             for shp in all_shapes:
                 if cls._is_ontop(shpMaster, shp) and cls._is_within(shpMaster, shp):
                     shp.Select(replace=False)
     
     @classmethod
-    def select_behind(cls, shapes, slide):
-        all_shapes = pplib.wrap_shapes(slide.Shapes)
-        for shpMaster in pplib.wrap_shapes(shapes):
+    def select_behind(cls, context):
+        all_shapes = pplib.wrap_shapes(cls._get_all_shapes(context))
+        for shpMaster in pplib.wrap_shapes(context.shapes):
             for shp in all_shapes:
                 if not cls._is_ontop(shpMaster, shp) and cls._is_within(shpMaster, shp):
                     shp.Select(replace=False)
@@ -303,7 +278,7 @@ selection_menu = bkt.ribbon.Menu(
             image_mso = 'SlideShowResolutionGallery',
             label='Überlappend',
             #show_label=False,
-            on_action=bkt.Callback(ShapeSelector.select_overlapping),
+            on_action=bkt.Callback(ShapeSelector.select_overlapping, context=True),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
             screentip="Shape-Objekte überlappend mit gewählten Shapes markieren",
             supertip="Selektiere alle Shapes auf dem aktuellen Slide, die sich mit einem der selektierten Shapes überlappen.",
@@ -313,7 +288,7 @@ selection_menu = bkt.ribbon.Menu(
             image_mso = 'SlideShowResolutionGallery',
             label='Innerhalb',
             #show_label=False,
-            on_action=bkt.Callback(ShapeSelector.select_within),
+            on_action=bkt.Callback(ShapeSelector.select_within, context=True),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
             screentip="Shape-Objekte innerhalb der gewählten Shapes markieren",
             supertip="Selektiere alle Shapes auf dem aktuellen Slide, die sich vollständig innerhalb eines der selektierten Shapes befinden.",
@@ -323,7 +298,7 @@ selection_menu = bkt.ribbon.Menu(
             image_mso = 'SlideShowResolutionGallery',
             label='Inner- && oberhalb',
             #show_label=False,
-            on_action=bkt.Callback(ShapeSelector.select_containing),
+            on_action=bkt.Callback(ShapeSelector.select_containing, context=True),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
             screentip="Shape-Objekte innerhalb und oberhalb der gewählten Shapes markieren",
             supertip="Selektiere alle Shapes auf dem aktuellen Slide, die sich vollständig innerhalb und oberhalb (d.h. Z-Order ist größer) eines der selektierten Shapes befinden.",
@@ -333,7 +308,7 @@ selection_menu = bkt.ribbon.Menu(
             image_mso = 'SlideShowResolutionGallery',
             label='Inner- && unterhalb',
             #show_label=False,
-            on_action=bkt.Callback(ShapeSelector.select_behind),
+            on_action=bkt.Callback(ShapeSelector.select_behind, context=True),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
             screentip="Shape-Objekte innerhalb und unterhalb der gewählten Shapes markieren",
             supertip="Selektiere alle Shapes auf dem aktuellen Slide, die sich vollständig innerhalb und unterhalb (d.h. Z-Order ist kleiner) eines der selektierten Shapes befinden.",
@@ -345,7 +320,7 @@ selection_menu = bkt.ribbon.Menu(
             id = 'shapes_select_invert',
             image_mso = 'ObjectsMultiSelect',
             label='Auswahl invertieren',
-            on_action=bkt.Callback(ShapeSelector.invert_selection),
+            on_action=bkt.Callback(ShapeSelector.invert_selection, context=True),
             # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
             supertip="Invertiert die aktuelle Auswahl. Es werden alle Shapes (auch Platzhalter) markiert, die vorher nicht markiert waren.",
         ),
