@@ -217,11 +217,15 @@ class FolderToSlides(object):
             if new_slide.Shapes.HasTitle:
                 new_slide.Shapes.Title.Textframe.TextRange.Text = root
             #paste slide
-            new_pic = new_slide.Shapes.AddPicture(full_path, 0, -1, ref_frame.left, ref_frame.top) #FileName, LinkToFile, SaveWithDocument, Left, Top, Width, Height
-            if new_pic.width > ref_frame.width:
-                new_pic.width = ref_frame.width
-            if new_pic.height > ref_frame.height:
-                new_pic.height = ref_frame.height
+            try:
+                new_pic = new_slide.Shapes.AddPicture(full_path, 0, -1, ref_frame.left, ref_frame.top) #FileName, LinkToFile, SaveWithDocument, Left, Top, Width, Height
+            except:
+                new_slide.Delete()
+            else:
+                if new_pic.width > ref_frame.width:
+                    new_pic.width = ref_frame.width
+                if new_pic.height > ref_frame.height:
+                    new_pic.height = ref_frame.height
         
         if master_slide_new:
             master_slide.Delete()
