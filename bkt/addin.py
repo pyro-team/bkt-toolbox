@@ -688,7 +688,7 @@ class AddIn(object):
                             _known_conflicts.extend(conflicts)
                         except AttributeError:
                             #legacy bkt_init, load for all apps, always
-                            logging.debug("bkt feature %s not using new loading mechanism" % module_name)
+                            logging.warning("bkt feature %s not using new loading mechanism" % module_name)
                             _c_bkt_inits[module_name] = {
                                 'name': module_name,
                                 'folder': folder,
