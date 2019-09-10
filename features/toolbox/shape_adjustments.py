@@ -67,6 +67,8 @@ class ShapeAdjustments(object):
         pplib.MsoAutoShapeType['msoShapeBentUpArrow']         : [dict(ref='min(hw)', min=0, max=1), dict(ref='min(hw)*2', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],             # type=44
         pplib.MsoAutoShapeType['msoShapeParallelogram']       : [dict(ref='h', min=0, max='w')],                                              # type=2
         pplib.MsoAutoShapeType['msoShapeTrapezoid']           : [dict(ref='min(hw)', min=0, max="w/2")],                                      # type=3
+        pplib.MsoAutoShapeType['msoShapeStripedRightArrow']   : [dict(ref='h', min=0, max="h"), dict(ref='min(hw)', min=0, max='w')],         # type=49
+        pplib.MsoAutoShapeType['msoShapeNotchedRightArrow']   : [dict(ref='h', min=0, max="h"), dict(ref='min(hw)', min=0, max='w')],         # type=50
         # database, box
         pplib.MsoAutoShapeType['msoShapeCan']                 : [dict(ref='min(hw)', min=0.001, max='h/2')],                                  # type=13
         pplib.MsoAutoShapeType['msoShapeCube']                : [dict(ref='min(hw)', min=0, max=1)],                                          # type=14
