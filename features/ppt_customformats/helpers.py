@@ -481,12 +481,23 @@ class ShapeFormats(object):
         tmp['LeftIndent'] = float(parfor_object.LeftIndent)
         tmp['RightIndent'] = float(parfor_object.RightIndent)
         tmp['HangingPunctuation'] = parfor_object.HangingPunctuation
+
+        tmp['TabStops.DefaultSpacing'] = float(parfor_object.TabStops.DefaultSpacing)
+        tmp['TabStops.Items'] = [(ts.type, float(ts.position)) for ts in parfor_object.TabStops]
         return tmp
     @classmethod
     def _set_paragraphformat(cls, parfor_object, parfor_dict):
         logging.debug("customformats: set parformat")
         for key, value in parfor_dict.items():
-            cls.mult_setattr(parfor_object, key, value)
+            if key == 'TabStops.Items':
+                #remove all tabstops
+                for t in list(iter(parfor_object.TabStops)):
+                    t.Clear()
+                #add tabstops
+                for ts_type, ts_pos in value:
+                    parfor_object.TabStops.Add(ts_type, ts_pos)
+            else:
+                cls.mult_setattr(parfor_object, key, value)
 
     @classmethod
     def _get_size(cls, shape):
