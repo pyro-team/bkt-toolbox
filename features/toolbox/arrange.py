@@ -19,7 +19,7 @@ from linkshapes import LinkedShapes
 from shapes import PositionSize
 
 class Swap(object):
-    locpin = pplib.LocPin()
+    locpin = pplib.LocPin(settings_key="toolbox.swap_locpin")
 
     # @staticmethod
     # def swap(shapes):
@@ -108,15 +108,15 @@ class Swap(object):
         temp.Delete()
 
 
-    @staticmethod
-    def replace_keep_size(shapes):
-        new = shapes[0]
-        ref = shapes[1]
-        new.top = ref.top
-        new.left = ref.left
-        new.width = ref.width
-        new.height = ref.height
+    @classmethod
+    def replace_keep_size(cls, shapes):
+        shapes = pplib.wrap_shapes(shapes[:2], cls.locpin)
+        new, ref = shapes
         new.rotation = ref.rotation
+        new.width    = ref.width
+        new.height   = ref.height
+        new.top      = ref.top
+        new.left     = ref.left
         pplib.set_shape_zorder(new, value=ref.ZOrderPosition)
         ref.Delete()
 
