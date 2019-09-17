@@ -851,6 +851,8 @@ class ShapeRotation(object):
     def set_rotation_zero(cls, shapes):
         if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
             cls.set_rotation(shapes, 180)
+        elif bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+            cls.set_rotation(shapes, cls.get_rotation(shapes))
         else:
             cls.set_rotation(shapes, 0)
 
@@ -891,7 +893,7 @@ distance_rotation_group = bkt.ribbon.Group(
             label=u"Objektabstand vertikal",
             show_label=False,
             screentip="Vertikalen Objektabstand",
-            supertip="Ändere den vertikalen Objektabstand auf das angegebene Maß (in cm).\n\nKlick für 0 Abstand.\nShift-Klick für 0,2cm Abstand.\nStrg-Klick für Abstand angleichen.",
+            supertip="Ändere den vertikalen Objektabstand auf das angegebene Maß (in cm).\n\nIcon-Klick für 0 Abstand.\nShift-Klick für 0,2cm Abstand.\nStrg-Klick für Abstand angleichen.",
             on_change = bkt.Callback(ShapeDistance.set_shape_sep_vertical, shapes=True),
             get_text  = bkt.Callback(ShapeDistance.get_shape_sep_vertical, shapes=True),
             # on_action = bkt.Callback(ShapeDistance.set_shape_sep_vertical_zero, shapes=True),
@@ -967,7 +969,7 @@ distance_rotation_group = bkt.ribbon.Group(
             label=u"Objektabstand horizontal",
             show_label=False,
             screentip="Horizontalen Objektabstand",
-            supertip="Ändere den horizontalen Objektabstand auf das angegebene Maß (in cm).\n\nKlick für 0 Abstand.\nShift-Klick für 0,2cm Abstand.\nStrg-Klick für Abstand angleichen.",
+            supertip="Ändere den horizontalen Objektabstand auf das angegebene Maß (in cm).\n\nIcon-Klick für 0 Abstand.\nShift-Klick für 0,2cm Abstand.\nStrg-Klick für Abstand angleichen.",
             on_change = bkt.Callback(ShapeDistance.set_shape_sep_horizontal, shapes=True),
             get_text  = bkt.Callback(ShapeDistance.get_shape_sep_horizontal, shapes=True),
             # on_action = bkt.Callback(ShapeDistance.set_shape_sep_horizontal_zero, shapes=True),
@@ -1043,7 +1045,7 @@ distance_rotation_group = bkt.ribbon.Group(
             image_mso='Repeat',
             # image_button=True,
             screentip="Form-Rotation",
-            supertip="Ändere die Rotation des Shapes auf das angegebene Maß (in Grad).",
+            supertip="Ändere die Rotation des Shapes auf das angegebene Maß (in Grad).\n\nIcon-Klick für Rotation=0.\nShift-Klick für Rotation=180.\nStrg-Klick für Rotation angleichen.",
             on_change = bkt.Callback(ShapeRotation.set_rotation, shapes=True),
             get_text  = bkt.Callback(ShapeRotation.get_rotation, shapes=True),
             # on_action = bkt.Callback(ShapeRotation.set_rotation_zero, shapes=True),
