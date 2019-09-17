@@ -648,14 +648,18 @@ class ShapeDistance(object):
     @classmethod
     def set_shape_sep_vertical_zero(cls, shapes):
         if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
-            cls.set_shape_sep_vertical(shapes, cls.default_sep)
+            cls.set_shape_sep_vertical(shapes, cm_to_pt(cls.default_sep))
+        elif bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+            cls.set_shape_sep_vertical(shapes, cls.get_shape_sep_vertical(shapes))
         else:
             cls.set_shape_sep_vertical(shapes, 0)
 
     @classmethod
     def set_shape_sep_horizontal_zero(cls, shapes):
         if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
-            cls.set_shape_sep_horizontal(shapes, cls.default_sep)
+            cls.set_shape_sep_horizontal(shapes, cm_to_pt(cls.default_sep))
+        elif bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+            cls.set_shape_sep_horizontal(shapes, cls.get_shape_sep_horizontal(shapes))
         else:
             cls.set_shape_sep_horizontal(shapes, 0)
 
@@ -887,7 +891,7 @@ distance_rotation_group = bkt.ribbon.Group(
             label=u"Objektabstand vertikal",
             show_label=False,
             screentip="Vertikalen Objektabstand",
-            supertip="Ändere den vertikalen Objektabstand auf das angegebene Maß (in cm).",
+            supertip="Ändere den vertikalen Objektabstand auf das angegebene Maß (in cm).\n\nKlick für 0 Abstand.\nShift-Klick für 0,2cm Abstand.\nStrg-Klick für Abstand angleichen.",
             on_change = bkt.Callback(ShapeDistance.set_shape_sep_vertical, shapes=True),
             get_text  = bkt.Callback(ShapeDistance.get_shape_sep_vertical, shapes=True),
             # on_action = bkt.Callback(ShapeDistance.set_shape_sep_vertical_zero, shapes=True),
@@ -963,7 +967,7 @@ distance_rotation_group = bkt.ribbon.Group(
             label=u"Objektabstand horizontal",
             show_label=False,
             screentip="Horizontalen Objektabstand",
-            supertip="Ändere den horizontalen Objektabstand auf das angegebene Maß (in cm).",
+            supertip="Ändere den horizontalen Objektabstand auf das angegebene Maß (in cm).\n\nKlick für 0 Abstand.\nShift-Klick für 0,2cm Abstand.\nStrg-Klick für Abstand angleichen.",
             on_change = bkt.Callback(ShapeDistance.set_shape_sep_horizontal, shapes=True),
             get_text  = bkt.Callback(ShapeDistance.get_shape_sep_horizontal, shapes=True),
             # on_action = bkt.Callback(ShapeDistance.set_shape_sep_horizontal_zero, shapes=True),
