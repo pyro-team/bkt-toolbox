@@ -15,14 +15,14 @@ from bkt.library.powerpoint import PPTSymbolsGallery
 # import fontsymbols
 #
 fontsettings = [
-    # module-name, font-filename
-    ('fontawesome4', 'FontAwesome'),
-    ('fontawesome5', 'Font Awesome 5 Free Regular'),
-    ('segoeui', 'Segoe UI'),
-    ('segoemdl2', 'Segoe MDL2 Assets'),
-    ('materialicons', 'Material Icons'),
-    ('fabricmdl2', 'Fabric MDL2 Assets'),
-    # ('foobar', 'Non-existing test font'),
+    # module-name, font-filename, suppress-font-not-installed-message
+    ('fontawesome4', 'FontAwesome', False),
+    ('fontawesome5', 'Font Awesome 5 Free Regular', False),
+    ('segoeui', 'Segoe UI', False),
+    ('segoemdl2', 'Segoe MDL2 Assets', False),
+    ('materialicons', 'Material Icons', False),
+    ('fabricmdl2', 'Fabric MDL2 Assets', True),
+    # ('foobar', 'Non-existing test font', True),
 ]
 
 
@@ -38,8 +38,7 @@ def font_exists(fontname):
 # initialize galleries 
 symbol_galleries = []
 
-for fontsetting in fontsettings:
-    font_module, font_name = fontsetting
+for font_module, font_name, suppress_hint in fontsettings:
     
     # check if font exists
     if font_exists(font_name):
@@ -59,7 +58,7 @@ for fontsetting in fontsettings:
         
         # add font-symbol-galleries
         symbol_galleries += fontsymbolmodule.menus
-    else:
+    elif not suppress_hint:
         symbol_galleries += [
             bkt.ribbon.MenuSeparator(title=font_name),
             bkt.ribbon.Button(
