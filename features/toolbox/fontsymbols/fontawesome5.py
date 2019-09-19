@@ -11,6 +11,13 @@ import json
 from collections import OrderedDict
 
 
+### How to get json files?
+# The font awesome archive contains metadata/categories.yml and metadata/icons.yml
+# Use https://www.json2yaml.com/ to convert yml to json
+# DO NOT USE metadata/icons.json!
+###
+
+
 # full font names
 font_name_hash = {
     'regular': "Font Awesome 5 Free Regular",
@@ -55,7 +62,7 @@ def get_content_categories():
                         font_name_hash[font],
                         unichr(int(icon['unicode'], 16)),
                         icon["label"],
-                        "{}\n{}\n{}".format(font_name_hash[font], catname, ", ".join(icon["search"]["terms"]))
+                        "{} > {}\n{}".format(font_name_hash[font], catname, ", ".join(icon["search"]["terms"]))
                     )
                     symbols.append(symbol)
 

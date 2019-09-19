@@ -12,135 +12,130 @@ from collections import OrderedDict,defaultdict
 
 
 symbols_communication = [
-    ("FontAwesome", u"\uf2ba", "address book"),
-    ("FontAwesome", u"\uf2bc", "address card"),
-    ("FontAwesome", u"\uf2c1", "id badge"),
-    ("FontAwesome", u"\uf2c3", "id card"),
-    ("FontAwesome", u"\uf183", "man"),
-    ("FontAwesome", u"\uf0c0", "users"),
-    ("FontAwesome", u"\uf2be", "user circle"),
-    ("FontAwesome", u"\uf2c0", "user"),
-    ("FontAwesome", u"\uf007", "user black"),
-    ("FontAwesome", u"\uf2b5", "handshake"),
-    ("FontAwesome", u"\uf0e5", "comment"),
-    ("FontAwesome", u"\uf27b", "commenting"),
-    ("FontAwesome", u"\uf0e6", "comments"),
-    ("FontAwesome", u"\uf086", "comments"),
+    ("FontAwesome", u"\uf2ba", "address book", "Font Awesome 4"),
+    ("FontAwesome", u"\uf2bc", "address card", "Font Awesome 4"),
+    ("FontAwesome", u"\uf2c1", "id badge", "Font Awesome 4"),
+    ("FontAwesome", u"\uf2c3", "id card", "Font Awesome 4"),
+    ("FontAwesome", u"\uf183", "man", "Font Awesome 4"),
+    ("FontAwesome", u"\uf0c0", "users", "Font Awesome 4"),
+    ("FontAwesome", u"\uf2be", "user circle", "Font Awesome 4"),
+    ("FontAwesome", u"\uf2c0", "user", "Font Awesome 4"),
+    ("FontAwesome", u"\uf007", "user black", "Font Awesome 4"),
+    ("FontAwesome", u"\uf2b5", "handshake", "Font Awesome 4"),
+    ("FontAwesome", u"\uf0e5", "comment", "Font Awesome 4"),
+    ("FontAwesome", u"\uf27b", "commenting", "Font Awesome 4"),
+    ("FontAwesome", u"\uf0e6", "comments", "Font Awesome 4"),
+    ("FontAwesome", u"\uf086", "comments", "Font Awesome 4"),
 ]
 
 symbols_itsystems = [
-    ("FontAwesome", u"\uf108", "desktop"),
-    ("FontAwesome", u"\uf109", "laptop"),
-    ("FontAwesome", u"\uf10a", "tablet"),
-    ("FontAwesome", u"\uf10b", "mobile"),
-    ("FontAwesome", u"\uf095", "phone"),
-    ("FontAwesome", u"\uf1ac", "fax"),
-    ("FontAwesome", u"\uf003", "mail"),
-    ("FontAwesome", u"\uf01c", "inbox"),
-    ("FontAwesome", u"\uf11c", "keyboard"),
-    
-    ("FontAwesome", u"\uf0c2", "cloud"),
-    ("FontAwesome", u"\uf09e", "rss"),
-    ("FontAwesome", u"\uf1eb", "wifi"),
-    
-    ("FontAwesome", u"\uf090", "sign in"),
-    ("FontAwesome", u"\uf084", "key"),
-    ("FontAwesome", u"\uf023", "lock"),
-    ("FontAwesome", u"\uf09c", "unlock"),
-    ("FontAwesome", u"\uf13e", "unlock"),
-    ("FontAwesome", u"\uf132", "shield"),
-    
-    ("FontAwesome", u"\uf19c", "university/bank"),
-    ("FontAwesome", u"\uf015", "home"),
-    ("FontAwesome", u"\uf1ad", "building"),
-    
-    ("FontAwesome", u"\uf1b2", "cube"),
-    ("FontAwesome", u"\uf1b3", "cubes"),
-    ("FontAwesome", u"\uf1c0", "database"),
-    ("FontAwesome", u"\uf233", "server"),
-    ("FontAwesome", u"\uf2db", "microchip"),
-    
-    ("FontAwesome", u"\uf188", "bug"),
+    ("FontAwesome", u"\uf108", "desktop", "Font Awesome 4"),
+    ("FontAwesome", u"\uf109", "laptop", "Font Awesome 4"),
+    ("FontAwesome", u"\uf10a", "tablet", "Font Awesome 4"),
+    ("FontAwesome", u"\uf10b", "mobile", "Font Awesome 4"),
+    ("FontAwesome", u"\uf095", "phone", "Font Awesome 4"),
+    ("FontAwesome", u"\uf1ac", "fax", "Font Awesome 4"),
+    ("FontAwesome", u"\uf003", "mail", "Font Awesome 4"),
+    ("FontAwesome", u"\uf01c", "inbox", "Font Awesome 4"),
+    ("FontAwesome", u"\uf11c", "keyboard", "Font Awesome 4"),
+    ("FontAwesome", u"\uf0c2", "cloud", "Font Awesome 4"),
+    ("FontAwesome", u"\uf09e", "rss", "Font Awesome 4"),
+    ("FontAwesome", u"\uf1eb", "wifi", "Font Awesome 4"),
+    ("FontAwesome", u"\uf090", "sign in", "Font Awesome 4"),
+    ("FontAwesome", u"\uf084", "key", "Font Awesome 4"),
+    ("FontAwesome", u"\uf023", "lock", "Font Awesome 4"),
+    ("FontAwesome", u"\uf09c", "unlock", "Font Awesome 4"),
+    ("FontAwesome", u"\uf13e", "unlock", "Font Awesome 4"),
+    ("FontAwesome", u"\uf132", "shield", "Font Awesome 4"),
+    ("FontAwesome", u"\uf19c", "university/bank", "Font Awesome 4"),
+    ("FontAwesome", u"\uf015", "home", "Font Awesome 4"),
+    ("FontAwesome", u"\uf1ad", "building", "Font Awesome 4"),
+    ("FontAwesome", u"\uf1b2", "cube", "Font Awesome 4"),
+    ("FontAwesome", u"\uf1b3", "cubes", "Font Awesome 4"),
+    ("FontAwesome", u"\uf1c0", "database", "Font Awesome 4"),
+    ("FontAwesome", u"\uf233", "server", "Font Awesome 4"),
+    ("FontAwesome", u"\uf2db", "microchip", "Font Awesome 4"),
+    ("FontAwesome", u"\uf188", "bug", "Font Awesome 4"),
 ]
 
 symbols_files = [
-    ("FontAwesome", u"\uf114", "folder"),
-    ("FontAwesome", u"\uf115", "folder open"),
-    ("FontAweSome", u"\uf016", "file"),
-    ("FontAweSome", u"\uf0c5", "files"),
-    ("FontAweSome", u"\uf0f6", "text"),
-    ("FontAweSome", u"\uf1c9", "code"),
-    ("FontAweSome", u"\uf1c6", "archive"),
-    ("FontAweSome", u"\uf1c5", "image"),
-    ("FontAweSome", u"\uf1c8", "video"),
-    ("FontAweSome", u"\uf1c7", "audio"),
-    ("FontAweSome", u"\uf1c1", "pdf"),
-    ("FontAweSome", u"\uf1c3", "excel"),
-    ("FontAweSome", u"\uf1c4", "powerpoint"),
-    ("FontAweSome", u"\uf1c2", "word"),
+    ("FontAwesome", u"\uf114", "folder", "Font Awesome 4"),
+    ("FontAwesome", u"\uf115", "folder open", "Font Awesome 4"),
+    ("FontAweSome", u"\uf016", "file", "Font Awesome 4"),
+    ("FontAweSome", u"\uf0c5", "files", "Font Awesome 4"),
+    ("FontAweSome", u"\uf0f6", "text", "Font Awesome 4"),
+    ("FontAweSome", u"\uf1c9", "code", "Font Awesome 4"),
+    ("FontAweSome", u"\uf1c6", "archive", "Font Awesome 4"),
+    ("FontAweSome", u"\uf1c5", "image", "Font Awesome 4"),
+    ("FontAweSome", u"\uf1c8", "video", "Font Awesome 4"),
+    ("FontAweSome", u"\uf1c7", "audio", "Font Awesome 4"),
+    ("FontAweSome", u"\uf1c1", "pdf", "Font Awesome 4"),
+    ("FontAweSome", u"\uf1c3", "excel", "Font Awesome 4"),
+    ("FontAweSome", u"\uf1c4", "powerpoint", "Font Awesome 4"),
+    ("FontAweSome", u"\uf1c2", "word", "Font Awesome 4"),
 ]
 
 symbols_analysis = [
-    ("FontAwesome", u"\uf080", "bar chart"),
-    ("FontAwesome", u"\uf200", "pie chart"),
-    ("FontAwesome", u"\uf201", "line chart"),
-    ("FontAwesome", u"\uf1fe", "area chart"),
-    ("FontAwesome", u"\uf02a", "barcode"),
-    ("FontAwesome", u"\uf24e", "balance"),
-    
-    ("FontAwesome", u"\uf005", "star"),
-    ("FontAwesome", u"\uf123", "star half"),
-    ("FontAwesome", u"\uf006", "star empty"),
-    ("FontAwesome", u"\uf251", "hourglass start"),
-    ("FontAwesome", u"\uf252", "hourglass half"),
-    ("FontAwesome", u"\uf253", "hourglass end"),
-    
-    ("FontAwesome", u"\uf244", "battery empty"),
-    ("FontAwesome", u"\uf243", "battery 1/4"),
-    ("FontAwesome", u"\uf242", "battery 1/2"),
-    ("FontAwesome", u"\uf241", "battery 3/4"),
-    ("FontAwesome", u"\uf240", "battery full"),
-    ("FontAwesome", u"\uf05e", "ban"),
+    ("FontAwesome", u"\uf080", "bar chart", "Font Awesome 4"),
+    ("FontAwesome", u"\uf200", "pie chart", "Font Awesome 4"),
+    ("FontAwesome", u"\uf201", "line chart", "Font Awesome 4"),
+    ("FontAwesome", u"\uf1fe", "area chart", "Font Awesome 4"),
+    ("FontAwesome", u"\uf02a", "barcode", "Font Awesome 4"),
+    ("FontAwesome", u"\uf24e", "balance", "Font Awesome 4"),
 
-    ("FontAwesome", u"\uf087", "thumbs up"),
-    ("FontAwesome", u"\uf088", "thumbs down"),
-    ("FontAwesome", u"\uf164", "thumbs up"),
-    ("FontAwesome", u"\uf165", "thumbs down"),
-    
-    ("FontAwesome", u"\uf046", "check"),
-    ("FontAwesome", u"\uf05d", "check circle"),
-    ("FontAwesome", u"\uf00c", "check"),
-    ("FontAwesome", u"\uf00d", "x"),
+    ("FontAwesome", u"\uf005", "star", "Font Awesome 4"),
+    ("FontAwesome", u"\uf123", "star half", "Font Awesome 4"),
+    ("FontAwesome", u"\uf006", "star empty", "Font Awesome 4"),
+    ("FontAwesome", u"\uf251", "hourglass start", "Font Awesome 4"),
+    ("FontAwesome", u"\uf252", "hourglass half", "Font Awesome 4"),
+    ("FontAwesome", u"\uf253", "hourglass end", "Font Awesome 4"),
+
+    ("FontAwesome", u"\uf244", "battery empty", "Font Awesome 4"),
+    ("FontAwesome", u"\uf243", "battery 1/4", "Font Awesome 4"),
+    ("FontAwesome", u"\uf242", "battery 1/2", "Font Awesome 4"),
+    ("FontAwesome", u"\uf241", "battery 3/4", "Font Awesome 4"),
+    ("FontAwesome", u"\uf240", "battery full", "Font Awesome 4"),
+    ("FontAwesome", u"\uf05e", "ban", "Font Awesome 4"),
+
+    ("FontAwesome", u"\uf087", "thumbs up", "Font Awesome 4"),
+    ("FontAwesome", u"\uf088", "thumbs down", "Font Awesome 4"),
+    ("FontAwesome", u"\uf164", "thumbs up", "Font Awesome 4"),
+    ("FontAwesome", u"\uf165", "thumbs down", "Font Awesome 4"),
+
+    ("FontAwesome", u"\uf046", "check", "Font Awesome 4"),
+    ("FontAwesome", u"\uf05d", "check circle", "Font Awesome 4"),
+    ("FontAwesome", u"\uf00c", "check", "Font Awesome 4"),
+    ("FontAwesome", u"\uf00d", "x", "Font Awesome 4"),
 ]
 
 
 symbols_mixed = [
-    ("FontAwesome", u"\uf0d0", "magic"),
-    ("FontAwesome", u"\uf02d", "book"),
-    ("FontAwesome", u"\uf02e", "bookmark"),
-    ("FontAwesome", u"\uf0b1", "briefcase"),
-    ("FontAwesome", u"\uf140", "bullseye"),
-    ("FontAwesome", u"\uf073", "calendar"),
-    ("FontAwesome", u"\uf0a3", "certificate"),
-    ("FontAwesome", u"\uf017", "clock"),
-    ("FontAwesome", u"\uf013", "cog"),
-    ("FontAwesome", u"\uf085", "cogs"),
-    ("FontAwesome", u"\uf134", "fire extinguisher"),
-    ("FontAwesome", u"\uf277", "map signs"),
-    ("FontAwesome", u"\uf041", "map marker"),
-    ("FontAwesome", u"\uf1ea", "newspaper"),
-    ("FontAwesome", u"\uf0eb", "lightbulb"),
-    ("FontAwesome", u"\uf08d", "pin"),
-    ("FontAwesome", u"\uf074", "random"),
-    ("FontAwesome", u"\uf1b8", "recycle"),
-    ("FontAwesome", u"\uf021", "refresh"),
-    ("FontAwesome", u"\uf135", "rocket"),
-    ("FontAwesome", u"\uf002", "search"),
-    ("FontAwesome", u"\uf0e4", "tachometer"),
-    ("FontAwesome", u"\uf02b", "tag"),
-    ("FontAwesome", u"\uf02c", "tags"),
-    ("FontAwesome", u"\uf014", "trash"),
-    ("FontAwesome", u"\uf0ad", "wrench"),
+    ("FontAwesome", u"\uf0d0", "magic", "Font Awesome 4"),
+    ("FontAwesome", u"\uf02d", "book", "Font Awesome 4"),
+    ("FontAwesome", u"\uf02e", "bookmark", "Font Awesome 4"),
+    ("FontAwesome", u"\uf0b1", "briefcase", "Font Awesome 4"),
+    ("FontAwesome", u"\uf140", "bullseye", "Font Awesome 4"),
+    ("FontAwesome", u"\uf073", "calendar", "Font Awesome 4"),
+    ("FontAwesome", u"\uf0a3", "certificate", "Font Awesome 4"),
+    ("FontAwesome", u"\uf017", "clock", "Font Awesome 4"),
+    ("FontAwesome", u"\uf013", "cog", "Font Awesome 4"),
+    ("FontAwesome", u"\uf085", "cogs", "Font Awesome 4"),
+    ("FontAwesome", u"\uf134", "fire extinguisher", "Font Awesome 4"),
+    ("FontAwesome", u"\uf277", "map signs", "Font Awesome 4"),
+    ("FontAwesome", u"\uf041", "map marker", "Font Awesome 4"),
+    ("FontAwesome", u"\uf1ea", "newspaper", "Font Awesome 4"),
+    ("FontAwesome", u"\uf0eb", "lightbulb", "Font Awesome 4"),
+    ("FontAwesome", u"\uf08d", "pin", "Font Awesome 4"),
+    ("FontAwesome", u"\uf074", "random", "Font Awesome 4"),
+    ("FontAwesome", u"\uf1b8", "recycle", "Font Awesome 4"),
+    ("FontAwesome", u"\uf021", "refresh", "Font Awesome 4"),
+    ("FontAwesome", u"\uf135", "rocket", "Font Awesome 4"),
+    ("FontAwesome", u"\uf002", "search", "Font Awesome 4"),
+    ("FontAwesome", u"\uf0e4", "tachometer", "Font Awesome 4"),
+    ("FontAwesome", u"\uf02b", "tag", "Font Awesome 4"),
+    ("FontAwesome", u"\uf02c", "tags", "Font Awesome 4"),
+    ("FontAwesome", u"\uf014", "trash", "Font Awesome 4"),
+    ("FontAwesome", u"\uf0ad", "wrench", "Font Awesome 4"),
 ]
 
 
@@ -170,7 +165,7 @@ menu_settings = [
     # menu label,          list of symbols,       icons per row
     ('IT-System',          symbols_itsystems,           6  ),
     ('Kommunikation',      symbols_communication,       6  ),
-    # ('Dateien',            symbols_files,               6  ),
+    ('Dateien',            symbols_files,               6  ),
     ('Analyse/Bewertung',  symbols_analysis,            6  ),
     ('Mixed',              symbols_mixed,               6  ),
     # ('All',                symbols_all,                16  )
@@ -192,16 +187,12 @@ def get_content_categories():
     categories = defaultdict(list)
     for char in chars['icons']:
         uc = unichr(int(char['unicode'], 16))
-        try:
-            t=("FontAwesome", uc, char['name'], ", ".join(char['filter']))
-        except:
-            t=("FontAwesome", uc, char['name'])
         for cat in char['categories']:
-            categories[cat].append(t)
-            # try:
-            #     categories[cat].append(t)
-            # except KeyError:
-            #     categories[cat] = [t]
+            try:
+                supertip = "Font Awesome 4 > {}\n{}".format(cat, ", ".join(char['filter']))
+            except:
+                supertip = "Font Awesome 4 > {}".format(cat)
+            categories[cat].append(("FontAwesome", uc, char['name'], supertip))
     
     return bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",

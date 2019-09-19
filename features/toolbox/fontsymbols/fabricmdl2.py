@@ -8,8 +8,9 @@ from bkt.library.powerpoint import PPTSymbolsGallery
 import os.path
 import io
 import json
+from math import ceil
 
-
+#not used anymore:
 mono_icons = [
     "AADLogo",
     "AccessLogo",
@@ -60,19 +61,18 @@ with io.open(file, 'r') as json_file:
     fabric_symbols3 = []
     fabric_symbols4 = []
     # fabric_symbols_mono = []
-    chunk_size = int(len(chars)/4)
+    chunk_size = ceil(len(chars)/4.0)
     for i,char in enumerate(chars):
         if not "unicode" in char:
             continue
-        t=("Fabric MDL2 Assets", unichr(int(char['unicode'], 16)), char['name'])
         if 0 < i <= chunk_size:
-            fabric_symbols1.append(t)
+            fabric_symbols1.append(("Fabric MDL2 Assets", unichr(int(char['unicode'], 16)), char['name'], "Fabric MDL2 Assets > 1"))
         elif chunk_size < i <= 2*chunk_size:
-            fabric_symbols2.append(t)
+            fabric_symbols2.append(("Fabric MDL2 Assets", unichr(int(char['unicode'], 16)), char['name'], "Fabric MDL2 Assets > 2"))
         elif 2*chunk_size < i <= 3*chunk_size:
-            fabric_symbols3.append(t)
+            fabric_symbols3.append(("Fabric MDL2 Assets", unichr(int(char['unicode'], 16)), char['name'], "Fabric MDL2 Assets > 3"))
         else:
-            fabric_symbols4.append(t)
+            fabric_symbols4.append(("Fabric MDL2 Assets", unichr(int(char['unicode'], 16)), char['name'], "Fabric MDL2 Assets > 4"))
         # if char['name'] in mono_icons:
         #     fabric_symbols_mono.append(t)
 

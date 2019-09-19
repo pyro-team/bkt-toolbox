@@ -16,18 +16,18 @@ from collections import OrderedDict,defaultdict
 menu_title = 'Material Icons'
 
 symbols_common = [
-    ("Material Icons", u"\uE853", "account circle"),
-    ("Material Icons", u"\uE897", "lock"),
-    ("Material Icons", u"\uE8DC", "thumbs up"),
-    ("Material Icons", u"\uE8DB", "thumbs down"),
-    ("Material Icons", u"\uE0B0", "call"),
-    ("Material Icons", u"\uE0B7", "chat"),
-    ("Material Icons", u"\uE0BE", "email"),
-    ("Material Icons", u"\uE2BD", "cloud"),
-    ("Material Icons", u"\uE7EF", "group"),
-    ("Material Icons", u"\uE7FD", "person"),
-    ("Material Icons", u"\uE55F", "place"),
-    ("Material Icons", u"\uE80B", "public"),
+    ("Material Icons", u"\uE853", "account circle", "Material Icons > Wichtige"),
+    ("Material Icons", u"\uE897", "lock", "Material Icons > Wichtige"),
+    ("Material Icons", u"\uE8DC", "thumbs up", "Material Icons > Wichtige"),
+    ("Material Icons", u"\uE8DB", "thumbs down", "Material Icons > Wichtige"),
+    ("Material Icons", u"\uE0B0", "call", "Material Icons > Wichtige"),
+    ("Material Icons", u"\uE0B7", "chat", "Material Icons > Wichtige"),
+    ("Material Icons", u"\uE0BE", "email", "Material Icons > Wichtige"),
+    ("Material Icons", u"\uE2BD", "cloud", "Material Icons > Wichtige"),
+    ("Material Icons", u"\uE7EF", "group", "Material Icons > Wichtige"),
+    ("Material Icons", u"\uE7FD", "person", "Material Icons > Wichtige"),
+    ("Material Icons", u"\uE55F", "place", "Material Icons > Wichtige"),
+    ("Material Icons", u"\uE80B", "public", "Material Icons > Wichtige"),
 ]
 
 menu_settings = [
@@ -45,7 +45,12 @@ def get_content_categories():
     categories = defaultdict(list)
     for char in chars['categories']:
         for ico in char['icons']:
-            t=("Material Icons", unichr(int(ico['codepoint'], 16)), ico['name'], ", ".join(ico.get('keywords', [])))
+            t=(
+                "Material Icons",
+                unichr(int(ico['codepoint'], 16)),
+                ico['name'],
+                "Material Icons > {}\n{}".format(char['name'].capitalize(), ", ".join(ico.get('keywords', [])))
+            )
             categories[char['name'].capitalize()].append(t)
     
     return bkt.ribbon.Menu(
