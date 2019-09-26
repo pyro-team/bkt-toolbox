@@ -2093,6 +2093,40 @@ arrange_advanced_group = bkt.ribbon.Group(
     ]
 )
 
+arrange_advanced_small_group = bkt.ribbon.Group(
+    id="bkt_arrage_adv_small_group",
+    label=u'Erw. Anordnen',
+    image='arrange_left_at_left',
+    children=[
+        arrange_advaced.get_button("arrange_left_at_left", "-small",        label="Links an Links"),
+        arrange_advaced.get_button("arrange_right_at_right", "-small",      label="Rechts an Rechts"),
+        arrange_advaced.get_button("arrange_middle_at_middle", "-small",    label="Mitte an Mitte"),
+        arrange_advaced.get_button("arrange_top_at_top", "-small",          label="Oben an Oben"),
+        arrange_advaced.get_button("arrange_bottom_at_bottom", "-small",    label="Unten an Unten"),
+        arrange_advaced.get_button("arrange_vmiddle_at_vmiddle", "-small",  label="Mitte an Mitte"),
+
+        bkt.ribbon.Button(
+            id="arrange_quick_position-small",
+            label="Position",
+            show_label=False,
+            image_mso="ControlAlignToGrid",
+            on_action=bkt.Callback(arrange_advaced.arrange_quick_position),
+            get_enabled=bkt.Callback(arrange_advaced.enabled),
+            screentip="Gleiche Position wie Master",
+        ),
+        bkt.ribbon.Button(
+            id="arrange_quick_size-small",
+            label="Größe",
+            show_label=False,
+            image_mso="SizeToControlHeightAndWidth",
+            on_action=bkt.Callback(arrange_advaced.arrange_quick_size),
+            get_enabled=bkt.Callback(arrange_advaced.enabled),
+            screentip="Gleiche Größe wie Master",
+        ),
+
+        arrange_advaced.get_master_button("-small", show_label=False)
+    ]
+)
 
 
 class ArrangeAdvancedEasy(ArrangeAdvanced):

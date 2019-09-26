@@ -1600,6 +1600,27 @@ picture_format_tab = bkt.ribbon.Tab(
 
 
 
+# default ui for shape styling
+styles_group = bkt.ribbon.Group(
+    id="bkt_style_group",
+    label='Stile',
+    image_mso='ShapeFillColorPicker',
+    children = [
+        bkt.mso.control.ShapeFillColorPicker,
+        bkt.mso.control.ShapeOutlineColorPicker,
+        bkt.mso.control.ShapeEffectsMenu,
+        bkt.mso.control.TextFillColorPicker,
+        bkt.mso.control.TextOutlineColorPicker,
+        bkt.mso.control.TextEffectsMenu,
+        bkt.mso.control.OutlineWeightGallery,
+        bkt.mso.control.OutlineDashesGallery,
+        bkt.mso.control.ArrowStyleGallery,
+        fill_transparency_gallery,
+        line_transparency_gallery,
+        bkt.mso.control.ShapeQuickStylesHome, #if ppt_customformats is active, this button is replaced
+        bkt.ribbon.DialogBoxLauncher(idMso='ObjectFormatDialog')
+    ]
+)
 
 
 

@@ -26,27 +26,6 @@ import shape_selection
 import context_menus
 
 
-# default ui for shape styling
-styles_group = bkt.ribbon.Group(
-    id="bkt_style_group",
-    label='Stile',
-    image_mso='ShapeFillColorPicker',
-    children = [
-        bkt.mso.control.ShapeFillColorPicker,
-        bkt.mso.control.ShapeOutlineColorPicker,
-        bkt.mso.control.ShapeEffectsMenu,
-        bkt.mso.control.TextFillColorPicker,
-        bkt.mso.control.TextOutlineColorPicker,
-        bkt.mso.control.TextEffectsMenu,
-        bkt.mso.control.OutlineWeightGallery,
-        bkt.mso.control.OutlineDashesGallery,
-        bkt.mso.control.ArrowStyleGallery,
-        mod_shapes.fill_transparency_gallery,
-        mod_shapes.line_transparency_gallery,
-        bkt.mso.control.ShapeQuickStylesHome, #TODO: replace this with customformats feature
-        bkt.ribbon.DialogBoxLauncher(idMso='ObjectFormatDialog')
-    ]
-)
 
 
 # ==============================

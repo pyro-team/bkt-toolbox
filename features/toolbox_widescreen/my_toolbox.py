@@ -25,63 +25,6 @@ from toolbox import context_menus
 info.TabActivator.tab_id = "my_bkt_powerpoint_toolbox"
 
 
-# default ui for shape styling
-styles_group = bkt.ribbon.Group(
-    id="bkt_style_group",
-    label='Stile',
-    image_mso='ShapeFillColorPicker',
-    children = [
-        bkt.mso.control.ShapeFillColorPicker,
-        bkt.mso.control.ShapeOutlineColorPicker,
-        bkt.mso.control.ShapeEffectsMenu,
-        bkt.mso.control.TextFillColorPicker,
-        bkt.mso.control.TextOutlineColorPicker,
-        bkt.mso.control.TextEffectsMenu,
-        bkt.mso.control.OutlineWeightGallery,
-        bkt.mso.control.OutlineDashesGallery,
-        bkt.mso.control.ArrowStyleGallery,
-        mod_shapes.fill_transparency_gallery,
-        mod_shapes.line_transparency_gallery,
-        bkt.mso.control.ShapeQuickStylesHome, #TODO: replace this with customformats feature
-        bkt.ribbon.DialogBoxLauncher(idMso='ObjectFormatDialog')
-    ]
-)
-
-
-arrange_advanced_small_group = bkt.ribbon.Group(
-    id="bkt_arrage_adv_small_group",
-    label=u'Erw. Anordnen',
-    image='arrange_left_at_left',
-    children=[
-        arrange.arrange_advaced.get_button("arrange_left_at_left", "-small",        label="Links an Links"),
-        arrange.arrange_advaced.get_button("arrange_right_at_right", "-small",      label="Rechts an Rechts"),
-        arrange.arrange_advaced.get_button("arrange_middle_at_middle", "-small",    label="Mitte an Mitte"),
-        arrange.arrange_advaced.get_button("arrange_top_at_top", "-small",          label="Oben an Oben"),
-        arrange.arrange_advaced.get_button("arrange_bottom_at_bottom", "-small",    label="Unten an Unten"),
-        arrange.arrange_advaced.get_button("arrange_vmiddle_at_vmiddle", "-small",  label="Mitte an Mitte"),
-
-        bkt.ribbon.Button(
-            id="arrange_quick_position-small",
-            label="Position",
-            show_label=False,
-            image_mso="ControlAlignToGrid",
-            on_action=bkt.Callback(arrange.arrange_advaced.arrange_quick_position),
-            get_enabled=bkt.Callback(arrange.arrange_advaced.enabled),
-            screentip="Gleiche Position wie Master",
-        ),
-        bkt.ribbon.Button(
-            id="arrange_quick_size-small",
-            label="Größe",
-            show_label=False,
-            image_mso="SizeToControlHeightAndWidth",
-            on_action=bkt.Callback(arrange.arrange_advaced.arrange_quick_size),
-            get_enabled=bkt.Callback(arrange.arrange_advaced.enabled),
-            screentip="Gleiche Größe wie Master",
-        ),
-
-        arrange.arrange_advaced.get_master_button("-small", show_label=False)
-    ]
-)
 
 
 # ==============================
