@@ -361,6 +361,9 @@ GlobalLocPin = LocPin(settings_key="bkt.global_loc_pin")
 
 
 def shape_is_group_child(shape):
+    '''
+    Test if a shape is part of a group.
+    '''
     try:
         return shape.ParentGroup.Id != ""
     except SystemError:
@@ -459,6 +462,9 @@ def get_slides_from_selection(selection):
         return []
 
 def set_shape_zorder(shape, value=None, delta=None):
+    '''
+    Sets the shapes Z-Order to a specific value (if value != None) or by a specific delta (if delta != None). Delta can be negative.
+    '''
     if not delta and not value:
         raise ArgumentError("Neither value nor delta are given!")
 
@@ -487,7 +493,66 @@ def set_shape_zorder(shape, value=None, delta=None):
             break
             #zorder reached
 
+def replicate_shape(shape, force_textbox=False):
+    '''
+    This function replicates a shape, which is similar to shape.Duplicate() but instead a new shape is created.
+    The duplicate function throws a ComException if the duplicate is used (e.g. merged, deleted) afterwards due to pending event handling.
+    '''
+    slide = shape.Parent
+    if force_textbox or shape.Type == MsoShapeType['msoTextBox']:
+        new_shape = slide.shapes.AddTextbox(
+            1, #msoTextOrientationHorizontal
+            shape.Left, shape.Top, shape.Width, shape.Height)
+        new_shape.AutoShapeType = shape.AutoShapeType
+    else:
+        new_shape = slide.shapes.AddShape(
+            shape.AutoShapeType,
+            shape.Left, shape.Top, shape.Width, shape.Height)
+    
+    #replicate shape properties
+    if shape.VerticalFlip != new_shape.VerticalFlip:
+        new_shape.Flip(1) #msoFlipVertical
+    if shape.HorizontalFlip != new_shape.HorizontalFlip:
+        new_shape.Flip(0) #msoFlipHorizontal
+
+    for i in range(1,shape.adjustments.count+1):
+        try:
+            new_shape.adjustments.item[i] = shape.adjustments.item[i]
+        except:
+            continue
+
+    new_shape.Rotation = shape.Rotation
+
+    #copy all formatting
+    shape.PickUp()
+    new_shape.Apply()
+
+    #copy text
+    shape.TextFrame2.TextRange.Copy()
+    new_shape.TextFrame2.TextRange.Paste()
+
+    #ensure correct size and position (size may change due to AutoSize, Flip can change position)
+    new_shape.Height = shape.Height
+    new_shape.Width  = shape.Width
+    new_shape.Top    = shape.Top
+    new_shape.Left   = shape.Left
+    
+    return new_shape
+
+
 def convert_text_into_shape(shape):
+    '''
+    This function converts text into a shape. This is very useful for icon fonts. If the shape has a background, the text is cut out of the shape.
+    We use the standard merge functions from powerpoint, which are buggy in some situation: If a special shape with adjustments is used, the 
+    converted text is not at the exact same position as the original text. This is very annoying for the cut-out function. No workaround found :(
+
+    ### MsoMergeCmd:
+    msoMergeCombine     2   Creates a new shape from selected shapes. If the selected shapes overlap, the area where they overlap is cut out, or discarded.
+    msoMergeFragment    5   Breaks a shape into smaller parts or create new shapes from intersecting lines or from shapes that overlap.
+    msoMergeIntersect   3   Forms a new closed shape from the area where selected shapes overlap, eliminating non-overlapping areas.
+    msoMergeSubtract    4   Creates a new shape by subtracting from the primary selection the areas where subsequent selections overlap.
+    msoMergeUnion       1   Creates a new shape from the perimeter of two or more overlapping shapes. The new shape is a set of all the points from the original shapes.
+    '''
     slide = shape.Parent
 
     #find shape index
@@ -501,25 +566,63 @@ def convert_text_into_shape(shape):
 
     #total shapes
     shape_count = slide.shapes.count
-    #add temporary shape
-    tmp_shp = slide.shapes.AddShape( MsoAutoShapeType['msoShapeRectangle']
-        , -10, 0, 10, 10)
 
-    #select shape and temporary shape
-    shapes = shape_indices_on_slide(slide, [shape_index, shape_count+1])
-    shapes.MergeShapes(4, shape) #MsoMergeCmd: 4=msoMergeSubtract
+    #convert actual text into shape
+    if shape.Fill.visible == 0:
+        #turn off line as it prohibts conversion
+        shape.Line.visible = 0
+
+        #add temporary shape
+        tmp_shp = slide.shapes.AddShape( MsoAutoShapeType['msoShapeRectangle']
+            , -10, 0, 10, 10)
+        
+        #select shape and temporary shape
+        shapes = shape_indices_on_slide(slide, [shape_index, shape_count+1])
+        shapes.MergeShapes(4, shape)
+    
+    #cut text out of shape
+    else:
+        # first approach: duplicate shape, remove fill+line, and text from original shape,
+        #                 but than MergeShape fails with ComException. It seems that events
+        #                 need to be processed before. Workaround: Delay MergeShape in a Thread,
+        #                 but than we cannot return the resulting shape.
+        # new approach: create new shape and copy all relevant formatting
+
+        #ensure autosize is off
+        shape.TextFrame2.AutoSize = 0 #ppAutoSizeNone
+
+        #duplicate shape without using Duplicate()
+        text_shape = replicate_shape(shape, True)
+
+        #remove fill and line
+        text_shape.Fill.visible=0
+        text_shape.Line.visible=0
+
+        #delete text from original shape
+        shape.TextFrame2.DeleteText()
+
+        #select shape and text shape
+        shapes = shape_indices_on_slide(slide, [shape_index, shape_count+1])
+        shapes.MergeShapes(4, shape)
 
     new_shape = shape_indices_on_slide(slide, [shape_index])[1]
     new_shape.LockAspectRatio = -1
     return new_shape
 
+
 def get_dict_from_tags(shape_tags):
+    '''
+    Convert all shape tags to a python dictionary.
+    '''
     d = dict()
     for i in range(shape_tags.count):
         d[shape_tags.name(i+1)] = shape_tags.value(i+1)
     return d
 
 def set_tags_from_dict(tags_dict, shape_tags):
+    '''
+    Set shape tags based on a python dictionary.
+    '''
     for k,v in tags_dict.items():
         shape_tags.add(k,v)
 
