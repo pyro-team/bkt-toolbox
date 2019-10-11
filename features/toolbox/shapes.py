@@ -650,7 +650,7 @@ class ShapesMore(object):
 
     
     @staticmethod
-    def text_to_shape(shape):
+    def _text_to_shape(shape):
         try:
             return pplib.convert_text_into_shape(shape)
         except Exception as e:
@@ -658,11 +658,11 @@ class ShapesMore(object):
     
     @classmethod
     def texts_to_shapes(cls, shapes):
-        last_shape=None
+        all_shapes = []
         for shape in shapes:
-            last_shape=cls.text_to_shape(shape)
-        if last_shape:
-            last_shape.select()
+            all_shapes.append( cls._text_to_shape(shape) )
+        if len(all_shapes)>0:
+            pplib.shapes_to_range(all_shapes).select()
 
 
 
