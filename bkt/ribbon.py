@@ -467,7 +467,8 @@ class CustomUI(TypedRibbonControl):
 # ===============================
 
 class Gallery(GalleryMso):
-    def get_check_image(self, checked=True):
+    @staticmethod
+    def get_check_image(checked=True):
         if not checked:
             return None
 
