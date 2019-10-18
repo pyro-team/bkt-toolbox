@@ -28,53 +28,90 @@ office = dotnet.import_officecore()
 
 
 class PositionSize(object):
+    use_visual_pos  = bkt.settings.get("toolbox.possize.use_visual_pos", False)
+    use_visual_size = bkt.settings.get("toolbox.possize.use_visual_size", False)
+
+    @classmethod
+    def toggle_use_visual_pos(cls):
+        cls.use_visual_pos = not cls.use_visual_pos
+        bkt.settings["toolbox.possize.use_visual_pos"] = cls.use_visual_pos
+
+    @classmethod
+    def get_image_use_visual_pos(cls):
+        return bkt.ribbon.Gallery.get_check_image(cls.use_visual_pos)
+
+    @classmethod
+    def toggle_use_visual_size(cls):
+        cls.use_visual_size = not cls.use_visual_size
+        bkt.settings["toolbox.possize.use_visual_size"] = cls.use_visual_size
+
+    @classmethod
+    def get_image_use_visual_size(cls):
+        return bkt.ribbon.Gallery.get_check_image(cls.use_visual_size)
+
 
     @classmethod
     def set_top(cls, shapes, value):
+        attr = 'visual_top' if cls.use_visual_pos else 'top'
         bkt.apply_delta_on_ALT_key(
-            lambda shape, value: setattr(shape, 'top', value), 
-            lambda shape: shape.top, 
+            lambda shape, value: setattr(shape, attr, value), 
+            lambda shape: getattr(shape, attr), 
             shapes, value)
     
     @classmethod
     def get_top(cls, shapes):
-        return [shape.top for shape in shapes] #shapes[0].top
+        if not cls.use_visual_pos:
+            return [shape.top for shape in shapes] #shapes[0].top
+        else:
+            return [shape.visual_top for shape in shapes]
     
     
     @classmethod
     def set_left(cls, shapes, value):
+        attr = 'visual_left' if cls.use_visual_pos else 'left'
         bkt.apply_delta_on_ALT_key(
-            lambda shape, value: setattr(shape, 'left', value), 
-            lambda shape: shape.left, 
+            lambda shape, value: setattr(shape, attr, value), 
+            lambda shape: getattr(shape, attr), 
             shapes, value)
 
     @classmethod
     def get_left(cls, shapes):
-        return [shape.left for shape in shapes] #shapes[0].left
+        if not cls.use_visual_pos:
+            return [shape.left for shape in shapes] #shapes[0].left
+        else:
+            return [shape.visual_left for shape in shapes]
 
 
     @classmethod
     def set_height(cls, shapes, value):
+        attr = 'visual_height' if cls.use_visual_size else 'height'
         bkt.apply_delta_on_ALT_key(
-            lambda shape, value: setattr(shape, 'height', value), 
-            lambda shape: shape.height, 
+            lambda shape, value: setattr(shape, attr, value), 
+            lambda shape: getattr(shape, attr), 
             shapes, value)
 
-    @staticmethod
-    def get_height(shapes):
-        return [shape.height for shape in shapes] #shapes[0].height
+    @classmethod
+    def get_height(cls, shapes):
+        if not cls.use_visual_size:
+            return [shape.height for shape in shapes] #shapes[0].height
+        else:
+            return [shape.visual_height for shape in shapes]
     
     
     @classmethod
     def set_width(cls, shapes, value):
+        attr = 'visual_width' if cls.use_visual_size else 'width'
         bkt.apply_delta_on_ALT_key(
-            lambda shape, value: setattr(shape, 'width', value), 
-            lambda shape: shape.width, 
+            lambda shape, value: setattr(shape, attr, value), 
+            lambda shape: getattr(shape, attr), 
             shapes, value)
 
-    @staticmethod
-    def get_width(shapes):
-        return [shape.width for shape in shapes] #shapes[0].width
+    @classmethod
+    def get_width(cls, shapes):
+        if not cls.use_visual_size:
+            return [shape.width for shape in shapes] #shapes[0].width
+        else:
+            return [shape.visual_width for shape in shapes]
 
 
     @staticmethod
@@ -160,6 +197,12 @@ spinner_top = bkt.ribbon.RoundingSpinnerBox(
     convert="pt_to_cm",
     image_element=pplib.LocpinGallery(image_mso='ObjectNudgeDown', children=[
         bkt.ribbon.Button(
+            label="Visuelle Position",
+            get_image=bkt.Callback(PositionSize.get_image_use_visual_pos),
+            screentip="Visuelle Position unter Berücksichtigung der Rotation verwenden",
+            on_action=bkt.Callback(PositionSize.toggle_use_visual_pos)
+        ),
+        bkt.ribbon.Button(
             label="Oben = Links",
             image="possize_t2l",
             screentip="Oben = Links setzen",
@@ -187,6 +230,12 @@ spinner_left = bkt.ribbon.RoundingSpinnerBox(
     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
     convert="pt_to_cm",
     image_element=pplib.LocpinGallery(image_mso='ObjectNudgeRight', children=[
+        bkt.ribbon.Button(
+            label="Visuelle Position",
+            get_image=bkt.Callback(PositionSize.get_image_use_visual_pos),
+            screentip="Visuelle Position unter Berücksichtigung der Rotation verwenden",
+            on_action=bkt.Callback(PositionSize.toggle_use_visual_pos)
+        ),
         bkt.ribbon.Button(
             label="Links = Oben",
             image="possize_l2t",
@@ -216,6 +265,12 @@ spinner_height = bkt.ribbon.RoundingSpinnerBox(
     convert="pt_to_cm",
     image_element=pplib.LocpinGallery(image_mso='ShapeHeight', children=[
         bkt.ribbon.Button(
+            label="Visuelle Größe",
+            get_image=bkt.Callback(PositionSize.get_image_use_visual_size),
+            screentip="Visuelle Größe unter Berücksichtigung der Rotation verwenden",
+            on_action=bkt.Callback(PositionSize.toggle_use_visual_size)
+        ),
+        bkt.ribbon.Button(
             label="Höhe = Breite",
             image="possize_h2w",
             screentip="Höhe = Breite setzen",
@@ -243,6 +298,12 @@ spinner_width = bkt.ribbon.RoundingSpinnerBox(
     get_enabled=bkt.apps.ppt_shapes_or_text_selected,
     convert="pt_to_cm",
     image_element=pplib.LocpinGallery(image_mso='ShapeWidth', children=[
+        bkt.ribbon.Button(
+            label="Visuelle Größe",
+            get_image=bkt.Callback(PositionSize.get_image_use_visual_size),
+            screentip="Visuelle Größe unter Berücksichtigung der Rotation verwenden",
+            on_action=bkt.Callback(PositionSize.toggle_use_visual_size)
+        ),
         bkt.ribbon.Button(
             label="Breite = Höhe",
             image="possize_w2h",
