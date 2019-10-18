@@ -581,7 +581,7 @@ def convert_text_into_shape(shape):
         shapes.MergeShapes(4, shape)
     
     #cut text out of shape
-    else:
+    elif shape.TextFrame2.HasText:
         # first approach: duplicate shape, remove fill+line, and text from original shape,
         #                 but than MergeShape fails with ComException. It seems that events
         #                 need to be processed before. Workaround: Delay MergeShape in a Thread,
@@ -604,6 +604,10 @@ def convert_text_into_shape(shape):
         #select shape and text shape
         shapes = shape_indices_on_slide(slide, [shape_index, shape_count+1])
         shapes.MergeShapes(4, shape)
+    
+    #nothing to do
+    else:
+        return shape
 
     new_shape = shape_indices_on_slide(slide, [shape_index])[1]
     new_shape.LockAspectRatio = -1
