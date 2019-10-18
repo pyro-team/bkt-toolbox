@@ -50,6 +50,7 @@
                     <fr:CheckBox Grid.Row="2" Grid.Column="1" Header="Untere kante" IsChecked="{Binding attr_bottom, Mode=TwoWay}" Margin="5" />
                 </Grid>
                 <StackPanel Orientation="Horizontal" Margin="5">
+                    <fr:CheckBox Header="Typ/Form" IsChecked="{Binding attr_type, Mode=TwoWay}" Margin="5,0" />
                     <fr:CheckBox Header="Breite" IsChecked="{Binding attr_width, Mode=TwoWay}" Margin="5,0" />
                     <fr:CheckBox Header="Höhe" IsChecked="{Binding attr_height, Mode=TwoWay}" Margin="5,0" />
                     <fr:CheckBox Header="Rotation" IsChecked="{Binding attr_rotation, Mode=TwoWay}" Margin="5,0" />

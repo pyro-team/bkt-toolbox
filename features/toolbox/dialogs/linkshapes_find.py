@@ -75,6 +75,14 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         self.OnPropertyChanged('okay_enabled')
 
     @notify_property
+    def attr_type(self):
+        return self._shape_keys["type"]
+    @attr_type.setter
+    def attr_type(self, value):
+        self._shape_keys["type"] = value
+        self.OnPropertyChanged('okay_enabled')
+
+    @notify_property
     def attr_width(self):
         return self._shape_keys["width"]
     @attr_width.setter
@@ -150,7 +158,7 @@ class FindWindow(bkt.ui.WpfWindowAbstract):
 
     def __init__(self, model, context):
         self.context = context
-        self.attributes = {'x': True, 'y': True, 'x1': True, 'y1': True, 'center_x': True, 'center_y': True, 'width': True, 'height': True, 'rotation': True}
+        self.attributes = {'type': True, 'x': True, 'y': True, 'x1': True, 'y1': True, 'center_x': True, 'center_y': True, 'width': True, 'height': True, 'rotation': True}
 
         self._model = model
         cur_slide = context.slide.slideindex

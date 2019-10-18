@@ -63,13 +63,20 @@ class LinkedShapes(object):
         all_slides = context.app.ActivePresentation.Slides
         num_slides = limit_slides or all_slides.Count
 
+        # type should not be compared using threshold
+        try:
+            attributes.remove("type")
+            compare_type = True
+        except ValueError:
+            compare_type = False
+
         for slide in context.app.ActivePresentation.Slides:
             if slide.SlideIndex <= active_slide_index:
                 continue
             for sld_shape in slide.Shapes:
                 cShp = pplib.wrap_shape(sld_shape)
                 if (
-                    cShp.Type == shape.Type and
+                    (not compare_type or cShp.Type == shape.Type and cShp.AutoShapeType == shape.AutoShapeType) and
                     all(comparer_values(getattr(shape, attr), getattr(cShp, attr)) for attr in attributes)
                     # cShp.Left == shape.Left and cShp.Top == shape.Top and
                     # cShp.Width == shape.Width and cShp.Height == shape.Height and
