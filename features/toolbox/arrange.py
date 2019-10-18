@@ -555,7 +555,7 @@ class ShapeDistance(object):
         if cls.vertical_edges == "distance":
             dis = shapes[1].y-shapes[0].y1
         elif cls.vertical_edges == "visual":
-            dis = shapes[1].visual_y-shapes[0].visual_y-shapes[0].visual_height
+            dis = shapes[1].visual_y-shapes[0].visual_y1
         else:
             dis = shapes[1].top-shapes[0].top
         
@@ -638,7 +638,7 @@ class ShapeDistance(object):
         if cls.horizontal_edges == "distance":
             dis = shapes[1].x-shapes[0].x1
         elif cls.horizontal_edges == "visual":
-            dis = shapes[1].visual_x-shapes[0].visual_x-shapes[0].visual_width
+            dis = shapes[1].visual_x-shapes[0].visual_x1
         else:
             dis = shapes[1].left-shapes[0].left
         
