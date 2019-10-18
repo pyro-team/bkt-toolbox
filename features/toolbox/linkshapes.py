@@ -249,7 +249,11 @@ class LinkedShapes(object):
                     except:
                         pass
         # Adjustment-Werte angleichen
-        cls.adjustments_linked_shapes(shape, context)
+        try:
+            if shape.adjustments.count > 0:
+                cls.adjustments_linked_shapes(shape, context)
+        except ValueError: #e.g. groups
+            pass
 
     @classmethod
     def adjustments_linked_shapes(cls, shape, context):
@@ -318,6 +322,7 @@ class LinkedShapes(object):
             new = slide.Shapes.Paste()
             pplib.set_shape_zorder(new, value=ref_zorder)
 
+    ### ACTIONS ###
     @classmethod
     def linked_shapes_toback(cls, shape, context):
         shape.ZOrder(1)
@@ -328,13 +333,28 @@ class LinkedShapes(object):
     def linked_shapes_tofront(cls, shape, context):
         shape.ZOrder(0)
         for cShp in cls._iterate_linked_shapes(shape, context):
-            cShp.ZOrder(0) #0=msoBringToFront, 1=msoSendToBack
+            cShp.ZOrder(1) #0=msoBringToFront, 1=msoSendToBack
 
     @classmethod
-    def linked_shapes_custom(cls, shape, context):
+    def linked_shapes_flipv(cls, shape, context):
+        shape.Flip(1) #msoFlipVertical
         for cShp in cls._iterate_linked_shapes(shape, context):
-            cShp.LockAspectRatio = -1
-            cShp.Width = 147.418
+            cShp.Flip(1) #msoFlipVertical
+
+    @classmethod
+    def linked_shapes_fliph(cls, shape, context):
+        shape.Flip(0) #msoFlipHorizontal
+        for cShp in cls._iterate_linked_shapes(shape, context):
+            cShp.Flip(0) #msoFlipHorizontal
+
+    ### PROPERTIES ###
+    @classmethod
+    def linked_shapes_custom(cls, shape, context, property_name, wrap=True):
+        wrap_shape = lambda shp: shp if not wrap else pplib.wrap_shape(shp)
+        cur_value = getattr(wrap_shape(shape), property_name)
+        for cShp in cls._iterate_linked_shapes(shape, context):
+            cShp = wrap_shape(cShp)
+            setattr(cShp, property_name, cur_value)
 
 
 
@@ -530,21 +550,124 @@ linkshapes_tab = bkt.ribbon.Tab(
                     supertip="Text aller verknüpfter Shapes auf Größe wie ausgewähltes Shape setzen.",
                     on_action=bkt.Callback(LinkedShapes.text_linked_shapes, shape=True, context=True),
                 ),
-                bkt.ribbon.Button(
-                    id = 'linked_shapes_tofront',
-                    label="In den Vordergrund",
+                bkt.ribbon.Menu(
+                    id="linked_shapes_actions",
+                    label="Aktion ausführen",
                     image_mso="ObjectBringToFront",
-                    screentip="Alle verknüpften Shapes in den Vordergrund bringen",
-                    # supertip="",
-                    on_action=bkt.Callback(LinkedShapes.linked_shapes_tofront, shape=True, context=True),
+                    children=[
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_tofront',
+                            label="In den Vordergrund",
+                            image_mso="ObjectBringToFront",
+                            screentip="Alle verknüpften Shapes in den Vordergrund bringen",
+                            # supertip="",
+                            on_action=bkt.Callback(LinkedShapes.linked_shapes_tofront, shape=True, context=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_toback',
+                            label="In den Hintergrund",
+                            image_mso="ObjectSendToBack",
+                            screentip="Alle verknüpften Shapes in den Hintergrund bringen",
+                            # supertip="",
+                            on_action=bkt.Callback(LinkedShapes.linked_shapes_toback, shape=True, context=True),
+                        ),
+                        bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_fliph',
+                            label="Horizontal spiegeln",
+                            image_mso="ObjectFlipHorizontal",
+                            screentip="Alle verknüpften Shapes horizontal spiegeln",
+                            # supertip="",
+                            on_action=bkt.Callback(LinkedShapes.linked_shapes_fliph, shape=True, context=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_flipv',
+                            label="Vertikal spiegeln",
+                            image_mso="ObjectFlipVertical",
+                            screentip="Alle verknüpften Shapes vertikal spiegeln",
+                            # supertip="",
+                            on_action=bkt.Callback(LinkedShapes.linked_shapes_flipv, shape=True, context=True),
+                        ),
+                    ]
                 ),
-                bkt.ribbon.Button(
-                    id = 'linked_shapes_toback',
-                    label="In den Hintergrund",
-                    image_mso="ObjectSendToBack",
-                    screentip="Alle verknüpften Shapes in den Hintergrund bringen",
-                    # supertip="",
-                    on_action=bkt.Callback(LinkedShapes.linked_shapes_toback, shape=True, context=True),
+                bkt.ribbon.Menu(
+                    id="linked_shapes_properties",
+                    label="Eigenschaft angleichen",
+                    image_mso="ObjectNudgeRight",
+                    children=[
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_custom-lar',
+                            label="Seitenverhältnis gesperrt",
+                            # image_mso="ObjectBringToFront",
+                            screentip="Seitenverhältnis sperren an/aus für alle verknüpften Shapes angleichen",
+                            on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "LockAspectRatio", False), shape=True, context=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_custom-rot',
+                            label="Rotation",
+                            # image_mso="ObjectBringToFront",
+                            screentip="Rotation für alle verknüpften Shapes angleichen",
+                            on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "Rotation", False), shape=True, context=True),
+                        ),
+                        bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_custom-left',
+                            label="Linke Seite",
+                            # image_mso="ObjectBringToFront",
+                            screentip="Linke Seite für alle verknüpften Shapes angleichen",
+                            on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "x"), shape=True, context=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_custom-right',
+                            label="Rechte Seite",
+                            # image_mso="ObjectBringToFront",
+                            screentip="Rechte Seite für alle verknüpften Shapes angleichen",
+                            on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "x1"), shape=True, context=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_custom-top',
+                            label="Obere Seite",
+                            # image_mso="ObjectBringToFront",
+                            screentip="Obere Seite für alle verknüpften Shapes angleichen",
+                            on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "y"), shape=True, context=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_custom-bottom',
+                            label="Untere Seite",
+                            # image_mso="ObjectBringToFront",
+                            screentip="Untere Seite für alle verknüpften Shapes angleichen",
+                            on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "y1"), shape=True, context=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_custom-centerx',
+                            label="Mittelpunkt links",
+                            # image_mso="ObjectBringToFront",
+                            screentip="Mittelpunkt links für alle verknüpften Shapes angleichen",
+                            on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "center_x"), shape=True, context=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_custom-centery',
+                            label="Mittelpunkt oben",
+                            # image_mso="ObjectBringToFront",
+                            screentip="Mittelpunkt oben für alle verknüpften Shapes angleichen",
+                            on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "center_y"), shape=True, context=True),
+                        ),
+                        bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_custom-width',
+                            label="Breite",
+                            # image_mso="ObjectBringToFront",
+                            screentip="Breite für alle verknüpften Shapes angleichen",
+                            on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "width", False), shape=True, context=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_custom-height',
+                            label="Höhe",
+                            # image_mso="ObjectBringToFront",
+                            screentip="Höhe für alle verknüpften Shapes angleichen",
+                            on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "height", False), shape=True, context=True),
+                        ),
+                    ]
                 ),
                 bkt.ribbon.Separator(),
                 bkt.ribbon.Button(
@@ -562,6 +685,14 @@ linkshapes_tab = bkt.ribbon.Tab(
                     screentip="Verknüpfte Shapes ersetzen",
                     supertip="Alle verknüpften Shapes auf allen Folien mit ausgewähltem Shape ersetzen.",
                     on_action=bkt.Callback(LinkedShapes.replace_with_this, shape=True, context=True),
+                ),
+                bkt.ribbon.Button(
+                    id = 'linked_shapes_search',
+                    label="Weitere Shapes suchen",
+                    image_mso="FindTag",
+                    screentip="Gleiches Shape auf Folgefolien suchen und verknüpfen",
+                    supertip="Erneut nach Shapes anhand Position und Größe suche, um weitere Shapes zu dieser Verknüpfung hinzuzufügen.",
+                    on_action=bkt.Callback(LinkedShapes.find_similar_and_link, shape=True, context=True),
                 ),
                 ### Custom action
                 # bkt.ribbon.Button(
