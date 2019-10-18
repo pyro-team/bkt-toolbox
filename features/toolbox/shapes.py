@@ -658,6 +658,9 @@ class ShapesMore(object):
     
     @classmethod
     def texts_to_shapes(cls, shapes):
+        if pplib.shape_is_group_child(shapes[0]) or any(shape.type == pplib.MsoShapeType["msoGroup"] for shape in shapes):
+            bkt.helpers.message("PowerPoint unterstützt diese Funktion leider nicht für Gruppen")
+            return
         all_shapes = []
         for shape in shapes:
             all_shapes.append( cls._text_to_shape(shape) )
