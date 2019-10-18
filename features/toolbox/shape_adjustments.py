@@ -243,11 +243,15 @@ class ShapeAdjustments(object):
         shape_autotype = cls.get_shape_autotype(shape)
         infomsg += "{:16} {:3} - {}\n".format("Shape-Typ:", shape_type, _get_key_by_value(pplib.MsoShapeType, shape_type))
         infomsg += "{:16} {:3} - {}\n".format("Auto-Shape-Typ:", shape_autotype, _get_key_by_value(pplib.MsoAutoShapeType, shape_autotype))
-        infomsg += "{:16} {:3}\n\n".format("Adjust.-Werte:", shape.adjustments.count)
+        try:
+            shape_adjustments = shape.adjustments.count
+        except: #ValueError for Groups
+            shape_adjustments = 0
+        infomsg += "{:16} {:3}\n\n".format("Adjust.-Werte:", shape_adjustments)
 
         infomsg += "│ {:2} {:>8} │ {:10} {:>6} {:>6} │\n".format("#", "Wert", "ref", "min", "max")
         infomsg += "├─────────────┼──────────────────────────┤\n"
-        for i in range(1,shape.adjustments.count+1):
+        for i in range(1,shape_adjustments+1):
             try:
                 bktlib = cls.auto_shape_type_settings[shape_autotype][i-1]
             except:
