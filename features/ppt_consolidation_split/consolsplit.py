@@ -106,6 +106,8 @@ class ConsolSplit(object):
             slides_total = presentation.Slides.Count
             worker.ReportProgress(0)
             for slide in presentation.Slides:
+                if worker.CancellationPending:
+                    break
                 worker.ReportProgress(slides_current/slides_total*100)
                 slides_current += 1.0
                 try:
@@ -115,7 +117,9 @@ class ConsolSplit(object):
                     error = True
 
             worker.ReportProgress(100)
-            if error:
+            if worker.CancellationPending:
+                bkt.helpers.message("Export durch Nutzer abgebrochen")
+            elif error:
                 bkt.helpers.message("Export mit Fehlern abgeschlossen")
             else:
                 bkt.helpers.message("Export erfolgreich abgeschlossen")
@@ -169,6 +173,8 @@ class ConsolSplit(object):
             sections_total = sections.count
             worker.ReportProgress(0)
             for i in range(sections.count):
+                if worker.CancellationPending:
+                    break
                 worker.ReportProgress(sections_current/sections_total*100)
                 sections_current += 1.0
                 try:
@@ -184,7 +190,9 @@ class ConsolSplit(object):
                     continue
 
             worker.ReportProgress(100)
-            if error:
+            if worker.CancellationPending:
+                bkt.helpers.message("Export durch Nutzer abgebrochen")
+            elif error:
                 bkt.helpers.message("Export mit Fehlern abgeschlossen")
             else:
                 bkt.helpers.message("Export erfolgreich abgeschlossen")
