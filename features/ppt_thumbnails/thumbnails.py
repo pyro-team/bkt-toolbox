@@ -423,7 +423,7 @@ class Thumbnailer(object):
 
     @classmethod
     def is_thumbnail(cls, shape):
-        return shape.Tags.Item(BKT_THUMBNAIL) != ''
+        return pplib.TagHelper.has_tag(shape, BKT_THUMBNAIL)
 
     @classmethod
     def unset_thumbnail(cls, shape):

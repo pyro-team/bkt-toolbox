@@ -39,11 +39,7 @@ class StateShape(object):
 
     @classmethod
     def is_state_shape(cls, shape):
-        try:
-            return shape.Tags.Item(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY) == cls.BKT_DIALOG_TAG
-        except:
-            #Shape.Tags throws COMException for SmartArt shapes
-            return False
+        return pplib.TagHelper.has_tag(shape, bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
         # return shape.Type == pplib.MsoShapeType['msoGroup']
     
     @classmethod

@@ -470,7 +470,7 @@ class TrackerShape(object):
 
     @staticmethod
     def isTracker(shape):
-        return shape.Tags.Item("tracker_id") != ""
+        return pplib.TagHelper.has_tag(shape, "tracker_id")
 
     @staticmethod
     def alignTracker(shape, context):
@@ -525,7 +525,8 @@ class ShapeConnectors(object):
 
     @staticmethod
     def is_connector(shape):
-        return shape.Tags.Item(ShapeConnectorTags.TAG_NAME) != ''
+        return pplib.TagHelper.has_tag(shape, ShapeConnectorTags.TAG_NAME)
+        # return shape.Tags.Item(ShapeConnectorTags.TAG_NAME) != '' #FIXME: EnvironmentError for fancy smart-shapes
 
     @staticmethod
     def _find_shape_by_id(slide, shape_id):

@@ -614,22 +614,40 @@ def convert_text_into_shape(shape):
     return new_shape
 
 
-def get_dict_from_tags(shape_tags):
-    '''
-    Convert all shape tags to a python dictionary.
-    '''
-    d = dict()
-    for i in range(shape_tags.count):
-        d[shape_tags.name(i+1)] = shape_tags.value(i+1)
-    return d
 
-def set_tags_from_dict(tags_dict, shape_tags):
-    '''
-    Set shape tags based on a python dictionary.
-    '''
-    for k,v in tags_dict.items():
-        shape_tags.add(k,v)
+# ====================
+# = Tag helper class =
+# ====================
 
+class TagHelper(object):
+    @staticmethod
+    def get_dict_from_tags(obj_tags):
+        '''
+        Convert all shape/slide tags to a python dictionary.
+        '''
+        d = dict()
+        for i in range(obj_tags.count):
+            d[obj_tags.name(i+1)] = obj_tags.value(i+1)
+        return d
+
+    @staticmethod
+    def set_tags_from_dict(tags_dict, obj_tags):
+        '''
+        Set shape tags based on a python dictionary.
+        '''
+        for k,v in tags_dict.items():
+            obj_tags.add(k,v)
+
+    @staticmethod
+    def has_tag(obj, tag_name, check_value=None):
+        try:
+            if check_value is not None:
+                return obj.Tags(tag_name) == check_value
+            else:
+                return obj.Tags(tag_name) != ''
+        except: #EnvironmentError
+            #Shape.Tags throws COMException for SmartArt child-shapes
+            return False
 
 
 
@@ -1030,7 +1048,7 @@ class GroupManager(object):
         self._ungroup = None
 
         self._name = group.name
-        self._tags = get_dict_from_tags(group.tags)
+        self._tags = TagHelper.get_dict_from_tags(group.tags)
         self._rotation = group.rotation
         self._zorder   = group.ZOrderPosition
 
@@ -1132,7 +1150,7 @@ class GroupManager(object):
         #restore name
         self._group.name = self._name
         #restore tags
-        set_tags_from_dict(self._tags, self._group.tags)
+        TagHelper.set_tags_from_dict(self._tags, self._group.tags)
         #restore additional parameter, e.g. width in process chevrons example
         for k,v in self._attr.items():
             setattr(self._group, k, v)

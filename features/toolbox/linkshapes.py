@@ -24,11 +24,7 @@ class LinkedShapes(object):
 
     @staticmethod
     def is_linked_shape(shape):
-        try:
-            return shape.Tags.Item(BKT_LINK_UUID) != ''
-        except:
-            #Shape.Tags throws COMException for SmartArt shapes
-            return False
+        return pplib.TagHelper.has_tag(shape, BKT_LINK_UUID)
 
     @classmethod
     def not_is_linked_shape(cls, shape):
