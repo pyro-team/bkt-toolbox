@@ -919,68 +919,114 @@ def read_contentarea(presentation):
 #Iterate through shapes of different types and return every shapes "subhsapes", e.g. group shapes or table cells
 #arg 'from_selection': If shapes are not from a selection (e.g. iterate all shapes of a slide), set this to False to disable selected table cells detection,
 #                      otherwise not all table cells are iterated at least in the rare case that a table is the only shape on a slide.
-#arg 'filter_method':  Filter the returned shapes by a function(shape), e.g. to return only shapes that have a textframe
-#arg 'getter_method':  Return function(shape) to get certain attributes, e.g. the textframe of a shape
-def iterate_shape_subshapes(shapes, from_selection=True, filter_method=lambda shp: True, getter_method=lambda shp: shp):
-    only_selected_table_cells = False
 
-    def _get_shp_type(shape):
-        #For table cells Type is not implemented and will throw an error
-        try:
-            return shape.Type
-        except:
-            return None
+class SubShapeIterator(object):
+    def __init__(self, shapes, from_selection=True):
+        #Ensure list
+        if type(shapes) != list:
+            shapes = list(iter(shapes))
+        
+        self.only_selected_table_cells = False
 
-    def _iter_all(shape):
-        for shape in shapes:
-            shp_type = _get_shp_type(shape)
-            
-            # Note: Placeholder can be table, chart, diagram, smartart, picture, whatever...
-            if shp_type == MsoShapeType['msoPlaceholder']:
-                shp_type = shape.PlaceholderFormat.ContainedType
+        #If cells within a table are selected, function should only iterate selected cells. If the whole table is selected but no other shape, all cells are selected.
+        # if from_selection and len(shapes) == 1 and _get_shp_type(shapes[0]) == MsoShapeType['msoTable']:
+        if from_selection and len(shapes) == 1 and shapes[0].HasTable == -1:
+            self.only_selected_table_cells = True
+
+        self.shapes = shapes
+    
+    def __iter__(self):
+        for shape in self.shapes:
+            shp_type = self._get_shp_type(shape)
 
             # Iterate each group item
-            if shp_type == MsoShapeType['msoGroup'] or shp_type == MsoShapeType['msoSmartArt']:
-                for shp in shape.GroupItems:
-                    yield shp
+            if shp_type == MsoShapeType['msoGroup']:
+                generator = self._iter_group(shape)
+            
+            # Iterate each smart art node
+            elif shp_type == MsoShapeType['msoSmartArt']:
+                generator = self._iter_smartart(shape)
             
             # Iterate each chart/diagram shape
             elif shp_type == MsoShapeType['msoChart'] or shp_type == MsoShapeType['msoDiagram']:
-                yield shape
-                #FIXME: handling of charts can be improved, but it is very tricky!
-                #General chart textframe is in shape.Chart.ChartArea.Format.TextFrame2, but there is not "HasTextFrame" property
-                #Individual textframes are almost impossible to access
+                generator = self._iter_chart(shape)
             
             # Iterate each table cell
             elif shp_type == MsoShapeType['msoTable']:
-                for row in shape.table.rows:
-                    for cell in row.cells:
-                        if not only_selected_table_cells or cell.Selected:
-                            yield cell.Shape
+                generator = self._iter_table(shape)
             
             else:
-                yield shape
+                generator = self._iter_default(shape)
+            
+            for obj in generator:
+                yield obj
+    
+    def _get_shp_type(self, shape):
+        #For table cells Type is not implemented and will throw an error
+        try:
+            # Note: Placeholder can be table, chart, diagram, smartart, picture, whatever...
+            if shape.Type == MsoShapeType['msoPlaceholder']:
+                return shape.PlaceholderFormat.ContainedType
+            return shape.Type
+        except:
+            return None
+    
+    def _iter_group(self, shape):
+        for shp in shape.GroupItems:
+            yield shp
+    
+    def _iter_smartart(self, shape):
+        for shp in shape.GroupItems:
+            yield shp
+    
+    def _iter_chart(self, shape):
+        yield shape
+    
+    def _iter_default(self, shape):
+        yield shape
+    
+    def _iter_table(self, shape):
+        for row in shape.table.rows:
+            for cell in row.cells:
+                if not self.only_selected_table_cells or cell.Selected:
+                    yield cell.Shape
 
-    #Ensure list
-    if type(shapes) != list:
-        shapes = list(iter(shapes))
 
-    #If cells within a table are selected, function should only iterate selected cells. If the whole table is selected but no other shape, all cells are selected.
-    # if from_selection and len(shapes) == 1 and _get_shp_type(shapes[0]) == MsoShapeType['msoTable']:
-    if from_selection and len(shapes) == 1 and shapes[0].HasTable == -1:
-        only_selected_table_cells = True
-
-
-    for shape in _iter_all(shapes):
-        if filter_method(shape):
-            yield getter_method(shape)
+def iterate_shape_subshapes(shapes, from_selection=True, filter_method=lambda shp: True, getter_method=lambda shp: shp):
+    return SubShapeIterator(shapes, from_selection)
 
 
 #Iterate through shapes of different types and return every shapes textframe
+
+class TextframeIterator(SubShapeIterator):
+    
+    def _iter_group(self, shape):
+        for shp in shape.GroupItems:
+            if shp.HasTextFrame:
+                yield shp.TextFrame2
+    
+    def _iter_default(self, shape):
+        if shape.HasTextFrame:
+            yield shape.TextFrame2
+    
+    def _iter_table(self, shape):
+        for row in shape.table.rows:
+            for cell in row.cells:
+                if not self.only_selected_table_cells or cell.Selected:
+                    yield cell.Shape.TextFrame2
+    
+    def _iter_smartart(self, shape):
+        # Iterate over nodes instead of GroupItems to get only textframes, but node has no HasTextFrame property!
+        for node in shape.SmartArt.AllNodes:
+            yield node.TextFrame2
+    
+    def _iter_chart(self, shape):
+        yield shape.Chart.ChartArea.Format.TextFrame2
+        yield shape.Chart.ChartTitle.Format.TextFrame2
+
+
 def iterate_shape_textframes(shapes, from_selection=True):
-    return iterate_shape_subshapes(shapes, from_selection,
-        filter_method=lambda shp: shp.HasTextFrame == -1,
-        getter_method=lambda shp: shp.TextFrame2)
+    return TextframeIterator(shapes, from_selection)
 
 
 
