@@ -7,6 +7,7 @@
   * Improved text-to-shape function for shapes with background color
   * Fixes for inserting icons from Font Awesome 5
   * Make PPT-Toolbox UI customizable via settings dialog
+  * Excel Toolbar: Refactoring of folder and file list generator with many improvements
 
 
 # Release 2019-08-23 (2.5.3)
