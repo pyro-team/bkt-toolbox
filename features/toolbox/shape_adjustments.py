@@ -239,10 +239,20 @@ class ShapeAdjustments(object):
 
         import bkt.console
         infomsg  = "{:16} {:3} - {}\n".format("ID+Name:", shape.id, shape.name)
-        shape_type = cls.get_shape_type(shape)
+
+        shape_type = shape.Type
+        if shape_type == pplib.MsoShapeType['msoPlaceholder']:
+            shape_type = shape.PlaceholderFormat.ContainedType
+            infomsg += "{:16} {:3} - Placeholder: {}\n".format("Shape-Typ:", shape_type, _get_key_by_value(pplib.MsoShapeType, shape_type))
+        else:
+            infomsg += "{:16} {:3} - {}\n".format("Shape-Typ:", shape_type, _get_key_by_value(pplib.MsoShapeType, shape_type))
+
         shape_autotype = cls.get_shape_autotype(shape)
-        infomsg += "{:16} {:3} - {}\n".format("Shape-Typ:", shape_type, _get_key_by_value(pplib.MsoShapeType, shape_type))
-        infomsg += "{:16} {:3} - {}\n".format("Auto-Shape-Typ:", shape_autotype, _get_key_by_value(pplib.MsoAutoShapeType, shape_autotype))
+        if shape_autotype == "connector":
+            infomsg += "{:16}   {}\n".format("Auto-Shape-Typ:", "Connector")
+        else:
+            infomsg += "{:16} {:3} - {}\n".format("Auto-Shape-Typ:", shape_autotype, _get_key_by_value(pplib.MsoAutoShapeType, shape_autotype))
+        
         try:
             shape_adjustments = shape.adjustments.count
         except: #ValueError for Groups
