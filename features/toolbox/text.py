@@ -1426,7 +1426,7 @@ text_menu = bkt.ribbon.Menu(
             screentip="Text in Shape kombinieren",
             supertip="Kopiere den Text eines Text-Shapes in das zweite markierte Shape und löscht das Text-Shape.",
             on_action=bkt.Callback(TextOnShape.textIntoShape, shapes=True, shapes_min=2),
-            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+            get_enabled = bkt.apps.ppt_shapes_min2_selected,
         ),
         bkt.ribbon.Button(
             id = 'text_on_shape',
@@ -1451,8 +1451,8 @@ text_menu = bkt.ribbon.Menu(
             label = u"Shape-Text zusammenführen",
             image_mso = "TracePrecedents",
             supertip="Führe die markierten Shapes in ein Shape zusammen. Der Text aller Shapes wird übernommen und aneinandergehängt.",
-            on_action=bkt.Callback(SplitTextShapes.joinShapesWithText, shapes=True),
-            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+            on_action=bkt.Callback(SplitTextShapes.joinShapesWithText, shapes=True, shapes_min=2),
+            get_enabled = bkt.apps.ppt_shapes_min2_selected,
         ),
         bkt.ribbon.MenuSeparator(),
         bkt.ribbon.Button(
