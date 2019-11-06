@@ -258,9 +258,12 @@ class LinkedShapes(object):
             ShapeAdjustments.equalize_adjustments([shape, cShp])
 
     @classmethod
-    def text_linked_shapes(cls, shape, context):
+    def text_linked_shapes(cls, shape, context, with_formatting=True):
         if shape.HasTextFrame == -1: #msoTrue
-            ref_text = shape.TextFrame2.TextRange.Text
+            if with_formatting:
+                shape.TextFrame2.TextRange.Copy()
+            else:
+                ref_text = shape.TextFrame2.TextRange.Text
             mode = "simple"
         elif shape.Type == pplib.MsoShapeType["msoGroup"]:
             mode = "group"
@@ -271,13 +274,20 @@ class LinkedShapes(object):
         for cShp in cls._iterate_linked_shapes(shape, context):
             if mode == "simple":
                 try:
-                    cShp.TextFrame2.TextRange.Text = ref_text
+                    if with_formatting:
+                        cShp.TextFrame2.TextRange.Paste()
+                    else:
+                        cShp.TextFrame2.TextRange.Text = ref_text
                 except:
                     pass
             elif mode == "group" and cShp.Type == pplib.MsoShapeType["msoGroup"]:
                 for index, iShp in enumerate(cShp.GroupItems):
                     try:
-                        iShp.TextFrame2.TextRange.Text = shape.GroupItems[index+1].TextFrame2.TextRange.Text
+                        if with_formatting:
+                            shape.GroupItems[index+1].TextFrame2.TextRange.Copy()
+                            iShp.TextFrame2.TextRange.Paste()
+                        else:
+                            iShp.TextFrame2.TextRange.Text = shape.GroupItems[index+1].TextFrame2.TextRange.Text
                     except:
                         pass
 
@@ -591,6 +601,14 @@ linkshapes_tab = bkt.ribbon.Tab(
                     label="Eigenschaft angleichen",
                     image_mso="ObjectNudgeRight",
                     children=[
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_custom-text',
+                            label="Text (ohne Formatierung)",
+                            # image_mso="TextBoxInsert",
+                            screentip="Text ohne Formatierungen für alle verknüpften Shapes angleichen",
+                            on_action=bkt.Callback(lambda shape, context: LinkedShapes.text_linked_shapes(shape, context, with_formatting=False), shape=True, context=True),
+                        ),
+                        bkt.ribbon.MenuSeparator(),
                         bkt.ribbon.Button(
                             id = 'linked_shapes_custom-lar',
                             label="Seitenverhältnis gesperrt",
