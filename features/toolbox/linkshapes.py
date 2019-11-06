@@ -353,6 +353,32 @@ class LinkedShapes(object):
         for cShp in cls._iterate_linked_shapes(shape, context):
             cShp.Flip(0) #msoFlipHorizontal
 
+    @classmethod
+    def linked_shapes_slidenum(cls, shape, context):
+        if shape.HasTextFrame:
+            shape.TextFrame.TextRange.InsertSlideNumber() #InsertSlideNumber only in TextRange, not TextRange2!
+        for cShp in cls._iterate_linked_shapes(shape, context):
+            try:
+                cShp.TextFrame.TextRange.InsertSlideNumber()
+            except:
+                pass
+
+    @classmethod
+    def linked_shapes_changecase(cls, shape, context, mode=1):
+        # MsoTextChangeCase:
+        # msoCaseLower	2	Zeigt den Text in Kleinbuchstaben an.
+        # msoCaseSentence	1	Der erste Buchstabe im Satz wird großgeschrieben. Für alle anderen Buchstaben gilt die entsprechende Groß-/Kleinschreibung (Substantive, Akronyme usw. werden großgeschrieben).
+        # msoCaseTitle	4	Der erste Buchstabe aller Wörter im Titel wird großgeschrieben. Alle anderen Buchstaben werden kleingeschrieben. In bestimmten Fällen werden kurze Artikel, Präpositionen und Konjunktionen nicht großgeschrieben.
+        # msoCaseToggle	5	Gibt an, dass kleingeschriebener Text in großgeschriebenen Text und umgekehrt konvertiert werden soll.
+        # msoCaseUpper	3	Zeigt den Text in Großbuchstaben an.
+        if shape.HasTextFrame:
+            shape.TextFrame2.TextRange.ChangeCase(mode)
+        for cShp in cls._iterate_linked_shapes(shape, context):
+            try:
+                cShp.TextFrame2.TextRange.ChangeCase(mode)
+            except:
+                pass
+
     ### PROPERTIES ###
     @classmethod
     def linked_shapes_custom(cls, shape, context, property_name, wrap=True):
@@ -361,6 +387,18 @@ class LinkedShapes(object):
         for cShp in cls._iterate_linked_shapes(shape, context):
             cShp = wrap_shape(cShp)
             setattr(cShp, property_name, cur_value)
+
+    ### CUSTOM ONE-TIME DEV METHODS ###
+    # @classmethod
+    # def linked_shapes_xyz(cls, shape, context):
+    #     def svgconv(cShp):
+    #         cShp.parent.select()
+    #         cShp.select()
+    #         context.app.CommandBars.ExecuteMso("SVGEdit")
+
+    #     for cShp in cls._iterate_linked_shapes(shape, context):
+    #         svgconv(cShp)
+    #     svgconv(shape)
 
 
 
@@ -594,6 +632,47 @@ linkshapes_tab = bkt.ribbon.Tab(
                             # supertip="",
                             on_action=bkt.Callback(LinkedShapes.linked_shapes_flipv, shape=True, context=True),
                         ),
+                        bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_slidenum',
+                            label="Foliennummer einfügen",
+                            image_mso="NumberInsert",
+                            screentip="Aktualisierbare Foliennummer anstellen",
+                            # supertip="",
+                            on_action=bkt.Callback(LinkedShapes.linked_shapes_slidenum, shape=True, context=True),
+                        ),
+                        bkt.ribbon.Menu(
+                            id='linked_shapes_changecase',
+                            label="Groß-/Kleinschreibung ändern",
+                            image_mso="ChangeCaseGallery",
+                            children=[
+                                bkt.ribbon.Button(
+                                    id = 'linked_shapes_changecase-1',
+                                    label="Ersten Buchstaben im Satz großschreiben.",
+                                    on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_changecase(shape, context, 1), shape=True, context=True),
+                                ),
+                                bkt.ribbon.Button(
+                                    id = 'linked_shapes_changecase-2',
+                                    label="kleinbuchstaben",
+                                    on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_changecase(shape, context, 2), shape=True, context=True),
+                                ),
+                                bkt.ribbon.Button(
+                                    id = 'linked_shapes_changecase-3',
+                                    label="GROẞBUCHSTABEN",
+                                    on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_changecase(shape, context, 3), shape=True, context=True),
+                                ),
+                                bkt.ribbon.Button(
+                                    id = 'linked_shapes_changecase-4',
+                                    label="Ersten Buchstaben Im Wort Großschreiben.",
+                                    on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_changecase(shape, context, 4), shape=True, context=True),
+                                ),
+                                bkt.ribbon.Button(
+                                    id = 'linked_shapes_changecase-5',
+                                    label="gROẞ-/kLEINSCHREIBUNG umkehren",
+                                    on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_changecase(shape, context, 5), shape=True, context=True),
+                                ),
+                            ]
+                        )
                     ]
                 ),
                 bkt.ribbon.Menu(
@@ -710,10 +789,10 @@ linkshapes_tab = bkt.ribbon.Tab(
                 ),
                 ### Custom action
                 # bkt.ribbon.Button(
-                #     id = 'linked_shapes_custom',
+                #     id = 'linked_shapes_xyz',
                 #     label="Custom Action",
                 #     image_mso="HappyFace",
-                #     on_action=bkt.Callback(LinkedShapes.linked_shapes_custom, shape=True, context=True),
+                #     on_action=bkt.Callback(LinkedShapes.linked_shapes_xyz, shape=True, context=True),
                 #     # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                 # ),
             ]
