@@ -264,8 +264,9 @@ class FolderToSlides(object):
     @classmethod
     def pictures_to_slides(cls, context):
         fileDialog = context.app.FileDialog(3) #msoFileDialogFilePicker
-        fileDialog.Filters.Add("Bilder", "*.jpg; *.png; *.emf", 1)
-        fileDialog.Filters.Add("Alle Dateien", "*.*", 2)
+        fileDialog.Filters.Add("Bilder", "; ".join(["*"+f for f in cls.filetypes]), 1)
+        fileDialog.Filters.Add("SVG", "*.svg", 2)
+        fileDialog.Filters.Add("Alle Dateien", "*.*", 3)
         if context.presentation.Path:
             fileDialog.InitialFileName = context.presentation.Path + '\\'
         fileDialog.title = "Bild-Dateien auswählen"
@@ -341,7 +342,7 @@ bkt.powerpoint.add_backstage_control(
     bkt.ribbon.Tab(
         label="Konsol./Teilen",
         title="BKT - Dateien Konsolidieren & Teilen",
-        insertAfterMso="TabInfo",
+        insertAfterMso="TabPublish", #http://youpresent.co.uk/customising-powerpoint-2016-backstage-view/
         columnWidthPercent="50",
         children=[
             bkt.ribbon.FirstColumn(children=[
