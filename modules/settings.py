@@ -68,14 +68,21 @@ class BKTInfos(object):
         import sys
         import bkt.console
 
+        # https://docs.microsoft.com/de-de/office/troubleshoot/reference/numbering-scheme-for-product-guid
+
         winver = sys.getwindowsversion()
         debug_info = '''--- DEBUG INFORMATION ---
 
 BKT-Framework Version:  {}
-Operating System:       {}.{}.{}
-Office Version:         {}.{}
+Operating System:       {} ({}.{}.{})
+Office Version:         {} {}.{} ({})
 IPY-Version:            {}
-'''.format(bkt.full_version, winver.major, winver.minor, winver.build, context.app.Version, context.app.Build, sys.version)
+'''.format(
+        bkt.full_version,
+        context.app.OperatingSystem, winver.major, winver.minor, winver.build,
+        context.app.name, context.app.Version, context.app.Build, context.app.ProductCode,
+        sys.version,
+        )
         bkt.console.show_message(bkt.ui.endings_to_windows(debug_info))
 
 
