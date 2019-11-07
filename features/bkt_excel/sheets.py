@@ -451,6 +451,7 @@ class FileListOps(object):
         # bkt.helpers.message("Liste für Ordner: " + folder)
 
         # xllib.freeze_app()
+        # TODO: add max-recursion see https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
         if folders_only:
             # use os.walk for recursive file list
             xllib.freeze_app()
@@ -799,6 +800,30 @@ blatt_gruppe = bkt.ribbon.Group(
                     supertip="Wähle Ordner und erstelle Liste aller Ordner in diesem Ordner und allen Unterordnern in neuem Blatt.",
                     on_action=bkt.Callback(FileListOps.file_list_folders, context=True, workbook=True),
                     get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                ),
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Menu(
+                    label="Dateilisten-Einstellungen",
+                    children=[
+                        bkt.ribbon.ToggleButton(
+                            label="Ordnerzeilen",
+                            screentip="Bei Dateiliste auch Ordner als Zeilen einfügen",
+                            get_pressed=bkt.Callback(lambda: FileListOps.folder_rows),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(FileListOps, "folder_rows", pressed)),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Gruppieren",
+                            screentip="Jede Hierachieebene gruppieren (nur rekursiv)",
+                            get_pressed=bkt.Callback(lambda: FileListOps.group_rows),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(FileListOps, "group_rows", pressed)),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Einrücken",
+                            screentip="Jede Hierachieebene einrücken (nur rekursiv)",
+                            get_pressed=bkt.Callback(lambda: FileListOps.indent_rows),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(FileListOps, "indent_rows", pressed)),
+                        ),
+                    ]
                 ),
             ]
         ),
