@@ -423,8 +423,10 @@ def show_user_input(text, title, default=None, multiline=False):
 class WpfProgressBar(WpfWindowAbstract):
     _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui_progressbar.xaml')
 
-    def __init__(self, work_func, context=None):
+    def __init__(self, work_func, context=None, indeterminate=False):
         super(WpfProgressBar, self).__init__(context=context)
+
+        self.progress_bar.IsIndeterminate = indeterminate
 
         self.bw = BackgroundWorker()
         self.bw.WorkerReportsProgress = True
@@ -442,7 +444,9 @@ class WpfProgressBar(WpfWindowAbstract):
 
     def bw_DoWork(self, sender, e):
         # sender.ReportProgress(2)
-        self._work_func(worker=sender)
+        e.Result = self._work_func(worker=sender)
+        if sender.CancellationPending:
+            e.Cancel = True
 
     def bw_ProgressChanged(self, sender, e):
         try:
@@ -460,10 +464,11 @@ class WpfProgressBar(WpfWindowAbstract):
         self.bw.RunWorkerAsync()
 
     def stopProgress(self, sender, e):
+        self.bw.CancelAsync() #send cancel request
         if self.bw.IsBusy:
             e.Cancel = True #cancel closing
-        self.bw.CancelAsync() #send cancel request
 
-def execute_with_progress_bar(work_func, context=None, modal=True):
-    wnd = WpfProgressBar(work_func, context=context)
+def execute_with_progress_bar(work_func, context=None, modal=True, indeterminate=False):
+    wnd = WpfProgressBar(work_func, context=context, indeterminate=indeterminate)
     wnd.show_dialog(modal=modal)
+    return wnd

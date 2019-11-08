@@ -277,10 +277,15 @@ class PPTSymbolsGallery(SymbolsGallery):
             font = item[0] or self.fallback_font
             try:
                 char_number = ord(item[1]) #ord does not work for higher level unicode, e.g. emojis, and throws TypeError
+                if char_number > 61695: #for higher numbers (f0ff works, f100 doesnt work) InsertSymbol does not work anymore. Also the default ppt symbol-picker only shows unicode chars til f0ff.
+                    raise TypeError("character number to large for InsertSymbol") #fallback to InsertAfter
                 placeholder_char = textrange.InsertAfter("X") #append placeholder symbol so that InsertSymbol behaves the same as InsertAfter
                 return placeholder_char.InsertSymbol(font, char_number, -1) #symbol: FontName, CharNumber (decimal), Unicode=True
             except TypeError:
                 char_inserted = textrange.InsertAfter(item[1]) #append symbol text
+                #so, NameFarEast and NameComplexScript should be writable, but they are not if InsertSymbol is used before (it remains the font of the symbol). only way to replace these values and correctly show icon is setting it to '+mn-..'
+                char_inserted.Font.NameFarEast = "+mn-ea"
+                char_inserted.Font.NameComplexScript = "+mn-cs"
                 char_inserted.Font.Name = font #font name
                 return char_inserted
         else:
@@ -316,9 +321,11 @@ class PPTSymbolsGallery(SymbolsGallery):
         # shape.TextFrame.TextRange.Text = item[1] #symbol text
         if PPTSymbolsSettings.get_convert_into_shape(): #convert into shape
             try:
+                orig_fontsize = shape.TextFrame2.TextRange.Font.Size
                 shape.TextFrame2.TextRange.Font.Size = 60
                 shape.TextFrame2.TextRange.ParagraphFormat.Bullet.Visible = 0
                 new_shape = pplib.convert_text_into_shape(shape)
+                new_shape.TextFrame2.TextRange.Font.Size = orig_fontsize
             except:
                 shape.select()
             else:

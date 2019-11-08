@@ -278,6 +278,7 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
         try:
             file = event.OriginalSource.Tag
             QuickEdit.read_from_config(file)
+            QuickEdit.update_colors(self._context)
             QuickEdit.update_pressed(self._context)
         except:
             pass
@@ -290,6 +291,7 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
             direction = 1 if event.Delta < 0 else -1
             next_index = (current_index+direction) % len(QuickEdit._catalogs)
             QuickEdit.read_from_config(QuickEdit._catalogs[next_index].File)
+            QuickEdit.update_colors(self._context)
             QuickEdit.update_pressed(self._context)
             self._last_catalog_change = time()
         except:

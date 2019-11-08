@@ -19,7 +19,7 @@ from linkshapes import LinkedShapes
 from shapes import PositionSize
 
 class Swap(object):
-    locpin = pplib.LocPin()
+    locpin = pplib.LocPin(settings_key="toolbox.swap_locpin")
 
     # @staticmethod
     # def swap(shapes):
@@ -108,15 +108,15 @@ class Swap(object):
         temp.Delete()
 
 
-    @staticmethod
-    def replace_keep_size(shapes):
-        new = shapes[0]
-        ref = shapes[1]
-        new.top = ref.top
-        new.left = ref.left
-        new.width = ref.width
-        new.height = ref.height
+    @classmethod
+    def replace_keep_size(cls, shapes):
+        shapes = pplib.wrap_shapes(shapes[:2], cls.locpin)
+        new, ref = shapes
         new.rotation = ref.rotation
+        new.width    = ref.width
+        new.height   = ref.height
+        new.top      = ref.top
+        new.left     = ref.left
         pplib.set_shape_zorder(new, value=ref.ZOrderPosition)
         ref.Delete()
 
@@ -555,7 +555,7 @@ class ShapeDistance(object):
         if cls.vertical_edges == "distance":
             dis = shapes[1].y-shapes[0].y1
         elif cls.vertical_edges == "visual":
-            dis = shapes[1].visual_y-shapes[0].visual_y-shapes[0].visual_height
+            dis = shapes[1].visual_y-shapes[0].visual_y1
         else:
             dis = shapes[1].top-shapes[0].top
         
@@ -638,7 +638,7 @@ class ShapeDistance(object):
         if cls.horizontal_edges == "distance":
             dis = shapes[1].x-shapes[0].x1
         elif cls.horizontal_edges == "visual":
-            dis = shapes[1].visual_x-shapes[0].visual_x-shapes[0].visual_width
+            dis = shapes[1].visual_x-shapes[0].visual_x1
         else:
             dis = shapes[1].left-shapes[0].left
         
@@ -648,14 +648,18 @@ class ShapeDistance(object):
     @classmethod
     def set_shape_sep_vertical_zero(cls, shapes):
         if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
-            cls.set_shape_sep_vertical(shapes, cls.default_sep)
+            cls.set_shape_sep_vertical(shapes, cm_to_pt(cls.default_sep))
+        elif bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+            cls.set_shape_sep_vertical(shapes, cls.get_shape_sep_vertical(shapes))
         else:
             cls.set_shape_sep_vertical(shapes, 0)
 
     @classmethod
     def set_shape_sep_horizontal_zero(cls, shapes):
         if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
-            cls.set_shape_sep_horizontal(shapes, cls.default_sep)
+            cls.set_shape_sep_horizontal(shapes, cm_to_pt(cls.default_sep))
+        elif bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+            cls.set_shape_sep_horizontal(shapes, cls.get_shape_sep_horizontal(shapes))
         else:
             cls.set_shape_sep_horizontal(shapes, 0)
 
@@ -847,6 +851,8 @@ class ShapeRotation(object):
     def set_rotation_zero(cls, shapes):
         if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
             cls.set_rotation(shapes, 180)
+        elif bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+            cls.set_rotation(shapes, cls.get_rotation(shapes))
         else:
             cls.set_rotation(shapes, 0)
 
@@ -887,7 +893,7 @@ distance_rotation_group = bkt.ribbon.Group(
             label=u"Objektabstand vertikal",
             show_label=False,
             screentip="Vertikalen Objektabstand",
-            supertip="Ändere den vertikalen Objektabstand auf das angegebene Maß (in cm).",
+            supertip="Ändere den vertikalen Objektabstand auf das angegebene Maß (in cm).\n\nIcon-Klick für 0 Abstand.\nShift-Klick für 0,2cm Abstand.\nStrg-Klick für Abstand angleichen.",
             on_change = bkt.Callback(ShapeDistance.set_shape_sep_vertical, shapes=True),
             get_text  = bkt.Callback(ShapeDistance.get_shape_sep_vertical, shapes=True),
             # on_action = bkt.Callback(ShapeDistance.set_shape_sep_vertical_zero, shapes=True),
@@ -963,7 +969,7 @@ distance_rotation_group = bkt.ribbon.Group(
             label=u"Objektabstand horizontal",
             show_label=False,
             screentip="Horizontalen Objektabstand",
-            supertip="Ändere den horizontalen Objektabstand auf das angegebene Maß (in cm).",
+            supertip="Ändere den horizontalen Objektabstand auf das angegebene Maß (in cm).\n\nIcon-Klick für 0 Abstand.\nShift-Klick für 0,2cm Abstand.\nStrg-Klick für Abstand angleichen.",
             on_change = bkt.Callback(ShapeDistance.set_shape_sep_horizontal, shapes=True),
             get_text  = bkt.Callback(ShapeDistance.get_shape_sep_horizontal, shapes=True),
             # on_action = bkt.Callback(ShapeDistance.set_shape_sep_horizontal_zero, shapes=True),
@@ -1039,7 +1045,7 @@ distance_rotation_group = bkt.ribbon.Group(
             image_mso='Repeat',
             # image_button=True,
             screentip="Form-Rotation",
-            supertip="Ändere die Rotation des Shapes auf das angegebene Maß (in Grad).",
+            supertip="Ändere die Rotation des Shapes auf das angegebene Maß (in Grad).\n\nIcon-Klick für Rotation=0.\nShift-Klick für Rotation=180.\nStrg-Klick für Rotation angleichen.",
             on_change = bkt.Callback(ShapeRotation.set_rotation, shapes=True),
             get_text  = bkt.Callback(ShapeRotation.get_rotation, shapes=True),
             # on_action = bkt.Callback(ShapeRotation.set_rotation_zero, shapes=True),
@@ -2087,6 +2093,40 @@ arrange_advanced_group = bkt.ribbon.Group(
     ]
 )
 
+arrange_advanced_small_group = bkt.ribbon.Group(
+    id="bkt_arrage_adv_small_group",
+    label=u'Erw. Anordnen',
+    image='arrange_left_at_left',
+    children=[
+        arrange_advaced.get_button("arrange_left_at_left", "-small",        label="Links an Links"),
+        arrange_advaced.get_button("arrange_right_at_right", "-small",      label="Rechts an Rechts"),
+        arrange_advaced.get_button("arrange_middle_at_middle", "-small",    label="Mitte an Mitte"),
+        arrange_advaced.get_button("arrange_top_at_top", "-small",          label="Oben an Oben"),
+        arrange_advaced.get_button("arrange_bottom_at_bottom", "-small",    label="Unten an Unten"),
+        arrange_advaced.get_button("arrange_vmiddle_at_vmiddle", "-small",  label="Mitte an Mitte"),
+
+        bkt.ribbon.Button(
+            id="arrange_quick_position-small",
+            label="Position",
+            show_label=False,
+            image_mso="ControlAlignToGrid",
+            on_action=bkt.Callback(arrange_advaced.arrange_quick_position),
+            get_enabled=bkt.Callback(arrange_advaced.enabled),
+            screentip="Gleiche Position wie Master",
+        ),
+        bkt.ribbon.Button(
+            id="arrange_quick_size-small",
+            label="Größe",
+            show_label=False,
+            image_mso="SizeToControlHeightAndWidth",
+            on_action=bkt.Callback(arrange_advaced.arrange_quick_size),
+            get_enabled=bkt.Callback(arrange_advaced.enabled),
+            screentip="Gleiche Größe wie Master",
+        ),
+
+        arrange_advaced.get_master_button("-small", show_label=False)
+    ]
+)
 
 
 class ArrangeAdvancedEasy(ArrangeAdvanced):
@@ -2999,12 +3039,25 @@ class GroupsMore(object):
         return any(shp.Type == pplib.MsoShapeType['msoGroup'] for shp in shapes)
 
     @staticmethod
+    def is_or_within_group(shape):
+        return shape.Type == pplib.MsoShapeType['msoGroup'] or pplib.shape_is_group_child(shape)
+
+    @staticmethod
     def recursive_ungroup(shapes):
         for shape in shapes:
             if shape.Type == pplib.MsoShapeType['msoGroup']:
                 grp = pplib.GroupManager(shape)
                 grp.recursive_ungroup().select(False)
 
+    @staticmethod
+    def select_all_groupitems(shape):
+        if shape.Type == pplib.MsoShapeType['msoGroup']:
+            all_shapes = list(iter(shape.GroupItems))
+        elif pplib.shape_is_group_child(shape):
+            all_shapes = list(iter(shape.ParentGroup.GroupItems))
+        else:
+            return
+        pplib.shapes_to_range(all_shapes).select()
 
 
 class ArrangeCenter(object):
@@ -3225,6 +3278,15 @@ arrange_group = bkt.ribbon.Group(
                     supertip="Wendet Gruppe aufheben solange an, bis alle verschachtelten Gruppen aufgelöst sind.",
                     on_action=bkt.Callback(GroupsMore.recursive_ungroup, shapes=True),
                     get_enabled = bkt.Callback(GroupsMore.contains_group, shapes=True),
+                ),
+                bkt.ribbon.Button(
+                    id = 'select_all_groupitems',
+                    label="Elemente der Gruppe markieren",
+                    image_mso="ObjectsMultiSelect",
+                    screentip="Alle Elemente der Gruppe markieren",
+                    supertip="Markiert alle Elemente innerhalb der Gruppe.",
+                    on_action=bkt.Callback(GroupsMore.select_all_groupitems, shape=True),
+                    get_enabled = bkt.Callback(GroupsMore.is_or_within_group, shape=True),
                 ),
                 bkt.ribbon.MenuSeparator(title="Verknüpfte Shapes"),
                 bkt.ribbon.Button(

@@ -1,3 +1,15 @@
+# Release 2019-11-07 (2.6.0)
+
+  * Custom formats: Support for font gradients, font glow, font reflection, font shadow
+  * Consolidation-Split-Feature now has photos2slides function and progress bar when exporting slides
+  * Added toggle to use visual size and position to according spinners
+  * Improved linked shapes features: apply certain actions and sync single properties such as center left point, sync text formatting
+  * Improved text-to-shape function for shapes with background color
+  * Fixes for inserting icons from Font Awesome 5
+  * Make PPT-Toolbox UI customizable via settings dialog
+  * Excel Toolbar: Refactoring of folder and file list generator with many improvements
+
+
 # Release 2019-08-23 (2.5.3)
 
   * Popup for process chevrons shapes (add/remove chevrons)

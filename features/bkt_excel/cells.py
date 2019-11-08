@@ -1051,7 +1051,6 @@ zellen_inhalt_gruppe = bkt.ribbon.Group(
         #TODO: Formatierung gezielt übertragen (Auswahl Zellenformat, Benutzerdefinierte Format., Datenvalidierung)
         #TODO: Benutzerdefinierte Formatierung konsolidieren (wenn farbe und typ identisch, range_union)
         #TODO: Unit/Currency Conversion
-        #TODO: Alle Kommentare löschen (?)
     ]
 )
 
@@ -1240,5 +1239,32 @@ zellen_format_gruppe = bkt.ribbon.Group(
             ]
         ),
         bkt.ribbon.DialogBoxLauncher(idMso='CellAlignmentOptions')
+    ]
+)
+
+comments_gruppe = bkt.ribbon.Group(
+    label="Kommentare",
+    image_mso="ReviewNewComment",
+    children=[
+        bkt.mso.control.ReviewNewComment(size="large"),
+
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.ShapeChangeShapeGallery(),
+            bkt.mso.control.ShapeFillColorPicker(),
+            bkt.mso.control.ShapeOutlineColorPicker(),
+        ]),
+
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.ReviewPreviousComment(),
+            bkt.mso.control.ReviewNextComment(show_label=True),
+        ]),
+
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            # bkt.mso.control.ReviewDeleteComment(),
+            # bkt.mso.control.ReviewShowOrHideComment(),
+            bkt.mso.control.ReviewShowAllComments(show_label=True, label="Alle an/aus"),
+        ]),
+
+        bkt.ribbon.DialogBoxLauncher(idMso='ObjectFormatDialog')
     ]
 )

@@ -361,6 +361,9 @@ GlobalLocPin = LocPin(settings_key="bkt.global_loc_pin")
 
 
 def shape_is_group_child(shape):
+    '''
+    Test if a shape is part of a group.
+    '''
     try:
         return shape.ParentGroup.Id != ""
     except SystemError:
@@ -459,6 +462,9 @@ def get_slides_from_selection(selection):
         return []
 
 def set_shape_zorder(shape, value=None, delta=None):
+    '''
+    Sets the shapes Z-Order to a specific value (if value != None) or by a specific delta (if delta != None). Delta can be negative.
+    '''
     if not delta and not value:
         raise ArgumentError("Neither value nor delta are given!")
 
@@ -487,7 +493,66 @@ def set_shape_zorder(shape, value=None, delta=None):
             break
             #zorder reached
 
+def replicate_shape(shape, force_textbox=False):
+    '''
+    This function replicates a shape, which is similar to shape.Duplicate() but instead a new shape is created.
+    The duplicate function throws a ComException if the duplicate is used (e.g. merged, deleted) afterwards due to pending event handling.
+    '''
+    slide = shape.Parent
+    if force_textbox or shape.Type == MsoShapeType['msoTextBox']:
+        new_shape = slide.shapes.AddTextbox(
+            1, #msoTextOrientationHorizontal
+            shape.Left, shape.Top, shape.Width, shape.Height)
+        new_shape.AutoShapeType = shape.AutoShapeType
+    else:
+        new_shape = slide.shapes.AddShape(
+            shape.AutoShapeType,
+            shape.Left, shape.Top, shape.Width, shape.Height)
+    
+    #replicate shape properties
+    if shape.VerticalFlip != new_shape.VerticalFlip:
+        new_shape.Flip(1) #msoFlipVertical
+    if shape.HorizontalFlip != new_shape.HorizontalFlip:
+        new_shape.Flip(0) #msoFlipHorizontal
+
+    for i in range(1,shape.adjustments.count+1):
+        try:
+            new_shape.adjustments.item[i] = shape.adjustments.item[i]
+        except:
+            continue
+
+    new_shape.Rotation = shape.Rotation
+
+    #copy all formatting
+    shape.PickUp()
+    new_shape.Apply()
+
+    #copy text
+    shape.TextFrame2.TextRange.Copy()
+    new_shape.TextFrame2.TextRange.Paste()
+
+    #ensure correct size and position (size may change due to AutoSize, Flip can change position)
+    new_shape.Height = shape.Height
+    new_shape.Width  = shape.Width
+    new_shape.Top    = shape.Top
+    new_shape.Left   = shape.Left
+    
+    return new_shape
+
+
 def convert_text_into_shape(shape):
+    '''
+    This function converts text into a shape. This is very useful for icon fonts. If the shape has a background, the text is cut out of the shape.
+    We use the standard merge functions from powerpoint, which are buggy in some situation: If a special shape with adjustments is used, the 
+    converted text is not at the exact same position as the original text. This is very annoying for the cut-out function. No workaround found :(
+
+    ### MsoMergeCmd:
+    msoMergeCombine     2   Creates a new shape from selected shapes. If the selected shapes overlap, the area where they overlap is cut out, or discarded.
+    msoMergeFragment    5   Breaks a shape into smaller parts or create new shapes from intersecting lines or from shapes that overlap.
+    msoMergeIntersect   3   Forms a new closed shape from the area where selected shapes overlap, eliminating non-overlapping areas.
+    msoMergeSubtract    4   Creates a new shape by subtracting from the primary selection the areas where subsequent selections overlap.
+    msoMergeUnion       1   Creates a new shape from the perimeter of two or more overlapping shapes. The new shape is a set of all the points from the original shapes.
+    '''
     slide = shape.Parent
 
     #find shape index
@@ -501,28 +566,88 @@ def convert_text_into_shape(shape):
 
     #total shapes
     shape_count = slide.shapes.count
-    #add temporary shape
-    tmp_shp = slide.shapes.AddShape( MsoAutoShapeType['msoShapeRectangle']
-        , -10, 0, 10, 10)
 
-    #select shape and temporary shape
-    shapes = shape_indices_on_slide(slide, [shape_index, shape_count+1])
-    shapes.MergeShapes(4, shape) #MsoMergeCmd: 4=msoMergeSubtract
+    #convert actual text into shape
+    if shape.Fill.visible == 0:
+        #turn off line as it prohibts conversion
+        shape.Line.visible = 0
+
+        #add temporary shape
+        tmp_shp = slide.shapes.AddShape( MsoAutoShapeType['msoShapeRectangle']
+            , -10, 0, 10, 10)
+        
+        #select shape and temporary shape
+        shapes = shape_indices_on_slide(slide, [shape_index, shape_count+1])
+        shapes.MergeShapes(4, shape)
+    
+    #cut text out of shape
+    elif shape.TextFrame2.HasText:
+        # first approach: duplicate shape, remove fill+line, and text from original shape,
+        #                 but than MergeShape fails with ComException. It seems that events
+        #                 need to be processed before. Workaround: Delay MergeShape in a Thread,
+        #                 but than we cannot return the resulting shape.
+        # new approach: create new shape and copy all relevant formatting
+
+        #ensure autosize is off
+        shape.TextFrame2.AutoSize = 0 #ppAutoSizeNone
+
+        #duplicate shape without using Duplicate()
+        text_shape = replicate_shape(shape, True)
+
+        #remove fill and line
+        text_shape.Fill.visible=0
+        text_shape.Line.visible=0
+
+        #delete text from original shape
+        shape.TextFrame2.DeleteText()
+
+        #select shape and text shape
+        shapes = shape_indices_on_slide(slide, [shape_index, shape_count+1])
+        shapes.MergeShapes(4, shape)
+    
+    #nothing to do
+    else:
+        return shape
 
     new_shape = shape_indices_on_slide(slide, [shape_index])[1]
     new_shape.LockAspectRatio = -1
     return new_shape
 
-def get_dict_from_tags(shape_tags):
-    d = dict()
-    for i in range(shape_tags.count):
-        d[shape_tags.name(i+1)] = shape_tags.value(i+1)
-    return d
 
-def set_tags_from_dict(tags_dict, shape_tags):
-    for k,v in tags_dict.items():
-        shape_tags.add(k,v)
 
+# ====================
+# = Tag helper class =
+# ====================
+
+class TagHelper(object):
+    @staticmethod
+    def get_dict_from_tags(obj_tags):
+        '''
+        Convert all shape/slide tags to a python dictionary.
+        '''
+        d = dict()
+        for i in range(obj_tags.count):
+            d[obj_tags.name(i+1)] = obj_tags.value(i+1)
+        return d
+
+    @staticmethod
+    def set_tags_from_dict(tags_dict, obj_tags):
+        '''
+        Set shape tags based on a python dictionary.
+        '''
+        for k,v in tags_dict.items():
+            obj_tags.add(k,v)
+
+    @staticmethod
+    def has_tag(obj, tag_name, check_value=None):
+        try:
+            if check_value is not None:
+                return obj.Tags(tag_name) == check_value
+            else:
+                return obj.Tags(tag_name) != ''
+        except: #EnvironmentError
+            #Shape.Tags throws COMException for SmartArt child-shapes
+            return False
 
 
 
@@ -794,68 +919,114 @@ def read_contentarea(presentation):
 #Iterate through shapes of different types and return every shapes "subhsapes", e.g. group shapes or table cells
 #arg 'from_selection': If shapes are not from a selection (e.g. iterate all shapes of a slide), set this to False to disable selected table cells detection,
 #                      otherwise not all table cells are iterated at least in the rare case that a table is the only shape on a slide.
-#arg 'filter_method':  Filter the returned shapes by a function(shape), e.g. to return only shapes that have a textframe
-#arg 'getter_method':  Return function(shape) to get certain attributes, e.g. the textframe of a shape
-def iterate_shape_subshapes(shapes, from_selection=True, filter_method=lambda shp: True, getter_method=lambda shp: shp):
-    only_selected_table_cells = False
 
-    def _get_shp_type(shape):
-        #For table cells Type is not implemented and will throw an error
-        try:
-            return shape.Type
-        except:
-            return None
+class SubShapeIterator(object):
+    def __init__(self, shapes, from_selection=True):
+        #Ensure list
+        if type(shapes) != list:
+            shapes = list(iter(shapes))
+        
+        self.only_selected_table_cells = False
 
-    def _iter_all(shape):
-        for shape in shapes:
-            shp_type = _get_shp_type(shape)
-            
-            # Note: Placeholder can be table, chart, diagram, smartart, picture, whatever...
-            if shp_type == MsoShapeType['msoPlaceholder']:
-                shp_type = shape.PlaceholderFormat.ContainedType
+        #If cells within a table are selected, function should only iterate selected cells. If the whole table is selected but no other shape, all cells are selected.
+        # if from_selection and len(shapes) == 1 and _get_shp_type(shapes[0]) == MsoShapeType['msoTable']:
+        if from_selection and len(shapes) == 1 and shapes[0].HasTable == -1:
+            self.only_selected_table_cells = True
+
+        self.shapes = shapes
+    
+    def __iter__(self):
+        for shape in self.shapes:
+            shp_type = self._get_shp_type(shape)
 
             # Iterate each group item
-            if shp_type == MsoShapeType['msoGroup'] or shp_type == MsoShapeType['msoSmartArt']:
-                for shp in shape.GroupItems:
-                    yield shp
+            if shp_type == MsoShapeType['msoGroup']:
+                generator = self._iter_group(shape)
+            
+            # Iterate each smart art node
+            elif shp_type == MsoShapeType['msoSmartArt']:
+                generator = self._iter_smartart(shape)
             
             # Iterate each chart/diagram shape
             elif shp_type == MsoShapeType['msoChart'] or shp_type == MsoShapeType['msoDiagram']:
-                yield shape
-                #FIXME: handling of charts can be improved, but it is very tricky!
-                #General chart textframe is in shape.Chart.ChartArea.Format.TextFrame2, but there is not "HasTextFrame" property
-                #Individual textframes are almost impossible to access
+                generator = self._iter_chart(shape)
             
             # Iterate each table cell
             elif shp_type == MsoShapeType['msoTable']:
-                for row in shape.table.rows:
-                    for cell in row.cells:
-                        if not only_selected_table_cells or cell.Selected:
-                            yield cell.Shape
+                generator = self._iter_table(shape)
             
             else:
-                yield shape
+                generator = self._iter_default(shape)
+            
+            for obj in generator:
+                yield obj
+    
+    def _get_shp_type(self, shape):
+        #For table cells Type is not implemented and will throw an error
+        try:
+            # Note: Placeholder can be table, chart, diagram, smartart, picture, whatever...
+            if shape.Type == MsoShapeType['msoPlaceholder']:
+                return shape.PlaceholderFormat.ContainedType
+            return shape.Type
+        except:
+            return None
+    
+    def _iter_group(self, shape):
+        for shp in shape.GroupItems:
+            yield shp
+    
+    def _iter_smartart(self, shape):
+        for shp in shape.GroupItems:
+            yield shp
+    
+    def _iter_chart(self, shape):
+        yield shape
+    
+    def _iter_default(self, shape):
+        yield shape
+    
+    def _iter_table(self, shape):
+        for row in shape.table.rows:
+            for cell in row.cells:
+                if not self.only_selected_table_cells or cell.Selected:
+                    yield cell.Shape
 
-    #Ensure list
-    if type(shapes) != list:
-        shapes = list(iter(shapes))
 
-    #If cells within a table are selected, function should only iterate selected cells. If the whole table is selected but no other shape, all cells are selected.
-    # if from_selection and len(shapes) == 1 and _get_shp_type(shapes[0]) == MsoShapeType['msoTable']:
-    if from_selection and len(shapes) == 1 and shapes[0].HasTable == -1:
-        only_selected_table_cells = True
-
-
-    for shape in _iter_all(shapes):
-        if filter_method(shape):
-            yield getter_method(shape)
+def iterate_shape_subshapes(shapes, from_selection=True, filter_method=lambda shp: True, getter_method=lambda shp: shp):
+    return SubShapeIterator(shapes, from_selection)
 
 
 #Iterate through shapes of different types and return every shapes textframe
+
+class TextframeIterator(SubShapeIterator):
+    
+    def _iter_group(self, shape):
+        for shp in shape.GroupItems:
+            if shp.HasTextFrame:
+                yield shp.TextFrame2
+    
+    def _iter_default(self, shape):
+        if shape.HasTextFrame:
+            yield shape.TextFrame2
+    
+    def _iter_table(self, shape):
+        for row in shape.table.rows:
+            for cell in row.cells:
+                if not self.only_selected_table_cells or cell.Selected:
+                    yield cell.Shape.TextFrame2
+    
+    def _iter_smartart(self, shape):
+        # Iterate over nodes instead of GroupItems to get only textframes, but node has no HasTextFrame property!
+        for node in shape.SmartArt.AllNodes:
+            yield node.TextFrame2
+    
+    def _iter_chart(self, shape):
+        yield shape.Chart.ChartArea.Format.TextFrame2
+        yield shape.Chart.ChartTitle.Format.TextFrame2
+
+
 def iterate_shape_textframes(shapes, from_selection=True):
-    return iterate_shape_subshapes(shapes, from_selection,
-        filter_method=lambda shp: shp.HasTextFrame == -1,
-        getter_method=lambda shp: shp.TextFrame2)
+    return TextframeIterator(shapes, from_selection)
 
 
 
@@ -923,7 +1094,7 @@ class GroupManager(object):
         self._ungroup = None
 
         self._name = group.name
-        self._tags = get_dict_from_tags(group.tags)
+        self._tags = TagHelper.get_dict_from_tags(group.tags)
         self._rotation = group.rotation
         self._zorder   = group.ZOrderPosition
 
@@ -1025,7 +1196,7 @@ class GroupManager(object):
         #restore name
         self._group.name = self._name
         #restore tags
-        set_tags_from_dict(self._tags, self._group.tags)
+        TagHelper.set_tags_from_dict(self._tags, self._group.tags)
         #restore additional parameter, e.g. width in process chevrons example
         for k,v in self._attr.items():
             setattr(self._group, k, v)

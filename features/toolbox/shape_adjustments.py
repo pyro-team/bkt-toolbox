@@ -35,7 +35,8 @@ class ShapeAdjustments(object):
     allowed_shape_types = [
         pplib.MsoShapeType['msoAutoShape'],
         pplib.MsoShapeType['msoTextBox'],
-        pplib.MsoShapeType['msoCallout']
+        pplib.MsoShapeType['msoCallout'],
+        pplib.MsoShapeType['msoPicture'],
     ]
     
     auto_shape_type_settings = {
@@ -66,6 +67,8 @@ class ShapeAdjustments(object):
         pplib.MsoAutoShapeType['msoShapeBentUpArrow']         : [dict(ref='min(hw)', min=0, max=1), dict(ref='min(hw)*2', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],             # type=44
         pplib.MsoAutoShapeType['msoShapeParallelogram']       : [dict(ref='h', min=0, max='w')],                                              # type=2
         pplib.MsoAutoShapeType['msoShapeTrapezoid']           : [dict(ref='min(hw)', min=0, max="w/2")],                                      # type=3
+        pplib.MsoAutoShapeType['msoShapeStripedRightArrow']   : [dict(ref='h', min=0, max="h"), dict(ref='min(hw)', min=0, max='w')],         # type=49
+        pplib.MsoAutoShapeType['msoShapeNotchedRightArrow']   : [dict(ref='h', min=0, max="h"), dict(ref='min(hw)', min=0, max='w')],         # type=50
         # database, box
         pplib.MsoAutoShapeType['msoShapeCan']                 : [dict(ref='min(hw)', min=0.001, max='h/2')],                                  # type=13
         pplib.MsoAutoShapeType['msoShapeCube']                : [dict(ref='min(hw)', min=0, max=1)],                                          # type=14
@@ -157,7 +160,7 @@ class ShapeAdjustments(object):
             try:
                 ref, minimum, maximum = cls.get_ref_min_max(shape, num)
                 pt_value = cm_to_pt(value)
-                logging.warning('pt value=%s' % pt_value)
+                logging.debug('shape adjustment pt value=%s' % pt_value)
                 if minimum != None:
                     pt_value = max(minimum, pt_value)
                 if maximum != None:
@@ -236,15 +239,29 @@ class ShapeAdjustments(object):
 
         import bkt.console
         infomsg  = "{:16} {:3} - {}\n".format("ID+Name:", shape.id, shape.name)
-        shape_type = cls.get_shape_type(shape)
+
+        shape_type = shape.Type
+        if shape_type == pplib.MsoShapeType['msoPlaceholder']:
+            shape_type = shape.PlaceholderFormat.ContainedType
+            infomsg += "{:16} {:3} - Placeholder: {}\n".format("Shape-Typ:", shape_type, _get_key_by_value(pplib.MsoShapeType, shape_type))
+        else:
+            infomsg += "{:16} {:3} - {}\n".format("Shape-Typ:", shape_type, _get_key_by_value(pplib.MsoShapeType, shape_type))
+
         shape_autotype = cls.get_shape_autotype(shape)
-        infomsg += "{:16} {:3} - {}\n".format("Shape-Typ:", shape_type, _get_key_by_value(pplib.MsoShapeType, shape_type))
-        infomsg += "{:16} {:3} - {}\n".format("Auto-Shape-Typ:", shape_autotype, _get_key_by_value(pplib.MsoAutoShapeType, shape_autotype))
-        infomsg += "{:16} {:3}\n\n".format("Adjust.-Werte:", shape.adjustments.count)
+        if shape_autotype == "connector":
+            infomsg += "{:16}   {}\n".format("Auto-Shape-Typ:", "Connector")
+        else:
+            infomsg += "{:16} {:3} - {}\n".format("Auto-Shape-Typ:", shape_autotype, _get_key_by_value(pplib.MsoAutoShapeType, shape_autotype))
+        
+        try:
+            shape_adjustments = shape.adjustments.count
+        except: #ValueError for Groups
+            shape_adjustments = 0
+        infomsg += "{:16} {:3}\n\n".format("Adjust.-Werte:", shape_adjustments)
 
         infomsg += "│ {:2} {:>8} │ {:10} {:>6} {:>6} │\n".format("#", "Wert", "ref", "min", "max")
         infomsg += "├─────────────┼──────────────────────────┤\n"
-        for i in range(1,shape.adjustments.count+1):
+        for i in range(1,shape_adjustments+1):
             try:
                 bktlib = cls.auto_shape_type_settings[shape_autotype][i-1]
             except:

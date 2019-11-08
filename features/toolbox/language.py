@@ -26,7 +26,7 @@ class LangSetter(object):
                 image=language[3],
                 screentip="Sprache auf " + language[2] + " ändern",
                 supertip="Setze Sprache für ausgewählten Text bzw. alle ausgewählten Shapes.\nWenn mehrere Folien ausgewählt sind, werden alle Shapes der gewählten Folien geändert.\nWenn nichts ausgewählt ist, werden alle Shapes in der Präsentation sowie die Standardsprache geändert.",
-                on_action=bkt.Callback(lambda selection, presentation: cls.set_language(selection, presentation, language[1]), selection=True, presentation=True)
+                on_action=bkt.Callback(lambda context, selection, presentation: cls.set_language(context, selection, presentation, language[1]), context=True, selection=True, presentation=True)
             )
 
     @classmethod
@@ -46,7 +46,7 @@ class LangSetter(object):
         return selection.TextRange2.Parent.TextRange.Words(word_first, word_last-word_first+1)
 
     @classmethod
-    def set_language(cls, selection, presentation, langCode):
+    def set_language(cls, context, selection, presentation, langCode):
         shapes = pplib.get_shapes_from_selection(selection)
         slides = pplib.get_slides_from_selection(selection)
 
@@ -58,7 +58,7 @@ class LangSetter(object):
         elif len(shapes) > 0:
             #bkt.helpers.message("Setze Sprache für Shapes: " + str(len(shapes)))
             cls.set_language_for_shapes(shapes, langCode)
-        elif len(slides) > 1:
+        elif len(slides) != presentation.slides.count and (len(slides) > 1 or context.app.ActiveWindow.ActivePane.ViewType in [7, 11]): #7=ppViewSlideSorter, 11=ppViewThumbnails
             #bkt.helpers.message("Setze Sprache für Slides: " + str(len(slides)))
             if not bkt.helpers.confirmation("Sprache aller Shapes auf ausgewählten Folien ändern?"):
                 return

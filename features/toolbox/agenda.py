@@ -110,6 +110,7 @@ class ToolboxAgenda(object):
             shp.TextFrame.VerticalAnchor = office.MsoVerticalAnchor.msoAnchorMiddle.value__
             shp.TextFrame.Ruler.Levels.item(1).FirstMargin = 0
             shp.TextFrame.Ruler.Levels.item(1).LeftMargin = 14
+            shp.TextFrame.Ruler.TabStops.Add(ppt.PpTabStopType.ppTabStopRight.value__, shp.width)
             # Innenabstand
             shp.TextFrame.MarginBottom = 12
             shp.TextFrame.MarginTop = 12

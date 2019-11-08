@@ -6,7 +6,8 @@ Created on 10.02.2017
 '''
 
 import os.path
-import imp
+# import imp
+import importlib
 
 import bkt
 from bkt.library.powerpoint import PPTSymbolsGallery
@@ -15,14 +16,14 @@ from bkt.library.powerpoint import PPTSymbolsGallery
 # import fontsymbols
 #
 fontsettings = [
-    # module-name, font-filename
-    ('fontawesome4', 'FontAwesome'),
-    ('fontawesome5', 'Font Awesome 5 Free Regular'),
-    ('segoeui', 'Segoe UI'),
-    ('segoemdl2', 'Segoe MDL2 Assets'),
-    ('materialicons', 'Material Icons'),
-    ('fabricmdl2', 'Fabric MDL2 Assets'),
-    # ('foobar', 'Non-existing test font'),
+    # module-name, font-filename, suppress-font-not-installed-message
+    ('fontawesome4', 'FontAwesome', True),
+    ('fontawesome5', 'Font Awesome 5 Free Regular', False),
+    ('segoeui', 'Segoe UI', False),
+    ('segoemdl2', 'Segoe MDL2 Assets', True),
+    ('materialicons', 'Material Icons', False),
+    ('fabricmdl2', 'Fabric MDL2 Assets', True),
+    # ('foobar', 'Non-existing test font', True),
 ]
 
 
@@ -38,14 +39,14 @@ def font_exists(fontname):
 # initialize galleries 
 symbol_galleries = []
 
-for fontsetting in fontsettings:
-    font_module, font_name = fontsetting
+for font_module, font_name, suppress_hint in fontsettings:
     
     # check if font exists
     if font_exists(font_name):
         # import the corresponding font-symbol-module from 'fontsymbols'-folder
-        base_folder = os.path.dirname(os.path.realpath(__file__))
-        fontsymbolmodule = imp.load_source(font_module,"%s\\fontsymbols\\%s.py" % (base_folder, font_module))
+        # base_folder = os.path.dirname(os.path.realpath(__file__))
+        # fontsymbolmodule = imp.load_source(font_module,"%s\\fontsymbols\\%s.py" % (base_folder, font_module))
+        fontsymbolmodule = importlib.import_module('toolbox.fontsymbols.%s' % font_module)
         
         # add menu seperator with title
         if fontsymbolmodule.menu_title:
@@ -59,7 +60,7 @@ for fontsetting in fontsettings:
         
         # add font-symbol-galleries
         symbol_galleries += fontsymbolmodule.menus
-    else:
+    elif not suppress_hint:
         symbol_galleries += [
             bkt.ribbon.MenuSeparator(title=font_name),
             bkt.ribbon.Button(

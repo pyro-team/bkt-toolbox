@@ -107,11 +107,12 @@ class RibbonControl(AbstractAnnotationObject):
             self.set_id()
         else:
             self.user_defined_id = False
-            pre_id = self.check_predefined_ids()
             if not self.no_id:
+                pre_id = self.check_predefined_ids()
                 if pre_id is None:
                     self._attributes[self._id_attribute_key] = self.create_persisting_id()
-                elif isinstance(self, Tab):
+                # elif isinstance(self, Tab):
+                else:
                     logging.debug("Predefined ID found: %s (%s)" % (pre_id, self._attributes[pre_id]))
                     # enable callbacks for idMso tab (e.g. powerpoint contextual tabs)
                     self._id_attribute_key = pre_id
@@ -466,7 +467,8 @@ class CustomUI(TypedRibbonControl):
 # ===============================
 
 class Gallery(GalleryMso):
-    def get_check_image(self, checked=True):
+    @staticmethod
+    def get_check_image(checked=True):
         if not checked:
             return None
 
@@ -1151,11 +1153,14 @@ class SymbolsGallery(Gallery):
 
 class MSOControl(RibbonControl):
     ''' describes mso controls to be reused in the custom ui'''
-    no_id = True
+    # no_id = True
     
     def __init__(self, control_type, id_mso, **kwargs):
+        if "attributes" in kwargs:
+            kwargs["attributes"]["id_mso"] = id_mso
+        else:
+            kwargs["attributes"] = {"id_mso": id_mso}
         super(MSOControl, self).__init__(control_type, **kwargs)
-        self._attributes['id_mso'] = id_mso
         
     def configure(self, **kwargs):
         '''

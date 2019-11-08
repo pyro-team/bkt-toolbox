@@ -11,8 +11,8 @@ import bkt
 # reuse settings-menu from bkt-framework
 import modules.settings as settings
 
-version_short = 'v2.5'
-version_long  = 'Powerpoint Toolbox v2.5.3'
+version_short = 'v2.6'
+version_long  = 'Powerpoint Toolbox v2.6.0'
 
 
 # Workaround to activate Tab when new shape is added instead of auto switching to "Format" contextual tab
@@ -85,11 +85,23 @@ class ToolbarVariations(object):
     #FIXME: very hard-coded, should be more flexible and allow multiple variations
 
     @classmethod
-    def get_pressed(cls):
+    def get_pressed_default(cls):
+        return "toolbox_widescreen" not in sys.modules
+    
+    @classmethod
+    def get_pressed_wide(cls):
         return "toolbox_widescreen" in sys.modules
+        
+    @classmethod
+    def change_to_default(cls, context, pressed):
+        cls.change_variation(context, "toolbox")
+        
+    @classmethod
+    def change_to_wide(cls, context, pressed):
+        cls.change_variation(context, "toolbox_widescreen")
 
     @classmethod
-    def change_variation(cls, context, pressed):
+    def change_variation(cls, context, variation):
         from os.path import dirname, realpath, normpath, join
         folders = context.config.feature_folders or []
         folder = join(dirname(realpath(__file__)), "..")
@@ -103,13 +115,17 @@ class ToolbarVariations(object):
             folders.remove(normpath(join(folder,"toolbox_widescreen")))
         except ValueError:
             pass
-        if pressed:
-            folders.insert(0, normpath(join(folder,"toolbox_widescreen")))
-        else:
-            folders.insert(0, normpath(join(folder,"toolbox")))
+        folders.insert(0, normpath(join(folder, variation)))
         context.config.set_smart("feature_folders", folders)
+
         #reload bkt using settings module
-        sys.modules["modules"].settings.BKTReload.reload_bkt(context)
+        if bkt.helpers.confirmation("Soll die BKT nun neu geladen werden?"):
+            sys.modules["modules"].settings.BKTReload.reload_bkt(context)
+    
+    @classmethod
+    def show_uisettings(cls, context):
+        from toolboxui import ToolboxUi
+        ToolboxUi.get_instance().show_settings_editor(context)
 
 
 settings.settings_menu.children.extend([
@@ -118,11 +134,29 @@ settings.settings_menu.children.extend([
         get_pressed=bkt.Callback(FormatTab.get_config),
         on_toggle_action=bkt.Callback(FormatTab.set_config, context=True)
     ),
-    bkt.ribbon.ToggleButton(
-        label="Profi-Widescreen-Theme",
-        get_pressed=bkt.Callback(ToolbarVariations.get_pressed),
-        on_toggle_action=bkt.Callback(ToolbarVariations.change_variation, context=True)
-    )
+    bkt.ribbon.Menu(
+        label="UI Theme",
+        children=[
+            bkt.ribbon.ToggleButton(
+                label="Standard (3-seitig)",
+                supertip="Drei Tabs für die Toolbox mit allen erweiterten Features auf einer separaten Seite 3",
+                get_pressed=bkt.Callback(ToolbarVariations.get_pressed_default),
+                on_toggle_action=bkt.Callback(ToolbarVariations.change_to_default, context=True)
+            ),
+            bkt.ribbon.ToggleButton(
+                label="Widescreen (2-seitig)",
+                supertip="Zwei Tabs für die Toolbox mit allen erweiterten Features gemeinsam auf Seite 2.",
+                get_pressed=bkt.Callback(ToolbarVariations.get_pressed_wide),
+                on_toggle_action=bkt.Callback(ToolbarVariations.change_to_wide, context=True)
+            ),
+            bkt.ribbon.MenuSeparator(),
+            bkt.ribbon.Button(
+                label="Theme-Einstellungen",
+                supertip="Festlegung der Seite je Gruppe und Ausblenden von Gruppen.",
+                on_action=bkt.Callback(ToolbarVariations.show_uisettings),
+            ),
+        ]
+    ),
 ])
 
 

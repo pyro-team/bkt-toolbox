@@ -363,7 +363,7 @@ class ChartLib(object):
                 current = 1.0
                 worker.ReportProgress(1, "Lade Dateien")
                 for gal in self.cached_presentation_galleries.itervalues():
-                    if worker.CancellationPending == True:
+                    if worker.CancellationPending:
                         break
                     if len(gal.filename) > 50:
                         worker.ReportProgress(current/total*100, "..." + gal.filename[-50:])

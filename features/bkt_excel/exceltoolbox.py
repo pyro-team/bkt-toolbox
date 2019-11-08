@@ -110,6 +110,7 @@ bkt.excel.add_tab(bkt.ribbon.Tab(
     children = [
         cells.zellen_inhalt_gruppe,
         cells.zellen_format_gruppe,
+        cells.comments_gruppe,
         bkt.ribbon.Group(
             label="Rahmen",
             image_mso="BorderDrawMenu",

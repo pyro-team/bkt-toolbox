@@ -190,6 +190,25 @@ class ShapeWrapper(object):
 
 
     @property
+    def visual_left(self):
+        ''' get visual left position considering locpin setting '''
+        return round(self.visual_x + self.locpin.get_fractions()[1]*self.visual_width, 3)
+    @visual_left.setter
+    def visual_left(self, value):
+        ''' set visual left position considering locpin setting '''
+        self.shape.incrementLeft(value-self.visual_left)
+
+    @property
+    def visual_top(self):
+        ''' get visual top position considering locpin setting '''
+        return round(self.visual_y + self.locpin.get_fractions()[0]*self.visual_height, 3)
+    @visual_top.setter
+    def visual_top(self, value):
+        ''' set visual top position considering locpin setting '''
+        self.shape.incrementTop(value-self.visual_top)
+
+
+    @property
     def visual_x(self):
         ''' get visual x (=left) position considering rotation '''
         if self.shape.rotation == 0 or self.shape.rotation == 180:

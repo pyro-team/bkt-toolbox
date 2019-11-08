@@ -8,10 +8,11 @@ import bkt
 import bkt.library.excel.helpers as xllib
 import bkt.library.excel.constants as xlcon
 
+import logging
 import os #for filelist
 from datetime import datetime #for filelist
 
-from System import DBNull #for list of cond format
+from System import DBNull, Array #for list of cond format
 
 class SheetsOps(object):
     very_hidden_sheets = set()
@@ -189,9 +190,12 @@ class SheetsOps(object):
 
     @staticmethod
     def _create_list_header(list_sheet, header, row=1):
-        for i,h in enumerate(header, start=1):
-            list_sheet.Cells(row,i).Value = h
-        list_sheet.Range(list_sheet.Cells(row,1),list_sheet.Cells(row,len(header))).Font.Bold = True
+        input_range = list_sheet.Range(list_sheet.Cells(row,1),list_sheet.Cells(row,len(header)))
+        input_range.Value = Array[object](header)
+        input_range.Font.Bold = True
+        # for i,h in enumerate(header, start=1):
+        #     list_sheet.Cells(row,i).Value = h
+        # list_sheet.Range(list_sheet.Cells(row,1),list_sheet.Cells(row,len(header))).Font.Bold = True
 
     @classmethod
     def list_properties(cls, workbook):
@@ -367,8 +371,24 @@ class SheetsOps(object):
             cur_row += 1
         list_sheet.UsedRange.Columns.AutoFit()
 
+
+class FileListOps(object):
+    group_rows = True
+    indent_rows = True
+    folder_rows = True
+
     @classmethod
-    def file_list(cls, application, workbook, recursive=False):
+    def file_list_resursive(cls, context, workbook):
+        cls.file_list(context, workbook, recursive=True)
+
+    @classmethod
+    def file_list_folders(cls, context, workbook):
+        cls.file_list(context, workbook, folders_only=True)
+
+    @classmethod
+    def file_list(cls, context, workbook, recursive=False, folders_only=False):
+        application = context.app
+
         fileDialog = application.FileDialog(4) #msoFileDialogFolderPicker
         if workbook.Path:
             fileDialog.InitialFileName = workbook.Path + '\\'
@@ -382,66 +402,221 @@ class SheetsOps(object):
         if not os.path.isdir(folder):
             return
 
-        xllib.freeze_app()
-        application.StatusBar = "Erstelle Dateiliste"
+        folder = os.path.normpath(folder)
 
-        sheet = workbook.Worksheets.Add()
-        #sheet.Name = "BKT DATEILISTE"
-        xllib.rename_sheet(sheet, "BKT DATEILISTE")
-        cls._create_list_header(sheet, ["Name", "Typ", "Größe", "Erstellt", "Geändert", "Ordner", "Pfad"], 2)
+        def loop(worker):
+            application.StatusBar = "Erstelle Dateiliste"
+            worker.ReportProgress(0, "Erstelle Dateiliste")
 
-        total = cls.create_list_of_folder(application, folder, sheet, 3, recursive)
-        total -= 3
+            sheet = workbook.Worksheets.Add()
+            xllib.rename_sheet(sheet, "BKT DATEILISTE")
+            if folders_only:
+                cls._create_list_header(sheet, ["Name", "Anz. Ordner", "Anz. Dateien", "Erstellt", "Geändert", "Tiefe", "Übergeordneter Ordner", "Relativer Pfad", "Voller Pfad"], 2)
+            else:
+                cls._create_list_header(sheet, ["Name", "Typ", "Größe", "Erstellt", "Geändert", "Tiefe", "Übergeordneter Ordner", "Relativer Pfad", "Voller Pfad"], 2)
 
-        application.StatusBar = False
-        xllib.unfreeze_app()
+            total = cls._create_file_list(worker, application, folder, sheet, 3, recursive, folders_only)
+            total -= 3
 
-        sheet.UsedRange.Columns.AutoFit()
-        sheet.Cells(1,1).Value = "Dateiliste mit " + str(total) + " Dateien für Ordner: " + os.path.normpath(folder)
+            worker.ReportProgress(100, "Fertigstellen...")
+            application.StatusBar = False
+            application.ActiveWindow.ScrollRow = 1
 
+            sheet.Outline.SummaryRow = 0 #xlAbove
+            sheet.Range("A3").Select()
+            application.ActiveWindow.FreezePanes = True
+
+            sheet.UsedRange.Columns.AutoFit()
+            sheet.UsedRange.AutoFilter()
+
+            if worker.CancellationPending:
+                sheet.Cells(1,1).Value = "ABBRUCH der Dateiliste nach " + str(total) + " Dateien für Ordner: " + os.path.normpath(folder)
+            else:
+                sheet.Cells(1,1).Value = "Dateiliste mit " + str(total) + " Dateien für Ordner: " + os.path.normpath(folder)
+        
+        bkt.ui.execute_with_progress_bar(loop, context, indeterminate=True)
 
     @classmethod
-    def create_list_of_folder(cls, application, folder, sheet, cur_row, recursive=False):
-        if not os.path.isdir(folder):
-            return 0
-        subfolders = []
+    def _create_list_header(cls, list_sheet, header, row):
+        SheetsOps._create_list_header(list_sheet, header, row)
 
-        application.StatusBar = "Erstelle Dateiliste für Ordner " + folder
+    @classmethod
+    def _create_file_list(cls, worker, application, base_folder, sheet, cur_row, recursive=False, folders_only=False):
+        if not os.path.isdir(base_folder):
+            return 0
+        # subfolders = []
+
+        application.StatusBar = "Erstelle Dateiliste für Ordner " + base_folder
+        worker.ReportProgress(42, "{} - {}".format(cur_row-3, base_folder))
         # bkt.helpers.message("Liste für Ordner: " + folder)
 
-        for file in os.listdir(folder):
-            #full_path = folder + "\\" + file
-            full_path = os.path.join(folder, file)
+        # xllib.freeze_app()
+        # TODO: add max-recursion see https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
+        if folders_only:
+            # use os.walk for recursive file list
+            xllib.freeze_app()
+            for root, dirs, files in os.walk(base_folder):
+                if root == base_folder:
+                    continue
+                if worker.CancellationPending:
+                    break
 
-            if os.path.isdir(full_path):
-                subfolders.append(full_path)
-
-            if os.path.isfile(full_path):
-                try:
-                    full_path = os.path.normpath(full_path)
-                    root,ext = os.path.splitext(file)
-                    sheet.Cells(cur_row,1).Value = root
-                    sheet.Cells(cur_row,2).Value = ext
-                    sheet.Cells(cur_row,3).Value = str(os.path.getsize(full_path))
-                    sheet.Cells(cur_row,4).Value = datetime.fromtimestamp(os.path.getctime(full_path)).strftime('%Y-%m-%d %H:%M:%S')
-                    sheet.Cells(cur_row,5).Value = datetime.fromtimestamp(os.path.getmtime(full_path)).strftime('%Y-%m-%d %H:%M:%S')
-                    sheet.Cells(cur_row,6).Value = os.path.normpath(folder)
-                    #sheet.Cells(cur_row,7).Value = full_path
-                    sheet.Hyperlinks.Add(sheet.Cells(cur_row,7), full_path, "", "", full_path) #anchor, address, subaddress, screentip, texttodisplay
-                except:
-                    #Fallback: Simple info
-                    sheet.Cells(cur_row,1).Value = file
-                    sheet.Cells(cur_row,6).Value = folder
-                    sheet.Cells(cur_row,7).Value = full_path
+                cls._create_folder_row(sheet, cur_row, base_folder, root, dirs, files)
                 cur_row += 1
+                worker.ReportProgress(42, "{} - {}".format(cur_row-3, root))
+            
+            xllib.unfreeze_app()
+
+        elif recursive:
+            # use os.walk for recursive file list
+            xllib.freeze_app()
+            # visible_rows = application.ActiveWindow.VisibleRange.Rows.Count
+            for root, dirs, files in os.walk(base_folder):
+                worker_message = root
+                if worker.CancellationPending:
+                    break
+                
+                if cls.folder_rows:
+                    cls._create_group_row(sheet, cur_row, base_folder, root)
+                    cur_row += 1
+
+                for file in files:
+                    full_path = os.path.join(root, file)
+                    cls._create_file_row(sheet, cur_row, base_folder, full_path, file)
+                    cur_row += 1
+                    if worker.CancellationPending:
+                        worker_message = "Abbruch nach diesem Ordner..."
+                    worker.ReportProgress(42, "{} - {}".format(cur_row-3, worker_message))
+                
+                # application.ActiveWindow.ScrollRow = max(1,cur_row-10) #scroll to last 10 rows
+            xllib.unfreeze_app()
+
+        else:
+            # use os.listdir for flat file list (NOTE use scandir when upgrading to python 3)
+            xllib.freeze_app()
+            for file in os.listdir(base_folder):
+                full_path = os.path.join(base_folder, file)
+
+                if os.path.isdir(full_path) and cls.folder_rows:
+                    cls._create_group_row(sheet, cur_row, base_folder, full_path)
+                    cur_row += 1
+
+                if os.path.isfile(full_path):
+                    cls._create_file_row(sheet, cur_row, base_folder, full_path, file)
+                    cur_row += 1
+                    worker.ReportProgress(42, "{} - {}".format(cur_row-3, full_path))
+            xllib.unfreeze_app()
+
+        # application.ActiveWindow.ScrollRow = max(1,cur_row-10) #scroll to last 10 rows
+        # xllib.unfreeze_app()
 
         # bkt.helpers.message("Unterordner: " + str(len(subfolders)))
 
-        if recursive:
-            for subs in subfolders:
-                cur_row = cls.create_list_of_folder(application, subs, sheet, cur_row, recursive)
+        # if recursive and not worker.CancellationPending:
+        #     for subs in subfolders:
+        #         cur_row = cls._create_file_list(worker, application, subs, sheet, cur_row, recursive)
 
         return cur_row
+    
+    @classmethod
+    def _create_file_row(cls, sheet, cur_row, base_folder, full_path, file):
+        #["Name", "Typ", "Größe", "Erstellt", "Geändert", "Tiefe", "Übergeordneter Ordner", "Relativer Pfad", "Voller Pfad"]
+        root,ext = os.path.splitext(file)
+        rel_path = os.path.relpath(full_path, base_folder)
+        parent_folder = os.path.basename(os.path.dirname(full_path))
+        depth = rel_path.count(os.sep)
+        try:
+            row = Array[object]([
+                "'" + root, #ensure string, otherwise filenames such as "001" cause problems
+                ext,
+                str(os.path.getsize(full_path)),
+                datetime.fromtimestamp(os.path.getctime(full_path)).strftime('%Y-%m-%d %H:%M:%S'),
+                datetime.fromtimestamp(os.path.getmtime(full_path)).strftime('%Y-%m-%d %H:%M:%S'),
+                depth,
+                "'" + parent_folder,
+                "'" + rel_path
+            ])
+            sheet.Range("A{0}:H{0}".format(cur_row)).Value = row
+            if cls.folder_rows: #indention and grouping only makes sense with folder rows
+                cls._format_row(sheet.Rows(cur_row), depth)
+            sheet.Hyperlinks.Add(sheet.Cells(cur_row,9), full_path, "", "", full_path) #anchor, address, subaddress, screentip, texttodisplay
+        except Exception as e:
+            logging.error("Error writing file row: %s" % str(e))
+            #Fallback: Simple info
+            sheet.Cells(cur_row,1).Value = "'" + root
+            sheet.Cells(cur_row,2).Value = ext
+            sheet.Cells(cur_row,6).Value = depth
+            sheet.Cells(cur_row,7).Value = "'" + parent_folder
+            sheet.Cells(cur_row,8).Value = "'" + rel_path
+            sheet.Cells(cur_row,9).Value = full_path
+    
+    @classmethod
+    def _create_group_row(cls, sheet, cur_row, base_folder, full_path):
+        #["Name", "Typ", "Größe", "Erstellt", "Geändert", "Tiefe", "Übergeordneter Ordner", "Relativer Pfad", "Voller Pfad"]
+        folder_name = os.path.basename(full_path)
+        rel_path = os.path.relpath(full_path, base_folder)
+        parent_folder = os.path.basename(os.path.dirname(full_path))
+        depth = rel_path.count(os.sep)
+        try:
+            row = Array[object]([
+                "'" + folder_name, #ensure string, otherwise filenames such as "001" cause problems
+                '',
+                '',
+                datetime.fromtimestamp(os.path.getctime(full_path)).strftime('%Y-%m-%d %H:%M:%S'),
+                datetime.fromtimestamp(os.path.getmtime(full_path)).strftime('%Y-%m-%d %H:%M:%S'),
+                depth,
+                "'" + parent_folder,
+                "'" + rel_path
+            ])
+            sheet.Range("A{0}:H{0}".format(cur_row)).Value = row
+            cls._format_row(sheet.Rows(cur_row), depth)
+            sheet.Hyperlinks.Add(sheet.Cells(cur_row,9), full_path, "", "", full_path) #anchor, address, subaddress, screentip, texttodisplay
+        except Exception as e:
+            logging.error("Error writing group row: %s" % str(e))
+            #Fallback: Simple info
+            sheet.Cells(cur_row,1).Value = "'" + folder_name
+            sheet.Cells(cur_row,6).Value = depth
+            sheet.Cells(cur_row,7).Value = "'" + parent_folder
+            sheet.Cells(cur_row,8).Value = "'" + rel_path
+            sheet.Cells(cur_row,9).Value = full_path
+
+    @classmethod
+    def _create_folder_row(cls, sheet, cur_row, base_folder, full_path, dirs, files):
+        #["Name", "Anz. Ordner", "Anz. Dateien", "Erstellt", "Geändert", "Tiefe", "Übergeordneter Ordner", "Relativer Pfad", "Voller Pfad"]
+        rel_path = os.path.relpath(full_path, base_folder)
+        parent_folder = os.path.basename(os.path.dirname(full_path))
+        depth = rel_path.count(os.sep)
+        try:
+            row = Array[object]([
+                "'" + os.path.basename(full_path), #ensure string, otherwise dirnames such as "001" cause problems
+                len(dirs),
+                len(files),
+                datetime.fromtimestamp(os.path.getctime(full_path)).strftime('%Y-%m-%d %H:%M:%S'),
+                datetime.fromtimestamp(os.path.getmtime(full_path)).strftime('%Y-%m-%d %H:%M:%S'),
+                depth,
+                "'" + parent_folder,
+                "'" + rel_path
+            ])
+            sheet.Range("A{0}:H{0}".format(cur_row)).Value = row
+            cls._format_row(sheet.Rows(cur_row), depth)
+            sheet.Hyperlinks.Add(sheet.Cells(cur_row,9), full_path, "", "", full_path) #anchor, address, subaddress, screentip, texttodisplay
+        except Exception as e:
+            logging.error("Error writing folder row: %s" % str(e))
+            #Fallback: Simple info
+            sheet.Cells(cur_row,1).Value = "'" + os.path.basename(full_path)
+            sheet.Cells(cur_row,6).Value = depth
+            sheet.Cells(cur_row,7).Value = "'" + parent_folder
+            sheet.Cells(cur_row,8).Value = "'" + rel_path
+            sheet.Cells(cur_row,9).Value = full_path
+    
+    @classmethod
+    def _format_row(cls, row, depth):
+        if cls.group_rows:
+            for _ in range(min(depth, 7)): #max possible grouping is 8 levels
+                row.Group()
+        if cls.indent_rows and depth > 0:
+            row.Cells(1,1).InsertIndent(min(depth, 7))
+
 
 
 blatt_gruppe = bkt.ribbon.Group(
@@ -605,7 +780,7 @@ blatt_gruppe = bkt.ribbon.Group(
                     show_label=True,
                     image_mso='FileVersionHistory',
                     supertip="Wähle Ordner und erstelle Liste aller Dateien in diesem Ordner in neuem Blatt.",
-                    on_action=bkt.Callback(lambda application, workbook: SheetsOps.file_list(application, workbook, False), application=True, workbook=True),
+                    on_action=bkt.Callback(lambda context, workbook: FileListOps.file_list(context, workbook, False), context=True, workbook=True),
                     get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                 ),
                 bkt.ribbon.Button(
@@ -614,8 +789,41 @@ blatt_gruppe = bkt.ribbon.Group(
                     show_label=True,
                     #image_mso='FileVersionHistory',
                     supertip="Wähle Ordner und erstelle Liste aller Dateien in diesem Ordner und allen Unterordnern in neuem Blatt.",
-                    on_action=bkt.Callback(lambda application, workbook: SheetsOps.file_list(application, workbook, True), application=True, workbook=True),
+                    on_action=bkt.Callback(FileListOps.file_list_resursive, context=True, workbook=True),
                     get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                ),
+                bkt.ribbon.Button(
+                    id = 'file_list_folders',
+                    label="Ordnerliste erstellen (rekursiv)…",
+                    show_label=True,
+                    #image_mso='FileVersionHistory',
+                    supertip="Wähle Ordner und erstelle Liste aller Ordner in diesem Ordner und allen Unterordnern in neuem Blatt.",
+                    on_action=bkt.Callback(FileListOps.file_list_folders, context=True, workbook=True),
+                    get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                ),
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Menu(
+                    label="Dateilisten-Einstellungen",
+                    children=[
+                        bkt.ribbon.ToggleButton(
+                            label="Ordnerzeilen",
+                            screentip="Bei Dateiliste auch Ordner als Zeilen einfügen",
+                            get_pressed=bkt.Callback(lambda: FileListOps.folder_rows),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(FileListOps, "folder_rows", pressed)),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Gruppieren",
+                            screentip="Jede Hierachieebene gruppieren (nur rekursiv)",
+                            get_pressed=bkt.Callback(lambda: FileListOps.group_rows),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(FileListOps, "group_rows", pressed)),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Einrücken",
+                            screentip="Jede Hierachieebene einrücken (nur rekursiv)",
+                            get_pressed=bkt.Callback(lambda: FileListOps.indent_rows),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(FileListOps, "indent_rows", pressed)),
+                        ),
+                    ]
                 ),
             ]
         ),

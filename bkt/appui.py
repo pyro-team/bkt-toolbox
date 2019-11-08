@@ -3,7 +3,7 @@
 import logging
 import traceback
 
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from contextdialogs import ContextDialogs
 
 import bkt.helpers as _h
@@ -29,10 +29,13 @@ class CustomRibbonUI(object):
         self.ribbon_id = ribbon_id
         self.short_id = short_id
         self.tabs = OrderedDict()
-        self.contextual_tabs = {}
+        self.contextual_tabs = defaultdict(list)
         self.context_menus = {}
         self.commands = {}
         self.backstage_controls = []
+
+        self.lazy_replacements = {}
+        self.lazy_extensions = defaultdict(list)
     
     
     def add_tab(self, tab, extend=False):
@@ -54,10 +57,11 @@ class CustomRibbonUI(object):
 
     def add_contextual_tab(self, id_mso, tab):
         ''' add contextual tab '''
-        if id_mso in self.contextual_tabs:
-            self.contextual_tabs[id_mso].append(tab)
-        else:
-            self.contextual_tabs[id_mso] = [tab]
+        self.contextual_tabs[id_mso].append(tab)
+        # if id_mso in self.contextual_tabs:
+        #     self.contextual_tabs[id_mso].append(tab)
+        # else:
+        #     self.contextual_tabs[id_mso] = [tab]
         
     def __call__(self, cls):
         ''' act as a class decorator for tabs, e.g. @bkt.powerpoint ''' 
@@ -87,11 +91,14 @@ class CustomRibbonUI(object):
     
     def add_repurposed_command(self, command):
         ''' add repurposed command to ribbon-ui '''
+        if not isinstance(command, mod_ribbon.Command):
+            raise ValueError("control must be type Command or repurpose_id must be defined")
+
         if command['id_mso'] is None:
-            raise ValueError('commands need idMso')
-        if command['id_mso'] in self.commands:
-            # FIXME: chain the commands
-            pass
+            raise ValueError('repurposed command has no idMso')
+        # if command['id_mso'] in self.commands:
+        #     # FIXME: chain the commands
+        #     pass
         else:
             self.commands[command['id_mso']] = command
     
@@ -99,6 +106,13 @@ class CustomRibbonUI(object):
         ''' add control to backstage area '''
         self.backstage_controls.append(control)
     
+    def add_lazy_replacement(self, id, control):
+        ''' add control that replaces existing control during customui loading '''
+        self.lazy_replacements[id] = control
+    
+    def add_lazy_extension(self, id, controls):
+        ''' add list of controls that extend children of existing control during customui loading '''
+        self.lazy_extensions[id].extend(controls)
     
     
 
@@ -205,6 +219,15 @@ class AppUI(object):
         ribbon_id = ribbon_id or self.default_custom_ribbon_id
         
         if isinstance(element, mod_ribbon.RibbonControl):
+            # lazy replacement and extension of controls
+            element_id = element.id
+            if element_id in self.custom_ribbon_uis[ribbon_id].lazy_replacements:
+                element = self.custom_ribbon_uis[ribbon_id].lazy_replacements[element_id]
+                logging.debug("create_control: element with id {} replaced by element with id {}".format(element_id, element.id))
+            if element_id in self.custom_ribbon_uis[ribbon_id].lazy_extensions:
+                element.children.extend( self.custom_ribbon_uis[ribbon_id].lazy_extensions[element_id] )
+                logging.debug("create_control: element with id {} extended".format(element_id))
+            
             element.children = [self.create_control(c, ribbon_id=ribbon_id) for c in element.children ]
             return element
         

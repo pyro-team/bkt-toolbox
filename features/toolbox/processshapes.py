@@ -34,10 +34,7 @@ class ProcessChevrons(object):
 
     @classmethod
     def is_process_chevrons(cls, shape):
-        try:
-            return shape.Tags(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY) == cls.BKT_DIALOG_TAG
-        except:
-            return False
+        return pplib.TagHelper.has_tag(shape, bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
 
     @classmethod
     def _add_tags(cls, shape):
