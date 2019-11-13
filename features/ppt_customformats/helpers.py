@@ -164,6 +164,7 @@ class ShapeFormats(object):
                 cls._write_color_to_array(tmp, fill_object.BackColor, 'BackColor')
 
             elif fill_object.Type == pplib.MsoFillType['msoFillGradient']:
+                save_color_stops = True
                 if fill_object.GradientColorType == 1: #msoGradientOneColor
                     tmp['GradientOneColor'] = [
                                                                             fill_object.GradientStyle,
@@ -181,6 +182,7 @@ class ShapeFormats(object):
                                                                             fill_object.GradientVariant,
                                                                             fill_object.PresetGradientType,
                                                                         ]
+                    save_color_stops = False #no need to save color stops for preset gradients
                 elif fill_object.GradientColorType == 4: #msoGradientMultiColor
                     tmp['GradientMultiColor'] = [
                                                                             fill_object.GradientStyle,
@@ -188,14 +190,24 @@ class ShapeFormats(object):
                                                                         ]
                 else:
                     raise ValueError('unkown gradient type')
-                tmp['GradientStops'] = [
-                                                                    (stop.color.rgb,
-                                                                    float(stop.Position),
-                                                                    float(stop.Transparency),
-                                                                    i+1,
-                                                                    float(stop.color.brightness))
-                                                                    for i,stop in enumerate(fill_object.GradientStops)
-                                                                ]
+
+                #NOTE: If angle is changed (for linear gradients), style can be -2 and variant 0 which are invalid values! This is handled is the setter function.
+
+                if save_color_stops:
+                    tmp['GradientStops'] = []
+                    for stop in fill_object.GradientStops:
+                        stop_dict = OrderedDict()
+                        stop_dict["Position"] = float(stop.Position)
+                        cls._write_color_to_array(stop_dict, stop.Color, 'Color')
+                        stop_dict["Transparency"] = float(stop.Transparency) #IMPORTANT: Set Transparency after color, because color resets transparency
+                        tmp['GradientStops'].append(stop_dict)
+                                    #     (stop.color.rgb,
+                                    #     float(stop.Position),
+                                    #     float(stop.Transparency),
+                                    #     i+1,
+                                    #     float(stop.color.brightness))
+                                    #     for i,stop in enumerate(fill_object.GradientStops)
+                
                 tmp['RotateWithObject'] = fill_object.RotateWithObject
                 try:
                     #angle is only accessible for certain gradient types/styles/variants...
@@ -226,25 +238,34 @@ class ShapeFormats(object):
             elif key == "Solid":
                     fill_object.Solid()
             elif key == "GradientOneColor":
-                fill_object.OneColorGradient(*value)
+                # fill_object.OneColorGradient(*value) #style, variant, degree
+                fill_object.OneColorGradient(max(1,value[0]), max(1,value[1]), value[2]) #style, variant, degree
             elif key == "GradientTwoColor":
-                fill_object.TwoColorGradient(*value)
+                fill_object.TwoColorGradient(max(1,value[0]), max(1,value[1])) #style, variant
             elif key == "GradientPresetColor":
-                fill_object.PresetGradient(*value)
+                fill_object.PresetGradient(max(1,value[0]), max(1,value[1]), value[2]) #style, variant, preset-gradient-type
             elif key == "GradientMultiColor":
-                fill_object.TwoColorGradient(*value)
+                fill_object.TwoColorGradient(max(1,value[0]), max(1,value[1])) #style, variant
             elif key == "GradientStops":
                 cur_stops = fill_object.GradientStops.Count
                 for i in range(max(cur_stops, len(value))):
                     if i > len(value):
                         fill_object.GradientStops.Delete(i+1)
+                        continue
                     elif i < cur_stops:
-                        fill_object.GradientStops[i+1].color.rgb        = value[i][0]
-                        fill_object.GradientStops[i+1].Position         = value[i][1]
-                        fill_object.GradientStops[i+1].Transparency     = value[i][2]
-                        fill_object.GradientStops[i+1].color.brightness = value[i][4]
+                        pass
+                        # fill_object.GradientStops[i+1].color.rgb        = value[i][0]
+                        # fill_object.GradientStops[i+1].Position         = value[i]["Position"]
+                        # fill_object.GradientStops[i+1].Transparency     = value[i]["Transparency"]
+                        # fill_object.GradientStops[i+1].color.brightness = value[i][4]
                     else:
-                        fill_object.GradientStops.Insert2(*value[i])
+                        # fill_object.GradientStops.Insert2(*value[i])
+                        fill_object.GradientStops.Insert(1, 1.0) #rgb, position
+                    
+                    stop_object = fill_object.GradientStops[i+1]
+                    for k, v in value[i].items():
+                        # logging.debug("Setting {} = {}".format(k, v))
+                        cls.mult_setattr(stop_object, k, v)
             else:
                 cls.mult_setattr(fill_object, key, value)
 
