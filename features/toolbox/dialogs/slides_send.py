@@ -19,6 +19,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         self._fileformat = "ppt"
         self._slides = "sel"
         self._remove_author = False
+        self._remove_sections = True
         self.update_filename()
 
     @notify_property

@@ -116,9 +116,11 @@ class SendOrSaveSlides(object):
             sections = newPres.SectionProperties
             for i in reversed(range(sections.count)):
                 sections.Delete(i+1, 0) #index, deleteSlides=False
+            newPres.Save()
         
         if remove_author:
             newPres.BuiltInDocumentProperties.item["author"].value = ''
+            newPres.Save()
 
         if fileformat != "pdf":
             # PPT anhängen
