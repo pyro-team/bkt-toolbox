@@ -5,6 +5,7 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
+import bkt
 import bkt.ui
 
 # for ui composition
@@ -337,14 +338,29 @@ class FolienMenu(object):
 
     @classmethod
     def remove_unused_masters(cls, context):
+        deleted_masters = 0
+        unused_designs = []
         for design in context.presentation.Designs:
             for cl in list(iter(design.SlideMaster.CustomLayouts)): #list(iter()) required as delete function will not work on all elements otherwise!
                 try:
                     cl.Delete()
+                    deleted_masters += 1
                 except: #deletion fails if layout in use
                     continue
-            # if design.SlideMaster.CustomLayouts.Count == 0:
-            #     design.Delete()
+            if design.SlideMaster.CustomLayouts.Count == 0:
+                unused_designs.append(design)
+        
+        unused_designs_len = len(unused_designs)
+        if unused_designs_len > 0:
+            if bkt.helpers.confirmation("Es wurden {} Layouts gelöscht und {} Folienmaster sind nun ohne Layout. Sollen diese gelöscht werden?".format(deleted_masters, unused_designs_len)):
+                for design in unused_designs:
+                    try:
+                        design.Delete()
+                    except:
+                        continue
+            bkt.helpers.message("Leere Folienmaster wurden gelöscht!")
+        else:
+            bkt.helpers.message("Es wurden {} Layouts aus dem Folienmaster gelöscht!".format(deleted_masters))
     
 
     @classmethod
