@@ -127,9 +127,6 @@ class HarveyBalls(object):
         # step = 1 if libsystem.get_key_state(libsystem.key_code.CTRL) else 5
         value = round(self.get_harvey_percent(shapes)) - step
         self.harvey_percent_setter(shapes, value)
-
-    def harvey_percent_enabled(self, shapes):
-        return self.is_harvey_group(shapes[0])
     
 
     # =================
@@ -149,7 +146,6 @@ class HarveyBalls(object):
         pie.Line.ForeColor.rgb  = color
         circ.Line.ForeColor.rgb = color
     
-    
     def color_gallery_theme_color_change(self, shapes, color_index, brightness):
         for shape in shapes:
             self.set_harvey_color_theme(shape, color_index, brightness)
@@ -165,15 +161,6 @@ class HarveyBalls(object):
         pie.Fill.ForeColor.Brightness  = brightness
         pie.Line.ForeColor.Brightness  = brightness
         circ.Line.ForeColor.Brightness = brightness
-
-    def toggle_harvey_background(self, shapes, pressed):
-        for shape in shapes:
-            pie, circ = self.get_pie_circ(shape)
-            circ.fill.visible = -1 if pressed else 0
-
-    def get_pressed_background(self, shapes):
-        pie,circ = self.get_pie_circ(shapes[0])
-        return circ.fill.visible == -1
     
     def get_selected_color(self, shapes):
         pie,circ = self.get_pie_circ(shapes[0])
@@ -181,12 +168,59 @@ class HarveyBalls(object):
             return [circ.Line.ForeColor.ObjectThemeColor, circ.Line.ForeColor.Brightness, circ.Line.ForeColor.RGB]
         else:
             return None
+
+
+    # =======================
+    # = Hintergrund aendern =
+    # =======================
     
-    def harvey_color_enabled(self, shapes):
-        return self.is_harvey_group(shapes[0])
+    def background_gallery_action(self, shapes, color):
+        for shape in shapes:
+            self.set_harvey_background_rgb(shape, color)
+        #type(self).set_harvey_colors_rgb(shapes, color)
     
+    def set_harvey_background_rgb(self, shape, color):
+        pie, circ = self.get_pie_circ(shape)
+        if pie == None:
+            return
+        circ.Fill.Visible = -1
+        circ.Fill.ForeColor.rgb  = color
     
+    def background_gallery_theme_color_change(self, shapes, color_index, brightness):
+        for shape in shapes:
+            self.set_harvey_background_theme(shape, color_index, brightness)
+        #type(self).set_harvey_colors_theme(shapes, color_index, brightness)
+
+    def set_harvey_background_theme(self, shape, color_index, brightness=0):
+        pie, circ = self.get_pie_circ(shape)
+        if pie == None:
+            return
+        circ.Fill.Visible = -1
+        circ.Fill.ForeColor.ObjectThemeColor  = color_index
+        circ.Fill.ForeColor.Brightness  = brightness
     
+    def get_selected_background(self, shapes):
+        pie,circ = self.get_pie_circ(shapes[0])
+        if circ != None and circ.Fill.Visible:
+            return [circ.Fill.ForeColor.ObjectThemeColor, circ.Fill.ForeColor.Brightness, circ.Fill.ForeColor.RGB]
+        else:
+            return None
+    
+    def harvey_background_off(self, shapes):
+        for shape in shapes:
+            pie, circ = self.get_pie_circ(shape)
+            circ.Fill.Visible = 0
+    
+    # def toggle_harvey_background(self, shapes, pressed):
+    #     for shape in shapes:
+    #         pie, circ = self.get_pie_circ(shape)
+    #         circ.fill.visible = -1 if pressed else 0
+
+    # def get_pressed_background(self, shapes):
+    #     pie,circ = self.get_pie_circ(shapes[0])
+    #     return circ.fill.visible == -1
+
+
     # =====================================
     # = Feature-Logik und Hilfsfunktionen =
     # =====================================
@@ -282,6 +316,29 @@ def harvey_color_gallery(**kwargs):
         **kwargs
     )
 
+def harvey_background_gallery(**kwargs):
+    return bkt.ribbon.ColorGallery(
+        label = 'Hintergrund ändern',
+        #image_mso = 'RecolorColorPicker',
+        image='harvey ball background',
+        screentip="Hintergrund eines Harvey-Balls ändern",
+        supertip="Passe die Hintergrund-Farbe eines Harvey-Balls entsprechend der Auswahl an.\n\nEin Harvey-Ball-Shape ist eine Gruppe aus Kreis- und Torten-Shape.",
+        on_rgb_color_change   = bkt.Callback(harvey_balls.background_gallery_action, shapes=True),
+        on_theme_color_change = bkt.Callback(harvey_balls.background_gallery_theme_color_change, shapes=True),
+        get_selected_color    = bkt.Callback(harvey_balls.get_selected_background, shapes=True),
+        get_enabled           = bkt.Callback(harvey_balls.change_harvey_enabled, shapes=True),
+        children=[
+            bkt.ribbon.Button(
+                label='Hintergrund aus',
+                #get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.6, 64)),
+                image='harvey ball background',
+                on_action=bkt.Callback(harvey_balls.harvey_background_off),
+            ),
+        ],
+        item_width=16, item_height=16,
+        **kwargs
+    )
+
 def harvey_size_gallery(**kwargs):
     return bkt.ribbon.Gallery(
         label = 'Füllstand ändern',
@@ -352,15 +409,17 @@ harvey_ball_group = bkt.ribbon.Group(
         #     )
         # ]),
 
-        bkt.ribbon.ToggleButton(
-            id='harvey_ball_background',
-            size='large',
-            label='Hintergrund an/aus',
-            #get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.6, 64)),
-            image='harvey ball background',
-            get_pressed=bkt.Callback(harvey_balls.get_pressed_background),
-            on_toggle_action=bkt.Callback(harvey_balls.toggle_harvey_background),
-        ),
+        harvey_background_gallery(id='harvey_ball_background', size="large"),
+
+        # bkt.ribbon.ToggleButton(
+        #     id='harvey_ball_background',
+        #     size='large',
+        #     label='Hintergrund an/aus',
+        #     #get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.6, 64)),
+        #     image='harvey ball background',
+        #     get_pressed=bkt.Callback(harvey_balls.get_pressed_background),
+        #     on_toggle_action=bkt.Callback(harvey_balls.toggle_harvey_background),
+        # ),
 
         bkt.ribbon.Separator(),
         #bkt.ribbon.LabelControl(label="Füllstand:"),
