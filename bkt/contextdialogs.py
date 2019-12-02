@@ -250,6 +250,7 @@ class ContextDialogs(object):
                 return
             elif not shape.Tags(BKT_CONTEXTDIALOG_TAGKEY) in self.dialogs:
                 logging.warning('No dialog registerd for given key: %s' % shape.Tags(BKT_CONTEXTDIALOG_TAGKEY))
+                return
             else:
                 ctx_dialog = self.dialogs.get(shape.Tags(BKT_CONTEXTDIALOG_TAGKEY)) or None
             
