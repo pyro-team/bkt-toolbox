@@ -65,13 +65,13 @@ class HarveyBalls(object):
             value = 0
         # self.set_harveys(shapes, min(100, max(0, float(value))), 100)
         bkt.apply_delta_on_ALT_key(
-            lambda shape, value: self.set_harveys([shape], max(0, float(value)), 100), 
+            lambda shape, value: self.set_harveys([shape], float(value), 100), 
             lambda shape: self.get_harvey_percent([shape]), 
             shapes, value)
 
     def set_harveys(self, shapes, num, max_num):
-        if num>max_num:
-            return
+        if num > max_num or num < 0:
+            num = num % max_num
         for shape in shapes:
             self.set_harvey(shape, num, max_num)
 
