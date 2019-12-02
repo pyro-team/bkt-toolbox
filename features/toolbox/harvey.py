@@ -16,6 +16,9 @@ Drawing = dotnet.import_drawing()
 
 
 class HarveyBalls(object):
+    BKT_DIALOG_TAG = "BKT_SHAPE_HARVEY"
+    BKT_HARVEY_VERSION = "BKT_HARVEY_V1"
+
     # _line_weight = 0.5
     # _line_color  = 0
     # _fill_color  = 16777215
@@ -23,6 +26,9 @@ class HarveyBalls(object):
     # =========================
     # = Harvey Ball erstellen =
     # =========================
+    
+    def _add_tags(self, shape):
+        shape.Tags.Add(self.BKT_DIALOG_TAG, self.BKT_HARVEY_VERSION)
     
     def create_harvey_ball(self, context, slide, fill=0.25):
         shapeCount = slide.shapes.count
@@ -49,6 +55,9 @@ class HarveyBalls(object):
 
         # Fuellstand einstellen
         self.set_harvey(grp, fill, 1)
+
+        # Tag erstellen
+        self._add_tags(grp)
 
         # selektieren und contextual tab aktivieren
         grp.select()
@@ -226,6 +235,10 @@ class HarveyBalls(object):
     # =====================================
     
     def is_harvey_group(self, shape):
+        # "new" method via tags
+        if powerpoint.TagHelper.has_tag(shape, self.BKT_DIALOG_TAG):
+            return True
+        # "old" method via shape types
         pie, circ = self.get_pie_circ(shape)
         return pie != None
 
