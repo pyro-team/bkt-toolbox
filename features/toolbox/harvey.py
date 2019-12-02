@@ -77,8 +77,12 @@ class HarveyBalls(object):
             pie.visible = 0
         else:
             pie.visible = -1
-        pie.adjustments.item[1] = -90
-        pie.adjustments.item[2] = -90 + (num*1./max_num*360.)
+        if pie.HorizontalFlip:
+            pie.adjustments.item[1] = -90 - (num*1./max_num*360.)
+            pie.adjustments.item[2] = -90
+        else:
+            pie.adjustments.item[1] = -90
+            pie.adjustments.item[2] = -90 + (num*1./max_num*360.)
         # pie.setTag('harvey_max_num', max_num)
     
     
@@ -88,7 +92,10 @@ class HarveyBalls(object):
         if pie == None:
             return None
         #return pie.adjustments.item[2]
-        num = round(((pie.adjustments.item[2] + 90) % 360) /360. * 100,1)
+        if pie.HorizontalFlip:
+            num = round((-(pie.adjustments.item[1] + 90) % 360) /360. * 100,1)
+        else:
+            num = round(( (pie.adjustments.item[2] + 90) % 360) /360. * 100,1)
         if num == 0:
             return 0 if pie.visible == 0 else 100
         else:
