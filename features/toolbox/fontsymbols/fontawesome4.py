@@ -177,7 +177,14 @@ menu_settings = [
 # ]
 
 
+cache_menu = None
+
 def get_content_categories():
+    global cache_menu
+
+    if cache_menu:
+        return cache_menu
+    
     # Automatically generate categories from json file (based on yaml file provided by fontawesome)
     file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fontawesome4.json")
     with io.open(file, 'r') as json_file:
@@ -194,7 +201,7 @@ def get_content_categories():
                 supertip = "Font Awesome 4 > {}".format(cat)
             categories[cat].append(("FontAwesome", uc, char['name'], supertip))
     
-    return bkt.ribbon.Menu(
+    cache_menu = bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
                 id=None,
                 children=[
@@ -202,6 +209,7 @@ def get_content_categories():
                     for cat in sorted(categories.keys())
                 ]
             )
+    return cache_menu
 
 menus = [
     PPTSymbolsGallery(label="{} ({})".format(label, len(symbollist)), symbols=symbollist, columns=columns)

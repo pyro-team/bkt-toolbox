@@ -30,7 +30,6 @@ all_fonts = {
     'solid': [],
     'brands': []
 }
-categories = []
 
 file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fa5-icons.json")
 with io.open(file, 'r') as json_file:
@@ -47,7 +46,15 @@ with io.open(file, 'r') as json_file:
             all_fonts[font].append(symbol)
 
 
+cache_menu = None
+
 def get_content_categories():
+    global cache_menu
+
+    if cache_menu:
+        return cache_menu
+    
+    categories = []
     file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fa5-categories.json")
     with io.open(file, 'r') as json_file:
         cats = json.load(json_file, object_pairs_hook=OrderedDict)
@@ -74,11 +81,12 @@ def get_content_categories():
                 )
             )
 
-    return bkt.ribbon.Menu(
+    cache_menu = bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
                 id=None,
                 children=categories
             )
+    return cache_menu
 
 
     # # hash for fa5-icons
