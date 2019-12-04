@@ -92,7 +92,7 @@ class SendOrSaveSlides(object):
         newPres.Save()
 
     @classmethod
-    def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False):
+    def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False, remove_designs=False):
         import tempfile, os.path
 
         from bkt import dotnet
@@ -121,6 +121,20 @@ class SendOrSaveSlides(object):
         
         if remove_author:
             newPres.BuiltInDocumentProperties.item["author"].value = ''
+            newPres.Save()
+        
+        if remove_designs:
+            for design in newPres.Designs:
+                for cl in list(iter(design.SlideMaster.CustomLayouts)): #list(iter()) required as delete function will not work on all elements otherwise!
+                    try:
+                        cl.Delete()
+                    except: #deletion fails if layout in use
+                        continue
+                if design.SlideMaster.CustomLayouts.Count == 0:
+                    try:
+                        design.Delete()
+                    except:
+                        continue
             newPres.Save()
 
         if fileformat != "pdf":
