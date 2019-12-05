@@ -649,6 +649,18 @@ class TagHelper(object):
             #Shape.Tags throws COMException for SmartArt child-shapes
             return False
 
+    @staticmethod
+    def get_tag(obj, tag_name, default=None, attr_type=None):
+        try:
+            value = obj.Tags(tag_name)
+            if value == '':
+                return default
+            if type(attr_type) == type:
+                return attr_type(value)
+            return value
+        except:
+            return default
+
 
 
 # ======================
