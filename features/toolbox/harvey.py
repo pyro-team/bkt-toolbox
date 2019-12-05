@@ -16,7 +16,8 @@ Drawing = dotnet.import_drawing()
 
 
 class HarveyBalls(object):
-    BKT_DIALOG_TAG = "BKT_SHAPE_HARVEY"
+    BKT_HARVEY_DIALOG_TAG = "BKT_SHAPE_HARVEY"
+    BKT_HARVEY_DENOM_TAG = "BKT_HARVEY_DENOM_TAG"
     BKT_HARVEY_VERSION = "BKT_HARVEY_V1"
 
     # _line_weight = 0.5
@@ -27,8 +28,12 @@ class HarveyBalls(object):
     # = Harvey Ball erstellen =
     # =========================
     
-    def _add_tags(self, shape):
-        shape.Tags.Add(self.BKT_DIALOG_TAG, self.BKT_HARVEY_VERSION)
+    def _add_tags(self, shape, denominator=None):
+        shape.Tags.Add(self.BKT_HARVEY_DIALOG_TAG, self.BKT_HARVEY_VERSION)
+        shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, self.BKT_HARVEY_DIALOG_TAG)
+
+        if denominator is not None:
+            shape.Tags.Add(self.BKT_HARVEY_DENOM_TAG, denominator)
     
     def create_harvey_ball(self, context, slide, fill=0.25):
         shapeCount = slide.shapes.count
@@ -57,7 +62,7 @@ class HarveyBalls(object):
         self.set_harvey(grp, fill, 1)
 
         # Tag erstellen
-        self._add_tags(grp)
+        self._add_tags(grp, int(1./fill))
 
         # selektieren und contextual tab aktivieren
         grp.select()
@@ -96,8 +101,10 @@ class HarveyBalls(object):
         else:
             pie.adjustments.item[1] = -90
             pie.adjustments.item[2] = -90 + (num*1./max_num*360.)
-        # pie.setTag('harvey_max_num', max_num)
-    
+        
+        # Set tags if max_num is a denominator
+        if max_num in self.harvey_denominators:
+            self._add_tags(shape, max_num)
     
     def get_harvey_percent(self, shapes):
         shape = shapes[0]
@@ -123,7 +130,7 @@ class HarveyBalls(object):
         else:
             step = 5
         # step = 1 if libsystem.get_key_state(libsystem.key_code.CTRL) else 5
-        value = round(self.get_harvey_percent(shapes)) + step
+        value = round(self.get_harvey_percent(shapes),3) + step
         self.harvey_percent_setter(shapes, value)
 
     def harvey_percent_dec(self, shapes):
@@ -134,7 +141,7 @@ class HarveyBalls(object):
         else:
             step = 5
         # step = 1 if libsystem.get_key_state(libsystem.key_code.CTRL) else 5
-        value = round(self.get_harvey_percent(shapes)) - step
+        value = round(self.get_harvey_percent(shapes),3) - step
         self.harvey_percent_setter(shapes, value)
     
 
@@ -236,7 +243,7 @@ class HarveyBalls(object):
     
     def is_harvey_group(self, shape):
         # "new" method via tags
-        if powerpoint.TagHelper.has_tag(shape, self.BKT_DIALOG_TAG):
+        if powerpoint.TagHelper.has_tag(shape, self.BKT_HARVEY_DIALOG_TAG):
             return True
         # "old" method via shape types
         pie, circ = self.get_pie_circ(shape)
@@ -456,49 +463,49 @@ harvey_ball_group = bkt.ribbon.Group(
             size='large',
             label='0%',
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0, 64)),
-            on_action=bkt.Callback(lambda shapes: harvey_balls.harvey_percent_setter(shapes, 0)),
+            on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 0, 1)),
         ),
         bkt.ribbon.Button(
             id='harvey_ball_25',
             size='large',
             label='25%',
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.25, 64)),
-            on_action=bkt.Callback(lambda shapes: harvey_balls.harvey_percent_setter(shapes, 25)),
+            on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 1, 4)),
         ),
         bkt.ribbon.Button(
             id='harvey_ball_33',
             size='large',
             label='33%',
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.333, 64)),
-            on_action=bkt.Callback(lambda shapes: harvey_balls.harvey_percent_setter(shapes, 33.333)),
+            on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 1, 3)),
         ),
         bkt.ribbon.Button(
             id='harvey_ball_50',
             size='large',
             label='50%',
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.5, 64)),
-            on_action=bkt.Callback(lambda shapes: harvey_balls.harvey_percent_setter(shapes, 50)),
+            on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 2, 4)),
         ),
         bkt.ribbon.Button(
             id='harvey_ball_66',
             size='large',
             label='66%',
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.667, 64)),
-            on_action=bkt.Callback(lambda shapes: harvey_balls.harvey_percent_setter(shapes, 66.667)),
+            on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 2, 3)),
         ),
         bkt.ribbon.Button(
             id='harvey_ball_75',
             size='large',
             label='75%',
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.75, 64)),
-            on_action=bkt.Callback(lambda shapes: harvey_balls.harvey_percent_setter(shapes, 75)),
+            on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 3, 4)),
         ),
         bkt.ribbon.Button(
             id='harvey_ball_100',
             size='large',
             label='100%',
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(1, 64)),
-            on_action=bkt.Callback(lambda shapes: harvey_balls.harvey_percent_setter(shapes, 100)),
+            on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 1, 1)),
         ),
     ]
 )
