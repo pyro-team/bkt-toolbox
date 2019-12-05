@@ -9,6 +9,8 @@ import bkt
 import bkt.library.powerpoint as powerpoint
 import bkt.library.system as libsystem
 
+import os.path
+
 # import System
 
 from bkt import dotnet
@@ -144,6 +146,19 @@ class HarveyBalls(object):
         value = round(self.get_harvey_percent(shapes),3) - step
         self.harvey_percent_setter(shapes, value)
     
+
+    # ====================
+    # = Popup Funktionen =
+    # ====================
+    
+    def harvey_percent_setter_popup(self, shapes, inc=True):
+        for shape in shapes:
+            old_value = self.get_harvey_percent([shape])
+            step = 100./powerpoint.TagHelper.get_tag(shape, self.BKT_HARVEY_DENOM_TAG, 4, int)
+            delta = step if inc else -step
+            new_value = old_value+delta
+            new_value = step * round(new_value/step) #round to multiple of step
+            self.set_harveys([shape], new_value, 100),
 
     # =================
     # = Farbe aendern =
@@ -518,4 +533,49 @@ harvey_ball_tab = bkt.ribbon.Tab(
         # Harvey Balls
         harvey_ball_group
     ]
+)
+
+
+
+class HarveyPopup(bkt.ui.WpfWindowAbstract):
+    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'popups', 'harvey.xaml')
+    '''
+    class representing a popup-dialog for a linked shape
+    '''
+    
+    def __init__(self, context=None):
+        self.IsPopup = True
+        self._context = context
+
+        super(HarveyPopup, self).__init__()
+
+    def btntab(self, sender, event):
+        try:
+            self._context.ribbon.ActivateTab('bkt_context_tab_harvey')
+        except:
+            bkt.helpers.message("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
+
+    def btnplus(self, sender, event):
+        try:
+            harvey_balls.harvey_percent_setter_popup(list(iter(self._context.selection.ShapeRange)))
+            self._context.ribbon.Invalidate()
+        except:
+            bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
+            # bkt.helpers.exception_as_message()
+
+    def btnminus(self, sender, event):
+        try:
+            harvey_balls.harvey_percent_setter_popup(list(iter(self._context.selection.ShapeRange)), inc=False)
+            self._context.ribbon.Invalidate()
+        except:
+            bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
+            # bkt.helpers.exception_as_message()
+
+# register dialog
+bkt.powerpoint.context_dialogs.register_dialog(
+    bkt.contextdialogs.ContextDialog(
+        id=HarveyBalls.BKT_HARVEY_DIALOG_TAG,
+        module=None,
+        window_class=HarveyPopup
+    )
 )
