@@ -46,6 +46,7 @@ class HarveyBalls(object):
         # circ.fill.ForeColor.RGB = type(self)._fill_color
         circ.line.forecolor.ObjectThemeColor = 13 #msoThemeColorText1
         circ.fill.forecolor.ObjectThemeColor = 14 #msoThemeColorBackground1
+        circ.LockAspectRatio = -1 #msoTrue
 
         pie = slide.shapes.addshape( powerpoint.MsoAutoShapeType['msoShapePie'], 100, 100, 30,30)
         # pie.line.weight = type(self)._line_weight
@@ -53,6 +54,7 @@ class HarveyBalls(object):
         # pie.fill.ForeColor.RGB = type(self)._line_color
         pie.line.forecolor.ObjectThemeColor = 13 #msoThemeColorText1
         pie.fill.forecolor.ObjectThemeColor = 13 #msoThemeColorText1
+        pie.LockAspectRatio = -1 #msoTrue
 
         # gruppieren
         # grp = slide.Shapes.Range(System.Array[int]([shapeCount+1, shapeCount+2])).group()
@@ -423,7 +425,7 @@ harvey_ball_group = bkt.ribbon.Group(
             label='Harvey Ball duplizieren',
             screentip='Harvey Ball duplizieren',
             image='harvey ball duplicate',
-            on_action=bkt.Callback(lambda selection: selection.ShapeRange.Duplicate()),
+            on_action=bkt.Callback(lambda selection: selection.ShapeRange.Duplicate().Select()),
             supertip="Dupliziert den aktuell ausgewählten Harvey-Ball."
         ),
         bkt.ribbon.Separator(),
