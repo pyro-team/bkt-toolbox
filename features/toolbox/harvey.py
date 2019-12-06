@@ -253,6 +253,31 @@ class HarveyBalls(object):
     #     pie,circ = self.get_pie_circ(shapes[0])
     #     return circ.fill.visible == -1
 
+    # ================
+    # = Stil aendern =
+    # ================
+
+    def harvey_change_style_classic(self, shapes):
+        self.harvey_change_style(shapes, "classic")
+    def harvey_change_style_modern(self, shapes):
+        self.harvey_change_style(shapes, "modern")
+
+    def harvey_change_style(self, shapes, style="classic"):
+        for shape in shapes:
+            pie, circ = self.get_pie_circ(shape)
+            if pie == None:
+                continue
+
+            # always start from classic
+            pie.left, pie.top = circ.left, circ.top
+            pie.width, pie.height = circ.width, circ.height
+            pie.line.visible = -1
+            pie.LockAspectRatio = -1
+            
+            if style == "modern":
+                pie.line.visible = 0
+                pie.scaleHeight(0.8, 0, 1)
+
 
     # =====================================
     # = Feature-Logik und Hilfsfunktionen =
@@ -448,15 +473,23 @@ harvey_ball_group = bkt.ribbon.Group(
 
         harvey_background_gallery(id='harvey_ball_background', size="large"),
 
-        # bkt.ribbon.ToggleButton(
-        #     id='harvey_ball_background',
-        #     size='large',
-        #     label='Hintergrund an/aus',
-        #     #get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.6, 64)),
-        #     image='harvey ball background',
-        #     get_pressed=bkt.Callback(harvey_balls.get_pressed_background),
-        #     on_toggle_action=bkt.Callback(harvey_balls.toggle_harvey_background),
-        # ),
+        bkt.ribbon.Separator(),
+
+        bkt.ribbon.Button(
+            id='harvey_ball_style_classic',
+            size='large',
+            label='Style klassisch',
+            image='harvey ball classic',
+            on_action=bkt.Callback(harvey_balls.harvey_change_style_classic, shapes=True),
+        ),
+
+        bkt.ribbon.Button(
+            id='harvey_ball_style_modern',
+            size='large',
+            label='Style modern',
+            image='harvey ball modern',
+            on_action=bkt.Callback(harvey_balls.harvey_change_style_modern, shapes=True),
+        ),
 
         bkt.ribbon.Separator(),
         #bkt.ribbon.LabelControl(label="Füllstand:"),
