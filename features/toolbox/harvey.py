@@ -156,10 +156,15 @@ class HarveyBalls(object):
     def harvey_percent_setter_popup(self, shapes, inc=True):
         for shape in shapes:
             old_value = self.get_harvey_percent([shape])
-            step = 100./powerpoint.TagHelper.get_tag(shape, self.BKT_HARVEY_DENOM_TAG, 4, int)
-            delta = step if inc else -step
-            new_value = old_value+delta
-            new_value = step * round(new_value/step) #round to multiple of step
+            if old_value == 0 and not inc:
+                new_value = 100
+            elif old_value == 100 and inc:
+                new_value = 0
+            else:
+                step = 100./powerpoint.TagHelper.get_tag(shape, self.BKT_HARVEY_DENOM_TAG, 4, int)
+                delta = step if inc else -step
+                new_value = old_value+delta
+                new_value = step * round(new_value/step) #round to multiple of step
             self.set_harveys([shape], new_value, 100),
 
     # =================
