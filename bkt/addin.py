@@ -19,7 +19,7 @@ import time
 import logging
 import os.path
 
-import imp #for importing feature folder
+# import imp #for importing feature folder -> changed to importlib 2019-12-13
 import importlib #for importing traditional modules
 
 from collections import OrderedDict #for import cache
@@ -561,7 +561,7 @@ class AddIn(object):
                     #_h.exception_as_message('failed to load %s' % module)
         
 
-        CACHE_VERSION = "20190603"
+        CACHE_VERSION = "20191213"
         cache_file = os.path.join( _h.get_cache_folder(), "%s.import.cache" % self.context.app_name )
         import_cache = shelve.open(cache_file, protocol=2)
 
@@ -592,9 +592,10 @@ class AddIn(object):
                 try:
                     # import module as package, acts like 'import module_name'
                     #f, path, description = imp.find_module(module_name, base_folder)
-                    imp.load_module(module_name, None, feature['folder'], ('', '', imp.PKG_DIRECTORY))
+                    # imp.load_module(module_name, None, feature['folder'], ('', '', imp.PKG_DIRECTORY))
                     # run bkt_init
-                    module = imp.load_source(module_name + '.__bkt_init__' , os.path.join(feature['folder'], "__bkt_init__.py"))
+                    # module = imp.load_source(module_name + '.__bkt_init__' , os.path.join(feature['folder'], "__bkt_init__.py"))
+                    module = importlib.import_module(module_name + '.__bkt_init__')
 
                     if feature['use_constructor']:
                         logging.debug("loading bkt feature %s using constructor method" % feature['name'])
@@ -611,7 +612,8 @@ class AddIn(object):
             for module_name, folder in import_cache['inits.legacy']:
                 logging.info('importing legacy feature-folder: %s' % folder)
                 try:
-                    imp.load_source(module_name, os.path.join(folder, "__init__.py"))
+                    # imp.load_source(module_name, os.path.join(folder, "__init__.py"))
+                    importlib.import_module(module_name)
                 except:
                     logging.error('failed to load legacy feature %s from cache' % module_name)
                     logging.error(traceback.format_exc())
@@ -654,9 +656,10 @@ class AddIn(object):
                         _c_sys_paths.add(base_folder)
                         # import module as package, acts like 'import module_name'
                         #f, path, description = imp.find_module(module_name, base_folder)
-                        imp.load_module(module_name, None, folder, ('', '', imp.PKG_DIRECTORY))
+                        # imp.load_module(module_name, None, folder, ('', '', imp.PKG_DIRECTORY))
                         # run bkt_init
-                        module = imp.load_source(module_name + '.__bkt_init__' , init_filename)
+                        # module = imp.load_source(module_name + '.__bkt_init__' , init_filename)
+                        module = importlib.import_module(module_name + '.__bkt_init__')
                         logging.debug('module: %s' % module)
                         
                         try:
@@ -705,10 +708,13 @@ class AddIn(object):
                 # backwards compatibility: load module from init.py
                 elif os.path.isfile(os.path.join(folder, "__init__.py")):
                     try:
-                        sys.path.append(folder)
-                        imp.load_source(module_name, os.path.join(folder, "__init__.py"))
+                        logging.warning("bkt feature %s is using legacy import" % module_name)
+                        # sys.path.append(folder)
+                        # imp.load_source(module_name, os.path.join(folder, "__init__.py"))
+                        sys.path.append(base_folder)
+                        module = importlib.import_module(module_name)
                         
-                        _c_sys_paths.add(folder)
+                        _c_sys_paths.add(base_folder)
                         _c_legacy_inits.append((module_name, folder))
                     except:
                         logging.error('failed to load legacy feature-folder %s' % folder)
