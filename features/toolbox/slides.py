@@ -5,6 +5,7 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
+import bkt
 import bkt.ui
 
 # for ui composition
@@ -91,7 +92,7 @@ class SendOrSaveSlides(object):
         newPres.Save()
 
     @classmethod
-    def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False):
+    def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False, remove_designs=False):
         import tempfile, os.path
 
         from bkt import dotnet
@@ -116,9 +117,25 @@ class SendOrSaveSlides(object):
             sections = newPres.SectionProperties
             for i in reversed(range(sections.count)):
                 sections.Delete(i+1, 0) #index, deleteSlides=False
+            newPres.Save()
         
         if remove_author:
             newPres.BuiltInDocumentProperties.item["author"].value = ''
+            newPres.Save()
+        
+        if remove_designs:
+            for design in newPres.Designs:
+                for cl in list(iter(design.SlideMaster.CustomLayouts)): #list(iter()) required as delete function will not work on all elements otherwise!
+                    try:
+                        cl.Delete()
+                    except: #deletion fails if layout in use
+                        continue
+                if design.SlideMaster.CustomLayouts.Count == 0:
+                    try:
+                        design.Delete()
+                    except:
+                        continue
+            newPres.Save()
 
         if fileformat != "pdf":
             # PPT anhängen
@@ -335,15 +352,49 @@ class FolienMenu(object):
 
     @classmethod
     def remove_unused_masters(cls, context):
+        deleted_layouts = 0
+        unused_designs = []
         for design in context.presentation.Designs:
             for cl in list(iter(design.SlideMaster.CustomLayouts)): #list(iter()) required as delete function will not work on all elements otherwise!
                 try:
                     cl.Delete()
+                    deleted_layouts += 1
                 except: #deletion fails if layout in use
                     continue
-            # if design.SlideMaster.CustomLayouts.Count == 0:
-            #     design.Delete()
+            if design.SlideMaster.CustomLayouts.Count == 0:
+                unused_designs.append(design)
+        
+        unused_designs_len = len(unused_designs)
+        if unused_designs_len > 0:
+            if bkt.helpers.confirmation("Es wurden {} Folienlayouts gelöscht und {} Folienmaster sind nun ohne Layout. Sollen diese gelöscht werden?".format(deleted_layouts, unused_designs_len)):
+                for design in unused_designs:
+                    try:
+                        design.Delete()
+                    except:
+                        continue
+            bkt.helpers.message("Leere Folienmaster wurden gelöscht!")
+        else:
+            bkt.helpers.message("Es wurden {} Folienlayouts gelöscht!".format(deleted_layouts))
     
+    @classmethod
+    def remove_unused_designs(cls, context):
+        deleted_designs = 0
+        designs = context.presentation.designs
+        unused_designs = range(1,designs.count+1)
+        for slide in context.presentation.slides:
+            try:
+                unused_designs.remove(slide.design.index)
+            except ValueError:
+                pass
+        
+        for i in reversed(unused_designs):
+            try:
+                designs[i].delete()
+                deleted_designs += 1
+            except:
+                continue
+        
+        bkt.helpers.message("Es wurden {} Folienmaster gelöscht!".format(deleted_designs))
 
     @classmethod
     def break_links(cls, context):
@@ -485,11 +536,18 @@ slides_group = bkt.ribbon.Group(
                         bkt.ribbon.MenuSeparator(title="Folienmaster"),
                         bkt.ribbon.Button(
                             id = 'slide_remove_unused_masters',
+                            label='Nicht genutzte Folienlayouts entfernen',
+                            image_mso='SlideDelete',
+                            supertip="Lösche alle nicht verwendeten Folienmaster-Layouts sowie leere Folienmaster (Designs).",
+                            on_action=bkt.Callback(FolienMenu.remove_unused_masters)
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'slide_remove_unused_designs',
                             label='Nicht genutzte Folienmaster entfernen',
                             image_mso='SlideDelete',
-                            supertip="Lösche alle nicht verwendeten Folienmaster-Layouts in allen Foliendesigns.",
-                            on_action=bkt.Callback(FolienMenu.remove_unused_masters)
-                        )
+                            supertip="Lösche alle nicht verwendeten Folienmaster (Designs).",
+                            on_action=bkt.Callback(FolienMenu.remove_unused_designs)
+                        ),
                     ]),
                 ]),
                 language.sprachen_menu,

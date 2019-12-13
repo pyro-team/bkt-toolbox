@@ -19,6 +19,8 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         self._fileformat = "ppt"
         self._slides = "sel"
         self._remove_author = False
+        self._remove_sections = True
+        self._remove_designs = True
         self.update_filename()
 
     @notify_property
@@ -89,14 +91,23 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     def rm_se_enabled(self):
         return self._fileformat != "pdf"
 
+    @notify_property
+    def remove_designs(self):
+        return self._remove_designs
+    @remove_designs.setter
+    def remove_designs(self, value):
+        self._remove_designs = value
+
 
     def update_filename(self):
         if self._slides == "all":
             self.filename = self._model.initial_file_name(self._context.presentation)
             self.remove_sections = False
+            self.remove_designs = False
         else:
             self.filename = self._model.initial_file_name(self._context.presentation, self._context.slides)
             self.remove_sections = True
+            self.remove_designs = True
 
 
 
@@ -117,4 +128,4 @@ class SendWindow(bkt.ui.WpfWindowAbstract):
     def send_slides(self, sender, event):
         self.Close()
         slides = None if self._vm._slides == "all" else self._context.slides
-        self._model.send_slides(self._context.app, slides, self._vm._filename, self._vm._fileformat, self._vm._remove_sections, self._vm._remove_author)
+        self._model.send_slides(self._context.app, slides, self._vm._filename, self._vm._fileformat, self._vm._remove_sections, self._vm._remove_author, self._vm._remove_designs)

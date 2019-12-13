@@ -28,6 +28,7 @@ class EditModeShapes(object):
         # Shape rechts oben auf slide erstellen
         shp = slide.shapes.AddShape( 1 #msoShapeRectangle
             , 0, yPosition, 300, 20)
+        shp.Left = context.app.ActivePresentation.PageSetup.SlideWidth - shp.width
         shp.Tags.Add(TOOLBOX_NOTE, "1")
         # Shape-Stil
         shp.Line.Weight = 0
@@ -57,8 +58,8 @@ class EditModeShapes(object):
         dt = datetime.now()
         new_text = dt.strftime("%d.%m.%y %H:%M") + " (" + Environment.UserName + "): EDIT"
         shp.TextFrame.TextRange.Text = new_text
+        shp.Select() #first select shape, then text in shape. otherwise test is not selected in some cases.
         shp.TextFrame.TextRange.Characters(len(new_text)-3, 4).Select()
-        shp.Left = context.app.ActivePresentation.PageSetup.SlideWidth - shp.width
     
     
     @staticmethod

@@ -22,7 +22,7 @@ D = bkt.dotnet.import_drawing()
 from helpers import ShapeFormats #local helper functions
 
 
-CF_VERSION = "20190814"
+CF_VERSION = "20191112"
 
 class CustomFormat(object):
     '''
@@ -285,6 +285,7 @@ class CustomFormatCatalog(object):
                     
                     #all further migrations
                     catalog = cls._try_migration_from_20190613(catalog)
+                    catalog = cls._try_migration_from_20190814(catalog)
 
                     #check version again
                     if catalog.get("version", 0) != CF_VERSION:
@@ -312,6 +313,44 @@ class CustomFormatCatalog(object):
         # after migration writenew json
         if catalog_migration:
             cls.save_to_config()
+
+    @classmethod
+    def _try_migration_from_20190814(cls, catalog):
+        if catalog.get("version", 0) != "20190814":
+            logging.debug("Customformats: No conversion from 20190814 required")
+            return catalog
+
+        def convert_stop(cur_list):
+            new_list = []
+            for rgb, pos, transp, _, _ in cur_list:
+                stop_dict = OrderedDict()
+                stop_dict["Position"] = pos
+                stop_dict["Color.RGB"] = rgb
+                stop_dict["Transparency"] = transp
+                new_list.append(stop_dict)
+            return new_list
+        
+        def convert_fill(fill_obj):
+            if "GradientPresetColor" in fill_obj and "GradientStops" in fill_obj:
+                del fill_obj["GradientStops"]
+            if "GradientStops" in fill_obj:
+                try:
+                    fill_obj["GradientStops"] = convert_stop(fill_obj["GradientStops"])
+                except:
+                    logging.error("Customformats: Error converting a gradient stop from 20190814")
+
+        for style in catalog["styles"]:
+
+            if "Fill" in style["formats"]:
+                convert_fill(style["formats"]["Fill"])
+            
+            if "Font" in style["formats"]:
+                for i in style["formats"]["Font"].keys():
+                    if "Fill" in style["formats"]["Font"][i]:
+                        convert_fill(style["formats"]["Font"][i]["Fill"])
+
+        catalog["version"] = "20191112"
+        return catalog
 
     @classmethod
     def _try_migration_from_20190613(cls, catalog):
@@ -656,8 +695,15 @@ class CustomQuickEdit(object):
 
     @classmethod
     def temp_pickup(cls, shape):
+        import bkt.console
+        ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
+
         cls.temp_custom_format = CustomFormat.from_shape(shape)
         cls.temp_settings_done = False
+
+        if ctrl:
+            # logging.debug(json.dumps(cls.temp_custom_format.to_json()))
+            bkt.console.show_message("%r" % cls.temp_custom_format.to_json())
 
     @classmethod
     def temp_apply(cls, shapes):

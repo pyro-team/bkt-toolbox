@@ -1,3 +1,20 @@
+# Release 2019-12-13 (2.6.1)
+
+  * Fixed gradients with theme colors in custom formats
+  * Fixed removal of sections when sending selected slides
+  * Fixed text selection not always working when adding notes (feature ppt_notes)
+  * Fixed harvey balls inverted if pie shape is flipped (done by other toolbars)
+  * Fixed duplication of font awesome 5 category menu on each opening
+  * Added font awesome 4/5 category menu cache
+  * Harvey balls will now use theme colors so that they are working with dark designs
+  * Harvey ball background color can now be changed
+  * In harvey ball tab setting value <0 or >100 is possible using modulo 100
+  * Added harvey ball popup
+  * Added modern harvey ball style (toggle in harvey tab)
+  * Added function to remove unused designs
+  * Added checkbox to remove unused slide layouts when sending selected slides
+
+
 # Release 2019-11-07 (2.6.0)
 
   * Custom formats: Support for font gradients, font glow, font reflection, font shadow
