@@ -71,13 +71,16 @@ class SendOrSaveSlides(object):
 
     @classmethod
     def _delete_unselected_slides(cls, slides, newPres):
+        from System import Array
+
         # Folien rueckwaerts durchgehen und schauen, ob Index in Range dabei ist
-        slideIds = [slide.SlideIndex for slide in slides]
-        removeIds = list(set(range(1,newPres.Slides.Count+1)) - set(slideIds))
-        removeIds.sort()
-        removeIds.reverse()
-        for slideId in removeIds:
-            newPres.Slides(slideId).Delete()
+        slideIndices = [slide.SlideIndex for slide in slides]
+        removeIndices = list(set(range(1,newPres.Slides.Count+1)) - set(slideIndices))
+        # removeIndices.sort()
+        # removeIndices.reverse()
+        # for slideId in removeIndices:
+        #     newPres.Slides(slideId).Delete()
+        newPres.Slides.Range(Array[int](removeIndices)).Delete()
 
     @classmethod
     def save_slides(cls, application, slides, fileName):
