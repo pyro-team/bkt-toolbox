@@ -788,6 +788,7 @@ class RoundingSpinnerBox(SpinnerBox):
 
 class ColorGallery(Gallery):
     item_size = 14
+    color_helper = None
     
     def __init__(self, color_helper=None, **user_kwargs):
         # default attributes
@@ -823,9 +824,11 @@ class ColorGallery(Gallery):
         #powerpoint color helper is fallback for backwards compatibility
         if color_helper:
             self.color_helper = color_helper
+        elif ColorGallery.color_helper:
+            self.color_helper = ColorGallery.color_helper
         else:
             import bkt.library.powerpoint as pplib
-            self.color_helper = pplib.ColorHelper #4 functions required: get_theme_color, get_theme_index, get_recent_color, get_recent_colors_count
+            ColorGallery.color_helper = self.color_helper = pplib.ColorHelper #4 functions required: get_theme_color, get_theme_index, get_recent_color, get_recent_colors_count
     
 
     def on_action_indexed(self, selected_item, index, context, **kwargs):
@@ -855,6 +858,8 @@ class ColorGallery(Gallery):
                 return None
 
     def get_item_count(self, context):
+        # we use this callback to reset the cache which is important if design or presentation is changed
+        self.theme_colors = [None]*60 #reset theme colors cache
         return 70 + self.recent_count(context)
     
     def cb_get_selected_item_index(self, context, **kwargs):
