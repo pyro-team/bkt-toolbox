@@ -665,7 +665,7 @@ class ShapesMore(object):
     def show_shapes(slide):
         slide.Application.ActiveWindow.Selection.Unselect()
         for shape in slide.shapes:
-            if not shape.visible:
+            if not shape.visible and not pplib.TagHelper.has_tag(shape, "THINKCELLSHAPEDONOTDELETE"):
                 shape.visible = True
                 shape.Select(replace=False)
 
