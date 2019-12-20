@@ -430,9 +430,9 @@ class FileListOps(object):
             sheet.UsedRange.AutoFilter()
 
             if worker.CancellationPending:
-                sheet.Cells(1,1).Value = "ABBRUCH der Dateiliste nach " + str(total) + " Dateien für Ordner: " + os.path.normpath(folder)
+                sheet.Cells(1,1).Value = "ABBRUCH der Dateiliste nach {} Dateien erstellt {} für Ordner: {}".format(total, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), os.path.normpath(folder))
             else:
-                sheet.Cells(1,1).Value = "Dateiliste mit " + str(total) + " Dateien für Ordner: " + os.path.normpath(folder)
+                sheet.Cells(1,1).Value = "Dateiliste mit {} Dateien erstellt {} für Ordner: {}".format(total, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), os.path.normpath(folder))
         
         bkt.ui.execute_with_progress_bar(loop, context, indeterminate=True)
 
