@@ -562,7 +562,7 @@ class AddIn(object):
         
 
         CACHE_VERSION = "20191213"
-        cache_file = os.path.join( _h.get_cache_folder(), "%s.import.cache" % self.context.app_name )
+        cache_file = os.path.join( _h.get_cache_folder(), "%s.import.cache" % dotnet_context.hostAppName )
         import_cache = shelve.open(cache_file, protocol=2)
 
         # STRUCTURE OF IMPORT CACHE #

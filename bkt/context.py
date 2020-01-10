@@ -10,6 +10,7 @@ class InappropriateContextError(Exception):
 
 
 class AppContext(object):
+    app_name = 'Uknown'
     
     @classmethod
     def create_app_context(cls, app_name, *args, **kwargs):
