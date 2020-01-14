@@ -139,11 +139,11 @@ class SelectionOps(object):
         cells_selected = None
         cells_colors = set()
         for mastercell in cells:
-            cells_colors.add(mastercell.Interior.ColorIndex)
+            cells_colors.add((mastercell.Interior.ThemeColor,mastercell.Interior.Color))
         
         area = sheet.UsedRange
         for cell in iter(area.Cells):
-            if cell.Interior.ColorIndex in cells_colors:
+            if (cell.Interior.ThemeColor,cell.Interior.Color) in cells_colors:
                 cells_selected = xllib.range_union(cells_selected, cell)
         cells_selected.Select()
 
