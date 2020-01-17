@@ -9,7 +9,8 @@ import bkt.library.excel.helpers as xllib
 import bkt.library.excel.constants as xlcon
 
 # import System.Convert as Converter #required for convert to double
-import System.DateTime as DateTime #required for parse as date and time
+# import System.DateTime as DateTime #required for parse as date and time
+from System import DateTime, Array
 
 import bkt.dotnet as dotnet
 Forms = dotnet.import_forms() #required to copy text to clipboard
@@ -282,12 +283,36 @@ class CellsOps(object):
             bkt.helpers.message("Fehler! Formel war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
 
     @staticmethod
-    def merge_cells(cells, join="\r\n"):
+    def merge_cells(selection, cells, join="\r\n"):
         if not xllib.confirm_no_undo(): return
-        target_cell = next(cells)
-        for cell in cells:
-            target_cell.Value = target_cell.Value() + join + cell.Value()
-            cell.Value = None
+        target_content = join.join([cell.Value() for cell in cells])
+        selection.ClearContents()
+        selection.Cells[1].Value = target_content
+
+        # target_cell = next(cells)
+        # for cell in cells:
+        #     target_cell.Value = target_cell.Value() + join + cell.Value()
+        #     cell.Value = None
+
+    @staticmethod
+    def merge_area_rows(areas, join="\r\n"):
+        if not xllib.confirm_no_undo(): return
+        for area in areas:
+            values = Array.CreateInstance(object, 1, area.rows.count)
+            for i,col in enumerate(area.columns):
+                values[0,i] = join.join([cell.Value() for cell in col.rows])
+            area.ClearContents()
+            area.Rows[1].Value = values
+
+    @staticmethod
+    def merge_area_cols(areas, join=", "):
+        if not xllib.confirm_no_undo(): return
+        for area in areas:
+            values = Array.CreateInstance(object, area.columns.count, 1)
+            for i,row in enumerate(area.rows):
+                values[i,0] = join.join([cell.Value() for cell in row.columns])
+            area.ClearContents()
+            area.Columns[1].Value = values
 
 
     @staticmethod
@@ -940,11 +965,29 @@ zellen_inhalt_gruppe = bkt.ribbon.Group(
                     bkt.ribbon.MenuSeparator(),
                     bkt.ribbon.Button(
                         id = 'cells_merge',
-                        label="Zell-Inhalte zusammenführen",
+                        label="Alle Zell-Inhalte zusammenführen",
                         show_label=True,
                         # image_mso='FillUp',
                         supertip="Fügt alle Zellen in aktive Zelle getrennt mit Zeilenumbruch ein",
-                        on_action=bkt.Callback(CellsOps.merge_cells, cells=True),
+                        on_action=bkt.Callback(CellsOps.merge_cells, selection=True, cells=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'cells_merge_cols',
+                        label="Spaltenweise zusammenführen mit Komma",
+                        show_label=True,
+                        # image_mso='FillUp',
+                        supertip="Fügt alle Spalten (je Selektionsbereich) in die erste Spalte getrennt mit Kommas ein",
+                        on_action=bkt.Callback(CellsOps.merge_area_cols, areas=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'cells_merge_rows',
+                        label="Zeilenweise zusammenführen mit Umbruch",
+                        show_label=True,
+                        # image_mso='FillUp',
+                        supertip="Fügt alle Zeilen (je Selektionsbereich) in erste Zeile getrennt mit Zeilenumbruch ein",
+                        on_action=bkt.Callback(CellsOps.merge_area_rows, areas=True),
                         get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                     ),
                 ])
