@@ -54,7 +54,7 @@ class LinkedShapes(object):
         active_slide_index = shape.Parent.SlideIndex
         shapes_found = 0
         # comparer_values = lambda val1, val2: abs(round(val1,3)-round(val2,3))/round(val1,3)<=threshold
-        comparer_values = lambda val1, val2: is_close(val1, val2, threshold)
+        comparer_values = lambda val1, val2: val1==val2 if type(val1) == str else is_close(val1, val2, threshold)
         
         all_slides = context.app.ActivePresentation.Slides
         num_slides = limit_slides or all_slides.Count
