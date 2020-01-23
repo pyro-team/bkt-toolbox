@@ -224,6 +224,7 @@ class HarveyBalls(object):
         if pie == None:
             return
         circ.Fill.Visible = -1
+        circ.Fill.Transparency = 0
         circ.Fill.ForeColor.rgb  = color
     
     def background_gallery_theme_color_change(self, shapes, color_index, brightness):
@@ -236,12 +237,13 @@ class HarveyBalls(object):
         if pie == None:
             return
         circ.Fill.Visible = -1
+        circ.Fill.Transparency = 0
         circ.Fill.ForeColor.ObjectThemeColor  = color_index
         circ.Fill.ForeColor.Brightness  = brightness
     
     def get_selected_background(self, shapes):
         pie,circ = self.get_pie_circ(shapes[0])
-        if circ != None and circ.Fill.Visible:
+        if circ != None and circ.Fill.Visible and circ.Fill.Transparency == 0:
             return [circ.Fill.ForeColor.ObjectThemeColor, circ.Fill.ForeColor.Brightness, circ.Fill.ForeColor.RGB]
         else:
             return None
@@ -249,7 +251,8 @@ class HarveyBalls(object):
     def harvey_background_off(self, shapes):
         for shape in shapes:
             pie, circ = self.get_pie_circ(shape)
-            circ.Fill.Visible = 0
+            # circ.Fill.Visible = 0
+            circ.Fill.Transparency = 1 #transparency=1 is preferred as background is still selectable then
     
     # def toggle_harvey_background(self, shapes, pressed):
     #     for shape in shapes:
