@@ -37,6 +37,9 @@
                         <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
@@ -48,13 +51,25 @@
                     <fr:CheckBox Grid.Row="1" Grid.Column="1" Header="Mittelpunkt" IsChecked="{Binding attr_center, Mode=TwoWay}" Margin="5" />
                     <fr:CheckBox Grid.Row="1" Grid.Column="2" Header="Rechte Kante" IsChecked="{Binding attr_right, Mode=TwoWay}" Margin="5" />
                     <fr:CheckBox Grid.Row="2" Grid.Column="1" Header="Untere kante" IsChecked="{Binding attr_bottom, Mode=TwoWay}" Margin="5" />
+
+                    <Separator Grid.Row="3" Grid.ColumnSpan="3" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+
+                    <fr:CheckBox Grid.Row="4" Grid.Column="0" Header="Breite" IsChecked="{Binding attr_width, Mode=TwoWay}" Margin="5" />
+                    <fr:CheckBox Grid.Row="4" Grid.Column="1" Header="Höhe" IsChecked="{Binding attr_height, Mode=TwoWay}" Margin="5" />
+                    <fr:CheckBox Grid.Row="4" Grid.Column="2" Header="Rotation" IsChecked="{Binding attr_rotation, Mode=TwoWay}" Margin="5" />
+
+                    <fr:CheckBox Grid.Row="5" Grid.Column="0" Header="Typ/Form" IsChecked="{Binding attr_type, Mode=TwoWay}" Margin="5" />
+                    <fr:CheckBox Grid.Row="5" Grid.Column="1" Header="Shape-Name" IsChecked="{Binding attr_name, Mode=TwoWay}" Margin="5" />
                 </Grid>
-                <StackPanel Orientation="Horizontal" Margin="5">
-                    <fr:CheckBox Header="Typ/Form" IsChecked="{Binding attr_type, Mode=TwoWay}" Margin="5,0" />
+                <!-- <StackPanel Orientation="Horizontal" Margin="5">
                     <fr:CheckBox Header="Breite" IsChecked="{Binding attr_width, Mode=TwoWay}" Margin="5,0" />
                     <fr:CheckBox Header="Höhe" IsChecked="{Binding attr_height, Mode=TwoWay}" Margin="5,0" />
                     <fr:CheckBox Header="Rotation" IsChecked="{Binding attr_rotation, Mode=TwoWay}" Margin="5,0" />
                 </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <fr:CheckBox Header="Typ/Form" IsChecked="{Binding attr_type, Mode=TwoWay}" Margin="5,0" />
+                    <fr:CheckBox Header="Shape-Name" IsChecked="{Binding attr_name, Mode=TwoWay}" Margin="5,0" />
+                </StackPanel> -->
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <fr:Spinner Header="Toleranz" InputWidth="60" Value="{Binding threshold, Mode=TwoWay}" Format="P0" Minimum="0" Maximum="1" Increment="0.05" />
                 </StackPanel>

@@ -105,6 +105,14 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     def attr_rotation(self, value):
         self._shape_keys["rotation"] = value
         self.OnPropertyChanged('okay_enabled')
+
+    @notify_property
+    def attr_name(self):
+        return self._shape_keys["name"]
+    @attr_name.setter
+    def attr_name(self, value):
+        self._shape_keys["name"] = value
+        self.OnPropertyChanged('okay_enabled')
     
 
     @notify_property
@@ -158,7 +166,7 @@ class FindWindow(bkt.ui.WpfWindowAbstract):
 
     def __init__(self, model, context):
         self.context = context
-        self.attributes = {'type': True, 'x': True, 'y': True, 'x1': True, 'y1': True, 'center_x': True, 'center_y': True, 'width': True, 'height': True, 'rotation': True}
+        self.attributes = {'type': False, 'x': True, 'y': True, 'x1': True, 'y1': True, 'center_x': False, 'center_y': False, 'width': False, 'height': False, 'rotation': False, 'name': False}
 
         self._model = model
         cur_slide = context.slide.slideindex
