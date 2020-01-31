@@ -314,6 +314,31 @@ class CellsOps(object):
             area.ClearContents()
             area.Columns[1].Value = values
 
+    @staticmethod
+    def split_to_cols(cells, sep=","):
+        if not xllib.confirm_no_undo(): return
+        for cell in cells:
+            values_split = cell.Text.split(sep)
+            values = Array.CreateInstance(object, 1, len(values_split))
+            for i,col in enumerate(values_split):
+                values[0,i] = col.strip()
+            new_area = xllib.resize_areas([cell], cols=len(values_split))[0]
+            new_area.Value = values
+
+    @staticmethod
+    def split_to_rows(cells, sep=None):
+        if not xllib.confirm_no_undo(): return
+        for cell in cells:
+            if sep is None:
+                values_split = cell.Text.splitlines()
+            else:
+                values_split = cell.Text.split(sep)
+            values = Array.CreateInstance(object, len(values_split), 1)
+            for i,row in enumerate(values_split):
+                values[i,0] = row.strip()
+            new_area = xllib.resize_areas([cell], rows=len(values_split))[0]
+            new_area.Value = values
+
 
     @staticmethod
     def formula_to_values(areas):
@@ -988,6 +1013,25 @@ zellen_inhalt_gruppe = bkt.ribbon.Group(
                         # image_mso='FillUp',
                         supertip="Fügt alle Zeilen (je Selektionsbereich) in erste Zeile getrennt mit Zeilenumbruch ein",
                         on_action=bkt.Callback(CellsOps.merge_area_rows, areas=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.MenuSeparator(),
+                    bkt.ribbon.Button(
+                        id = 'cells_split_cols',
+                        label="Komma-getrennt in Spalten trennen",
+                        show_label=True,
+                        # image_mso='FillUp',
+                        supertip="Zelleninhalte in Spalten für jedes Komma trennen",
+                        on_action=bkt.Callback(CellsOps.split_to_cols, cells=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'cells_split_rows',
+                        label="Zeilenumbrüche in Zeilen trennen",
+                        show_label=True,
+                        # image_mso='FillUp',
+                        supertip="Zelleninhalte in Zeilen für jeden Zeilenumbruch trennen",
+                        on_action=bkt.Callback(CellsOps.split_to_rows, cells=True),
                         get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                     ),
                 ])
