@@ -10,6 +10,7 @@
 1. [Tastenkombinationen beim Anordnen und Spinner-Boxen](#tastenkombinationen-beim-anordnen-und-spinner-boxen)
 1. [Benutzerdefinierte Formate/Style](#benutzerdefinierte-formate)
 1. [Shapes in Tabellen, Paragraphen, oder anderen Shapes anordnen](#shapes-in-tabellen-paragraphen-oder-anderen-shapes-anordnen)
+1. [Text mehrerer Shapes ersetzen und löschen](#text-mehrerer-shapes-ersetzen-und-löschen)
 1. *more to come...*
 
 ---
@@ -85,3 +86,10 @@ Seit Version 2.5.2 kann man eigene Formate speichern und anwenden. Dabei kann ma
 <img src="documentation/quicktipp-shapes_shapes_alignment.gif">
 
 Es gibt eine sehr mächtige Funktion um Shapes innerhalb von Tabellenzellen, Paragraphen oder anderen Shapes auszurichten. Die Positionierung wird automatisch abhängig von den darunterliegenden Shapes bestimmt, kann aber auch manuell festgelegt werden. Funktioniert die automatische Erkennung nicht, kann die Shape-Anordnungs-Funktion auch manuell gewählt werden.
+
+
+## Text mehrerer Shapes ersetzen und löschen
+
+<img src="documentation/quicktipp-text_replace.gif">
+
+Der Text mehrerer Shapes kann sehr einfach auf einen Wert geändert oder komplett gelöscht werden. Außerdem werden mehrere Nummerierungsmöglichkeiten über [count] als Variable unterstützt. Dies geht über das Textbox-Untermenü oder im Kontextmenü bei Auswahl mehrerer Textshapes.
