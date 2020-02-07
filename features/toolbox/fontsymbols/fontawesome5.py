@@ -12,11 +12,12 @@ from collections import OrderedDict
 
 
 ### How to get json files?
-# The font awesome archive contains metadata/categories.yml and metadata/icons.yml
+# The font awesome archive on https://github.com/FortAwesome/Font-Awesome/releases contains metadata/categories.yml and metadata/icons.yml
 # Use https://www.json2yaml.com/ to convert yml to json
 # DO NOT USE metadata/icons.json!
 ###
 
+version_of_fontawesome_json = "5.12.1"
 
 # full font names
 font_name_hash = {
@@ -100,7 +101,7 @@ def get_content_categories():
 
 # define the menu parts
 
-menu_title = 'Font Awesome 5 Free'
+menu_title = 'Font Awesome 5 Free v' + version_of_fontawesome_json
 
 menu_settings = [
     # menu label,          list of symbols,       icons per row
