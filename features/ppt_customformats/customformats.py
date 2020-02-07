@@ -258,7 +258,7 @@ class CustomFormatCatalog(object):
         if not os.path.exists(cls.config_folder):
             os.makedirs(cls.config_folder)
         
-        with io.open(file, 'w') as json_file:
+        with io.open(file, 'w', encoding='utf-8') as json_file:
             catalog = OrderedDict()
             catalog["version"] = CF_VERSION
             catalog["filename"] = cls.current_file
@@ -270,7 +270,7 @@ class CustomFormatCatalog(object):
         file = os.path.join(cls.config_folder, filename)
         if not os.path.isfile(file):
             return
-        with io.open(file, 'r') as json_file:
+        with io.open(file, 'r', encoding='utf-8') as json_file:
             catalog = json.load(json_file, object_pairs_hook=OrderedDict)
             catalog_migration = False
             

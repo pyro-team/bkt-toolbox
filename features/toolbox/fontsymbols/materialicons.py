@@ -38,7 +38,7 @@ menu_settings = [
 def get_content_categories():
     # Automatically generate categories from json file from https://gist.github.com/AmirOfir/daee915574b1ba0d877da90777dc2181
     file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "materialicons.json")
-    with io.open(file, 'r') as json_file:
+    with io.open(file, 'r', encoding='utf-8') as json_file:
         chars = json.load(json_file, object_pairs_hook=OrderedDict)
 
     # categories = OrderedDict()

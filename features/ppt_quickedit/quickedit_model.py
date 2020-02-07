@@ -422,7 +422,7 @@ class QuickEdit(object):
             os.rename(file, backup_file)
 
         values = [v.to_json() for v in cls._userdefined if v.is_defined]
-        with io.open(file, 'w') as json_file:
+        with io.open(file, 'w', encoding='utf-8') as json_file:
             json.dump(values, json_file)
 
     @classmethod
@@ -442,7 +442,7 @@ class QuickEdit(object):
             return
 
         #load file if exists
-        with io.open(file, 'r') as json_file:
+        with io.open(file, 'r', encoding='utf-8') as json_file:
             values = json.load(json_file)
         for i,v in enumerate(values):
             cls._userdefined[i].from_json(v)

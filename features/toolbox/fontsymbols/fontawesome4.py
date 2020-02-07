@@ -187,7 +187,7 @@ def get_content_categories():
     
     # Automatically generate categories from json file (based on yaml file provided by fontawesome)
     file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fontawesome4.json")
-    with io.open(file, 'r') as json_file:
+    with io.open(file, 'r', encoding='utf-8') as json_file:
         chars = json.load(json_file, object_pairs_hook=OrderedDict)
 
     # categories = OrderedDict()

@@ -52,7 +52,7 @@ mono_icons = [
 
 
 file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fabricmdl2.json")
-with io.open(file, 'r') as json_file:
+with io.open(file, 'r', encoding='utf-8') as json_file:
     chars = json.load(json_file)
     chars = chars["glyphs"]
 

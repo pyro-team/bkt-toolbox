@@ -32,7 +32,7 @@ all_fonts = {
 }
 
 file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fa5-icons.json")
-with io.open(file, 'r') as json_file:
+with io.open(file, 'r', encoding='utf-8') as json_file:
     all_icons = json.load(json_file, object_pairs_hook=OrderedDict)
 
     for label, icon in all_icons.iteritems():
@@ -56,7 +56,7 @@ def get_content_categories():
     
     categories = []
     file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fa5-categories.json")
-    with io.open(file, 'r') as json_file:
+    with io.open(file, 'r', encoding='utf-8') as json_file:
         cats = json.load(json_file, object_pairs_hook=OrderedDict)
 
         for key, value in cats.iteritems():
