@@ -1576,7 +1576,10 @@ class ArrangeAdvanced(object):
                 return self.get_master_from_shapes(shapes)
 
         ''' obtain master shape from given shapes according to master-setting '''
-        if ArrangeAdvanced.master == "FIXED-SHAPE" and self.ref_shape != None:
+        if bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+            return pplib.BoundingFrame(shapes[0].parent, contentarea=True)
+        
+        elif ArrangeAdvanced.master == "FIXED-SHAPE" and self.ref_shape != None:
             return _test_ref_or_use_fallback(self.ref_shape)
         elif ArrangeAdvanced.master == "FIXED-SLIDE" and self.ref_frame !=None:
             return _test_ref_or_use_fallback(self.ref_frame)
@@ -1985,11 +1988,11 @@ class ArrangeAdvanced(object):
                 ),
                 bkt.ribbon.ToggleButton(
                     id="arrange_use_contentarea"+postfix,
-                    label="Inhaltsbereich",
+                    label="Inhaltsbereich [STRG]",
                     on_toggle_action=bkt.Callback(self.specify_master_contentarea),
                     get_pressed=bkt.Callback(self.is_contentarea_specified),
                     screentip="Ausrichtung an Inhaltsbereich",
-                    supertip="Shapes werden am Inhaltsbereich ausgerichtet.\n\nDer Inhaltsbereich entspricht der Fläche des Text-Platzhalters auf dem Master-Slide.",
+                    supertip="Shapes werden am Inhaltsbereich ausgerichtet.\n\nDer Inhaltsbereich entspricht der Fläche des Text-Platzhalters auf dem Master-Slide.\n\nMit STRG-Taste wird dieser Master temporär aktiviert.",
                 ),
                 bkt.ribbon.ToggleButton(
                     id="arrange_use_customarea"+postfix,
@@ -2098,12 +2101,12 @@ arrange_advanced_small_group = bkt.ribbon.Group(
     label=u'Erw. Anordnen',
     image='arrange_left_at_left',
     children=[
-        arrange_advaced.get_button("arrange_left_at_left", "-small",        label="Links an Links"),
-        arrange_advaced.get_button("arrange_right_at_right", "-small",      label="Rechts an Rechts"),
-        arrange_advaced.get_button("arrange_middle_at_middle", "-small",    label="Mitte an Mitte"),
-        arrange_advaced.get_button("arrange_top_at_top", "-small",          label="Oben an Oben"),
-        arrange_advaced.get_button("arrange_bottom_at_bottom", "-small",    label="Unten an Unten"),
-        arrange_advaced.get_button("arrange_vmiddle_at_vmiddle", "-small",  label="Mitte an Mitte"),
+        arrange_advaced.get_button("arrange_left_at_left", "-small",        label="Links an Links",   screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_right_at_right", "-small",      label="Rechts an Rechts", screentip='Ausrichtung rechte Kante an rechte Kante', supertip='Ausrichtung der rechten Kante an der rechten Kante des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_middle_at_middle", "-small",    label="Mitte an Mitte",   screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.\n(kein Abstand)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_top_at_top", "-small",          label="Oben an Oben",     screentip='Ausrichtung obere Kante an obere Kante',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_bottom_at_bottom", "-small",    label="Unten an Unten",   screentip='Ausrichtung untere Kante an untere Kante', supertip='Ausrichtung der unteren Kante an der unteren Kante des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_vmiddle_at_vmiddle", "-small",  label="Mitte an Mitte",   screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.\n(kein Abstand)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
 
         bkt.ribbon.Button(
             id="arrange_quick_position-small",
