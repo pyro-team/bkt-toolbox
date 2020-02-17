@@ -667,6 +667,15 @@ class AddIn(object):
                             if self.context.app_name not in module.BktFeature.relevant_apps:
                                 logging.info("bkt feature %s not relevant for current app" % module.BktFeature.name)
                                 continue
+                        except AttributeError:
+                            #legacy bkt_init, load for all apps, always
+                            logging.warning("bkt feature %s not using new loading mechanism" % module_name)
+                            _c_bkt_inits[module_name] = {
+                                'name': module_name,
+                                'folder': folder,
+                                'use_constructor': False
+                            }
+                        else:
                             #only load if dependencies are loaded
                             dependencies = getattr(module.BktFeature, "dependencies", [])
                             if not all(d in _c_bkt_inits for d in dependencies):
@@ -689,14 +698,6 @@ class AddIn(object):
                             }
                             #add conflicting modules
                             _known_conflicts.extend(conflicts)
-                        except AttributeError:
-                            #legacy bkt_init, load for all apps, always
-                            logging.warning("bkt feature %s not using new loading mechanism" % module_name)
-                            _c_bkt_inits[module_name] = {
-                                'name': module_name,
-                                'folder': folder,
-                                'use_constructor': False
-                            }
                     except:
                         logging.error('failed to load feature-folder %s' % folder)
                         logging.error(traceback.format_exc())
