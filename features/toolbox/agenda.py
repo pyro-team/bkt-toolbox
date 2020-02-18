@@ -55,8 +55,11 @@ class ToolboxAgenda(object):
     created agenda slides. Personal customizations on agenda-slides are lost.
     
     '''
-    selectorFillColor = 12566463 # 193 193 193   ##   193+193*255+193*255*255
-    selectorLineColor = 8355711 # 127 127 127    ##   ((long(127)*255)+127)*255+127
+    #theme, brightness, rgb
+    # selectorFillColor = 12566463 # 193 193 193   ##   193+193*255+193*255*255
+    selectorFillColor = [0, 0, 12566463] # 193 193 193   ##   193+193*255+193*255*255
+    # selectorLineColor = 8355711 # 127 127 127    ##   ((long(127)*255)+127)*255+127
+    selectorLineColor = [0, 0, 8355711] # 127 127 127    ##   ((long(127)*255)+127)*255+127
     
     default_settings = {
         SETTING_AGENDA_ID: None,
@@ -90,7 +93,8 @@ class ToolboxAgenda(object):
             shp.Fill.Visible = False
             shp.Line.Visible = False
             # Text-Stil
-            shp.TextFrame.TextRange.Font.Color.RGB = 0
+            # shp.TextFrame.TextRange.Font.Color.RGB = 0
+            shp.TextFrame.TextRange.Font.Color.ObjectThemeColor = 13 #msoThemeColorText1
             shp.TextFrame.TextRange.Font.Size = 14
             shp.TextFrame.TextRange.ParagraphFormat.Alignment = ppt.PpParagraphAlignment.ppAlignLeft.value__
             # Autosize / Textumbruch
@@ -127,14 +131,20 @@ class ToolboxAgenda(object):
             connector = slide.shapes.AddConnector(Type=office.MsoConnectorType.msoConnectorStraight.value__, BeginX=0,BeginY=0, EndX=100, EndY=100)
             connector.ConnectorFormat.BeginConnect(ConnectedShape=shp, ConnectionSite=1)
             connector.ConnectorFormat.EndConnect(ConnectedShape=shp, ConnectionSite=3)
-            connector.Line.ForeColor.RGB = 0
+            connector.Line.Visible = -1
+            connector.Line.ForeColor.ObjectThemeColor = 13 #msoThemeColorText1
+            # connector.Line.ForeColor.RGB = 0
             connector.Line.Weight = 0.75
+            connector.Line.DashStyle = 1 #straight line
 
             connector = slide.shapes.AddConnector(Type=office.MsoConnectorType.msoConnectorStraight.value__, BeginX=0,BeginY=0, EndX=100, EndY=100)
             connector.ConnectorFormat.BeginConnect(ConnectedShape=shp, ConnectionSite=5)
             connector.ConnectorFormat.EndConnect(ConnectedShape=shp, ConnectionSite=7)
-            connector.Line.ForeColor.RGB = 0
+            connector.Line.Visible = -1
+            connector.Line.ForeColor.ObjectThemeColor = 13 #msoThemeColorText1
+            # connector.Line.ForeColor.RGB = 0
             connector.Line.Weight = 0.75
+            connector.Line.DashStyle = 1 #straight line
             
             #cls.set_tags_for_slide(slide, 0)
             cls.set_tags_for_textbox(shp)
@@ -225,8 +235,10 @@ class ToolboxAgenda(object):
         cls.set_tags_for_selector(shp)
         shp.ZOrder(office.MsoZOrderCmd.msoSendToBack.value__)
         # Grauer Hintergrund/Rand
-        shp.Fill.ForeColor.RGB = cls.selectorFillColor
-        shp.Line.ForeColor.RGB = cls.selectorLineColor
+        cls.set_selector_shape_color(shp.Fill, cls.selectorFillColor, -1)
+        cls.set_selector_shape_color(shp.Line, cls.selectorLineColor, 0)
+        # shp.Fill.ForeColor.RGB = cls.selectorFillColor[2]
+        # shp.Line.ForeColor.RGB = cls.selectorLineColor[2]
         shp.Line.Weight = 0.75
         shp.Line.Visible = False
         #FIXME: save Fill/Line properties: Visible, Transparency, Weight, ThemeColor/Brightness
@@ -389,8 +401,8 @@ class ToolboxAgenda(object):
                 # first item with index!=0 will set selector color
                 slide = item[3]
                 shp = cls.get_or_create_selector_on_slide(slide)
-                selector_fill_color = shp.Fill.ForeColor.RGB
-                selector_line_color = shp.Line.ForeColor.RGB
+                selector_fill_color = [shp.Fill.ForeColor.ObjectThemeColor,shp.Fill.ForeColor.Brightness,shp.Fill.ForeColor.RGB]
+                selector_line_color = [shp.Line.ForeColor.ObjectThemeColor,shp.Line.ForeColor.Brightness,shp.Line.ForeColor.RGB]
                 break
 
         # == ensure settings on master slide
@@ -567,8 +579,10 @@ class ToolboxAgenda(object):
             selector.Left = textbox.Left
             selector.Height = selectorHeight
             selector.width = textbox.width
-            selector.Fill.ForeColor.RGB = settings.get(SETTING_SELECTOR_FILL_COLOR) or cls.selectorFillColor
-            selector.Line.ForeColor.RGB = settings.get(SETTING_SELECTOR_LINE_COLOR) or cls.selectorLineColor
+            cls.set_selector_shape_color(selector.Fill, settings.get(SETTING_SELECTOR_FILL_COLOR) or cls.selectorFillColor)
+            cls.set_selector_shape_color(selector.Line, settings.get(SETTING_SELECTOR_LINE_COLOR) or cls.selectorLineColor)
+            # selector.Fill.ForeColor.RGB = settings.get(SETTING_SELECTOR_FILL_COLOR) or cls.selectorFillColor
+            # selector.Line.ForeColor.RGB = settings.get(SETTING_SELECTOR_LINE_COLOR) or cls.selectorLineColor
     
             # Text und Textbox-Position aktualisieren
             oTextBox = cls.get_agenda_textbox_on_slide(slide)
@@ -884,7 +898,16 @@ class ToolboxAgenda(object):
     def get_agenda_settings_from_slide(cls, slide):
         ''' load agenda settings form given slide '''
         value = cls.get_tag_value(slide, TOOLBOX_AGENDA_SETTINGS, "{}" )
-        return json.loads( value ) or {}
+        settings = json.loads( value ) or {}
+
+        #convert old settings with rgb color to new color format
+        if type(settings.get(SETTING_SELECTOR_FILL_COLOR)) == int:
+            settings[SETTING_SELECTOR_FILL_COLOR] = [0, 0, settings.get(SETTING_SELECTOR_FILL_COLOR)]
+        
+        if type(settings.get(SETTING_SELECTOR_LINE_COLOR)) == int:
+            settings[SETTING_SELECTOR_LINE_COLOR] = [0, 0, settings.get(SETTING_SELECTOR_LINE_COLOR)]
+
+        return settings
     
     
     @staticmethod
@@ -999,16 +1022,16 @@ class ToolboxAgenda(object):
             slide = agenda_item[3]
             cls.write_agenda_settings_to_slide(slide, settings)
     
-    @classmethod
-    def _update_setting_value(cls, slide, key, value):
-        ''' callback to write settings value to all agenda slides '''
-        agenda_items = cls.find_agenda_items_by_slide(slide)
-        slide = agenda_items[0][3]
-        settings = cls.get_agenda_settings_from_slide(slide)
-        settings[key] = value
-        for agenda_item in agenda_items:
-            slide = agenda_item[3]
-            cls.write_agenda_settings_to_slide(slide, settings)
+    # @classmethod
+    # def _update_setting_value(cls, slide, key, value):
+    #     ''' callback to write settings value to all agenda slides '''
+    #     agenda_items = cls.find_agenda_items_by_slide(slide)
+    #     slide = agenda_items[0][3]
+    #     settings = cls.get_agenda_settings_from_slide(slide)
+    #     settings[key] = value
+    #     for agenda_item in agenda_items:
+    #         slide = agenda_item[3]
+    #         cls.write_agenda_settings_to_slide(slide, settings)
     
     
     
@@ -1017,48 +1040,51 @@ class ToolboxAgenda(object):
     # =========================
     
     @classmethod
-    def get_selector_fillcolor(cls):
-        return [0, 0, cls.selectorFillColor]
+    def get_selector_fillcolor(cls, slide):
+        settings = cls.get_agenda_settings_from_slide(slide)
+        return settings.get(SETTING_SELECTOR_FILL_COLOR) or cls.selectorFillColor
+        # return [0, 0, cls.selectorFillColor]
     
     @classmethod
-    def get_selector_fillcolor(cls):
-        return [0, 0, cls.selectorLineColor]
+    def get_selector_linecolor(cls, slide):
+        settings = cls.get_agenda_settings_from_slide(slide)
+        return settings.get(SETTING_SELECTOR_LINE_COLOR) or cls.selectorLineColor
+        # return [0, 0, cls.selectorLineColor]
     
     @classmethod
     def set_selector_fillcolor_rgb(cls, color, slide, visibility=-1):
-        cls.selectorFillColor = color
-        # cls._update_setting_value(slide, SETTING_SELECTOR_LINE_COLOR, color)
-        
-        agenda_items = cls.find_agenda_items_by_slide(slide)
-        slide = agenda_items[0][3]
-        settings = cls.get_agenda_settings_from_slide(slide)
-        settings[SETTING_SELECTOR_FILL_COLOR] = color
-        for agenda_item in agenda_items:
-            slide = agenda_item[3]
-            cls.write_agenda_settings_to_slide(slide, settings)
-            #recolor each selector right away
-            shp = cls.get_shape_with_tag_item(slide, TOOLBOX_AGENDA_SELECTOR)
-            if not shp is None:
-                shp.Fill.Visible = visibility
-                shp.Fill.ForeColor.RGB = color
+        cls.set_selector_fillcolor([0,0,color], slide, visibility)
     
     @classmethod
-    def set_selector_linecolor_rgb(cls, color, slide, visibility=-1):
-        cls.selectorLineColor = color
+    def set_selector_fillcolor_theme(cls, color_index, brightness, slide, visibility=-1):
+        cls.set_selector_fillcolor([color_index,brightness,0], slide, visibility)
+    
+    @classmethod
+    def set_selector_fillcolor(cls, color_list, slide, visibility):
+        cls.selectorFillColor = color_list
         # cls._update_setting_value(slide, SETTING_SELECTOR_LINE_COLOR, color)
         
         agenda_items = cls.find_agenda_items_by_slide(slide)
         slide = agenda_items[0][3]
         settings = cls.get_agenda_settings_from_slide(slide)
-        settings[SETTING_SELECTOR_LINE_COLOR] = color
+        settings[SETTING_SELECTOR_FILL_COLOR] = color_list
         for agenda_item in agenda_items:
             slide = agenda_item[3]
             cls.write_agenda_settings_to_slide(slide, settings)
             #recolor each selector right away
             shp = cls.get_shape_with_tag_item(slide, TOOLBOX_AGENDA_SELECTOR)
             if not shp is None:
-                shp.Line.Visible =visibility
-                shp.Line.ForeColor.RGB = color
+                cls.set_selector_shape_color(shp.Fill, color_list, visibility)
+    
+    @classmethod
+    def set_selector_shape_color(cls, shape_color_obj, color_list, visibility=None):
+        if visibility is not None:
+            shape_color_obj.Visible = visibility
+        if color_list[0] == 0:
+            shape_color_obj.ForeColor.RGB = color_list[2]
+        else:
+            shape_color_obj.ForeColor.ObjectThemeColor = color_list[0]
+            shape_color_obj.ForeColor.Brightness = color_list[1]
     
     @classmethod
     def reset_selector_fillcolor(cls, slide):
@@ -1282,8 +1308,8 @@ agenda_tab = bkt.ribbon.Tab(
                     screentip="Hintergrundfarbe für Selektor",
                     supertip="Passe die Hintergrundfarbe für den Selektor, der den aktiven Agendapunkt hervorhebt, an.",
                     on_rgb_color_change   = bkt.Callback(ToolboxAgenda.set_selector_fillcolor_rgb),
-                    # on_theme_color_change = bkt.Callback(ToolboxAgenda.color_gallery_theme_color_change),
-                    # get_selected_color    = bkt.Callback(ToolboxAgenda.get_selector_fillcolor),
+                    on_theme_color_change = bkt.Callback(ToolboxAgenda.set_selector_fillcolor_theme),
+                    get_selected_color    = bkt.Callback(ToolboxAgenda.get_selector_fillcolor),
                     get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide),
                     children=[
                         bkt.ribbon.Button(
