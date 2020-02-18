@@ -838,14 +838,14 @@ class BKTTag(object):
     def save(self):
         try:
             if len(self.data) > 0:
-                tag_data = json.dumps(self.data)
+                tag_data = json.dumps(self.data, ensure_ascii=False)
                 self.tags.Add(self.TAG_NAME,tag_data)
             else:
                 self.tags.Delete(self.TAG_NAME)
         except:
             #import traceback #debugging only
             #traceback.print_exc()
-            raise AttributeError
+            raise AttributeError("error saving json to tags")
     
     def remove(self):
         self.data = {}
@@ -864,7 +864,7 @@ class BKTTag(object):
     def __setitem__(self, arg, value):
         ''' access ribbon-attributes in dict-style, e.g. button['label'] = 'foo' '''
         if arg is None or value is None:
-            raise ValueError
+            raise ValueError("value cannot be none")
         
         self.data[arg] = value
     
