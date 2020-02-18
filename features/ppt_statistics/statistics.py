@@ -51,9 +51,9 @@ class Statistics(object):
     def get_numbers_from_textframe(cls, textframe):
         try:
             if textframe.TextRange.LanguageID == 1031: #DE
-                regex = '[^\-0-9,]'
+                regex = r'[^\-0-9,]'
             else: #EN, US, others
-                regex = '[^\-0-9.]'
+                regex = r'[^\-0-9.]'
             
             units = iter(textframe.TextRange.Words())
             for unit in units:
