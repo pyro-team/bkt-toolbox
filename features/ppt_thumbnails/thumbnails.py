@@ -59,22 +59,35 @@ class Thumbnailer(object):
 
     @classmethod
     def _get_presentation(cls, application, path, silent=True):
+        logging.debug("Thumbnails: get presentation for path {}".format(path))
         if path == "CURRENT" or path == application.ActivePresentation.FullName:
             pres = application.ActivePresentation
             close_afterwards = False
+            logging.debug("Thumbnails: return current presentation")
         else:
             #convert relative to absolute paths
             if not os.path.isabs(path):
                 path = os.path.normpath(os.path.join(application.ActivePresentation.Path, path))
+                logging.debug("Thumbnails: relative path converted to {}".format(path))
             try:
-                pres = application.Presentations[path]
+                #app.presentations can be used using a full path, but it fails if the path contains special characters, so fallback to filename
+                try:
+                    pres = application.Presentations[path]
+                except:
+                    basename = os.path.basename(path)
+                    pres = application.Presentations[basename]
+                    #different open files might have the same filename
+                    if pres.FullName != path:
+                        raise IndexError("deviating path. fallback to open presentation.")
                 close_afterwards = False
+                logging.debug("Thumbnails: return already open presentation")
             except:
                 if silent:
                     pres = application.Presentations.Open(path, True, False, False) #Readonly, Untitled, WithWindow
                 else:
                     pres = application.Presentations.Open(path)
                 close_afterwards = True
+                logging.debug("Thumbnails: open and return presentation")
 
         return pres, close_afterwards
 
@@ -143,7 +156,8 @@ class Thumbnailer(object):
             return
 
         data = cls.get_clipboard_data(application)
-        cur_slide = application.ActiveWindow.View.Slide
+        # cur_slide = application.ActiveWindow.View.Slide
+        cur_slide = application.ActiveWindow.Selection.SlideRange[1]
         # cur_shapes = cur_slide.Shapes.Count
         pasted_shapes = 0
         for slide_id in data["slide_ids"]:
@@ -161,16 +175,16 @@ class Thumbnailer(object):
                     bkt.helpers.message("Fehler! Referenz nicht gefunden.")
                     continue
                 #Paste
-                application.ActiveWindow.Selection.SlideRange[1].Shapes.PasteSpecial(Datatype=data_type)
+                cur_slide.Shapes.PasteSpecial(Datatype=data_type)
                 pasted_shapes += 1
                 #Save tags
                 shape = application.ActiveWindow.Selection.ShapeRange(1)
                 with ThumbnailerTags(shape.Tags) as tags:
                     tags.set_thumbnail(slide_id, data["slide_path"], data_type, content_only, shape_id)
                 shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_THUMBNAIL)
-            except:
+            except Exception as e:
                 #bkt.helpers.exception_as_message()
-                bkt.helpers.message("Fehler! Thumbnail konnte nicht im gewählten Format eingefügt werden.")
+                bkt.helpers.message("Fehler! Thumbnail konnte nicht im gewählten Format eingefügt werden. ({})".format(e))
                 logging.error(traceback.format_exc())
         
         # select pasted shapes
@@ -261,7 +275,7 @@ class Thumbnailer(object):
             bkt.helpers.message("Keine Folien-Thumbnails gefunden.")
             return
 
-        cls.shapes_refresh(thumbs)
+        cls.shapes_refresh(thumbs, application)
 
     @classmethod
     def shapes_refresh(cls, shapes, application):
