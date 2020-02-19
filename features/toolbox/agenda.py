@@ -56,10 +56,23 @@ class ToolboxAgenda(object):
     
     '''
     #theme, brightness, rgb
-    # selectorFillColor = 12566463 # 193 193 193   ##   193+193*255+193*255*255
-    selectorFillColor = [0, 0, 12566463] # 193 193 193   ##   193+193*255+193*255*255
-    # selectorLineColor = 8355711 # 127 127 127    ##   ((long(127)*255)+127)*255+127
-    selectorLineColor = [0, 0, 8355711] # 127 127 127    ##   ((long(127)*255)+127)*255+127
+    # selectorFillColor = [16, 0, 12566463] # 193 193 193   ##   193+193*255+193*255*255
+    # selectorLineColor = [13, 0, 8355711] # 127 127 127    ##   ((long(127)*255)+127)*255+127
+
+    default_selectorFillColor = {
+        'color': [16, 0, 0],
+        'visibility': -1,
+        }
+    default_selectorLineColor = {
+        'color': [13, 0, 0],
+        'visibility': 0,
+        'weight': 0.75,
+        'style': 1,
+        'dash_style': 1,
+        }
+
+    selectorFillColor = default_selectorFillColor.copy()
+    selectorLineColor = default_selectorLineColor.copy()
     
     default_settings = {
         SETTING_AGENDA_ID: None,
@@ -193,9 +206,6 @@ class ToolboxAgenda(object):
                 slide = master_slide.Duplicate(1)
                 slide.SlideShowTransition.Hidden = 0
                 slide.MoveTo(master_slide.SlideIndex + new_slide_count)
-                # set tags for slide
-                # TODO
-                # cls.set_tags_for_slide( sld, idx)
                 
                 # update agenda
                 textbox = cls.get_agenda_textbox_on_slide(slide)
@@ -235,13 +245,12 @@ class ToolboxAgenda(object):
         cls.set_tags_for_selector(shp)
         shp.ZOrder(office.MsoZOrderCmd.msoSendToBack.value__)
         # Grauer Hintergrund/Rand
-        cls.set_selector_shape_color(shp.Fill, cls.selectorFillColor, -1)
-        cls.set_selector_shape_color(shp.Line, cls.selectorLineColor, 0)
+        shp.Line.Weight = 0.75
+        cls.set_selector_shape_color(shp.Fill, cls.selectorFillColor['color'], cls.selectorFillColor['visibility'])
+        cls.set_selector_shape_color(shp.Line, cls.selectorLineColor['color'], cls.selectorLineColor['visibility'])
         # shp.Fill.ForeColor.RGB = cls.selectorFillColor[2]
         # shp.Line.ForeColor.RGB = cls.selectorLineColor[2]
-        shp.Line.Weight = 0.75
-        shp.Line.Visible = False
-        #FIXME: save Fill/Line properties: Visible, Transparency, Weight, ThemeColor/Brightness
+        #FIXME: save Fill/Line properties: Transparency, Weight, Style
         
         return shp
     
@@ -265,7 +274,7 @@ class ToolboxAgenda(object):
             # no agenda settings found on slide
             if slide.Tags.Item(TOOLBOX_AGENDA) != "":
                 # find all agenda-slides in presentation
-                print "fallback: find all agenda slides in presentation"
+                # print "fallback: find all agenda slides in presentation"
                 bkt.helpers.message(slide.Tags.Item(TOOLBOX_AGENDA))
                 bkt.helpers.message("No Agenda settings on current slide. Using all agenda slides", title="Toolbox: Agenda")
                 return cls.find_all_agenda_slides(slide.parent)
@@ -392,8 +401,8 @@ class ToolboxAgenda(object):
         
         # get old settings
         old_settings = cls.get_agenda_settings_from_slide(master_slide)
-        selector_fill_color = old_settings.get(SETTING_SELECTOR_FILL_COLOR) or cls.selectorFillColor
-        selector_line_color = old_settings.get(SETTING_SELECTOR_LINE_COLOR) or cls.selectorLineColor
+        selector_fill_color = cls.get_selector_fillcolor_from_settings(old_settings)
+        selector_line_color = cls.get_selector_linecolor_from_settings(old_settings)
         
         # find first selector and remember color
         for item in agenda_slides:
@@ -401,8 +410,10 @@ class ToolboxAgenda(object):
                 # first item with index!=0 will set selector color
                 slide = item[3]
                 shp = cls.get_or_create_selector_on_slide(slide)
-                selector_fill_color = [shp.Fill.ForeColor.ObjectThemeColor,shp.Fill.ForeColor.Brightness,shp.Fill.ForeColor.RGB]
-                selector_line_color = [shp.Line.ForeColor.ObjectThemeColor,shp.Line.ForeColor.Brightness,shp.Line.ForeColor.RGB]
+                selector_fill_color["color"] = [shp.Fill.ForeColor.ObjectThemeColor,float(shp.Fill.ForeColor.Brightness),shp.Fill.ForeColor.RGB]
+                selector_line_color["color"] = [shp.Line.ForeColor.ObjectThemeColor,float(shp.Line.ForeColor.Brightness),shp.Line.ForeColor.RGB]
+                selector_fill_color['visibility'] = shp.Fill.Visible
+                selector_line_color['visibility'] = shp.Line.Visible
                 break
 
         # == ensure settings on master slide
@@ -412,8 +423,8 @@ class ToolboxAgenda(object):
         new_settings[SETTING_POSITION] = 0
         # overwrite existing settings
         new_settings.update(old_settings)
-        new_settings[SETTING_SELECTOR_LINE_COLOR] = selector_line_color
         new_settings[SETTING_SELECTOR_FILL_COLOR] = selector_fill_color
+        new_settings[SETTING_SELECTOR_LINE_COLOR] = selector_line_color
         # write settings
         cls.write_agenda_settings_to_slide(master_slide, new_settings)
             
@@ -579,8 +590,11 @@ class ToolboxAgenda(object):
             selector.Left = textbox.Left
             selector.Height = selectorHeight
             selector.width = textbox.width
-            cls.set_selector_shape_color(selector.Fill, settings.get(SETTING_SELECTOR_FILL_COLOR) or cls.selectorFillColor)
-            cls.set_selector_shape_color(selector.Line, settings.get(SETTING_SELECTOR_LINE_COLOR) or cls.selectorLineColor)
+
+            selector_fill_color = cls.get_selector_fillcolor_from_settings(settings)
+            selector_line_color = cls.get_selector_linecolor_from_settings(settings)
+            cls.set_selector_shape_color(selector.Fill, selector_fill_color["color"], selector_fill_color["visibility"])
+            cls.set_selector_shape_color(selector.Line, selector_line_color["color"], selector_line_color["visibility"])
             # selector.Fill.ForeColor.RGB = settings.get(SETTING_SELECTOR_FILL_COLOR) or cls.selectorFillColor
             # selector.Line.ForeColor.RGB = settings.get(SETTING_SELECTOR_LINE_COLOR) or cls.selectorLineColor
     
@@ -902,10 +916,12 @@ class ToolboxAgenda(object):
 
         #convert old settings with rgb color to new color format
         if type(settings.get(SETTING_SELECTOR_FILL_COLOR)) == int:
-            settings[SETTING_SELECTOR_FILL_COLOR] = [0, 0, settings.get(SETTING_SELECTOR_FILL_COLOR)]
+            settings[SETTING_SELECTOR_FILL_COLOR] = cls.default_selectorFillColor.copy()
+            settings[SETTING_SELECTOR_FILL_COLOR]['color'] = [0, 0, settings.get(SETTING_SELECTOR_FILL_COLOR)]
         
         if type(settings.get(SETTING_SELECTOR_LINE_COLOR)) == int:
-            settings[SETTING_SELECTOR_LINE_COLOR] = [0, 0, settings.get(SETTING_SELECTOR_LINE_COLOR)]
+            settings[SETTING_SELECTOR_LINE_COLOR] = cls.default_selectorLineColor.copy()
+            settings[SETTING_SELECTOR_LINE_COLOR]['color'] = [0, 0, settings.get(SETTING_SELECTOR_LINE_COLOR)]
 
         return settings
     
@@ -936,6 +952,24 @@ class ToolboxAgenda(object):
         settings = cls.get_agenda_settings_from_slide(slide)
         return settings.get(SETTING_SLIDES_FOR_SUBITEMS) or False
     
+
+    @classmethod
+    def get_selector_fillcolor_from_settings(cls, settings):
+        # selector_fill_color = cls.selectorFillColor.copy()
+        # selector_fill_color.update(settings.get(SETTING_SELECTOR_FILL_COLOR, {}))
+        # return selector_fill_color
+        cls.selectorFillColor.update(settings.get(SETTING_SELECTOR_FILL_COLOR, {}))
+        return cls.selectorFillColor
+    
+
+    @classmethod
+    def get_selector_linecolor_from_settings(cls, settings):
+        # selector_line_color = cls.selectorLineColor.copy()
+        # selector_line_color.update(settings.get(SETTING_SELECTOR_LINE_COLOR, {}))
+        # return selector_line_color
+        cls.selectorLineColor.update(settings.get(SETTING_SELECTOR_LINE_COLOR, {}))
+        return cls.selectorLineColor
+
     
     # ========================
     # = save/load tag values =
@@ -1041,14 +1075,20 @@ class ToolboxAgenda(object):
     
     @classmethod
     def get_selector_fillcolor(cls, slide):
-        settings = cls.get_agenda_settings_from_slide(slide)
-        return settings.get(SETTING_SELECTOR_FILL_COLOR) or cls.selectorFillColor
+        try:
+            settings = cls.get_agenda_settings_from_slide(slide)
+            return settings.get(SETTING_SELECTOR_FILL_COLOR)["color"]
+        except:
+            return cls.selectorFillColor["color"]
         # return [0, 0, cls.selectorFillColor]
     
     @classmethod
     def get_selector_linecolor(cls, slide):
-        settings = cls.get_agenda_settings_from_slide(slide)
-        return settings.get(SETTING_SELECTOR_LINE_COLOR) or cls.selectorLineColor
+        try:
+            settings = cls.get_agenda_settings_from_slide(slide)
+            return settings.get(SETTING_SELECTOR_LINE_COLOR)["color"]
+        except:
+            return cls.selectorLineColor["color"]
         # return [0, 0, cls.selectorLineColor]
     
     @classmethod
@@ -1056,25 +1096,53 @@ class ToolboxAgenda(object):
         cls.set_selector_fillcolor([0,0,color], slide, visibility)
     
     @classmethod
+    def set_selector_linecolor_rgb(cls, color, slide, visibility=-1):
+        cls.set_selector_linecolor([0,0,color], slide, visibility)
+    
+    @classmethod
     def set_selector_fillcolor_theme(cls, color_index, brightness, slide, visibility=-1):
         cls.set_selector_fillcolor([color_index,brightness,0], slide, visibility)
     
     @classmethod
+    def set_selector_linecolor_theme(cls, color_index, brightness, slide, visibility=-1):
+        cls.set_selector_linecolor([color_index,brightness,0], slide, visibility)
+    
+    @classmethod
     def set_selector_fillcolor(cls, color_list, slide, visibility):
-        cls.selectorFillColor = color_list
-        # cls._update_setting_value(slide, SETTING_SELECTOR_LINE_COLOR, color)
+        # cls.selectorFillColor = color_list
         
         agenda_items = cls.find_agenda_items_by_slide(slide)
         slide = agenda_items[0][3]
         settings = cls.get_agenda_settings_from_slide(slide)
-        settings[SETTING_SELECTOR_FILL_COLOR] = color_list
+        settings[SETTING_SELECTOR_FILL_COLOR] = cls.get_selector_fillcolor_from_settings(settings)
+        settings[SETTING_SELECTOR_FILL_COLOR]["color"] = color_list
+        settings[SETTING_SELECTOR_FILL_COLOR]["visibility"] = visibility
         for agenda_item in agenda_items:
             slide = agenda_item[3]
             cls.write_agenda_settings_to_slide(slide, settings)
             #recolor each selector right away
             shp = cls.get_shape_with_tag_item(slide, TOOLBOX_AGENDA_SELECTOR)
             if not shp is None:
+                shp.Fill.Solid() #default shape might have gradient or other non-solid background
                 cls.set_selector_shape_color(shp.Fill, color_list, visibility)
+    
+    @classmethod
+    def set_selector_linecolor(cls, color_list, slide, visibility):
+        # cls.selectorLineColor = color_list
+        
+        agenda_items = cls.find_agenda_items_by_slide(slide)
+        slide = agenda_items[0][3]
+        settings = cls.get_agenda_settings_from_slide(slide)
+        settings[SETTING_SELECTOR_LINE_COLOR] = cls.get_selector_linecolor_from_settings(settings)
+        settings[SETTING_SELECTOR_LINE_COLOR]["color"] = color_list
+        settings[SETTING_SELECTOR_LINE_COLOR]["visibility"] = visibility
+        for agenda_item in agenda_items:
+            slide = agenda_item[3]
+            cls.write_agenda_settings_to_slide(slide, settings)
+            #recolor each selector right away
+            shp = cls.get_shape_with_tag_item(slide, TOOLBOX_AGENDA_SELECTOR)
+            if not shp is None:
+                cls.set_selector_shape_color(shp.Line, color_list, visibility)
     
     @classmethod
     def set_selector_shape_color(cls, shape_color_obj, color_list, visibility=None):
@@ -1088,19 +1156,21 @@ class ToolboxAgenda(object):
     
     @classmethod
     def reset_selector_fillcolor(cls, slide):
-        cls.set_selector_fillcolor_rgb(12566463, slide)
+        # cls.set_selector_fillcolor_rgb(12566463, slide)
+        cls.set_selector_fillcolor(cls.default_selectorFillColor["color"], slide, cls.default_selectorFillColor["visibility"])
     
     @classmethod
     def reset_selector_linecolor(cls, slide):
-        cls.set_selector_linecolor_rgb(8355711, slide)
+        # cls.set_selector_linecolor_rgb(8355711, slide)
+        cls.set_selector_linecolor(cls.default_selectorLineColor["color"], slide, cls.default_selectorLineColor["visibility"])
     
     @classmethod
     def hide_selector_fill(cls, slide):
-        cls.set_selector_fillcolor_rgb(12566463, slide, 0)
+        cls.set_selector_fillcolor(cls.default_selectorFillColor["color"], slide, 0)
     
     @classmethod
     def hide_selector_line(cls, slide):
-        cls.set_selector_linecolor_rgb(8355711, slide, 0)
+        cls.set_selector_linecolor(cls.default_selectorLineColor["color"], slide, 0)
 
 
 
@@ -1267,7 +1337,6 @@ agenda_tab = bkt.ribbon.Tab(
                     on_action=bkt.Callback(ToolboxAgenda.update_agenda_slides_by_slide),
                     get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
                 ),
-                #TODO: color gallery for highlighter
                 bkt.ribbon.Separator(),
                 bkt.ribbon.Menu(
                     label="Optionen",
@@ -1301,8 +1370,24 @@ agenda_tab = bkt.ribbon.Tab(
                         ),
                     ]
                 ),
+                bkt.ribbon.Separator(),
+                bkt.ribbon.Button(
+                    id='agenda_remove',
+                    label="Alle Agenda-Slides entfernen",
+                    size="large",
+                    screentip="Alle Agenda-Slides entfernen",
+                    supertip="Entfernt alle Agenda-Slides, alle Meta-Informationen werden gelöscht.",
+                    imageMso="TableOfContentsRemove",
+                    on_action=bkt.Callback(ToolboxAgenda.remove_agenda),
+                    get_enabled=bkt.Callback(ToolboxAgenda.presentation_has_agenda)
+                ),
+            ]
+        ),
+        bkt.ribbon.Group(
+            label = "Agenda Selektor",
+            children = [
                 bkt.ribbon.ColorGallery(
-                    label = 'Selektor Hintergrund ändern',
+                    label = 'Hintergrund ändern',
                     size="large",
                     image_mso = 'ShapeFillColorPicker',
                     screentip="Hintergrundfarbe für Selektor",
@@ -1316,43 +1401,32 @@ agenda_tab = bkt.ribbon.Tab(
                             label="Farbe zurücksetzen",
                             on_action=bkt.Callback(ToolboxAgenda.reset_selector_fillcolor)
                         ),
-                        # bkt.ribbon.Button(
-                        #     label="Keine Füllung",
-                        #     on_action=bkt.Callback(ToolboxAgenda.hide_selector_fill)
-                        # )
+                        bkt.ribbon.Button(
+                            label="Keine Füllung",
+                            on_action=bkt.Callback(ToolboxAgenda.hide_selector_fill)
+                        )
                     ]
                 ),
-                # bkt.ribbon.ColorGallery(
-                #     label = 'Selektor Rahmen ändern',
-                #     size="large",
-                #     image_mso = 'ShapeOutlineColorPicker',
-                #     screentip="Linienfarbe für Selektor",
-                #     supertip="Passe die Linienfarbe für den Selektor, der den aktiven Agendapunkt hervorhebt, an.",
-                #     on_rgb_color_change   = bkt.Callback(ToolboxAgenda.set_selector_linecolor_rgb),
-                #     # on_theme_color_change = bkt.Callback(ToolboxAgenda.color_gallery_theme_color_change),
-                #     # get_selected_color    = bkt.Callback(ToolboxAgenda.get_selector_linecolor),
-                #     get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide),
-                #     children=[
-                #         bkt.ribbon.Button(
-                #             label="Farbe zurücksetzen",
-                #             on_action=bkt.Callback(ToolboxAgenda.reset_selector_linecolor)
-                #         ),
-                #         bkt.ribbon.Button(
-                #             label="Kein Rahmen",
-                #             on_action=bkt.Callback(ToolboxAgenda.hide_selector_line)
-                #         )
-                #     ]
-                # ),
-                bkt.ribbon.Separator(),
-                bkt.ribbon.Button(
-                    id='agenda_remove',
-                    label="Alle Agenda-Slides entfernen",
+                bkt.ribbon.ColorGallery(
+                    label = 'Rahmen ändern',
                     size="large",
-                    screentip="Alle Agenda-Slides entfernen",
-                    supertip="Entfernt alle Agenda-Slides, alle Meta-Informationen werden gelöscht.",
-                    imageMso="TableOfContentsRemove",
-                    on_action=bkt.Callback(ToolboxAgenda.remove_agenda),
-                    get_enabled=bkt.Callback(ToolboxAgenda.presentation_has_agenda)
+                    image_mso = 'ShapeOutlineColorPicker',
+                    screentip="Linienfarbe für Selektor",
+                    supertip="Passe die Linienfarbe für den Selektor, der den aktiven Agendapunkt hervorhebt, an.",
+                    on_rgb_color_change   = bkt.Callback(ToolboxAgenda.set_selector_linecolor_rgb),
+                    on_theme_color_change = bkt.Callback(ToolboxAgenda.set_selector_linecolor_theme),
+                    get_selected_color    = bkt.Callback(ToolboxAgenda.get_selector_linecolor),
+                    get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide),
+                    children=[
+                        bkt.ribbon.Button(
+                            label="Farbe zurücksetzen",
+                            on_action=bkt.Callback(ToolboxAgenda.reset_selector_linecolor)
+                        ),
+                        bkt.ribbon.Button(
+                            label="Kein Rahmen",
+                            on_action=bkt.Callback(ToolboxAgenda.hide_selector_line)
+                        )
+                    ]
                 ),
             ]
         )
