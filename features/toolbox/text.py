@@ -235,12 +235,12 @@ class Characters(object):
 
     @classmethod
     def get_text_fontawesome(cls):
-        import fontawesome
+        from fontawesome import Fontawesome
 
         return bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
                 id=None,
-                children=fontawesome.symbol_galleries
+                children=Fontawesome.get_symbol_galleries()
             )
 
     @classmethod

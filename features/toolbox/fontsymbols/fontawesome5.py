@@ -18,6 +18,7 @@ from collections import OrderedDict
 ###
 
 version_of_fontawesome_json = "5.12.1"
+menu_title = 'Font Awesome 5 Free v' + version_of_fontawesome_json
 
 # full font names
 font_name_hash = {
@@ -36,7 +37,7 @@ file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fa5-icons.json
 with io.open(file, 'r', encoding='utf-8') as json_file:
     all_icons = json.load(json_file, object_pairs_hook=OrderedDict)
 
-    for label, icon in all_icons.iteritems():
+    for _, icon in all_icons.iteritems():
         for font in icon["styles"]:
             symbol = (
                 font_name_hash[font],
@@ -46,7 +47,7 @@ with io.open(file, 'r', encoding='utf-8') as json_file:
             )
             all_fonts[font].append(symbol)
 
-
+#cache for category menu
 cache_menu = None
 
 def get_content_categories():
@@ -60,7 +61,7 @@ def get_content_categories():
     with io.open(file, 'r', encoding='utf-8') as json_file:
         cats = json.load(json_file, object_pairs_hook=OrderedDict)
 
-        for key, value in cats.iteritems():
+        for _, value in cats.iteritems():
             catname = value["label"].replace("&", "and")
             symbols = []
             for ico in value["icons"]:
@@ -89,6 +90,38 @@ def get_content_categories():
             )
     return cache_menu
 
+def update_search_index(search_engine):
+    search_writer = search_engine.writer()
+    full_icon_infos = dict()
+
+    def _add_icon(ident, font, unicode, label, keywords):
+        full_icon_infos[font+"|"+ident] = {
+            "module":   "fontawesome5",
+            "fontname": font_name_hash[font],
+            "unicode":  unicode,
+            "label":    label,
+            "keywords": set(keywords+label.lower().split()),
+        }
+    
+    #first add all icons, as not all icons are part of a category
+    for ident, icon in all_icons.iteritems():
+        for font in icon["styles"]:
+            _add_icon(ident, font, icon['unicode'], icon["label"], icon["search"]["terms"])
+
+    #second consolidate category names into keywords
+    file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fa5-categories.json")
+    with io.open(file, 'r', encoding='utf-8') as json_file:
+        cats = json.load(json_file, object_pairs_hook=OrderedDict)
+
+        for _, value in cats.iteritems():
+            for ident in value["icons"]:
+                for font in all_icons[ident]["styles"]:
+                    full_icon_infos[font+"|"+ident]["keywords"].update( value["label"].lower().replace("&", " ").split() )
+
+    for _,icon in full_icon_infos.iteritems():
+        search_writer.add_document(**icon)
+    search_writer.commit()
+
 
     # # hash for fa5-icons
     # # { icon_name: symbol-gallery-item, ...}
@@ -100,9 +133,6 @@ def get_content_categories():
 
 
 # define the menu parts
-
-menu_title = 'Font Awesome 5 Free v' + version_of_fontawesome_json
-
 menu_settings = [
     # menu label,          list of symbols,       icons per row
     ('All Regular',            all_fonts['regular'],          16  ),

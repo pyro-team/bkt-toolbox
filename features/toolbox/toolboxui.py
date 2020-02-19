@@ -13,6 +13,7 @@ import arrange
 import info
 import language
 import text
+import fontawesome
 import shape_adjustments
 import stateshapes
 import slides
@@ -44,6 +45,7 @@ class ToolboxUi(object):
         "language_group": 0, #off
         "adjustments_group": 1, #page no 1
         "stateshape_group": 2, #page no 2
+        "iconsearch_group": 2, #page no 2
     }
 
     @classmethod
@@ -147,6 +149,7 @@ class ToolboxUi(object):
         self.toolboxui_pages[self.toolboxui_settings["language_group"]].append(language.sprachen_gruppe)
         self.toolboxui_pages[self.toolboxui_settings["adjustments_group"]].append(shape_adjustments.adjustments_group)
         self.toolboxui_pages[self.toolboxui_settings["stateshape_group"]].append(stateshapes.stateshape_gruppe)
+        self.toolboxui_pages[self.toolboxui_settings["iconsearch_group"]].append(fontawesome.fontsearch_gruppe)
 
 
     def render_contextmenus(self):
