@@ -68,7 +68,7 @@ class ToolboxAgenda(object):
         'visibility': 0,
         'weight': 0.75,
         'style': 1,
-        'dash_style': 1,
+        'dashstyle': 1,
         }
 
     selectorFillColor = default_selectorFillColor.copy()
@@ -245,12 +245,8 @@ class ToolboxAgenda(object):
         cls.set_tags_for_selector(shp)
         shp.ZOrder(office.MsoZOrderCmd.msoSendToBack.value__)
         # Grauer Hintergrund/Rand
-        shp.Line.Weight = 0.75
-        cls.set_selector_shape_color(shp.Fill, cls.selectorFillColor['color'], cls.selectorFillColor['visibility'])
-        cls.set_selector_shape_color(shp.Line, cls.selectorLineColor['color'], cls.selectorLineColor['visibility'])
-        # shp.Fill.ForeColor.RGB = cls.selectorFillColor[2]
-        # shp.Line.ForeColor.RGB = cls.selectorLineColor[2]
-        #FIXME: save Fill/Line properties: Transparency, Weight, Style
+        cls.set_selector_fill(shp.Fill, cls.selectorFillColor)
+        cls.set_selector_line(shp.Line, cls.selectorLineColor)
         
         return shp
     
@@ -410,10 +406,14 @@ class ToolboxAgenda(object):
                 # first item with index!=0 will set selector color
                 slide = item[3]
                 shp = cls.get_or_create_selector_on_slide(slide)
-                selector_fill_color["color"] = [shp.Fill.ForeColor.ObjectThemeColor,float(shp.Fill.ForeColor.Brightness),shp.Fill.ForeColor.RGB]
-                selector_line_color["color"] = [shp.Line.ForeColor.ObjectThemeColor,float(shp.Line.ForeColor.Brightness),shp.Line.ForeColor.RGB]
+                selector_fill_color["color"]      = [shp.Fill.ForeColor.ObjectThemeColor,float(shp.Fill.ForeColor.Brightness),shp.Fill.ForeColor.RGB]
                 selector_fill_color['visibility'] = shp.Fill.Visible
+
+                selector_line_color["color"]      = [shp.Line.ForeColor.ObjectThemeColor,float(shp.Line.ForeColor.Brightness),shp.Line.ForeColor.RGB]
                 selector_line_color['visibility'] = shp.Line.Visible
+                selector_line_color['weight']     = float(shp.Line.Weight)
+                selector_line_color['style']      = shp.Line.Style
+                selector_line_color['dashstyle']  = shp.Line.DashStyle
                 break
 
         # == ensure settings on master slide
@@ -591,10 +591,8 @@ class ToolboxAgenda(object):
             selector.Height = selectorHeight
             selector.width = textbox.width
 
-            selector_fill_color = cls.get_selector_fillcolor_from_settings(settings)
-            selector_line_color = cls.get_selector_linecolor_from_settings(settings)
-            cls.set_selector_shape_color(selector.Fill, selector_fill_color["color"], selector_fill_color["visibility"])
-            cls.set_selector_shape_color(selector.Line, selector_line_color["color"], selector_line_color["visibility"])
+            cls.set_selector_fill(selector.Fill, cls.get_selector_fillcolor_from_settings(settings))
+            cls.set_selector_line(selector.Line, cls.get_selector_linecolor_from_settings(settings))
             # selector.Fill.ForeColor.RGB = settings.get(SETTING_SELECTOR_FILL_COLOR) or cls.selectorFillColor
             # selector.Line.ForeColor.RGB = settings.get(SETTING_SELECTOR_LINE_COLOR) or cls.selectorLineColor
     
@@ -1093,84 +1091,121 @@ class ToolboxAgenda(object):
     
     @classmethod
     def set_selector_fillcolor_rgb(cls, color, slide, visibility=-1):
-        cls.set_selector_fillcolor([0,0,color], slide, visibility)
+        color_dict = {
+            'color': [0,0,color],
+            'visibility': visibility,
+        }
+        cls.set_selector_fillcolor(color_dict, slide)
     
     @classmethod
     def set_selector_linecolor_rgb(cls, color, slide, visibility=-1):
-        cls.set_selector_linecolor([0,0,color], slide, visibility)
+        color_dict = {
+            'color': [0,0,color],
+            'visibility': visibility,
+        }
+        cls.set_selector_linecolor(color_dict, slide)
     
     @classmethod
     def set_selector_fillcolor_theme(cls, color_index, brightness, slide, visibility=-1):
-        cls.set_selector_fillcolor([color_index,brightness,0], slide, visibility)
+        color_dict = {
+            'color': [color_index,brightness,0],
+            'visibility': visibility,
+        }
+        cls.set_selector_fillcolor(color_dict, slide)
     
     @classmethod
     def set_selector_linecolor_theme(cls, color_index, brightness, slide, visibility=-1):
-        cls.set_selector_linecolor([color_index,brightness,0], slide, visibility)
-    
-    @classmethod
-    def set_selector_fillcolor(cls, color_list, slide, visibility):
-        # cls.selectorFillColor = color_list
-        
-        agenda_items = cls.find_agenda_items_by_slide(slide)
-        slide = agenda_items[0][3]
-        settings = cls.get_agenda_settings_from_slide(slide)
-        settings[SETTING_SELECTOR_FILL_COLOR] = cls.get_selector_fillcolor_from_settings(settings)
-        settings[SETTING_SELECTOR_FILL_COLOR]["color"] = color_list
-        settings[SETTING_SELECTOR_FILL_COLOR]["visibility"] = visibility
-        for agenda_item in agenda_items:
-            slide = agenda_item[3]
-            cls.write_agenda_settings_to_slide(slide, settings)
-            #recolor each selector right away
-            shp = cls.get_shape_with_tag_item(slide, TOOLBOX_AGENDA_SELECTOR)
-            if not shp is None:
-                shp.Fill.Solid() #default shape might have gradient or other non-solid background
-                cls.set_selector_shape_color(shp.Fill, color_list, visibility)
-    
-    @classmethod
-    def set_selector_linecolor(cls, color_list, slide, visibility):
-        # cls.selectorLineColor = color_list
-        
-        agenda_items = cls.find_agenda_items_by_slide(slide)
-        slide = agenda_items[0][3]
-        settings = cls.get_agenda_settings_from_slide(slide)
-        settings[SETTING_SELECTOR_LINE_COLOR] = cls.get_selector_linecolor_from_settings(settings)
-        settings[SETTING_SELECTOR_LINE_COLOR]["color"] = color_list
-        settings[SETTING_SELECTOR_LINE_COLOR]["visibility"] = visibility
-        for agenda_item in agenda_items:
-            slide = agenda_item[3]
-            cls.write_agenda_settings_to_slide(slide, settings)
-            #recolor each selector right away
-            shp = cls.get_shape_with_tag_item(slide, TOOLBOX_AGENDA_SELECTOR)
-            if not shp is None:
-                cls.set_selector_shape_color(shp.Line, color_list, visibility)
-    
-    @classmethod
-    def set_selector_shape_color(cls, shape_color_obj, color_list, visibility=None):
-        if visibility is not None:
-            shape_color_obj.Visible = visibility
-        if color_list[0] == 0:
-            shape_color_obj.ForeColor.RGB = color_list[2]
-        else:
-            shape_color_obj.ForeColor.ObjectThemeColor = color_list[0]
-            shape_color_obj.ForeColor.Brightness = color_list[1]
+        color_dict = {
+            'color': [color_index,brightness,0],
+            'visibility': visibility,
+        }
+        cls.set_selector_linecolor(color_dict, slide)
     
     @classmethod
     def reset_selector_fillcolor(cls, slide):
         # cls.set_selector_fillcolor_rgb(12566463, slide)
-        cls.set_selector_fillcolor(cls.default_selectorFillColor["color"], slide, cls.default_selectorFillColor["visibility"])
+        cls.set_selector_fillcolor(cls.default_selectorFillColor, slide)
     
     @classmethod
     def reset_selector_linecolor(cls, slide):
         # cls.set_selector_linecolor_rgb(8355711, slide)
-        cls.set_selector_linecolor(cls.default_selectorLineColor["color"], slide, cls.default_selectorLineColor["visibility"])
+        cls.set_selector_linecolor(cls.default_selectorLineColor, slide)
     
     @classmethod
     def hide_selector_fill(cls, slide):
-        cls.set_selector_fillcolor(cls.default_selectorFillColor["color"], slide, 0)
+        cls.set_selector_fillcolor({'visibility': 0}, slide)
     
     @classmethod
     def hide_selector_line(cls, slide):
-        cls.set_selector_linecolor(cls.default_selectorLineColor["color"], slide, 0)
+        cls.set_selector_linecolor({'visibility': 0}, slide)
+    
+    
+    # ===============================
+    # = selector adjustment methods =
+    # ===============================
+
+    @classmethod
+    def set_selector_fillcolor(cls, color_dict, slide):
+        agenda_items = cls.find_agenda_items_by_slide(slide)
+        slide = agenda_items[0][3]
+
+        settings = cls.get_agenda_settings_from_slide(slide)
+        settings[SETTING_SELECTOR_FILL_COLOR] = cls.get_selector_fillcolor_from_settings(settings)
+        settings[SETTING_SELECTOR_FILL_COLOR].update(color_dict)
+        for agenda_item in agenda_items:
+            slide = agenda_item[3]
+            cls.write_agenda_settings_to_slide(slide, settings)
+            #recolor each selector right away
+            shp = cls.get_shape_with_tag_item(slide, TOOLBOX_AGENDA_SELECTOR)
+            if not shp is None:
+                cls.set_selector_fill(shp.Fill, settings[SETTING_SELECTOR_FILL_COLOR])
+    
+    @classmethod
+    def set_selector_linecolor(cls, color_dict, slide):
+        agenda_items = cls.find_agenda_items_by_slide(slide)
+        slide = agenda_items[0][3]
+
+        settings = cls.get_agenda_settings_from_slide(slide)
+        settings[SETTING_SELECTOR_LINE_COLOR] = cls.get_selector_linecolor_from_settings(settings)
+        settings[SETTING_SELECTOR_LINE_COLOR].update(color_dict)
+        for agenda_item in agenda_items:
+            slide = agenda_item[3]
+            cls.write_agenda_settings_to_slide(slide, settings)
+            #recolor each selector right away
+            shp = cls.get_shape_with_tag_item(slide, TOOLBOX_AGENDA_SELECTOR)
+            if not shp is None:
+                cls.set_selector_line(shp.Line, settings[SETTING_SELECTOR_LINE_COLOR])
+    
+    @classmethod
+    def set_selector_fill(cls, shape_fill_obj, color_dict):
+        shape_fill_obj.Solid() #default shape might have gradient or other non-solid background
+        if 'visibility' in color_dict:
+            shape_fill_obj.Visible = color_dict["visibility"]
+        if 'color' in color_dict:
+            color_list = color_dict["color"]
+            if color_list[0] == 0:
+                shape_fill_obj.ForeColor.RGB = color_list[2]
+            else:
+                shape_fill_obj.ForeColor.ObjectThemeColor = color_list[0]
+                shape_fill_obj.ForeColor.Brightness = color_list[1]
+    
+    @classmethod
+    def set_selector_line(cls, shape_line_obj, color_dict):
+        if 'visibility' in color_dict:
+            shape_line_obj.Visible = color_dict["visibility"]
+        if 'color' in color_dict:
+            color_list = color_dict["color"]
+            if color_list[0] == 0:
+                shape_line_obj.ForeColor.RGB = color_list[2]
+            else:
+                shape_line_obj.ForeColor.ObjectThemeColor = color_list[0]
+                shape_line_obj.ForeColor.Brightness = color_list[1]
+        if 'weight' in color_dict:
+            shape_line_obj.Weight     = color_dict["weight"]
+        if 'style' in color_dict:
+            shape_line_obj.Style      = color_dict["style"]
+        if 'dashstyle' in color_dict:
+            shape_line_obj.DashStyle  = color_dict["dashstyle"]
 
 
 
