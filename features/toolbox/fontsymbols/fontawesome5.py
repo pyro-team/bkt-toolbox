@@ -96,11 +96,12 @@ def update_search_index(search_engine):
 
     def _add_icon(ident, font, unicode, label, keywords):
         full_icon_infos[font+"|"+ident] = {
-            "module":   "fontawesome5",
-            "fontname": font_name_hash[font],
-            "unicode":  unicode,
-            "label":    label,
-            "keywords": set(keywords+label.lower().split()),
+            "module":    "fontawesome5",
+            "fontlabel": font_name_hash[font],
+            "fontname":  font_name_hash[font],
+            "unicode":   unichr(int(unicode, 16)),
+            "label":     label,
+            "keywords":  set(keywords+label.lower().split()),
         }
     
     #first add all icons, as not all icons are part of a category

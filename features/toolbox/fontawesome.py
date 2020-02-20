@@ -12,7 +12,7 @@ import bkt
 from bkt.library.powerpoint import PPTSymbolsGallery
 
 
-FontSymbol = namedtuple("FontSymbol", "module fontname unicode label keywords")
+FontSymbol = namedtuple("FontSymbol", "module fontlabel fontname unicode label keywords")
 
 class Fontawesome(object):
     installed_fonts = None
@@ -27,6 +27,7 @@ class Fontawesome(object):
             # ('foobar', 'Non-existing test font', True),
         ]
     search_engine = None
+    searchable_fonts = []
 
     @classmethod
     def get_installed_fonts(cls):
@@ -97,6 +98,7 @@ class Fontawesome(object):
                 fontsymbolmodule = importlib.import_module('toolbox.fontsymbols.%s' % font_module)
                 try:
                     fontsymbolmodule.update_search_index(engine)
+                    cls.searchable_fonts.append(fontsymbolmodule.menu_title)
                 except AttributeError:
                     continue
 
@@ -115,9 +117,10 @@ class FontSearch(object):
     search_exact = True
 
     @classmethod
-    def set_search_term(cls, value):
-        cls.search_term = value
-        if len(cls.search_term) > 1:
+    def _perform_search(cls):
+        if len(cls.search_term) > 0:
+            if len(cls.search_term) < 3:
+                cls.search_exact = True
             engine = cls.get_search_engine()
             with engine.searcher() as searcher:
                 if cls.search_exact:
@@ -126,6 +129,20 @@ class FontSearch(object):
                     cls.search_results = searcher.search(cls.search_term)
         else:
             cls.search_results = None
+
+    @classmethod
+    def toggle_search_exact(cls, pressed):
+        cls.search_exact = not cls.search_exact
+        cls._perform_search()
+
+    @classmethod
+    def checked_search_exact(cls):
+        return cls.search_exact
+
+    @classmethod
+    def set_search_term(cls, value):
+        cls.search_term = value
+        cls._perform_search()
 
     @classmethod
     def get_search_term(cls):
@@ -149,15 +166,15 @@ class FontSearch(object):
             fontmodules = [
                 bkt.ribbon.MenuSeparator(title="{} Ergebnisse für »{}«".format(len(cls.search_results), cls.search_term))
             ]
-            for fontname, icons in cls.search_results.groupedby("fontname").iteritems():
+            for fontlabel, icons in cls.search_results.groupedby("fontlabel").iteritems():
                 fontmodules.append(
                     PPTSymbolsGallery(
-                        label="{} ({})".format(fontname, len(icons)),
+                        label="{} ({})".format(fontlabel, len(icons)),
                         symbols=[
                             (
-                                fontname,
-                                # ico.unicode,
-                                unichr(int(ico.unicode, 16)),
+                                ico.fontname,
+                                ico.unicode,
+                                # unichr(int(ico.unicode, 16)),
                                 ico.label,
                                 ', '.join(sorted(ico.keywords))
                             ) for ico in icons
@@ -168,22 +185,24 @@ class FontSearch(object):
 
         engine = cls.get_search_engine()
         fontmodules.extend([
-            bkt.ribbon.MenuSeparator(title="Infos"),
-            # bkt.ribbon.Menu(
-            #     label="Unterstützte Fonts",
-            #     children=[
-            #         bkt.ribbon.Button(
-            #             label="{}: {}".format(font_name, Fontawesome.font_exists(font_name)),
-            #             # enabled=False
-            #         )
-            #         for _, font_name, _ in Fontawesome.fontsettings
-            #     ]
-            # ),
-            bkt.ribbon.Button(
-                label="Indizierte Icons: {}".format(engine.count_documents())
+            bkt.ribbon.MenuSeparator(title="Informationen"),
+            bkt.ribbon.ToggleButton(
+                label="Exakte Suche ein/aus",
+                on_toggle_action=bkt.Callback(cls.toggle_search_exact),
+                get_pressed=bkt.Callback(cls.checked_search_exact),
             ),
             bkt.ribbon.Button(
-                label="Indizierte Keywords: {}".format(engine.count_keywords())
+                label="Indizierte Icons: {}".format(engine.count_documents()),
+                enabled=False,
+            ),
+            bkt.ribbon.Button(
+                label="Indizierte Keywords: {}".format(engine.count_keywords()),
+                enabled=False,
+            ),
+            bkt.ribbon.Button(
+                label="Durchsuchbare Fonts: {}".format(len(Fontawesome.searchable_fonts)),
+                enabled=False,
+                supertip=", ".join(Fontawesome.searchable_fonts)
             ),
         ])
         

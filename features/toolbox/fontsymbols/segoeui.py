@@ -282,6 +282,21 @@ symbols_emoji = [
     ("Segoe UI Emoji", u"🙏", "PERSON WITH FOLDED HANDS", "Segoe UI Emoji"),
 ]
 
+def update_search_index(search_engine):
+    search_writer = search_engine.writer()
+
+    for font, code, label, _ in symbols_symbol+symbols_emoji:
+        search_writer.add_document(
+            module="segoeui",
+            fontlabel=font,
+            fontname=font,
+            unicode=code,
+            label=label,
+            keywords=label.lower().split()
+        )
+
+    search_writer.commit()
+
 
 # define the menu parts
 menu_title = "Segoe UI"
