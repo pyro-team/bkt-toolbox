@@ -24,6 +24,7 @@ class Fontawesome(object):
             ('segoemdl2',       'Segoe MDL2 Assets',            True),
             ('materialicons',   'Material Icons',               False),
             ('fabricmdl2',      'Fabric MDL2 Assets',           True),
+            ('wingdings',       'Wingdings',                    True),
             # ('foobar', 'Non-existing test font', True),
         ]
     search_engine = None
