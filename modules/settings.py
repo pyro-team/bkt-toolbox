@@ -10,6 +10,7 @@ import os.path
 
 
 CONFIG_FOLDERS = "feature_folders"
+UPDATE_URL = "https://api.github.com/repos/pyro-team/bkt-toolbox/releases/latest"
 
 class FolderSetup(object):
     @classmethod
@@ -58,20 +59,18 @@ class BKTReload(object):
 
 
 class BKTInfos(object):
-    update_url = "https://api.github.com/repos/pyro-team/bkt-toolbox/releases/latest"
-
     @staticmethod
     def open_website():
         import webbrowser
         webbrowser.open('https://www.bkt-toolbox.de')
     
-    @classmethod
-    def check_for_update(cls):
+    @staticmethod
+    def check_for_update():
         import json
         import urllib2
 
         try:
-            response = urllib2.urlopen(cls.update_url, timeout=4).read()
+            response = urllib2.urlopen(UPDATE_URL, timeout=4).read()
             data = json.loads(response)
             version_string = data["tag_name"]
             version = tuple(int(x) for x in version_string.split("."))
@@ -79,9 +78,9 @@ class BKTInfos(object):
             if version > current_version:
                 bkt.helpers.message("Update available to v{}. \nYour version is v{}.".format(version_string, bkt.version_tag_name))
             else:
-                bkt.helpers.message("No update available.")
-        except:
-            bkt.helpers.message("Error calling and parsing update URL.")
+                bkt.helpers.message("No update available. Current version is v{}.".format(version_string))
+        except Exception as e:
+            bkt.helpers.message("Error calling and parsing update URL: {}".format(e))
     
     @staticmethod
     def show_debug_message(context):
