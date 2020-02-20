@@ -30,9 +30,12 @@ class SearchResults(object):
             yield doc
 
     def groupedby(self, field):
-        result_dict = defaultdict(list)
+        result_dict = OrderedDict()
         for doc in self._result_docs:
-            result_dict[getattr(doc, field)].append(doc)
+            try:
+                result_dict[getattr(doc, field)].append(doc)
+            except KeyError:
+                result_dict[getattr(doc, field)] = [doc]
         return result_dict
 
     def sortedby(self, field):
@@ -158,18 +161,19 @@ class SearchEngine(object):
         self._docs = OrderedDict()
         self._keywords = set()
 
-        #load index from cache
+        #load index from cache #:FIXME: caching doesnt work right now
         self._cache = shelve.open(cache_file, protocol=2)
-        if "index" in self._cache:
-            self._keywords = self._keywords.union(self._cache["keywords"])
-            for k,v in self._cache["documents"].iteritems():
-                self._docs[k].append(v)
-            for k,v in self._cache["index"].iteritems():
-                self._db[k].append(v)
+        # if "index" in self._cache:
+        #     self._keywords = self._keywords.union(self._cache["keywords"])
+        #     for k,v in self._cache["documents"].iteritems():
+        #         self._docs[k].append(v)
+        #     for k,v in self._cache["index"].iteritems():
+        #         self._db[k].append(v)
     
 
     ### CACHE HANDLING ###
     def cache_sync(self):
+        #:FIXME: caching doesnt work right now
         pass
         # self._cache["keywords"] = self._keywords
         # self._cache["documents"] = self._docs
