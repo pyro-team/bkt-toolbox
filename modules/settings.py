@@ -58,10 +58,30 @@ class BKTReload(object):
 
 
 class BKTInfos(object):
+    update_url = "https://api.github.com/repos/pyro-team/bkt-toolbox/releases/latest"
+
     @staticmethod
     def open_website():
         import webbrowser
         webbrowser.open('https://www.bkt-toolbox.de')
+    
+    @classmethod
+    def check_for_update(cls):
+        import json
+        import urllib2
+
+        try:
+            response = urllib2.urlopen(cls.update_url, timeout=4).read()
+            data = json.loads(response)
+            version_string = data["tag_name"]
+            version = tuple(int(x) for x in version_string.split("."))
+            current_version = tuple(int(x) for x in bkt.version_tag_name.split("."))
+            if version > current_version:
+                bkt.helpers.message("Update available to v{}. \nYour version is v{}.".format(version_string, bkt.version_tag_name))
+            else:
+                bkt.helpers.message("No update available.")
+        except:
+            bkt.helpers.message("Error calling and parsing update URL.")
     
     @staticmethod
     def show_debug_message(context):
@@ -73,12 +93,12 @@ class BKTInfos(object):
         winver = sys.getwindowsversion()
         debug_info = '''--- DEBUG INFORMATION ---
 
-BKT-Framework Version:  {}
+BKT-Framework Version:  {} (v{})
 Operating System:       {} ({}.{}.{})
 Office Version:         {} {}.{} ({})
 IPY-Version:            {}
 '''.format(
-        bkt.full_version,
+        bkt.full_version, bkt.version_tag_name,
         context.app.OperatingSystem, winver.major, winver.minor, winver.build,
         context.app.name, context.app.Version, context.app.Build, context.app.ProductCode,
         sys.version,
@@ -128,9 +148,15 @@ class SettingsMenu(bkt.ribbon.Menu):
                 ),
                 bkt.ribbon.Button(
                     id='settings-version' + postfix,
-                    label=bkt.full_version,
+                    label="{} v{}".format(bkt.full_version, bkt.version_tag_name),
                     image_mso="Info",
                     on_action=bkt.Callback(BKTInfos.show_debug_message, context=True)
+                ),
+                bkt.ribbon.Button(
+                    id='settings-updatecheck' + postfix,
+                    label="Check for updates",
+                    image_mso="SyncStatusUpToDate",
+                    on_action=bkt.Callback(BKTInfos.check_for_update)
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.DynamicMenu(

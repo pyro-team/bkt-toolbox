@@ -11,8 +11,8 @@ import bkt
 # reuse settings-menu from bkt-framework
 import modules.settings as settings
 
-version_short = 'v2.6'
-version_long  = 'Powerpoint Toolbox v2.6.1'
+version_short = bkt.version_tag_name
+version_long  = 'Powerpoint Toolbox v{}'.format(bkt.version_tag_name)
 
 
 # Workaround to activate Tab when new shape is added instead of auto switching to "Format" contextual tab
