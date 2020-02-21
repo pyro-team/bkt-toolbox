@@ -60,7 +60,7 @@ class LangSetter(object):
             cls.set_language_for_shapes(shapes, langCode)
         elif len(slides) != presentation.slides.count and (len(slides) > 1 or context.app.ActiveWindow.ActivePane.ViewType in [7, 11]): #7=ppViewSlideSorter, 11=ppViewThumbnails
             #bkt.helpers.message("Setze Sprache für Slides: " + str(len(slides)))
-            if not bkt.helpers.confirmation("Sprache aller Shapes auf ausgewählten Folien ändern?"):
+            if len(slides) > 1 and not bkt.helpers.confirmation("Sprache aller Shapes auf ausgewählten Folien ändern?"):
                 return
             cls.set_language_for_slides(slides, langCode)
         else:
