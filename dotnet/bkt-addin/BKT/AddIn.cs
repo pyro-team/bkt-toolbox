@@ -722,6 +722,13 @@ namespace BKT
         //     python_delegate.mouse_move(sender, e);
         // }
 
+        private void MouseDoubleClickEvent(object sender, MouseEventArgs e)
+        {
+            DebugMessage(String.Format("MouseDoubleClick: \t{0}", e.Button));
+            if (!created) return;
+            python_delegate.mouse_double_click(sender, e);
+        }
+
         private void MouseDragStartedEvent(object sender, MouseEventExtArgs e)
         {
             DebugMessage(String.Format("MouseDragStartedEvent: \t{0} / {1}; \t System Timestamp: \t{2}", e.X, e.Y, e.Timestamp));
@@ -759,6 +766,7 @@ namespace BKT
             m_GlobalHook = Hook.AppEvents(); //Only application events
             m_GlobalHook.MouseDownExt += MouseDownEvent;
             m_GlobalHook.MouseUpExt += MouseUpEvent;
+            m_GlobalHook.MouseDoubleClick += MouseDoubleClickEvent;
             // m_GlobalHook.MouseMoveExt += MouseMoveEvent;
 
             m_GlobalHook.MouseDragStartedExt += MouseDragStartedEvent;
@@ -775,6 +783,7 @@ namespace BKT
             {
                 m_GlobalHook.MouseDownExt -= MouseDownEvent;
                 m_GlobalHook.MouseUpExt -= MouseUpEvent;
+                m_GlobalHook.MouseDoubleClick -= MouseDoubleClickEvent;
                 // m_GlobalHook.MouseMoveExt -= MouseMoveEvent;
                 m_GlobalHook.MouseDragStartedExt -= MouseDragStartedEvent;
                 m_GlobalHook.MouseDragFinishedExt -= MouseDragFinishedEvent;

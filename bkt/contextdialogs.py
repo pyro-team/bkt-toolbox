@@ -126,7 +126,6 @@ class ContextDialog(object):
         if not self.module:
             logging.debug('ContextDialog.import_module importing %s' % self.module_name)
             #do an import equivalent to:  import <<module_name>>
-            #FIXME: use importlib.import_module
             self.module = importlib.import_module(self.module_name)
             # self.module = __import__(self.module_name, globals(), locals(), [], -1)
         
@@ -337,6 +336,12 @@ class ContextDialogs(object):
     #             logging.debug("ContextDialogs.mouse_move/dragging")
     #             self.close_active_dialog() #FIXME: if you drag a rectangle to select multiple shapes, afterwars popup immediatly closes
 
+    def mouse_double_click(self, sender, e):
+        logging.debug("ContextDialogs.mouse_double_click")
+        if self.context and DialogHelpers.coordinates_within_shape(e.X, e.Y, self.context):
+            logging.debug("ContextDialogs.mouse_double_click: within shape")
+
+
     def mouse_drag_start(self, sender, e):
         logging.debug("ContextDialogs.mouse_drag_start")
         self.drag_started = True
@@ -444,7 +449,16 @@ class DialogHelpers(object):
             # return shape is not None
         except:
             return False
-
+    
+    @staticmethod
+    def coordinates_within_shape(x, y, context):
+        try:
+            active_window = context.app.ActiveWindow
+            x,y = active_window.PointsToScreenPixelsX(x), active_window.PointsToScreenPixelsY(y)
+            shape = active_window.RangeFromPoint(x,y)
+            return shape is not None
+        except:
+            return False
 
     # FIXME:
     # https://dzimchuk.net/best-way-to-get-dpi-value-in-wpf/
