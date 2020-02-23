@@ -423,7 +423,7 @@ class QuickEdit(object):
 
         values = [v.to_json() for v in cls._userdefined if v.is_defined]
         with io.open(file, 'w', encoding='utf-8') as json_file:
-            json.dump(values, json_file)
+            json.dump(values, json_file, ensure_ascii=False)
 
     @classmethod
     def read_from_config(cls, filename="default.json"):

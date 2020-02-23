@@ -243,7 +243,7 @@ class CustomFormatCatalog(object):
     def create_new_config(cls, filename):
         file = os.path.join(cls.config_folder, filename)
         if os.path.exists(file):
-            raise FileExistsError("file already exists")
+            raise OSError("file already exists")
         
         cls.current_file = filename
         cls.custom_styles = []
@@ -263,7 +263,7 @@ class CustomFormatCatalog(object):
             catalog["version"] = CF_VERSION
             catalog["filename"] = cls.current_file
             catalog["styles"] = [style.to_json() for style in cls.custom_styles]
-            json.dump(catalog, json_file)
+            json.dump(catalog, json_file, ensure_ascii=False)
 
     @classmethod
     def read_from_config(cls, filename="styles.json"):
@@ -591,7 +591,7 @@ class CustomQuickEdit(object):
 
         try:
             CustomFormatCatalog.create_new_config(filename)
-        except FileExistsError:
+        except OSError:
             bkt.helpers.message("Dateiname existiert bereits")
 
 
