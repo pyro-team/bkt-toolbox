@@ -104,13 +104,6 @@ class Fontawesome(object):
                     continue
 
 
-# initialize galleries
-# symbol_galleries = Fontawesome.get_symbol_galleries()
-
-# initialize search
-# Fontawesome.update_search_index()
-
-
 
 class FontSearch(object):
     search_term = ""
@@ -220,9 +213,9 @@ class FontSearch(object):
     @classmethod
     def get_results_label(cls):
         if cls.search_results is not None:
-            return "{} Ergebnisse".format(len(cls.search_results))
+            return "{} Icons".format(len(cls.search_results))
         else:
-            return "Ergebnisse"
+            return "Ergebnis"
     
     @classmethod
     def sync_cache(cls):
@@ -240,16 +233,23 @@ fontsearch_gruppe = bkt.ribbon.Group(
     label="Icon-Suche",
     image_mso='SearchUI',
     children=[
+        bkt.ribbon.Label(
+            label="Suchwort:"
+        ),
         bkt.ribbon.EditBox(
-            label="Suche:",
-            sizeString = '#######',
+            label="Suchwort",
+            show_label=False,
+            sizeString = '#########',
             get_text = bkt.Callback(FontSearch.get_search_term),
             on_change = bkt.Callback(FontSearch.set_search_term),
+            supertip="Suchwort eingeben und ENTER klicken",
         ),
         bkt.ribbon.DynamicMenu(
             get_label=bkt.Callback(FontSearch.get_results_label),
             get_content=bkt.Callback(FontSearch.get_symbol_galleries),
             get_enabled=bkt.Callback(FontSearch.get_enabled_results),
+            screentip="Suchergebnisse",
+            supertip="Zeigt die Suchergebnisse der Icon-Suche nach dem gewünschten Suchwort an",
         ),
         # bkt.ribbon.Box(children=[
         #     bkt.ribbon.Button(
