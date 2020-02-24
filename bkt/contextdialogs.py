@@ -29,12 +29,30 @@ class ContextDialog(object):
     '''
     
     
-    def __init__(self, id, module=None, window_class=None):
+    def __init__(self, id, module=None, window_class=None, dblclick_func=None):
         ''' constructor '''
         self.id = id
         self.module_name = module
         self.module = None
         self.window_class = window_class
+        self.dblclick_func = dblclick_func
+    
+    def trigger_doubleclick(self, shape, context):
+        ''' trigger double click action for given shape '''
+        logging.debug('ContextDialog.trigger_doubleclick')
+        try:
+            if self.dblclick_func:
+                self.dblclick_func(shape, context)
+            
+            elif self.module_name:
+                self.import_module()
+                return self.module.trigger_doubleclick(shape, context)
+        
+        except AttributeError:
+            logging.warning("ContextDialog.trigger_doubleclick: No double click action defined in module %s" % self.module_name)
+
+        except:
+            logging.error(traceback.format_exc())
     
     def show_dialog_at_shape_position(self, shape, context):
         ''' create window for the context dialog at show it at shape's position '''
@@ -245,13 +263,14 @@ class ContextDialogs(object):
             ### check shape tag and show suitable dialog
             logging.debug('ContextDialogs.show_shape_dialog_for_shape check tag')
             
-            if shape.Tags(BKT_CONTEXTDIALOG_TAGKEY) == '':
+            shape_tag = shape.Tags(BKT_CONTEXTDIALOG_TAGKEY)
+            if shape_tag == '':
                 return
-            elif not shape.Tags(BKT_CONTEXTDIALOG_TAGKEY) in self.dialogs:
-                logging.warning('No dialog registerd for given key: %s' % shape.Tags(BKT_CONTEXTDIALOG_TAGKEY))
+            elif not shape_tag in self.dialogs:
+                logging.warning('No dialog registerd for given key: %s' % shape_tag)
                 return
             else:
-                ctx_dialog = self.dialogs.get(shape.Tags(BKT_CONTEXTDIALOG_TAGKEY)) or None
+                ctx_dialog = self.dialogs.get(shape_tag) or None
             
             if not ctx_dialog:
                 return
@@ -313,6 +332,32 @@ class ContextDialogs(object):
             
         except:
             logging.error(traceback.format_exc())
+    
+    
+    def trigger_doubleclick_for_shape(self, shape, context):
+        ''' trigger double click for the given shape, depending on the shape's settings '''
+        logging.debug('ContextDialogs.trigger_doubleclick_for_shape')
+
+        try:
+            ### check shape tag and show suitable dialog
+            logging.debug('ContextDialogs.trigger_doubleclick_for_shape check tag')
+            
+            shape_tag = shape.Tags(BKT_CONTEXTDIALOG_TAGKEY)
+            if shape_tag == '':
+                return
+            elif not shape_tag in self.dialogs:
+                logging.warning('No dialog registerd for given key: %s' % shape_tag)
+                return
+            else:
+                ctx_dialog = self.dialogs.get(shape_tag) or None
+            
+            if not ctx_dialog:
+                return
+            
+            ctx_dialog.trigger_doubleclick(shape, context)
+            
+        except:
+            logging.error(traceback.format_exc())
         
     
     def mouse_down(self, sender, e):
@@ -338,8 +383,10 @@ class ContextDialogs(object):
 
     def mouse_double_click(self, sender, e):
         logging.debug("ContextDialogs.mouse_double_click")
-        if self.context and DialogHelpers.coordinates_within_shape(e.X, e.Y, self.context):
-            logging.debug("ContextDialogs.mouse_double_click: within shape")
+        if self.context:
+            shape = DialogHelpers.coordinates_within_shape(e.X, e.Y, self.context)
+            if shape is not None:
+                self.trigger_doubleclick_for_shape(shape, self.context)
 
 
     def mouse_drag_start(self, sender, e):
@@ -454,11 +501,9 @@ class DialogHelpers(object):
     def coordinates_within_shape(x, y, context):
         try:
             active_window = context.app.ActiveWindow
-            x,y = active_window.PointsToScreenPixelsX(x), active_window.PointsToScreenPixelsY(y)
-            shape = active_window.RangeFromPoint(x,y)
-            return shape is not None
+            return active_window.RangeFromPoint(x,y)
         except:
-            return False
+            return None
 
     # FIXME:
     # https://dzimchuk.net/best-way-to-get-dpi-value-in-wpf/
