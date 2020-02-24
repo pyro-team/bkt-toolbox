@@ -3,20 +3,47 @@
 import bkt
 import bkt.library.powerpoint as pplib
 
-# langUS = 1033 #msoLanguageIDEnglishUS
-# langDE = 1031 #msoLanguageIDGerman
-# langUK = 2057 #msoLanguageIDEnglishUK
-# langAU = 3079 #msoLanguageIDGermanAustria
-
 
 class LangSetter(object):
-    #FIXME: make this configurable
-    langs = [
+    active_langs = bkt.settings.get("toolbox.languages_checked", ['de', 'us', 'gb'])
+
+    #list: https://docs.microsoft.com/de-de/office/vba/api/office.msolanguageid
+    langs = {
         #[key, id, name, image]
-        ['de', 1031, "Deutsch", "GermanFlag"],
-        ['us', 1033, "US English", "USFlag"],
-        ['uk', 2057, "UK English", "UKFlag"],
-    ]
+        'de': ('de', 1031, "Deutsch",               "flag_de"),
+        'us': ('us', 1033, "US English",            "flag_us"),
+        'gb': ('uk', 2057, "UK English",            "flag_gb"), #keep uk as id for button for backwards compatibility
+        'at': ('at', 3079, "Deutsch (Österreich)",  "flag_at"),
+        'it': ('it', 1040, "Italienisch",           "flag_it"),
+        'fr': ('fr', 1036, "Französisch",           "flag_fr"),
+        'es': ('es', 3082, "Spanisch",              "flag_es"),
+        'ru': ('ru', 1049, "Russisch",              "flag_ru"),
+        'cz': ('cz', 1029, "Tschechisch",           "flag_cz"),
+        'dk': ('dk', 1030, "Dänisch",               "flag_dk"),
+        'nl': ('nl', 1043, "Holländisch",           "flag_nl"),
+        'pl': ('pl', 1045, "Polnisch",              "flag_pl"),
+        'pt': ('pt', 2070, "Portugisisch",          "flag_pt"),
+        'se': ('se', 1053, "Schwedisch",            "flag_se"),
+        'tr': ('tr', 1055, "Türkisch",              "flag_tr"),
+    }
+
+    @classmethod
+    def get_languages(cls):
+        for lang in cls.active_langs:
+            yield cls.langs[lang]
+    
+    @classmethod
+    def edit_active_language(cls):
+        lang_list = bkt.ui.show_user_input("Liste möglicher Sprachen bearbeiten.\nVerfügbar sind: {}.".format(",".join(sorted(cls.langs.keys()))), "Sprachen-Liste", ",".join(cls.active_langs))
+        if lang_list is None:
+            return
+        
+        cls.active_langs = [lang for lang in lang_list.split(",") if lang in cls.langs]
+        if len(cls.active_langs) == 0:
+            cls.active_langs = ['de', 'us', 'gb']
+        bkt.settings["toolbox.languages_checked"] = cls.active_langs
+
+        bkt.helpers.message("Die Änderungen werden nach einem PowerPoint-Neustart sichtbar.")
 
     @classmethod
     def get_button(cls, language, idtag=""):
@@ -46,39 +73,39 @@ class LangSetter(object):
         return selection.TextRange2.Parent.TextRange.Words(word_first, word_last-word_first+1)
 
     @classmethod
-    def set_language(cls, context, selection, presentation, langCode):
+    def set_language(cls, context, selection, presentation, lang_code):
         shapes = pplib.get_shapes_from_selection(selection)
         slides = pplib.get_slides_from_selection(selection)
 
         # Set language for selected text, shapes, slides or whole presentation
         if selection.Type == 3: #text selected
             textrange = cls._get_words_in_selection(selection)
-            textrange.LanguageID = langCode
-            # selection.TextRange2.LanguageID = langCode
+            textrange.LanguageID = lang_code
+            # selection.TextRange2.LanguageID = lang_code
         elif len(shapes) > 0:
             #bkt.helpers.message("Setze Sprache für Shapes: " + str(len(shapes)))
-            cls.set_language_for_shapes(shapes, langCode)
+            cls.set_language_for_shapes(shapes, lang_code)
         elif len(slides) != presentation.slides.count and (len(slides) > 1 or context.app.ActiveWindow.ActivePane.ViewType in [7, 11]): #7=ppViewSlideSorter, 11=ppViewThumbnails
             #bkt.helpers.message("Setze Sprache für Slides: " + str(len(slides)))
             if len(slides) > 1 and not bkt.helpers.confirmation("Sprache aller Shapes auf ausgewählten Folien ändern?"):
                 return
-            cls.set_language_for_slides(slides, langCode)
+            cls.set_language_for_slides(slides, lang_code)
         else:
             #bkt.helpers.message("Setze Sprache für Präsentation")
             if not bkt.helpers.confirmation("Sprache aller Shapes auf allen Folien (inkl. Standardsprache der Präsentation) ändern?"):
                 return
-            presentation.DefaultLanguageID = langCode
-            cls.set_language_for_slides(presentation.slides, langCode)
+            presentation.DefaultLanguageID = lang_code
+            cls.set_language_for_slides(presentation.slides, lang_code)
 
     @classmethod
-    def set_language_for_slides(cls, slides, langCode):
+    def set_language_for_slides(cls, slides, lang_code):
         for slide in slides:
-            cls.set_language_for_shapes(slide.shapes, langCode, False)
+            cls.set_language_for_shapes(slide.shapes, lang_code, False)
 
     @classmethod
-    def set_language_for_shapes(cls, shapes, langCode, from_selection=True):
+    def set_language_for_shapes(cls, shapes, lang_code, from_selection=True):
         for textframe in pplib.iterate_shape_textframes(shapes, from_selection):
-            textframe.TextRange.LanguageID = langCode
+            textframe.TextRange.LanguageID = lang_code
     
     @classmethod
     def get_dynamicmenu_content(cls):
@@ -87,7 +114,7 @@ class LangSetter(object):
             id=None,
             children=[
                 cls.get_button(lang)
-                for lang in cls.langs
+                for lang in cls.get_languages()
             ]
         )
 
@@ -99,9 +126,13 @@ sprachen_gruppe = bkt.ribbon.Group(
     auto_scale=True,
     children=[
         LangSetter.get_button(lang, "_group")
-        for lang in LangSetter.langs
+        for lang in LangSetter.get_languages()
     ] + [
-        bkt.ribbon.DialogBoxLauncher(idMso='SetLanguage')
+        bkt.ribbon.DialogBoxLauncher(
+            label="Wählbare Sprachen editieren…",
+            on_action=bkt.Callback(LangSetter.edit_active_language),
+        )
+        # bkt.ribbon.DialogBoxLauncher(idMso='SetLanguage')
     ]
 )
 
@@ -113,8 +144,12 @@ sprachen_menu = bkt.ribbon.Menu(
         bkt.ribbon.MenuSeparator(title="Sprache von Shapes oder Folien ändern"),
     ] + [
         LangSetter.get_button(lang)
-        for lang in LangSetter.langs
+        for lang in LangSetter.get_languages()
     ] + [
+        bkt.ribbon.Button(
+            label="Wählbare Sprachen editieren…",
+            on_action=bkt.Callback(LangSetter.edit_active_language),
+        ),
         bkt.ribbon.MenuSeparator(),
         bkt.mso.button.SetLanguage,
         bkt.mso.button.Spelling,
