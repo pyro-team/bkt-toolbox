@@ -13,6 +13,7 @@ Forms = dotnet.import_forms() #required to read clipboard
 import os.path #required for relative paths
 
 from System import Array #required to create ShapeRanges
+from System.Windows import Visibility
 
 import logging
 import traceback
@@ -743,6 +744,9 @@ class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
 
         super(ThumbnailPopup, self).__init__()
 
+        if self._context.app.activewindow.selection.shaperange.count > 1:
+            self.btngoto.Visibility = Visibility.Collapsed
+
     def btnrefresh(self, sender, event):
         try:
             shapes = self._context.shapes
@@ -753,6 +757,14 @@ class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
         except:
             bkt.helpers.message("Thumbnail-Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
             logging.error(traceback.format_exc())
+
+    def btngoto(self, sender, event):
+        try:
+            Thumbnailer.goto_ref(self._context.shape, self._context.app)
+        except:
+            bkt.helpers.message("Fehler beim Öffnen der Folienreferenz.")
+            logging.error(traceback.format_exc())
+
 
 # register dialog
 bkt.powerpoint.context_dialogs.register_dialog(
