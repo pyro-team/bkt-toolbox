@@ -110,11 +110,14 @@ class FontSearch(object):
     search_results = None
     search_exact = True
 
+    _cache_menu_infos = None
+
     @classmethod
     def _perform_search(cls):
         if len(cls.search_term) > 0:
             if len(cls.search_term) < 3:
                 cls.search_exact = True
+            cls.search_results = None
             engine = cls.get_search_engine()
             with engine.searcher() as searcher:
                 if cls.search_exact:
@@ -151,7 +154,7 @@ class FontSearch(object):
         if not cls.search_results or len(cls.search_results) == 0:
             fontmodules = [
                 bkt.ribbon.Button(
-                    label="Keine Ergebnisse",
+                    label="Keine Ergebnisse für »{}«".format(cls.search_term),
                     enabled=False
                 )
             ]
@@ -177,8 +180,21 @@ class FontSearch(object):
                     )
                 )
 
+        fontmodules.extend(cls._get_symbol_galleries_infos())
+        
+        return bkt.ribbon.Menu(
+                    xmlns="http://schemas.microsoft.com/office/2009/07/customui",
+                    id=None,
+                    children=fontmodules
+                )
+    
+    @classmethod
+    def _get_symbol_galleries_infos(cls):
+        if cls._cache_menu_infos:
+            return cls._cache_menu_infos
+
         engine = cls.get_search_engine()
-        fontmodules.extend([
+        cls._cache_menu_infos = [
             bkt.ribbon.MenuSeparator(title="Informationen"),
             bkt.ribbon.ToggleButton(
                 label="Exakte Suche ein/aus",
@@ -198,13 +214,8 @@ class FontSearch(object):
                 enabled=False,
                 supertip=", ".join(Fontawesome.searchable_fonts)
             ),
-        ])
-        
-        return bkt.ribbon.Menu(
-                    xmlns="http://schemas.microsoft.com/office/2009/07/customui",
-                    id=None,
-                    children=fontmodules
-                )
+        ]
+        return cls._cache_menu_infos
     
     @classmethod
     def get_enabled_results(cls):
@@ -216,16 +227,7 @@ class FontSearch(object):
             return "{} Icons".format(len(cls.search_results))
         else:
             return "Ergebnis"
-    
-    @classmethod
-    def sync_cache(cls):
-        engine = cls.get_search_engine()
-        engine.cache_sync()
-    
-    @classmethod
-    def clear_cache(cls):
-        engine = cls.get_search_engine()
-        engine.cache_clear()
+
 
 # Font search
 fontsearch_gruppe = bkt.ribbon.Group(
@@ -234,7 +236,7 @@ fontsearch_gruppe = bkt.ribbon.Group(
     image_mso='SearchUI',
     children=[
         bkt.ribbon.Label(
-            label="Suchwort:"
+            label="Suchwort:",
         ),
         bkt.ribbon.EditBox(
             label="Suchwort",
