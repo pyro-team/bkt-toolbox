@@ -517,3 +517,10 @@ class StateShapePopup(bkt.ui.WpfWindowAbstract):
 
 def create_window(context):
     return StateShapePopup(context)
+
+
+def trigger_doubleclick(shape, context):
+    try:
+        StateShape.next_state([shape])
+    except Exception as e:
+        logging.error("Error in StateShape popup: %s" % str(e))

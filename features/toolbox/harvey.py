@@ -616,11 +616,20 @@ class HarveyPopup(bkt.ui.WpfWindowAbstract):
             bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
             # bkt.helpers.exception_as_message()
 
+    @staticmethod
+    def double_click(shape, context):
+        try:
+            context.ribbon.ActivateTab('bkt_context_tab_harvey')
+        except:
+            bkt.helpers.message("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
+
+
 # register dialog
 bkt.powerpoint.context_dialogs.register_dialog(
     bkt.contextdialogs.ContextDialog(
         id=HarveyBalls.BKT_HARVEY_DIALOG_TAG,
         module=None,
-        window_class=HarveyPopup
+        window_class=HarveyPopup,
+        dblclick_func=HarveyPopup.double_click,
     )
 )

@@ -173,3 +173,10 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
 
 def create_window(context):
     return TrafficPopup(context)
+
+
+def trigger_doubleclick(shape, context):
+    try:
+        Ampel.next_color(shape)
+    except:
+        logging.error(traceback.format_exc())
