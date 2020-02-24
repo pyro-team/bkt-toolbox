@@ -152,7 +152,7 @@ class SearchSearcher(object):
 
 class SearchEngine(object):
     def __init__(self, name, schema):
-        cache_file = os.path.join( _h.get_cache_folder(), "search.%s.cache"%name )
+        # cache_file = os.path.join( _h.get_cache_folder(), "search.%s.cache"%name )
 
         self._name = name
         self._schema = schema
@@ -162,7 +162,7 @@ class SearchEngine(object):
         self._keywords = set()
 
         #load index from cache #:FIXME: caching doesnt work right now
-        self._cache = shelve.open(cache_file, protocol=2)
+        # self._cache = shelve.open(cache_file, protocol=2)
         # if "index" in self._cache:
         #     self._keywords = self._keywords.union(self._cache["keywords"])
         #     for k,v in self._cache["documents"].iteritems():
@@ -181,8 +181,10 @@ class SearchEngine(object):
         # self._cache.sync()
     
     def cache_clear(self):
-        self._cache.clear()
-        self._cache.sync()
+        #:FIXME: caching doesnt work right now
+        pass
+        # self._cache.clear()
+        # self._cache.sync()
 
     ### INDEXING AND SEARCHING ###
     def count_documents(self):
