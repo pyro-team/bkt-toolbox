@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import traceback
 import os.path
 
 import bkt
@@ -27,6 +28,8 @@ import bkt.library.powerpoint as pplib
 class Ampel(object):
     #BKT_CONTEXTDIALOG = 'BKT_CONTEXTDIALOG'
     BKT_DIALOG_AMPEL = 'BKT_DIALOG_AMPEL3'
+
+    color_states = ['red', 'yellow', 'green']
 
     @classmethod
     def create(cls, slide):
@@ -84,6 +87,12 @@ class Ampel(object):
             return "green"
 
 
+    @classmethod
+    def next_color(cls, shape):
+        current_color = cls.get_color(shape)
+        next_color_index = (cls.color_states.index(current_color)+1) % len(cls.color_states)
+        cls.set_color(shape, cls.color_states[next_color_index])
+
 
 
 
@@ -129,7 +138,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
             shapes = list(iter(self._context.app.activewindow.selection.shaperange))
             for shape in shapes:
                 Ampel.set_color(shape, "red")
-            self._context.app.ActiveWindow.Activate()
+            # self._context.app.ActiveWindow.Activate()
         except:
             logging.error(traceback.format_exc())
 
@@ -138,7 +147,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
             shapes = list(iter(self._context.app.activewindow.selection.shaperange))
             for shape in shapes:
                 Ampel.set_color(shape, "yellow")
-            self._context.app.ActiveWindow.Activate()
+            # self._context.app.ActiveWindow.Activate()
         except:
             logging.error(traceback.format_exc())
 
@@ -147,7 +156,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
             shapes = list(iter(self._context.app.activewindow.selection.shaperange))
             for shape in shapes:
                 Ampel.set_color(shape, "green")
-            self._context.app.ActiveWindow.Activate()
+            # self._context.app.ActiveWindow.Activate()
         except:
             logging.error(traceback.format_exc())
 
@@ -156,7 +165,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
             shapes = list(iter(self._context.app.activewindow.selection.shaperange))
             for shape in shapes:
                 Ampel.set_color(shape, "white")
-            self._context.app.ActiveWindow.Activate()
+            # self._context.app.ActiveWindow.Activate()
         except:
             logging.error(traceback.format_exc())
 
