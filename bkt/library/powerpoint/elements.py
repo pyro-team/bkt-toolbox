@@ -224,6 +224,17 @@ class PPTSymbolsSettings(object):
         settings["bkt.symbols.unicode_font"] = cls.unicode_font
     
     @classmethod
+    def convert_into_text(cls):
+        return not (cls.convert_into_shape or cls.convert_into_bitmap)
+
+    @classmethod
+    def switch_convert_into_text(cls, pressed):
+        cls.convert_into_shape = False
+        cls.convert_into_bitmap = False
+        settings["bkt.symbols.convert_into_shape"] = cls.convert_into_shape
+        settings["bkt.symbols.convert_into_bitmap"] = cls.convert_into_bitmap
+    
+    @classmethod
     def switch_convert_into_shape(cls, pressed):
         cls.convert_into_shape = pressed
         cls.convert_into_bitmap = False
@@ -262,7 +273,7 @@ class PPTSymbolsGallery(SymbolsGallery):
             selection.TextRange2.Text = "" #remove selected text first and then insert symbol
             self.insert_symbol_into_text(selection.TextRange2, item)
         
-        elif selection.Type == 2 and not shift_or_ctrl: #shapes selected
+        elif PPTSymbolsSettings.convert_into_text() and selection.Type == 2 and not shift_or_ctrl: #shapes selected
             self.insert_symbol_into_shapes(pplib.get_shapes_from_selection(selection), item)
         
         else: #convert into shape or bitmap
