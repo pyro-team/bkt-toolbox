@@ -702,6 +702,13 @@ linkshapes_tab = bkt.ribbon.Tab(
                             screentip="Rotation für alle verknüpften Shapes angleichen",
                             on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "Rotation", False), shape=True, context=True),
                         ),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_custom-bwmode',
+                            label="Schwarz-Weiß-Modus",
+                            # image_mso="ObjectBringToFront",
+                            screentip="Schwarz-Weiß-Modus für alle verknüpften Shapes angleichen",
+                            on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "BlackWhiteMode", False), shape=True, context=True),
+                        ),
                         bkt.ribbon.MenuSeparator(),
                         bkt.ribbon.Button(
                             id = 'linked_shapes_custom-left',
