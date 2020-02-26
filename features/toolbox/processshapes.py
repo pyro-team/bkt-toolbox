@@ -12,7 +12,7 @@ pt_to_cm = pplib.pt_to_cm
 cm_to_pt = pplib.cm_to_pt
 
 import os.path
-
+from contextlib import contextmanager #for flip and rotation correction
 
 
 class ProcessChevrons(object):
@@ -153,6 +153,55 @@ def create_window(context):
     return ProcessChevronsPopup(context)
 
 
+@contextmanager
+def flip_and_rotation_correction(body, header):
+    # NOTE: is this flipping correction useful for any other bkt function?
+    # following situations can happen:
+    #   group   | header    | flipping correction
+    #   --------|-----------|----------------------
+    #   0       | 0         | no correction
+    #   -1      | 0         | flip group
+    #   0       | -1        | flip group
+    #  -1       | -1        | no correction
+    #  (none)   | 0         | no correction
+    #  (none)   | -1        | flip header, align edge at the end
+    #
+
+    try:
+        flip_header = False
+        flip_body = False
+        stored_rotation = 0 #FIXME: works only for groups
+
+        is_group_child = pplib.shape_is_group_child(header)
+        group_is_flipped = is_group_child and header.ParentGroup.HorizontalFlip
+
+        #set rotation to 0 for rotated groups
+        if is_group_child and header.ParentGroup.Rotation != 0:
+            stored_rotation = header.ParentGroup.Rotation
+            header.ParentGroup.Rotation = 0
+
+        #check if flip correction needs to be applied
+        if group_is_flipped != header.HorizontalFlip: #XOR
+            if is_group_child:
+                flip_body = True
+                header.ParentGroup.Flip(0) #msoFlipHorizontal
+            else:
+                flip_header = True
+                header.Flip(0) #msoFlipHorizontal
+
+        yield body, header #contextmanager requires a yield
+    finally:
+        #restore flip for groups
+        if flip_body:
+            header.ParentGroup.Flip(0) #msoFlipHorizontal
+        #restore flip and correct edge for header without group
+        elif flip_header:
+            header.Flip(0) #msoFlipHorizontal
+            header.left = body.left + body.width - header.width
+        #restore group rotation
+        if stored_rotation != 0:
+            header.ParentGroup.Rotation = stored_rotation
+
 
 class Pentagon(object):
     
@@ -258,22 +307,24 @@ class Pentagon(object):
         ''' updates the header of the given pentagon '''
         offset = pentagon.Adjustments.item[1] * min(pentagon.width, pentagon.height)
 
-        # header punkt links oben / links unten
-        header.left = pentagon.left
-        header.top = pentagon.top
-        # header punkt rechts oben
-        header.Nodes.SetPosition(2, pentagon.left + pentagon.width - offset, pentagon.top)
-        # header punkt rechts unten
-        header.Nodes.SetPosition(3, pentagon.left + pentagon.width - offset + ( header.height/(pentagon.height/2) * offset), pentagon.top + header.height)
+        with flip_and_rotation_correction(pentagon, header):
+            # header punkt links oben / links unten
+            header.left = pentagon.left
+            header.top = pentagon.top
+            # header punkt rechts oben
+            header.Nodes.SetPosition(2, pentagon.left + pentagon.width - offset, pentagon.top)
+            # header punkt rechts unten
+            header.Nodes.SetPosition(3, pentagon.left + pentagon.width - offset + ( header.height/(pentagon.height/2) * offset), pentagon.top + header.height)
 
     @classmethod
     def update_chevron_header(cls, chevron, header):
         ''' updates the header of the given pentagon '''
-        cls.update_pentagon_header(chevron, header)
         
-        # header punkt links unten
-        offset = chevron.Adjustments.item[1] * min(chevron.width, chevron.height)
-        header.Nodes.SetPosition(4, chevron.left + ( header.height/(chevron.height/2) * offset), chevron.top + header.height)
+        with flip_and_rotation_correction(chevron, header):
+            cls.update_pentagon_header(chevron, header)
+            # header punkt links unten
+            offset = chevron.Adjustments.item[1] * min(chevron.width, chevron.height)
+            header.Nodes.SetPosition(4, chevron.left + ( header.height/(chevron.height/2) * offset), chevron.top + header.height)
         
         
 
