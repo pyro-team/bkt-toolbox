@@ -12,6 +12,7 @@ import traceback
 import re
 import math
 
+from bkt.helpers import settings
 from bkt.ui import endings_to_windows, endings_to_unix
 
 
@@ -184,7 +185,7 @@ class InteractiveConsole(F.Form):
     def __init__(self):
         self.Text = "BKT IronPython Console"
         self.Font = D.SystemFonts.MessageBoxFont
-        self.history = []
+        self.history = settings.get("bkt.console.history", [])
         self.history_cursor = None
         self.history_uncommitted = None
         self.last_input = None
@@ -448,6 +449,7 @@ class InteractiveConsole(F.Form):
         # save input
         if not self.history or source_orig != self.history[-1]:
             self.history.append(source_orig)
+            settings["bkt.console.history"] = self.history[-5:] #store last 5 items
         
         # compile code
         try:
