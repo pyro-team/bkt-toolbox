@@ -20,20 +20,20 @@ class FolderSetup(object):
         dialog = F.FolderBrowserDialog()
         dialog.SelectedPath = os.path.dirname(os.path.realpath(__file__))
         # dialog.Description = "Please choose an additional folder with BKT-features"
-        dialog.Description = "Bitte einen BKT Feature-Ordner hinzufügen"
+        dialog.Description = "Bitte einen BKT Feature-Ordner auswählen"
         
         if (dialog.ShowDialog(None) == F.DialogResult.OK):
             cls.add_folder(context, dialog.SelectedPath)
     
-    @classmethod
-    def add_folder(cls, context, folder):
+    @staticmethod
+    def add_folder(context, folder):
         folders = context.config.feature_folders or []
         folders.append(folder)
         context.config.set_smart(CONFIG_FOLDERS, folders)
         BKTReload.reload_bkt(context)
     
-    @classmethod
-    def delete_folder(cls, context, folder):
+    @staticmethod
+    def delete_folder(context, folder):
         folders = context.config.feature_folders or []
         folders.remove(folder)
         context.config.set_smart(CONFIG_FOLDERS, folders)
@@ -47,14 +47,14 @@ class BKTReload(object):
             addin = context.app.COMAddIns["BKT.AddIn"]
             addin.Connect = False
             addin.Connect = True
-        except Exception, e:
+        except Exception as e:
             pass
 
     @staticmethod
     def invalidate(context):
         try:
             context.addin.invalidate_ribbon()
-        except Exception, e:
+        except Exception as e:
             pass
 
 
@@ -76,11 +76,11 @@ class BKTInfos(object):
             version = tuple(int(x) for x in version_string.split("."))
             current_version = tuple(int(x) for x in bkt.version_tag_name.split("."))
             if version > current_version:
-                bkt.helpers.message("Update available to v{}. \nYour version is v{}.".format(version_string, bkt.version_tag_name))
+                bkt.helpers.message("Aktualisiert verfügbar auf v{}. \nInstallierte Version ist v{}.".format(version_string, bkt.version_tag_name))
             else:
-                bkt.helpers.message("No update available. Current version is v{}.".format(version_string))
+                bkt.helpers.message("Keine Aktualisierung verfügbar. Aktuelle Version ist v{}.".format(version_string))
         except Exception as e:
-            bkt.helpers.message("Error calling and parsing update URL: {}".format(e))
+            bkt.helpers.message("Fehler im Aufruf der Aktualisierungs-URL: {}".format(e))
     
     @staticmethod
     def show_debug_message(context):
@@ -104,36 +104,48 @@ IPY-Version:            {}
         )
         bkt.console.show_message(bkt.ui.endings_to_windows(debug_info))
 
+    @staticmethod
+    def get_bkt_folder_path():
+        return os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", ".."))
+
+    @staticmethod
+    def get_bkt_config_path():
+        return os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "config.txt")
+        
+    @classmethod
+    def open_folder(cls):
+        from os import startfile
+        bkt_folder=cls.get_bkt_folder_path()
+        if os.path.isdir(bkt_folder):
+            startfile(bkt_folder)
+    
+    @classmethod
+    def open_config(cls):
+        from os import startfile
+        config_filename=cls.get_bkt_config_path()
+        if os.path.exists(config_filename):
+            os.startfile(config_filename)
+
 
 
 class SettingsMenu(bkt.ribbon.Menu):
     def __init__(self, idtag="", **kwargs):
         postfix = ("-" if idtag else "") + idtag
-        
-        # if (bkt.config.use_keymouse_hooks or False):
-        keymouse_hook_buttons = [
-            bkt.ribbon.MenuSeparator(),
-            bkt.ribbon.ToggleButton(
-                id='key-mouse-hook-toggle' + postfix,
-                label='Key-/Mouse-Hooks',
-                get_pressed='GetMouseKeyHookActivated',
-                on_action='ToggleMouseKeyHookActivation'
-            )
-        ]
-        # else:
-            # keymouse_hook_buttons = []
-        
-        def open_folder():
-            from os import startfile
-            bkt_folder=os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", ".."))
-            if os.path.isdir(bkt_folder):
-                startfile(bkt_folder)
-        
-        def open_config():
-            from os import startfile
-            config_filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "config.txt")
-            if os.path.exists(config_filename):
-                os.startfile(config_filename)
+
+        if ((bkt.config.task_panes or False)):
+            taskpanebutton = [
+                bkt.ribbon.ToggleButton(
+                id='setting-toggle-bkttaskpane' + postfix,
+                label='Task Pane',
+                show_label=False,
+                image_mso='MenuToDoBar',
+                supertip="BKT Task Pane (Seitenleiste) anzeigen/verstecken",
+                tag='BKT Task Pane',
+                get_pressed='GetPressed_TaskPaneToggler',
+                on_action='OnAction_TaskPaneToggler')
+            ]
+        else:
+            taskpanebutton = []
         
         super(SettingsMenu, self).__init__(
             id='bkt-settings' + postfix,
@@ -142,24 +154,28 @@ class SettingsMenu(bkt.ribbon.Menu):
                 bkt.ribbon.Button(
                     id='settings-website' + postfix,
                     label="Website: bkt-toolbox.de",
+                    supertip="BKT-Webseite im Browser öffnen",
                     image_mso="HyperlinkInsert",
-                    on_action=bkt.Callback(BKTInfos.open_website)
+                    on_action=bkt.Callback(BKTInfos.open_website, transaction=False)
                 ),
                 bkt.ribbon.Button(
                     id='settings-version' + postfix,
                     label="{} v{}".format(bkt.full_version, bkt.version_tag_name),
                     image_mso="Info",
-                    on_action=bkt.Callback(BKTInfos.show_debug_message, context=True)
+                    supertip="Erweiterte Versionsinformationen anzeigen",
+                    on_action=bkt.Callback(BKTInfos.show_debug_message, context=True, transaction=False)
                 ),
                 bkt.ribbon.Button(
                     id='settings-updatecheck' + postfix,
-                    label="Check for updates",
+                    label="Auf neue Version prüfen",
+                    supertip="Überprüfen, ob neue BKT-Version verfügbar ist",
                     image_mso="SyncStatusUpToDate",
-                    on_action=bkt.Callback(BKTInfos.check_for_update)
+                    on_action=bkt.Callback(BKTInfos.check_for_update, transaction=False)
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.DynamicMenu(
                     label='Feature-Ordner',
+                    supertip="Feature-Ordner hinzufügen oder entfernen",
                     image_mso='ModuleInsert',
                     get_content = bkt.Callback(lambda: self.get_folder_menu(postfix))
                 ),
@@ -167,46 +183,48 @@ class SettingsMenu(bkt.ribbon.Menu):
                 bkt.ribbon.Button(
                     id='settings-reload-addin' + postfix,
                     label="Addin neu laden",
+                    supertip="BKT-Addin beenden und neu laden (ähnlich PowerPoint-Neustart)",
                     image_mso="AccessRefreshAllLists",
-                    on_action=bkt.Callback(BKTReload.reload_bkt)
+                    on_action=bkt.Callback(BKTReload.reload_bkt, transaction=False)
                 ),
                 bkt.ribbon.Button(
                     id='settings-invalidate' + postfix,
                     label="Ribbon aktualisieren",
+                    supertip="Oberfläche aktualisieren und alle Werte neu laden (sog. Invalidate ausführen)",
                     image_mso="AccessRefreshAllLists",
-                    on_action=bkt.Callback(BKTReload.invalidate)
+                    on_action=bkt.Callback(BKTReload.invalidate, transaction=False)
                 ),
-                # FIXME: idQ-Referenz funktioniert nicht, control wird nicht angezeigt
-                # bkt.ribbon.Button(
-                #     #id='reload-addin',
-                #     idQ='nsBKT:ppt__043a3c86-6596-4e3d-9d92-727b870cfbf7',
-                #     label="Addin neu laden",
-                #     image_mso="Refresh",
-                #     visible=True
-                #     #on_action=bkt.Callback(settings. )
-                # ),
-                #bkt.ribbon.MenuSeparator(),
-                #bkt.ribbon.Button(label='Ctrl=kleine Schritte'),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
                     id='settings-open-folder' + postfix,
                     label="Öffne BKT-Ordner",
+                    supertip="Öffne Ordner mit BKT-Framework und Konfigurationsdatei",
                     image_mso="Folder",
-                    on_action=bkt.Callback(open_folder)
+                    on_action=bkt.Callback(BKTInfos.open_folder, transaction=False)
                 ),
                 bkt.ribbon.Button(
                     id='settings-open-config' + postfix,
                     label="Öffne config.txt",
+                    supertip="Öffne Konfigurationsdatei im Standardeditor",
                     image_mso="NewNotepadTool",
-                    on_action=bkt.Callback(open_config)
+                    on_action=bkt.Callback(BKTInfos.open_config, transaction=False)
                 ),
-            ] + keymouse_hook_buttons,
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.ToggleButton(
+                    id='key-mouse-hook-toggle' + postfix,
+                    label='Key-/Mouse-Hooks an/aus',
+                    supertip="Tastatur-/Maus-Events für aktuelle Sitzung ein- oder ausschalten",
+                    get_pressed='GetMouseKeyHookActivated',
+                    on_action='ToggleMouseKeyHookActivation'
+                )
+            ] + taskpanebutton,
             **kwargs
         )
         
     def info_delete_button_for_folder(self, folder, postfix):
         return bkt.ribbon.Button(
-            label= folder,
+            label=os.path.basename(folder),
+            supertip="{} aus BKT-Konfiguration entfernen".format(folder),
             image_mso='DeleteThisFolder',
             on_action=bkt.Callback(lambda context: FolderSetup.delete_folder(context, folder))
         )
@@ -219,7 +237,7 @@ class SettingsMenu(bkt.ribbon.Menu):
                 bkt.ribbon.Button(
                     id='setting_add_folder' + postfix,
                     label='Feature-Ordner hinzufügen',
-                    #image_mso='Folder',
+                    supertip="Einen BKT Feature-Ordner auswählen und hinzufügen",
                     image_mso='ModuleInsert',
                     on_action=bkt.Callback(FolderSetup.add_folder_by_dialog)
                 ),
@@ -231,28 +249,16 @@ class SettingsMenu(bkt.ribbon.Menu):
         )
 
 
-#def get_task_pane_button(id='setting-toggle-bkttaskpane'):
-def get_task_pane_button_list(id='setting-toggle-bkttaskpane'):
-    if ((bkt.config.task_panes or False)):
-        return [bkt.ribbon.ToggleButton(
-            id=id,
-            label='Task Pane',
-            show_label=False,
-            image_mso='MenuToDoBar',
-            screentip="Show/Hide BKT task pane",
-            tag='BKT Task Pane',
-            get_pressed='GetPressed_TaskPaneToggler',
-            on_action='OnAction_TaskPaneToggler')]
-    else:
-        return []
-
-
 settings_menu = SettingsMenu("duplicate", label="Settings", show_label=False)
 
 settings_home_tab = bkt.ribbon.Tab(
     id_mso="TabHome",
     children=[
-        bkt.ribbon.Group(label="BKT", image="bkt_logo", children =[SettingsMenu("tabhome", size="large", label="Settings")] + get_task_pane_button_list())
+        bkt.ribbon.Group(
+            label="BKT",
+            image="bkt_logo",
+            children = [SettingsMenu("tabhome", size="large", label="Settings")]
+        )
     ] 
 )
 

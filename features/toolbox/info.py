@@ -120,7 +120,7 @@ class ToolbarVariations(object):
 
         #reload bkt using settings module
         if bkt.helpers.confirmation("Soll die BKT nun neu geladen werden?"):
-            sys.modules["modules"].settings.BKTReload.reload_bkt(context)
+            settings.BKTReload.reload_bkt(context)
     
     @classmethod
     def show_uisettings(cls, context):
@@ -169,7 +169,6 @@ info_group = bkt.ribbon.Group(
     children=[
         settings.settings_menu,
         bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.full_version, on_action=bkt.Callback(settings.BKTInfos.show_debug_message)),
-    ] + settings.get_task_pane_button_list(id='toolbox-taskpane-toggler') + [
         bkt.ribbon.Button(
             label="BKT Warning",
             size="large",
