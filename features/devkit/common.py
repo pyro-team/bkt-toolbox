@@ -100,6 +100,21 @@ common_group = bkt.ribbon.Group(
                     image_mso="Folder",
                     on_action=bkt.Callback(settings.BKTInfos.open_folder, transaction=False)
                 ),
+                bkt.ribbon.Button(
+                    label="Open Cache folder",
+                    image_mso="Folder",
+                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_cache_folder()), transaction=False)
+                ),
+                bkt.ribbon.Button(
+                    label="Open Settings folder",
+                    image_mso="Folder",
+                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_settings_folder()), transaction=False)
+                ),
+                bkt.ribbon.Button(
+                    label="Open Favorites folder",
+                    image_mso="Folder",
+                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_fav_folder()), transaction=False)
+                ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
                     label="Open config.txt",
@@ -166,7 +181,7 @@ common_group = bkt.ribbon.Group(
             image="xml",
             on_action=bkt.Callback(DevGroup.show_ribbon_xml, python_addin=True, ribbon_id=True, transaction=False),
         ),
-        #TODO: create new feature folder, clear all caches, show/hide contextmenu ids
+        #TODO: create new feature folder, clear all caches
         #ICONS: ControlsPane
     ]
 )

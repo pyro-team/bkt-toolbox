@@ -113,11 +113,11 @@ IPY-Version:            {}
         return os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "config.txt")
         
     @classmethod
-    def open_folder(cls):
+    def open_folder(cls, path=None):
         from os import startfile
-        bkt_folder=cls.get_bkt_folder_path()
-        if os.path.isdir(bkt_folder):
-            startfile(bkt_folder)
+        folder_to_open=path or cls.get_bkt_folder_path()
+        if os.path.isdir(folder_to_open):
+            startfile(folder_to_open)
     
     @classmethod
     def open_config(cls):
