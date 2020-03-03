@@ -177,7 +177,7 @@ class SettingsMenu(bkt.ribbon.Menu):
                     label='Feature-Ordner',
                     supertip="Feature-Ordner hinzufügen oder entfernen",
                     image_mso='ModuleInsert',
-                    get_content = bkt.Callback(lambda: self.get_folder_menu(postfix))
+                    get_content = bkt.Callback(lambda context: self.get_folder_menu(context, postfix), context=True)
                 ),
                 #bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
@@ -185,14 +185,14 @@ class SettingsMenu(bkt.ribbon.Menu):
                     label="Addin neu laden",
                     supertip="BKT-Addin beenden und neu laden (ähnlich PowerPoint-Neustart)",
                     image_mso="AccessRefreshAllLists",
-                    on_action=bkt.Callback(BKTReload.reload_bkt, transaction=False)
+                    on_action=bkt.Callback(BKTReload.reload_bkt, context=True, transaction=False)
                 ),
                 bkt.ribbon.Button(
                     id='settings-invalidate' + postfix,
                     label="Ribbon aktualisieren",
                     supertip="Oberfläche aktualisieren und alle Werte neu laden (sog. Invalidate ausführen)",
                     image_mso="AccessRefreshAllLists",
-                    on_action=bkt.Callback(BKTReload.invalidate, transaction=False)
+                    on_action=bkt.Callback(BKTReload.invalidate, context=True, transaction=False)
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
@@ -221,15 +221,31 @@ class SettingsMenu(bkt.ribbon.Menu):
             **kwargs
         )
         
-    def info_delete_button_for_folder(self, folder, postfix):
+    def info_delete_button_for_folder(self, label, folder):
         return bkt.ribbon.Button(
-            label=os.path.basename(folder),
-            supertip="{} aus BKT-Konfiguration entfernen".format(folder),
+            label=label,
+            supertip="Feature-Ordner »{}« aus BKT-Konfiguration entfernen".format(folder),
             image_mso='DeleteThisFolder',
             on_action=bkt.Callback(lambda context: FolderSetup.delete_folder(context, folder))
         )
 
-    def get_folder_menu(self, postfix):
+    def get_folder_menu(self, context, postfix):
+        import importlib
+        
+        buttons = []
+
+        for folder in bkt.config.feature_folders:
+            module_name = os.path.basename(folder)
+            try:
+                module = importlib.import_module(module_name + '.__bkt_init__')
+                buttons.append(
+                    self.info_delete_button_for_folder(module.BktFeature.name, folder)
+                )
+            except:
+                buttons.append(
+                    self.info_delete_button_for_folder(module_name, folder)
+                )
+
         return bkt.ribbon.Menu(
             xmlns="http://schemas.microsoft.com/office/2009/07/customui",
             id=None,
@@ -242,10 +258,7 @@ class SettingsMenu(bkt.ribbon.Menu):
                     on_action=bkt.Callback(FolderSetup.add_folder_by_dialog)
                 ),
                 bkt.ribbon.MenuSeparator()
-            ] + [
-                self.info_delete_button_for_folder(folder, postfix)
-                for folder in bkt.config.feature_folders
-            ]
+            ] + buttons
         )
 
 
