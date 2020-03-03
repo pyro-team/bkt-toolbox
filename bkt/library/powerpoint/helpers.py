@@ -403,7 +403,7 @@ def shapes_to_range(shapes):
     else:
         all_shapes = shapes[0].Parent.Shapes
     #create mapping dict from all shape ids to shape indices
-    shape_id2idx = {s.id: i+1 for i,s in enumerate(all_shapes)}
+    shape_id2idx = {s.id: i for i,s in enumerate(all_shapes, start=1)}
     #get indices of shapes
     indices = []
     for s in shapes:
@@ -493,6 +493,28 @@ def set_shape_zorder(shape, value=None, delta=None):
             break
             #zorder reached
 
+
+def transfer_textrange(from_textrange, to_textrange):
+    '''
+    This function copy-pastes a textrange into another textrange. The standard textrange.copy() function works fine,
+    but the textrange.paste() via code does replace ThemeColors with RGB values (Note: via GUI this works fine).
+    So this function manually copies color values after copying the textrange.
+    '''
+    from_textrange.Copy()
+    to_textrange.Paste()
+
+    def copy_color(from_obj, to_obj):
+        if from_obj.ObjectThemeColor != 0:
+            to_obj.ObjectThemeColor = from_obj.ObjectThemeColor
+            to_obj.Brightness = from_obj.Brightness
+
+    for i,run in enumerate(from_textrange.Runs(), start=1):
+        copy_color(run.Font.Fill.ForeColor, to_textrange.Runs(i).Font.Fill.ForeColor)
+        copy_color(run.Font.Fill.BackColor, to_textrange.Runs(i).Font.Fill.BackColor)
+        copy_color(run.Font.Line.ForeColor, to_textrange.Runs(i).Font.Line.ForeColor)
+        copy_color(run.Font.Line.BackColor, to_textrange.Runs(i).Font.Line.BackColor)
+
+
 def replicate_shape(shape, force_textbox=False):
     '''
     This function replicates a shape, which is similar to shape.Duplicate() but instead a new shape is created.
@@ -528,8 +550,9 @@ def replicate_shape(shape, force_textbox=False):
     new_shape.Apply()
 
     #copy text
-    shape.TextFrame2.TextRange.Copy()
-    new_shape.TextFrame2.TextRange.Paste()
+    # shape.TextFrame2.TextRange.Copy()
+    # new_shape.TextFrame2.TextRange.Paste()
+    transfer_textrange(shape.TextFrame2.TextRange, new_shape.TextFrame2.TextRange)
 
     #ensure correct size and position (size may change due to AutoSize, Flip can change position)
     new_shape.Height = shape.Height
@@ -556,9 +579,9 @@ def convert_text_into_shape(shape):
     slide = shape.Parent
 
     #find shape index
-    for index, shp in enumerate(slide.shapes):
+    for index, shp in enumerate(slide.shapes, start=1):
         if shape.id == shp.id:
-            shape_index = index+1
+            shape_index = index
             break
     else:
         #shape not found
@@ -1196,7 +1219,7 @@ class GroupManager(object):
     def regroup(self, new_shape_range=None):
         '''
         Perform regroup (actually group) and reset all attributes (name, tags, rotation) to original values.
-        If new_shpae_range is given, the stored shape-range from ungroup is replaced with the given shape-range.
+        If new_shape_range is given, the stored shape-range from ungroup is replaced with the given shape-range.
         '''
         self._ungroup = new_shape_range or self._ungroup
         if not self._ungroup:
