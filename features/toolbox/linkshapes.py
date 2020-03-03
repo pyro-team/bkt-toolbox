@@ -238,9 +238,9 @@ class LinkedShapes(object):
                 except:
                     pass
             elif mode == "group" and cShp.Type == pplib.MsoShapeType["msoGroup"]:
-                for index, iShp in enumerate(cShp.GroupItems):
+                for index, iShp in enumerate(cShp.GroupItems, start=1):
                     try:
-                        shape.GroupItems[index+1].Pickup()
+                        shape.GroupItems[index].Pickup()
                         iShp.Apply()
                     except:
                         pass
@@ -261,7 +261,8 @@ class LinkedShapes(object):
     def text_linked_shapes(cls, shape, context, with_formatting=True):
         if shape.HasTextFrame == -1: #msoTrue
             if with_formatting:
-                shape.TextFrame2.TextRange.Copy()
+                # shape.TextFrame2.TextRange.Copy()
+                pass #nothing to do here as pplib.transfer_textrange function is used
             else:
                 ref_text = shape.TextFrame2.TextRange.Text
             mode = "simple"
@@ -275,19 +276,21 @@ class LinkedShapes(object):
             if mode == "simple":
                 try:
                     if with_formatting:
-                        cShp.TextFrame2.TextRange.Paste()
+                        # cShp.TextFrame2.TextRange.Paste()
+                        pplib.transfer_textrange(shape.TextFrame2.TextRange, cShp.TextFrame2.TextRange)
                     else:
                         cShp.TextFrame2.TextRange.Text = ref_text
                 except:
                     pass
             elif mode == "group" and cShp.Type == pplib.MsoShapeType["msoGroup"]:
-                for index, iShp in enumerate(cShp.GroupItems):
+                for index, iShp in enumerate(cShp.GroupItems, start=1):
                     try:
                         if with_formatting:
-                            shape.GroupItems[index+1].TextFrame2.TextRange.Copy()
-                            iShp.TextFrame2.TextRange.Paste()
+                            # shape.GroupItems[index].TextFrame2.TextRange.Copy()
+                            # iShp.TextFrame2.TextRange.Paste()
+                            pplib.transfer_textrange(shape.GroupItems[index].TextFrame2.TextRange, iShp.TextFrame2.TextRange)
                         else:
-                            iShp.TextFrame2.TextRange.Text = shape.GroupItems[index+1].TextFrame2.TextRange.Text
+                            iShp.TextFrame2.TextRange.Text = shape.GroupItems[index].TextFrame2.TextRange.Text
                     except:
                         pass
 

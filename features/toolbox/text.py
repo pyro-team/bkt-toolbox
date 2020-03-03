@@ -1063,11 +1063,9 @@ class TextOnShape(object):
             return
 
         # Text kopieren
-        text_shape.TextFrame2.TextRange.Copy()
-        # DoEvents umgeht Bug, dass in manchen Situation kein Text eingefuegt wird
-        # FIXME: pruefen, ob das auch in Python benoetigt wird!
-        # DoEvents()
-        master_shape.TextFrame2.TextRange.Paste()
+        # text_shape.TextFrame2.TextRange.Copy()
+        # master_shape.TextFrame2.TextRange.Paste()
+        pplib.transfer_textrange(text_shape.TextFrame2.TextRange, master_shape.TextFrame2.TextRange)
         # Textbox loeschen
         text_shape.Delete()
 
