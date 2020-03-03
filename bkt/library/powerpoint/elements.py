@@ -593,17 +593,17 @@ class PositionGallery(Gallery):
     
     def set_userdefined_area(self, presentation, shapes):
         if len(shapes) == 1:
-            pplib.define_contentarea(presentation, shapes[0])
+            pplib.ContentArea.define_contentarea(presentation, shapes[0])
         else:
             frame = pplib.BoundingFrame.from_shapes(shapes)
-            pplib.define_contentarea(presentation, frame)
+            pplib.ContentArea.define_contentarea(presentation, frame)
         self.init_userdefined_area_item(presentation)
     
     
     def init_userdefined_area_item(self, presentation):
         #due to performance check first if tag exists at all
-        if pplib.isset_contentarea(presentation):
-            left, top, width, height = pplib.read_contentarea(presentation)
+        if pplib.ContentArea.isset_contentarea(presentation):
+            left, top, width, height = pplib.ContentArea.read_contentarea(presentation)
             if len(self.items) == 12:
                 self.items.pop()
             self.items.append([u"Benutzerdef. Bereich", [left, top, width, height], 'ABS'])

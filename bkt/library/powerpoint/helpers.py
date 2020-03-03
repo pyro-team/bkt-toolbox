@@ -371,13 +371,16 @@ def shape_is_group_child(shape):
 
 
 def shape_indices_on_slide(slide, indices):
+    ''' return shape-range in slide by indices '''
     import System.Array # to create int-Arrays
     return slide.Shapes.Range(System.Array[int](indices))
 
 def last_n_shapes_on_slide(slide, n):
+    ''' return last n shapes in slide as range'''
     return shape_indices_on_slide(slide, range(slide.shapes.Count + 1 -n, slide.shapes.Count + 1))
 
 def shape_names_on_slide(slide, names):
+    ''' return shape-range in slide by names '''
     #NOTE: If there are multiple shapes with the same name, only one of them is returned!
     #NOTE: This function is also looking for shapes within groups.
     import System.Array # to create str-Arrays
@@ -441,6 +444,7 @@ def shapes_to_range(shapes):
 
 
 def get_shapes_from_selection(selection):
+    ''' get list of shapes from selection (considers child shape selection) '''
     # ShapeRange accessible if shape or text selected
     if selection.Type == 2 or selection.Type == 3:
         try:
@@ -455,6 +459,7 @@ def get_shapes_from_selection(selection):
         return []
 
 def get_slides_from_selection(selection):
+    ''' get list of slides from selection '''
     # SlideRange accessible if slides, shapes or text selected
     try:
         return list(iter(selection.SlideRange))
@@ -663,6 +668,9 @@ class TagHelper(object):
 
     @staticmethod
     def has_tag(obj, tag_name, check_value=None):
+        '''
+        Test if shape has specified tag (with value)
+        '''
         try:
             if check_value is not None:
                 return obj.Tags(tag_name) == check_value
@@ -674,6 +682,9 @@ class TagHelper(object):
 
     @staticmethod
     def get_tag(obj, tag_name, default=None, attr_type=None):
+        '''
+        Get value of tag and try to convert attribute type, otherwise return default
+        '''
         try:
             value = obj.Tags(tag_name)
             if value == '':
@@ -901,6 +912,16 @@ class BKTTag(object):
 # = Slide content size =
 # ======================
 
+def slide_content_size(presentation):
+    ''' get size of content area (i.e. big text field of standard layout) '''
+    shapes_sizes = [[shape.left, shape.top, shape.width, shape.height] for shape in iter(presentation.SlideMaster.Shapes) if shape.type == 14 and shape.Placeholderformat.type == 2]
+    if len(shapes_sizes) == 0:
+        return 0, 0, presentation.PageSetup.SlideWidth, presentation.PageSetup.SlideHeight
+    else:
+        slide_content_size = shapes_sizes[0]
+        return slide_content_size[0], slide_content_size[1], slide_content_size[2], slide_content_size[3]
+
+
 BKT_CONTENTAREA = "BKT_CONTENTAREA"
 
 class ContentAreaTags(BKTTag):
@@ -913,47 +934,50 @@ class ContentAreaTags(BKTTag):
     def get_area(self):
         return self.data["contentarea_left"], self.data["contentarea_top"], self.data["contentarea_width"], self.data["contentarea_height"]
 
-def slide_content_size(presentation):
-    shapes_sizes = [[shape.left, shape.top, shape.width, shape.height] for shape in iter(presentation.SlideMaster.Shapes) if shape.type == 14 and shape.Placeholderformat.type == 2]
-    if len(shapes_sizes) == 0:
-        return 0, 0, presentation.PageSetup.SlideWidth, presentation.PageSetup.SlideHeight
-    else:
-        slide_content_size = shapes_sizes[0]
-        return slide_content_size[0], slide_content_size[1], slide_content_size[2], slide_content_size[3]
-
-def isset_contentarea(presentation):
-    if presentation.Tags.Item(BKT_CONTENTAREA) != '':
-        with ContentAreaTags(presentation.Tags) as tags:
-            return tags.is_area_set
-    else:
-        return False
-
-def define_contentarea(presentation, shape):
-    with ContentAreaTags(presentation.Tags) as tags:
-        tags["contentarea_left"]   = float(shape.left)
-        tags["contentarea_top"]    = float(shape.top)
-        tags["contentarea_width"]  = float(shape.width)
-        tags["contentarea_height"] = float(shape.height)
-    #shape.Delete()
-
-def reset_contentarea(presentation):
-    presentation.tags.Delete(BKT_CONTENTAREA)
-
-def read_contentarea(presentation):
-    with ContentAreaTags(presentation.Tags) as tags:
-        if tags.is_area_set:
-            return tags.get_area() #left,top,width,height
+class ContentArea(object):
+    @staticmethod
+    def isset_contentarea(presentation):
+        ''' test if custom content area is defined for given presentation '''
+        if presentation.Tags.Item(BKT_CONTENTAREA) != '':
+            with ContentAreaTags(presentation.Tags) as tags:
+                return tags.is_area_set
         else:
-            return slide_content_size(presentation) #left,top,width,height
+            return False
+
+    @staticmethod
+    def define_contentarea(presentation, shape):
+        ''' define custom content area for given presentation '''
+        with ContentAreaTags(presentation.Tags) as tags:
+            tags["contentarea_left"]   = float(shape.left)
+            tags["contentarea_top"]    = float(shape.top)
+            tags["contentarea_width"]  = float(shape.width)
+            tags["contentarea_height"] = float(shape.height)
+        #shape.Delete()
+
+    @staticmethod
+    def reset_contentarea(presentation):
+        ''' delete custom content area from given presentation '''
+        presentation.tags.Delete(BKT_CONTENTAREA)
+
+    @staticmethod
+    def read_contentarea(presentation):
+        ''' get custom content area from given presentation '''
+        with ContentAreaTags(presentation.Tags) as tags:
+            if tags.is_area_set:
+                return tags.get_area() #left,top,width,height
+            else:
+                return slide_content_size(presentation) #left,top,width,height
 
 
 # =========================================
 # = Iterator for "subshapes" & textframes =
 # =========================================
 
-#Iterate through shapes of different types and return every shapes "subhsapes", e.g. group shapes or table cells
-#arg 'from_selection': If shapes are not from a selection (e.g. iterate all shapes of a slide), set this to False to disable selected table cells detection,
-#                      otherwise not all table cells are iterated at least in the rare case that a table is the only shape on a slide.
+'''
+Iterate through shapes of different types and return every shapes "subhsapes", e.g. group shapes or table cells
+arg 'from_selection': If shapes are not from a selection (e.g. iterate all shapes of a slide), set this to False to disable selected table cells detection,
+                      otherwise not all table cells are iterated at least in the rare case that a table is the only shape on a slide.
+'''
 
 class SubShapeIterator(object):
     def __init__(self, shapes, from_selection=True):
@@ -1031,7 +1055,9 @@ def iterate_shape_subshapes(shapes, from_selection=True, filter_method=lambda sh
     return SubShapeIterator(shapes, from_selection)
 
 
-#Iterate through shapes of different types and return every shapes textframe
+'''
+Iterate through shapes of different types and return every shapes textframe
+'''
 
 class TextframeIterator(SubShapeIterator):
     
