@@ -5,10 +5,7 @@ Created on 2017-07-18
 '''
 from bkt import config, helpers
 from bkt.library.excel import constants
-
-import clr
-clr.AddReference('System.Drawing')
-import System.Drawing as Drawing
+from bkt.library import algorithms # required for color helper
 
 from collections import namedtuple # required for color class
 
@@ -304,16 +301,19 @@ def range_substract(main_range, diff_range):
 
 
 class ColorHelper(object):
+    '''
+    For description refer to PowerPoint ColorHelper class
+    '''
     _theme_color_indices = [1,2,3,4, 5,6,7,8,9,10] #powerpoint default color picker is using IDs 5-10 and 13-16
     _theme_color_names = ['Hintergrund 1', 'Text 1', 'Hintergrund 2', 'Text 2', 'Akzent 1', 'Akzent 2', 'Akzent 3', 'Akzent 4', 'Akzent 5', 'Akzent 6']
     _theme_color_shades = [
         # depending on HSL-Luminosity, different brightness-values are used
         # brightness-values = percentage brighter  (darker if negative)
-        [range(0,1),     [ 50,   35,  25,  15,   5] ],
-        [range(1,51),    [ 90,   75,  50,  25,  10] ],
-        [range(51,204),  [ 80,   60,  40, -25, -50] ],
-        [range(204,255), [-10,  -25, -50, -75, -90] ],
-        [range(255,256), [ -5,  -15, -25, -35, -50] ]
+        [[0],           [ 50,   35,  25,  15,   5] ],
+        [range(1,20),   [ 90,   75,  50,  25,  10] ],
+        [range(20,80),  [ 80,   60,  40, -25, -50] ],
+        [range(80,100), [-10,  -25, -50, -75, -90] ],
+        [[100],         [ -5,  -15, -25, -35, -50] ]
     ] #using int values to avoid floating point comparison problems
 
     _color_class = namedtuple("ThemeColor", "rgb brightness shade_index theme_index name")
@@ -339,9 +339,9 @@ class ColorHelper(object):
 
     @classmethod
     def _get_factors_for_rgb(cls, color_rgb):
-        color = Drawing.ColorTranslator.FromOle(color_rgb)
-        l = color.GetBrightness()*255
-        return [factors[1] for factors in cls._theme_color_shades if round(l) in factors[0]][0]
+        r,g,b = algorithms.get_rgb_from_ole(color_rgb)
+        l = round( algorithms.get_brightness_from_rgb(r,g,b) / 255. *100 )
+        return [factors[1] for factors in cls._theme_color_shades if l in factors[0]][0]
     
     @classmethod
     def _get_color_name(cls, index, shade_index, brightness):
@@ -358,21 +358,21 @@ class ColorHelper(object):
         if brightness == 0:
             return color_rgb
         
+        # load python color transformation library
+        import colorsys
         # split rgb color in r,g,b
-        color = Drawing.ColorTranslator.FromOle(color_rgb)
-        r,g,b = color.R, color.G, color.B
-        # apply brightness factor
-        if brightness < 0:
-            r = round(r * (1+brightness))
-            g = round(g * (1+brightness))
-            b = round(b * (1+brightness))
+        r,g,b = algorithms.get_rgb_from_ole(color_rgb)
+        # split r,g,b in h,l,s
+        h,l,s = colorsys.rgb_to_hls(r/255.,g/255.,b/255.)
+        # adjust l value
+        if brightness > 0:
+            l += (1.-l)*brightness
         else:
-            r = round(r + (255.-r)*brightness)
-            g = round(g + (255.-g)*brightness)
-            b = round(b + (255.-b)*brightness)
-        # store color rgb
-        color = Drawing.Color.FromArgb(r, g, b);
-        return Drawing.ColorTranslator.ToOle(color)
+            l += l*brightness
+        # convert back into r,g,b
+        r,g,b = colorsys.hls_to_rgb(h,l,s)
+        # return rgb color
+        return algorithms.get_ole_from_rgb(round(r*255),round(g*255),round(b*255))
     
     @classmethod
     def get_brightness_from_shade_index(cls, color_rgb, shade_index):
