@@ -103,3 +103,22 @@ def get_ellipse_points(n, r1, r2, start_deg=0, midpoint=(0,0)):
             (r1 * math.cos(theta) + midpoint[0], r2 * math.sin(theta) + midpoint[1])
             for theta in (math.radians(start_deg) + math.pi*2 * i/n for i in range(n))
             ]
+
+def get_rgb_from_ole(ole):
+    ''' get rgb values from ole color value '''
+    # return ole%256, ole//256%256, ole//256//256%256
+    ole = int(ole)
+    return (ole & 255 << 0) >> 0, (ole & 255 << 8) >> 8, (ole & 255 << 16) >> 16
+
+def get_ole_from_rgb(r,g,b):
+    ''' get rgb values from ole color value '''
+    # return round(r + g*256 + b*256*256)
+    return int(r) << 0 | int(g) << 8 | int(b) << 16
+
+def get_brightness_from_rgb(r,g,b):
+    ''' get brightness/lightness from rgb values '''
+    #code from colorsys.rgb_to_hls
+    maxc = max(r, g, b)
+    minc = min(r, g, b)
+    l = (minc+maxc)/2.0
+    return l
