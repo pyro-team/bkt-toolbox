@@ -1890,7 +1890,7 @@ shapes_group = bkt.ribbon.Group(
                 bkt.mso.control.ClipArtInsertDialog,
                 bkt.mso.control.SmartArtInsert,
                 bkt.mso.control.ChartInsert,
-                bkt.ribbon.MenuSeparator(title="Text && Beschriftungen"),
+                bkt.ribbon.MenuSeparator(title="Text & Beschriftungen"),
                 bkt.mso.control.HeaderFooterInsert,
                 bkt.mso.control.DateAndTimeInsert,
                 bkt.mso.control.NumberInsert,

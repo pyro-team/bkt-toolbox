@@ -296,7 +296,7 @@ selection_menu = bkt.ribbon.Menu(
         bkt.ribbon.Button(
             id = 'shapes_select_containing',
             image_mso = 'SlideShowResolutionGallery',
-            label='Inner- && oberhalb',
+            label='Inner- & oberhalb',
             #show_label=False,
             on_action=bkt.Callback(ShapeSelector.select_containing, context=True),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
@@ -306,7 +306,7 @@ selection_menu = bkt.ribbon.Menu(
         bkt.ribbon.Button(
             id = 'shapes_select_behind',
             image_mso = 'SlideShowResolutionGallery',
-            label='Inner- && unterhalb',
+            label='Inner- & unterhalb',
             #show_label=False,
             on_action=bkt.Callback(ShapeSelector.select_behind, context=True),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,

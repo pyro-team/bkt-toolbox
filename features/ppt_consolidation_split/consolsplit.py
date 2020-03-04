@@ -285,7 +285,7 @@ class FolderToSlides(object):
 
 
 # consolsplit_gruppe = bkt.ribbon.Group(
-#     label='Konsolidieren && Teilen',
+#     label='Konsolidieren & Teilen',
 #     image_mso='ThemeBrowseForThemes',
 #     children = [
 #         bkt.ribbon.Button(
