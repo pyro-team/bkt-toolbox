@@ -277,7 +277,7 @@ class RibbonControl(AbstractAnnotationObject):
             objects x to x.xml() or str(x)
         '''
         
-        return {convert_key(k):convert_value(v) for k, v in d.items()}
+        return {key:value for key, value in self._attributes.iteritems() if value != None}
         
         
         
@@ -289,7 +289,7 @@ class RibbonControl(AbstractAnnotationObject):
         '''
         f = RibbonXMLFactory()
         #print('RibbonControl._attributes: ' + str(self._attributes))
-        node = f.node(self.xml_name, **convert_dict_to_ribbon_xml_style({key:value for key, value in self._attributes.iteritems() if value != None}))
+        node = f.node(self.xml_name, **convert_dict_to_ribbon_xml_style(self.get_attributes_xml_dict()))
         for cb in self._callbacks.values():
             if not cb.callback_type.custom:
                 node.SetAttributeValue(cb.callback_type.xml_name, cb.callback_type.dotnet_name)
@@ -1210,18 +1210,33 @@ mso = MSOFactoryAccess()
 
 
 
+# ===============================
+# = escaping labels, tites, etc =
+# ===============================
+
+
+def escape_field(value, field=None):
+    if field in ("label", "screentip"):
+        return value.replace("&", "&&")
+
+    #e.g. supertip, tag, description do not need escaping
+    return value
+
+
+
+
 # =======================================
 # = dictionary and key/value conversion =
 # =======================================
 
 
-def convert_value_to_string(v):
+def convert_value_to_string(v, key=None):
     if v is True:
         return 'true'
     elif v is False:
         return 'false'
     elif isinstance(v, (str, unicode)):
-        return v
+        return escape_field(v, key)
     else:
         try:
             return v.xml()
@@ -1229,29 +1244,30 @@ def convert_value_to_string(v):
             return str(v)
     
 def convert_key_to_lower_camelcase(key):
-    if not '_' in key:
-        return key
     parts = key.split('_')
-    parts_new = []
-    for i, part in enumerate(parts):
-        if len(part) > 1:
-            if i > 0:
-                p = part[0].upper() + part[1:]
-            else:            
-                p = part[0].lower() + part[1:]
-        else:
-            if i > 0:
-                p = part.upper()
-            else:            
-                p = part.lower()
+    return parts[0] + ''.join(x.title() for x in parts[1:])
+
+    # if not '_' in key:
+    #     return key
+    # parts = key.split('_')
+    # parts_new = []
+    # for i, part in enumerate(parts):
+    #     if len(part) > 1:
+    #         if i > 0:
+    #             p = part[0].upper() + part[1:]
+    #         else:            
+    #             p = part[0].lower() + part[1:]
+    #     else:
+    #         if i > 0:
+    #             p = part.upper()
+    #         else:            
+    #             p = part.lower()
             
-        parts_new.append(p)
-    return ''.join(parts_new)
+    #     parts_new.append(p)
+    # return ''.join(parts_new)
 
 def convert_dict_to_ribbon_xml_style(d):
-    return {convert_key_to_lower_camelcase(k):convert_value_to_string(v) for k, v in d.items()}
-
-
+    return {convert_key_to_lower_camelcase(k):convert_value_to_string(v, k) for k, v in d.iteritems()}
 
 
 

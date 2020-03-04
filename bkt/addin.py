@@ -139,7 +139,7 @@ def add_callbacks(cls):
         addin_callback.__name__ = callback.python_name
         return addin_callback
     
-    for name, callback in bkt.callbacks.CallbackTypes.callback_map().items():
+    for name, callback in bkt.callbacks.CallbackTypes.callback_map().iteritems():
         if callback.custom:
             continue
         setattr(cls, name, create_cb_method(callback))
@@ -255,6 +255,8 @@ class AddIn(object):
                 if isinstance(menu, bkt.ribbon.Menu):
                     self.callback_manager.init_callbacks_from_control(menu)
                     return_value = menu.xml_string()
+                    #FIXME: workaround for ampersand in label, etc... But would be better to escape this properly also incl. < and >
+                    return_value = return_value.replace("&", "&amp;")
                 else:
                     logging.warning("Unexpected return-type in callback for get_content: got %s, expected %s" % (type(menu), bkt.ribbon.Menu))
                     return_value = str(menu)
@@ -592,7 +594,7 @@ class AddIn(object):
             sys.path.extend(import_cache['sys.path'])
             bkt.apps.Resources.root_folders.extend(import_cache['resources.path'])
 
-            for module_name, feature in import_cache['inits.features'].items():
+            for module_name, feature in import_cache['inits.features'].iteritems():
                 # feature = import_cache['feature.'+module_name]
                 logging.info('importing bkt feature: %s' % feature['name'])
                 try:

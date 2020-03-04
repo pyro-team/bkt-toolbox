@@ -279,7 +279,7 @@ class AppUI(object):
                             for tab in tablist
                         ]
                     )
-                    for id_mso, tablist in self.custom_ribbon_uis[ribbon_id].contextual_tabs.items()
+                    for id_mso, tablist in self.custom_ribbon_uis[ribbon_id].contextual_tabs.iteritems()
                 ]
             )]
         
@@ -309,7 +309,7 @@ class AppUI(object):
         if len(self.custom_ribbon_uis[ribbon_id].tabs) > 0:
             tabs = [
                 mod_ribbon.Tabs(
-                    children = [self.create_control(tab, ribbon_id)  for tab_id, tab in self.custom_ribbon_uis[ribbon_id].tabs.items()]
+                    children = [self.create_control(tab, ribbon_id)  for tab_id, tab in self.custom_ribbon_uis[ribbon_id].tabs.iteritems()]
                 )
             ]
 
