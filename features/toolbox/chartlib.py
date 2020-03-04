@@ -759,7 +759,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         '''CustomUI-callback: returns corresponding item id'''
         return self.this_id + "--" + str(index)
         
-    def get_item_label(self, index):
+    def get_item_label(self, index, context):
         '''CustomUI-callback: returns corresponding item label
            labels are initialized by init_gallery_items
         '''
@@ -780,7 +780,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     # def get_item_supertip(self, index):
     #     return "tbd"
     
-    def get_item_image(self, index):
+    def get_item_image(self, index, context):
         '''CustomUI-callback: calls get_chartlib_item_image'''
         if not self.items_initialized:
             self.init_gallery_items(context)
