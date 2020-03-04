@@ -19,8 +19,10 @@
             <fr:RadioButton GroupName="copymode" Header="Auf alle Folgefolien kopieren" IsChecked="{Binding copymode_all, UpdateSourceTrigger=PropertyChanged}" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="5">
-            <fr:RadioButton GroupName="copymode" Header="Auf gewählte Anzahl Folien:" IsChecked="{Binding copymode_num, UpdateSourceTrigger=PropertyChanged}" />
+            <fr:RadioButton GroupName="copymode" Header="Kopiere" IsChecked="{Binding copymode_num, UpdateSourceTrigger=PropertyChanged}" />
             <fr:Spinner InputWidth="40" Value="{Binding num_slides, Mode=TwoWay}" Format="0" Minimum="0" Maximum="{Binding max_slides}" />
+            <Label Content="mal bis zur Folie Nr." />
+            <fr:Spinner InputWidth="40" Value="{Binding slide_no, Mode=TwoWay}" Format="0" Minimum="{Binding cur_slideno}" Maximum="{Binding max_slideno}" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="5">
             <Label FontStyle="Italic" Content="{Binding copy_description}" />

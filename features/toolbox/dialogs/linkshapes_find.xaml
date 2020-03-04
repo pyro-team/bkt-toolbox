@@ -21,8 +21,10 @@
                     <fr:RadioButton GroupName="findmode" Header="Auf allen Folgefolien suchen" IsChecked="{Binding findmode_all, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="5">
-                    <fr:RadioButton GroupName="findmode" Header="Auf gewählter Anzahl Folien:" IsChecked="{Binding findmode_num, UpdateSourceTrigger=PropertyChanged}" />
+                    <fr:RadioButton GroupName="findmode" Header="Suche auf" IsChecked="{Binding findmode_num, UpdateSourceTrigger=PropertyChanged}" />
                     <fr:Spinner InputWidth="40" Value="{Binding num_slides, Mode=TwoWay}" Format="0" Minimum="0" Maximum="{Binding max_slides}" />
+                    <Label Content="Folien bis zur Folie Nr." />
+                    <fr:Spinner InputWidth="40" Value="{Binding slide_no, Mode=TwoWay}" Format="0" Minimum="{Binding cur_slideno}" Maximum="{Binding max_slideno}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="5">
                     <Label FontStyle="Italic" Content="{Binding search_description}" />

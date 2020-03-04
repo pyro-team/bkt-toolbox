@@ -19,8 +19,8 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
 
         self.max_slides = max(0, max_slideno-cur_slideno)
 
-        self._cur_slideno = cur_slideno
-        self._max_slideno = max_slideno
+        self.cur_slideno = cur_slideno
+        self.max_slideno = max_slideno
 
         self._threshold = 0.0
         self._shape_keys = model.attributes
@@ -123,10 +123,25 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         self._num_slides = value
         self._findmode_all = False
         self._findmode_num = True
+        self.OnPropertyChanged('slide_no')
         self.OnPropertyChanged('findmode_all')
         self.OnPropertyChanged('findmode_num')
         self.OnPropertyChanged('okay_enabled')
         self.OnPropertyChanged('search_description')
+    
+    @notify_property
+    def slide_no(self):
+        return self.cur_slideno + self._num_slides
+    @slide_no.setter
+    def slide_no(self, value):
+        self._num_slides = value - self.cur_slideno
+        self._copymode_all = False
+        self._copymode_num = True
+        self.OnPropertyChanged('num_slides')
+        self.OnPropertyChanged('copymode_all')
+        self.OnPropertyChanged('copymode_num')
+        self.OnPropertyChanged('okay_enabled')
+        self.OnPropertyChanged('copy_description')
     
     @notify_property
     def findmode_all(self):
@@ -153,7 +168,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     @notify_property
     def search_description(self):
         num_searchslides = self.num_searchslides
-        return "Suche auf {} Folien von Foliennummer {} bis {}.".format(num_searchslides, self._cur_slideno, self._cur_slideno+num_searchslides)
+        return "Suche auf {} Folien von Foliennummer {} bis {}.".format(num_searchslides, self.cur_slideno, self.cur_slideno+num_searchslides)
     
     @notify_property
     def okay_enabled(self):
