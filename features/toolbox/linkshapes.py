@@ -98,15 +98,22 @@ class LinkedShapes(object):
     def copy_to_all(cls, shape, context): #shape as parameter for get_enabled required
         #open wpf window
         from dialogs.linkshapes_copy import CopyWindow
-        CopyWindow.create_and_show_dialog(cls, context)
+        wnd = CopyWindow(cls, context, shape)
+        wnd.show_dialog(modal=False)
+        # CopyWindow.create_and_show_dialog(cls, context)
 
     @classmethod
     def copy_shapes_to_slides(cls, shapes, context, limit_slides=None):
         for shape in shapes:
             cls.copy_shape_to_slides(shape, context, limit_slides)
         
-        shapes[0].select()
-        context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
+        try:
+            #activate view (note: parent.select does not work)
+            context.app.ActiveWindow.View.GotoSlide(shapes[0].Parent.SlideIndex)
+            shapes[0].select()
+            context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
+        except:
+            bkt.helpers.exception_as_message()
 
     @classmethod
     def copy_shape_to_slides(cls, shape, context, limit_slides=None):
@@ -875,11 +882,20 @@ class LinkedShapePopup(bkt.ui.WpfWindowAbstract):
         except:
             bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
 
+    @staticmethod
+    def double_click(shape, context):
+        try:
+            context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
+        except:
+            bkt.helpers.message("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
+
+
 # register dialog
 bkt.powerpoint.context_dialogs.register_dialog(
     bkt.contextdialogs.ContextDialog(
         id=BKT_LINK_UUID,
         module=None,
-        window_class=LinkedShapePopup
+        window_class=LinkedShapePopup,
+        dblclick_func=LinkedShapePopup.double_click,
     )
 )
