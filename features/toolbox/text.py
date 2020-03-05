@@ -235,12 +235,12 @@ class Characters(object):
 
     @classmethod
     def get_text_fontawesome(cls):
-        import fontawesome
+        from fontawesome import Fontawesome
 
         return bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
                 id=None,
-                children=fontawesome.symbol_galleries
+                children=Fontawesome.get_symbol_galleries()
             )
 
     @classmethod
@@ -350,10 +350,18 @@ class Characters(object):
                         ]
                     ),
                     bkt.ribbon.ToggleButton(
+                        label='Als Text einfügen (Standard)',
+                        image_mso='TextTool',
+                        screentip="Als Text einfügen ein/aus",
+                        supertip='Wenn kein Text ausgewählt und diese Option aktiviert ist, wird das Symbol als Unicode-Zeichen eingefügt. Dies ist der Standard wenn keine Taste gedrückt wird.',
+                        on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_text),
+                        get_pressed=bkt.Callback(pplib.PPTSymbolsSettings.convert_into_text), #convert into text is a function!
+                    ),
+                    bkt.ribbon.ToggleButton(
                         label='Als Shapes einfügen [Shift]',
                         image_mso='TextEffectTransformGallery',
                         screentip="Als Shape einfügen ein/aus",
-                        supertip='Wenn kein Textfeld ausgewählt ist, wird ein neues Textfeld für das Symbol eingefügt. Wenn diese Funktion aktiviert ist, wird das Textfeld in ein Shape konvertiert. Dies geht auch bei Klick auf ein Symbol mit gedrückter Shift-Taste.',
+                        supertip='Wenn kein Text ausgewählt und diese Option aktiviert ist, wird das Symbol in ein Shape konvertiert. Dies geht auch bei Klick auf ein Symbol mit gedrückter Shift-Taste.',
                         on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_shape),
                         get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.convert_into_shape),
                     ),
@@ -361,7 +369,7 @@ class Characters(object):
                         label='Als Bild einfügen [Strg]',
                         image_mso='PictureRecolorBlackAndWhite',
                         screentip="Als Bild einfügen ein/aus",
-                        supertip='Wenn kein Textfeld ausgewählt ist, wird ein neues Textfeld für das Symbol eingefügt. Wenn diese Funktion aktiviert ist, wird das Textfeld in ein Bild konvertiert. Dies geht auch bei Klick auf ein Symbol mit gedrückter Strg-Taste.',
+                        supertip='Wenn kein Text ausgewählt und diese Option aktiviert ist, wird das Symbol als Raster-Grafik eingefügt. Dies geht auch bei Klick auf ein Symbol mit gedrückter Strg-Taste.',
                         on_toggle_action=bkt.Callback(pplib.PPTSymbolsSettings.switch_convert_into_bitmap),
                         get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.convert_into_bitmap),
                     ),

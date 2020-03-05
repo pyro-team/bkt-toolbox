@@ -94,6 +94,7 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
         self._model.set_setting("split_group", self._value2key(self._vm.split_group))
         self._model.set_setting("language_group", self._value2key(self._vm.language_group))
         self._model.set_setting("stateshape_group", self._value2key(self._vm.stateshape_group))
+        self._model.set_setting("iconsearch_group", self._value2key(self._vm.iconsearch_group))
 
         self.Close()
         if bkt.helpers.confirmation("Soll die BKT nun neu geladen werden?"):

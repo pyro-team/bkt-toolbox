@@ -53,6 +53,7 @@
                 <RowDefinition />
                 <RowDefinition />
                 <RowDefinition />
+                <RowDefinition /> <!--20-->
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -224,6 +225,16 @@
             <fr:RadioButton Grid.Row="19" Grid.Column="1" GroupName="stateshape_group" IsChecked="{Binding stateshape_group[0], Mode=TwoWay}" Margin="25,0,0,0" Header="{Binding stateshape_group_header[0]}" />
             <fr:RadioButton Grid.Row="19" Grid.Column="2" GroupName="stateshape_group" IsChecked="{Binding stateshape_group[1], Mode=TwoWay}" Margin="25,0,0,0" Header="{Binding stateshape_group_header[1]}" />
             <fr:RadioButton Grid.Row="19" Grid.Column="3" GroupName="stateshape_group" IsChecked="{Binding stateshape_group[2], Mode=TwoWay}" Margin="25,0,0,0" Header="{Binding stateshape_group_header[2]}" />
+
+
+            <Label Grid.Row="20" Grid.Column="0" Content="Icon-Suche" Style="{StaticResource lblGroup}">
+                <Label.ToolTip>
+                    <Image Source="{Binding iconsearch_group_url}" />
+                </Label.ToolTip>
+            </Label>
+            <fr:RadioButton Grid.Row="20" Grid.Column="1" GroupName="iconsearch_group" IsChecked="{Binding iconsearch_group[0], Mode=TwoWay}" Margin="25,0,0,0" Header="{Binding iconsearch_group_header[0]}" />
+            <fr:RadioButton Grid.Row="20" Grid.Column="2" GroupName="iconsearch_group" IsChecked="{Binding iconsearch_group[1], Mode=TwoWay}" Margin="25,0,0,0" Header="{Binding iconsearch_group_header[1]}" />
+            <fr:RadioButton Grid.Row="20" Grid.Column="3" GroupName="iconsearch_group" IsChecked="{Binding iconsearch_group[2], Mode=TwoWay}" Margin="25,0,0,0" Header="{Binding iconsearch_group_header[2]}" />
 
         </Grid>
 

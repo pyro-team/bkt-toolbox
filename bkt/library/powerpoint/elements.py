@@ -204,7 +204,7 @@ class ParagraphFormatSpinnerBox(RoundingSpinnerBox):
 
 class PPTSymbolsSettings(object):
     recent_symbols = deque(settings.get("bkt.symbols.recent_symbols", []), maxlen=3)
-    convert_into_shape = settings.get("bkt.symbols.convert_into_shape", False) #always convert newly inserted symbols into shapes
+    convert_into_shape = settings.get("bkt.symbols.convert_into_shape", True) #always convert newly inserted symbols into shapes
     convert_into_bitmap = settings.get("bkt.symbols.convert_into_bitmap", False) #always convert newly inserted symbols into bitmap picture
     unicode_font = settings.get("bkt.symbols.unicode_font", None) #insert unicode characters as symbol with special font (e.g. Arial Unicode)
 
@@ -222,6 +222,17 @@ class PPTSymbolsSettings(object):
     def switch_unicode_font(cls, font=None):
         cls.unicode_font = font #if font else SymbolsGallery.fallback_font
         settings["bkt.symbols.unicode_font"] = cls.unicode_font
+    
+    @classmethod
+    def convert_into_text(cls):
+        return not (cls.convert_into_shape or cls.convert_into_bitmap)
+
+    @classmethod
+    def switch_convert_into_text(cls, pressed):
+        cls.convert_into_shape = False
+        cls.convert_into_bitmap = False
+        settings["bkt.symbols.convert_into_shape"] = cls.convert_into_shape
+        settings["bkt.symbols.convert_into_bitmap"] = cls.convert_into_bitmap
     
     @classmethod
     def switch_convert_into_shape(cls, pressed):
@@ -261,9 +272,11 @@ class PPTSymbolsGallery(SymbolsGallery):
         if selection.Type == 3 and not shift_or_ctrl: #text selected
             selection.TextRange2.Text = "" #remove selected text first and then insert symbol
             self.insert_symbol_into_text(selection.TextRange2, item)
-        elif selection.Type == 2 and not shift_or_ctrl: #shapes selected
+        
+        elif PPTSymbolsSettings.convert_into_text() and selection.Type == 2 and not shift_or_ctrl: #shapes selected
             self.insert_symbol_into_shapes(pplib.get_shapes_from_selection(selection), item)
-        else: #convert into shape
+        
+        else: #convert into shape or bitmap
             if PPTSymbolsSettings.get_convert_into_bitmap():
                 self.create_symbol_bitmap(selection.SlideRange(1), item)
             else:
