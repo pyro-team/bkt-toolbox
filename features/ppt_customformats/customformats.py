@@ -263,7 +263,7 @@ class CustomFormatCatalog(object):
             catalog["version"] = CF_VERSION
             catalog["filename"] = cls.current_file
             catalog["styles"] = [style.to_json() for style in cls.custom_styles]
-            json.dump(catalog, json_file, ensure_ascii=False)
+            json.dump(catalog, json_file, ensure_ascii=False, indent=2)
 
     @classmethod
     def read_from_config(cls, filename="styles.json"):
