@@ -630,8 +630,7 @@ class ToolboxAgenda(object):
         # slide_settings[text] = 
         # slide_settings[par_no] = 
         try:
-            par = textbox.TextFrame.TextRange.Paragraphs(selected_paragraph_index)
-
+            # Handle hidden subitems in agenda textbox
             if settings.get(SETTING_HIDE_SUBITEMS, False):
                 paragraphs = [textbox.TextFrame.TextRange.Paragraphs(idx) for idx in range(1,textbox.TextFrame.TextRange.Paragraphs().Count+1)]
                 indent_levels = [p.IndentLevel for p in paragraphs]
@@ -655,6 +654,8 @@ class ToolboxAgenda(object):
                 hidden_before_current = sum([1 for hide in hide_paragraph[0:selected_paragraph_index-1] if hide ])
                 selected_paragraph_index = selected_paragraph_index - hidden_before_current
             
+            # currently selected paragraph
+            par = textbox.TextFrame.TextRange.Paragraphs(selected_paragraph_index)
             
             # Tag auf Slide setzen
             slide_settings = dict(settings) #copy settings
@@ -679,27 +680,15 @@ class ToolboxAgenda(object):
             #     selectorTop = selectorTop + textbox.TextFrame.TextRange.Paragraphs(idx + 1).ParagraphFormat.SpaceBefore
         
             # selectorHeight = paragraph_height(par, False) + 2 * selectorMargin
-    
-            # Rand ober- und unterhalb / um wieviel ist Markierung größer als Absatz?
-            selectorMargin = textbox.TextFrame.TextRange.Font.Size * settings.get(SETTING_SELECTOR_MARGIN, 0.2)
 
-            # INFO: previous code (see above) was compatibel with PPT<2010 as Bound* attributes were not available
-            selectorTop = par.BoundTop + par.ParagraphFormat.SpaceBefore - selectorMargin
-            selectorHeight = par.BoundHeight - par.ParagraphFormat.SpaceBefore - par.ParagraphFormat.SpaceAfter + 2*selectorMargin
-            if selected_paragraph_index == 1:
-                # first paragraph does not contain space before
-                selectorTop -= par.ParagraphFormat.SpaceBefore
-                selectorHeight += par.ParagraphFormat.SpaceBefore
-            if selected_paragraph_index == textbox.TextFrame.TextRange.Paragraphs().Count:
-                # last paragraph does not contain space after
-                selectorHeight += par.ParagraphFormat.SpaceAfter
+            selector_rect = cls.get_selector_dimensions_for_margin(settings.get(SETTING_SELECTOR_MARGIN, 0.2), slide, textbox, selected_paragraph_index)
 
             # Selector (Markierung) aktualisieren
             selector = cls.get_or_create_selector_on_slide(slide)
-            selector.Top = selectorTop
-            selector.Left = textbox.Left
-            selector.Height = selectorHeight
-            selector.width = textbox.width
+            selector.Top = selector_rect.top
+            selector.Left = selector_rect.left
+            selector.Height = selector_rect.height
+            selector.width = selector_rect.width
 
             cls.set_selector_fill(selector.Fill, cls.get_selector_fillcolor_from_settings(settings))
             cls.set_selector_line(selector.Line, cls.get_selector_linecolor_from_settings(settings))
@@ -723,6 +712,27 @@ class ToolboxAgenda(object):
             
         except:
             bkt.helpers.exception_as_message()
+
+
+    @classmethod
+    def get_selector_dimensions_for_margin(cls, margin, slide, textbox, selected_paragraph_index):
+        par = textbox.TextFrame.TextRange.Paragraphs(selected_paragraph_index)
+
+        # Rand ober- und unterhalb / um wieviel ist Markierung größer als Absatz?
+        selectorMargin = textbox.TextFrame.TextRange.Font.Size * margin
+
+        # INFO: previous code (see above) was compatibel with PPT<2010 as Bound* attributes were not available
+        selectorTop = par.BoundTop + par.ParagraphFormat.SpaceBefore - selectorMargin
+        selectorHeight = par.BoundHeight - par.ParagraphFormat.SpaceBefore - par.ParagraphFormat.SpaceAfter + 2*selectorMargin
+        if selected_paragraph_index == 1:
+            # first paragraph does not contain space before
+            selectorTop -= par.ParagraphFormat.SpaceBefore
+            selectorHeight += par.ParagraphFormat.SpaceBefore
+        if selected_paragraph_index == textbox.TextFrame.TextRange.Paragraphs().Count:
+            # last paragraph does not contain space after
+            selectorHeight += par.ParagraphFormat.SpaceAfter
+        
+        return pplib.BoundingFrame.from_rect(top=selectorTop, height=selectorHeight, left=textbox.Left, width=textbox.Width)
 
 
     @classmethod
@@ -1181,13 +1191,6 @@ class ToolboxAgenda(object):
         cls._update_setting_value(slide, SETTING_SLIDES_FOR_SUBITEMS, pressed)
     
     @classmethod
-    def set_selector_margin(cls, slide, margin):
-        ''' callback to write selector-margin setting to all agenda slides '''
-        cls._update_setting_value(slide, SETTING_SELECTOR_MARGIN, margin)
-        if bkt.helpers.confirmation("Agenda jetzt aktualisieren?", title="Toolbox: Agenda"):
-            cls.update_agenda_slides_by_slide(slide)
-    
-    @classmethod
     def _update_setting_value(cls, slide, key, value):
         ''' callback to write settings value to all agenda slides '''
         agenda_items = cls.find_agenda_items_by_slide(slide)
@@ -1301,6 +1304,29 @@ class ToolboxAgenda(object):
     # ===============================
     # = selector adjustment methods =
     # ===============================
+    
+    @classmethod
+    def set_selector_margin(cls, margin, slide):
+        # cls._update_setting_value(slide, SETTING_SELECTOR_MARGIN, margin)
+        # if bkt.helpers.confirmation("Agenda jetzt aktualisieren?", title="Toolbox: Agenda"):
+        #     cls.update_agenda_slides_by_slide(slide)
+        
+        agenda_items = cls.find_agenda_items_by_slide(slide)
+        # update slides
+        for agenda_item in agenda_items:
+            cls.update_agenda_settings_on_slide(agenda_item.slide, {SETTING_SELECTOR_MARGIN: margin})
+            #recalculate selector dimensions
+            try:
+                agenda = cls.get_agenda_textbox_on_slide(agenda_item.slide)
+                selector_rect = cls.get_selector_dimensions_for_margin(margin, agenda_item.slide, agenda, agenda_item.position)
+
+                shp = cls.get_shape_with_tag_item(agenda_item.slide, TOOLBOX_AGENDA_SELECTOR)
+                shp.top = selector_rect.top
+                shp.left = selector_rect.left
+                shp.height = selector_rect.height
+                shp.width = selector_rect.width
+            except:
+                continue
 
     @classmethod
     def set_selector_fillcolor(cls, color_dict, slide):
@@ -1718,25 +1744,25 @@ agenda_tab = bkt.ribbon.Tab(
                             label="20% (Standard)",
                             screentip="Selektor-Überhang entspricht 20% der Schriftgröße",
                             get_pressed=bkt.Callback(lambda slide: ToolboxAgenda.get_selector_margin(slide) == 0.2),
-                            on_toggle_action=bkt.Callback(lambda slide,pressed: ToolboxAgenda.set_selector_margin(slide, 0.2)),
+                            on_toggle_action=bkt.Callback(lambda slide,pressed: ToolboxAgenda.set_selector_margin(0.2, slide)),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="40%",
                             screentip="Selektor-Überhang entspricht 40% der Schriftgröße",
                             get_pressed=bkt.Callback(lambda slide: ToolboxAgenda.get_selector_margin(slide) == 0.4),
-                            on_toggle_action=bkt.Callback(lambda slide,pressed: ToolboxAgenda.set_selector_margin(slide, 0.4)),
+                            on_toggle_action=bkt.Callback(lambda slide,pressed: ToolboxAgenda.set_selector_margin(0.4, slide)),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="60%",
                             screentip="Selektor-Überhang entspricht 60% der Schriftgröße",
                             get_pressed=bkt.Callback(lambda slide: ToolboxAgenda.get_selector_margin(slide) == 0.6),
-                            on_toggle_action=bkt.Callback(lambda slide,pressed: ToolboxAgenda.set_selector_margin(slide, 0.6)),
+                            on_toggle_action=bkt.Callback(lambda slide,pressed: ToolboxAgenda.set_selector_margin(0.6, slide)),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="80% (sehr groß)",
                             screentip="Selektor-Überhang entspricht 80% der Schriftgröße",
                             get_pressed=bkt.Callback(lambda slide: ToolboxAgenda.get_selector_margin(slide) == 0.8),
-                            on_toggle_action=bkt.Callback(lambda slide,pressed: ToolboxAgenda.set_selector_margin(slide, 0.8)),
+                            on_toggle_action=bkt.Callback(lambda slide,pressed: ToolboxAgenda.set_selector_margin(0.8, slide)),
                         ),
                     ]
                 ),
