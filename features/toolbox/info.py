@@ -168,7 +168,7 @@ info_group = bkt.ribbon.Group(
     get_visible=bkt.Callback(TabActivator.enable, context=True),
     children=[
         settings.settings_menu,
-        bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.full_version, on_action=bkt.Callback(settings.BKTInfos.show_debug_message)),
+        bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.full_version, on_action=bkt.Callback(settings.BKTInfos.check_for_update)),
         bkt.ribbon.Button(
             label="BKT Warning",
             size="large",
