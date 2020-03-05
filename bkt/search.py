@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
 ### Search should be compatible to Whoosh
-
-import shelve #for resources cache
-import os.path #for resources cache
 import logging
 
 import bkt.helpers as _h
@@ -82,7 +79,7 @@ class SearchWriter(object):
             for keyword in keywords:
                 self._engine._keywords.add(keyword)
                 self._engine._db[hash(keyword)].add(doc_hash)
-        self._engine.cache_sync()
+
         del self
     
     def cancel(self):
@@ -152,39 +149,12 @@ class SearchSearcher(object):
 
 class SearchEngine(object):
     def __init__(self, name, schema):
-        # cache_file = os.path.join( _h.get_cache_folder(), "search.%s.cache"%name )
-
         self._name = name
         self._schema = schema
 
         self._db = defaultdict(set)
         self._docs = OrderedDict()
         self._keywords = set()
-
-        #load index from cache #:FIXME: caching doesnt work right now
-        # self._cache = shelve.open(cache_file, protocol=2)
-        # if "index" in self._cache:
-        #     self._keywords = self._keywords.union(self._cache["keywords"])
-        #     for k,v in self._cache["documents"].iteritems():
-        #         self._docs[k].append(v)
-        #     for k,v in self._cache["index"].iteritems():
-        #         self._db[k].append(v)
-    
-
-    ### CACHE HANDLING ###
-    def cache_sync(self):
-        #:FIXME: caching doesnt work right now
-        pass
-        # self._cache["keywords"] = self._keywords
-        # self._cache["documents"] = self._docs
-        # self._cache["index"] = self._db
-        # self._cache.sync()
-    
-    def cache_clear(self):
-        #:FIXME: caching doesnt work right now
-        pass
-        # self._cache.clear()
-        # self._cache.sync()
 
     ### INDEXING AND SEARCHING ###
     def count_documents(self):
