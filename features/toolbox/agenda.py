@@ -24,12 +24,15 @@ TOOLBOX_AGENDA_SELECTOR = "TOOLBOX-AGENDA-SELECTOR"
 TOOLBOX_AGENDA_TEXTBOX  = "TOOLBOX-AGENDA-TEXTBOX"
 TOOLBOX_AGENDA_SETTINGS = "TOOLBOX-AGENDA-SETTINGS"
 
+#internal settings
 SETTING_POSITION = "position"
 SETTING_TEXT = "text"
 SETTING_AGENDA_ID = "id"
 SETTING_INDENT_LEVEL = "indent-level"
+#user configurable
 SETTING_HIDE_SUBITEMS = "hide-sub-items"
 SETTING_CREATE_SECTIONS = "sections-create"
+SETTING_CREATE_LINKS = "hyperlinks-create"
 SETTING_SLIDES_FOR_SUBITEMS = "slides-for-sub-items"
 SETTING_SELECTOR_MARGIN = "selector-margin"
 #old selector settings (for backwards compatibility):
@@ -118,6 +121,7 @@ class ToolboxAgenda(object):
         SETTING_AGENDA_ID: None,
         SETTING_HIDE_SUBITEMS: False,
         SETTING_CREATE_SECTIONS: False,
+        SETTING_CREATE_LINKS: False,
         SETTING_SLIDES_FOR_SUBITEMS: True,
         SETTING_SELECTOR_MARGIN: 0.2
     }
@@ -260,6 +264,7 @@ class ToolboxAgenda(object):
                 slide = master_slide.Duplicate(1)
                 slide.SlideShowTransition.Hidden = 0
                 slide.MoveTo(master_slide.SlideIndex + new_slide_count)
+                agena_item.slide = slide
                 
                 # update agenda
                 textbox = cls.get_agenda_textbox_on_slide(slide)
@@ -268,6 +273,12 @@ class ToolboxAgenda(object):
                 # update sections
                 cls.update_agenda_sections_for_slide(slide, agena_item.text, settings)
 
+        # create hyperlinks
+        cls.update_hyperlinks_on_slide(master_slide, settings, agenda_entries)
+        for agena_item in agenda_entries:
+            cls.update_hyperlinks_on_slide(agena_item.slide, settings, agenda_entries)
+
+        # go to agenda tab
         if context:
             context.ribbon.ActivateTab('bkt_context_tab_agenda')
     
@@ -577,7 +588,7 @@ class ToolboxAgenda(object):
                 del agenda_slides[1]
         
         
-        # udpate
+        # udpate 1 (first run creates slides)
         last_agenda_index = master_slide.SlideIndex
         for item in agenda_entries:
             par_index, text, _, old_slide = item
@@ -608,10 +619,19 @@ class ToolboxAgenda(object):
             # update sections (important: first delete old slide)
             cls.update_agenda_sections_for_slide(new_slide, text, settings)
 
+            # remember slide reference for second run
+            item.slide = new_slide
+
             # remember index for repositioning
             last_agenda_index = new_slide.SlideIndex
         
-        
+
+        # update 2 (second run creates hyperlinks)
+        cls.update_hyperlinks_on_slide(master_slide, settings, agenda_entries)
+        for item in agenda_entries:
+            cls.update_hyperlinks_on_slide(item.slide, settings, agenda_entries)
+
+
         # andere loeschen
         for item in agenda_slides:
             if item.slide != master_slide:
@@ -648,7 +668,8 @@ class ToolboxAgenda(object):
                     textbox.TextFrame.TextRange.Paragraphs(idx+1).Delete()
                     if idx == textbox.TextFrame.TextRange.Paragraphs().Count:
                         # deleted last paragraph
-                        textbox.Textframe.TextRange.paragraphs(idx).characters(textbox.Textframe.TextRange.paragraphs(idx).characters().count  ).Delete()
+                        # textbox.Textframe.TextRange.paragraphs(idx).characters(textbox.Textframe.TextRange.paragraphs(idx).characters().count  ).Delete()
+                        textbox.Textframe.TextRange.paragraphs(idx).Delete()
                 
                 # paragraphs hidden before current
                 hidden_before_current = sum([1 for hide in hide_paragraph[0:selected_paragraph_index-1] if hide ])
@@ -681,6 +702,7 @@ class ToolboxAgenda(object):
         
             # selectorHeight = paragraph_height(par, False) + 2 * selectorMargin
 
+            # Selector Größe abhängig von Margin
             selector_rect = cls.get_selector_dimensions_for_margin(settings.get(SETTING_SELECTOR_MARGIN, 0.2), slide, textbox, selected_paragraph_index)
 
             # Selector (Markierung) aktualisieren
@@ -768,7 +790,41 @@ class ToolboxAgenda(object):
             bkt.helpers.exception_as_message()
         
     
-    
+
+    @classmethod
+    def update_hyperlinks_on_slide(cls, slide, settings, agenda_entries):
+        try:
+            textbox = cls.get_agenda_textbox_on_slide(slide)
+
+            # remove all hyperlinks from agenda textbox
+            textbox.textframe.textrange.ActionSettings[1].Hyperlink.delete()
+
+            # check settings
+            if settings.get(SETTING_CREATE_LINKS, False) == False:
+                return
+
+            # link each paragraph
+            for paragraph in textbox.textframe.textrange.paragraphs():
+                # find correct agenda_entry
+                for item in agenda_entries:
+                    if item.indentlevel == paragraph.IndentLevel and item.text == paragraph.text.strip():
+                        ref_slide = item.slide
+                        break
+                else:
+                    # no entry found, delete any existing hyperlink
+                    paragraph.ActionSettings(1).Hyperlink.Delete()
+                    continue
+
+                # reference slide found, create hyperlink
+                #ActionSettings(1)=ppMouseClick
+                paragraph.ActionSettings(1).Hyperlink.SubAddress = "{},{},{}".format(ref_slide.SlideId,ref_slide.SlideIndex,ref_slide.Name)
+        
+        except:
+            bkt.helpers.exception_as_message()
+
+
+
+
     
     # =================
     # = ALTE METHODEN =
@@ -1088,6 +1144,13 @@ class ToolboxAgenda(object):
         settings = cls.get_agenda_settings_from_slide(slide)
         return settings.get(SETTING_CREATE_SECTIONS) or False
     
+    
+    @classmethod
+    def get_create_links(cls, slide):
+        ''' reads setting link-create from current slide or presentation'''
+        settings = cls.get_agenda_settings_from_slide(slide)
+        return settings.get(SETTING_CREATE_LINKS) or False
+    
 
     @classmethod
     def get_slides_for_subitems(cls, slide):
@@ -1184,6 +1247,11 @@ class ToolboxAgenda(object):
     def set_create_sections(cls, slide, pressed):
         ''' callback to write sections-create setting to all agenda slides '''
         cls._update_setting_value(slide, SETTING_CREATE_SECTIONS, pressed)
+    
+    @classmethod
+    def set_create_links(cls, slide, pressed):
+        ''' callback to write links-create setting to all agenda slides '''
+        cls._update_setting_value(slide, SETTING_CREATE_LINKS, pressed)
 
     @classmethod
     def set_slides_for_subitems(cls, slide, pressed):
@@ -1545,6 +1613,14 @@ agendamenu = bkt.ribbon.Menu(
             get_pressed=bkt.Callback(ToolboxAgenda.get_create_sections),
             get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
         ),
+        bkt.ribbon.ToggleButton(
+            id='agenda-create-links',
+            label="Hyperlinks für Agenda-Punkte erstellen",
+            screentip="Jeden Agenda-Punkt mit der zugehörigen Agenda-Folie verlinken.",
+            on_toggle_action=bkt.Callback(ToolboxAgenda.set_create_links),
+            get_pressed=bkt.Callback(ToolboxAgenda.get_create_links),
+            get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
+        ),
         bkt.ribbon.MenuSeparator(),
         bkt.ribbon.Button(
             id='agenda-remove',
@@ -1636,6 +1712,14 @@ agenda_tab = bkt.ribbon.Tab(
                             supertip="Einen neuen Abschnitt je Agenda-Folie beginnen.",
                             on_toggle_action=bkt.Callback(ToolboxAgenda.set_create_sections),
                             get_pressed=bkt.Callback(ToolboxAgenda.get_create_sections),
+                            # get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            id='agenda_create_links',
+                            label="Hyperlinks für Agenda-Punkte erstellen",
+                            screentip="Jeden Agenda-Punkt mit der zugehörigen Agenda-Folie verlinken.",
+                            on_toggle_action=bkt.Callback(ToolboxAgenda.set_create_links),
+                            get_pressed=bkt.Callback(ToolboxAgenda.get_create_links),
                             # get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
                         ),
                     ]
