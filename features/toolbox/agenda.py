@@ -513,6 +513,7 @@ class ToolboxAgenda(object):
             #duplicate first agenda_slide as new master slide
             master_slide = agenda_slide.Duplicate(1)
             master_slide.MoveTo(agenda_slide.SlideIndex)
+            master_slide.SlideShowTransition.Hidden = -1
             
             #remove selector from master slide
             shp = cls.get_shape_with_tag_item(master_slide, TOOLBOX_AGENDA_SELECTOR)
