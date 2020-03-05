@@ -62,7 +62,7 @@ def get_content_categories():
         cats = json.load(json_file, object_pairs_hook=OrderedDict)
 
         for _, value in cats.iteritems():
-            catname = value["label"].replace("&", "and")
+            catname = value["label"]
             symbols = []
             for ico in value["icons"]:
                 icon = all_icons[ico]
