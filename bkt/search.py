@@ -37,7 +37,11 @@ class SearchResults(object):
 
     def sortedby(self, field):
         return sorted(self._result_docs, key=lambda d: getattr(d, field))
-    
+
+    def limit(self, stop):
+        from itertools import islice
+        return islice(self, stop)
+
     def add_result(self, document):
         self._result_docs.append(document)
 
