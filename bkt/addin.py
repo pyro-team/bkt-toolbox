@@ -458,49 +458,49 @@ class AddIn(object):
     def mouse_down(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
         if self.app_ui:
-            if hasattr(self.app_ui, 'context_dialogs'):
+            if getattr(self.app_ui, "use_contextdialogs", False):
                 self.app_ui.context_dialogs.mouse_down(sender, e)
         
     def mouse_up(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
         if self.app_ui:
-            if hasattr(self.app_ui, 'context_dialogs'):
+            if getattr(self.app_ui, "use_contextdialogs", False):
                 self.app_ui.context_dialogs.mouse_up(sender, e)
 
     # def mouse_move(self, sender, e):
     #     ''' object sender, MouseEventExtArgs e) '''
     #     if self.app_ui:
-    #         if hasattr(self.app_ui, 'context_dialogs'):
+    #         if getattr(self.app_ui, "use_contextdialogs", False):
     #             self.app_ui.context_dialogs.mouse_move(sender, e)
 
     def mouse_double_click(self, sender, e):
         ''' object sender, MouseEventArgs e) '''
         if self.app_ui:
-            if hasattr(self.app_ui, 'context_dialogs'):
+            if getattr(self.app_ui, "use_contextdialogs", False):
                 self.app_ui.context_dialogs.mouse_double_click(sender, e)
 
     def mouse_drag_start(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
         if self.app_ui:
-            if hasattr(self.app_ui, 'context_dialogs'):
+            if getattr(self.app_ui, "use_contextdialogs", False):
                 self.app_ui.context_dialogs.mouse_drag_start(sender, e)
 
     def mouse_drag_end(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
         if self.app_ui:
-            if hasattr(self.app_ui, 'context_dialogs'):
+            if getattr(self.app_ui, "use_contextdialogs", False):
                 self.app_ui.context_dialogs.mouse_drag_end(sender, e)
         
     def key_down(self, sender, e):
         ''' object sender, KeyEventArgs e) '''
         if self.app_ui:
-            if hasattr(self.app_ui, 'context_dialogs'):
+            if getattr(self.app_ui, "use_contextdialogs", False):
                 self.app_ui.context_dialogs.key_down(sender, e)
     
     def key_up(self, sender, e):
         ''' object sender, KeyEventArgs e) '''
         if self.app_ui:
-            if hasattr(self.app_ui, 'context_dialogs'):
+            if getattr(self.app_ui, "use_contextdialogs", False):
                 self.app_ui.context_dialogs.key_up(sender, e)
     
     

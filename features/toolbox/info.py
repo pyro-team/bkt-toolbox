@@ -81,6 +81,18 @@ class FormatTab(object):
         # context.ribbon.InvalidateControlMso("TabSetDrawingTools")
 
 
+class PopupConfig(object):
+    @staticmethod
+    def get_config(context):
+        return context.app_ui.use_contextdialogs is False
+
+    @staticmethod
+    def set_config(context, pressed):
+        context.app_ui.use_contextdialogs = not pressed
+        bkt.config.set_smart("ppt_use_contextdialogs", not pressed)
+
+
+
 class ToolbarVariations(object):
     #FIXME: very hard-coded, should be more flexible and allow multiple variations
 
@@ -132,7 +144,14 @@ settings.settings_menu.children.extend([
     bkt.ribbon.ToggleButton(
         label="Format-Tab ausblenden",
         get_pressed=bkt.Callback(FormatTab.get_config),
-        on_toggle_action=bkt.Callback(FormatTab.set_config, context=True)
+        on_toggle_action=bkt.Callback(FormatTab.set_config, context=True),
+        supertip="Format-Tab wird ausgeblendet, um automatischen Wechsel zum Tab beim Anlegen von Shapes zu verhindern."
+    ),
+    bkt.ribbon.ToggleButton(
+        label="Popup-Dialog deaktivieren",
+        get_pressed=bkt.Callback(PopupConfig.get_config),
+        on_toggle_action=bkt.Callback(PopupConfig.set_config, context=True),
+        supertip="Deaktiviert die Popup-Dialoge von BKT-Shapes wie Harvey-Balls, verknüpfte Shapes, etc.",
     ),
     bkt.ribbon.Menu(
         label="UI Theme",
