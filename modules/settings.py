@@ -18,7 +18,13 @@ class FolderSetup(object):
         F = bkt.dotnet.import_forms()
         
         dialog = F.FolderBrowserDialog()
-        dialog.SelectedPath = os.path.dirname(os.path.realpath(__file__))
+        # select feature folder
+        cur_folder = os.path.dirname(os.path.realpath(__file__))
+        feature_folder = os.path.realpath(os.path.join(cur_folder, "..", "features"))
+        if os.path.isdir(feature_folder):
+            dialog.SelectedPath = feature_folder
+        else:
+            dialog.SelectedPath = cur_folder
         # dialog.Description = "Please choose an additional folder with BKT-features"
         dialog.Description = "Bitte einen BKT Feature-Ordner auswählen"
         
