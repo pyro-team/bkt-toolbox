@@ -76,7 +76,17 @@ class ShapeTables(object):
             self.align_table_zero(shapes)
         else:
             tr = self._prepare_table(shapes)
-            tr.align(fit_cells=self.fit_cells, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
+            spac_rows = max(0,tr.min_spacing_rows(max_rows=2))
+            spac_cols = max(0,tr.min_spacing_cols(max_cols=2))
+            if self.equal_spacing:
+                spacing = (spac_rows+spac_cols)/2.0
+            else:
+                spacing = (spac_rows, spac_cols)
+            tr.align(spacing=spacing, fit_cells=self.fit_cells, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
+
+    def align_table_default(self, shapes):
+        tr = self._prepare_table(shapes)
+        tr.align(fit_cells=self.fit_cells, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
 
     def align_table_median(self, shapes):
         tr = self._prepare_table(shapes)
@@ -265,8 +275,8 @@ tabellen_gruppe = bkt.ribbon.Group(
                     show_label=True,
                     # size="large",
                     image='align_table',
-                    screentip="Tabelle ausrichten (Standardabstand)",
-                    supertip="Richtet die ausgewählten Shapes als Tabelle aus mit einem Standardabstand von 0,35cm (10pt)",
+                    screentip="Tabelle ausrichten (Auto)",
+                    supertip="Richtet die ausgewählten Shapes als Tabelle aus mit errechnetem Zeilen- und Spaltenabstand. Mit SHIFT-Taste wird Abstand=0 gesetzt.",
                     on_action=bkt.Callback(shape_tables.align_table, shapes=True, shapes_min=2),
                     # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                 ),
@@ -278,7 +288,7 @@ tabellen_gruppe = bkt.ribbon.Group(
                         # show_label=True,
                         image='align_table',
                         supertip="Richtet die ausgewählten Shapes als Tabelle aus mit einem Standardabstand von 0,35cm (10pt)",
-                        on_action=bkt.Callback(shape_tables.align_table, shapes=True, shapes_min=2),
+                        on_action=bkt.Callback(shape_tables.align_table_default, shapes=True, shapes_min=2),
                         # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                     ),
                     bkt.ribbon.Button(
