@@ -10,6 +10,7 @@ import bkt.library.powerpoint as pplib
 
 import json
 import uuid
+import os.path
 
 #import traceback
 
@@ -23,6 +24,8 @@ TOOLBOX_AGENDA_SLIDENO  = "TOOLBOX-AGENDA-SLIDENO"
 TOOLBOX_AGENDA_SELECTOR = "TOOLBOX-AGENDA-SELECTOR"
 TOOLBOX_AGENDA_TEXTBOX  = "TOOLBOX-AGENDA-TEXTBOX"
 TOOLBOX_AGENDA_SETTINGS = "TOOLBOX-AGENDA-SETTINGS"
+
+TOOLBOX_AGENDA_POPUP = "TOOLBOX-AGENDA-POPUP"
 
 #internal settings
 SETTING_POSITION = "position"
@@ -221,6 +224,9 @@ class ToolboxAgenda(object):
             #cls.set_tags_for_slide(slide, 0)
             cls.set_tags_for_textbox(shp)
 
+            # select shape (to show popup)
+            shp.select()
+
             if context:
                 context.ribbon.ActivateTab('bkt_context_tab_agenda')
         
@@ -315,6 +321,16 @@ class ToolboxAgenda(object):
         return shp
     
     
+    @classmethod
+    def update_or_create_agenda_from_slide(cls, slide, context):
+        if cls.is_agenda_slide(slide):
+            cls.update_agenda_slides_by_slide(slide)
+        elif cls.can_create_agenda_from_slide(slide):
+            cls.create_agenda_from_slide(slide, context)
+        else:
+            bkt.helpers.message("Agenda nicht gefunden!")
+
+
     
     # ===============
     # = find agenda =
@@ -1207,6 +1223,7 @@ class ToolboxAgenda(object):
     def set_tags_for_textbox(textbox):
         ''' Meta-Informationen für Textbox einstellen '''
         textbox.Tags.Add(TOOLBOX_AGENDA_TEXTBOX, "1")
+        textbox.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, TOOLBOX_AGENDA_POPUP)
 
     @staticmethod
     def set_tags_for_selector(selector):
@@ -1871,4 +1888,42 @@ agenda_tab = bkt.ribbon.Tab(
             ]
         )
     ]
+)
+
+
+
+
+class AgendaPopup(bkt.ui.WpfWindowAbstract):
+    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'popups', 'agenda.xaml')
+    '''
+    class representing a popup-dialog for a agenda textbox
+    '''
+    
+    def __init__(self, context=None):
+        self.IsPopup = True
+        self._context = context
+
+        super(AgendaPopup, self).__init__()
+
+    def btntab(self, sender, event):
+        try:
+            self._context.ribbon.ActivateTab('bkt_context_tab_agenda')
+        except:
+            bkt.helpers.message("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
+
+    def btnupdate(self, sender, event):
+        try:
+            ToolboxAgenda.update_or_create_agenda_from_slide(self._context.slide, self._context)
+        except:
+            bkt.helpers.message("Agenda-Update aus unbekannten Gründen fehlgeschlagen.")
+
+
+# register dialog
+bkt.powerpoint.context_dialogs.register_dialog(
+    bkt.contextdialogs.ContextDialog(
+        id=TOOLBOX_AGENDA_POPUP,
+        module=None,
+        window_class=AgendaPopup,
+        # dblclick_func=AgendaPopup.double_click,
+    )
 )
