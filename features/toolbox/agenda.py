@@ -273,11 +273,6 @@ class ToolboxAgenda(object):
                 # update sections
                 cls.update_agenda_sections_for_slide(slide, agena_item.text, settings)
 
-        # create hyperlinks
-        cls.update_hyperlinks_on_slide(master_slide, settings, agenda_entries)
-        for agena_item in agenda_entries:
-            cls.update_hyperlinks_on_slide(agena_item.slide, settings, agenda_entries)
-
         # go to agenda tab
         if context:
             context.ribbon.ActivateTab('bkt_context_tab_agenda')
@@ -599,6 +594,7 @@ class ToolboxAgenda(object):
             else:
                 # duplicate master_slide
                 new_slide = master_slide.Duplicate(1)
+                # FIXME: there is a bug in ppt 2016 that "disconnects" the connectors on slide.duplicate even though they appear connected
                 # move duplicated slide
                 if old_slide:
                     #FIXME: reordering menu items does not reorder agenda slides
@@ -1034,18 +1030,32 @@ class ToolboxAgenda(object):
     # ====================
 
     @classmethod
-    def remove_agenda(cls, presentation):
+    def remove_agenda(cls, slide, presentation, delete_master_slide=False):
         '''
-        remove all agenda-slides from the presentation, removing all slides
+        remove all agenda-slides of current agenda from the presentation, removing all slides
         '''
         try:
-            cls.remove_agenda_from_presentation(presentation, delete_slides=True)
+            agenda_slides = cls.find_agenda_items_by_slide(slide)
+            if len(agenda_slides) == 0:
+                if bkt.helpers.confirmation("Keine zugehörigen Agenda-Folien gefunden!\nStattdessen alle Agenda-Folie der Präsentation löschen?", title="Toolbox: Agenda"):
+                    cls.remove_agendas_from_presentation(presentation, True)
+                return
+
+            for item in agenda_slides:
+                if item.position == 0 and not delete_master_slide:
+                    # Tags von Master-Slide loeschen
+                    slide.Tags.Delete(TOOLBOX_AGENDA)
+                    slide.Tags.Delete(TOOLBOX_AGENDA_SLIDENO)
+                    slide.Tags.Delete(TOOLBOX_AGENDA_SETTINGS)
+                    continue
+                if item.slide:
+                    item.slide.Delete()
         except:
             bkt.helpers.exception_as_message()
     
     
     @classmethod
-    def remove_agenda_from_presentation(cls, presentation, delete_slides=False):
+    def remove_agendas_from_presentation(cls, presentation, delete_slides=True):
         '''
         removes all agenda-slides from the presentation, removing all meta-information
         '''
@@ -1624,10 +1634,18 @@ agendamenu = bkt.ribbon.Menu(
         bkt.ribbon.MenuSeparator(),
         bkt.ribbon.Button(
             id='agenda-remove',
-            label="Alle Agenda-Slides entfernen",
-            screentip="Entfernt alle Agenda-Slides, alle Meta-Informationen werden gelöscht.",
+            label="Agenda-Folie entfernen",
+            screentip="Entfernt Agenda-Folien der gewählten Agenda, alle Meta-Informationen werden gelöscht.",
             imageMso="TableOfContentsRemove",
             on_action=bkt.Callback(ToolboxAgenda.remove_agenda),
+            get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
+        ),
+        bkt.ribbon.Button(
+            id='agenda-remove-all',
+            label="Alle Agenden aus Präsentation entfernen",
+            screentip="Entfernt alle Agenda-Folien in der ganzen Präsentation, alle Meta-Informationen werden gelöscht.",
+            imageMso="TableOfContentsRemove",
+            on_action=bkt.Callback(ToolboxAgenda.remove_agendas_from_presentation),
             get_enabled=bkt.Callback(ToolboxAgenda.presentation_has_agenda)
         ),
         # bkt.ribbon.Menu(
@@ -1727,13 +1745,13 @@ agenda_tab = bkt.ribbon.Tab(
                 bkt.ribbon.Separator(),
                 bkt.ribbon.Button(
                     id='agenda_remove',
-                    label="Alle Agenda-Slides entfernen",
+                    label="Agenda-Folien entfernen",
                     size="large",
-                    screentip="Alle Agenda-Slides entfernen",
-                    supertip="Entfernt alle Agenda-Slides, alle Meta-Informationen werden gelöscht.",
+                    screentip="Alle zugehörigen Agenda-Folien entfernen",
+                    supertip="Entfernt alle Agenda-Folien, die zur aktuellen Agenda gehören, außer der Master-Folie. Alle Meta-Informationen werden gelöscht.",
                     imageMso="TableOfContentsRemove",
                     on_action=bkt.Callback(ToolboxAgenda.remove_agenda),
-                    get_enabled=bkt.Callback(ToolboxAgenda.presentation_has_agenda)
+                    get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
                 ),
             ]
         ),
