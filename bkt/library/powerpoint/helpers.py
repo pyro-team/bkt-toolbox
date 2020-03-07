@@ -12,11 +12,11 @@ from collections import namedtuple # required for color class
 from bkt import settings # required to save global locpin setting
 from bkt.library import algorithms # required for color helper
 
-ptToCmFactor = 2.54 / 72;
+ptToCmFactor = 2.54 / 72
 def pt_to_cm(pt):
-    return float(pt) * ptToCmFactor;
+    return float(pt) * ptToCmFactor
 def cm_to_pt(cm):
-    return float(cm) / ptToCmFactor;
+    return float(cm) / ptToCmFactor
 
 # shape.AutoShapeType
 MsoAutoShapeType = {
@@ -469,7 +469,7 @@ def set_shape_zorder(shape, value=None, delta=None):
     Sets the shapes Z-Order to a specific value (if value != None) or by a specific delta (if delta != None). Delta can be negative.
     '''
     if not delta and not value:
-        raise ArgumentError("Neither value nor delta are given!")
+        raise TypeError("Neither value nor delta are given!")
 
     if value is None:
         value = shape.ZOrderPosition + delta
@@ -599,7 +599,7 @@ def convert_text_into_shape(shape):
         shape.Line.visible = 0
 
         #add temporary shape
-        tmp_shp = slide.shapes.AddShape( MsoAutoShapeType['msoShapeRectangle']
+        slide.shapes.AddShape( MsoAutoShapeType['msoShapeRectangle']
             , -10, 0, 10, 10)
         
         #select shape and temporary shape

@@ -589,7 +589,7 @@ class PositionGallery(Gallery):
         elif type(length_definition) in [int, float, long]:
             if length_definition < 0:
                 # negative values specify distance 'from right'
-                return reference - length_from_definition(-length_definition, reference)
+                return reference - self.length_from_definition(-length_definition, reference)
             
             elif length_definition <= 1:
                 # percentage values

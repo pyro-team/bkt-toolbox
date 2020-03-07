@@ -220,7 +220,7 @@ class BKTSettings(shelve.Shelf):
             self.dict = anydbm.open(os.path.join( get_settings_folder(), filename), 'c')
         except:
             logging.error("error reading bkt settings")
-            logging.debug(traceback.format_exc())
+            # logging.debug(traceback.format_exc())
             exception_as_message()
             self.dict = dict() #fallback to empty dict
     

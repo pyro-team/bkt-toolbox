@@ -14,7 +14,7 @@ def _bezierCasteljau(bezier, t):
         for i in range(0,3-k+1):
             # punkte[k,i] = ...
             punkte[k].append(_punktAufGerade(t, punkte[k-1][i], punkte[k-1][i+1]))
-    return punkte[3][0], punkte;
+    return punkte[3][0], punkte
 
 # Test:
 #   vk = bezierKurveViertelkreis()
@@ -25,7 +25,7 @@ def _bezierCasteljau(bezier, t):
 def _bezierKurveAnPunktTeilen(bezier, t):
     '''Bezierkurve an Kurvenpunkt fuer Parameter t\in[0,1] teilen.
        Liefert zwei neue Bezierkurven'''
-    x, punkte = _bezierCasteljau(bezier, t);
+    _, punkte = _bezierCasteljau(bezier, t)
     return [punkte[0][0], punkte[1][0], punkte[2][0], punkte[3][0]], [punkte[3][0], punkte[2][1], punkte[1][2], punkte[0][3]]
 
 def _bezierKurveNFachTeilen(bezier, n):
@@ -34,7 +34,7 @@ def _bezierKurveNFachTeilen(bezier, n):
         return [bezier]
     else:
         # beim ersten n-tel aufteilen
-        b1, b2 = _bezierKurveAnPunktTeilen(bezier, 1.0/n);
+        b1, b2 = _bezierKurveAnPunktTeilen(bezier, 1.0/n)
         # rest (n-1)-mal aufteilen
         liste = [b1]
         liste.extend(_bezierKurveNFachTeilen(b2, n-1))
@@ -45,7 +45,7 @@ def _bezierKurvenEinheitskreis():
     return [[[1,0],[1,0.5522],[0.5522,1],[0,1]],
             [[0,1],[-0.5522,1],[-1,0.5522],[-1,0]],
             [[-1,0],[-1,-0.5522],[-0.5522,-1],[0,-1]],
-            [[0,-1],[0.5522,-1],[1,-0.5522],[1,0]]];
+            [[0,-1],[0.5522,-1],[1,-0.5522],[1,0]]]
 
 # # Bezierdarstellung des ersten Viertels vom Einheitskreis
 # def bezierKurveViertelkreis():
@@ -81,7 +81,7 @@ def kreisSegmente(n,r,M):
         # Teile Kreis in 4*n Teile
         # --> je Segment werden 4 Teile benoetigt, Viertelkreis entspricht n Teile
         # Kreisanteile, die noch fuer aktuelles Segment benoetigt werden
-        segmentRest = 4;
+        segmentRest = 4
         
         while segmentRest > 0:
             if viertelKreisRest == 0:
@@ -112,7 +112,7 @@ def kreisSegmente(n,r,M):
 def shapeAusKurvenSegmentListe(slide, kurvenSegmentListe):
     '''Erstelle neues Shape auf Slide aus geschachtelter Bezierkurvenliste: [[bezier1, bezier2],[bezier3, bezier4]]'''
     # erster Punkt
-    P = kurvenSegmentListe[0][0][0];
+    P = kurvenSegmentListe[0][0][0]
     ffb = slide.Shapes.BuildFreeform(1, P[0], P[1])
     
     for segment in kurvenSegmentListe:

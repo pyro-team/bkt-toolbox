@@ -33,7 +33,6 @@ class AutoReleasingComObject(object):
         if not type(comobj).__name__ == '__ComObject':
             # FIXME: raise ERROR
             raise AttributeError("AutoReleasingComObject expects to wrap a ComObject.")
-            pass
         self._comobj = comobj
         self._release_self = release_self
         self._accessed_com_attributes = []

@@ -318,7 +318,6 @@ SHAPE_ATT_MAP = {
                  "txt_back" : C_TXT_BACK,
                  "txt_valign": C_VALIGN,
                  "txt_color": C_TEXTCOLOR,
-                 "txt_valign": C_VALIGN,
                  "txt_linespace": C_LINESPACING,
                  "begin_arrow" : C_BEGIN_ARROW,
                  "end_arrow" : C_END_ARROW,

@@ -639,7 +639,7 @@ def require_ui(func):
         if ui_nfo is None:
             raise DecorationError('wrong annotation order: ' + require_ui_wrapper.__name__ + ' called before ui-info was initialized')
         if not isinstance(ui_nfo, UIInformation):
-            raise TypeError('got %s, expected' % (type(ui_nfo), UIInformation))
+            raise TypeError('got %s, expected %s' % (type(ui_nfo), UIInformation))
         return func(annotation, *args, **kwargs)
     
     require_ui_wrapper.__name__ = func.__name__ + '_require_ui'

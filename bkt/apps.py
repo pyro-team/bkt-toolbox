@@ -17,7 +17,6 @@ from bkt.callbacks import Callback, CallbackTypes
 import logging
 import time
 
-from System.Runtime.InteropServices.Marshal import ReleaseComObject
 
 
 class AppEventType(object):

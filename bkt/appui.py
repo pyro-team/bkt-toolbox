@@ -309,7 +309,7 @@ class AppUI(object):
         if len(self.custom_ribbon_uis[ribbon_id].tabs) > 0:
             tabs = [
                 mod_ribbon.Tabs(
-                    children = [self.create_control(tab, ribbon_id)  for tab_id, tab in self.custom_ribbon_uis[ribbon_id].tabs.iteritems()]
+                    children = [self.create_control(tab, ribbon_id)  for _, tab in self.custom_ribbon_uis[ribbon_id].tabs.iteritems()]
                 )
             ]
 

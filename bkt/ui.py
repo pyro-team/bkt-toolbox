@@ -171,11 +171,11 @@ class UserInputBox(object):
             D = dotnet.import_drawing()
             F.Application.EnableVisualStyles()  
 
-        prompt = F.Form();
-        prompt.Width = 500;
-        prompt.Height = 10;
-        prompt.Text = title;
-        prompt.StartPosition = F.FormStartPosition.CenterScreen;
+        prompt = F.Form()
+        prompt.Width = 500
+        prompt.Height = 10
+        prompt.Text = title
+        prompt.StartPosition = F.FormStartPosition.CenterScreen
         prompt.AutoSize = True
         #prompt.TopMost = True
         prompt.MinimizeBox = False
@@ -217,8 +217,8 @@ class UserInputBox(object):
         buttonsPanel.DockPadding.All = 10
         #buttonsPanel.BorderStyle = F.BorderStyle.Fixed3D
 
-        prompt.AcceptButton = confirmation;
-        prompt.CancelButton = cancel;
+        prompt.AcceptButton = confirmation
+        prompt.CancelButton = cancel
 
         self.superPanel = superPanel
         self.buttonsPanel = buttonsPanel

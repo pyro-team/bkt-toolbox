@@ -5,6 +5,7 @@ Created on 13.11.2014
 @authors: cschmitt, rdebeerst
 '''
 
+import logging
 
 
 def get_dotnet_callback_name(python_name):
@@ -259,7 +260,7 @@ class Callback(object):
         if self.callback_type:
             return self.callback_type.xml()
         else:
-            return self.__name__
+            return self.__class__.__name__
     
 
 

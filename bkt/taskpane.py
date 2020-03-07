@@ -334,7 +334,7 @@ class ExpanderWrapPanel(Wpf.Expander):
     Simplified definition of WrapPanel within Expander
     '''
     def __init__(self, *args, **userkwargs):
-        super(ExpanderStackPanel, self).__init__()
+        super(ExpanderWrapPanel, self).__init__()
         kwargs = dict(Orientation="Horizontal")
         kwargs.update(userkwargs)
         self.children = [
