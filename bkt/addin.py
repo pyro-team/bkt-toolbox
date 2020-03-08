@@ -731,6 +731,11 @@ class AddIn(object):
                         if bkt.config.show_exception:
                             _h.exception_as_message('failed to load legacy feature-folder %s' % folder)
                         #TODO: Offer user to remove feature folder from config on error
+                
+                # feature folder without python init file
+                else:
+                    logging.warning('feature-folder %s has no init files' % folder)
+
             
             #save to cache
             import_cache['cache.app']       = self.context.app_name
