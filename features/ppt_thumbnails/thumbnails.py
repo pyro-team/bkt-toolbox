@@ -236,7 +236,7 @@ class Thumbnailer(object):
             slide_id = tags["slide_id"]
             slide_path = tags["slide_path"]
             try:
-                pres, close = cls._get_presentation(application, slide_path, False)
+                pres, _ = cls._get_presentation(application, slide_path, False)
                 
                 #bring window to front
                 if pres.Windows.Count > 0:
@@ -394,8 +394,8 @@ class Thumbnailer(object):
                 path,slideid = shp.LinkFormat.SourceFullName.split("!")
                 data = ([slideid], path)
             except:
-                raise ValueError("Invalid clipboard format")
                 logging.error(traceback.format_exc())
+                raise ValueError("Invalid clipboard format")
             finally:
                 if shp:
                     shp.Delete()
@@ -409,8 +409,8 @@ class Thumbnailer(object):
 
     @classmethod
     def _prepare_path(cls, application, path):
-        drive1, tail1 = os.path.splitdrive(path)
-        drive2, tail2 = os.path.splitdrive(application.ActivePresentation.FullName)
+        drive1, _ = os.path.splitdrive(path)
+        drive2, _ = os.path.splitdrive(application.ActivePresentation.FullName)
         if path == application.ActivePresentation.FullName:
             path = "CURRENT"
         elif USE_RELATIVE_PATHS and drive1 != '' and drive1 == drive2: #same drive -> use relative path

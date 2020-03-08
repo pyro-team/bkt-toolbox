@@ -580,8 +580,8 @@ class QuickEdit(object):
     def reset_own_colors(cls):
         default = [192, 255, 49407, 65535, 5296274, 5287936, 15773696, 12611584, 6299648, 10498160]
         for i, color in enumerate(default):
-            # cls._usercolors[i] = default[i]
-            cls._userdefined[i].set_userdefined_rgb(default[i])
+            # cls._usercolors[i] = color
+            cls._userdefined[i].set_userdefined_rgb(color)
         cls.save_to_config()
 
 
@@ -877,7 +877,7 @@ class QuickEdit(object):
         helpfile = os.path.join(os.path.dirname(os.path.realpath(__file__)), "resources", "QuickEdit Help.pdf")
         try:
             from os import startfile
-            os.startfile(helpfile)
+            startfile(helpfile)
         except:
             logging.error("QuickEdit: Error opening the help file.")
             bkt.helpers.message("Fehler beim Öffnen der PDF-Hilfedatei. Bitte Datei manuell öffnen: {}".format(helpfile))
