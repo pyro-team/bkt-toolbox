@@ -18,7 +18,8 @@ class EditModeShapes(object):
     @classmethod
     def addNote(cls, slide, context):
         from datetime import datetime
-        from System import Environment
+        # from System import Environment #used for Environment.UserName
+        from getpass import getuser
 
         # Positionsanpassung ermitteln (unter existierenden Shape)
         yPosition = 0
@@ -56,7 +57,7 @@ class EditModeShapes(object):
         shp.TextFrame.MarginRight  = 5
         # Text
         dt = datetime.now()
-        new_text = dt.strftime("%d.%m.%y %H:%M") + " (" + Environment.UserName + "): EDIT"
+        new_text = dt.strftime("%d.%m.%y %H:%M") + " (" + getuser() + "): EDIT"
         shp.TextFrame.TextRange.Text = new_text
         shp.Select() #first select shape, then text in shape. otherwise test is not selected in some cases.
         shp.TextFrame.TextRange.Characters(len(new_text)-3, 4).Select()
