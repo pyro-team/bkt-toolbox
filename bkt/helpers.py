@@ -33,13 +33,13 @@ class Forms(object):
 
     class MessageBoxIcon(object):
         #None =        0x00000000L
-        Stop =        0x00000010L
+        Stop =        0x00000010L #=Error=Hand
         Error =       0x00000010L
         Hand =        0x00000010L
         Question =    0x00000020L
-        Exclamation = 0x00000030L
+        Exclamation = 0x00000030L #=Warning
         Warning     = 0x00000030L
-        Information = 0x00000040L
+        Information = 0x00000040L #=Asterisk
         Asterisk    = 0x00000040L
 
     class DialogResult(object):
@@ -65,12 +65,12 @@ class Forms(object):
             return ctypes.windll.user32.MessageBoxW(_get_hwnd(), text, title, buttons | icon | 0x00002000L | 0x00010000L) #TASKMODAL | SETFOREGROUND
 
 
-def message(text, title="BKT"):
+def message(text, title="BKT", icon=Forms.MessageBoxIcon.Information):
     #MessageBox.Show(text, title, buttons, icon, default button, options, help-string)
-    Forms.MessageBox.Show(text, title, Forms.MessageBoxButtons.OK, Forms.MessageBoxIcon.Information)
+    Forms.MessageBox.Show(text, title, Forms.MessageBoxButtons.OK, icon)
 
-def confirmation(text, title="BKT", buttons=Forms.MessageBoxButtons.OKCancel):
-    result = Forms.MessageBox.Show(text, title, buttons, Forms.MessageBoxIcon.Question)
+def confirmation(text, title="BKT", buttons=Forms.MessageBoxButtons.OKCancel, icon=Forms.MessageBoxIcon.Question):
+    result = Forms.MessageBox.Show(text, title, buttons, icon)
     if buttons == Forms.MessageBoxButtons.OKCancel or buttons == Forms.MessageBoxButtons.YesNo:
         if result == Forms.DialogResult.OK or result == Forms.DialogResult.Yes:
             return True
@@ -79,6 +79,11 @@ def confirmation(text, title="BKT", buttons=Forms.MessageBoxButtons.OKCancel):
     else:
         return result
 
+def warning(text, title="BKT"):
+    message(text, title, icon=Forms.MessageBoxIcon.Exclamation)
+
+def error(text, title="BKT"):
+    message(text, title, icon=Forms.MessageBoxIcon.Error)
 
 def log(s):
     logging.warning(s)
