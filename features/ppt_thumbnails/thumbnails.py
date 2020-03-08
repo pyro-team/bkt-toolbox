@@ -173,7 +173,7 @@ class Thumbnailer(object):
                     cls.find_and_copy_object(application, slide_id, data["slide_path"], content_only, shape_id)
                 except:
                     #bkt.helpers.exception_as_message()
-                    bkt.helpers.message("Fehler! Referenz nicht gefunden.")
+                    bkt.helpers.error("Fehler! Referenz nicht gefunden.", "BKT: Thumbnails")
                     continue
                 #Paste
                 cur_slide.Shapes.PasteSpecial(Datatype=data_type)
@@ -185,7 +185,7 @@ class Thumbnailer(object):
                 shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_THUMBNAIL)
             except Exception as e:
                 #bkt.helpers.exception_as_message()
-                bkt.helpers.message("Fehler! Thumbnail konnte nicht im gewählten Format eingefügt werden. ({})".format(e))
+                bkt.helpers.error("Fehler! Thumbnail konnte nicht im gewählten Format eingefügt werden. ({})".format(e), "BKT: Thumbnails")
                 logging.error(traceback.format_exc())
         
         # select pasted shapes
@@ -253,11 +253,11 @@ class Thumbnailer(object):
                             shp = cls._find_by_shape_id(slide, tags["shape_id"])
                             shp.Select()
                         except:
-                            bkt.helpers.message("Fehler! Shape in der referenzierten Präsentation nicht gefunden.")
+                            bkt.helpers.error("Fehler! Shape in der referenzierten Präsentation nicht gefunden.", "BKT: Thumbnails")
                 except:
-                    bkt.helpers.message("Fehler! Folie in der referenzierten Präsentation nicht gefunden.")
+                    bkt.helpers.error("Fehler! Folie in der referenzierten Präsentation nicht gefunden.", "BKT: Thumbnails")
             except:
-                if bkt.helpers.confirmation("Fehler! Referenzierte Präsentation '%s' nicht gefunden. Neue Datei auswählen?" % slide_path):
+                if bkt.helpers.confirmation("Fehler! Referenzierte Präsentation '%s' nicht gefunden. Neue Datei auswählen?" % slide_path, "BKT: Thumbnails", icon=bkt.helpers.Forms.MessageBoxIcon.Warning):
                     cls.replace_file_ref(shape, application)
 
     @classmethod
@@ -273,7 +273,7 @@ class Thumbnailer(object):
                     thumbs.append(shp)
 
         if len(thumbs) == 0:
-            bkt.helpers.message("Keine Folien-Thumbnails gefunden.")
+            bkt.helpers.warning("Keine Folien-Thumbnails gefunden.", "BKT: Thumbnails")
             return
 
         cls.shapes_refresh(thumbs, application)
@@ -289,22 +289,22 @@ class Thumbnailer(object):
                 err_counter += 1
                 # bkt.helpers.exception_as_message()
         if err_counter > 0:
-            bkt.helpers.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert, aber %r Folien-Thumbnail/s konnten wegen eines Fehlers nicht aktualisiert werden. Die fehlerhaften Thumbnails wurden mit dem Text 'BKT THUMB UPDATE FAILED' markiert." % (len(shapes)-err_counter, err_counter))
+            bkt.helpers.warning("Es wurde/n %r Folien-Thumbnail/s aktualisiert, aber %r Folien-Thumbnail/s konnten wegen eines Fehlers nicht aktualisiert werden. Die fehlerhaften Thumbnails wurden mit dem Text 'BKT THUMB UPDATE FAILED' markiert." % (len(shapes)-err_counter, err_counter), "BKT: Thumbnails")
         else:
-            bkt.helpers.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert." % len(shapes))
+            bkt.helpers.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert." % len(shapes), "BKT: Thumbnails")
 
     @classmethod
     def shape_refresh(cls, shape, application):
         try:
             return cls._shape_refresh(shape, application)
         except IndexError:
-            bkt.helpers.message("Fehler! Folien-Referenz nicht gefunden.")
+            bkt.helpers.error("Fehler! Folien-Referenz nicht gefunden.")
         except IOError:
-            if bkt.helpers.confirmation("Fehler! Präsentation aus Folien-Referenz nicht gefunden. Neue Datei auswählen?"):
+            if bkt.helpers.confirmation("Fehler! Präsentation aus Folien-Referenz nicht gefunden. Neue Datei auswählen?", "BKT: Thumbnails", icon=bkt.helpers.Forms.MessageBoxIcon.Warning):
                 cls.replace_file_ref(shape, application)
         except:
-            bkt.helpers.message("Fehler! Thumbnail konnte nicht aktualisiert werden.")
-            logging.error("Error updating thumbnail!")
+            bkt.helpers.error("Fehler! Thumbnail konnte nicht aktualisiert werden.", "BKT: Thumbnails")
+            logging.error("Thumbnails: Error updating thumbnail!")
             logging.error(traceback.format_exc())
 
     @classmethod
@@ -372,7 +372,7 @@ class Thumbnailer(object):
     @classmethod
     def get_clipboard_data(cls, application):
         if Forms.Clipboard.ContainsData(BKT_THUMBNAIL):
-            logging.info("Get thumbnail from BKT_THUMBNAIL clipboard data")
+            logging.info("Thumbnails: Get thumbnail from BKT_THUMBNAIL clipboard data")
             try:
                 data = Forms.Clipboard.GetData(BKT_THUMBNAIL)
                 #bruteforce method to convert data into correct type
@@ -382,7 +382,7 @@ class Thumbnailer(object):
                 raise ValueError("Invalid clipboard format")
         
         else:
-            logging.info("Get thumbnail from OLE object in clipboard")
+            logging.info("Thumbnails: Get thumbnail from OLE object in clipboard")
             try:
                 shp = application.ActiveWindow.Selection.SlideRange[1].Shapes.PasteSpecial(Datatype=10, Link=True) #ppPasteOLEObject
                 try:
@@ -442,7 +442,7 @@ class Thumbnailer(object):
 
     @classmethod
     def unset_thumbnail(cls, shape):
-        if bkt.helpers.confirmation("Dies löscht dauerhaft die Folien-Referenz und damit die Möglichkeit der Aktualisierung des Thumbnails."):
+        if bkt.helpers.confirmation("Dies löscht dauerhaft die Folien-Referenz und damit die Möglichkeit der Aktualisierung des Thumbnails.", "BKT: Thumbnails"):
             shape.Tags.Delete(BKT_THUMBNAIL)
 
     @classmethod
@@ -755,14 +755,14 @@ class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
             else:
                 Thumbnailer.shapes_refresh(shapes, self._context.app)
         except:
-            bkt.helpers.message("Thumbnail-Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
+            bkt.helpers.error("Thumbnail-Aktualisierung aus unbekannten Gründen fehlgeschlagen.", "BKT: Thumbnails")
             logging.error(traceback.format_exc())
 
     def btngoto(self, sender, event):
         try:
             Thumbnailer.goto_ref(self._context.shape, self._context.app)
         except:
-            bkt.helpers.message("Fehler beim Öffnen der Folienreferenz.")
+            bkt.helpers.error("Fehler beim Öffnen der Folienreferenz.", "BKT: Thumbnails")
             logging.error(traceback.format_exc())
 
 
