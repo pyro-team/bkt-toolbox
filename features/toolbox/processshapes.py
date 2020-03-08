@@ -136,14 +136,14 @@ class ProcessChevronsPopup(bkt.ui.WpfWindowAbstract):
         try:
             ProcessChevrons.add_chevron(list(iter(self._context.selection.ShapeRange)))
         except:
-            bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
+            bkt.helpers.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
             # bkt.helpers.exception_as_message()
 
     def btnminus(self, sender, event):
         try:
             ProcessChevrons.remove_chevron(list(iter(self._context.selection.ShapeRange)))
         except:
-            bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
+            bkt.helpers.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
             # bkt.helpers.exception_as_message()
 
 #initialization function called by contextdialogs.py
@@ -352,7 +352,7 @@ class Pentagon(object):
             shapes = list(iter(context.slide.shapes))
         body = cls.find_corresponding_body_shape(shapes, header)
         if not body:
-            bkt.helpers.message("Fehler: Zugehöriges Prozess-Shape nicht gefunden!")
+            bkt.helpers.error("Fehler: Zugehöriges Prozess-Shape nicht gefunden!")
         else:
             cls.update_header(body, header)
         

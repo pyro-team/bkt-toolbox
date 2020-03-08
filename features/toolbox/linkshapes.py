@@ -86,12 +86,12 @@ class LinkedShapes(object):
                 break
 
         if shapes_found == 0:
-            bkt.helpers.message("Keine vergleichbaren Shapes gefunden.")
+            bkt.helpers.message("Keine vergleichbaren Shapes gefunden.", "BKT: Verknüpfte Shapes")
         elif dry_run:
-            bkt.helpers.message("Es wurden %s Shapes zum verknüpfen gefunden." % shapes_found)
+            bkt.helpers.message("Es wurden %s Shapes zum verknüpfen gefunden." % shapes_found, "BKT: Verknüpfte Shapes")
         else:
             cls._add_tags(shape, link_guid)
-            bkt.helpers.message("Das Shape wurde mit %s Shapes verknüpft." % shapes_found)
+            bkt.helpers.message("Das Shape wurde mit %s Shapes verknüpft." % shapes_found, "BKT: Verknüpfte Shapes")
             context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
 
     @classmethod
@@ -152,7 +152,7 @@ class LinkedShapes(object):
     @classmethod
     def extend_link_shapes(cls, shape):
         cls.current_link_guid = shape.Tags.Item(BKT_LINK_UUID)
-        bkt.helpers.message('Die Link-ID wurde zwischengespeichert. Als nächstes können weitere Shapes ausgewählt und über "Ausgewählte Shapes zur Verknüpfung hinzufügen" mit diesem Shape verknüpft werden.')
+        bkt.helpers.message('Die Link-ID wurde zwischengespeichert. Als nächstes können weitere Shapes ausgewählt und über "Ausgewählte Shapes zur Verknüpfung hinzufügen" mit diesem Shape verknüpft werden.', "BKT: Verknüpfte Shapes")
 
     @classmethod
     def add_to_link_shapes(cls, shapes):
@@ -164,7 +164,7 @@ class LinkedShapes(object):
         count_shapes = 0
         for _ in cls._iterate_linked_shapes(shape, context):
             count_shapes += 1
-        bkt.helpers.message("Es wurden %s verknüpfte Shapes gefunden." % count_shapes)
+        bkt.helpers.message("Es wurden %s verknüpfte Shapes gefunden." % count_shapes, "BKT: Verknüpfte Shapes")
     
     @classmethod
     def goto_linked_shape(cls, shape, context, goto=1, delta=True): #goto=1 -> next linked shape, delta=False -> goto interpreted as absolute index
@@ -235,7 +235,7 @@ class LinkedShapes(object):
             if shape.Type == pplib.MsoShapeType["msoGroup"]:
                 mode = "group"
             else:
-                bkt.helpers.message("Formatierung angleichen für gewähltes Shape nicht verfügbar.")
+                bkt.helpers.warning("Formatierung angleichen für gewähltes Shape nicht verfügbar.", "BKT: Verknüpfte Shapes")
                 return
 
         for cShp in cls._iterate_linked_shapes(shape, context):
@@ -276,7 +276,7 @@ class LinkedShapes(object):
         elif shape.Type == pplib.MsoShapeType["msoGroup"]:
             mode = "group"
         else:
-            bkt.helpers.message("Text angleichen für gewähltes Shape nicht verfügbar.")
+            bkt.helpers.warning("Text angleichen für gewähltes Shape nicht verfügbar.", "BKT: Verknüpfte Shapes")
             return
 
         for cShp in cls._iterate_linked_shapes(shape, context):
@@ -855,39 +855,39 @@ class LinkedShapePopup(bkt.ui.WpfWindowAbstract):
         try:
             self._context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
         except:
-            bkt.helpers.message("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
+            bkt.helpers.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
 
     def btnsync_text(self, sender, event):
         try:
             LinkedShapes.text_linked_shapes(self._context.shapes[-1], self._context)
         except:
-            bkt.helpers.message("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
+            bkt.helpers.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
     def btnsync_possize(self, sender, event):
         try:
             LinkedShapes.align_linked_shapes(self._context.shapes[-1], self._context)
             LinkedShapes.size_linked_shapes(self._context.shapes[-1], self._context)
         except:
-            bkt.helpers.message("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
+            bkt.helpers.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
     def btnsync_format(self, sender, event):
         try:
             LinkedShapes.format_linked_shapes(self._context.shapes[-1], self._context)
         except:
-            bkt.helpers.message("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
+            bkt.helpers.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
     def btnnext(self, sender, event):
         try:
             LinkedShapes.goto_linked_shape(self._context.shapes[-1], self._context)
         except:
-            bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
+            bkt.helpers.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
 
     @staticmethod
     def double_click(shape, context):
         try:
             context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
         except:
-            bkt.helpers.message("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
+            bkt.helpers.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
 
 
 # register dialog

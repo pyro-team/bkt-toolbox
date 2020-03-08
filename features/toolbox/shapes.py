@@ -578,7 +578,7 @@ class ShapeConnectors(object):
                 shape1 = cls._find_shape_by_id(slide, tags["shape1_id"])
                 shape2 = cls._find_shape_by_id(slide, tags["shape2_id"])
             except IndexError:
-                bkt.helpers.message("Fehler: Verbundenes Shape nicht gefunden!")
+                bkt.helpers.error("Fehler: Verbundenes Shape nicht gefunden!")
             else:
                 cls._set_connector_shape_nodes(shape, shape1, shape2, tags["shape1_side"], tags["shape2_side"])
 
@@ -679,7 +679,7 @@ class ShapesMore(object):
         try:
             slide.Shapes.PasteSpecial(Link=True)
         except:
-            bkt.helpers.message("Das Element in der Zwischenablage unterstützt diesen Einfügetyp nicht.")
+            bkt.helpers.error("Das Element in der Zwischenablage unterstützt diesen Einfügetyp nicht.")
     
     @staticmethod
     def paste_and_replace(slide, shape, keep_size=True):
@@ -721,7 +721,7 @@ class ShapesMore(object):
     @classmethod
     def texts_to_shapes(cls, shapes):
         if pplib.shape_is_group_child(shapes[0]) or any(shape.type == pplib.MsoShapeType["msoGroup"] for shape in shapes):
-            bkt.helpers.message("PowerPoint unterstützt diese Funktion leider nicht für Gruppen")
+            bkt.helpers.error("PowerPoint unterstützt diese Funktion leider nicht für Gruppen.")
             return
         all_shapes = []
         for shape in shapes:

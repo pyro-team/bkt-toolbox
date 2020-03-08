@@ -290,7 +290,7 @@ class ToolboxAgenda(object):
         
         master_textbox = cls.get_agenda_textbox_on_slide(slide)
         if master_textbox is None:
-            bkt.helpers.message("Keine Agenda-Textbox auf der Folie vorhanden.", title="Toolbox: Agenda")
+            bkt.helpers.warning("Keine Agenda-Textbox auf der Folie vorhanden.", title="Toolbox: Agenda")
             return
         
         cls.create_agenda_from_textbox(master_textbox, context)
@@ -327,7 +327,7 @@ class ToolboxAgenda(object):
         elif cls.can_create_agenda_from_slide(slide):
             cls.create_agenda_from_slide(slide, context)
         else:
-            bkt.helpers.message("Agenda nicht gefunden!")
+            bkt.helpers.warning("Agenda nicht gefunden!", title="Toolbox: Agenda")
 
 
     
@@ -350,11 +350,11 @@ class ToolboxAgenda(object):
             if cls.is_agenda_slide(slide):
                 # find all agenda-slides in presentation
                 # bkt.helpers.message(slide.Tags.Item(TOOLBOX_AGENDA))
-                bkt.helpers.message("Keine Agenda-Einstellungen auf aktueller Folie. Durchsuche alle Agenda-Folien.", title="Toolbox: Agenda")
+                bkt.helpers.warning("Keine Agenda-Einstellungen auf aktueller Folie. Durchsuche alle Agenda-Folien.", title="Toolbox: Agenda")
                 return cls.find_all_agenda_slides(slide.parent)
             else:
                 # slide is not an agenda slide
-                bkt.helpers.message("Aktuelle Folie ist keine Agenda-Folie!", title="Toolbox: Agenda")
+                bkt.helpers.warning("Aktuelle Folie ist keine Agenda-Folie!", title="Toolbox: Agenda")
                 return []
         
         return cls.find_agenda_items_by_id(slide.parent, settings[SETTING_AGENDA_ID])
@@ -438,7 +438,7 @@ class ToolboxAgenda(object):
         '''
         agenda_slides = cls.find_agenda_items_by_slide(slide)
         if len(agenda_slides) == 0:
-            bkt.helpers.message("Keine Agenda gefunden!", title="Toolbox: Agenda")
+            bkt.helpers.warning("Keine Agenda gefunden!", title="Toolbox: Agenda")
             return
         
         # search master slide
@@ -1908,13 +1908,13 @@ class AgendaPopup(bkt.ui.WpfWindowAbstract):
         try:
             self._context.ribbon.ActivateTab('bkt_context_tab_agenda')
         except:
-            bkt.helpers.message("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
+            bkt.helpers.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
 
     def btnupdate(self, sender, event):
         try:
             ToolboxAgenda.update_or_create_agenda_from_slide(self._context.slide, self._context)
         except:
-            bkt.helpers.message("Agenda-Update aus unbekannten Gründen fehlgeschlagen.")
+            bkt.helpers.error("Agenda-Update aus unbekannten Gründen fehlgeschlagen.")
 
 
 # register dialog

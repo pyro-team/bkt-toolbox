@@ -58,7 +58,7 @@ class ProtectedView(object):
         message = '''At least one open presentation in protected view detected. Even if the protected view window is in the background, PowerPoint might show unexpected behavior such as keyboard input lags or shapes are glued to the cursor on selection.
 
 If you continue editing in PowerPoint it is highly recommended to open all presentations in editing mode or close all protected view windows. This is not a BKT bug but a PowerPoint bug.'''
-        bkt.helpers.message(message, "Protected view window detected!")
+        bkt.helpers.warning(message, "BKT: Protected view window detected!")
 
 
 
