@@ -1245,10 +1245,10 @@ class ArrangeAdvanced(object):
     master_indicator = True
 
     #instance variables:
-    margin = 0
-    resize = False
-    ref_shape = None
-    ref_frame = None
+    # margin = 0
+    # resize = False
+    # ref_shape = None
+    # ref_frame = None
     
 
     # def _create_control(self, control, children, callbacks):
@@ -1296,10 +1296,10 @@ class ArrangeAdvanced(object):
 
     def __init__(self):
         #instance variables:
-        margin = 0
-        resize = False
-        ref_shape = None
-        ref_frame = None
+        self.margin = 0
+        self.resize = False
+        self.ref_shape = None
+        self.ref_frame = None
         
         #save preference for master shape (first or last selected) into class variables
         ArrangeAdvanced.fallback_first_last = bkt.settings.get("arrange_advanced.default", "LAST")
@@ -2133,10 +2133,10 @@ arrange_advanced_small_group = bkt.ribbon.Group(
 
 
 class ArrangeAdvancedEasy(ArrangeAdvanced):
-    margin = 0
 
     def __init__(self, resize_mode):
         self.resize_mode = resize_mode
+        self.margin = 0
         # super(ArrangeAdvancedEasy, self).__init__()
 
     def get_master_from_shapes(self, shapes):
