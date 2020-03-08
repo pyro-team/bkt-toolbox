@@ -16,7 +16,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         super(ViewModel, self).__init__()
 
         self.settings = settings
-        self.settings_all = all(self.settings.values())
+        # self.settings_all = all(self.settings.values())
         
         self.show_delete = Visibility.Collapsed
         if mode == "edit" and name is not None:
@@ -147,7 +147,7 @@ class PickupWindow(bkt.ui.WpfWindowAbstract):
             self._vm = ViewModel(style_setting.copy(), "apply")
 
 
-        name = None if index is None else index+1
+        # name = None if index is None else index+1
 
         super(PickupWindow, self).__init__()
 

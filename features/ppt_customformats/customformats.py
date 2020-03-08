@@ -504,7 +504,7 @@ class CustomFormatCatalog(object):
         # black image
         # settings = [0, None, None, "X"]
         # return cls.generate_image(size, *settings)
-        raise FileNotFoundError("image file not found")
+        raise OSError("image file not found")
 
 
     ### Helpers for image generation ###
@@ -557,7 +557,7 @@ class CustomFormatCatalog(object):
                 if bmp:
                     bmp.Dispose()
         else:
-            raise FileNotFoundError("thumbnail image not found")
+            raise OSError("thumbnail image not found")
         
         return filename
 
