@@ -60,7 +60,7 @@ class ConsolSplit(object):
     @classmethod
     def _get_safe_filename(cls, title):
         title = title.encode('ascii', 'ignore') #remove unicode characters
-        title = title.translate(cls.trans_table, '\/:*?"<>|') #replace special whitespace chacaters with space, also delete not allowed characters
+        title = title.translate(cls.trans_table, r'\/:*?"<>|') #replace special whitespace chacaters with space, also delete not allowed characters
         title = title[:32] #max 32 characters of title
         title = title.strip() #remove whitespaces at beginning and end
         return title
