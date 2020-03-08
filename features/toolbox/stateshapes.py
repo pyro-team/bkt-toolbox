@@ -239,7 +239,7 @@ class LikertScale(bkt.ribbon.Gallery):
     ]
     
     def __init__(self, **kwargs):
-        parent_id = kwargs.get('id') or ""
+        # parent_id = kwargs.get('id') or ""
         my_kwargs = dict(
             label = 'Likert-Scale',
             image = 'likert',

@@ -243,7 +243,6 @@ class ToolboxAgenda(object):
         master_slide = master_textbox.parent
         
         # set tags for master slide
-        id = str(uuid.uuid4())
         # default settings with new id
         settings = dict(cls.default_settings)
         settings.update({

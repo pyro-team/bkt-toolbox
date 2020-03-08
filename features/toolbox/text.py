@@ -838,7 +838,6 @@ class BulletStyle(object):
         # slide = shape.Parent
         # placeholders = [shape for shape in slide.Master.Shapes if shape.Type == 14 and shape.PlaceholderFormat.Type == 2]
         # textph = placeholders[0]
-        textph = ref_shape
         ph_paragraphs = [p for p in ref_shape.TextFrame2.TextRange.Paragraphs() ]
         ph_paragraphs = [[p for p in ph_paragraphs if p.ParagraphFormat.IndentLevel == indent_level] for indent_level in range(1,6) ] #IndentLevel is between 1 and 5
         ph_paragraphs = [ None if len(ph_list) == 0 else ph_list[0] for ph_list in ph_paragraphs ]

@@ -42,7 +42,7 @@ class ProcessChevrons(object):
 
     @classmethod
     def create_process(cls, slide, num_steps=3, first_pentagon=True, spacing=5):
-        ref_left,ref_top,ref_width,ref_height = pplib.slide_content_size(slide.parent)
+        ref_left,ref_top,ref_width,_ = pplib.slide_content_size(slide.parent)
 
         width=(ref_width+spacing)/num_steps-spacing
         height=50
@@ -54,7 +54,7 @@ class ProcessChevrons(object):
         else:
             slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeChevron'] , left, top, width, height)
         
-        for i in range(num_steps-1):
+        for _ in range(num_steps-1):
             left += width+spacing
             slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeChevron'] , left, top, width, height)
         
@@ -76,8 +76,6 @@ class ProcessChevrons(object):
 
     @classmethod
     def _add_chevron(cls, shape):
-        slide = shape.parent
-
         group = pplib.GroupManager(shape, additional_attrs=["width"])
         group.prepare_ungroup()
 
@@ -331,7 +329,7 @@ class Pentagon(object):
     @classmethod
     def is_headered_group(cls, shape):
         ''' returns true for group-shapes (header+body) '''
-        pentagon, header = cls.get_body_and_header_from_group(shape)
+        pentagon, _ = cls.get_body_and_header_from_group(shape)
         return pentagon != None
 
     @classmethod

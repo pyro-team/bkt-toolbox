@@ -176,7 +176,7 @@ class ShapeAdjustments(object):
         if cls.get_shape_type(shape) in cls.allowed_shape_types and shape.adjustments.count >= num:
             # if cls.get_shape_autotype(shape) in cls.auto_shape_type_settings.keys():
             try:
-                ref, minimum, maximum = cls.get_ref_min_max(shape, num)
+                ref, _, _ = cls.get_ref_min_max(shape, num)
                 return round(pt_to_cm( shape.adjustments.item[num] * ref ), 2)
             # else:
             except (KeyError, IndexError): #KeyError = shape type is not in database, IndexError = adjustment number is not in database

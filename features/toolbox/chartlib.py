@@ -589,7 +589,7 @@ class ChartLib(object):
         ''' Open library file with window and write access '''
         filename = current_control['tag']
         # Parameter: rw-access, ohne Titel, mit Fenster
-        presentation = context.app.Presentations.Open(filename, False, False, True)
+        context.app.Presentations.Open(filename, False, False, True)
     
     @classmethod
     def copy_slide_callback(cls, context, current_control):
@@ -678,7 +678,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         self.labels = []
         self.slide_indices = []
         
-        parent_id = user_kwargs.get('id') or ""
+        # parent_id = user_kwargs.get('id') or ""
         
         self.this_id = filename_as_ui_id(filename) + "--" + str(copy_shapes)
         
@@ -923,9 +923,9 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     
     def generate_gallery_images_from_slides(self, presentation):
         ''' generate thumbnail images for all chart-lib items '''
-        filename = presentation.FullName
-        item_count = presentation.Slides.Count
-        control_chars = dict.fromkeys(range(32))
+        # filename = presentation.FullName
+        # item_count = presentation.Slides.Count
+        # control_chars = dict.fromkeys(range(32))
         
         # make sure, directory exists
         directory = os.path.split( self.get_image_filename(1) )[0]
@@ -951,9 +951,9 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     
     def generate_gallery_images_from_shapes(self, presentation, with_placeholders=False):
         ''' generate thumbnail images for all shape-lib items '''
-        filename = presentation.FullName
-        item_count = presentation.Slides.Count
-        control_chars = dict.fromkeys(range(32))
+        # filename = presentation.FullName
+        # item_count = presentation.Slides.Count
+        # control_chars = dict.fromkeys(range(32))
         
         # make sure, directory exists
         directory = os.path.split( self.get_image_filename(1) )[0]
@@ -1046,7 +1046,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
             # return empty white image
             img = Bitmap(50, 50)
             color = ColorTranslator.FromHtml('#ffffff00')
-            img.SetPixel(0, 0, color);
+            img.SetPixel(0, 0, color)
             return img
 
 

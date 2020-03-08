@@ -38,7 +38,7 @@ class HarveyBalls(object):
             shape.Tags.Add(self.BKT_HARVEY_DENOM_TAG, denominator)
     
     def create_harvey_ball(self, context, slide, fill=0.25):
-        shapeCount = slide.shapes.count
+        # shapeCount = slide.shapes.count
 
         circ = slide.shapes.addshape( powerpoint.MsoAutoShapeType['msoShapeOval'] , 100, 100, 30,30)
         # circ.line.weight = type(self)._line_weight
@@ -96,7 +96,7 @@ class HarveyBalls(object):
             self.set_harvey(shape, num, max_num)
 
     def set_harvey(self, shape, num, max_num):
-        pie, circ = self.get_pie_circ(shape)
+        pie, _ = self.get_pie_circ(shape)
         if num == 0:
             pie.visible = 0
         else:
@@ -114,7 +114,7 @@ class HarveyBalls(object):
     
     def get_harvey_percent(self, shapes):
         shape = shapes[0]
-        pie, circ = self.get_pie_circ(shape)
+        pie, _ = self.get_pie_circ(shape)
         if pie == None:
             return None
         #return pie.adjustments.item[2]
@@ -203,7 +203,7 @@ class HarveyBalls(object):
         circ.Line.ForeColor.Brightness = brightness
     
     def get_selected_color(self, shapes):
-        pie,circ = self.get_pie_circ(shapes[0])
+        _,circ = self.get_pie_circ(shapes[0])
         if circ != None:
             return [circ.Line.ForeColor.ObjectThemeColor, circ.Line.ForeColor.Brightness, circ.Line.ForeColor.RGB]
         else:
@@ -242,7 +242,7 @@ class HarveyBalls(object):
         circ.Fill.ForeColor.Brightness  = brightness
     
     def get_selected_background(self, shapes):
-        pie,circ = self.get_pie_circ(shapes[0])
+        _,circ = self.get_pie_circ(shapes[0])
         if circ != None and circ.Fill.Visible and circ.Fill.Transparency == 0:
             return [circ.Fill.ForeColor.ObjectThemeColor, circ.Fill.ForeColor.Brightness, circ.Fill.ForeColor.RGB]
         else:
@@ -250,7 +250,7 @@ class HarveyBalls(object):
     
     def harvey_background_off(self, shapes):
         for shape in shapes:
-            pie, circ = self.get_pie_circ(shape)
+            _, circ = self.get_pie_circ(shape)
             # circ.Fill.Visible = 0
             circ.Fill.Transparency = 1 #transparency=1 is preferred as background is still selectable then
     
@@ -298,7 +298,7 @@ class HarveyBalls(object):
         if powerpoint.TagHelper.has_tag(shape, self.BKT_HARVEY_DIALOG_TAG):
             return True
         # "old" method via shape types
-        pie, circ = self.get_pie_circ(shape)
+        pie, _ = self.get_pie_circ(shape)
         return pie != None
 
     def get_pie_circ(self, shape):
@@ -356,7 +356,7 @@ class HarveyBalls(object):
         img = Drawing.Bitmap(size, size)
         if percent < 0 or percent > 1:
             color = Drawing.ColorTranslator.FromHtml('#ffffff00')
-            img.SetPixel(0, 0, color);
+            img.SetPixel(0, 0, color)
             return img
         color = Drawing.ColorTranslator.FromOle(0)
         g = Drawing.Graphics.FromImage(img)

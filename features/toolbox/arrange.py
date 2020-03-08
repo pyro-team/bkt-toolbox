@@ -796,7 +796,7 @@ class ShapeDistance(object):
                 else: #is_mode_distribute
                     delta_angle = -(_get_current_angle(shape1, shape) - value*(i+1))
                 new_vector, shape_rotation = _get_new_shape_coords(shape1, shape, delta_angle)
-                shape2_x, shape2_y = shape.left, shape.top
+                # shape2_x, shape2_y = shape.left, shape.top
 
                 # vector = [shape2_x-shape1_x, shape2_y-shape1_y]
                 # cur_angle = round(-180/math.pi * math.atan2(vector[1], vector[0]), 1)

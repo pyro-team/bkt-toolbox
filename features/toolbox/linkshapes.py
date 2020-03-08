@@ -162,7 +162,7 @@ class LinkedShapes(object):
     @classmethod
     def count_link_shapes(cls, shape, context):
         count_shapes = 0
-        for cShp in cls._iterate_linked_shapes(shape, context):
+        for _ in cls._iterate_linked_shapes(shape, context):
             count_shapes += 1
         bkt.helpers.message("Es wurden %s verknüpfte Shapes gefunden." % count_shapes)
     
