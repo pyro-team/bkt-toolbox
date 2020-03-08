@@ -561,10 +561,11 @@ class AddIn(object):
                     importlib.import_module(module)
                     # __import__(module)
                 except:
-                    logging.error('failed to load %s' % module)
-                    _h.message('failed to load %s' % module)
-                    _h.message(traceback.format_exc())
-                    #_h.exception_as_message('failed to load %s' % module)
+                    logging.critical('failed to load %s' % module)
+                    logging.debug(traceback.format_exc())
+                    _h.error('failed to load %s' % module)
+                    if bkt.config.show_exception:
+                        _h.exception_as_message('failed to load %s' % module)
         
 
         CACHE_VERSION = "20191213"
@@ -608,11 +609,11 @@ class AddIn(object):
                         module.BktFeature.contructor()
                     
                 except:
-                    logging.error('failed to load feature %s from cache' % module_name)
-                    logging.error(traceback.format_exc())
-                    _h.message('failed to load feature %s from cache' % module_name)
+                    logging.critical('failed to load feature %s from cache' % module_name)
+                    logging.debug(traceback.format_exc())
+                    _h.error('failed to load feature %s from cache' % module_name)
                     if bkt.config.show_exception:
-                        _h.exception_as_message()
+                        _h.exception_as_message('failed to load feature %s from cache' % module_name)
                     #TODO: remove cache on error?
 
             for module_name, folder in import_cache['inits.legacy']:
@@ -621,11 +622,11 @@ class AddIn(object):
                     # imp.load_source(module_name, os.path.join(folder, "__init__.py"))
                     importlib.import_module(module_name)
                 except:
-                    logging.error('failed to load legacy feature %s from cache' % module_name)
-                    logging.error(traceback.format_exc())
-                    _h.message('failed to load legacy feature %s from cache' % module_name)
+                    logging.critical('failed to load legacy feature %s from cache' % module_name)
+                    logging.debug(traceback.format_exc())
+                    _h.error('failed to load legacy feature %s from cache' % module_name)
                     if bkt.config.show_exception:
-                        _h.exception_as_message()
+                        _h.exception_as_message('failed to load legacy feature %s from cache' % module_name)
                     #TODO: remove cache on error?
         
         # load and renew cache:
@@ -705,11 +706,11 @@ class AddIn(object):
                             #add conflicting modules
                             _known_conflicts.extend(conflicts)
                     except:
-                        logging.error('failed to load feature-folder %s' % folder)
-                        logging.error(traceback.format_exc())
-                        _h.message('failed to load feature-folder %s' % folder)
+                        logging.critical('failed to load feature-folder %s' % folder)
+                        logging.debug(traceback.format_exc())
+                        _h.error('failed to load feature-folder %s' % folder)
                         if bkt.config.show_exception:
-                            _h.exception_as_message()
+                            _h.exception_as_message('failed to load feature-folder %s' % folder)
                         #TODO: Offer user to remove feature folder from config on error
 
                 # backwards compatibility: load module from init.py
@@ -724,11 +725,11 @@ class AddIn(object):
                         _c_sys_paths.add(base_folder)
                         _c_legacy_inits.append((module_name, folder))
                     except:
-                        logging.error('failed to load legacy feature-folder %s' % folder)
-                        logging.error(traceback.format_exc())
-                        _h.message('failed to load legacy feature-folder %s' % folder)
+                        logging.critical('failed to load legacy feature-folder %s' % folder)
+                        logging.debug(traceback.format_exc())
+                        _h.error('failed to load legacy feature-folder %s' % folder)
                         if bkt.config.show_exception:
-                            _h.exception_as_message()
+                            _h.exception_as_message('failed to load legacy feature-folder %s' % folder)
                         #TODO: Offer user to remove feature folder from config on error
             
             #save to cache
@@ -765,7 +766,7 @@ class AddIn(object):
         except:
             logging.critical("initialize app-classes failed")
             logging.debug(traceback.format_exc())
-            _h.message("initialize app-classes failed")
+            _h.error("initialize app-classes failed")
         
         
             
@@ -777,7 +778,7 @@ class AddIn(object):
         except:
             logging.critical("binding of callbacks to application events failed")
             logging.debug(traceback.format_exc())
-            _h.message("binding of callbacks to application events failed")
+            _h.error("binding of callbacks to application events failed")
         
         
         logging.debug('on_create done ')
@@ -813,7 +814,7 @@ class AddIn(object):
             except:
                 logging.critical("initialization of ui-callbacks failed")
                 logging.debug(traceback.format_exc())
-                _h.message("initialization of ui-callbacks failed")
+                _h.error("initialization of ui-callbacks failed")
             
             
             ### retrieve ribbon ui
@@ -824,7 +825,7 @@ class AddIn(object):
             #traceback.print_exc()
             logging.critical('get_custom_ui failed!')
             logging.debug(traceback.format_exc())
-            _h.message(traceback.format_exc())
+            _h.error(traceback.format_exc())
             #_h.exception_as_message()
     
     
@@ -838,9 +839,9 @@ class AddIn(object):
                 logging.debug(self.app_ui.get_taskpane_ui())
                 return self.app_ui.get_taskpane_ui()
         except:
-            #traceback.print_exc()
             logging.critical('get_custom_taskpane_ui failed!')
-            _h.message(traceback.format_exc())
+            logging.debug(traceback.format_exc())
+            _h.error(traceback.format_exc())
             #_h.exception_as_message()
 
         
