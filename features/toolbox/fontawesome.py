@@ -163,7 +163,7 @@ class FontSearch(object):
             fontmodules = [
                 bkt.ribbon.MenuSeparator(title="{} Ergebnisse für »{}«".format(len(cls.search_results), cls.search_term))
             ]
-            for fontlabel, icons in cls.search_results.groupedby("fontlabel").iteritems():
+            for fontlabel, icons in cls.search_results.groupedby("fontlabel"):
                 fontmodules.append(
                     PPTSymbolsGallery(
                         label="{} ({})".format(fontlabel, len(icons)),

@@ -5,8 +5,8 @@ import logging
 
 import bkt.helpers as _h
 
-import re
-import fnmatch #for fuzzy search
+import re #for extracting keywords from string
+import fnmatch #for fuzzy search in list
 from collections import defaultdict, namedtuple, OrderedDict
 from contextlib import contextmanager
 
@@ -16,34 +16,52 @@ SearchDocument = namedtuple("SearchDocument", "module name keywords")
 
 
 class SearchResults(object):
-    def __init__(self):
-        self._result_docs = []
-    
+    def __init__(self, doc_db, document_hashs=None):
+        self._doc_db = doc_db
+        self._result_hashes = document_hashs or set()
+
+        self._chained_iterators = None
+
     def __len__(self):
-        return len(self._result_docs)
+        return len(self._result_hashes)
     
     def __iter__(self):
-        for doc in self._result_docs:
-            yield doc
+        return self._iterator
+    
+    def _get_default_iterator(self):
+        for doc_hash,doc in self._doc_db.iteritems():
+                if doc_hash in self._result_hashes:
+                    yield doc
+    
+    @property
+    def _iterator(self):
+        if self._chained_iterators is None:
+            self._chained_iterators = self._get_default_iterator()
+        return self._chained_iterators
+    @_iterator.setter
+    def _iterator(self, value):
+        self._chained_iterators = value
 
     def groupedby(self, field):
-        result_dict = OrderedDict()
-        for doc in self._result_docs:
-            try:
-                result_dict[getattr(doc, field)].append(doc)
-            except KeyError:
-                result_dict[getattr(doc, field)] = [doc]
-        return result_dict
+        from itertools import groupby
+        self._iterator = [(k,list(g)) for k, g in groupby(self._iterator, key=lambda d: getattr(d, field))]
+        return self
+        # result_dict = OrderedDict()
+        # for doc in self._iterator:
+        #     try:
+        #         result_dict[getattr(doc, self._group_field)].append(doc)
+        #     except KeyError:
+        #         result_dict[getattr(doc, self._group_field)] = [doc]
+        # return result_dict.iteritems()
 
-    def sortedby(self, field):
-        return sorted(self._result_docs, key=lambda d: getattr(d, field))
+    def sortedby(self, field, reverse=False):
+        self._iterator = sorted(self._iterator, key=lambda d: getattr(d, field), reverse=reverse)
+        return self
 
-    def limit(self, stop):
+    def limit(self, stop, start=0):
         from itertools import islice
-        return islice(self, stop)
-
-    def add_result(self, document):
-        self._result_docs.append(document)
+        self._iterator = islice(self._iterator, stop=stop, start=start)
+        return self
 
 
 class SearchWriter(object):
@@ -97,7 +115,6 @@ class SearchSearcher(object):
     ### SEARCH ENGINE ###
     def search(self, query):
         ''' search with wildcards around each keyword, multiple keywords are connected with OR '''
-        result = SearchResults()
         logging.debug("SEARCH: for "+query)
 
         # #check min length
@@ -107,7 +124,8 @@ class SearchSearcher(object):
         #split keyword by whitespace
         search_terms = set(["*{}*".format(s) for s in query.lower().split()])
 
-        #perform search with wildcards
+        #perform search with wildcards using fnmatch
+        #FIXME: consider using regex instead of fnmatch?
         result_keywords = set()
         for search_term in search_terms:
             result_keywords = result_keywords.union(fnmatch.filter(self._engine._keywords, search_term))
@@ -117,38 +135,38 @@ class SearchSearcher(object):
         #convert found keywords to document hashs
         result_doc_hashes = set()
         for keyword in result_keywords:
-            result_doc_hashes = result_doc_hashes.union(self._engine._db[hash(keyword)])
+            # result_doc_hashes = result_doc_hashes.union(self._engine._db[hash(keyword)])
+            result_doc_hashes.update(self._engine._db[hash(keyword)])
 
         #add results in the order that documents have been added
-        # for doc_hash in result_doc_hashes:
-        #     result.add_result(self._engine._docs[doc_hash])
-        for doc_hash,doc in self._engine._docs.iteritems():
-            if doc_hash in result_doc_hashes:
-                result.add_result(self._engine._docs[doc_hash])
+        # for doc_hash,doc in self._engine._docs.iteritems():
+        #     if doc_hash in result_doc_hashes:
+        #         result.add_result(doc)
         
-        return result
+        return SearchResults(self._engine._docs, result_doc_hashes)
     
     def search_exact(self, query):
         ''' exact search without wildcards, multiple keywords are connected with AND '''
-        result = SearchResults()
         logging.debug("SEARCH EXACT: for "+query)
         
         #split keyword by whitespace
         search_terms = set([s for s in query.lower().split()])
 
         #add document hashes that have all defined keywords
+        #NOTE: as _db is a defaultdict, unkown search_terms do not throw an error but return an empty set
         result_doc_hashes = self._engine._db[hash(search_terms.pop())]
         for keyword in search_terms:
-            result_doc_hashes = result_doc_hashes.intersection(self._engine._db[hash(keyword)])
+            # result_doc_hashes = result_doc_hashes.intersection(self._engine._db[hash(keyword)])
+            result_doc_hashes.intersection_update(self._engine._db[hash(keyword)])
 
         #add results in the order that documents have been added
-        for doc_hash,doc in self._engine._docs.iteritems():
-            if doc_hash in result_doc_hashes:
-                result.add_result(self._engine._docs[doc_hash])
+        # for doc_hash,doc in self._engine._docs.iteritems():
+        #     if doc_hash in result_doc_hashes:
+        #         result.add_result(doc)
 
         # for doc_hash in self._engine._db[hash(query.lower())]:
         #     result.add_result(self._engine._docs[doc_hash])
-        return result
+        return SearchResults(self._engine._docs, result_doc_hashes)
 
 
 class SearchEngine(object):
