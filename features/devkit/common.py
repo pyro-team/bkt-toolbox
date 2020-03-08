@@ -9,8 +9,11 @@ Created on 26.02.2020
 import bkt
 import modules.settings as settings
 
+import logging
+
 
 class DevGroup(object):
+    log_level = None
     
     @staticmethod
     def show_console(context):
@@ -66,8 +69,15 @@ class DevGroup(object):
         bkt.config.set_smart("log_write_file", pressed)
     
     @staticmethod
-    def change_log_level(new_level):
-        bkt.config.set_smart("log_level", new_level)
+    def change_log_level(pressed, current_control):
+        bkt.config.set_smart("log_level", current_control["tag"])
+    
+    @classmethod
+    def get_log_level(cls, current_control):
+        if cls.log_level is None:
+            logger = logging.getLogger()
+            cls.log_level = logging.getLevelName(logger.level)
+        return cls.log_level == current_control["tag"]
 
 
 
@@ -148,28 +158,33 @@ common_group = bkt.ribbon.Group(
                     children=[
                         bkt.ribbon.ToggleButton(
                             label="DEBUG",
-                            get_pressed=bkt.Callback(lambda: bkt.config.log_level == "DEBUG"),
-                            on_toggle_action=bkt.Callback(lambda pressed: DevGroup.change_log_level("DEBUG"), transaction=False)
+                            tag="DEBUG",
+                            get_pressed=bkt.Callback(DevGroup.get_log_level),
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, transaction=False)
                         ),
                         bkt.ribbon.ToggleButton(
                             label="INFO",
-                            get_pressed=bkt.Callback(lambda: bkt.config.log_level == "INFO"),
-                            on_toggle_action=bkt.Callback(lambda pressed: DevGroup.change_log_level("INFO"), transaction=False)
+                            tag="INFO",
+                            get_pressed=bkt.Callback(DevGroup.get_log_level),
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, transaction=False)
                         ),
                         bkt.ribbon.ToggleButton(
                             label="WARNING",
-                            get_pressed=bkt.Callback(lambda: bkt.config.log_level == "WARNING"),
-                            on_toggle_action=bkt.Callback(lambda pressed: DevGroup.change_log_level("WARNING"), transaction=False)
+                            tag="WARNING",
+                            get_pressed=bkt.Callback(DevGroup.get_log_level),
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, transaction=False)
                         ),
                         bkt.ribbon.ToggleButton(
                             label="ERROR",
-                            get_pressed=bkt.Callback(lambda: bkt.config.log_level == "ERROR"),
-                            on_toggle_action=bkt.Callback(lambda pressed: DevGroup.change_log_level("ERROR"), transaction=False)
+                            tag="ERROR",
+                            get_pressed=bkt.Callback(DevGroup.get_log_level),
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, transaction=False)
                         ),
                         bkt.ribbon.ToggleButton(
                             label="CRITICAL",
-                            get_pressed=bkt.Callback(lambda: bkt.config.log_level == "CRITICAL"),
-                            on_toggle_action=bkt.Callback(lambda pressed: DevGroup.change_log_level("CRITICAL"), transaction=False)
+                            tag="CRITICAL",
+                            get_pressed=bkt.Callback(DevGroup.get_log_level),
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, transaction=False)
                         ),
                     ]
                 )
