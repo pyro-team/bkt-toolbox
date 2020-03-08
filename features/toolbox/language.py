@@ -61,8 +61,8 @@ class LangSetter(object):
         cursor_start = selection.TextRange2.Start
         cursor_end   = cursor_start + selection.TextRange2.Length
         words = selection.TextRange2.Parent.TextRange.Words()
-        word_first = words.Count #set last word as default
-        word_last  = word_last   #set last word as default
+        word_first = words.Count #set last word as default (count is always min 1)
+        word_last  = words.Count #set last word as default (count is always min 1)
         for i,word in enumerate(words):
             word_end = word.Start+word.Length
             if i < word_first and cursor_start < word_end:
