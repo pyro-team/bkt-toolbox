@@ -33,17 +33,15 @@ import shelve #for import cache
 # ======================
 
 #FIXME: gleiche Log-Datei wie im .Net-Addin verwenden. Verwendung von bkt-debug.log führt noch zu Fehlern (Verlust von log-Text), da die Logger nicht Zeilenweise schreiben. Alternativ logging über C#-Addin-Klasse durchführen
-if bkt.config.log_write_file == 'true' or (type(bkt.config.log_write_file) == bool and bkt.config.log_write_file):
-    log_level = logging.WARNING
-    try:
-        log_level = getattr(logging, bkt.config.log_level or 'WARNING')
-    except:
-        pass
-    
+if bkt.config.log_write_file:
+    log_level = getattr(logging, bkt.config.log_level or 'WARNING', logging.WARNING)
+
     logfile = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "bkt-debug-py.log")
+
     filehandler = logging.FileHandler(logfile, 'w', 'utf-8')
     filehandler.setLevel(log_level)
     filehandler.setFormatter(logging.Formatter(u'%(asctime)s %(levelname)s: %(message)s'))
+
     logger = logging.getLogger()
     logger.setLevel(log_level)
     logger.addHandler(filehandler)
