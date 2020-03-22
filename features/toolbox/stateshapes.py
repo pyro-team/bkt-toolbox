@@ -5,13 +5,15 @@ Created on 21.12.2017
 @author: fstallmann
 '''
 
+from __future__ import absolute_import
+
 import os.path
+import logging
+
+from System import Array
 
 import bkt
 import bkt.library.powerpoint as pplib
-
-import logging
-from System import Array
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()

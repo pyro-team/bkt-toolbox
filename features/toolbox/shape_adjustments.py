@@ -5,11 +5,14 @@ Created on 06.02.2018
 @author: rdebeerst
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
-from bkt.library.powerpoint import pt_to_cm, cm_to_pt
+from __future__ import absolute_import
 
 import logging
+
+import bkt
+import bkt.library.powerpoint as pplib
+pt_to_cm = pplib.pt_to_cm
+cm_to_pt = pplib.cm_to_pt
 
 class ShapeAdjustments(object):
     adjustment_nums_all = [(1,2), (3,4), (5,6), (7,8)]

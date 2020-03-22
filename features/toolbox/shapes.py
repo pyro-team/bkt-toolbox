@@ -5,23 +5,26 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
-from bkt.library.powerpoint import pt_to_cm, cm_to_pt
+from __future__ import absolute_import
 
 import logging
 
-# other toolbox modules
-from chartlib import shapelib_button
-from agenda import ToolboxAgenda
-import text
-import harvey
-import stateshapes
-
+import bkt
+import bkt.library.powerpoint as pplib
+pt_to_cm = pplib.pt_to_cm
+cm_to_pt = pplib.cm_to_pt
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
 office = dotnet.import_officecore()
+
+# other toolbox modules
+from .chartlib import shapelib_button
+from .agenda import ToolboxAgenda
+from . import text
+from . import harvey
+from . import stateshapes
+
 
 
 
@@ -413,7 +416,7 @@ class TrackerShape(object):
     @classmethod
     def generateTracker(cls, shapes, context):
         import uuid
-        from linkshapes import LinkedShapes
+        from .linkshapes import LinkedShapes
 
         #shapes to copy formatting
         shapes_count = len(shapes)
@@ -737,33 +740,33 @@ class ShapeDialogs(object):
     
     @staticmethod
     def shape_split(shapes):
-        from dialogs.shape_split import ShapeSplitWindow
+        from .dialogs.shape_split import ShapeSplitWindow
         ShapeSplitWindow.create_and_show_dialog(shapes)
     
     @staticmethod
     def create_traffic_light(slide):
-        from popups.traffic_light import Ampel
+        from .popups.traffic_light import Ampel
         Ampel.create(slide)
     
     @staticmethod
     def show_segmented_circle_dialog(slide):
-        from dialogs.circular_segments import SegmentedCircleWindow
+        from .dialogs.circular_segments import SegmentedCircleWindow
         SegmentedCircleWindow.create_and_show_dialog(slide)
 
     @staticmethod
     def show_process_chevrons_dialog(slide):
-        from processshapes import ProcessChevrons
-        from dialogs.shape_process import ProcessWindow
+        from .processshapes import ProcessChevrons
+        from .dialogs.shape_process import ProcessWindow
         ProcessWindow.create_and_show_dialog(slide, ProcessChevrons)
 
     @staticmethod
     def create_headered_pentagon(slide):
-        from processshapes import Pentagon
+        from .processshapes import Pentagon
         Pentagon.create_headered_pentagon(slide)
 
     @staticmethod
     def create_headered_chevron(slide):
-        from processshapes import Pentagon
+        from .processshapes import Pentagon
         Pentagon.create_headered_chevron(slide)
 
 

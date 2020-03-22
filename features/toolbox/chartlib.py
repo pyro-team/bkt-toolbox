@@ -5,9 +5,7 @@ Created on 04.05.2016
 @author: rdebeerst
 '''
 
-
-import bkt
-import bkt.library.powerpoint as pplib
+from __future__ import absolute_import
 
 import os #for os.path, listdir and makedirs
 import shelve
@@ -16,18 +14,22 @@ import time
 import logging
 import traceback
 
+from threading import Thread #used for non-blocking gallery thumbnails refresh
+from contextlib import contextmanager
+
 from System import Array
 
+import bkt
+import bkt.library.powerpoint as pplib
+
 from bkt import dotnet
+
 Drawing = dotnet.import_drawing()
 Bitmap = Drawing.Bitmap
 ColorTranslator = Drawing.ColorTranslator
 
 Forms = dotnet.import_forms() #required for clipboard functions
 
-
-from threading import Thread #used for non-blocking gallery thumbnails refresh
-from contextlib import contextmanager
 
 @contextmanager
 def open_presentation_without_window(context, filename):

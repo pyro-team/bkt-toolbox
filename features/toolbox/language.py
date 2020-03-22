@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+'''
+Created on 06.09.2018
+
+@author: fstallmann
+'''
+
+from __future__ import absolute_import
 
 import bkt
 import bkt.library.powerpoint as pplib

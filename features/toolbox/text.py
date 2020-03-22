@@ -5,6 +5,8 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
 import bkt
 import bkt.library.powerpoint as pplib
 
@@ -235,7 +237,7 @@ class Characters(object):
 
     @classmethod
     def get_text_fontawesome(cls):
-        from fontawesome import Fontawesome
+        from .fontawesome import Fontawesome
 
         return bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",

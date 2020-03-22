@@ -4,11 +4,13 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
 import os.path
+import logging
+
 import bkt.ui
 notify_property = bkt.ui.notify_property
-
-import logging
 
 class ViewModel(bkt.ui.ViewModelSingleton):
     def __init__(self, model, context):

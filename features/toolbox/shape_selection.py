@@ -5,14 +5,15 @@ Created on 06.02.2018
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
+import logging
+from collections import OrderedDict
+
 import bkt
 import bkt.library.powerpoint as pplib
 
-from shapes import ShapesMore
-
-from collections import OrderedDict
-
-import logging
+from .shapes import ShapesMore
 
 
 class ShapeSelector(object):

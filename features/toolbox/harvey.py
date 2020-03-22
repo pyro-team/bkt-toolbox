@@ -5,13 +5,13 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
-import bkt
-import bkt.library.powerpoint as powerpoint
-import bkt.library.system as libsystem
+from __future__ import absolute_import
 
 import os.path
 
-# import System
+import bkt
+import bkt.library.powerpoint as powerpoint
+import bkt.library.system as libsystem
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()

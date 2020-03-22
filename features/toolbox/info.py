@@ -5,7 +5,10 @@ Created on 06.02.2018
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
 import sys
+
 import bkt
 
 # reuse settings-menu from bkt-framework
@@ -136,7 +139,7 @@ class ToolbarVariations(object):
     
     @classmethod
     def show_uisettings(cls, context):
-        from toolboxui import ToolboxUi
+        from .toolboxui import ToolboxUi
         ToolboxUi.get_instance().show_settings_editor(context)
 
 

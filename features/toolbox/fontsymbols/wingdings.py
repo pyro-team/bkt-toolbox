@@ -2,12 +2,14 @@
 
 # https://docs.microsoft.com/de-de/windows/uwp/design/style/segoe-ui-symbol-font
 
-import bkt
-from bkt.library.powerpoint import PPTSymbolsGallery
+from __future__ import absolute_import
 
 import os.path
 import io
 import json
+
+import bkt
+from bkt.library.powerpoint import PPTSymbolsGallery
 
 font_list = ["Wingdings", "Wingdings 2", "Wingdings 3", "Webdings"]
 all_fonts = {

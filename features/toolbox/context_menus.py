@@ -5,18 +5,20 @@ Created on 06.02.2018
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
 import bkt
 
-import text
-import arrange
-import harvey
-import shapes as mod_shapes
-import info
-import agenda
-import linkshapes
-import processshapes
-import language
-import slides
+from . import text
+from . import arrange
+from . import harvey
+from . import shapes as mod_shapes
+from . import info
+from . import agenda
+from . import linkshapes
+from . import processshapes
+from . import language
+from . import slides
 
 
 # =================

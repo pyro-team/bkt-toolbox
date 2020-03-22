@@ -2,10 +2,13 @@
 
 # https://docs.microsoft.com/de-de/windows/uwp/design/style/segoe-ui-symbol-font
 
+from __future__ import absolute_import
+
+from math import ceil
+
 import bkt
 from bkt.library.powerpoint import PPTSymbolsGallery
 
-from math import ceil
 
 segoe_symbols = [
     (u"\uE700", "Global Navigation Button"),

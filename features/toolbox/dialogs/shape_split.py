@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+
 import os.path
+import logging
+
 import bkt.ui
 notify_property = bkt.ui.notify_property
 
-import logging
 from bkt.library.powerpoint import pt_to_cm, cm_to_pt
 
 

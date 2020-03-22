@@ -5,17 +5,18 @@ Created on 24.07.2014
 @author: fstsallmann
 '''
 
+from __future__ import absolute_import
+
 
 import bkt
-
 
 # FIXME: this should be easier
 from os.path import dirname, join, normpath, realpath
 bkt.apps.Resources.root_folders.append(normpath(join(dirname(realpath(__file__)), '..', 'toolbox', 'resources')))
 # ###
 
-
 from toolbox import toolboxui, info
+
 
 # tab id for tab activator workaround
 info.TabActivator.tab_id = "my_bkt_powerpoint_toolbox"

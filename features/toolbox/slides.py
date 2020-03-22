@@ -5,13 +5,15 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
 import bkt
 import bkt.ui
 
 # for ui composition
-import agenda
-import language
-from chartlib import chartlib_button
+from . import agenda
+from . import language
+from .chartlib import chartlib_button
 
 
 class SendOrSaveSlides(object):
@@ -162,7 +164,7 @@ class FolienMenu(object):
 
     @classmethod
     def sendSlidesDialog(cls, context):
-        from dialogs.slides_send import SendWindow
+        from .dialogs.slides_send import SendWindow
         SendWindow.create_and_show_dialog(SendOrSaveSlides, context)
 
 

@@ -2,6 +2,8 @@
 
 # https://docs.microsoft.com/de-de/windows/uwp/design/style/segoe-ui-symbol-font
 
+from __future__ import absolute_import
+
 import bkt
 from bkt.library.powerpoint import PPTSymbolsGallery
 

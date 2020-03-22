@@ -5,18 +5,21 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
-import bkt
-
-import bkt.library.algorithms as algos
-import bkt.library.powerpoint as pplib
-from bkt.library.powerpoint import pt_to_cm, cm_to_pt
+from __future__ import absolute_import
 
 import math
 import os.path
 from heapq import nsmallest, nlargest
 
-from linkshapes import LinkedShapes
-from shapes import PositionSize
+import bkt
+
+import bkt.library.algorithms as algos
+import bkt.library.powerpoint as pplib
+pt_to_cm = pplib.pt_to_cm
+cm_to_pt = pplib.cm_to_pt
+
+from .linkshapes import LinkedShapes
+from .shapes import PositionSize
 
 class Swap(object):
     locpin = pplib.LocPin(settings_key="toolbox.swap_locpin")

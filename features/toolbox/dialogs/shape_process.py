@@ -4,14 +4,16 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
+import os.path
+
 import bkt.ui
 notify_property = bkt.ui.notify_property
 
 import bkt.library.powerpoint as pplib
 pt_to_cm = pplib.pt_to_cm
 cm_to_pt = pplib.cm_to_pt
-
-import os.path
 
 
 

@@ -4,11 +4,13 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
-import System
+from __future__ import absolute_import
 
 import sys
 import os.path
 import logging
+
+import System
 
 import bkt
 import bkt.ui

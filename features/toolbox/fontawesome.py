@@ -5,6 +5,8 @@ Created on 10.02.2017
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
 import importlib
 from collections import namedtuple
 

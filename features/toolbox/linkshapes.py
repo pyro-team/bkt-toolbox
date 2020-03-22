@@ -5,11 +5,13 @@ Created on 06.09.2018
 @author: fstallmann
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
+from __future__ import absolute_import
 
 import uuid
 import os.path
+
+import bkt
+import bkt.library.powerpoint as pplib
 
 
 BKT_LINK_UUID = "BKT_LINK_UUID"
@@ -38,7 +40,7 @@ class LinkedShapes(object):
     @classmethod
     def find_similar_and_link(cls, shape, context): #shape as parameter for get_enabled required
         #open wpf window
-        from dialogs.linkshapes_find import FindWindow
+        from .dialogs.linkshapes_find import FindWindow
         FindWindow.create_and_show_dialog(cls, context)
 
     @classmethod
@@ -97,7 +99,7 @@ class LinkedShapes(object):
     @classmethod
     def copy_to_all(cls, shape, context): #shape as parameter for get_enabled required
         #open wpf window
-        from dialogs.linkshapes_copy import CopyWindow
+        from .dialogs.linkshapes_copy import CopyWindow
         wnd = CopyWindow(cls, context, shape)
         wnd.show_dialog(modal=False)
         # CopyWindow.create_and_show_dialog(cls, context)
@@ -260,7 +262,7 @@ class LinkedShapes(object):
 
     @classmethod
     def adjustments_linked_shapes(cls, shape, context):
-        from shape_adjustments import ShapeAdjustments
+        from .shape_adjustments import ShapeAdjustments
         for cShp in cls._iterate_linked_shapes(shape, context):
             ShapeAdjustments.equalize_adjustments([shape, cShp])
 

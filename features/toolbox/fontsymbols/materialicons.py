@@ -2,13 +2,15 @@
 
 # https://fontawesome.com/v4.7.0/
 
-import bkt
-from bkt.library.powerpoint import PPTSymbolsGallery
+from __future__ import absolute_import
 
 import os.path
 import io
 import json
 from collections import OrderedDict,defaultdict
+
+import bkt
+from bkt.library.powerpoint import PPTSymbolsGallery
 
 
 # define the menu parts

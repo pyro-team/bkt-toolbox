@@ -5,14 +5,16 @@ Created on 08.07.2019
 @author: fstallmann
 '''
 
+from __future__ import absolute_import
+
+import os.path
+from contextlib import contextmanager #for flip and rotation correction
+
 import bkt
 
 import bkt.library.powerpoint as pplib
 pt_to_cm = pplib.pt_to_cm
 cm_to_pt = pplib.cm_to_pt
-
-import os.path
-from contextlib import contextmanager #for flip and rotation correction
 
 
 class ProcessChevrons(object):

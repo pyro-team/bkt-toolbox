@@ -2,13 +2,16 @@
 
 # https://docs.microsoft.com/de-de/windows/uwp/design/style/segoe-ui-symbol-font
 
-import bkt
-from bkt.library.powerpoint import PPTSymbolsGallery
+
+from __future__ import absolute_import
 
 import os.path
 import io
 import json
 from math import ceil
+
+import bkt
+from bkt.library.powerpoint import PPTSymbolsGallery
 
 #not used anymore:
 mono_icons = [

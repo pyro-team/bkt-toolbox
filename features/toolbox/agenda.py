@@ -5,14 +5,16 @@ Created on 18.05.2016
 @author: rdebeerst
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
+from __future__ import absolute_import
 
 import json
 import uuid
 import os.path
 
 #import traceback
+
+import bkt
+import bkt.library.powerpoint as pplib
 
 import bkt.dotnet as dotnet
 ppt = dotnet.import_powerpoint()

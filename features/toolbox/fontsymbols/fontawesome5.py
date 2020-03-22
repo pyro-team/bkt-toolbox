@@ -2,13 +2,15 @@
 
 # https://fontawesome.com
 
-import bkt
-from bkt.library.powerpoint import PPTSymbolsGallery
+from __future__ import absolute_import
 
 import os.path
 import io
 import json
 from collections import OrderedDict
+
+import bkt
+from bkt.library.powerpoint import PPTSymbolsGallery
 
 
 ### How to get json files?
