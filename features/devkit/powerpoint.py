@@ -5,6 +5,7 @@ Created on 26.02.2020
 @author: fstallmann
 '''
 
+from __future__ import absolute_import
 
 import bkt
 import bkt.library.powerpoint as pplib

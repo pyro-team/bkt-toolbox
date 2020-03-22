@@ -5,13 +5,14 @@ Created on 26.02.2020
 @author: fstallmann
 '''
 
+from __future__ import absolute_import
 
 import bkt
 
-import contextmenu_ids
+from . import contextmenu_ids
 
-from common import common_groups
-from powerpoint import powerpoint_groups
+from .common import common_groups
+from .powerpoint import powerpoint_groups
 
 
 bkt.powerpoint.add_tab(bkt.ribbon.Tab(

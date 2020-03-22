@@ -5,11 +5,13 @@ Created on 26.02.2020
 @author: fstallmann
 '''
 
+from __future__ import absolute_import
+
+import logging
 
 import bkt
 import modules.settings as settings
 
-import logging
 
 
 class DevGroup(object):

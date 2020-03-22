@@ -4,6 +4,8 @@ Created on 2019-07-25
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
 import bkt
 
 if bkt.config.log_level == "DEBUG":
