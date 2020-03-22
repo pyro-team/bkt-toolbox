@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23.01.2014
+Abstract class for WPF windows and popups, standard input and progress bar windows
 
-@author: cschmitt
+Created on 23.01.2014
+@author: cschmitt, fstallmann
 '''
+
+from __future__ import absolute_import
+
+import logging
+# import traceback
+import os.path
 
 import System
 Window = System.Windows.Window
@@ -11,17 +18,13 @@ Popup = System.Windows.Controls.Primitives.Popup
 BitmapImage = System.Windows.Media.Imaging.BitmapImage
 BackgroundWorker = System.ComponentModel.BackgroundWorker
 
-import os.path
-
-from . import dotnet
+from bkt import dotnet
 wpf = dotnet.import_wpf()
 bkt_addin = dotnet.import_bkt()
 
 from bkt.library.wpf.notify import NotifyPropertyChangedBase, notify_property
 from bkt.apps import Resources
 
-import logging
-# import traceback
 
 
 # =======================

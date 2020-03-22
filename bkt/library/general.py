@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
 
-import bkt.library.system
+from __future__ import absolute_import
+
+from . import system as lib_sys
 
 
 def apply_delta_on_ALT_key(setter_method, getter_method, shapes, value, **kwargs):
@@ -13,7 +16,7 @@ def apply_delta_on_ALT_key(setter_method, getter_method, shapes, value, **kwargs
     If the ALT key is not pressed, setter_method(shapes, value, **kwargs) is called
     '''
     
-    alt_state = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+    alt_state = lib_sys.get_key_state(lib_sys.key_code.ALT)
     
     if not alt_state:
         for shape in shapes:

@@ -1,12 +1,13 @@
 ﻿# -*- coding: utf-8 -*-
-# '''
-# Created on 10.09.2013
-# 
-# @author: cschmitt
-# '''
-# 
+'''
+Various helper function, global config and settings parser
 
-from __future__ import print_function
+Created on 10.09.2013
+@author: cschmitt
+'''
+
+
+from __future__ import absolute_import, print_function
 
 import os.path
 import logging
@@ -108,14 +109,6 @@ def exception_as_message(additional_message=None):
     traceback.print_exc()
 
     bkt.console.show_message(bkt.ui.endings_to_windows(fd.getvalue()))
-
-#@deprecated #os.path.join can handle multiple arguments
-def mjoin(*paths):
-    ''' Joins multiple path components. Use it to avoid multiple calls of os.path.join() '''
-    current = paths[0]
-    for path in paths[1:]:
-        current = os.path.join(current,path)
-    return current
 
 
 

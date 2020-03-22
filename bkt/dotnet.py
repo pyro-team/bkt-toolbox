@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23.11.2014
+Load System or Office specific .Net functions
 
+Created on 23.11.2014
 @author: cschmitt
 '''
 
-from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import
 
 def import_linq():
     import clr

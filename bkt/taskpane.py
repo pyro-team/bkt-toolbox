@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
+'''
+Taskpane controls
+
+Created on 11.11.2019
+@author: rdebeerst
+'''
+
+from __future__ import absolute_import
 
 import logging
+import os.path
+
 import bkt.ribbon
 from bkt.xml import WpfXMLFactory, linq
-import os.path
 
 
 

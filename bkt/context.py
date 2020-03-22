@@ -1,8 +1,17 @@
 # -*- coding: utf-8 -*-
+'''
+Resolve app-specific parameters and resolve arguments of callbacks
 
-import bkt.helpers
-import logging
-import time
+Created on 11.11.2019
+@author: rdebeerst
+'''
+
+from __future__ import absolute_import
+
+# import logging
+import time #required for cache
+
+import bkt.helpers #for providing config and settings
 
 
 class InappropriateContextError(Exception):

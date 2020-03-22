@@ -1,17 +1,25 @@
 # -*- coding: utf-8 -*-
+'''
+Provider of app-specific ribbon UIs
+
+Created on 11.11.2019
+@author: rdebeerst
+'''
+
+from __future__ import absolute_import
 
 import logging
 import traceback
 
 from collections import OrderedDict, defaultdict
-from contextdialogs import ContextDialogs
 
-import bkt.helpers as _h
-import bkt.xml as mod_xml
-import bkt.annotation as mod_annotation
-import bkt.factory as mod_factory
-import bkt.ribbon as mod_ribbon
-import bkt.apps as mod_apps
+import bkt.helpers as _h #only used to access config
+import bkt.apps as mod_apps #only used to acces Resources
+
+import bkt.xml as mod_xml #creating customui xml
+import bkt.ribbon as mod_ribbon #ribbon controls
+
+from bkt.contextdialogs import ContextDialogs
 
 import bkt.taskpane
 import bkt.ui #bkt.ui is not required here, but if it is not loaded anywhere, its not available in feature folders. This happended to me when I remove dev module from config.

@@ -5,6 +5,8 @@ Created on 02.11.2017
 @author: fstallmann
 '''
 
-from helpers import *
-from elements import *
-from wrapper import *
+from __future__ import absolute_import
+
+from .helpers import *
+from .elements import *
+from .wrapper import *

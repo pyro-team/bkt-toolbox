@@ -9,7 +9,7 @@ Created on 20.11.2014
 @author: cschmitt
 '''
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 import sys
 import types
 

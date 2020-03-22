@@ -5,8 +5,20 @@ Created on 13.11.2014
 @authors: cschmitt, rdebeerst
 '''
 
-import sys
-import traceback
+from __future__ import absolute_import
+
+import sys #for appending sys.paths
+import traceback #for error tracing
+import logging #for logging errors and debug messages
+
+import time #for throttling error messages and setting cache time
+import os.path #for getting module paths and log file path
+import shelve #for import cache
+
+# import imp #for importing feature folder -> changed to importlib 2019-12-13
+import importlib #for importing traditional modules
+from collections import OrderedDict #for import cache
+
 
 import bkt
 # import bkt.helpers as _h
@@ -15,17 +27,7 @@ _h = bkt.helpers
 # linq = bkt.dotnet.import_linq() #this import doesn't seem to be required...
 Bitmap = bkt.dotnet.import_drawing().Bitmap
 
-import time
-import logging
-import os.path
 
-# import imp #for importing feature folder -> changed to importlib 2019-12-13
-import importlib #for importing traditional modules
-
-from collections import OrderedDict #for import cache
-import shelve #for import cache
-
-#from helpers import config
 
 
 # ======================
@@ -161,7 +163,7 @@ class AddIn(object):
         logging.info('\n=================================\n===== New AddIn initialized =====\n=================================')
         
 
-        self.fallback_map = {bkt.callbacks.CallbackTypes.get_enabled: self.fallback_get_enabled}
+        self.fallback_map = {bkt.CallbackTypes.get_enabled: self.fallback_get_enabled}
         self.last_exception = None
         self.last_exception_time = 0
         self.app_callbacks = None
@@ -216,14 +218,14 @@ class AddIn(object):
         
         if my_control is None:
             logging.warning("could not process callback. no control for control %s, event type %s" % (control, callback_type))
-            if callback_type == bkt.callbacks.CallbackTypes.get_enabled:
+            if callback_type == bkt.CallbackTypes.get_enabled:
                 return True
             else:
                 return
         
         if callback is None:
             #Do not show hundreds of warnings due to get_enabled
-            if callback_type == bkt.callbacks.CallbackTypes.get_enabled:
+            if callback_type == bkt.CallbackTypes.get_enabled:
                 logging.debug("could not process callback. no callback of type %s for control %s. trying fallback" %  (callback_type, control))
             else:
                 logging.warning("could not process callback. no callback of type %s for control %s. trying fallback" %  (callback_type, control))
@@ -246,7 +248,7 @@ class AddIn(object):
             return_value= self.context.invoke_callback(callback, *args, **kwargs)
             logging.debug("return value={}".format(return_value))
             
-            if callback.callback_type == bkt.callbacks.CallbackTypes.get_content:
+            if callback.callback_type == bkt.CallbackTypes.get_content:
                 # get_content return ribbon-menu-object
                 # initialize callbacks and return xml
                 menu = return_value
@@ -308,7 +310,7 @@ class AddIn(object):
         
         try:        
             # 1) handle general wpf-event
-            self._callback(bkt.callbacks.CallbackTypes.wpf_event, eventargs.Source)
+            self._callback(bkt.CallbackTypes.wpf_event, eventargs.Source)
             # TODO: check whether event was handled
             
             # 2) reroute by EventType
@@ -320,53 +322,53 @@ class AddIn(object):
                 if str(eventargs.Source.GetType()) in ['Fluent.TextBox', 'Fluent.Spinner']:
                     ### TEXTBOX LOST FOCUS EVENT
                     logging.debug("map RoutedEvent to CallbackType.on_change: text=%s" % eventargs.Source.Text)
-                    self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
+                    self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
                     
                 elif str(eventargs.Source.GetType()) in ['Fluent.ComboBox']:
                     if not eventargs.Source.IsReadOnly:
                         ### EDITABLE COMBOBOX LOST FOCUS EVENT
                         logging.debug("map RoutedEvent to CallbackType.on_change: text=%s" % eventargs.Source.Text)
-                        self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
+                        self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
                     
             elif str(eventargs.RoutedEvent.Name)=='KeyDown':
                 if str(eventargs.Source.GetType()) in ['Fluent.TextBox', 'Fluent.Spinner']:
                     ### TEXTBOX ENTER FIRED
                     logging.debug("map RoutedEvent to CallbackType.on_change: text=%s" % eventargs.Source.Text)
-                    self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
+                    self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
                     
                 elif str(eventargs.Source.GetType()) in ['Fluent.ComboBox']:
                     if not eventargs.Source.IsReadOnly:
                         ### EDITABLE COMBOBOX ENTER FIRED
                         logging.debug("map RoutedEvent to CallbackType.on_change: text=%s" % eventargs.Source.Text)
-                        self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
+                        self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
             
             elif str(eventargs.RoutedEvent.Name)=='Click':
                 if str(eventargs.Source.GetType()) in ['Fluent.MenuItem']:
                     if eventargs.Source.IsCheckable == True:
                         ### MENU ITEM TOGGLE EVENT
                         logging.debug("map RoutedEvent to CallbackType.on_toggle_action: pressed/checked=%s" % eventargs.Source.IsChecked)
-                        self._callback(bkt.callbacks.CallbackTypes.on_toggle_action, eventargs.Source, eventargs.Source.IsChecked)
+                        self._callback(bkt.CallbackTypes.on_toggle_action, eventargs.Source, eventargs.Source.IsChecked)
                         
                     else:
                         ### MENU ITEM CLICK EVENT
                         logging.debug("map RoutedEvent to CallbackType.on_action")
-                        self._callback(bkt.callbacks.CallbackTypes.on_action, eventargs.Source)
+                        self._callback(bkt.CallbackTypes.on_action, eventargs.Source)
                         
                 elif str(eventargs.Source.GetType()) in ['Fluent.Spinner']:
                     ### SPINNER BUTTON CLICK
                     logging.debug("map RoutedEvent to CallbackType.on_change")
-                    self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Value)
-                    #self._callback(bkt.callbacks.CallbackTypes.on_action, eventargs.Source, eventargs.Source.Value)
+                    self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Value)
+                    #self._callback(bkt.CallbackTypes.on_action, eventargs.Source, eventargs.Source.Value)
                     
                 elif str(eventargs.Source.GetType()) in ['System.Windows.Controls.Primitives.ToggleButton', 'Fluent.ToggleButton', 'Fluent.CheckBox', 'Fluent.RadioButton']:
                     ### TOGGLE EVENT
                     logging.debug("map RoutedEvent to CallbackType.on_toggle_action: pressed/checked=%s" % eventargs.Source.IsChecked)
-                    self._callback(bkt.callbacks.CallbackTypes.on_toggle_action, eventargs.Source, eventargs.Source.IsChecked)
+                    self._callback(bkt.CallbackTypes.on_toggle_action, eventargs.Source, eventargs.Source.IsChecked)
                     
                 else:
                     ### OTHER CLICK EVENT
                     logging.debug("map RoutedEvent to CallbackType.on_action")
-                    self._callback(bkt.callbacks.CallbackTypes.on_action, eventargs.Source)
+                    self._callback(bkt.CallbackTypes.on_action, eventargs.Source)
             
             # FIXME
             # elif str(eventargs.RoutedEvent.Name)=='ValueChanged':
@@ -378,27 +380,27 @@ class AddIn(object):
                     ### GALLERY SELECTION CHANGE EVENT
                     # assume eventargs.Source.SelectedValue is TextBlock
                     logging.debug("map RoutedEvent to on_change: value=%s" % eventargs.Source.SelectedValue.Text)
-                    self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.SelectedValue.Text)
+                    self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.SelectedValue.Text)
                 
                 elif str(eventargs.Source.GetType()) in ['Fluent.ComboBox']:
                     ### COMBOBOX ACTION INDEXD EVENT / SELECTION CHANGE EVENT
                     logging.debug("map RoutedEvent to on_action_indexed: index=%s" % eventargs.Source.SelectedIndex)
-                    self._callback(bkt.callbacks.CallbackTypes.on_action_indexed, eventargs.Source, eventargs.Source.SelectedIndex, eventargs.Source.SelectedIndex)
+                    self._callback(bkt.CallbackTypes.on_action_indexed, eventargs.Source, eventargs.Source.SelectedIndex, eventargs.Source.SelectedIndex)
                     
                     logging.debug("map RoutedEvent to on_change: value=%s" % str(eventargs.Source.SelectedValue))
-                    self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, str(eventargs.Source.SelectedValue.Content))
+                    self._callback(bkt.CallbackTypes.on_change, eventargs.Source, str(eventargs.Source.SelectedValue.Content))
             
             
             elif str(eventargs.RoutedEvent.Name)=='SelectedDateChanged':
                 ### DATE PICKER CHANGE EVENT
                 logging.debug("map RoutedEvent to CallbackType.on_change: value=%s" % eventargs.Source.SelectedDate)
-                self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.SelectedDate)
+                self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.SelectedDate)
             
             
             elif str(eventargs.RoutedEvent.Name)=='SelectedColorChanged':
                 ### SELECTED COLOR CHANGE EVENT
                 logging.debug("map RoutedEvent to on_rgb_color_change: value=%s" % eventargs.Source.SelectedColor)
-                self._callback(bkt.callbacks.CallbackTypes.on_rgb_color_change, eventargs.Source, color=eventargs.Source.SelectedColor)
+                self._callback(bkt.CallbackTypes.on_rgb_color_change, eventargs.Source, color=eventargs.Source.SelectedColor)
                 logging.debug("done")
                 
             else:
@@ -431,7 +433,7 @@ class AddIn(object):
             logging.debug('value changed, old-value=%s, new-value=%s' % (eventargs.OldValue, eventargs.NewValue) )
             
             logging.debug("map RoutedEvent to CallbackType.on_change")
-            self._callback(bkt.callbacks.CallbackTypes.on_change, sender, eventargs.NewValue, old_value=eventargs.OldValue, new_value=eventargs.NewValue)
+            self._callback(bkt.CallbackTypes.on_change, sender, eventargs.NewValue, old_value=eventargs.OldValue, new_value=eventargs.NewValue)
         
             logging.debug("----------")
         
@@ -848,8 +850,4 @@ class AddIn(object):
             logging.debug(traceback.format_exc())
             _h.error(traceback.format_exc())
             #_h.exception_as_message()
-
-        
-
-
 

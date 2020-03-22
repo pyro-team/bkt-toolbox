@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 11.11.2014
+DEPRECATED: Decorators for old annotation-syntax
 
+Created on 11.11.2014
 @author: cschmitt
 '''
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 from bkt.annotation import (require_ui,
                          ensure_callback_nfo,
@@ -22,7 +23,7 @@ from bkt.annotation import (require_ui,
                          ContainerUsage
                          )
  
-from bkt.callbacks import (CallbackTypes, InvocationContext)
+from bkt.callbacks import CallbackTypes
 
 
 

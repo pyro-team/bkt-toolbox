@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 13.11.2014
+Definition of callbacks and invocation context
 
+Created on 13.11.2014
 @authors: cschmitt, rdebeerst
 '''
+
+from __future__ import absolute_import
 
 import logging
 

@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
+'''
+Created on 02.11.2017
 
-# DO NOT REMOVE REFERENCE
-# reference is used by other modules
-import clr
+@author: fstallmann
+'''
 
-clr.AddReference("Microsoft.Office.Interop.PowerPoint")
-import Microsoft.Office.Interop.PowerPoint as PowerPoint
+from __future__ import absolute_import
 
 import json # required for tags
 from collections import namedtuple # required for color class
-from bkt import settings # required to save global locpin setting
+
+from bkt import settings, dotnet # required to save global locpin setting
 from bkt.library import algorithms # required for color helper
+
+# DO NOT REMOVE REFERENCE
+# reference is used by other modules
+PowerPoint = dotnet.import_powerpoint()
 
 ptToCmFactor = 2.54 / 72
 def pt_to_cm(pt):

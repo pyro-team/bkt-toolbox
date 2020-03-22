@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 10.09.2013
+Core of the BKT-Framework providing ribbon customization and library functions.
+The frameworks requires IronPython. The .NET part of the addin is in ../dotnet/.
 
+Created on 10.09.2013
 @author: cschmitt, rdebeerst
 '''
+
+from __future__ import absolute_import
 
 #Use StandardLib.dll as alternative to /bin/Lib, but seems to have problems with wpf/fluent
 # import clr

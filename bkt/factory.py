@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23.11.2014
+DEPRECATED: Factory of creating controls from annotation-syntax
 
+Created on 23.11.2014
 @author: cschmitt
 '''
+
+from __future__ import absolute_import
+
+import logging
+import sys, inspect
 
 import bkt.annotation as mod_annotation
 import bkt.ribbon as mod_ribbon
 import bkt.callbacks as mod_callbacks
-import bkt.helpers as _h
-import logging
 
 CALLBACK_FROM_ANNOTATION = object()
 

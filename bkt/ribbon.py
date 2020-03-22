@@ -1,25 +1,30 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 17.11.2014
+Standard ribbon controls and bkt-specific ribbon controls
 
+Created on 17.11.2014
 @author: cschmitt
 '''
 
-import bkt.dotnet
-import bkt.library.system
+from __future__ import absolute_import
+
+import logging
+import uuid #for getting random id
+
+from itertools import count #NOTE: DEPRECATED: this is required for setting target_order which is only used by legacy annotations syntax
+
+import bkt.library.system as lib_sys #for getting key-states in spinner
 
 from bkt.callbacks import CallbackTypes, CallbackType, Callback
 from bkt.xml import RibbonXMLFactory, linq
 
-#FIXME: Abhängigkeit zu annotation nicht gewünscht, siehe RibbonControl-Klasse
-from .annotation import AbstractAnnotationObject
+# Abhängigkeit zu annotation nicht gewünscht, siehe RibbonControl-Klasse
+# from .annotation import AbstractAnnotationObject
 
-Drawing = bkt.dotnet.import_drawing()
+from bkt import dotnet
+Drawing = dotnet.import_drawing()
 Bitmap = Drawing.Bitmap
 
-import uuid
-import sys, inspect
-import logging
 
 
 class ArgAccessor(object):
@@ -706,8 +711,8 @@ class RoundingSpinnerBox(SpinnerBox):
     def _dec(self, context, **kwargs):
         ''' decrement-callback using the on_change/get_text-callback from the editbox '''
         value = self._get(context)
-        ctrl_pressed = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-        shift_pressed = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
+        ctrl_pressed = lib_sys.get_key_state(lib_sys.key_code.CTRL)
+        shift_pressed = lib_sys.get_key_state(lib_sys.key_code.SHIFT)
         step = self.big_step if not ctrl_pressed else self.small_step
         step = step if not shift_pressed else self.huge_step
         context.invoke_callback(self.txt_box._callbacks['on_change'], value=value-step)
@@ -715,16 +720,16 @@ class RoundingSpinnerBox(SpinnerBox):
     def _inc(self, context, **kwargs):
         ''' increment-callback using the on_change/get_text-callback from the editbox '''
         value = self._get(context)
-        ctrl_pressed = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-        shift_pressed = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
+        ctrl_pressed = lib_sys.get_key_state(lib_sys.key_code.CTRL)
+        shift_pressed = lib_sys.get_key_state(lib_sys.key_code.SHIFT)
         step = self.big_step if not ctrl_pressed else self.small_step
         step = step if not shift_pressed else self.huge_step
         context.invoke_callback(self.txt_box._callbacks['on_change'], value=value+step)
 
     def _res(self, context, **kwargs):
         ''' reset-callback using the on_change/get_text-callback from the editbox '''
-        # ctrl_pressed = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-        shift_pressed = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
+        # ctrl_pressed = lib_sys.get_key_state(lib_sys.key_code.CTRL)
+        shift_pressed = lib_sys.get_key_state(lib_sys.key_code.SHIFT)
         value = self.big_step if shift_pressed else self.reset_value
         context.invoke_callback(self.txt_box._callbacks['on_change'], value=value)
 
@@ -772,16 +777,16 @@ class RoundingSpinnerBox(SpinnerBox):
 
 
     ####  functions to convert pt to cm values
-    pt_to_cm_factor = 2.54 / 72;
+    pt_to_cm_factor = 2.54 / 72
 
     def convert_pt_to_cm_A(self, pt):
         ''' convert pt-value to cm-value, round to 4 digits '''
         round_at = self.round_at if self.round_at != None else 4
-        return round(float(pt) * self.pt_to_cm_factor, round_at);
+        return round(float(pt) * self.pt_to_cm_factor, round_at)
 
     def convert_pt_to_cm_B(self, cm):
         ''' convert cm-value to pt-value '''
-        return float(cm) / self.pt_to_cm_factor;
+        return float(cm) / self.pt_to_cm_factor
    
     
 
@@ -817,7 +822,7 @@ class ColorGallery(Gallery):
         super(ColorGallery, self).__init__(**kwargs)
         
         # reset gallery_colors, later initialized by get_item_image
-        self.gallery_colors = [[0,0,0] for k in range(80)]
+        self.gallery_colors = [[0,0,0] for _ in range(80)]
         self.theme_colors = [None]*60
         
         #allow to pass color helper to make this element also available for other office apps than powerpoint

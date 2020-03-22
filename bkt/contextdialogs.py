@@ -1,20 +1,29 @@
 # -*- coding: utf-8 -*-
+'''
+Popup-Dialog for interactive PowerPoint shapes and double click functionality
+
+Created on 11.11.2019
+@author: rdebeerst
+'''
+
+from __future__ import absolute_import
 
 import logging
-import System
 import traceback
+import importlib #for loading context dialog modules
 
 # wpf basics
-from . import dotnet
+from bkt import dotnet
 wpf = dotnet.import_wpf()
+
+# for Primitives.Popup
+from System import Windows, Diagnostics # for Primitives.Popup
+from System.Windows import Controls # for Primitives.Popup
 
 # for getting coordinates for rotated shapes
 from bkt.library.algorithms import get_bounding_nodes
 
-# for Primitives.Popup
-from System.Windows import Controls
 
-import importlib
 
 
 BKT_CONTEXTDIALOG_TAGKEY = 'BKT_CONTEXTDIALOG'
@@ -65,7 +74,7 @@ class ContextDialog(object):
             # this is a popup window, popup doesnt need scaling factor
             left, top = DialogHelpers.get_dialog_positon_from_shape(active_window, shape, consider_scaling=False) 
             # set position and show dialog
-            dialog_window.PlacementRectangle = System.Windows.Rect(left, top, 1, 1)
+            dialog_window.PlacementRectangle = Windows.Rect(left, top, 1, 1)
             dialog_window.IsOpen = True
             # Popup is automatically a child window
             
@@ -78,7 +87,7 @@ class ContextDialog(object):
             left, top = DialogHelpers.get_dialog_positon_from_shape(active_window, shape, consider_scaling=False)
             dialog_window.SetDevicePosition(left, top)
             # make dialog a child window
-            # System.Windows.Interop.WindowInteropHelper(dialog_window).Owner = DialogHelpers.get_main_window_handle()
+            # Windows.Interop.WindowInteropHelper(dialog_window).Owner = DialogHelpers.get_main_window_handle()
             # show as non-blocking dialog
             dialog_window.Show()
             # put focus back on office window
@@ -528,7 +537,7 @@ class DialogHelpers(object):
     def get_main_window_handle():
         ''' returns main window hwnd handle of current process '''
         try:
-            return System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle
+            return Diagnostics.Process.GetCurrentProcess().MainWindowHandle
         except:
             logging.error(traceback.format_exc())
     

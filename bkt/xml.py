@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23.11.2014
+XML factory
 
+Created on 23.11.2014
 @author: cschmitt
 '''
+
+from __future__ import absolute_import
 
 import logging
 import bkt.dotnet

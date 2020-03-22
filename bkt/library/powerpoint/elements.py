@@ -5,16 +5,17 @@ Created on 02.11.2017
 @author: fstallmann
 '''
 
-import helpers as pplib
+from __future__ import absolute_import
 
 from collections import deque
 
 from bkt import apps, dotnet, settings, CallbackTypes, Callback
-from bkt.library import system
 Drawing = dotnet.import_drawing()
 
 from bkt.ribbon import Button, Gallery, SymbolsGallery, RoundingSpinnerBox, Item
+from bkt.library import system
 
+from . import helpers as pplib
 
 
 class TextframeSpinnerBox(RoundingSpinnerBox):

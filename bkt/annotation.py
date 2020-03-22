@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23.11.2014
+DEPRECATED: Annotation-syntax for defining ribbons
 
+Created on 23.11.2014
 @author: cschmitt
 '''
 
-
-#FIXME
-#from callbacks import CallbackType
-import bkt.helpers as _h
-from bkt.callbacks import InvocationContext
+from __future__ import absolute_import
 
 import types
-import collections
 import logging
+from collections import OrderedDict
+
+from bkt.callbacks import InvocationContext
+
 
 PRIO_LOWEST = 999
 PRIO_CALLBACK_DEFINITION = 100

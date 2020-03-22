@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
+'''
+Created on 02.11.2017
 
-from __future__ import division #always force float-division, for int divison use //
+@author: fstallmann
+'''
 
-from helpers import GlobalLocPin
-import bkt.library.algorithms as algos
+from __future__ import absolute_import, division #always force float-division, for int divison use //
+
 import math
+
+from .helpers import GlobalLocPin
+import bkt.library.algorithms as algos
 
 class ShapeWrapper(object):
 

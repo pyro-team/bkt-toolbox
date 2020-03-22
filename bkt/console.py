@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23.01.2014
+Interactive Python Console with access to Office objects
 
+Created on 23.01.2014
 @author: cschmitt
 '''
+
+from __future__ import absolute_import
 
 import code
 from cStringIO import StringIO

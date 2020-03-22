@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 11.07.2014
+Handling of app-specific events, pre-defined callbacks and resources
 
+Created on 11.07.2014
 @authors: cschmitt, rdebeerst
 '''
 
+from __future__ import absolute_import
+
 import traceback
+import logging
 
 import shelve #for resources cache
 import os.path #for resources cache
+import time #for cache invalidation and event throttling
 
 import bkt.helpers as _h
 from bkt.context import InappropriateContextError
 from bkt.callbacks import Callback, CallbackTypes
 
-import logging
-import time
 
 
 

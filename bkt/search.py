@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
+'''
+Simple search engine for indexing and searching for keywords
+
+Created on 09.03.2020
+@author: fstallmann
+'''
+
+from __future__ import absolute_import
 
 ### Search should be compatible to Whoosh
 import logging
 
-import bkt.helpers as _h
-
 import re #for extracting keywords from string
 import fnmatch #for fuzzy search in list
+
 from collections import defaultdict, namedtuple, OrderedDict
 from contextlib import contextmanager
 
