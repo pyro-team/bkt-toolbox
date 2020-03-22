@@ -18,6 +18,7 @@ ppt_use_contextdialogs	| **True**, False 	| PowerPoint-Contextdialogs ein-/aussc
 ppt_hide_format_tab		| True, **False** 	| PowerPoint Format-Tab ein-/ausblenden, um den Wechsel zu dem Tab bei neuen Shapes zu verhindern.
 ppt_activate_tab_on_new_shape   | True, **False**  | Ersten BKT-Tab aktivieren wenn ein neues Shape erstellt wird, um den Wechsel zum Format-Tab bei neuen Shapes zu verhindern. [BETA-Funktion]
 excel_ignore_warnings	| True, **False** 	| Rückgängig-Warnmeldung in Excel nicht mehr anzeigen.
+enable_legacy_syntax	| True, **False** 	| Aktiviere veraltete Syntax mit Annotations, bspw. für Feature `dev_christoph` sowie Testmodule.
 
 Folgende Variablen werden in der Übersicht verwendet, können aber nicht in der `config.txt` eingetragen werden:
 
