@@ -29,21 +29,26 @@ Values: instance of MagicLazyAnnotator
 class DecorationError(Exception):
     pass
 
-def infinite_counter():
-    def seq():
-        value = 0
-        while True:
-            value += 1
-            yield value
+# def infinite_counter():
+#     def seq():
+#         value = 0
+#         while True:
+#             value += 1
+#             yield value
             
-    s = seq()
+#     s = seq()
     
-    def _next():
-        return next(s)
+#     def _next():
+#         return next(s)
     
-    return _next
+#     return _next
 
-_declaration_counter = infinite_counter()
+# _declaration_counter = infinite_counter()
+
+def _declaration_counter():
+    #NOTE: we are using the same counter as in bkt.ribbon as RibbonClass is not derived from AbstractAnnotationObject anymore
+    from bkt.ribbon import RibbonControl
+    return next(RibbonControl._order_counter)
 
 
 
@@ -308,7 +313,7 @@ class AnnotationCommandList(AnnotationCommand):
         Only the first AnnotionCommand becomes a new instance. '''
         if len(self._annotation_commands) == 0:
             raise Warning('Can\'t compute partial of an empty AnnotationCommandList')
-            return self
+            # return self
         else:
             cmdlist = AnnotationCommandList(list(self._annotation_commands))
             cmdlist._annotation_commands[-1] = cmdlist._annotation_commands[-1].partial(*args, **kwargs)
@@ -457,7 +462,7 @@ class AnnotatedType(type):
                 parent_annotation.children.append(annotation)
                 annotation.parents.append(parent_annotation)
                 
-        annotations = collections.OrderedDict((a.target_name, a) for a in sorted(annotations, key=lambda a : a.target_order))
+        annotations = OrderedDict((a.target_name, a) for a in sorted(annotations, key=lambda a : a.target_order))
         
         
         

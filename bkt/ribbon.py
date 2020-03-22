@@ -46,7 +46,8 @@ class ArgAccessor(object):
 #       Aktuell ist diese Abhängigkeit notwendig, damit RibbonControl-Instanzen in Klassenattributen bei der Control-Erstellung einer
 #       FeatureContainer-Klasse berücksichtigt werden.
 #       Sauberer wäre, die Logik vom AbstractAnnotationObject von außerhalb zu injezieren; diese Logik wird hier nicht weiter verwendet.
-class RibbonControl(AbstractAnnotationObject):
+# class RibbonControl(AbstractAnnotationObject):
+class RibbonControl(object):
     ''' Base class to represent any element from MSCustomUI.
         Holds attributes of the xml-element and callbacks associated to the element.
         Attributes and callbacks can be accessed in dict-style (i.e. button['label']).
@@ -59,10 +60,14 @@ class RibbonControl(AbstractAnnotationObject):
     _id_attribute_key = "id"
     _auto_id_counter = 0
     _predefined_ids = set(["id_mso", "idMso", "id_q", "idQ"])
+
+    #NOTE: DEPRECATED: this counter is only used to set target_order for legacy annotations syntax
+    _order_counter = count()
     
     #def __init__(self, node_type, xml_name, id_tag=None, attributes=None, **kwargs):
     def __init__(self, xml_name, id_tag=None, attributes={}, **kwargs):
-        AbstractAnnotationObject.__init__(self);
+        # AbstractAnnotationObject.__init__(self)
+        self.target_order = next(RibbonControl._order_counter)
         
         #self.node_type = node_type
         self.xml_name = xml_name
@@ -1274,13 +1279,4 @@ def convert_key_to_lower_camelcase(key):
 def convert_dict_to_ribbon_xml_style(d):
     return {convert_key_to_lower_camelcase(k):convert_value_to_string(v, k) for k, v in d.iteritems()}
 
-
-
-
-# ====================================
-# = Access to Ribbon Control classes =
-# ====================================
-
-clsmembers = inspect.getmembers(sys.modules[__name__], inspect.isclass)
-RIBBON_CONTROL_CLASSES = {member[1]._python_name:member[1] for member in clsmembers if issubclass(member[1], RibbonControl) and hasattr(member[1], '_python_name')}
 
