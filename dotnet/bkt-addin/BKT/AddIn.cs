@@ -377,8 +377,8 @@ namespace BKT
             ICollection<string> paths = ipy.GetSearchPaths();
             paths.Clear();
             string root = GetConfigEntry("ironpython_root");
-            paths.Add(root);
-            paths.Add(Path.Combine(root,"Lib"));
+            paths.Add(root); //path is required for loading wpf fluent ribbon resources
+            paths.Add(Path.Combine(root,"Lib")); //path is standard python library
             //path.Add(Path.Combine(root,"DLLs"));
             //path.Add(Path.Combine(root,"site-packages"));
             
