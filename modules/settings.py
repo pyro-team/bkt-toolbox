@@ -5,8 +5,11 @@ Created on 08.12.2016
 @author: rdebeerst
 '''
 
-import bkt
+from __future__ import absolute_import
+
 import os.path
+
+import bkt
 
 
 CONFIG_FOLDERS = "feature_folders"
@@ -130,7 +133,7 @@ IPY-Version:            {}
         from os import startfile
         config_filename=cls.get_bkt_config_path()
         if os.path.exists(config_filename):
-            os.startfile(config_filename)
+            startfile(config_filename)
 
 
 
