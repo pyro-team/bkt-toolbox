@@ -10,7 +10,8 @@ import math
 
 import bkt
 from bkt import mso
-from bkt.library.algorithms import TableRecognition, get_bounds2, median
+from bkt.library.algorithms import get_bounds_shapes, median
+from bkt.library.table import TableRecognition
 #from bkt.ribbon import mso, Group, ForeignControl
 from bkt import helpers
 import traceback
@@ -111,7 +112,7 @@ class TableGroup(PPTContainer):
     @bkt.arg_shapes_limited(2)
     @bkt.image('align table 32')
     @bkt.large_button("Align Table (Default Spacing)")
-    def align_table(self, shapes):
+    def dev_align_table(self, shapes):
         tr = TableRecognition(shapes)
         tr.run()
         tr.align()
@@ -119,14 +120,14 @@ class TableGroup(PPTContainer):
     @bkt.arg_shapes_limited(2)
     @bkt.image('align table median 32')
     @bkt.large_button("Align Table (Median Spacing)")
-    def align_table_median(self, shapes):
+    def dev_align_table_median(self, shapes):
         tr = TableRecognition(shapes)
         tr.run()
         tr.align(tr.median_spacing())
 
     @bkt.arg_shapes_limited(2)
     @bkt.spinner_box
-    def align_table_set_spacing(self, shapes, value):
+    def dev_align_table_set_spacing(self, shapes, value):
         try:
             v = float(value)
         except ValueError:
@@ -138,8 +139,8 @@ class TableGroup(PPTContainer):
         tr.align(v)
         
     @bkt.arg_shapes_limited(2)
-    @align_table_set_spacing.get_text
-    def align_table_set_spacing_get_text(self, shapes):
+    @dev_align_table_set_spacing.get_text
+    def dev_align_table_set_spacing_get_text(self, shapes):
         tr = TableRecognition(shapes)
         tr.run()
         res = tr.median_spacing()
@@ -147,19 +148,19 @@ class TableGroup(PPTContainer):
         return str(res)
     
     @bkt.arg_shapes_limited(2)
-    @align_table_set_spacing.increment
-    def inc_spacing(self, shapes):
-        self.align_table_median_increase(shapes)
+    @dev_align_table_set_spacing.increment
+    def dev_inc_spacing(self, shapes):
+        self.dev_align_table_median_increase(shapes)
 
     @bkt.arg_shapes_limited(2)
-    @align_table_set_spacing.decrement
-    def dec_spacing(self, shapes):
-        self.align_table_median_decrease(shapes)
+    @dev_align_table_set_spacing.decrement
+    def dev_dec_spacing(self, shapes):
+        self.dev_align_table_median_decrease(shapes)
 
     @bkt.arg_shapes_limited(2)
     @bkt.image('Zero Spacing 32')
     @bkt.large_button("Align Zero")
-    def align_table_zero(self,shapes):
+    def dev_align_table_zero(self,shapes):
         tr = TableRecognition(shapes)
         tr.run()
         tr.align(0)
@@ -167,7 +168,7 @@ class TableGroup(PPTContainer):
     #@bkt.arg_shapes_limited(2)
     #@bkt.image('Decrease Spacing')
     #@bkt.large_button("Decrease Spacing")
-    def align_table_median_decrease(self, shapes):
+    def dev_align_table_median_decrease(self, shapes):
         tr = TableRecognition(shapes)
         tr.run()
         tr.align(tr.median_spacing()-1)
@@ -175,7 +176,7 @@ class TableGroup(PPTContainer):
     #@bkt.arg_shapes_limited(2)
     #@bkt.image('Increase Spacing')
     #@bkt.large_button("Increase Spacing")
-    def align_table_median_increase(self, shapes):
+    def dev_align_table_median_increase(self, shapes):
         tr = TableRecognition(shapes)
         tr.run()
         tr.align(tr.median_spacing()+1)
@@ -184,7 +185,7 @@ class TableGroup(PPTContainer):
     @bkt.arg_shapes_limited(2)
     @bkt.image('Fit content area')
     @bkt.large_button("Fit Table To Content Area")
-    def fit_table_to_content(self, shapes, presentation):
+    def dev_fit_table_to_content(self, shapes, presentation):
         with self.presentation_tag(presentation) as tag:
             if tag.is_area_set:
                 left = tag.contentarea_left
@@ -209,7 +210,7 @@ class TableInPlaceGroup(PPTContainer):
     @bkt.arg_shapes_limited(2)
     @bkt.image('Fit Cells 32')
     @bkt.large_button('Fit Cells')
-    def fit_cells_inplace(self,shapes):
+    def dev_fit_cells_inplace(self,shapes):
         tr = TableRecognition(shapes)
         tr.run()
         spacing = tr.median_spacing()
@@ -219,7 +220,7 @@ class TableInPlaceGroup(PPTContainer):
     @bkt.arg_shapes_limited(2)
     @bkt.image('Increase InPlace Spacing')
     @bkt.large_button('Increase Spacing')
-    def increase_spacing(self,shapes):
+    def dev_increase_spacing(self,shapes):
         tr = TableRecognition(shapes)
         tr.run()
         tr.change_spacing_in_bounds(1)
@@ -227,7 +228,7 @@ class TableInPlaceGroup(PPTContainer):
     @bkt.arg_shapes_limited(2)
     @bkt.image('Decrease InPlace Spacing')
     @bkt.large_button('Decrease Spacing')
-    def decrease_spacing(self,shapes):
+    def dev_decrease_spacing(self,shapes):
         tr = TableRecognition(shapes)
         tr.run()
         tr.change_spacing_in_bounds(-1)
@@ -235,7 +236,7 @@ class TableInPlaceGroup(PPTContainer):
     @bkt.arg_shapes_limited(2)
     @bkt.image('Tabelle transponieren 32')
     @bkt.large_button('Transpose')
-    def transpose_table(self,shapes):
+    def dev_transpose_table(self,shapes):
         tr = TableRecognition(shapes)
         tr.run()
         spacing = tr.median_spacing()
@@ -251,7 +252,7 @@ class MiscGroup(PPTContainer):
     @bkt.arg_shapes_limited(2)
     @bkt.image('Info')
     @bkt.large_button('Table Info')
-    def table_info(self,shapes):
+    def dev_table_info(self,shapes):
         tr = TableRecognition(shapes)
         tr.run()
         msg = u""
@@ -264,7 +265,7 @@ class MiscGroup(PPTContainer):
     @bkt.arg_shapes_limited(1, 1)
     @bkt.image('Set content area')
     @bkt.large_button('Set Content Area')
-    def set_content_area(self, presentation, shapes):
+    def dev_set_content_area(self, presentation, shapes):
         shape = shapes[0]
         with self.presentation_tag(presentation) as tag:
             tag.contentarea_left = shape.Left
@@ -276,7 +277,7 @@ class MiscGroup(PPTContainer):
     @bkt.arg_shapes_limited(2)
     @bkt.image('Fit Cells 32')
     @bkt.large_button('Fit Cells (destructive)')
-    def fit_cells(self,shapes):
+    def dev_fit_cells(self,shapes):
         tr = TableRecognition(shapes)
         tr.run()
         tr.align(spacing=tr.median_spacing(), fit_cells=True)
@@ -285,7 +286,7 @@ class MiscGroup(PPTContainer):
     @bkt.arg_shapes_limited(2,2)        
     @bkt.image('Swap Shapes 32')
     @bkt.large_button('Swap Shapes')
-    def swap(self, shapes):
+    def devswap(self, shapes):
         print "Test"
         s1, s2 = shapes
         s1.Left, s2.Left = s2.Left, s1.Left
@@ -294,7 +295,7 @@ class MiscGroup(PPTContainer):
     @bkt.arg_shapes_limited(2,2)        
     @bkt.image('Swap Cells 32')
     @bkt.large_button('Swap Cells 2')
-    def swap2(self, shapes):
+    def devswap2(self, shapes):
         s1, s2 = shapes
         s1.Left, s2.Left = s2.Left, s1.Left
         s1.Top, s2.Top = s2.Top, s1.Top
@@ -372,7 +373,7 @@ class TestGroup(PPTContainer):
     def get_center_and_radius(self, shapes):
         midpoints = [(s.Left + 0.5*s.Width, s.Top + 0.5*s.Height) for s in shapes]
         N = float(len(midpoints))
-        #x,y,w,h = get_bounds2(midpoints)
+        #x,y,w,h = get_bounds_shapes(midpoints)
         
         cx = sum(p[0] for p in midpoints) / N
         cy = sum(p[1] for p in midpoints) / N
