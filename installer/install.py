@@ -13,9 +13,9 @@ import os.path
 import traceback
 import argparse
 
-import reg
-import helper
-import defaults
+from . import reg
+from . import helper
+from . import defaults
 
 import System.Environment
 

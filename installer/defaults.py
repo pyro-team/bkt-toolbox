@@ -5,6 +5,8 @@ Created on 25.02.2019
 @author: fstallmann
 '''
 
+from __future__ import absolute_import
+
 import os.path
 
 # install bkt-framework with additional config
