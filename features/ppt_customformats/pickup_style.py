@@ -4,6 +4,8 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
 import os.path
 import bkt.ui
 notify_property = bkt.ui.notify_property

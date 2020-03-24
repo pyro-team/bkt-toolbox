@@ -4,14 +4,16 @@ Created on 2018-01-10
 @author: Florian Stallmann
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
+from __future__ import absolute_import
 
 import os.path
 import io
 import json
 
 import logging
+
+import bkt
+import bkt.library.powerpoint as pplib
 
 D = bkt.dotnet.import_drawing()
 

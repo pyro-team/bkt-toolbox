@@ -4,10 +4,12 @@ Created on 2018-01-10
 @author: Florian Stallmann
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
+from __future__ import absolute_import
 
 import logging
+
+import bkt
+import bkt.library.powerpoint as pplib
 
 
 class QuickEditPanelManager(object):
@@ -15,7 +17,7 @@ class QuickEditPanelManager(object):
 
     @classmethod
     def _create_panel(cls, context):
-        from quickedit_panel import QuickEditPanel
+        from .quickedit_panel import QuickEditPanel
         return QuickEditPanel(context)
 
     @classmethod

@@ -4,14 +4,16 @@ Created on 2017-08-16
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
+#for caching
+import time
+
 import bkt
 # import bkt.library.powerpoint as pplib
 
 from bkt.library.powerpoint import PositionGallery, pt_to_cm, LocPin, LocpinGallery
 from bkt.library.table import TableRecognition
-
-#for caching
-import time
 
 # pt_to_cm_factor = 2.54 / 72;
 # def pt_to_cm(pt):

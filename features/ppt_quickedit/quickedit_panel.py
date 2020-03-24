@@ -4,19 +4,22 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
 import os.path
 import bkt.ui
 notify_property = bkt.ui.notify_property
 
-from bkt.callbacks import WpfActionCallback
-
-from quickedit_model import QuickEdit, QEColorButton, QEColorButtons, QECatalog
+from time import time
 
 from System.Collections.ObjectModel import ObservableCollection
 from System.Windows.Controls import Orientation
 from System.Windows import Visibility
 
-from time import time
+from bkt.callbacks import WpfActionCallback
+
+from .quickedit_model import QuickEdit, QEColorButton, QEColorButtons, QECatalog
+
 
 # class ColorButton(bkt.ui.NotifyPropertyChangedBase):
 #     def __init__(self, index, color):

@@ -4,13 +4,16 @@ Created on 2017-11-09
 @author: Florian Stallmann
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
+from __future__ import absolute_import
 
 import logging
 import os
 from string import maketrans
+
 from System import Array #SlideRange
+
+import bkt
+import bkt.library.powerpoint as pplib
 
 class ConsolSplit(object):
     trans_table = maketrans('\t\n\r\f\v', '     ')

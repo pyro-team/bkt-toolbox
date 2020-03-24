@@ -4,11 +4,12 @@
 @author: fstallmann
 '''
 
+from __future__ import absolute_import
+
+import re #regex
 
 import bkt
 import bkt.library.powerpoint as pplib
-
-import re #regex
 
 
 class Statistics(object):

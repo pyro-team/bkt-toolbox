@@ -5,6 +5,8 @@ Created on 29.03.2017
 @author: tweuffel
 '''
 
+from __future__ import absolute_import
+
 import bkt
 
 TOOLBOX_NOTE = "TOOLBOX-NOTE"

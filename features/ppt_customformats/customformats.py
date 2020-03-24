@@ -4,8 +4,7 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
+from __future__ import absolute_import
 
 import logging
 import traceback
@@ -17,9 +16,12 @@ import uuid
 
 from collections import OrderedDict
 
+import bkt
+import bkt.library.powerpoint as pplib
+
 D = bkt.dotnet.import_drawing()
 
-from helpers import ShapeFormats #local helper functions
+from .helpers import ShapeFormats #local helper functions
 
 
 CF_VERSION = "20191112"

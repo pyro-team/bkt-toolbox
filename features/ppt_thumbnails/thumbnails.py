@@ -4,19 +4,20 @@ Created on 2017-07-24
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
+import os.path #required for relative paths
+import logging
+import traceback
+
+from System import Array #required to create ShapeRanges
+from System.Windows import Visibility
+
 import bkt
 import bkt.library.powerpoint as pplib
 
 import bkt.dotnet as dotnet
 Forms = dotnet.import_forms() #required to read clipboard
-
-import os.path #required for relative paths
-
-from System import Array #required to create ShapeRanges
-from System.Windows import Visibility
-
-import logging
-import traceback
 
 
 PASTE_DATATYPE_BTM = 1 #ppPasteBitmap
