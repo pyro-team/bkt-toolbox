@@ -19,7 +19,7 @@ from bkt.library.powerpoint import PPTSymbolsGallery
 # DO NOT USE metadata/icons.json!
 ###
 
-version_of_fontawesome_json = "5.12.1"
+version_of_fontawesome_json = "5.13.0"
 menu_title = 'Font Awesome 5 Free v' + version_of_fontawesome_json
 
 # full font names
