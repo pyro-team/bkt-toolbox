@@ -1,3 +1,27 @@
+# Unreleased
+
+  * Added option to link shapes by its shape names
+  * Added function to merge rows or columns in excel
+  * Added support to change styling (fill, line, text, height) of agenda selector incl. support of theme colors
+  * Added agenda popup dialog
+  * Added function to edit languages in languages setter out of several languages
+  * Added font icon search
+  * Added double click for harvey moons, thumbnails, state shapes and traffic light
+  * Replaced dev module with devkit feature folder (+many new dev features)
+  * Slide deletion when sending selected slides works much faster now
+  * Fixed calculation of shaded theme colors in all color galleries and quickedit
+  * Fixed harvey ball outline not always working
+  * Fixed harvey ball without background is still selectable in fill area
+  * Fixed color gallery not updating when color theme is changed (e.g on switch between presentations)
+  * Fixed "select by color" in Excel not working properly
+  * Fixed thumbnails function when path contains special characters
+  * Fixed update of headered pentagon/chevron for flipped and rotated shapes
+  * Fixed restoring of master agenda slide based on regular agenda slide when master is deleted
+  * Fixed problems with ampersand in paths or chartlib filenames
+  * Fixed python import to use absolute import as in python 3
+  * Support for legacy annotations syntax is disabled by default
+
+
 # Release 2019-12-13 (2.6.1)
 
   * Fixed gradients with theme colors in custom formats
