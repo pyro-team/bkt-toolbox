@@ -4,18 +4,19 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
+import os.path #required to split filenames
+import tempfile #required to copy color scheme
+
+import System.Array #required to copy sheets
+
 import bkt
 import bkt.library.excel.helpers as xllib
 import bkt.library.excel.constants as xlcon
 
 import bkt.dotnet as dotnet
 Forms = dotnet.import_forms() #required for save as dialog
-
-import os.path #required to split filenames
-
-import System.Array #required to copy sheets
-
-import tempfile #required to copy color scheme
 
 class BooksOps(object):
     @staticmethod

@@ -4,6 +4,8 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
 import bkt
 import bkt.library.excel.helpers as xllib
 
@@ -146,10 +148,6 @@ class SelectionOps(object):
             if (cell.Interior.ThemeColor,cell.Interior.Color) in cells_colors:
                 cells_selected = xllib.range_union(cells_selected, cell)
         cells_selected.Select()
-
-    @staticmethod
-    def select_used_range(sheet):
-        sheet.UsedRange.Select()
 
     @staticmethod
     def select_unused_areas(sheet, application):

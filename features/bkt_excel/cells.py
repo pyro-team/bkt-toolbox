@@ -4,13 +4,15 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
-import bkt
-import bkt.library.excel.helpers as xllib
-import bkt.library.excel.constants as xlcon
+from __future__ import absolute_import
 
 # import System.Convert as Converter #required for convert to double
 # import System.DateTime as DateTime #required for parse as date and time
 from System import DateTime, Array
+
+import bkt
+import bkt.library.excel.helpers as xllib
+import bkt.library.excel.constants as xlcon
 
 import bkt.dotnet as dotnet
 Forms = dotnet.import_forms() #required to copy text to clipboard
@@ -429,14 +431,14 @@ class CellsOps(object):
         if not xllib.confirm_no_undo(): return
         for cell in cells:
             if cell.HasFormula:
-                cell.Formula = Application.ConvertFormula(cell.Formula, 1, 1, 1) #xlA1, xlA1, xlAbsolute
+                cell.Formula = application.ConvertFormula(cell.Formula, 1, 1, 1) #xlA1, xlA1, xlAbsolute
 
     @staticmethod
     def formula_to_relative(cells, application):
         if not xllib.confirm_no_undo(): return
         for cell in cells:
             if cell.HasFormula:
-                cell.Formula = Application.ConvertFormula(cell.Formula, 1, 1, 4) #xlA1, xlA1, xlRelative
+                cell.Formula = application.ConvertFormula(cell.Formula, 1, 1, 4) #xlA1, xlA1, xlRelative
 
     @staticmethod
     def prohibit_duplicates(areas, application):

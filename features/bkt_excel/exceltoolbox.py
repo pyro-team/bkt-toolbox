@@ -4,16 +4,18 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
 import bkt
 import bkt.library.excel.helpers as xllib
 
 # reuse settings-menu from bkt-framework
 import modules.settings as settings
 
-import sheets
-import cells
-import selection
-import books
+from . import sheets
+from . import cells
+from . import selection
+from . import books
 
 version_short = 'v0.5b'
 version_long  = 'Excel Toolbox v0.5 beta'

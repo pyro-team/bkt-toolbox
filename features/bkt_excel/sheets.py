@@ -4,15 +4,17 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
-import bkt
-import bkt.library.excel.helpers as xllib
-import bkt.library.excel.constants as xlcon
+from __future__ import absolute_import
 
 import logging
 import os #for filelist
 from datetime import datetime #for filelist
 
 from System import DBNull, Array #for list of cond format
+
+import bkt
+import bkt.library.excel.helpers as xllib
+import bkt.library.excel.constants as xlcon
 
 class SheetsOps(object):
     very_hidden_sheets = set()
