@@ -110,13 +110,13 @@ class TestsFST(object):
             # bkt.helpers.message("Farbe: %r" % color)
 
     # types_hierarchy = [bkt.ribbon.Tab, bkt.ribbon.Group]
-    types_include = [bkt.ribbon.Button, bkt.ribbon.ToggleButton, bkt.ribbon.Gallery]
+    types_include = [bkt.ribbon.Button, bkt.ribbon.ToggleButton, bkt.ribbon.Gallery, bkt.ribbon.DynamicMenu, bkt.ribbon.EditBox, bkt.ribbon.SpinnerBox]
     types_exclude = [bkt.ribbon.DialogBoxLauncher]
-    types_haschildren = [bkt.ribbon.Menu, bkt.ribbon.SplitButton, bkt.ribbon.Box]
-    types_haslabel    = [bkt.ribbon.Group, bkt.ribbon.Menu]
+    types_haschildren = [bkt.ribbon.Menu, bkt.ribbon.SplitButton, bkt.ribbon.Box, bkt.ribbon.Gallery]
+    types_haslabel    = [bkt.ribbon.Group, bkt.ribbon.Menu, bkt.ribbon.Gallery, bkt.ribbon.DynamicMenu]
 
     @classmethod
-    def gen_overview(cls, context, shape):
+    def gen_overview(cls, context):
         import json
         import io
         import bkt.console
@@ -130,7 +130,7 @@ class TestsFST(object):
                 return default
 
         def _get_screentip_or_label(control):
-            return _getattr(control, 'screentip', _getattr(control, 'label'))
+            return _getattr(control, 'label', _getattr(control, 'screentip'))
         
         def _get_supertip_or_description(control):
             return _getattr(control, 'supertip', _getattr(control, 'description'))
@@ -138,58 +138,94 @@ class TestsFST(object):
         def _get_image(control):
             return _getattr(control, 'image', _getattr(control, 'image_mso'))
         
-        def _iterate_over_children(tab_id, control, current_location):
-            if type(control) in cls.types_haslabel:
-                current_location = "{} > {}".format(current_location, _get_screentip_or_label(control))
-            
-            for child_control in control.children:
-                if type(child_control) in cls.types_haschildren:
-                    _iterate_over_children(tab_id, child_control, current_location)
-                
-                # elif type(child_control) in cls.types_include:
-                elif any(isinstance(child_control, t) for t in cls.types_include) and type(child_control) not in cls.types_exclude:
+        def _add_control(tab_id, child_control, current_location):
+            if any(isinstance(child_control, t) for t in cls.types_include) and type(child_control) not in cls.types_exclude:
+                c_name = _get_screentip_or_label(child_control)
+                #skip controls where label AND screentip are not given, i.e. callback functions
+                if c_name:
                     all_controls[tab_id].append({
-                        # 'id':           c_id,
-                        # 'label':        _getattr(child_control, "label"),
-                        # 'screentip':    _getattr(child_control, 'screentip'),
-                        # 'supertip':     _getattr(child_control, 'supertip'),
-                        # 'description':  _getattr(child_control, 'description'),
-                        # 'type':         str(type(child_control)),
                         'id':           _getattr(child_control, "id"),
                         'image':        _get_image(child_control),
-                        'name':         _get_screentip_or_label(child_control),
+                        'name':         c_name,
                         'description':  _get_supertip_or_description(child_control),
-                        'location':     current_location,
+                        'location':     " > ".join(current_location),
                         'is_standard':  False,
                     })
 
-                elif type(child_control) == bkt.ribbon.MSOControl:
-                    idmso = _getattr(child_control, "id_mso")
-                    all_controls[tab_id].append({
-                        'id':           idmso,
-                        'image':        idmso,
-                        'label':        context.app.commandbars.GetScreentipMso(idmso),
-                        'description':  context.app.commandbars.GetSupertipMso(idmso),
-                        'location':     current_location,
-                        'is_standard':  True,
-                    })
+            elif isinstance(child_control, bkt.ribbon.MSOControl):
+                #standard office functionalities
+                idmso = _getattr(child_control, "id_mso")
+                all_controls[tab_id].append({
+                    'id':           idmso,
+                    'image':        idmso,
+                    'name':         context.app.commandbars.GetScreentipMso(idmso),
+                    'description':  context.app.commandbars.GetSupertipMso(idmso) or "-",
+                    'location':     " > ".join(current_location),
+                    'is_standard':  True,
+                })
+
+            if any(isinstance(child_control, t) for t in cls.types_haschildren):
+                _iterate_over_children(tab_id, child_control, current_location)
+        
+        def _iterate_over_children(tab_id, control, current_location):
+            if any(isinstance(control, t) for t in cls.types_haslabel):
+                current_location = current_location + [_getattr(control, 'label', _getattr(control, 'screentip'))]
+            
+            if isinstance(control, bkt.ribbon.SpinnerBox):
+                all_controls[tab_id].append({
+                    'id':           _getattr(control, "id"),
+                    'image':        _get_image(control.txt_box),
+                    'name':         _get_screentip_or_label(control.txt_box),
+                    'description':  _get_supertip_or_description(control.txt_box),
+                    'location':     " > ".join(current_location),
+                    'is_standard':  False,
+                })
+                
+                if control.image_element:
+                    _add_control(tab_id, control.image_element, current_location)
+                
+            else:
+                for child_control in control.children:
+                    _add_control(tab_id, child_control, current_location)
 
         #TODO: iterate over context.python_addin.app_ui.tabs and its children
         # for c_id, control in context.python_addin.callback_manager.ribbon_controls.iteritems():
-        for tab_id, tab in context.python_addin.app_ui.tabs.iteritems():
-            all_controls[tab_id] = []
+        for _, tab in context.python_addin.app_ui.tabs.iteritems():
+            tab_label = _getattr(tab, "label")
+            if tab_label is None:
+                continue
+            all_controls[tab_label] = []
             for group in tab.children:
-                if _getattr(tab, "label") is None:
-                    continue
                 try:
-                    _iterate_over_children(tab_id, group, _getattr(tab, "label"))
+                    _iterate_over_children(tab_label, group, [])
                 except:
                     pass
+        
+        #TODO: add context menu functions
+        #TODO: add backstage functions
         
         file = os.path.join(os.path.dirname(__file__), "all_controls.json")
         with io.open(file, 'w', encoding='utf-8') as json_file:
             # bkt.console.show_message(json.dumps(all_controls, ensure_ascii=False))
             json.dump(all_controls, json_file, ensure_ascii=False, indent=2)
+        
+        file2 = os.path.join(os.path.dirname(__file__), "all_controls.md")
+        with io.open(file2, 'w', encoding='utf-8') as md_file:
+            for tab_label, controls in all_controls.iteritems():
+                if len(controls) == 0:
+                    continue
+                md_file.write("## {}\n".format(tab_label))
+                md_file.write("| {:50} | {:50} | {:50} |\n".format("Name", "Beschreibung", "Gruppe > Untermenü(s)"))
+                md_file.write("| {:-<50} | {:-<50} | {:-<50} |\n".format("-", "-", "-"))
+                for control in controls:
+                    if not control["name"] and not control["description"]:
+                        continue
+                    if control["description"]:
+                        control["description"] = control["description"].replace("\n", "<br>")
+                    if control["is_standard"]:
+                        control["name"] = "*{}*".format(control["name"])
+                    md_file.write("| {name:50} | {description:50} | {location:50} |\n".format(**control))
+                md_file.write("\n\n")
         
 
     @staticmethod
@@ -336,7 +372,7 @@ testfenster_gruppe = bkt.ribbon.Group(
             show_label=True,
             image_mso='HappyFace',
             supertip="XXX",
-            on_action=bkt.Callback(TestsFST.gen_overview, context=True, shape=True),
+            on_action=bkt.Callback(TestsFST.gen_overview, context=True),
             get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
         ),
         bkt.ribbon.Button(
