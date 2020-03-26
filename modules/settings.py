@@ -115,7 +115,7 @@ IPY-Version:            {}
 
     @staticmethod
     def get_bkt_folder_path():
-        return os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", ".."))
+        return os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
 
     @staticmethod
     def get_bkt_config_path():
