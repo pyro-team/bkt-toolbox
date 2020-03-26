@@ -429,6 +429,7 @@ tabellen_gruppe = bkt.ribbon.Group(
             # description="Informationen über erkannte Tabelle anzeigen",
             # show_label=True,
             image='shape_table_info',
+            screentip="Tabelleninformation",
             supertip="Zeigt Informationen über die Tabelle an. Nützlich um vorab herauszufinden, ob eine Tabelle korrekt erkannt wird.",
             on_action=bkt.Callback(shape_tables.table_info, shapes=True, shapes_min=2),
             get_enabled = bkt.apps.ppt_shapes_min2_selected,

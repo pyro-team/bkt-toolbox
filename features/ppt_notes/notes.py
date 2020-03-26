@@ -148,32 +148,38 @@ notes_gruppe = bkt.ribbon.Group(
     children = [
         bkt.ribbon.Button(
             label='Notizen (+)', screentip='Notiz hinzufügen',
+            supertip="Fügt eine Bearbeitungsnotiz oben rechts auf der Folie ein inkl. Autor und Datum.",
             image='noteAdd',
             on_action=bkt.Callback(EditModeShapes.addNote)
         ),
         bkt.ribbon.Button(
             label='Notizen (I/O)', screentip='Notizen auf Folie ein-/ausblenden',
+            supertip="Alle Notizen der aktuellen Folie temporär ausblenden und wieder einblenden.",
             image='noteToggle',
             on_action=bkt.Callback(EditModeShapes.toogleNotesOnSlide)
         ),
         bkt.ribbon.Button(
             label='Notizen (-)', screentip='Notizen auf Folie löschen',
+            supertip="Alle Notizen der aktuellen Folie entfernen.",
             image='noteRemove',
             on_action=bkt.Callback(EditModeShapes.removeNotesOnSlide)
         ),
         bkt.ribbon.Button(
             label='Alle Notizen (I/O)', screentip='Alle Notizen ein-/ausblenden',
+            supertip="Alle Notizen auf allen Folien temporär ausblenden und wieder einblenden.",
             image='noteToggleAll',
             on_action=bkt.Callback(EditModeShapes.toggleNotesOnAllSlides)
         ),
         bkt.ribbon.Button(
             label='Alle Notizen (-)', screentip='Alle Notizen löschen',
+            supertip="Alle Notizen auf allen Folien entfernen.",
             image='noteRemoveAll',
             on_action=bkt.Callback(EditModeShapes.removeNotesOnAllSlides)
         ),
         bkt.ribbon.ColorGallery(
             id = 'notes_color',
             label=u'Farbe ändern',
+            supertip="Hintergrundfarbe für neue Bearbeitungsnotizen ändern.",
             on_rgb_color_change = bkt.Callback(EditModeShapes.set_color_rgb),
             on_theme_color_change = bkt.Callback(EditModeShapes.set_color_theme),
             get_selected_color = bkt.Callback(EditModeShapes.get_color),
@@ -181,6 +187,7 @@ notes_gruppe = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     id="notes_color_default",
                     label="Standardfarbe",
+                    supertip="Hintergrundfarbe für Bearbeitungsnotizen auf Standard zurücksetzen.",
                     on_action=bkt.Callback(EditModeShapes.set_color_default),
                     image_mso="ColorTeal",
                 )

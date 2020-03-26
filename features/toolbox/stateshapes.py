@@ -447,7 +447,7 @@ stateshape_gruppe = bkt.ribbon.Group(
                     children=[
                         bkt.ribbon.Button(
                             label="Kein Hintergrund",
-                            screentip="Wechsel-Shape Hintergrundfarbe transparent",
+                            supertip="Wechsel-Shape Hintergrundfarbe auf transparent setzen",
                             on_action=bkt.Callback(StateShape.set_color_fill_none1, shapes=True),
                         ),
                     ]

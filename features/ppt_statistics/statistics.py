@@ -100,6 +100,7 @@ statistik_gruppe = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     label="Neu laden",
                     show_label=False,
+                    supertip="Statistiken für aktuelle Auswahl neu berechnen",
                     image_mso='AccessRefreshAllLists',
                     on_action=bkt.Callback(Statistics.reload, context=True),
                     # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
@@ -121,6 +122,7 @@ statistik_gruppe = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     label="Neu laden",
                     show_label=False,
+                    supertip="Statistiken für aktuelle Auswahl neu berechnen",
                     image_mso='AccessRefreshAllLists',
                     on_action=bkt.Callback(Statistics.reload, context=True),
                     # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
@@ -142,6 +144,7 @@ statistik_gruppe = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     label="Neu laden",
                     show_label=False,
+                    supertip="Statistiken für aktuelle Auswahl neu berechnen",
                     image_mso='AccessRefreshAllLists',
                     on_action=bkt.Callback(Statistics.reload, context=True),
                     # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,

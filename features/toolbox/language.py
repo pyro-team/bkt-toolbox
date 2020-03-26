@@ -137,6 +137,7 @@ sprachen_gruppe = bkt.ribbon.Group(
     ] + [
         bkt.ribbon.DialogBoxLauncher(
             label="Wählbare Sprachen editieren…",
+            supertip="Öffnet Dialog um wählbare Sprachen zu ändern.",
             on_action=bkt.Callback(LangSetter.edit_active_language),
         )
         # bkt.ribbon.DialogBoxLauncher(idMso='SetLanguage')
@@ -155,6 +156,7 @@ sprachen_menu = bkt.ribbon.Menu(
     ] + [
         bkt.ribbon.Button(
             label="Wählbare Sprachen editieren…",
+            supertip="Öffnet Dialog um wählbare Sprachen zu ändern.",
             on_action=bkt.Callback(LangSetter.edit_active_language),
         ),
         bkt.ribbon.MenuSeparator(),

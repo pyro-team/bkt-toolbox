@@ -1071,11 +1071,13 @@ distance_rotation_group = bkt.ribbon.Group(
                     bkt.ribbon.Button(
                         label="Auf 0 Grad setzen",
                         screentip="Shape-Rotation auf 0 Grad setzen",
+                        supertip="Shape-Rotation aller gewählten Shapes auf 0 Grad setzen",
                         on_action=bkt.Callback(lambda shapes: ShapeRotation.set_rotation(shapes, 0), shapes=True),
                     ),
                     bkt.ribbon.Button(
                         label="Auf 180 Grad setzen",
                         screentip="Shape-Rotation auf 180 Grad setzen",
+                        supertip="Shape-Rotation aller gewählten Shapes auf 180 Grad setzen",
                         on_action=bkt.Callback(lambda shapes: ShapeRotation.set_rotation(shapes, 180), shapes=True),
                     ),
                     # bkt.mso.button.ObjectRotateRight90,
@@ -1084,6 +1086,7 @@ distance_rotation_group = bkt.ribbon.Group(
                     bkt.ribbon.ToggleButton(
                         label="Horizontal gespiegelt an/aus",
                         screentip="Shape ist horizontal gespiegelt",
+                        supertip="Aktiviert, wenn das erste gewählte Shape horizontal gespiegelt ist",
                         image_mso="ObjectFlipHorizontal",
                         get_pressed=bkt.Callback(ShapeRotation.get_pressed_fliph, shapes=True),
                         on_toggle_action=bkt.Callback(ShapeRotation.set_fliph, shapes=True),
@@ -1091,6 +1094,7 @@ distance_rotation_group = bkt.ribbon.Group(
                     bkt.ribbon.ToggleButton(
                         label="Vertikal gespiegelt an/aus",
                         screentip="Shape ist vertikal gespiegelt",
+                        supertip="Aktiviert, wenn das erste gewählte Shape vertikal gespiegelt ist",
                         image_mso="ObjectFlipVertical",
                         get_pressed=bkt.Callback(ShapeRotation.get_pressed_flipv, shapes=True),
                         on_toggle_action=bkt.Callback(ShapeRotation.set_flipv, shapes=True),
@@ -1168,11 +1172,13 @@ euclid_angle_group = bkt.ribbon.Group(
                     children=[
                         bkt.ribbon.ToggleButton(
                             label="Zuerst selektiertes Shape (Standard)",
+                            supertip="Legt fest, dass das zuerst selektierte Shape innerhalb der Selektion im Zentrum stehen soll.",
                             get_pressed=bkt.Callback(lambda: ShapeDistance.shape1_index==0),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "shape1_index", 0)),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="Zuletzt selektiertes Shape",
+                            supertip="Legt fest, dass das zuletzt selektierte Shape innerhalb der Selektion im Zentrum stehen soll.",
                             get_pressed=bkt.Callback(lambda: ShapeDistance.shape1_index==-1),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "shape1_index", -1)),
                         ),
@@ -1180,21 +1186,24 @@ euclid_angle_group = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.Menu(
                     label="Verhalten für >2 Shapes",
-                    screentip="Verhalten bei Auswahl von mehr als 2 Shapes festlegen",
+                    screentip="Verhalten bei Auswahl von mehr als 2 Shapes",
                     supertip="Bei Auswahl von mehr als 2 Shapes können unterschiedliche Optionen zur Berechnung zwischen Zentrum-Shape und allen weitere Shapes gewählt werden.",
                     children=[
                         bkt.ribbon.ToggleButton(
                             label="Abstand/Winkel einzeln vom Zentrum zu Shapes (Standard)",
+                            supertip="Legt fest, dass Abstand bzw. Winkel für jedes Shape einzeln vom Zentrum zum jeweiligen Shape berechnet wird.\n\nDiese Funktion ist nützlich, um den Winkel einer Diagonalen von Shapes zu ändern oder eine sternförmige Anordnung von Shapes zu erreichen.",
                             get_pressed=bkt.Callback(lambda: ShapeDistance.euclid_multi_shape_mode == "centric"),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "euclid_multi_shape_mode", "centric")),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="Abstände/Winkel immer um gleiche Differenz ändern [ALT]",
+                            supertip="Legt fest, dass Abstand bzw. Winkel immer um die gleiche Differenz von Zentrum zum jeweiligen Shape geändert wird.\n\nTemporäre Umschaltung mit ALT-Taste möglich.",
                             get_pressed=bkt.Callback(lambda: ShapeDistance.euclid_multi_shape_mode == "delta"),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "euclid_multi_shape_mode", "delta")),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="Abstände/Winkel gleichmäßig zwischen Shapes verteilen",
+                            supertip="Legt fest, dass Abstand bzw. Winkel gleichmäßig von Zentrum und zwischen jedem Shape verteilt wird.\n\nDiese Funktion ist nützlich, um mehrere Shapes entlang einer Diagonalen oder um ein Zentrum herum zu verteilen.",
                             get_pressed=bkt.Callback(lambda: ShapeDistance.euclid_multi_shape_mode == "distribute"),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "euclid_multi_shape_mode", "distribute")),
                         ),
@@ -2087,6 +2096,7 @@ arrange_advanced_group = bkt.ribbon.Group(
             on_action=bkt.Callback(arrange_advaced.arrange_quick_position),
             get_enabled=bkt.Callback(arrange_advaced.enabled),
             screentip="Gleiche Position wie Master",
+            supertip="Shapes erhalten die gleiche Position wie das Master-Shape.",
         ),
         bkt.ribbon.Button(
             id="arrange_quick_size",
@@ -2095,6 +2105,7 @@ arrange_advanced_group = bkt.ribbon.Group(
             on_action=bkt.Callback(arrange_advaced.arrange_quick_size),
             get_enabled=bkt.Callback(arrange_advaced.enabled),
             screentip="Gleiche Größe wie Master",
+            supertip="Shapes erhalten die gleiche Größe wie das Master-Shape.",
         ),
     ]
 )
@@ -3236,18 +3247,21 @@ arrange_group = bkt.ribbon.Group(
                                         bkt.ribbon.ToggleButton(
                                             label="Klein 0,1cm",
                                             screentip="Toleranz klein 0,1cm",
+                                            supertip="Setzt Toleranz vom Kanten-Autofixer auf klein = 0,1cm",
                                             get_pressed=bkt.Callback(lambda: EdgeAutoFixer.threshold == 0.1),
                                             on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("threshold", 0.1)),
                                         ),
                                         bkt.ribbon.ToggleButton(
                                             label="Mittel 0,3cm",
                                             screentip="Toleranz mittel 0,3cm",
+                                            supertip="Setzt Toleranz vom Kanten-Autofixer auf mittel = 0,3cm",
                                             get_pressed=bkt.Callback(lambda: EdgeAutoFixer.threshold == 0.3),
                                             on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("threshold", 0.3)),
                                         ),
                                         bkt.ribbon.ToggleButton(
                                             label="Groß 1 cm",
                                             screentip="Toleranz groß 1 cm",
+                                            supertip="Setzt Toleranz vom Kanten-Autofixer auf groß = 1cm",
                                             get_pressed=bkt.Callback(lambda: EdgeAutoFixer.threshold == 1.0),
                                             on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("threshold", 1.0)),
                                         ),

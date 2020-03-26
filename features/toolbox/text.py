@@ -253,6 +253,7 @@ class Characters(object):
             return bkt.ribbon.ToggleButton(
                 label=font,
                 screentip="Unicode-Schriftart "+font,
+                supertip=font+" als Unicode-Schriftart verwenden.",
                 on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(font)),
                 get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font == font),
                 get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image(font, u"\u2192"))
@@ -307,6 +308,7 @@ class Characters(object):
                     pplib.PPTSymbolsGallery(
                         id="symbols_typo_gallery",
                         label="Typografiesymbole",
+                        supertip="Verschiedene Typografiesymbole einfügen",
                         symbols = cls.typography,
                     ),
                     bkt.ribbon.MenuSeparator(),
@@ -314,16 +316,19 @@ class Characters(object):
                     pplib.PPTSymbolsGallery(
                         id="symbols_math_gallery",
                         label="Mathesymbole",
+                        supertip="Verschiedene Mathesymbole einfügen",
                         symbols = cls.math,
                     ),
                     pplib.PPTSymbolsGallery(
                         id="symbols_lists_gallery",
                         label="Listensymbole",
+                        supertip="Verschiedene Listensymbole einfügen",
                         symbols = cls.lists,
                     ),
                     pplib.PPTSymbolsGallery(
                         id="symbols_arrow_gallery",
                         label="Pfeile",
+                        supertip="Verschiedene Pfeile einfügen",
                         symbols = cls.arrows,
                     ),
                 # ] + fontawesome.symbol_galleries + [
@@ -331,6 +336,7 @@ class Characters(object):
                     bkt.ribbon.DynamicMenu(
                         id="symbols_icon_fonts",
                         label="Icon-Fonts",
+                        supertip="Zeigt Icons für verfügbare Icon-Fonts an, die als Textsymbol oder Grafik eingefügt werden können.\n\nHinweis: Die Icon-Fonts müssen auf dem Rechner installiert sein.",
                         image_mso="Call",
                         get_content = bkt.Callback(cls.get_text_fontawesome)
                     ),
@@ -343,6 +349,7 @@ class Characters(object):
                             bkt.ribbon.ToggleButton(
                                 label='Theme-Schriftart (Standard)',
                                 screentip="Unicode-Schrift entspricht Theme-Schriftart",
+                                supertip="Es wird keine spezielle Unicode-Schriftart verwendet, sondern die Standard-Schriftart des Themes.",
                                 on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(None)),
                                 get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font is None),
                             ),
@@ -1305,24 +1312,28 @@ text_menu = bkt.ribbon.Menu(
                         id="sticker_backup",
                         label = u"BACKUP-Sticker",
                         screentip="BACKUP-Sticker einfügen",
+                        supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text BACKUP ein.",
                         on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "BACKUP"), slide=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_discussion",
                         label = u"FOR DISCUSSION-Sticker",
                         screentip="FOR DISCUSSION-Sticker einfügen",
+                        supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text FOR DISCUSSION ein.",
                         on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "FOR DISCUSSION"), slide=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_illustrative",
                         label = u"ILLUSTRATIVE-Sticker",
                         screentip="ILLUSTRATIVE-Sticker einfügen",
+                        supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text ILLUSTRATIVE ein.",
                         on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "ILLUSTRATIVE"), slide=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_confidential",
                         label = u"CONFIDENTIAL-Sticker",
                         screentip="CONFIDENTIAL-Sticker einfügen",
+                        supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text CONFIDENTIAL ein.",
                         on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "CONFIDENTIAL"), slide=True, presentation=True)
                     ),
                     bkt.ribbon.MenuSeparator(),
@@ -1332,18 +1343,21 @@ text_menu = bkt.ribbon.Menu(
                             bkt.ribbon.ToggleButton(
                                 label="Links",
                                 screentip="Sticker-Ausrichtung Links",
+                                supertip="Setzt die Position beim Einfügen der Sticker auf links.",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_alignment == "left"),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_alignment", "left")),
                             ),
                             bkt.ribbon.ToggleButton(
                                 label="Mitte",
                                 screentip="Sticker-Ausrichtung Mitte",
+                                supertip="Setzt die Position beim Einfügen der Sticker auf mittig.",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_alignment == "center"),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_alignment", "center")),
                             ),
                             bkt.ribbon.ToggleButton(
                                 label="Rechts",
                                 screentip="Sticker-Ausrichtung Rechts",
+                                supertip="Setzt die Position beim Einfügen der Sticker auf rechts.",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_alignment == "right"),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_alignment", "right")),
                             ),
@@ -1355,24 +1369,28 @@ text_menu = bkt.ribbon.Menu(
                             bkt.ribbon.ToggleButton(
                                 label="10",
                                 screentip="Sticker-Schriftgröße 10",
+                                supertip="Setzt die Schriftgröße beim Einfügen der Sticker auf 10",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 10),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 10)),
                             ),
                             bkt.ribbon.ToggleButton(
                                 label="11",
                                 screentip="Sticker-Schriftgröße 11",
+                                supertip="Setzt die Schriftgröße beim Einfügen der Sticker auf 11",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 11),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 11)),
                             ),
                             bkt.ribbon.ToggleButton(
                                 label="12",
                                 screentip="Sticker-Schriftgröße 12",
+                                supertip="Setzt die Schriftgröße beim Einfügen der Sticker auf 12",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 12),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 12)),
                             ),
                             bkt.ribbon.ToggleButton(
                                 label="14",
                                 screentip="Sticker-Schriftgröße 14",
+                                supertip="Setzt die Schriftgröße beim Einfügen der Sticker auf 14",
                                 get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 14),
                                 on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 14)),
                             ),
@@ -1403,6 +1421,7 @@ text_menu = bkt.ribbon.Menu(
             id = 'bullet_color',
             label=u'Farbe ändern',
             screentip="Bullet Point Farbe ändern",
+            supertip="Ändert die Farbe der gewählten Bullet Points.",
             on_rgb_color_change = bkt.Callback(BulletStyle.set_bullet_color_rgb, selection=True, shapes=True),
             on_theme_color_change = bkt.Callback(BulletStyle.set_bullet_theme_color, selection=True, shapes=True),
             get_selected_color = bkt.Callback(BulletStyle.get_bullet_color_rgb, selection=True, shapes=True),
@@ -1412,6 +1431,7 @@ text_menu = bkt.ribbon.Menu(
                     id="bullet_color_auto",
                     label="Automatisch",
                     screentip="Bullet Point Farbe automatisch bestimmen",
+                    supertip="Bullet Point Farbe wird automatisch anhand der Textfarbe bestimmt.",
                     on_action=bkt.Callback(BulletStyle.set_bullet_color_auto, selection=True, shapes=True),
                     image_mso="ColorBlack",
                 ),
@@ -1420,6 +1440,8 @@ text_menu = bkt.ribbon.Menu(
         bkt.ribbon.SymbolsGallery(
             id="bullet_symbol",
             label=u"Symbol ändern",
+            screentip="Bullet Point Symbol ändern",
+            supertip="Ändert das Symbol der gewählten Bullet Points.",
             symbols = Characters.lists,
             on_symbol_change = bkt.Callback(BulletStyle.set_bullet_symbol, selection=True, shapes=True),
             get_selected_symbol = bkt.Callback(BulletStyle.get_bullet_symbol, selection=True, shapes=True),

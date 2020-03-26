@@ -123,6 +123,7 @@ color_selector_gruppe = bkt.ribbon.Group(
         bkt.ribbon.Button(
             image="qe_icon",
             label="QuickEdit Panel",
+            supertip="Blendet das QuickEdit Panel mit der interaktiven Farbauswahl ein.",
             size="large",
             on_action=bkt.Callback(QuickEditPanelManager.show_panel_for_active_window, context=True)
         ),

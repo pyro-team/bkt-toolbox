@@ -454,6 +454,7 @@ slides_group = bkt.ribbon.Group(
                     id = 'send_slides',
                     label='Ausgewählte Folien senden',
                     image_mso='FileSendAsAttachment',
+                    supertip="Sendet die ausgewählten Folien als Email-Anhang.",
                     on_action=bkt.Callback(FolienMenu.sendSlidesDialog)
                 ),
                 bkt.ribbon.SplitButton(children=[

@@ -202,19 +202,21 @@ spinner_top = bkt.ribbon.RoundingSpinnerBox(
         bkt.ribbon.Button(
             label="Visuelle Position",
             get_image=bkt.Callback(PositionSize.get_image_use_visual_pos),
-            screentip="Visuelle Position unter Berücksichtigung der Rotation verwenden",
+            supertip="Visuelle Position unter Berücksichtigung der Rotation verwenden",
             on_action=bkt.Callback(PositionSize.toggle_use_visual_pos)
         ),
         bkt.ribbon.Button(
             label="Oben = Links",
             image="possize_t2l",
             screentip="Oben = Links setzen",
+            supertip="Setzt die obere Kante gleich der linken Kante unter Berücksichtigung des Fixpunkts",
             on_action=bkt.Callback(PositionSize.set_top_to_left, shapes=True, wrap_shapes=True)
         ),
         bkt.ribbon.Button(
             label="Oben ⇄ Links",
             image="possize_swap_tl",
             screentip="Oben und Links tauschen",
+            supertip="Tauscht die obere Kante mit der linken Kante unter Berücksichtigung des Fixpunkts",
             on_action=bkt.Callback(PositionSize.swap_left_and_top, shapes=True, wrap_shapes=True)
         ),
     ])
@@ -236,19 +238,21 @@ spinner_left = bkt.ribbon.RoundingSpinnerBox(
         bkt.ribbon.Button(
             label="Visuelle Position",
             get_image=bkt.Callback(PositionSize.get_image_use_visual_pos),
-            screentip="Visuelle Position unter Berücksichtigung der Rotation verwenden",
+            supertip="Visuelle Position unter Berücksichtigung der Rotation verwenden",
             on_action=bkt.Callback(PositionSize.toggle_use_visual_pos)
         ),
         bkt.ribbon.Button(
             label="Links = Oben",
             image="possize_l2t",
             screentip="Links = Oben setzen",
+            supertip="Setzt die linke Kante gleich der oberen Kante unter Berücksichtigung des Fixpunkts",
             on_action=bkt.Callback(PositionSize.set_left_to_top, shapes=True, wrap_shapes=True)
         ),
         bkt.ribbon.Button(
             label="Links ⇄ Oben",
             image="possize_swap_tl",
             screentip="Links und Oben tauschen",
+            supertip="Tauscht die linke Kante mit der oberen Kante unter Berücksichtigung des Fixpunkts",
             on_action=bkt.Callback(PositionSize.swap_left_and_top, shapes=True, wrap_shapes=True)
         ),
     ])
@@ -270,19 +274,21 @@ spinner_height = bkt.ribbon.RoundingSpinnerBox(
         bkt.ribbon.Button(
             label="Visuelle Größe",
             get_image=bkt.Callback(PositionSize.get_image_use_visual_size),
-            screentip="Visuelle Größe unter Berücksichtigung der Rotation verwenden",
+            supertip="Visuelle Größe unter Berücksichtigung der Rotation verwenden",
             on_action=bkt.Callback(PositionSize.toggle_use_visual_size)
         ),
         bkt.ribbon.Button(
             label="Höhe = Breite",
             image="possize_h2w",
             screentip="Höhe = Breite setzen",
+            supertip="Setzt die Höhe gleich der Breite unter Berücksichtigung des Fixpunkts. Ist das Seitenverhältnis gesperrt, wird dies temporär aufgehoben.",
             on_action=bkt.Callback(PositionSize.set_height_to_width, shapes=True, wrap_shapes=True)
         ),
         bkt.ribbon.Button(
             label="Höhe ⇄ Breite",
             image="possize_swap_hw",
             screentip="Höhe und Breite tauschen",
+            supertip="Tauscht die Höhe mit der Breite unter Berücksichtigung des Fixpunkts",
             on_action=bkt.Callback(PositionSize.swap_width_and_height, shapes=True, wrap_shapes=True)
         ),
     ])
@@ -304,19 +310,21 @@ spinner_width = bkt.ribbon.RoundingSpinnerBox(
         bkt.ribbon.Button(
             label="Visuelle Größe",
             get_image=bkt.Callback(PositionSize.get_image_use_visual_size),
-            screentip="Visuelle Größe unter Berücksichtigung der Rotation verwenden",
+            supertip="Visuelle Größe unter Berücksichtigung der Rotation verwenden",
             on_action=bkt.Callback(PositionSize.toggle_use_visual_size)
         ),
         bkt.ribbon.Button(
             label="Breite = Höhe",
             image="possize_w2h",
             screentip="Breite = Höhe setzen",
+            supertip="Setzt die Breite gleich der Höhe unter Berücksichtigung des Fixpunkts. Ist das Seitenverhältnis gesperrt, wird dies temporär aufgehoben.",
             on_action=bkt.Callback(PositionSize.set_width_to_height, shapes=True, wrap_shapes=True)
         ),
         bkt.ribbon.Button(
             label="Breite ⇄ Höhe",
             image="possize_swap_hw",
             screentip="Breite und Höhe tauschen",
+            supertip="Tauscht die Breite mit der Höhe unter Berücksichtigung des Fixpunkts",
             on_action=bkt.Callback(PositionSize.swap_width_and_height, shapes=True, wrap_shapes=True)
         ),
     ])
@@ -1368,6 +1376,7 @@ format_group = bkt.ribbon.Group(
         bkt.ribbon.RoundingSpinnerBox(
             id = 'fill_transparency',
             label=u"Transparenz Hintergrund",
+            supertip="Ändere die Transparenz vom Hintergrund",
             show_label=False,
             round_int = True,
             image="fill_transparency",
@@ -1378,6 +1387,7 @@ format_group = bkt.ribbon.Group(
         bkt.ribbon.RoundingSpinnerBox(
             id = 'line_transparency',
             label=u"Transparenz Linie/Rahmen",
+            supertip="Ändere die Transparenz vom Rahmen bzw. der Linie",
             show_label=False,
             round_int = True,
             image="line_transparency",
@@ -1388,6 +1398,7 @@ format_group = bkt.ribbon.Group(
         bkt.ribbon.RoundingSpinnerBox(
             id = 'line_weight',
             label=u"Dicke Linie/Rahmen",
+            supertip="Ändere die Dicke vom Rahmen bzw. der Linie",
             show_label=False,
             round_pt = True,
             rounding_factor=0.25,
@@ -1507,9 +1518,9 @@ class ShapeTableGallery(bkt.ribbon.Gallery):
             supertip="Füge eine Tabelle aus Standard-Shapes ein",
             description="Füge eine Tabelle aus Standard-Shapes ein",
             children=[
-                bkt.ribbon.Button(id=parent_id + "_margin0", label="Ohne Abstand", on_action=bkt.Callback(lambda: setattr(self, "_margin", 0)), get_image=bkt.Callback(lambda: self.get_toggle_image(0))),
-                bkt.ribbon.Button(id=parent_id + "_margin10", label="Kleiner Abstand", on_action=bkt.Callback(lambda: setattr(self, "_margin", 10)), get_image=bkt.Callback(lambda: self.get_toggle_image(10))),
-                bkt.ribbon.Button(id=parent_id + "_margin20", label="Großer Abstand", on_action=bkt.Callback(lambda: setattr(self, "_margin", 20)), get_image=bkt.Callback(lambda: self.get_toggle_image(20))),
+                bkt.ribbon.Button(id=parent_id + "_margin0", label="Ohne Abstand", supertip="Abstand bei Shape-Tabelle deaktivieren", on_action=bkt.Callback(lambda: setattr(self, "_margin", 0)), get_image=bkt.Callback(lambda: self.get_toggle_image(0))),
+                bkt.ribbon.Button(id=parent_id + "_margin10", label="Kleiner Abstand", supertip="Abstand bei Shape-Tabelle auf klein setzen", on_action=bkt.Callback(lambda: setattr(self, "_margin", 10)), get_image=bkt.Callback(lambda: self.get_toggle_image(10))),
+                bkt.ribbon.Button(id=parent_id + "_margin20", label="Großer Abstand", supertip="Abstand bei Shape-Tabelle auf groß setzen", on_action=bkt.Callback(lambda: setattr(self, "_margin", 20)), get_image=bkt.Callback(lambda: self.get_toggle_image(20))),
             ]
         )
         my_kwargs.update(kwargs)
@@ -1701,7 +1712,8 @@ shapes_group = bkt.ribbon.Group(
         text.text_splitbutton,
         bkt.ribbon.Menu(
             image_mso='TableInsertGallery',
-            screentip="Tabelle einfügen",
+            label="Tabelle einfügen",
+            show_label=False,
             supertip="Einfügen von Standard- oder Shape-Tabellen",
             item_size="large",
             children=[
@@ -1735,7 +1747,7 @@ shapes_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     id='agenda_textbox',
                     label="Agenda-Textbox einfügen",
-                    screentip="Standard Agenda-Textbox einfügen.",
+                    supertip="Standard Agenda-Textbox einfügen, um daraus eine aktualisierbare Agenda zu generieren.",
                     imageMso="TextBoxInsert",
                     on_action=bkt.Callback(ToolboxAgenda.create_agenda_textbox_on_slide)
                 ),

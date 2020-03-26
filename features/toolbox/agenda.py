@@ -1596,14 +1596,14 @@ agendamenu = bkt.ribbon.Menu(
         bkt.ribbon.Button(
             id='add-agenda-textbox',
             label="Agenda-Textbox einfügen",
-            screentip="Standard Agenda-Textbox einfügen.",
+            supertip="Standard Agenda-Textbox einfügen, um daraus eine aktualisierbare Agenda zu generieren.",
             imageMso="TextBoxInsert",
             on_action=bkt.Callback(ToolboxAgenda.create_agenda_textbox_on_slide)
         ),
         bkt.ribbon.Button(
             id='agenda-new-create',
             label="Agenda neu erstellen",
-            screentip="Neue Agenda auf Basis des aktuellen Slides erstellen. Aktuelles Slide wird Master-Slide der Agenda.",
+            supertip="Neue Agenda auf Basis des aktuellen Slides erstellen. Aktuelles Slide wird Master-Slide der Agenda.",
             imageMso="TableOfContentsAddTextGallery",
             on_action=bkt.Callback(ToolboxAgenda.create_agenda_from_slide),
             get_enabled=bkt.Callback(ToolboxAgenda.can_create_agenda_from_slide)
@@ -1612,7 +1612,7 @@ agendamenu = bkt.ribbon.Menu(
         bkt.ribbon.Button(
             id='agenda-new-update',
             label="Agenda aktualisieren",
-            screentip="Agenda aktualisieren und durch Agenda auf dem Agenda-Master-Slide ersetzen; Folien werden dabei neu erstellt.",
+            supertip="Agenda aktualisieren und durch Agenda auf dem Agenda-Master-Slide ersetzen; Folien werden dabei neu erstellt.",
             imageMso="SaveSelectionToTableOfContentsGallery",
             on_action=bkt.Callback(ToolboxAgenda.update_agenda_slides_by_slide),
             get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
@@ -1620,7 +1620,7 @@ agendamenu = bkt.ribbon.Menu(
         bkt.ribbon.ToggleButton(
             id='agenda-slide-for-subitems',
             label="Agenda-Slides für Unterpunkte",
-            screentip="Für Unterpunkte eines Agendapunkts (Indent-Level>1) werden Agenda-Slides erstellt",
+            supertip="Für Unterpunkte eines Agendapunkts (Indent-Level>1) werden Agenda-Slides erstellt",
             on_toggle_action=bkt.Callback(ToolboxAgenda.set_slides_for_subitems),
             get_pressed=bkt.Callback(ToolboxAgenda.get_slides_for_subitems),
             get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
@@ -1628,7 +1628,7 @@ agendamenu = bkt.ribbon.Menu(
         bkt.ribbon.ToggleButton(
             id='agenda-hide-subitems',
             label="Andere Agenda-Unterpunkte ausblenden",
-            screentip="Unterpunkte eines Agendapunkts (Indent-Level>1) werden in den anderen Abschnitten ausgeblendet",
+            supertip="Unterpunkte eines Agendapunkts (Indent-Level>1) werden in den anderen Abschnitten ausgeblendet",
             on_toggle_action=bkt.Callback(ToolboxAgenda.set_hide_subitems),
             get_pressed=bkt.Callback(ToolboxAgenda.get_hide_subitems),
             get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
@@ -1636,7 +1636,7 @@ agendamenu = bkt.ribbon.Menu(
         bkt.ribbon.ToggleButton(
             id='agenda-create-sections',
             label="Abschnitte für Agenda-Punkte erstellen",
-            screentip="Einen neuen Abschnitt je Agenda-Folie beginnen.",
+            supertip="Einen neuen Abschnitt je Agenda-Folie beginnen.",
             on_toggle_action=bkt.Callback(ToolboxAgenda.set_create_sections),
             get_pressed=bkt.Callback(ToolboxAgenda.get_create_sections),
             get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
@@ -1644,7 +1644,7 @@ agendamenu = bkt.ribbon.Menu(
         bkt.ribbon.ToggleButton(
             id='agenda-create-links',
             label="Hyperlinks für Agenda-Punkte erstellen",
-            screentip="Jeden Agenda-Punkt mit der zugehörigen Agenda-Folie verlinken.",
+            supertip="Jeden Agenda-Punkt mit der zugehörigen Agenda-Folie verlinken.",
             on_toggle_action=bkt.Callback(ToolboxAgenda.set_create_links),
             get_pressed=bkt.Callback(ToolboxAgenda.get_create_links),
             get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
@@ -1653,7 +1653,7 @@ agendamenu = bkt.ribbon.Menu(
         bkt.ribbon.Button(
             id='agenda-remove',
             label="Agenda-Folie entfernen",
-            screentip="Entfernt Agenda-Folien der gewählten Agenda, alle Meta-Informationen werden gelöscht.",
+            supertip="Entfernt Agenda-Folien der gewählten Agenda, alle Meta-Informationen werden gelöscht.",
             imageMso="TableOfContentsRemove",
             on_action=bkt.Callback(ToolboxAgenda.remove_agenda),
             get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
@@ -1661,7 +1661,7 @@ agendamenu = bkt.ribbon.Menu(
         bkt.ribbon.Button(
             id='agenda-remove-all',
             label="Alle Agenden aus Präsentation entfernen",
-            screentip="Entfernt alle Agenda-Folien in der ganzen Präsentation, alle Meta-Informationen werden gelöscht.",
+            supertip="Entfernt alle Agenda-Folien in der ganzen Präsentation, alle Meta-Informationen werden gelöscht.",
             imageMso="TableOfContentsRemove",
             on_action=bkt.Callback(ToolboxAgenda.remove_agendas_from_presentation),
             get_enabled=bkt.Callback(ToolboxAgenda.presentation_has_agenda)
@@ -1703,7 +1703,6 @@ agenda_tab = bkt.ribbon.Tab(
                     id='agenda_new_create',
                     label="Agenda neu erstellen",
                     size="large",
-                    screentip="Agenda neu erstellen",
                     supertip="Neue Agenda auf Basis des aktuellen Slides erstellen. Aktuelles Slide wird Master-Slide der Agenda.",
                     imageMso="TableOfContentsAddTextGallery",
                     on_action=bkt.Callback(ToolboxAgenda.create_agenda_from_slide),
@@ -1713,7 +1712,6 @@ agenda_tab = bkt.ribbon.Tab(
                     id='agenda_new_update',
                     label="Agenda aktualisieren",
                     size="large",
-                    screentip="Agenda aktualisieren",
                     supertip="Agenda aktualisieren und durch Agenda auf dem Agenda-Master-Slide ersetzen; Folien werden dabei neu erstellt.",
                     imageMso="SaveSelectionToTableOfContentsGallery",
                     on_action=bkt.Callback(ToolboxAgenda.update_agenda_slides_by_slide),
@@ -1722,6 +1720,8 @@ agenda_tab = bkt.ribbon.Tab(
                 bkt.ribbon.Separator(),
                 bkt.ribbon.Menu(
                     label="Optionen",
+                    screentip="Agenda-Optionen",
+                    supertip="Verschiedene Agenda-Optionen ändern",
                     imageMso="TableProperties",
                     size="large",
                     get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide),
@@ -1753,7 +1753,7 @@ agenda_tab = bkt.ribbon.Tab(
                         bkt.ribbon.ToggleButton(
                             id='agenda_create_links',
                             label="Hyperlinks für Agenda-Punkte erstellen",
-                            screentip="Jeden Agenda-Punkt mit der zugehörigen Agenda-Folie verlinken.",
+                            supertip="Jeden Agenda-Punkt mit der zugehörigen Agenda-Folie verlinken.",
                             on_toggle_action=bkt.Callback(ToolboxAgenda.set_create_links),
                             get_pressed=bkt.Callback(ToolboxAgenda.get_create_links),
                             # get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
@@ -1789,11 +1789,14 @@ agenda_tab = bkt.ribbon.Tab(
                     children=[
                         bkt.ribbon.Button(
                             label="Keine Füllung",
+                            supertip="Selektor-Hintergrund auf transparent ändern",
                             on_action=bkt.Callback(ToolboxAgenda.hide_selector_fill),
                             get_image=bkt.Callback(lambda slide: bkt.ribbon.Gallery.get_check_image(ToolboxAgenda.get_selector_fillcolor(slide, "visibility") == 0)),
                         ),
                         bkt.ribbon.Button(
                             label="Zurücksetzen",
+                            screentip="Selektor-Hintergrund zurücksetzen",
+                            supertip="Selektor-Hintergrund auf Standard zurücksetzen",
                             on_action=bkt.Callback(ToolboxAgenda.reset_selector_fillcolor)
                         ),
                     ]
@@ -1811,11 +1814,14 @@ agenda_tab = bkt.ribbon.Tab(
                     children=[
                         bkt.ribbon.Button(
                             label="Kein Rahmen",
+                            supertip="Selektor-Rahmen auf transparent ändern",
                             on_action=bkt.Callback(ToolboxAgenda.hide_selector_line),
                             get_image=bkt.Callback(lambda slide: bkt.ribbon.Gallery.get_check_image(ToolboxAgenda.get_selector_linecolor(slide, "visibility") == 0)),
                         ),
                         bkt.ribbon.Button(
                             label="Zurücksetzen",
+                            screentip="Selektor-Rahmen zurücksetzen",
+                            supertip="Selektor-Rahmen auf Standard zurücksetzen",
                             on_action=bkt.Callback(ToolboxAgenda.reset_selector_linecolor)
                         ),
                     ]
@@ -1833,21 +1839,29 @@ agenda_tab = bkt.ribbon.Tab(
                     children=[
                         bkt.ribbon.Button(
                             label="Fett",
+                            screentip="Selektor-Text fett",
+                            supertip="Selektor-Text fett darstellen ein/aus",
                             on_action=bkt.Callback(lambda slide: ToolboxAgenda.toggle_selector_text_style(slide, 'bold')),
                             get_image=bkt.Callback(lambda slide: bkt.ribbon.Gallery.get_check_image(ToolboxAgenda.get_selector_textcolor(slide, "bold"))),
                         ),
                         bkt.ribbon.Button(
                             label="Kursiv",
+                            screentip="Selektor-Text kursiv",
+                            supertip="Selektor-Text kursiv darstellen ein/aus",
                             on_action=bkt.Callback(lambda slide: ToolboxAgenda.toggle_selector_text_style(slide, 'italic')),
                             get_image=bkt.Callback(lambda slide: bkt.ribbon.Gallery.get_check_image(ToolboxAgenda.get_selector_textcolor(slide, "italic"))),
                         ),
                         bkt.ribbon.Button(
                             label="Unterstrichen",
+                            screentip="Selektor-Text unterstrichen",
+                            supertip="Selektor-Text unterstrichen darstellen ein/aus",
                             on_action=bkt.Callback(lambda slide: ToolboxAgenda.toggle_selector_text_style(slide, 'underline')),
                             get_image=bkt.Callback(lambda slide: bkt.ribbon.Gallery.get_check_image(ToolboxAgenda.get_selector_textcolor(slide, "underline"))),
                         ),
                         bkt.ribbon.Button(
                             label="Zurücksetzen",
+                            screentip="Selektor-Text zurücksetzen",
+                            supertip="Selektor-Text auf Standard zurücksetzen",
                             on_action=bkt.Callback(ToolboxAgenda.reset_selector_textcolor)
                         ),
                     ]
@@ -1862,25 +1876,29 @@ agenda_tab = bkt.ribbon.Tab(
                     children=[
                         bkt.ribbon.ToggleButton(
                             label="20% (Standard)",
-                            screentip="Selektor-Überhang entspricht 20% der Schriftgröße",
+                            screentip="Selektor-Höhe 20%",
+                            supertip="Selektor-Überhang entspricht 20% der Schriftgröße",
                             get_pressed=bkt.Callback(lambda slide: ToolboxAgenda.get_selector_margin(slide) == 0.2),
                             on_toggle_action=bkt.Callback(lambda slide,pressed: ToolboxAgenda.set_selector_margin(0.2, slide)),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="40%",
-                            screentip="Selektor-Überhang entspricht 40% der Schriftgröße",
+                            screentip="Selektor-Höhe 40%",
+                            supertip="Selektor-Überhang entspricht 40% der Schriftgröße",
                             get_pressed=bkt.Callback(lambda slide: ToolboxAgenda.get_selector_margin(slide) == 0.4),
                             on_toggle_action=bkt.Callback(lambda slide,pressed: ToolboxAgenda.set_selector_margin(0.4, slide)),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="60%",
-                            screentip="Selektor-Überhang entspricht 60% der Schriftgröße",
+                            screentip="Selektor-Höhe 60%",
+                            supertip="Selektor-Überhang entspricht 60% der Schriftgröße",
                             get_pressed=bkt.Callback(lambda slide: ToolboxAgenda.get_selector_margin(slide) == 0.6),
                             on_toggle_action=bkt.Callback(lambda slide,pressed: ToolboxAgenda.set_selector_margin(0.6, slide)),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="80% (sehr groß)",
-                            screentip="Selektor-Überhang entspricht 80% der Schriftgröße",
+                            screentip="Selektor-Höhe 80%",
+                            supertip="Selektor-Überhang entspricht 80% der Schriftgröße",
                             get_pressed=bkt.Callback(lambda slide: ToolboxAgenda.get_selector_margin(slide) == 0.8),
                             on_toggle_action=bkt.Callback(lambda slide,pressed: ToolboxAgenda.set_selector_margin(0.8, slide)),
                         ),
