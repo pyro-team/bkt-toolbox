@@ -73,7 +73,7 @@ class ShapeSelector(object):
 
     @staticmethod
     def selectionForm(context):
-        from dialogs.shape_select import SelectWindow
+        from .dialogs.shape_select import SelectWindow
         wnd = SelectWindow(ShapeSelector, context)
         wnd.show_dialog(modal=True)
 
