@@ -246,6 +246,7 @@ class CircularArrangement(object):
 
 
 group_circlify = bkt.ribbon.Group(
+    id="bkt_circlify_group",
     label=u"Kreisanordnung",
     image="circlify",
     children=[
@@ -264,6 +265,7 @@ group_circlify = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.Menu(
                     label="Kreisanordnung Optionen",
+                    supertip="Einstellungen zur kreisförmigen Ausrichtung von Shapes",
                     item_size="large",
                     children=[
                         bkt.ribbon.MenuSeparator(title="Optionen:"),

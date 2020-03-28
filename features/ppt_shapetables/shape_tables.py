@@ -282,7 +282,7 @@ tabellen_gruppe = bkt.ribbon.Group(
                     on_action=bkt.Callback(shape_tables.align_table, shapes=True, shapes_min=2),
                     # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                 ),
-                bkt.ribbon.Menu(label="Menü zum Ausrichten als Tabelle", item_size="large", children=[
+                bkt.ribbon.Menu(label="Menü zum Ausrichten als Tabelle", supertip="Shape-Tabelle mit verschiedenen Abstandsoptionen ausrichten", item_size="large", children=[
                     bkt.ribbon.Button(
                         id = 'align_table2',
                         label="Als Tabelle ausrichten (Standardabstand)",
@@ -331,6 +331,7 @@ tabellen_gruppe = bkt.ribbon.Group(
         bkt.ribbon.Menu(
             image='shape_table_transpose',
             label="Tabelle anpassen",
+            supertip="Shape-Tabelle auf verschiedene Weise anpassen oder transponieren",
             item_size="large",
             get_enabled = bkt.apps.ppt_shapes_min2_selected,
             children=[
@@ -531,6 +532,7 @@ tabellen_gruppe = bkt.ribbon.Group(
         ),
         bkt.ribbon.Menu(
             label="Optionen",
+            supertip="Einstellungsmöglichkeiten beim Ausrichten der Shape-Tabellen",
             item_size="large",
             children=[
                 bkt.ribbon.MenuSeparator(title="Abstand einstellen durch:"),

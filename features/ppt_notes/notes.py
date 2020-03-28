@@ -143,6 +143,7 @@ class EditModeShapes(object):
 
 
 notes_gruppe = bkt.ribbon.Group(
+    id="bkt_notes_group",
     label='Notes',
     image='noteAdd',
     children = [

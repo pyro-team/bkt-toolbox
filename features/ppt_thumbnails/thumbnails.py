@@ -506,7 +506,7 @@ thumbnail_gruppe = bkt.ribbon.Group(
                     on_action=bkt.Callback(Thumbnailer.slide_paste, application=True),
                     # get_enabled = bkt.Callback(Thumbnailer.enabled_paste),
                 ),
-                bkt.ribbon.Menu(label="Einfügen-Menü", children=[
+                bkt.ribbon.Menu(label="Einfügen-Menü", supertip="Einfüge-Optionen für aktualisierbare Folien-Thumbnails", children=[
                     bkt.ribbon.Button(
                         id = 'slide_paste_png',
                         label="Folien-Thumbnail als PNG einfügen",
@@ -547,7 +547,7 @@ thumbnail_gruppe = bkt.ribbon.Group(
                     supertip="Alle Folien-Thumbnails auf den ausgewählten Folien aktualisieren. Das Thumbnail muss vorher mit dieser Funktion eingefügt worden sein. Stammt die Folie aus einer anderen Datei, wird diese automatisch kurzzeitig geöffnet.",
                     on_action=bkt.Callback(Thumbnailer.slide_refresh, application=True, slides=True),
                 ),
-                bkt.ribbon.Menu(label="Aktualisieren-Menü", item_size="large", children=[
+                bkt.ribbon.Menu(label="Aktualisieren-Menü", supertip="Aktualisierung der Folien-Thumbnails auf dieser Folie oder in der ganzen Präsentation", item_size="large", children=[
                     bkt.ribbon.Button(
                         id = 'slide_refresh2',
                         label="Thumbnails auf Folie/n aktualisieren",

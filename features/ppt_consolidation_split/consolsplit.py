@@ -349,10 +349,11 @@ bkt.powerpoint.add_backstage_control(
         columnWidthPercent="50",
         children=[
             bkt.ribbon.FirstColumn(children=[
-                bkt.ribbon.Group(label="Folien aus Dateien anfügen", children=[
+                bkt.ribbon.Group(id="bkt_consolsplit_consolidate_group", label="Folien aus Dateien anfügen", children=[
                     bkt.ribbon.PrimaryItem(children=[
                         bkt.ribbon.Button(
                             label="Folien aus Dateien anfügen",
+                            supertip="Alle Folien aus mehreren PowerPoint-Dateien an diese Präsentation anfügen",
                             image_mso='ThemeBrowseForThemes',
                             on_action=bkt.Callback(ConsolSplit.consolidate_ppt_slides, application=True, presentation=True),
                             is_definitive=True,
@@ -363,10 +364,11 @@ bkt.powerpoint.add_backstage_control(
                         bkt.ribbon.Label(label="Dieser Vorgang kann bei großen Dateien und vielen Folien einige Zeit in Anspruch nehmen!"),
                     ]),
                 ]),
-                bkt.ribbon.Group(label="Folien aus Bildern erstellen", children=[
+                bkt.ribbon.Group(id="bkt_consolsplit_pic2slides_group", label="Folien aus Bildern erstellen", children=[
                     bkt.ribbon.PrimaryItem(children=[
                         bkt.ribbon.Menu(
                             label="Folien aus Bildern erstellen",
+                            supertip="Mehrere Bild-Dateien (jpg, png, emf) auf jeweils eine Folie einfügen",
                             image_mso='PhotoGalleryProperties',
                             children=[
                                 bkt.ribbon.MenuGroup(
@@ -396,10 +398,11 @@ bkt.powerpoint.add_backstage_control(
                         bkt.ribbon.Label(label="Die ausgewählte Folie wird für jede Bild-Datei dupliziert und der Dateiname als Titel gesetzt."),
                     ]),
                 ]),
-                bkt.ribbon.Group(label="Folien einzeln speichern", children=[
+                bkt.ribbon.Group(id="bkt_consolsplit_split_group", label="Folien einzeln speichern", children=[
                     bkt.ribbon.PrimaryItem(children=[
                         bkt.ribbon.Menu(
                             label="Folien einzeln speichern",
+                            supertip="Alle Folien in einzelne PowerPoint-Dateien im gewählten Ordner speichern",
                             image_mso='ThemeSaveCurrent',
                             children=[
                                 bkt.ribbon.MenuGroup(
