@@ -138,7 +138,7 @@ swap_button = bkt.ribbon.SplitButton(
             on_action=bkt.Callback(Swap.multi_swap, shapes=True, shapes_min=2),
             # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
         ),
-        bkt.ribbon.Menu(label="Tauschen", children=[
+        bkt.ribbon.Menu(label="Tauschen", supertip="Funktionen zum Tauschen von Shape-Position, -Größe oder Formatierung", children=[
             bkt.ribbon.MenuSeparator(title="Gewählte Shapes tauschen"),
             bkt.ribbon.Button(
                 id = 'swap2',
@@ -305,7 +305,7 @@ equal_height_button = bkt.ribbon.SplitButton(
             on_action=bkt.Callback(EqualSize.equal_height, shapes=True, shapes_min=2),
             # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
         ),
-        bkt.ribbon.Menu(label="Höhe angleichen", children=[
+        bkt.ribbon.Menu(label="Höhe angleichen", supertip="Mehrere Shapes auf verschiedene Weise auf die gleiche Höhe setzen", children=[
             bkt.ribbon.MenuSeparator(title="Ausrichten an Shape-Auswahl"),
             bkt.ribbon.Button(
                 id = 'equal_height2',
@@ -369,7 +369,7 @@ equal_width_button = bkt.ribbon.SplitButton(
             on_action=bkt.Callback(EqualSize.equal_width, shapes=True, shapes_min=2),
             # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
         ),
-        bkt.ribbon.Menu(label="Breite angleichen", children=[
+        bkt.ribbon.Menu(label="Breite angleichen", supertip="Mehrere Shapes auf verschiedene Weise auf die gleiche Breite setzen", children=[
             bkt.ribbon.MenuSeparator(title="Ausrichten an Shape-Auswahl"),
             bkt.ribbon.Button(
                 id = 'equal_width2',
@@ -908,7 +908,7 @@ distance_rotation_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeDistance.set_shape_sep_vertical_zero, shapes=True),
                 ),
-                bkt.ribbon.Menu(label="Vertikaler Abstand Einstellungen", item_size="large", children=[
+                bkt.ribbon.Menu(label="Vertikaler Abstand Einstellungen", supertip="Optionen zur Berechnung des vertikalen Abstands zwischen Shapes", item_size="large", children=[
                     bkt.ribbon.MenuSeparator(title="Vertikaler Abstand"),
                     bkt.ribbon.ToggleButton(
                         label="Shape-Abstand (Standard)",
@@ -984,7 +984,7 @@ distance_rotation_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeDistance.set_shape_sep_horizontal_zero, shapes=True),
                 ),
-                bkt.ribbon.Menu(label="Horizontaler Abstand Einstellungen", item_size="large", children=[
+                bkt.ribbon.Menu(label="Horizontaler Abstand Einstellungen", supertip="Optionen zur Berechnung des horizontalen Abstands zwischen Shapes", item_size="large", children=[
                     bkt.ribbon.MenuSeparator(title="Horizontaler Abstand"),
                     bkt.ribbon.ToggleButton(
                         label="Shape-Abstand (Standard)",
@@ -1060,7 +1060,7 @@ distance_rotation_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeRotation.set_rotation_zero, shapes=True),
                 ),
-                bkt.ribbon.Menu(label="Rotation und Spiegelung Menü", children=[
+                bkt.ribbon.Menu(label="Rotation und Spiegelung Menü", supertip="Shapes rotieren und Spiegelung anzeigen", children=[
                     bkt.ribbon.MenuSeparator(title="Rotation"),
                     pplib.LocpinGallery(
                         label="Ankerpunkt beim Rotieren",
@@ -1948,7 +1948,7 @@ class ArrangeAdvanced(object):
                 supertip="Bei Aktivierung werden anschließend alle Shapes am selektierten Shape (Mastershape) ausgerichtet. Ist bei Aktivierung kein Shape selektiert, erfolgt die Ausrichtung am Inhaltsbereich."
             ),
             
-            bkt.ribbon.Menu(label='Auswahl der Ausrichtung', children=[
+            bkt.ribbon.Menu(label='Auswahl der Ausrichtung', supertip="Festlegen an welchem Referenz-Objekt die Shapes ausgerichtet werden wollen", children=[
                 
                 bkt.ribbon.Button(
                     id="arrange_master_auto"+postfix,
@@ -2130,6 +2130,7 @@ arrange_advanced_small_group = bkt.ribbon.Group(
             on_action=bkt.Callback(arrange_advaced.arrange_quick_position),
             get_enabled=bkt.Callback(arrange_advaced.enabled),
             screentip="Gleiche Position wie Master",
+            supertip="Shapes erhalten die gleiche Position wie das Master-Shape.",
         ),
         bkt.ribbon.Button(
             id="arrange_quick_size-small",
@@ -2139,6 +2140,7 @@ arrange_advanced_small_group = bkt.ribbon.Group(
             on_action=bkt.Callback(arrange_advaced.arrange_quick_size),
             get_enabled=bkt.Callback(arrange_advaced.enabled),
             screentip="Gleiche Größe wie Master",
+            supertip="Shapes erhalten die gleiche Größe wie das Master-Shape.",
         ),
 
         arrange_advaced.get_master_button("-small", show_label=False)
@@ -2650,7 +2652,7 @@ tablearrange_button = bkt.ribbon.SplitButton(
             on_action=bkt.Callback(TableArrange.arrange_overlay_shapes, shapes=True, shapes_min=2),
             # get_enabled = bkt.apps.ppt_shapes_min2_selected,
         ),
-        bkt.ribbon.Menu(label="Einstellungen für Anordnen auf Tabelle/Absatz", item_size="large", children=[
+        bkt.ribbon.Menu(label="Auf Tabelle/Absatz/Shapes anordnen Optionen", supertip="Einstellungen für das Anordnen auf Tabellen, Absätzen oder Shapes", item_size="large", children=[
             bkt.ribbon.MenuSeparator(title="Shapes anordnen"),
             bkt.ribbon.Button(
                 id = 'table-shapes2',
@@ -3132,6 +3134,7 @@ arrange_group = bkt.ribbon.Group(
                 reposition_gallery,
                 bkt.ribbon.Menu(
                     label='Dimensionen/Größen übertragen',
+                    supertip="Dimensionen von Diagrammen, Bild-Ausschnitten und Tabellen von einem Objekt auf ein anderes kopieren",
                     image_mso='PasteWithColumnWidths',
                     children=[
                         bkt.ribbon.Button(
@@ -3206,6 +3209,7 @@ arrange_group = bkt.ribbon.Group(
                         ),
                         bkt.ribbon.Menu(
                             label="Kanten-Autofixer Menü",
+                            supertip="Einstellungsmöglichkeiten für den Kanten-Autofixer",
                             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
                             children=[
                                 bkt.ribbon.Button(
@@ -3481,7 +3485,7 @@ arrange_group = bkt.ribbon.Group(
             show_label=False,
             children=[
                 bkt.mso.button.ObjectBringToFront,
-                bkt.ribbon.Menu(label="Vordergrund-Menü", children=[
+                bkt.ribbon.Menu(label="Vordergrund-Menü", supertip="Funktionen um Shapes in den Vordergrund zu holen", children=[
                     bkt.mso.control.ObjectBringToFront,
                     bkt.mso.control.ObjectBringForward,
                     bkt.ribbon.Button(
@@ -3500,7 +3504,7 @@ arrange_group = bkt.ribbon.Group(
             show_label=False,
             children=[
                 bkt.mso.button.ObjectSendToBack,
-                bkt.ribbon.Menu(label="Hintergrund-Menü", children=[
+                bkt.ribbon.Menu(label="Hintergrund-Menü", supertip="Funktionen um Shapes in den Hintergrund zu setzen", children=[
                     bkt.mso.control.ObjectSendToBack,
                     bkt.mso.control.ObjectSendBackward,
                     bkt.ribbon.Button(

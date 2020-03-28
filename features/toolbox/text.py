@@ -1285,6 +1285,7 @@ class SplitTextShapes(object):
 
 text_menu = bkt.ribbon.Menu(
     label="Textboxen-Menü",
+    supertip="Sticker einfügen, Bullet Points angleichen, sowie weitere Text-bezogene Funktionen",
     children=[
         bkt.ribbon.MenuSeparator(title="Textformen einfügen"),
         bkt.mso.control.TextBoxInsert,
@@ -1299,7 +1300,7 @@ text_menu = bkt.ribbon.Menu(
                     supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide ein.",
                     on_action=bkt.Callback(TextShapes.addSticker, slide=True, presentation=True)
                 ),
-                bkt.ribbon.Menu(label="Sticker Menü", children=[
+                bkt.ribbon.Menu(label="Sticker Menü", supertip="Verschiedene Sticker einfügen", children=[
                     bkt.ribbon.Button(
                         id="sticker_draft",
                         label = u"DRAFT-Sticker",
@@ -1339,6 +1340,7 @@ text_menu = bkt.ribbon.Menu(
                     bkt.ribbon.MenuSeparator(),
                     bkt.ribbon.Menu(
                         label="Ausrichtung",
+                        supertip="Ausrichtungsoptionen für Sticker einstellen",
                         children=[
                             bkt.ribbon.ToggleButton(
                                 label="Links",
@@ -1365,6 +1367,7 @@ text_menu = bkt.ribbon.Menu(
                     ),
                     bkt.ribbon.Menu(
                         label="Schriftgröße",
+                        supertip="Schriftgrößenoptionen für Sticker einstellen",
                         children=[
                             bkt.ribbon.ToggleButton(
                                 label="10",
@@ -1504,7 +1507,7 @@ text_menu = bkt.ribbon.Menu(
                     on_action=bkt.Callback(TextPlaceholder.text_replace, shapes=True),
                     get_enabled=bkt.apps.ppt_shapes_or_text_selected,
                 ),
-                bkt.ribbon.Menu(label="Standard-Platzhalter", children=[
+                bkt.ribbon.Menu(label="Standard-Platzhalter", supertip="Text mit vordefinierten Platzhaltern ersetzen", children=[
                     bkt.ribbon.Button(
                         id = 'text_tbd',
                         label="… mit »tbd«",
@@ -1573,6 +1576,7 @@ paragraph_group = bkt.ribbon.Group(
         bkt.ribbon.Menu(
             label=u"Textbox",
             imageMso="FormattingMarkDropDown",
+            supertip="Einstellungen für die Textbox ändern",
             children = [
                 bkt.ribbon.ToggleButton(
                     id = 'wordwrap',

@@ -1689,6 +1689,7 @@ agenda_tab = bkt.ribbon.Tab(
     get_visible=bkt.Callback(ToolboxAgenda.can_create_agenda_from_slide, slide=True),
     children = [
         bkt.ribbon.Group(
+            id="bkt_agenda_manual",
             label = "Anleitung",
             children = [
                 bkt.ribbon.Label(label='Schritt 1: Textbox mit Agenda füllen und "Agenda neu erstellen"'),
@@ -1697,6 +1698,7 @@ agenda_tab = bkt.ribbon.Tab(
             ]
         ),
         bkt.ribbon.Group(
+            id="bkt_agenda_group",
             label = "Agenda",
             children = [
                 bkt.ribbon.Button(
@@ -1774,6 +1776,7 @@ agenda_tab = bkt.ribbon.Tab(
             ]
         ),
         bkt.ribbon.Group(
+            id="bkt_agenda_selector_group",
             label = "Agenda Selektor",
             children = [
                 bkt.ribbon.ColorGallery(

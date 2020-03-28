@@ -1733,7 +1733,7 @@ shapes_group = bkt.ribbon.Group(
             show_label=False,
             image_mso='SmartArtInsert',
             screentip="Spezielle und Interaktive Formen ",
-            supertip="Bilder, Objekte, Spezial-Shapes, Text-Zerlegung, Shapes verstecken, ...",
+            supertip="Interaktive BKT-Shapes und spezielle zusammengesetzte Shapes einfügen, die sonst nur umständlich zu erstellen sind.",
             children = [
                 bkt.ribbon.MenuSeparator(title="Einfügehilfen"),
                 bkt.ribbon.Button(
@@ -1864,6 +1864,7 @@ shapes_group = bkt.ribbon.Group(
         bkt.ribbon.Menu(
             image_mso='CombineShapesMenu',
             label="Shape verändern",
+            supertip="Funktionen um Shape-Punkte zu manipulieren, Shapes zu duplizieren, und Text in Symbol/Grafik umzuwandeln",
             show_label=False,
             children=[
                 bkt.ribbon.MenuSeparator(title="Formen manipulieren"),
@@ -1897,7 +1898,7 @@ shapes_group = bkt.ribbon.Group(
             show_label=False,
             image_mso='TableDesign',
             screentip="Weitere Funktionen",
-            supertip="Bilder, Objekte, Spezial-Shapes, Text-Zerlegung, Shapes verstecken, ...",
+            supertip="Standardobjekte (Bilder, Smart-Art, etc.) einfügen, Shapes verstecken und wieder anzeigen, Kopf- und Fußzeile anpassen",
             children = [
                 bkt.ribbon.MenuSeparator(title="Bilder und Objekte"),
                 bkt.mso.control.PictureInsertFromFilePowerPoint,

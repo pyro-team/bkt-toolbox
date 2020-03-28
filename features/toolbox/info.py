@@ -158,6 +158,7 @@ settings.settings_menu.children.extend([
     ),
     bkt.ribbon.Menu(
         label="UI Theme",
+        supertip="Tabs und Gruppen der PowerPoint-Toolbox auf individuelle Bedürfnisse anpassen",
         children=[
             bkt.ribbon.ToggleButton(
                 label="Standard (3-seitig)",

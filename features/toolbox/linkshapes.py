@@ -533,6 +533,7 @@ linkshapes_tab = bkt.ribbon.Tab(
     get_visible=bkt.Callback(LinkedShapes.is_linked_shape, shape=True),
     children = [
         bkt.ribbon.Group(
+            id="bkt_linkshapes_find_group",
             label = "Verknüpfte Shapes finden",
             children = [
                 bkt.ribbon.Button(
@@ -562,6 +563,7 @@ linkshapes_tab = bkt.ribbon.Tab(
             ]
         ),
         bkt.ribbon.Group(
+            id="bkt_linkshapes_align_group",
             label = "Verknüpfte Shapes angleichen",
             children = [
                 bkt.ribbon.Button(
@@ -609,6 +611,7 @@ linkshapes_tab = bkt.ribbon.Tab(
                 bkt.ribbon.Menu(
                     id="linked_shapes_actions",
                     label="Aktion ausführen",
+                    supertip="Diverse Aktionen auf alle verknüpften Shapes ausführen",
                     image_mso="ObjectBringToFront",
                     children=[
                         bkt.ribbon.Button(
@@ -656,6 +659,7 @@ linkshapes_tab = bkt.ribbon.Tab(
                         bkt.ribbon.Menu(
                             id='linked_shapes_changecase',
                             label="Groß-/Kleinschreibung ändern",
+                            supertip="Groß-/Kleinschreibung für alle verknüpften Shapes anpassen",
                             image_mso="ChangeCaseGallery",
                             children=[
                                 bkt.ribbon.Button(
@@ -695,6 +699,7 @@ linkshapes_tab = bkt.ribbon.Tab(
                 bkt.ribbon.Menu(
                     id="linked_shapes_properties",
                     label="Eigenschaft angleichen",
+                    supertip="Eine einzelne Eigenschaft auf alle verknüpften Shapes übertragen",
                     image_mso="ObjectNudgeRight",
                     children=[
                         bkt.ribbon.Button(
@@ -832,6 +837,7 @@ linkshapes_tab = bkt.ribbon.Tab(
             ]
         ),
         bkt.ribbon.Group(
+            id="bkt_linkshapes_unlink_group",
             label = "Verknüpfung aufheben",
             children = [
                 bkt.ribbon.Button(

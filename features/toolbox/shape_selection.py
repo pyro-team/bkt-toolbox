@@ -342,6 +342,7 @@ clipboard_group = bkt.ribbon.Group(
                 bkt.mso.button.PasteSpecialDialog,
                 bkt.ribbon.Menu(
                     label="Einfügen-Menü",
+                    supertip="Menü mit verschiedenen Einfüge-Operationen",
                     children=[
                         bkt.mso.button.PasteSpecialDialog,
                         bkt.ribbon.MenuSeparator(),

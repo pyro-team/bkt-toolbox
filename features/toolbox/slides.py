@@ -426,7 +426,7 @@ slides_group = bkt.ribbon.Group(
             show_label=False,
             image_mso='TableDesign',
             screentip="Weitere Slide-Funktionen",
-            supertip="Agenda, Foliennummerierung, ...",
+            supertip="Agenda, Foliennummerierung, Slidedeck aufräumen, und viele weitere Folien-bezogene Funktionen",
             children=[
                 bkt.ribbon.MenuSeparator(title="Layout"),
                 bkt.mso.control.SlideLayoutGallery,
@@ -465,7 +465,7 @@ slides_group = bkt.ribbon.Group(
                         supertip="Lösche Notizen, ausgebledete Slides, Übergänge, Animationen, Kommentare, doppelte Leerzeichen, leere Platzhalter.",
                         on_action=bkt.Callback(FolienMenu.remove_all)
                     ),
-                    bkt.ribbon.Menu(label="Slidedeck aufräumen", image_mso='SlideShowFromCurrent', children=[
+                    bkt.ribbon.Menu(label="Slidedeck aufräumen", supertip="Funktionen zum Aufräumen aller Folien der Präsentation", image_mso='SlideShowFromCurrent', children=[
                         bkt.ribbon.MenuSeparator(title="Inhalte"),
                         bkt.ribbon.Button(
                             id = 'slide_remove_hidden_slides',
@@ -558,12 +558,12 @@ slides_group = bkt.ribbon.Group(
                 ]),
                 language.sprachen_menu,
                 bkt.ribbon.MenuSeparator(title="Ansicht"),
-                bkt.ribbon.Menu(label="Masteransichten", image_mso='GroupPresentationViews', children=[
+                bkt.ribbon.Menu(label="Masteransichten", supertip="Umschalten auf verschiedene Master-Ansichten", image_mso='GroupPresentationViews', children=[
                     bkt.mso.control.ViewSlideMasterView(show_label=True),
                     bkt.mso.control.ViewHandoutMasterView(show_label=True),
                     bkt.mso.control.ViewNotesMasterView(show_label=True),
                 ]),
-                bkt.ribbon.Menu(label="Farbe/Graustufen", image_mso='ColorGrayscaleMenu', children=[
+                bkt.ribbon.Menu(label="Farbe/Graustufen", supertip="Umschalten auf verschiedene Farbmodi", image_mso='ColorGrayscaleMenu', children=[
                     bkt.mso.control.ViewDisplayInColor(show_label=True),
                     bkt.mso.control.ViewDisplayInGrayscale(show_label=True),
                     bkt.mso.control.ViewDisplayInPureBlackAndWhite(show_label=True),

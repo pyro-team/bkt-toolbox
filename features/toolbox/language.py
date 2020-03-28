@@ -147,6 +147,7 @@ sprachen_gruppe = bkt.ribbon.Group(
 sprachen_menu = bkt.ribbon.Menu(
     id="lang_change_menu",
     label="Sprache ändern",
+    supertip="Sprache der Rechtschreibkorrektur für mehrere Shapes, Folien oder die ganze Präsentation anpassen",
     image_mso="GroupLanguage",
     children=[
         bkt.ribbon.MenuSeparator(title="Sprache von Shapes oder Folien ändern"),

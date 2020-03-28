@@ -359,6 +359,7 @@ stateshape_gruppe = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.Menu(
                     label="Wechselshapes-Menü",
+                    supertip="In Wechselshapes konvertieren oder wieder alle Shapes sichtbar machen",
                     children=[
                         bkt.ribbon.Button(
                             id="stateshape_convert2",
@@ -432,6 +433,7 @@ stateshape_gruppe = bkt.ribbon.Group(
         bkt.ribbon.Menu(
             id="stateshape_color_menu",
             label="Farbe ändern",
+            supertip="Die Farben von Wechselshapes anpassen",
             image_mso="RecolorColorPicker",
             children=[
                 bkt.ribbon.ColorGallery(
