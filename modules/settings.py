@@ -159,6 +159,7 @@ class SettingsMenu(bkt.ribbon.Menu):
         super(SettingsMenu, self).__init__(
             id='bkt-settings' + postfix,
             image='bkt_logo', 
+            supertip="BKT-Einstellungen verwalten, BKT neu laden, Website aufrufen, etc.",
             children=[
                 bkt.ribbon.Button(
                     id='settings-website' + postfix,
@@ -277,6 +278,7 @@ settings_home_tab = bkt.ribbon.Tab(
     id_mso="TabHome",
     children=[
         bkt.ribbon.Group(
+            id="bkt_tabhome_settings_group",
             label="BKT",
             image="bkt_logo",
             children = [SettingsMenu("tabhome", size="large", label="Settings")]
