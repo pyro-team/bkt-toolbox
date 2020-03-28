@@ -8,6 +8,12 @@ Created on 26.02.2020
 from __future__ import absolute_import
 
 import logging
+import json
+import io
+import os.path
+
+from collections import OrderedDict
+from itertools import groupby
 
 import bkt
 import modules.settings as settings
@@ -85,6 +91,190 @@ class DevGroup(object):
             cls.log_level = logging.getLevelName(logger.level)
         return cls.log_level == current_control["tag"]
 
+
+class AllControls(object):
+    types_include = [bkt.ribbon.Button, bkt.ribbon.ToggleButton, bkt.ribbon.Gallery, bkt.ribbon.Menu, bkt.ribbon.DynamicMenu, bkt.ribbon.EditBox, bkt.ribbon.SpinnerBox, bkt.ribbon.MSOControl]
+    types_exclude = [bkt.ribbon.DialogBoxLauncher]
+
+    types_haschildren = [bkt.ribbon.Menu, bkt.ribbon.SplitButton, bkt.ribbon.Box, bkt.ribbon.Gallery, bkt.ribbon.PrimaryItem, bkt.ribbon.MenuGroup]
+    types_haslabel    = [bkt.ribbon.Menu, bkt.ribbon.Gallery, bkt.ribbon.DynamicMenu]
+
+    def __init__(self, context):
+        self.context      = context
+        self.python_addin = context.python_addin
+        self.all_controls = []
+    
+    def run(self):
+        self.add_all_standard_tabs()
+        self.add_all_contextual_tabs()
+        self.add_all_backstage_controls()
+
+        self.write_json()
+        self.write_markdown()
+
+    def _getattr(self, object, *args, **kwargs):
+        for arg in args:
+            try:
+                return object[arg]
+            except:
+                pass
+        else:
+            try:
+                return kwargs["default"]
+            except KeyError:
+                return None
+
+    def _get_tab_child_control_dict(self, control, group, submenu):
+        control_dict = OrderedDict()
+        if isinstance(control, bkt.ribbon.MSOControl):
+            id_mso = self._getattr(control, "id_mso")
+            control_dict['id']          = id_mso
+            control_dict['image']       = id_mso
+            control_dict['name']        = self.context.app.commandbars.GetLabelMso(id_mso)
+            control_dict['description'] = self.context.app.commandbars.GetSupertipMso(id_mso) or "-"
+            control_dict['is_standard'] = True
+        else:
+            control_dict['id']          = self._getattr(control, "id")
+            control_dict['image']       = self._getattr(control, "image", "image_mso")
+            control_dict['name']        = self._getattr(control, 'label', 'screentip')
+            control_dict['description'] = self._getattr(control, 'supertip', 'description')
+            control_dict['is_standard'] = False
+        control_dict['group_id']    = self._getattr(group, "id")
+        control_dict['group_name']  = self._getattr(group, "label")
+        control_dict['submenu']     = " > ".join(submenu)
+        return control_dict
+    
+    def _add_tab_child_control(self, list_obj, control, group, submenu):
+        if any(isinstance(control, t) for t in self.types_include) and type(control) not in self.types_exclude:
+            c_name = self._getattr(control, 'label', 'screentip')
+            #skip controls where label AND screentip are not given, i.e. callback functions
+            if c_name or isinstance(control, bkt.ribbon.MSOControl):
+                list_obj.append( self._get_tab_child_control_dict(control, group, submenu) )
+
+        if any(isinstance(control, t) for t in self.types_haschildren):
+            self._iterate_over_tab_children(list_obj, control, group, submenu)
+    
+    def _iterate_over_tab_children(self, list_obj, control, group, submenu):
+        if any(isinstance(control, t) for t in self.types_haslabel):
+            submenu = submenu + [self._getattr(control, 'label', 'screentip')]
+            
+        if isinstance(control, bkt.ribbon.SpinnerBox):
+            list_obj.append( self._get_tab_child_control_dict(control.txt_box, group, submenu) )
+            
+            if control.image_element:
+                self._add_tab_child_control(list_obj, control.image_element, group, submenu)
+        
+        elif isinstance(control, bkt.ribbon.MSOControl) and control.xml_name == "group":
+            #standard group, add placeholder control
+            id_mso = self._getattr(control, "id_mso")
+            control_dict = OrderedDict()
+            control_dict['id']          = id_mso
+            control_dict['image']       = id_mso
+            control_dict['name']        = "Standardgruppe"
+            control_dict['description'] = "-"
+            control_dict['is_standard'] = True
+            control_dict['group_id']    = id_mso
+            control_dict['group_name'] = self.context.app.commandbars.GetLabelMso(id_mso)
+            control_dict['submenu']     = None
+            list_obj.append(control_dict)
+
+        else:
+            for child_control in control.children:
+                self._add_tab_child_control(list_obj, child_control, group, submenu)
+
+    def add_all_standard_tabs(self):
+        #standard tabs
+        for tab_id, tab in self.python_addin.app_ui.tabs.iteritems():
+            tab_label = self._getattr(tab, "label")
+            #if no label is given try getting standard idmso label
+            if tab_label is None:
+                try:
+                    tab_label = self.context.app.CommandBars.GetLabelMso(tab_id)
+                except:
+                    continue
+            tab_control = OrderedDict()
+            tab_control["id"]       = tab_id
+            tab_control["type"]     = "tab"
+            tab_control["name"]     = tab_label
+            tab_control["children"] = []
+            for group in tab.children:
+                try:
+                    self._iterate_over_tab_children(tab_control["children"], group, group, [])
+                except:
+                    pass
+            self.all_controls.append(tab_control)
+
+    def add_all_contextual_tabs(self):
+        #contextual_tabs
+        for tab_id, tablist in self.python_addin.app_ui.contextual_tabs.iteritems():
+            for tab in tablist:
+                tab_control = OrderedDict()
+                tab_control["id"]       = tab_id
+                tab_control["type"]     = "contextual_tab"
+                tab_control["name"]    = self.context.app.CommandBars.GetLabelMso(tab_id)
+                tab_control["children"] = []
+                for group in tab.children:
+                    try:
+                        self._iterate_over_tab_children(tab_control["children"], group, group, [])
+                    except:
+                        bkt.helpers.exception_as_message()
+                self.all_controls.append(tab_control)
+
+    def add_all_backstage_controls(self):
+        #backstage controls
+        for tab in self.python_addin.app_ui.backstage_controls:
+            tab_control = OrderedDict()
+            tab_control["id"]       = self._getattr(tab, "id")
+            tab_control["type"]     = "backstage"
+            tab_control["name"]     = self._getattr(tab, "label")
+            tab_control["children"] = []
+            for cols in tab.children:
+                for group in cols.children:
+                    try:
+                        self._iterate_over_tab_children(tab_control["children"], group, group, [])
+                    except:
+                        pass
+            self.all_controls.append(tab_control)
+    
+    def write_json(self):
+        file = os.path.join(os.path.dirname(__file__), "all_controls.json")
+        with io.open(file, 'w', encoding='utf-8') as json_file:
+            # bkt.console.show_message(json.dumps(all_controls, ensure_ascii=False))
+            json.dump(self.all_controls, json_file, ensure_ascii=False, indent=2)
+    
+    def write_markdown(self):
+        file = os.path.join(os.path.dirname(__file__), "all_controls.md")
+        with io.open(file, 'w', encoding='utf-8') as md_file:
+            for parent in self.all_controls:
+                # if len(parent["children"]) == 0:
+                #     continue
+                md_file.write("## {}\n\n".format(parent["name"]))
+                for group, controls in groupby(parent["children"], key=lambda x: (x["group_id"], x["group_name"])):
+                    md_file.write("### {}\n\n".format(group[1]))
+                    md_file.write('<img src="documentation/groups/{}.png">\n\n'.format(group[0]))
+                    md_file.write("| {:50} | {:50} |\n".format("Name", "Beschreibung"))
+                    md_file.write("| {:-<50} | {:-<50} |\n".format("-", "-"))
+                    for control in controls:
+                        if not control["name"] and not control["description"]:
+                            continue
+                        if control["description"]:
+                            description = control["description"].replace("\n", "<br>")
+                        else:
+                            description = ""
+                        name = control["name"]
+                        if control["is_standard"]:
+                            name = u"*{}*".format(name)
+                        if control["submenu"]:
+                            name = u"{} > {}".format(control["submenu"], name)
+                        md_file.write(u"| {:50} | {:50} |\n".format(name, description))
+                    md_file.write("\n")
+                md_file.write("\n\n\n")
+    
+    @staticmethod
+    def generate_overview(context):
+        controls = AllControls(context)
+        controls.run()
+        bkt.helpers.message("Files successfully created")
 
 
 
@@ -206,6 +396,12 @@ common_group = bkt.ribbon.Group(
             size="large",
             image="xml",
             on_action=bkt.Callback(DevGroup.show_ribbon_xml, python_addin=True, ribbon_id=True, transaction=False),
+        ),
+        bkt.ribbon.Button(
+            label="Generate overview",
+            size="large",
+            image_mso="CreateMap",
+            on_action=bkt.Callback(AllControls.generate_overview, context=True, transaction=False),
         ),
         #TODO: create new feature folder, clear all caches
         #ICONS: ControlsPane
