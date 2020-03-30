@@ -8,7 +8,7 @@ Created on 10.02.2017
 from __future__ import absolute_import
 
 import importlib
-from collections import namedtuple
+from collections import namedtuple, deque
 
 import bkt
 from bkt.library.powerpoint import PPTSymbolsGallery
@@ -111,6 +111,7 @@ class FontSearch(object):
     search_term = ""
     search_results = None
     search_exact = True
+    search_and = True #True = AND-search, False=OR-search
 
     _cache_menu_infos = None
 
@@ -123,9 +124,9 @@ class FontSearch(object):
             engine = cls.get_search_engine()
             with engine.searcher() as searcher:
                 if cls.search_exact:
-                    cls.search_results = searcher.search_exact(cls.search_term)
+                    cls.search_results = searcher.search_exact(cls.search_term, cls.search_and)
                 else:
-                    cls.search_results = searcher.search(cls.search_term)
+                    cls.search_results = searcher.search(cls.search_term, cls.search_and)
         else:
             cls.search_results = None
 
@@ -200,6 +201,7 @@ class FontSearch(object):
             bkt.ribbon.MenuSeparator(title="Informationen"),
             bkt.ribbon.ToggleButton(
                 label="Exakte Suche ein/aus",
+                supertip="Wenn die exakte Suche deaktiviert ist, wird bei 'person' auch 'personality', 'impersonal', usw. gefunden.",
                 on_toggle_action=bkt.Callback(cls.toggle_search_exact),
                 get_pressed=bkt.Callback(cls.checked_search_exact),
             ),
@@ -240,13 +242,16 @@ fontsearch_gruppe = bkt.ribbon.Group(
         bkt.ribbon.Label(
             label="Suchwort:",
         ),
-        bkt.ribbon.EditBox(
+        # bkt.ribbon.EditBox(
+        bkt.ribbon.ComboBox(
             label="Suchwort",
             show_label=False,
-            sizeString = '#########',
+            sizeString = '#######',
             get_text = bkt.Callback(FontSearch.get_search_term),
             on_change = bkt.Callback(FontSearch.set_search_term),
             supertip="Suchwort eingeben und ENTER klicken",
+            get_item_count=bkt.Callback(lambda: FontSearch.get_search_engine().count_recent_searches()),
+            get_item_label=bkt.Callback(lambda index: FontSearch.get_search_engine().get_recent_searches()[index]),
         ),
         bkt.ribbon.DynamicMenu(
             get_label=bkt.Callback(FontSearch.get_results_label),
