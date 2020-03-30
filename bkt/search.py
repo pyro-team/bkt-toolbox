@@ -250,6 +250,9 @@ class SearchEngine(object):
         self._docs = OrderedDict()
         self._keywords = set()
 
+        self._settings_key = "bkt.search."+name
+        self._recent_searches = deque(settings.get(self._settings_key+".recent_searches", []), maxlen=10)
+
     ### INDEXING AND SEARCHING ###
     def count_documents(self):
         return len(self._docs)
@@ -266,6 +269,22 @@ class SearchEngine(object):
             yield SearchSearcher(self)
         finally:
             pass
+
+    ### SEARCH HISTORY ###
+    def add_to_recent(self, query):
+        try:
+            #try to remove if already exists and add to beginning
+            self._recent_searches.remove(query)
+            self._recent_searches.appendleft(query)
+        except ValueError:
+            self._recent_searches.appendleft(query)
+        settings[self._settings_key+".recent_searches"] = self._recent_searches
+
+    def get_recent_searches(self):
+        return self._recent_searches
+
+    def count_recent_searches(self):
+        return len(self._recent_searches)
 
 
 ### FACTORY ###
