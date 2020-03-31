@@ -107,6 +107,7 @@ class AllControls(object):
         self.add_all_standard_tabs()
         self.add_all_contextual_tabs()
         self.add_all_backstage_controls()
+        self.add_all_context_menus()
 
         self.write_json()
         self.write_markdown()
@@ -125,20 +126,31 @@ class AllControls(object):
 
     def _get_control_dict(self, control, submenu=None):
         control_dict = OrderedDict()
-        if isinstance(control, bkt.ribbon.MSOControl):
+        if isinstance(control, bkt.ribbon.ContextMenu):
+            id_mso = self._getattr(control, "id_mso")
+            control_dict['id']          = id_mso
+            control_dict['image']       = id_mso
+            control_dict['name']        = id_mso
+            control_dict['description'] = None
+            control_dict['is_standard'] = True
+
+        elif isinstance(control, bkt.ribbon.MSOControl):
             id_mso = self._getattr(control, "id_mso")
             control_dict['id']          = id_mso
             control_dict['image']       = id_mso
             control_dict['name']        = self.context.app.commandbars.GetLabelMso(id_mso)
             control_dict['description'] = self.context.app.commandbars.GetSupertipMso(id_mso)
             control_dict['is_standard'] = True
+        
         else:
             control_dict['id']          = self._getattr(control, "id")
             control_dict['image']       = self._getattr(control, "image", "image_mso")
             control_dict['name']        = self._getattr(control, 'label', 'screentip')
             control_dict['description'] = self._getattr(control, 'supertip', 'description')
             control_dict['is_standard'] = False
+        
         control_dict['type']            = type(control).__name__
+        
         if submenu is not None:
             control_dict['submenu']     = " > ".join(submenu)
         return control_dict
@@ -155,7 +167,11 @@ class AllControls(object):
     
     def _iterate_over_group_children(self, list_obj, control, submenu):
         if any(isinstance(control, t) for t in self.types_haslabel):
-            submenu = submenu + [self._getattr(control, 'label', 'screentip')]
+            new_submenu = self._getattr(control, 'label', 'screentip')
+            if not new_submenu:
+                logging.warning("missing label for id "+self._getattr(control, 'id'))
+            else:
+                submenu = submenu + [new_submenu]
             
         if isinstance(control, bkt.ribbon.SpinnerBox):
             list_obj.append( self._get_control_dict(control.txt_box, submenu) )
@@ -231,6 +247,23 @@ class AllControls(object):
                         pass
             self.all_controls.append(tab_control)
     
+    def add_all_context_menus(self):
+        context_menus = OrderedDict()
+        context_menus["id"]       = "ContextMenu"
+        context_menus["type"]     = "context_menu"
+        context_menus["name"]     = "Kontextmenüs"
+        context_menus["children"] = []
+        #context menu controls
+        for _, contextmenu in self.python_addin.app_ui.context_menus.iteritems():
+            try:
+                cm_control = self._get_control_dict(contextmenu)
+                cm_control["children"] = []
+                context_menus["children"].append(cm_control)
+                self._iterate_over_group_children(cm_control["children"], contextmenu, [])
+            except:
+                pass
+        self.all_controls.append(context_menus)
+
     def write_json(self):
         file = os.path.join(os.path.dirname(__file__), "all_controls.json")
         with io.open(file, 'w', encoding='utf-8') as json_file:
