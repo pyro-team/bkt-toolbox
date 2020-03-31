@@ -265,6 +265,7 @@ shape_tables = ShapeTables()
 tabellen_gruppe = bkt.ribbon.Group(
     id="bkt_shapetables_group",
     label='Tabelle aus Shapes',
+    supertip="Ermöglicht die tabellenförmige Anordnung von Shapes. Das Feature `ppt_shapetables` muss installiert sein.",
     image='align_table',
     children = [
         bkt.ribbon.SplitButton(

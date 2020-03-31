@@ -476,6 +476,7 @@ class Thumbnailer(object):
 thumbnail_gruppe = bkt.ribbon.Group(
     id="bkt_slidethumbnails_group",
     label='Folien-Thumbnails',
+    supertip="Ermöglicht das Einfügen von aktualisierbaren Folien-Thumbnails. Das Feature `ppt_thumbnails` muss installiert sein.",
     image_mso='PasteAsPicture',
     children = [
         bkt.ribbon.Button(

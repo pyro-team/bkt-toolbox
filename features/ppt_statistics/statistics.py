@@ -80,6 +80,7 @@ class Statistics(object):
 statistik_gruppe = bkt.ribbon.Group(
     id="bkt_statistics_group",
     label='Statistik',
+    supertip="Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von zahlenlastigen Folien. Das Feature `ppt_statistics` muss installiert sein.",
     image_mso='RecordsTotals',
     children = [
         # bkt.ribbon.LabelControl(

@@ -118,6 +118,7 @@ bkt.AppEvents.window_activate    += bkt.Callback(QuickEditPanelManager.update_pa
 color_selector_gruppe = bkt.ribbon.Group(
     id="bkt_quickedit_group",
     label='QuickEdit',
+    supertip="Aktiviert eine kleine freischwebende Mini-Toolbar mit einer interaktiven Farbauswahl. Das Feature `ppt_quickedit` muss installiert sein.",
     image_mso='SmartArtChangeColorsGallery',
     children = [
         bkt.ribbon.Button(

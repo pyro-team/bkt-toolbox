@@ -145,6 +145,7 @@ class EditModeShapes(object):
 notes_gruppe = bkt.ribbon.Group(
     id="bkt_notes_group",
     label='Notes',
+    supertip="Ermöglicht das Einfügen von Bearbeitungsnotizen auf Folien. Das Feature `ppt_notes` muss installiert sein.",
     image='noteAdd',
     children = [
         bkt.ribbon.Button(

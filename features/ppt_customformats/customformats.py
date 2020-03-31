@@ -638,13 +638,13 @@ class CustomQuickEdit(object):
 
     @classmethod
     def show_pickup_window(cls, shape):
-        from pickup_style import PickupWindow
+        from .pickup_style import PickupWindow
         wnd = PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormat.default_settings, shape=shape)
         return wnd.result
 
     @classmethod
     def show_edit_window(cls, index):
-        from pickup_style import PickupWindow
+        from .pickup_style import PickupWindow
         wnd = PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormatCatalog.custom_styles[index].style_setting, index=index)
         return wnd.result
 
@@ -713,7 +713,7 @@ class CustomQuickEdit(object):
 
         do_apply = True
         if ctrl or not cls.temp_settings_done:
-            from pickup_style import PickupWindow
+            from .pickup_style import PickupWindow
             wnd = PickupWindow.create_and_show_dialog(cls, cls.temp_custom_format.style_setting)
         
             if wnd.result:
@@ -779,6 +779,7 @@ class FormatLibGallery(bkt.ribbon.Gallery):
 customformats_group = bkt.ribbon.Group(
     id="bkt_customformats_group",
     label='Styles',
+    supertip="Ermöglicht die Speicherung von eigenen Formatierungen/Styles in Katalogen zur späteren Wiederverwendung. Das Feature `ppt_customformats` muss installiert sein.",
     image_mso='SmartArtChangeColorsGallery',
     children = [
         FormatLibGallery(id="customformats_gallery", size="large"),

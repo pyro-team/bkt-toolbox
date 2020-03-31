@@ -249,6 +249,7 @@ group_circlify = bkt.ribbon.Group(
     id="bkt_circlify_group",
     label=u"Kreisanordnung",
     image="circlify",
+    supertip="Ermöglicht die kreisförmige Anordnung von Shapes. Das Feature `ppt_circlify` muss installiert sein.",
     children=[
         bkt.ribbon.SplitButton(
             id="circlify_splitbutton",
