@@ -594,6 +594,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id='context-thumbnail-refresh',
             label="Thumbnail aktualisieren",
+            supertip="Ausgewähltes Folien-Thumbnail aktualisieren",
             insertBeforeMso='Cut',
             image_mso='PictureChange',
             on_action=bkt.Callback(Thumbnailer.shape_refresh, shape=True, application=True),
@@ -602,6 +603,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Menu(
             id='context-thumbnail-settings',
             label="Thumbnail-Einstellungen",
+            supertip="Einstellungen des gewählten Folien-Thumbnails ändern",
             image_mso='PictureSharpenSoftenGallery',
             insertBeforeMso='Cut',
             get_visible=bkt.Callback(Thumbnailer.is_thumbnail, shape=True),
@@ -649,6 +651,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Menu(
             id='context-thumbnail-reference',
             label="Folien-Referenz",
+            supertip="Referenz des gewählten Folien-Thumbnails öffnen oder ändern",
             image_mso='PictureInsertFromFile',
             insertBeforeMso='Cut',
             get_visible=bkt.Callback(Thumbnailer.is_thumbnail, shape=True),
@@ -692,6 +695,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id='context-thumbnail-slide-copy',
             label="Als Folien-Thumbnail kopieren",
+            supertip="Gewählte Folie als aktualisierbares Thumbnail kopieren",
             insertAfterMso='Copy',
             image_mso='Copy',
             on_action=bkt.Callback(Thumbnailer.slides_copy, presentation=True, slides=True),
@@ -709,12 +713,13 @@ bkt.powerpoint.add_context_menu(
                 bkt.ribbon.Button(
                     id='context-thumbnail-slide-paste',
                     label="Als Folien-Thumbnail einfügen",
+                    supertip="Als aktualisierbares Folien-Thumbnail im PNG-Format einfügen",
                     image_mso='PasteAsPicture',
                     on_action=bkt.Callback(Thumbnailer.slide_paste, application=True),
                     #get_visible=bkt.Callback(Thumbnailer.is_thumbnail, shape=True),
                     get_enabled=bkt.Callback(Thumbnailer.enabled_paste),
                 ),
-                bkt.ribbon.Menu(children=[
+                bkt.ribbon.Menu(label="Als Folien-Thumbnail einfügen Menü", supertip="Format zum Einfügen des Thumbnails auswählen", children=[
                     bkt.ribbon.Button(
                         label="Als PNG einfügen (Standard)",
                         on_action=bkt.Callback(lambda application: Thumbnailer.slide_paste(application, PASTE_DATATYPE_PNG), application=True),

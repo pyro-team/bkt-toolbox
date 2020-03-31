@@ -427,12 +427,13 @@ def linked_shapes_context_menu(prefix):
                 bkt.ribbon.Button(
                     id = prefix+'-linked-shapes-all',
                     label="Verknüpfte Shapes angleichen",
+                    supertip="Alle Eigenschaften aller verknüpfter Shapes wie ausgewähltes Shape setzen.",
                     # image_mso="GroupUpdate",
                     image_mso='HyperlinkCreate',
                     on_action=bkt.Callback(LinkedShapes.equalize_linked_shapes, shape=True, context=True),
                     # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                 ),
-                bkt.ribbon.Menu(children=[
+                bkt.ribbon.Menu(label="Verknüpfte Shapes angleichen Menü", supertip="Auswählen, was angeglichen werden soll", children=[
                     bkt.ribbon.Button(
                         id = prefix+'-linked-shapes-all2',
                         label="Alles angleichen",
@@ -506,6 +507,7 @@ def linked_shapes_context_menu(prefix):
         bkt.ribbon.Menu(
             id=prefix+'-not-linked-shapes',
             label="Verknüpftes Shape anlegen",
+            supertip="Entweder ähnliche Shapes auf Folgefolien anhand Position oder Größe suchen, oder dieses Shape auf Folgefolien kopieren und verknüpfen.",
             image_mso='HyperlinkCreate',
             insertBeforeMso='ObjectsGroupMenu',
             get_visible=bkt.Callback(LinkedShapes.not_is_linked_shape, shape=True),

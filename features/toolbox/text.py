@@ -1284,7 +1284,7 @@ class SplitTextShapes(object):
 
 
 text_menu = bkt.ribbon.Menu(
-    label="Textboxen-Menü",
+    label="Textfeld zeichnen Menü",
     supertip="Sticker einfügen, Bullet Points angleichen, sowie weitere Text-bezogene Funktionen",
     children=[
         bkt.ribbon.MenuSeparator(title="Textformen einfügen"),
@@ -1507,7 +1507,7 @@ text_menu = bkt.ribbon.Menu(
                     on_action=bkt.Callback(TextPlaceholder.text_replace, shapes=True),
                     get_enabled=bkt.apps.ppt_shapes_or_text_selected,
                 ),
-                bkt.ribbon.Menu(label="Standard-Platzhalter", supertip="Text mit vordefinierten Platzhaltern ersetzen", children=[
+                bkt.ribbon.Menu(label="Shape-Texte ersetzen Menü", supertip="Text mit vordefinierten Standard-Platzhaltern ersetzen", children=[
                     bkt.ribbon.Button(
                         id = 'text_tbd',
                         label="… mit »tbd«",
@@ -1554,9 +1554,8 @@ text_splitbutton = bkt.ribbon.SplitButton(
     children=[
         bkt.ribbon.ToggleButton(
             id="textbox_insert",
-            label="Textfeld einfügen",
+            label="Textfeld zeichnen",
             image_mso="TextBoxInsert",
-            screentip="Textfeld zeichnen",
             supertip="Zeichnen Sie ein Textfeld an einer beliebigen Stelle.\n\nMit gedrückter Umschalt-Taste wird eine unterstrichene Textbox eingefügt.\n\nMit gedrückter Strg-Taste wird ein Sticker eingefügt.",
             on_toggle_action=bkt.Callback(TextShapes.textbox_insert, context=True),
             get_pressed=bkt.Callback(TextShapes.textbox_pressed, context=True),
