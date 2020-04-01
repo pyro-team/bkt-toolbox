@@ -98,6 +98,18 @@ class AllControls(object):
     types_haschildren = [bkt.ribbon.Menu, bkt.ribbon.SplitButton, bkt.ribbon.Box, bkt.ribbon.Gallery, bkt.ribbon.PrimaryItem, bkt.ribbon.MenuGroup]
     types_haslabel    = [bkt.ribbon.Menu, bkt.ribbon.Gallery, bkt.ribbon.DynamicMenu]
 
+    cm_descriptions = {
+        'ContextMenuSpell': 'Kontextmenü für rot unterstrichene Wörter',
+        'ContextMenuShape': 'Kontextmenü bei Auswahl eines einzelnen Shapes',
+        'ContextMenuTextEdit': 'Kontextmenü innerhalb eines Textfelds oder bei selektiertem Text',
+        'ContextMenuFrame': 'Kontextmenü für leere Stelle auf der Folie',
+        'ContextMenuPicture': 'Kontextmenü für Grafiken und Bilder',
+        'ContextMenuObjectsGroup': 'Kontextmenü bei Auswahl mehrerer Shapes oder Objekte',
+        'ContextMenuThumbnail': 'Kontextmenü für die Folien-Vorschau im rechten Panel',
+        'ContextMenuShapeConnector': 'Kontextmenü für einen einzelnen Verbinder',
+        'ContextMenuShapeFreeform': 'Kontextmenü für sog. Freeform-Shapes, also Shape mit beliebiger selbst erstellter Form'
+    }
+
     def __init__(self, context):
         self.context      = context
         self.python_addin = context.python_addin
@@ -131,7 +143,7 @@ class AllControls(object):
             control_dict['id']          = id_mso
             control_dict['image']       = id_mso
             control_dict['name']        = id_mso
-            control_dict['description'] = None
+            control_dict['description'] = self.cm_descriptions.get(id_mso)
             control_dict['is_standard'] = True
 
         elif isinstance(control, bkt.ribbon.MSOControl):
@@ -282,7 +294,8 @@ class AllControls(object):
                     md_file.write('### {name}\n\n'.format(**group))
                     if group["description"]:
                         md_file.write('{description}\n\n'.format(**group))
-                    md_file.write('<img src="documentation/groups/{id}.png">\n\n'.format(**group))
+                    if parent["type"] != "context_menu":
+                        md_file.write('<img src="documentation/groups/{id}.png">\n\n'.format(**group))
                     if len(group["children"]) > 0:
                         md_file.write("| {:50} | {:50} |\n".format("Name", "Beschreibung"))
                         md_file.write("| {:-<50} | {:-<50} |\n".format("-", "-"))
