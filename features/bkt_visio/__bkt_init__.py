@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+
 class BktFeature(object):
     name            = "Visio Toolbox"
     relevant_apps   = ["Microsoft Visio"]
     
     @staticmethod
     def contructor():
-        import visiotoolbox
+        from . import visiotoolbox

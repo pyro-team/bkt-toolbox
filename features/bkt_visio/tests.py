@@ -4,11 +4,10 @@ Created on 2016-04-27
 @author: Florian Stallmann
 '''
 
-import bkt
-# import logging
-# from bkt.library import visio
+from __future__ import absolute_import
 
 import math
+# import logging
 
 import clr
 clr.AddReference('System.Windows.Forms')
@@ -18,6 +17,9 @@ clr.AddReference("Microsoft.Office.Interop.Visio")
 import Microsoft.Office.Interop.Visio as Visio
 import System.Windows.Forms as F
 import System.IO as IO
+
+import bkt
+# from bkt.library import visio
 
 class TestVisio(object):
     @staticmethod
