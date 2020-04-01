@@ -393,32 +393,32 @@ common_group = bkt.ribbon.Group(
                         bkt.ribbon.ToggleButton(
                             label="DEBUG",
                             tag="DEBUG",
-                            get_pressed=bkt.Callback(DevGroup.get_log_level),
-                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, transaction=False)
+                            get_pressed=bkt.Callback(DevGroup.get_log_level, current_control=True),
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transaction=False)
                         ),
                         bkt.ribbon.ToggleButton(
                             label="INFO",
                             tag="INFO",
-                            get_pressed=bkt.Callback(DevGroup.get_log_level),
-                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, transaction=False)
+                            get_pressed=bkt.Callback(DevGroup.get_log_level, current_control=True),
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transaction=False)
                         ),
                         bkt.ribbon.ToggleButton(
                             label="WARNING",
                             tag="WARNING",
-                            get_pressed=bkt.Callback(DevGroup.get_log_level),
-                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, transaction=False)
+                            get_pressed=bkt.Callback(DevGroup.get_log_level, current_control=True),
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transaction=False)
                         ),
                         bkt.ribbon.ToggleButton(
                             label="ERROR",
                             tag="ERROR",
-                            get_pressed=bkt.Callback(DevGroup.get_log_level),
-                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, transaction=False)
+                            get_pressed=bkt.Callback(DevGroup.get_log_level, current_control=True),
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transaction=False)
                         ),
                         bkt.ribbon.ToggleButton(
                             label="CRITICAL",
                             tag="CRITICAL",
-                            get_pressed=bkt.Callback(DevGroup.get_log_level),
-                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, transaction=False)
+                            get_pressed=bkt.Callback(DevGroup.get_log_level, current_control=True),
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transaction=False)
                         ),
                     ]
                 )
