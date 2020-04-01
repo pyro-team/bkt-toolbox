@@ -32,7 +32,7 @@
 
 ### Ablage
 
-<img src="documentation/groups/bkt_clipboard_group.png">
+<img src="documentation/groups/bkt_clipboard_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -65,7 +65,7 @@
 
 ### Folien
 
-<img src="documentation/groups/bkt_slide_group.png">
+<img src="documentation/groups/bkt_slide_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -121,17 +121,17 @@
 
 ### Schriftart
 
-<img src="documentation/groups/GroupFont.png">
+<img src="documentation/groups/GroupFont.jpg">
 
 
 ### Absatz
 
-<img src="documentation/groups/GroupParagraph.png">
+<img src="documentation/groups/GroupParagraph.jpg">
 
 
 ### Formen
 
-<img src="documentation/groups/bkt_shapes_group.png">
+<img src="documentation/groups/bkt_shapes_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -249,7 +249,7 @@
 
 ### Stile
 
-<img src="documentation/groups/bkt_style_group.png">
+<img src="documentation/groups/bkt_style_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -273,7 +273,7 @@
 
 ### Größe
 
-<img src="documentation/groups/bkt_size_group.png">
+<img src="documentation/groups/bkt_size_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -283,7 +283,7 @@
 
 ### Anordnen
 
-<img src="documentation/groups/bkt_align_group.png">
+<img src="documentation/groups/bkt_align_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -375,7 +375,7 @@
 
 ### Erw. Anordnen
 
-<img src="documentation/groups/bkt_arrage_adv_small_group.png">
+<img src="documentation/groups/bkt_arrage_adv_small_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -404,7 +404,7 @@
 
 ### Abstand/Rotation
 
-<img src="documentation/groups/bkt_shapesep_group.png">
+<img src="documentation/groups/bkt_shapesep_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -441,7 +441,7 @@
 
 ### Textfeld Innenabstand
 
-<img src="documentation/groups/bkt_innermargin_group.png">
+<img src="documentation/groups/bkt_innermargin_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -459,7 +459,7 @@
 
 ### Absatz
 
-<img src="documentation/groups/bkt_paragraph_group.png">
+<img src="documentation/groups/bkt_paragraph_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -473,7 +473,7 @@
 
 ### Fine-Tuning
 
-<img src="documentation/groups/bkt_adjustments_group.png">
+<img src="documentation/groups/bkt_adjustments_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -492,7 +492,7 @@
 
 ### Settings
 
-<img src="documentation/groups/bkt_settings_group.png">
+<img src="documentation/groups/bkt_settings_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -523,7 +523,7 @@
 
 ### Position/Größe
 
-<img src="documentation/groups/bkt_possize_group.png">
+<img src="documentation/groups/bkt_possize_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -557,7 +557,7 @@
 
 ### Erweitertes Anordnen
 
-<img src="documentation/groups/bkt_arrage_adv_group.png">
+<img src="documentation/groups/bkt_arrage_adv_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -601,7 +601,7 @@
 
 ### Einfaches Anordnen
 
-<img src="documentation/groups/bkt_arrage_adv_easy_group.png">
+<img src="documentation/groups/bkt_arrage_adv_easy_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -627,7 +627,7 @@
 
 ### Erw. Pos.
 
-<img src="documentation/groups/bkt_shapesep_advanced.png">
+<img src="documentation/groups/bkt_shapesep_advanced.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -648,7 +648,7 @@
 
 ### Absatzeinzug
 
-<img src="documentation/groups/bkt_paragraph_adv_group.png">
+<img src="documentation/groups/bkt_paragraph_adv_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -660,7 +660,7 @@
 
 ### Format
 
-<img src="documentation/groups/bkt_format_group.png">
+<img src="documentation/groups/bkt_format_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -671,7 +671,7 @@
 
 ### Teilen/Vervielfachen
 
-<img src="documentation/groups/bkt_splitshapes_group.png">
+<img src="documentation/groups/bkt_splitshapes_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -685,7 +685,7 @@
 
 ### Sprache
 
-<img src="documentation/groups/bkt_language_group.png">
+<img src="documentation/groups/bkt_language_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -696,7 +696,7 @@
 
 ### Wechsel-Shapes
 
-<img src="documentation/groups/bkt_stateshape_group.png">
+<img src="documentation/groups/bkt_stateshape_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -716,7 +716,7 @@
 
 ### Icon-Suche
 
-<img src="documentation/groups/bkt_fontsearch_group.png">
+<img src="documentation/groups/bkt_fontsearch_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -733,7 +733,7 @@
 
 Ermöglicht das Einfügen von aktualisierbaren Folien-Thumbnails. Das Feature `ppt_thumbnails` muss installiert sein.
 
-<img src="documentation/groups/bkt_slidethumbnails_group.png">
+<img src="documentation/groups/bkt_slidethumbnails_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -753,7 +753,7 @@ Ermöglicht das Einfügen von aktualisierbaren Folien-Thumbnails. Das Feature `p
 
 Ermöglicht das Einfügen von Bearbeitungsnotizen auf Folien. Das Feature `ppt_notes` muss installiert sein.
 
-<img src="documentation/groups/bkt_notes_group.png">
+<img src="documentation/groups/bkt_notes_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -770,7 +770,7 @@ Ermöglicht das Einfügen von Bearbeitungsnotizen auf Folien. Das Feature `ppt_n
 
 Ermöglicht die tabellenförmige Anordnung von Shapes. Das Feature `ppt_shapetables` muss installiert sein.
 
-<img src="documentation/groups/bkt_shapetables_group.png">
+<img src="documentation/groups/bkt_shapetables_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -805,7 +805,7 @@ Ermöglicht die tabellenförmige Anordnung von Shapes. Das Feature `ppt_shapetab
 
 Ermöglicht die kreisförmige Anordnung von Shapes. Das Feature `ppt_circlify` muss installiert sein.
 
-<img src="documentation/groups/bkt_circlify_group.png">
+<img src="documentation/groups/bkt_circlify_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -824,7 +824,7 @@ Ermöglicht die kreisförmige Anordnung von Shapes. Das Feature `ppt_circlify` m
 
 Ermöglicht die Speicherung von eigenen Formatierungen/Styles in Katalogen zur späteren Wiederverwendung. Das Feature `ppt_customformats` muss installiert sein.
 
-<img src="documentation/groups/bkt_customformats_group.png">
+<img src="documentation/groups/bkt_customformats_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -842,7 +842,7 @@ Ermöglicht die Speicherung von eigenen Formatierungen/Styles in Katalogen zur s
 
 Aktiviert eine kleine freischwebende Mini-Toolbar mit einer interaktiven Farbauswahl. Das Feature `ppt_quickedit` muss installiert sein.
 
-<img src="documentation/groups/bkt_quickedit_group.png">
+<img src="documentation/groups/bkt_quickedit_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -853,7 +853,7 @@ Aktiviert eine kleine freischwebende Mini-Toolbar mit einer interaktiven Farbaus
 
 Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von zahlenlastigen Folien. Das Feature `ppt_statistics` muss installiert sein.
 
-<img src="documentation/groups/bkt_statistics_group.png">
+<img src="documentation/groups/bkt_statistics_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -872,7 +872,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### Harvey Balls
 
-<img src="documentation/groups/bkt_harvey_group.png">
+<img src="documentation/groups/bkt_harvey_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -901,12 +901,12 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### Anleitung
 
-<img src="documentation/groups/bkt_agenda_manual.png">
+<img src="documentation/groups/bkt_agenda_manual.jpg">
 
 
 ### Agenda
 
-<img src="documentation/groups/bkt_agenda_group.png">
+<img src="documentation/groups/bkt_agenda_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -922,7 +922,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### Agenda Selektor
 
-<img src="documentation/groups/bkt_agenda_selector_group.png">
+<img src="documentation/groups/bkt_agenda_selector_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -951,7 +951,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### Verknüpfte Shapes finden
 
-<img src="documentation/groups/bkt_linkshapes_find_group.png">
+<img src="documentation/groups/bkt_linkshapes_find_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -962,7 +962,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### Verknüpfte Shapes angleichen
 
-<img src="documentation/groups/bkt_linkshapes_align_group.png">
+<img src="documentation/groups/bkt_linkshapes_align_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1003,7 +1003,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### Verknüpfung aufheben
 
-<img src="documentation/groups/bkt_linkshapes_unlink_group.png">
+<img src="documentation/groups/bkt_linkshapes_unlink_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1018,7 +1018,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### Format
 
-<img src="documentation/groups/bkt_pictureformat_group.png">
+<img src="documentation/groups/bkt_pictureformat_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1032,7 +1032,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### Folien aus Dateien anfügen
 
-<img src="documentation/groups/bkt_consolsplit_consolidate_group.png">
+<img src="documentation/groups/bkt_consolsplit_consolidate_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1041,7 +1041,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### Folien aus Bildern erstellen
 
-<img src="documentation/groups/bkt_consolsplit_pic2slides_group.png">
+<img src="documentation/groups/bkt_consolsplit_pic2slides_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1052,7 +1052,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### Folien einzeln speichern
 
-<img src="documentation/groups/bkt_consolsplit_split_group.png">
+<img src="documentation/groups/bkt_consolsplit_split_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1068,7 +1068,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuSpell
 
-<img src="documentation/groups/ContextMenuSpell.png">
+<img src="documentation/groups/ContextMenuSpell.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1077,7 +1077,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuShape
 
-<img src="documentation/groups/ContextMenuShape.png">
+<img src="documentation/groups/ContextMenuShape.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1103,7 +1103,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuTextEdit
 
-<img src="documentation/groups/ContextMenuTextEdit.png">
+<img src="documentation/groups/ContextMenuTextEdit.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1112,7 +1112,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuFrame
 
-<img src="documentation/groups/ContextMenuFrame.png">
+<img src="documentation/groups/ContextMenuFrame.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1125,7 +1125,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuPicture
 
-<img src="documentation/groups/ContextMenuPicture.png">
+<img src="documentation/groups/ContextMenuPicture.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1156,7 +1156,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuObjectsGroup
 
-<img src="documentation/groups/ContextMenuObjectsGroup.png">
+<img src="documentation/groups/ContextMenuObjectsGroup.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1195,7 +1195,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuThumbnail
 
-<img src="documentation/groups/ContextMenuThumbnail.png">
+<img src="documentation/groups/ContextMenuThumbnail.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1209,7 +1209,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuShapeConnector
 
-<img src="documentation/groups/ContextMenuShapeConnector.png">
+<img src="documentation/groups/ContextMenuShapeConnector.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1218,7 +1218,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuShapeFreeform
 
-<img src="documentation/groups/ContextMenuShapeFreeform.png">
+<img src="documentation/groups/ContextMenuShapeFreeform.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
