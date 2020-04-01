@@ -1016,6 +1016,8 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ## Bildtools
 
+Dieses Standard-Tab wird nur bei Auswahl einer Grafik angezeigt.
+
 ### Format
 
 <img src="documentation/groups/bkt_pictureformat_group.jpg">
@@ -1029,6 +1031,8 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 
 ## Konsol./Teilen
+
+Diese Funktionen sind im sog. Backstage-Bereich bei Klick auf Datei in der linken Seitenleiste.
 
 ### Folien aus Dateien anfügen
 

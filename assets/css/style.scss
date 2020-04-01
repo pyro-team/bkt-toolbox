@@ -21,14 +21,14 @@
 	color: white;
 }
 
-table {
+.main-content table {
 	display:table;
 	font-size: 0.9rem;
 	table-layout: fixed;
 }
 
-thead tr th:first-child,
-tbody tr td:first-child {
+.main-content th:first-child,
+.main-content td:first-child {
 	width: 40%;
 }
 
