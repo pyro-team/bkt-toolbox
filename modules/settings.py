@@ -74,22 +74,26 @@ class BKTInfos(object):
         webbrowser.open('https://www.bkt-toolbox.de')
     
     @staticmethod
-    def check_for_update():
-        import json
-        import urllib2
+    def check_for_update(context):
+        def loop(worker):
+            import json
+            import urllib2
 
-        try:
-            response = urllib2.urlopen(UPDATE_URL, timeout=4).read()
-            data = json.loads(response)
-            version_string = data["tag_name"]
-            version = tuple(int(x) for x in version_string.split("."))
-            current_version = tuple(int(x) for x in bkt.version_tag_name.split("."))
-            if version > current_version:
-                bkt.helpers.message("Aktualisiert verfügbar auf v{}. \nInstallierte Version ist v{}.".format(version_string, bkt.version_tag_name))
-            else:
-                bkt.helpers.message("Keine Aktualisierung verfügbar. Aktuelle Version ist v{}.".format(version_string))
-        except Exception as e:
-            bkt.helpers.message("Fehler im Aufruf der Aktualisierungs-URL: {}".format(e))
+            try:
+                worker.ReportProgress(1, "Prüfe auf Aktualisierungen...")
+                response = urllib2.urlopen(UPDATE_URL, timeout=4).read()
+                data = json.loads(response)
+                version_string = data["tag_name"]
+                version = tuple(int(x) for x in version_string.split("."))
+                current_version = tuple(int(x) for x in bkt.version_tag_name.split("."))
+                if version > current_version:
+                    bkt.helpers.message("Aktualisiert verfügbar auf v{}. \nInstallierte Version ist v{}.".format(version_string, bkt.version_tag_name))
+                else:
+                    bkt.helpers.message("Keine Aktualisierung verfügbar. Aktuelle Version ist v{}.".format(version_string))
+            except Exception as e:
+                bkt.helpers.message("Fehler im Aufruf der Aktualisierungs-URL: {}".format(e))
+        
+        bkt.ui.execute_with_progress_bar(loop, context, indeterminate=True)
     
     @staticmethod
     def show_debug_message(context):
@@ -180,7 +184,7 @@ class SettingsMenu(bkt.ribbon.Menu):
                     label="Auf neue Version prüfen",
                     supertip="Überprüfen, ob neue BKT-Version verfügbar ist",
                     image_mso="SyncStatusUpToDate",
-                    on_action=bkt.Callback(BKTInfos.check_for_update, transaction=False)
+                    on_action=bkt.Callback(BKTInfos.check_for_update, context=True, transaction=False)
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.DynamicMenu(
