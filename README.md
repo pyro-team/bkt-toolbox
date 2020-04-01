@@ -32,7 +32,7 @@ Alternativ kann man das Repository klonen und die Datei `installer\install.bat` 
 
 ## Anwenderhandbuch
 
-Ein echtes Handbuch für Anwender existiert (noch) nicht, aber es gibt eine [Übersicht von **Quick-Tipps** als kleine Animationen](quicktipps.md), die euch einige der BKT-Funktionen zeigen.
+Zur Dokumentation gibt eine [Übersicht aller BKT-Funktionen der *PowerPoint-Toolbar*](overview.md) sowie eine [Liste von **Quick-Tipps** als kleine Animationen](quicktipps.md), die euch einige ausgewählte der BKT-Funktionen näher erläutern.
 
 ## Technische Dokumentation
 

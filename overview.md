@@ -1,4 +1,4 @@
-# Übersicht aller Funktionen
+# Übersicht aller Funktionen für PowerPoint
 
 **Tabs/Reiter**
 
