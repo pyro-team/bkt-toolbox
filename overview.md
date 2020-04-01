@@ -2,14 +2,14 @@
 
 **Tabs/Reiter**
 
-1. [Toolbox 1/3](#toolbox-1-3)
-1. [Toolbox 2/3](#toolbox-2-3)
-1. [Toolbox 3/3](#toolbox-3-3)
+1. [Toolbox 1/3](#toolbox-13)
+1. [Toolbox 2/3](#toolbox-23)
+1. [Toolbox 3/3](#toolbox-33)
 1. [\[BKT\] Harvey Balls](#bkt-harvey-balls)
 1. [\[BKT\] Agenda](#bkt-agenda)
 1. [\[BKT\] Verknüpfte Shapes](#bkt-verknüpfte-shapes)
 1. [Bildtools](#bildtools)
-1. [Konsol./Teilen](#konsol-teilen)
+1. [Konsol./Teilen](#konsolteilen)
 
 **Kontextmenüs**
 
@@ -1068,7 +1068,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuSpell
 
-<img src="documentation/groups/ContextMenuSpell.jpg">
+Kontextmenü für rot unterstrichene Wörter
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1077,7 +1077,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuShape
 
-<img src="documentation/groups/ContextMenuShape.jpg">
+Kontextmenü bei Auswahl eines einzelnen Shapes
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1103,7 +1103,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuTextEdit
 
-<img src="documentation/groups/ContextMenuTextEdit.jpg">
+Kontextmenü innerhalb eines Textfelds oder bei selektiertem Text
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1112,7 +1112,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuFrame
 
-<img src="documentation/groups/ContextMenuFrame.jpg">
+Kontextmenü für leere Stelle auf der Folie
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1125,7 +1125,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuPicture
 
-<img src="documentation/groups/ContextMenuPicture.jpg">
+Kontextmenü für Grafiken und Bilder
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1156,7 +1156,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuObjectsGroup
 
-<img src="documentation/groups/ContextMenuObjectsGroup.jpg">
+Kontextmenü bei Auswahl mehrerer Shapes oder Objekte
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1195,7 +1195,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuThumbnail
 
-<img src="documentation/groups/ContextMenuThumbnail.jpg">
+Kontextmenü für die Folien-Vorschau im rechten Panel
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1209,7 +1209,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuShapeConnector
 
-<img src="documentation/groups/ContextMenuShapeConnector.jpg">
+Kontextmenü für einen einzelnen Verbinder
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -1218,7 +1218,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 ### ContextMenuShapeFreeform
 
-<img src="documentation/groups/ContextMenuShapeFreeform.jpg">
+Kontextmenü für sog. Freeform-Shapes, also Shape mit beliebiger selbst erstellter Form
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |

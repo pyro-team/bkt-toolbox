@@ -21,6 +21,17 @@
 	color: white;
 }
 
+table {
+	display:table;
+	font-size: 0.9rem;
+	table-layout: fixed;
+}
+
+thead tr th:first-child,
+tbody tr td:first-child {
+	width: 40%;
+}
+
 @media screen and (min-width: 88em) {
 	.main-content {
 		max-width: 88rem;
