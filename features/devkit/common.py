@@ -449,6 +449,15 @@ class ImageMso(object):
     search_term = ""
     search_results = None
 
+    # re1 = re.compile(r'(.)([A-Z][a-z]+)')
+    # re2 = re.compile(r'([a-z0-9])([A-Z])')
+
+    # @classmethod
+    # def camel_to_keywords(cls, name):
+    #     name = name.replace("_", "")
+    #     name = re.sub(cls.re1, r'\1 \2', name)
+    #     return re.sub(cls.re2, r'\1 \2', name).lower()
+
     @classmethod
     def load_json(cls, search_engine):
         import os.path
@@ -456,11 +465,17 @@ class ImageMso(object):
         import json
 
         search_writer = search_engine.writer()
-        file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "imagemso.json")
+        file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "imagemso2.json")
         with io.open(file, 'r', encoding='utf-8') as json_file:
-            for icon in json.load(json_file):
-                search_writer.add_document(module="imagemso", name=icon, keywords=icon)
+            icons = json.load(json_file, object_pairs_hook=OrderedDict)
+            for icon, keywords in icons.iteritems():
+                # keywords = cls.camel_to_keywords(icon)
+                search_writer.add_document(module="imagemso", name=icon, keywords=keywords)
             search_writer.commit()
+
+        # file2 = os.path.join(os.path.dirname(os.path.realpath(__file__)), "imagemso2.json")
+        # with io.open(file2, 'w', encoding='utf-8') as json_file:
+        #     json.dump(new_imagemso, json_file, ensure_ascii=False, indent=2)
 
     @classmethod
     def get_search_engine(cls):
@@ -514,6 +529,7 @@ class ImageMso(object):
                 image_msos.append(
                     bkt.ribbon.Button(
                         label=icon.name,
+                        supertip=icon.keywords,
                         image_mso=icon.name,
                         on_action=bkt.Callback(cls.copy_to_clipboard)
                     )
