@@ -157,7 +157,8 @@ settings.settings_menu.children.extend([
         supertip="Deaktiviert die Popup-Dialoge von BKT-Shapes wie Harvey-Balls, verknüpfte Shapes, etc.",
     ),
     bkt.ribbon.Menu(
-        label="UI Theme",
+        label="Toolbox-Tabs anpassen",
+        image_mso="PageSettings",
         supertip="Tabs und Gruppen der PowerPoint-Toolbox auf individuelle Bedürfnisse anpassen",
         children=[
             bkt.ribbon.ToggleButton(
@@ -174,7 +175,7 @@ settings.settings_menu.children.extend([
             ),
             bkt.ribbon.MenuSeparator(),
             bkt.ribbon.Button(
-                label="Theme-Einstellungen",
+                label="Theme-Einstellungen anpassen",
                 supertip="Festlegung der Seite je Gruppe und Ausblenden von Gruppen.",
                 on_action=bkt.Callback(ToolbarVariations.show_uisettings),
             ),
@@ -191,7 +192,7 @@ info_group = bkt.ribbon.Group(
     get_visible=bkt.Callback(TabActivator.enable, context=True),
     children=[
         settings.settings_menu,
-        bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.full_version, on_action=bkt.Callback(settings.BKTInfos.check_for_update)),
+        bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.full_version, on_action=bkt.Callback(settings.BKTUpdates.manual_check_for_updates)),
         bkt.ribbon.Button(
             label="BKT Warning",
             size="large",
