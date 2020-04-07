@@ -57,7 +57,7 @@ class DevGroup(object):
         import bkt.console
         def _iter_lines():
             for k in sorted(context.settings):
-                yield "{:35} = {}".format(k, context.settings.get(k, "ERROR"))
+                yield "{0:35} = {1!r}".format(k, context.settings.get(k, "ERROR"))
             yield ''
         
         bkt.console.show_message('\r\n'.join(_iter_lines()))
