@@ -149,7 +149,7 @@ class BKTUpdates(object):
         if check_frequency == "weekly":
             do_update = diff_last_check.days > 6
         elif check_frequency == "friday-only":
-            do_update = diff_last_check.days > 6 and today.weekday() == 4
+            do_update = (diff_last_check.days > 6 and today.weekday() == 4) or diff_last_check.days > 30
         elif check_frequency == "monthly":
             do_update = diff_last_check.days > 30
         else: #check_frequency == "never"
@@ -331,7 +331,7 @@ class SettingsMenu(bkt.ribbon.Menu):
                                 ),
                                 bkt.ribbon.ToggleButton(
                                     label="Wöchentlich, nur freitags",
-                                    supertip="Sucht automatisch jeden Freitag beim PowerPoint-Start nach einer neuen BKT-Version",
+                                    supertip="Sucht automatisch jeden Freitag, spätestens aber nach 30 Tagen, beim PowerPoint-Start nach einer neuen BKT-Version",
                                     tag="friday-only",
                                     get_pressed=bkt.Callback(BKTUpdates.get_check_frequency, current_control=True),
                                     on_toggle_action=bkt.Callback(BKTUpdates.change_check_frequency, current_control=True),
