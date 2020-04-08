@@ -66,6 +66,35 @@ class DevGroup(object):
     def show_ribbon_xml(python_addin, ribbon_id):
         import bkt.console
         bkt.console.show_message(python_addin.get_custom_ui(ribbon_id))
+    
+    @staticmethod
+    def show_contextmenuids():
+        bkt.helpers.message("All ContextMenuIds are automatically shown in context menus when log-level is set to DEBUG!")
+    
+    @staticmethod
+    def show_sysmodules():
+        import sys
+        import bkt.console
+        
+        bkt.console.show_message('\r\n'.join( sorted(sys.modules.iterkeys()) ))
+
+    @staticmethod
+    def _open_file(filename):
+        from os import startfile
+        if os.path.exists(filename):
+            startfile(filename)
+        else:
+            bkt.helpers.error("File not found: " + filename)
+    
+    @classmethod
+    def open_log_py(cls):
+        bkt_folder = settings.BKTInfos.get_bkt_folder_path()
+        cls._open_file(os.path.join(bkt_folder, "bkt-debug-py.log"))
+    
+    @classmethod
+    def open_log_dotnet(cls):
+        bkt_folder = settings.BKTInfos.get_bkt_folder_path()
+        cls._open_file(os.path.join(bkt_folder, "bkt-debug.log"))
         
     @staticmethod
     def toggle_show_exception(pressed):
@@ -348,27 +377,6 @@ common_group = bkt.ribbon.Group(
             image_mso="WebPageComponent",
             children=[
                 bkt.ribbon.Button(
-                    label="Open BKT folder",
-                    image_mso="Folder",
-                    on_action=bkt.Callback(settings.BKTInfos.open_folder, transaction=False)
-                ),
-                bkt.ribbon.Button(
-                    label="Open Cache folder",
-                    image_mso="Folder",
-                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_cache_folder()), transaction=False)
-                ),
-                bkt.ribbon.Button(
-                    label="Open Settings folder",
-                    image_mso="Folder",
-                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_settings_folder()), transaction=False)
-                ),
-                bkt.ribbon.Button(
-                    label="Open Favorites folder",
-                    image_mso="Folder",
-                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_fav_folder()), transaction=False)
-                ),
-                bkt.ribbon.MenuSeparator(),
-                bkt.ribbon.Button(
                     label="Open config.txt",
                     image_mso="NewNotepadTool",
                     on_action=bkt.Callback(settings.BKTInfos.open_config, transaction=False)
@@ -394,11 +402,6 @@ common_group = bkt.ribbon.Group(
                     label="Write log file on/off",
                     get_pressed=bkt.Callback(lambda: bkt.config.log_write_file or False),
                     on_toggle_action=bkt.Callback(DevGroup.toggle_log_write_file, transaction=False)
-                ),
-                bkt.ribbon.ToggleButton(
-                    label="Legacy Syntax on/off",
-                    get_pressed=bkt.Callback(lambda: bkt.config.enable_legacy_syntax or False),
-                    on_toggle_action=bkt.Callback(DevGroup.toggle_legacy_syntax, transaction=False)
                 ),
                 bkt.ribbon.Menu(
                     label="Change log-level",
@@ -434,20 +437,76 @@ common_group = bkt.ribbon.Group(
                             on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transaction=False)
                         ),
                     ]
-                )
+                ),
+                bkt.ribbon.ToggleButton(
+                    label="Legacy Syntax on/off",
+                    get_pressed=bkt.Callback(lambda: bkt.config.enable_legacy_syntax or False),
+                    on_toggle_action=bkt.Callback(DevGroup.toggle_legacy_syntax, transaction=False)
+                ),
             ]
         ),
-        bkt.ribbon.Button(
-            label="Show Ribbon XML",
+        bkt.ribbon.Menu(
+            label="Debug",
             size="large",
-            image="xml",
-            on_action=bkt.Callback(DevGroup.show_ribbon_xml, python_addin=True, ribbon_id=True, transaction=False),
-        ),
-        bkt.ribbon.Button(
-            label="Generate overview",
-            size="large",
-            image_mso="CreateMap",
-            on_action=bkt.Callback(AllControls.generate_overview, context=True, transaction=False),
+            image_mso="ScriptDebugger",
+            children=[
+                bkt.ribbon.Button(
+                    label="Open BKT folder",
+                    image_mso="Folder",
+                    on_action=bkt.Callback(settings.BKTInfos.open_folder, transaction=False)
+                ),
+                bkt.ribbon.Button(
+                    label="Open Cache folder",
+                    image_mso="Folder",
+                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_cache_folder()), transaction=False)
+                ),
+                bkt.ribbon.Button(
+                    label="Open Settings folder",
+                    image_mso="Folder",
+                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_settings_folder()), transaction=False)
+                ),
+                bkt.ribbon.Button(
+                    label="Open Favorites folder",
+                    image_mso="Folder",
+                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_fav_folder()), transaction=False)
+                ),
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Button(
+                    label="Open Python-Log-File",
+                    image_mso="ScriptDebugger",
+                    on_action=bkt.Callback(DevGroup.open_log_py, transaction=False),
+                ),
+                bkt.ribbon.Button(
+                    label="Open .NET-Log-File",
+                    image_mso="ScriptDebugger",
+                    on_action=bkt.Callback(DevGroup.open_log_dotnet, transaction=False),
+                ),
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Button(
+                    label="Show Ribbon XML",
+                    # size="large",
+                    # image="xml",
+                    image_mso="DataFromXmlFile",
+                    on_action=bkt.Callback(DevGroup.show_ribbon_xml, python_addin=True, ribbon_id=True, transaction=False),
+                ),
+                bkt.ribbon.Button(
+                    label="Show ContextMenu IDs",
+                    image_mso="ContextHelp",
+                    on_action=bkt.Callback(DevGroup.show_contextmenuids, transaction=False),
+                ),
+                bkt.ribbon.Button(
+                    label="Show sys.modules",
+                    image_mso="CreateClassModule",
+                    on_action=bkt.Callback(DevGroup.show_sysmodules, transaction=False),
+                ),
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Button(
+                    label="Generate controls overview",
+                    # size="large",
+                    image_mso="CreateMap",
+                    on_action=bkt.Callback(AllControls.generate_overview, context=True, transaction=False),
+                ),
+            ]
         ),
         #TODO: create new feature folder, clear all caches
         #ICONS: ControlsPane
