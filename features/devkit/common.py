@@ -595,17 +595,35 @@ class ImageMso(object):
             ]
             if len(cls.search_results) > cls.search_limit:
                 image_msos.append(
-                    bkt.ribbon.Button(label="Zeige die ersten {} Ergebnisse".format(cls.search_limit), enabled=False)
+                    bkt.ribbon.Button(label="Max. {} Icons pro Seite".format(cls.search_limit), enabled=False)
                 )
-            for icon in cls.search_results.limit(cls.search_limit):
-                image_msos.append(
-                    bkt.ribbon.Button(
-                        label=icon.name,
-                        supertip=icon.keywords,
-                        image_mso=icon.name,
-                        on_action=bkt.Callback(cls.copy_to_clipboard)
+            #NOTE: this line is only for testing:
+            ###### for group, icons in reversed(cls.search_results.reverse().sortedby("name").groupedby("module", 999).limit(cls.search_limit)):
+            ###### for group, icons in cls.search_results.sortedby("name").groupedby("module", 999).limit(cls.search_limit):
+                for page, icons in enumerate(cls.search_results.paginate(cls.search_limit)):
+                    image_msos.append(
+                        bkt.ribbon.Menu(
+                            label="Seite {} ({}-{})".format(page, icons[0].keywords[:2].capitalize(), icons[-1].keywords[:2].capitalize()),
+                            children=[
+                                bkt.ribbon.Button(
+                                    label=icon.name,
+                                    supertip=icon.keywords,
+                                    image_mso=icon.name,
+                                    on_action=bkt.Callback(cls.copy_to_clipboard)
+                                )
+                            for icon in icons ]
+                        )
                     )
-                )
+            else:
+                for icon in cls.search_results:
+                    image_msos.append(
+                        bkt.ribbon.Button(
+                            label=icon.name,
+                            supertip=icon.keywords,
+                            image_mso=icon.name,
+                            on_action=bkt.Callback(cls.copy_to_clipboard)
+                        )
+                    )
         
         return bkt.ribbon.Menu(
                     xmlns="http://schemas.microsoft.com/office/2009/07/customui",
