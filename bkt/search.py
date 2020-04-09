@@ -29,18 +29,41 @@ class SearchResults(object):
         self._doc_db = doc_db
         self._result_hashes = document_hashs or set()
 
-        self._chained_iterators = None
+        self._reversed_order = False #reverse order of default iterator
+        self._chained_iterators = None #chain iterators when sort, group etc. are called
 
     def __len__(self):
         return len(self._result_hashes)
     
     def __iter__(self):
-        return self._iterator
+        #self is an iterator, see next()
+        self._iterator = iter(self._iterator)
+        return self
+    
+    def __reversed__(self):
+        #create list from normal forward iteration and then use reversed function
+        return reversed(list(self))
+
+    def next(self):
+        try:
+            return next(self._iterator)
+        except StopIteration as e:
+            #after iterator is exhausted, reset chained-iterators to start over again
+            self._chained_iterators = None
+            raise e
+
+    __next__ = next #for python 3
     
     def _get_default_iterator(self):
-        for doc_hash,doc in self._doc_db.iteritems():
+        if self._reversed_order:
+            iterator = reversed(self._doc_db) #OrderedDict supports reversed()
+            #python3: iterator = reversed(self._doc_db.keys())
+        else:
+            iterator = self._doc_db.iterkeys()
+        
+        for doc_hash in iterator:
                 if doc_hash in self._result_hashes:
-                    yield doc
+                    yield self._doc_db[doc_hash]
     
     @property
     def _iterator(self):
@@ -51,23 +74,41 @@ class SearchResults(object):
     def _iterator(self, value):
         self._chained_iterators = value
 
-    def groupedby(self, field):
-        self._iterator = [(k,list(g)) for k, g in groupby(self._iterator, key=lambda d: getattr(d, field))]
+    def groupedby(self, field, limit_groups=None):
+        if limit_groups is not None:
+            self._iterator = ( (k, list(islice(g, limit_groups))) for k, g in groupby(self._iterator, key=lambda d: getattr(d, field)) )
+        else:
+            self._iterator = ( (k, list(g)) for k, g in groupby(self._iterator, key=lambda d: getattr(d, field)) )
+        
+        #NOTE: the following line also works in "normal" situation, but len() on group and reversed(self) does not work!
+        # self._iterator = groupby(self._iterator, key=lambda d: getattr(d, field))
         return self
-        # result_dict = OrderedDict()
-        # for doc in self._iterator:
-        #     try:
-        #         result_dict[getattr(doc, self._group_field)].append(doc)
-        #     except KeyError:
-        #         result_dict[getattr(doc, self._group_field)] = [doc]
-        # return result_dict.iteritems()
 
     def sortedby(self, field, reverse=False):
         self._iterator = sorted(self._iterator, key=lambda d: getattr(d, field), reverse=reverse)
         return self
+    
+    def reverse(self):
+        assert self._chained_iterators is None, "reverse() must be called before any other operation"
+        #reverse order of dictionatory iteration in default iterator
+        self._reversed_order = True
+        return self
 
     def limit(self, stop, start=0):
         self._iterator = islice(self._iterator, stop=stop, start=start)
+        return self
+
+    def paginate(self, results_per_page):
+        def chunk_iterator(iterable):
+            iterable = iter(iterable)
+            while True:
+                result = list(islice(iterable, results_per_page))
+                if result:
+                    yield result
+                else:
+                    raise StopIteration
+        
+        self._iterator = chunk_iterator(self._iterator)
         return self
 
 
