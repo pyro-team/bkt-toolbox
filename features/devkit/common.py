@@ -600,10 +600,10 @@ class ImageMso(object):
             #NOTE: this line is only for testing:
             ###### for group, icons in reversed(cls.search_results.reverse().sortedby("name").groupedby("module", 999).limit(cls.search_limit)):
             ###### for group, icons in cls.search_results.sortedby("name").groupedby("module", 999).limit(cls.search_limit):
-                for page, icons in enumerate(cls.search_results.paginate(cls.search_limit)):
+                for page, icons in enumerate(cls.search_results.paginate(cls.search_limit), start=1):
                     image_msos.append(
                         bkt.ribbon.Menu(
-                            label="Seite {} ({}-{})".format(page, icons[0].keywords[:2].capitalize(), icons[-1].keywords[:2].capitalize()),
+                            label="Seite {} ({}..-{}..)".format(page, icons[0].keywords[:3].capitalize(), icons[-1].keywords[:3].capitalize()),
                             children=[
                                 bkt.ribbon.Button(
                                     label=icon.name,
