@@ -237,7 +237,7 @@ class FontSearch(object):
 fontsearch_gruppe = bkt.ribbon.Group(
     id="bkt_fontsearch_group",
     label="Icon-Suche",
-    image_mso='SearchUI',
+    image_mso='GroupSearch',
     children=[
         bkt.ribbon.Label(
             label="Suchwort:",
