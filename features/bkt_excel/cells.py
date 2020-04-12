@@ -287,7 +287,7 @@ class CellsOps(object):
     @staticmethod
     def merge_cells(selection, cells, join="\r\n"):
         if not xllib.confirm_no_undo(): return
-        target_content = join.join([cell.Value() for cell in cells])
+        target_content = join.join([cell.Text for cell in cells])
         selection.ClearContents()
         selection.Cells[1].Value = target_content
 
@@ -300,9 +300,9 @@ class CellsOps(object):
     def merge_area_rows(areas, join="\r\n"):
         if not xllib.confirm_no_undo(): return
         for area in areas:
-            values = Array.CreateInstance(object, 1, area.rows.count)
+            values = Array.CreateInstance(object, 1, area.columns.count)
             for i,col in enumerate(area.columns):
-                values[0,i] = join.join([cell.Value() for cell in col.rows])
+                values[0,i] = join.join([cell.Text for cell in col.rows])
             area.ClearContents()
             area.Rows[1].Value = values
 
@@ -310,9 +310,9 @@ class CellsOps(object):
     def merge_area_cols(areas, join=", "):
         if not xllib.confirm_no_undo(): return
         for area in areas:
-            values = Array.CreateInstance(object, area.columns.count, 1)
+            values = Array.CreateInstance(object, area.rows.count, 1)
             for i,row in enumerate(area.rows):
-                values[i,0] = join.join([cell.Value() for cell in row.columns])
+                values[i,0] = join.join([cell.Text for cell in row.columns])
             area.ClearContents()
             area.Columns[1].Value = values
 
