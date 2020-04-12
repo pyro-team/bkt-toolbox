@@ -7,6 +7,7 @@
   * Added function to edit languages in languages setter out of several languages
   * Added font icon search
   * Added double click for harvey moons, thumbnails, state shapes and traffic light
+  * Added search for new release (incl. scheduled automatic search)
   * Replaced dev module with devkit feature folder (+many new dev features)
   * Slide deletion when sending selected slides works much faster now
   * Fixed calculation of shaded theme colors in all color galleries and quickedit
