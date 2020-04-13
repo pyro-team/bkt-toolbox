@@ -57,14 +57,14 @@ class BKTReload(object):
             addin = context.app.COMAddIns["BKT.AddIn"]
             addin.Connect = False
             addin.Connect = True
-        except Exception as e:
+        except:
             pass
 
     @staticmethod
     def invalidate(context):
         try:
             context.addin.invalidate_ribbon()
-        except Exception as e:
+        except:
             pass
 
 
@@ -229,11 +229,13 @@ class BKTInfos(object):
         debug_info = '''--- DEBUG INFORMATION ---
 
 BKT-Framework Version:  {} (v{})
+BKT-AddIn-Build:        {}, {}
 Operating System:       {} ({}.{}.{})
 Office Version:         {} {}.{} ({})
 IPY-Version:            {}
 '''.format(
         bkt.full_version, bkt.version_tag_name,
+        context.dotnet_context.addin.GetBuildConfiguration(), context.dotnet_context.addin.GetBuildRevision(),
         context.app.OperatingSystem, winver.major, winver.minor, winver.build,
         context.app.name, context.app.Version, context.app.Build, context.app.ProductCode,
         sys.version,
