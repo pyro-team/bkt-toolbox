@@ -52,6 +52,7 @@ class ViewModelAsbtract(NotifyPropertyChangedBase):
 
 class WpfWindowAbstract(bkt_addin.BktWindow):
     _filename = None
+    _xamlname = None
     _vm_class = None
     _vm       = None
     _context  = None
@@ -81,6 +82,8 @@ class WpfWindowAbstract(bkt_addin.BktWindow):
             return self.Show()
 
     def __init__(self, context=None):
+        if not self._filename:
+            self._filename = Resources.xaml.locate(self._xamlname)
         wpf.LoadComponent(self, self._filename)
 
         if context is not None:
@@ -100,10 +103,13 @@ class WpfWindowAbstract(bkt_addin.BktWindow):
 
 class WpfPopupAbstract(Popup):
     _filename = None
+    _xamlname = None
     _vm_class = None
     _vm       = None
 
     def __init__(self, context=None):
+        if not self._filename:
+            self._filename = Resources.xaml.locate(self._xamlname)
         wpf.LoadComponent(self, self._filename)
 
         self._context = context
@@ -388,7 +394,8 @@ class UserInputBox(object):
 
 
 class WpfUserInput(WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui_inputbox.xaml')
+    # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui_inputbox.xaml')
+    _xamlname = 'ui_inputbox'
 
     def __init__(self, text, title, default, multiline):
         super(WpfUserInput, self).__init__()
@@ -424,7 +431,8 @@ def show_user_input(text, title, default=None, multiline=False):
 
 
 class WpfProgressBar(WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui_progressbar.xaml')
+    # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui_progressbar.xaml')
+    _xamlname = 'ui_progressbar'
 
     def __init__(self, work_func, context=None, indeterminate=False):
         super(WpfProgressBar, self).__init__(context=context)

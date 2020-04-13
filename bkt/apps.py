@@ -636,6 +636,7 @@ class Resources(object):
     ''' Encapsulated path resolution for file resources (such as images) '''
     root_folders = []
     images = None
+    xaml = None
     
     def __init__(self, category, suffix):
         self.category = category
@@ -671,6 +672,7 @@ class Resources(object):
         package_dir = os.path.dirname(__file__)
         Resources.root_folders = [ os.path.normpath(os.path.join(package_dir,'..','resources')) ]
         Resources.images = Resources("images", "png")
+        Resources.xaml = Resources("xaml", "xaml")
     
 Resources.bootstrap()
 
