@@ -236,6 +236,20 @@ namespace BKT
             }
             return s;
         }
+
+        public string GetBuildConfiguration() {
+#if OFFICE2010
+            return "OFFICE2010";
+#elif DEBUG
+            return "DEBUG";
+#else
+            return "RELEASE";
+#endif
+        }
+
+        public string GetBuildRevision() {
+            return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        }
         #endregion
         
         
