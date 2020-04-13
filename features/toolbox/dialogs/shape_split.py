@@ -2,7 +2,6 @@
 
 from __future__ import absolute_import
 
-import os.path
 import logging
 
 import bkt.ui
@@ -188,7 +187,7 @@ class ViewModel(bkt.ui.ViewModelSingleton):
 
 #class ShapeSplitWindow(MetroWindow):
 class ShapeSplitWindow(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'shape_split.xaml')
+    _xamlname = 'shape_split'
     _vm_class = ViewModel
     
     def __init__(self, shapes):

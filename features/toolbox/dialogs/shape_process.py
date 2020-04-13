@@ -6,8 +6,6 @@ Created on 2018-05-29
 
 from __future__ import absolute_import
 
-import os.path
-
 import bkt.ui
 notify_property = bkt.ui.notify_property
 
@@ -62,7 +60,7 @@ class ViewModel(bkt.ui.ViewModelSingleton):
 
 
 class ProcessWindow(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'shape_process.xaml')
+    _xamlname = 'shape_process'
     _vm_class = ViewModel
     
     def __init__(self, slide, model):

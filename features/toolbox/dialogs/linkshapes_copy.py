@@ -6,8 +6,6 @@ Created on 2018-05-29
 
 from __future__ import absolute_import
 
-import os.path
-
 import bkt.ui
 notify_property = bkt.ui.notify_property
 
@@ -86,7 +84,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
 
 
 class CopyWindow(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'linkshapes_copy.xaml')
+    _xamlname = 'linkshapes_copy'
     # _vm_class = ViewModel
 
     def __init__(self, model, context, shape):

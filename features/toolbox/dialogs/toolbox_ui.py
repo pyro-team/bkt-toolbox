@@ -47,7 +47,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
 
 
 class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'toolbox_ui.xaml')
+    _xamlname = 'toolbox_ui'
     # _vm_class = ViewModel
 
     def __init__(self, model, context):

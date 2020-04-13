@@ -2,7 +2,6 @@
 
 from __future__ import absolute_import
 
-import os.path
 import logging
 
 import bkt.ui
@@ -96,7 +95,7 @@ class SegmentedCircleViewModel(bkt.ui.ViewModelSingleton):
 
 
 class SegmentedCircleWindow(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'circular_segments.xaml')
+    _xamlname = 'circular_segments'
     _vm_class = SegmentedCircleViewModel
     
     def __init__(self, slide):

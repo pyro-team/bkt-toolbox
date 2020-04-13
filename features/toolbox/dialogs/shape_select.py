@@ -6,7 +6,6 @@ Created on 2018-05-29
 
 from __future__ import absolute_import
 
-import os.path
 import logging
 
 import bkt.ui
@@ -104,7 +103,7 @@ class ViewModel(bkt.ui.ViewModelSingleton):
 
 
 class SelectWindow(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'shape_select.xaml')
+    _xamlname = 'shape_select'
     # _vm_class = ViewModel
 
     def __init__(self, model, context):

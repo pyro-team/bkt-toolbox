@@ -6,8 +6,6 @@ Created on 2018-05-29
 
 from __future__ import absolute_import
 
-import os.path
-
 import bkt.ui
 notify_property = bkt.ui.notify_property
 
@@ -179,7 +177,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
 
 
 class FindWindow(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'linkshapes_find.xaml')
+    _xamlname = 'linkshapes_find'
     # _vm_class = ViewModel
 
     def __init__(self, model, context):
