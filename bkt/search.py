@@ -118,6 +118,9 @@ class SearchWriter(object):
         self._engine = engine
 
     ### WRITER ###
+    def get_keywords_from_string(self, keywords):
+        return set(re.findall(r'\w+', keywords.lower()))
+
     def add_document(self, **kwargs):
         if "keywords" not in kwargs:
             raise ValueError("Documents need a keywords field")
@@ -140,7 +143,7 @@ class SearchWriter(object):
             #split comma-seperated values in list
             if type(doc.keywords) not in [list, set]:
                 # keywords = doc.keywords.lower().replace(",", " ").split()
-                keywords = re.findall(r'\w+', doc.keywords.lower())
+                keywords = self.get_keywords_from_string(doc.keywords)
             else:
                 keywords = doc.keywords
             
