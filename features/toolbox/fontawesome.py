@@ -20,12 +20,13 @@ class Fontawesome(object):
     installed_fonts = None
     fontsettings = [
             # module-name,      font-filename, suppress-font-not-installed-message
+            ('fabricmdl2',      'Fabric MDL2 Assets',           True),
             ('fontawesome4',    'FontAwesome',                  True),
             ('fontawesome5',    'Font Awesome 5 Free Regular',  False),
-            ('segoeui',         'Segoe UI',                     False),
-            ('segoemdl2',       'Segoe MDL2 Assets',            True),
+            ('icomoon',         'IcoMoon-Free',                 False),
             ('materialicons',   'Material Icons',               False),
-            ('fabricmdl2',      'Fabric MDL2 Assets',           True),
+            ('segoemdl2',       'Segoe MDL2 Assets',            True),
+            ('segoeui',         'Segoe UI',                     False),
             ('wingdings',       'Wingdings',                    True),
             # ('foobar', 'Non-existing test font', True),
         ]

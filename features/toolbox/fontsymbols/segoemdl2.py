@@ -1395,7 +1395,7 @@ segoe_symbols4 = []
 
 chunk_size = ceil(len(segoe_symbols)/4.0)
 for i,char in enumerate(segoe_symbols):
-    if 0 < i <= chunk_size:
+    if 0 <= i <= chunk_size:
         segoe_symbols1.append(("Segoe MDL2 Assets", char[0], char[1], "Segoe MDL2 Assets > 1"))
     elif chunk_size < i <= 2*chunk_size:
         segoe_symbols2.append(("Segoe MDL2 Assets", char[0], char[1], "Segoe MDL2 Assets > 2"))
@@ -1410,10 +1410,10 @@ menu_title = "Segoe MDL2 Assets"
 
 
 menus = [
-    PPTSymbolsGallery(label="Segoe MDL2 Assets 1 ({})".format(len(segoe_symbols1)), symbols=segoe_symbols1, columns=16),
-    PPTSymbolsGallery(label="Segoe MDL2 Assets 2 ({})".format(len(segoe_symbols2)), symbols=segoe_symbols2, columns=16),
-    PPTSymbolsGallery(label="Segoe MDL2 Assets 3 ({})".format(len(segoe_symbols3)), symbols=segoe_symbols3, columns=16),
-    PPTSymbolsGallery(label="Segoe MDL2 Assets 4 ({})".format(len(segoe_symbols4)), symbols=segoe_symbols4, columns=16),
+    PPTSymbolsGallery(label="Seite 1 ({})".format(len(segoe_symbols1)), symbols=segoe_symbols1, columns=16),
+    PPTSymbolsGallery(label="Seite 2 ({})".format(len(segoe_symbols2)), symbols=segoe_symbols2, columns=16),
+    PPTSymbolsGallery(label="Seite 3 ({})".format(len(segoe_symbols3)), symbols=segoe_symbols3, columns=16),
+    PPTSymbolsGallery(label="Seite 4 ({})".format(len(segoe_symbols4)), symbols=segoe_symbols4, columns=16),
 ]
 
 
