@@ -29,8 +29,26 @@
 
           <Label      Grid.Column="0" Grid.Row="0" Content="Erstes Shapes:" />
           <StackPanel Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,10,0,10">
-            <RadioButton Content="Pentagon" IsChecked="{Binding first_pentagon, Mode=TwoWay}" Margin="10,0,15,0" />
-            <RadioButton Content="Chevron"  IsChecked="{Binding first_chevron, Mode=TwoWay}" />
+            <RadioButton IsChecked="{Binding first_pentagon, Mode=TwoWay}" Margin="10,0,15,0">
+                <WrapPanel>
+                    <Viewbox Width="18" Height="18">
+                        <Canvas Width="24" Height="24">
+                            <Path Data="M17.63,5.84C17.27,5.33 16.67,5 16,5H5A2,2 0 0,0 3,7V17A2,2 0 0,0 5,19H16C16.67,19 17.27,18.66 17.63,18.15L22,12L17.63,5.84Z" Fill="Black" />
+                        </Canvas>
+                    </Viewbox>
+                    <TextBlock Text="Pentagon" />
+                </WrapPanel>
+            </RadioButton>
+            <RadioButton IsChecked="{Binding first_chevron, Mode=TwoWay}">
+                <WrapPanel>
+                    <Viewbox Width="18" Height="18">
+                        <Canvas Width="24" Height="24">
+                            <Path Data="M3.5,19L8.34,12L3.5,5H14.5C15.17,5 15.72,5.3 16.13,5.86L20.5,12L16.13,18.14C15.72,18.7 15.17,19 14.5,19H3.5Z" Fill="Black" />
+                        </Canvas>
+                    </Viewbox>
+                    <TextBlock Text="Chevron" />
+                </WrapPanel>
+            </RadioButton>
           </StackPanel>
           
           <Label      Grid.Column="0" Grid.Row="1" Content="Anzahl Schritte" />
