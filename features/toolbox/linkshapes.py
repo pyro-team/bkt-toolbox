@@ -41,7 +41,7 @@ class LinkedShapes(object):
     def find_similar_and_link(cls, shape, context): #shape as parameter for get_enabled required
         #open wpf window
         from .dialogs.linkshapes_find import FindWindow
-        FindWindow.create_and_show_dialog(cls, context)
+        FindWindow.create_and_show_dialog(cls, context, shape)
 
     @classmethod
     def find_similar_shapes_and_link(cls, shape, context, attributes, threshold=0, limit_slides=None, dry_run=False):
