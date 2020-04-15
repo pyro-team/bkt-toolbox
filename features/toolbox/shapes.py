@@ -746,26 +746,25 @@ class ShapesMore(object):
 
 class ShapeDialogs(object):
     
-    @staticmethod
-    def shape_split(shapes):
-        from .dialogs.shape_split import ShapeSplitWindow
-        ShapeSplitWindow.create_and_show_dialog(shapes)
-    
-    @staticmethod
-    def create_traffic_light(slide):
-        from .popups.traffic_light import Ampel
-        Ampel.create(slide)
-    
-    @staticmethod
-    def show_segmented_circle_dialog(slide):
-        from .dialogs.circular_segments import SegmentedCircleWindow
-        SegmentedCircleWindow.create_and_show_dialog(slide)
+    ### DIALOG WINDOWS ###
 
     @staticmethod
-    def show_process_chevrons_dialog(slide):
+    def shape_split(context, shapes):
+        from .dialogs.shape_split import ShapeSplitWindow
+        ShapeSplitWindow.create_and_show_dialog(context, shapes)
+    
+    @staticmethod
+    def show_segmented_circle_dialog(context, slide):
+        from .dialogs.circular_segments import SegmentedCircleWindow
+        SegmentedCircleWindow.create_and_show_dialog(context, slide)
+
+    @staticmethod
+    def show_process_chevrons_dialog(context, slide):
         from .processshapes import ProcessChevrons
         from .dialogs.shape_process import ProcessWindow
-        ProcessWindow.create_and_show_dialog(slide, ProcessChevrons)
+        ProcessWindow.create_and_show_dialog(context, slide, ProcessChevrons)
+
+    ### DIRECT CREATE ###
 
     @staticmethod
     def create_headered_pentagon(slide):
@@ -1805,7 +1804,7 @@ shapes_group = bkt.ribbon.Group(
                     image = "process_chevrons",
                     screentip="Prozess-Pfeile einfügen",
                     supertip="Erstelle Standard Prozess-Pfeile.",
-                    on_action=bkt.Callback(ShapeDialogs.show_process_chevrons_dialog, slide=True)
+                    on_action=bkt.Callback(ShapeDialogs.show_process_chevrons_dialog)
                 ),
                 bkt.ribbon.Button(
                     id = 'headered_pentagon',
@@ -1813,7 +1812,7 @@ shapes_group = bkt.ribbon.Group(
                     image = "headered_pentagon",
                     screentip="Prozess-Schritt-Shape mit Kopfzeile erstellen",
                     supertip="Erstelle einen Prozess-Pfeil mit Header-Shape. Das Header-Shape kann im Prozess-Pfeil über Kontext-Menü des Header-Shapes passend angeordnet werden.",
-                    on_action=bkt.Callback(ShapeDialogs.create_headered_pentagon, slide=True)
+                    on_action=bkt.Callback(ShapeDialogs.create_headered_pentagon)
                 ),
                 bkt.ribbon.Button(
                     id = 'headered_chevron',
@@ -1821,7 +1820,7 @@ shapes_group = bkt.ribbon.Group(
                     image = "headered_chevron",
                     screentip="Prozess-Schritt-Shape mit Kopfzeile erstellen",
                     supertip="Erstelle einen Prozess-Pfeil mit Header-Shape. Das Header-Shape kann im Prozess-Pfeil über Kontext-Menü des Header-Shapes passend angeordnet werden.",
-                    on_action=bkt.Callback(ShapeDialogs.create_headered_chevron, slide=True)
+                    on_action=bkt.Callback(ShapeDialogs.create_headered_chevron)
                 ),
                 harvey.harvey_create_button,
                 bkt.ribbon.Button(
