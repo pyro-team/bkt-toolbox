@@ -14,7 +14,8 @@ import bkt
 
 
 CONFIG_FOLDERS = "feature_folders"
-UPDATE_URL = "https://api.github.com/repos/pyro-team/bkt-toolbox/releases/latest"
+# UPDATE_URL = "https://api.github.com/repos/pyro-team/bkt-toolbox/releases/latest"
+UPDATE_URL = "https://updates.bkt-toolbox.de/releases/latest?current_version={current_version}"
 
 class FolderSetup(object):
     @classmethod
@@ -76,7 +77,7 @@ class BKTUpdates(object):
         import json
         import urllib2
 
-        response = urllib2.urlopen(UPDATE_URL, timeout=4).read()
+        response = urllib2.urlopen(UPDATE_URL.format(current_version=bkt.version_tag_name), timeout=5).read()
         data = json.loads(response)
         version_string = data["tag_name"]
 
