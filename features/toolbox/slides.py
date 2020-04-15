@@ -103,8 +103,14 @@ class SendOrSaveSlides(object):
         from bkt import dotnet
         Outlook = dotnet.import_outlook()
 
-        oApp = Outlook.ApplicationClass()
-        oMail = oApp.CreateItem(Outlook.OlItemType.olMailItem)
+        try:
+            oApp = Outlook.ApplicationClass()
+            oMail = oApp.CreateItem(Outlook.OlItemType.olMailItem)
+        except EnvironmentError:
+            bkt.helpers.error("Fehler beim Erstellen der E-Mail in Outlook!")
+            return
+
+        # Betreff
         oMail.Subject = filename
 
         # Kopie speichern und öffnen
