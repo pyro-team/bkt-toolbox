@@ -775,6 +775,11 @@ class ShapeDialogs(object):
     def create_headered_chevron(slide):
         from .processshapes import Pentagon
         Pentagon.create_headered_chevron(slide)
+    
+    @staticmethod
+    def create_traffic_light(slide):
+        from .popups.traffic_light import Ampel
+        Ampel.create(slide)
 
 
 
@@ -1828,7 +1833,7 @@ shapes_group = bkt.ribbon.Group(
                     image="traffic_light",
                     screentip='Status-Ampel erstellen',
                     supertip="Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden.",
-                    on_action=bkt.Callback(ShapeDialogs.create_traffic_light, slide=True)
+                    on_action=bkt.Callback(ShapeDialogs.create_traffic_light)
                 ),
                 stateshapes.likert_button,
                 bkt.ribbon.MenuSeparator(title="Verbindungsflächen"),

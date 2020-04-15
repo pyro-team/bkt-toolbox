@@ -7,7 +7,6 @@ Created on 21.12.2017
 
 from __future__ import absolute_import
 
-import os.path
 import logging
 
 from System import Array
@@ -488,43 +487,3 @@ stateshape_gruppe = bkt.ribbon.Group(
         # likert_button,
     ]
 )
-
-
-class StateShapePopup(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'popups', 'stateshapes.xaml')
-    '''
-    class representing a popup-dialog for a stateshape
-    '''
-    
-    def __init__(self, context=None):
-        self.IsPopup = True
-        self._context = context
-
-        super(StateShapePopup, self).__init__()
-
-    def btnprev(self, sender, event):
-        try:
-            #always use ShapeRange, never ChildShapeRange
-            shapes = list(iter(self._context.selection.ShapeRange))
-            StateShape.previous_state(shapes)
-        except Exception as e:
-            logging.error("Error in StateShape popup: %s" % str(e))
-
-    def btnnext(self, sender, event):
-        try:
-            #always use ShapeRange, never ChildShapeRange
-            shapes = list(iter(self._context.selection.ShapeRange))
-            StateShape.next_state(shapes)
-        except Exception as e:
-            logging.error("Error in StateShape popup: %s" % str(e))
-
-
-def create_window(context):
-    return StateShapePopup(context)
-
-
-def trigger_doubleclick(shape, context):
-    try:
-        StateShape.next_state([shape])
-    except Exception as e:
-        logging.error("Error in StateShape popup: %s" % str(e))

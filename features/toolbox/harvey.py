@@ -7,8 +7,6 @@ Created on 06.07.2016
 
 from __future__ import absolute_import
 
-import os.path
-
 import bkt
 import bkt.library.powerpoint as powerpoint
 import bkt.library.system as libsystem
@@ -595,58 +593,4 @@ harvey_ball_tab = bkt.ribbon.Tab(
         # Harvey Balls
         harvey_ball_group
     ]
-)
-
-
-
-class HarveyPopup(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'popups', 'harvey.xaml')
-    '''
-    class representing a popup-dialog for a linked shape
-    '''
-    
-    def __init__(self, context=None):
-        self.IsPopup = True
-        self._context = context
-
-        super(HarveyPopup, self).__init__()
-
-    def btntab(self, sender, event):
-        try:
-            self._context.ribbon.ActivateTab('bkt_context_tab_harvey')
-        except:
-            bkt.helpers.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
-
-    def btnplus(self, sender, event):
-        try:
-            harvey_balls.harvey_percent_setter_popup(list(iter(self._context.selection.ShapeRange)))
-            self._context.ribbon.Invalidate()
-        except:
-            bkt.helpers.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
-            # bkt.helpers.exception_as_message()
-
-    def btnminus(self, sender, event):
-        try:
-            harvey_balls.harvey_percent_setter_popup(list(iter(self._context.selection.ShapeRange)), inc=False)
-            self._context.ribbon.Invalidate()
-        except:
-            bkt.helpers.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
-            # bkt.helpers.exception_as_message()
-
-    @staticmethod
-    def double_click(shape, context):
-        try:
-            context.ribbon.ActivateTab('bkt_context_tab_harvey')
-        except:
-            bkt.helpers.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
-
-
-# register dialog
-bkt.powerpoint.context_dialogs.register_dialog(
-    bkt.contextdialogs.ContextDialog(
-        id=HarveyBalls.BKT_HARVEY_DIALOG_TAG,
-        module=None,
-        window_class=HarveyPopup,
-        dblclick_func=HarveyPopup.double_click,
-    )
 )

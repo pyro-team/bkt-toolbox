@@ -9,6 +9,7 @@ from __future__ import absolute_import
 
 import bkt
 
+#FIXME: would be nice to have less dependencies and more lazy loading of modules on callback
 from . import text
 from . import arrange
 from . import harvey
@@ -428,6 +429,10 @@ bkt.powerpoint.add_contextual_tab(
 # ==========
 
 
-bkt.powerpoint.context_dialogs.register("BKT_PROCESS_CHEVRONS", "toolbox.processshapes") #process chevrons
 bkt.powerpoint.context_dialogs.register("BKT_DIALOG_AMPEL3", "toolbox.popups.traffic_light") #traffic light
-bkt.powerpoint.context_dialogs.register("BKT_DIALOG_STATESHAPE", "toolbox.stateshapes") #stateshapes, e.g. likert scale
+bkt.powerpoint.context_dialogs.register("BKT_DIALOG_STATESHAPE", "toolbox.popups.stateshapes") #stateshapes, e.g. likert scale
+
+bkt.powerpoint.context_dialogs.register(processshapes.ProcessChevrons.BKT_DIALOG_TAG, "toolbox.popups.processshapes") #process chevrons
+bkt.powerpoint.context_dialogs.register(harvey.HarveyBalls.BKT_HARVEY_DIALOG_TAG, "toolbox.popups.harvey") #harvey balls
+bkt.powerpoint.context_dialogs.register(linkshapes.BKT_LINK_UUID, "toolbox.popups.linkshapes") #linked shapesD
+bkt.powerpoint.context_dialogs.register(agenda.TOOLBOX_AGENDA_POPUP, "toolbox.popups.agenda") #linked shapesD

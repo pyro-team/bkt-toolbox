@@ -7,7 +7,6 @@ Created on 08.07.2019
 
 from __future__ import absolute_import
 
-import os.path
 from contextlib import contextmanager #for flip and rotation correction
 
 import bkt
@@ -121,36 +120,6 @@ class ProcessChevrons(object):
         group.select(False)
         return group.shape
 
-
-class ProcessChevronsPopup(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'popups', 'process_shapes.xaml')
-    '''
-    class representing a popup-dialog for a linked shape
-    '''
-    
-    def __init__(self, context=None):
-        self.IsPopup = True
-        self._context = context
-
-        super(ProcessChevronsPopup, self).__init__()
-
-    def btnplus(self, sender, event):
-        try:
-            ProcessChevrons.add_chevron(list(iter(self._context.selection.ShapeRange)))
-        except:
-            bkt.helpers.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
-            # bkt.helpers.exception_as_message()
-
-    def btnminus(self, sender, event):
-        try:
-            ProcessChevrons.remove_chevron(list(iter(self._context.selection.ShapeRange)))
-        except:
-            bkt.helpers.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
-            # bkt.helpers.exception_as_message()
-
-#initialization function called by contextdialogs.py
-def create_window(context):
-    return ProcessChevronsPopup(context)
 
 
 @contextmanager

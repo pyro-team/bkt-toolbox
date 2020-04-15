@@ -4,7 +4,6 @@ from __future__ import absolute_import
 
 import logging
 import traceback
-import os.path
 
 import bkt
 import bkt.library.powerpoint as pplib
@@ -117,16 +116,16 @@ class Ampel(object):
 
 # class TrafficPopup(bkt.ui.WpfPopupAbstract):
 class TrafficPopup(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'traffic_light_dialog2.xaml')
+    # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'traffic_light_dialog2.xaml')
+    _xamlname = 'traffic_light_dialog2'
     '''
     class representing a popup-dialog for a traffic-light-shape
     '''
     
     def __init__(self, context=None):
         self.IsPopup = True
-        self._context = context
 
-        super(TrafficPopup, self).__init__()
+        super(TrafficPopup, self).__init__(context)
 
     # def __init__(self, context=None):
     #     filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'traffic_light_dialog.xaml')
@@ -172,10 +171,8 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
             logging.error(traceback.format_exc())
 
 
-
-def create_window(context):
-    return TrafficPopup(context)
-
+#initialization function called by contextdialogs.py
+create_window = TrafficPopup
 
 def trigger_doubleclick(shape, context):
     try:
