@@ -359,7 +359,7 @@ class UserInputBox(object):
         groupBox.Height = top + 10
         self.superPanel.Controls.Add(groupBox)
         self.input.append( (input_id, radioButtons, _get_checked) )
-        return groupBox
+        return groupBox, radioButtons
 
     def _add_custom(self, input_id, input_element):
         input_element.Width = self.prompt.Width - 40
