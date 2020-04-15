@@ -8,7 +8,6 @@ Created on 06.07.2016
 from __future__ import absolute_import
 
 import math
-import os.path
 from heapq import nsmallest, nlargest
 
 import bkt
@@ -1223,7 +1222,8 @@ euclid_angle_group = bkt.ribbon.Group(
 
 
 class MasterShapeIndicator(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'master_shape.xaml')
+    # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'master_shape.xaml')
+    _xamlname = 'master_shape'
     IsPopup = True
 
     # def __init__(self, context=None):
