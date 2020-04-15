@@ -103,24 +103,22 @@ namespace BKT
                 string path = Path.Combine(codebase, "..", "bkt-debug.log");
                 try
                 {
-                    logFileStream = new FileStream(path, FileMode.Truncate, FileAccess.Write, FileShare.ReadWrite);
+                    logFileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+
+                    TextWriterTraceListener listener;
+                    listener = new TextWriterTraceListener(logFileStream);
+                    Debug.Listeners.Add(listener);
                 }
                 catch(Exception ex)
                 {
                     Console.WriteLine("Error creating FileStream for trace file \"{0}\":" +
                         "\r\n{1}", path, ex.Message);
-                    return;
                 }
-                
-                TextWriterTraceListener listener;
-                listener = new TextWriterTraceListener(logFileStream);
-                Debug.Listeners.Add(listener);
             }
             Debug.AutoFlush = true;
             Debug.WriteLine("");
             Debug.WriteLine("================================================================================");
             DebugMessage("Addin started");
-            Console.WriteLine("Addin startet");
             
             // initialize Mouse/Key-Hooks
             try
@@ -189,9 +187,8 @@ namespace BKT
         }
         
         private void DebugMessage(string s) {
-            DateTime now = DateTime.Now;
             Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + ": " + s);
-            Debug.Flush();
+            // Debug.Flush(); --> not required as AutoFlush=true
         }
 
         private void LogMessage(string s) {
