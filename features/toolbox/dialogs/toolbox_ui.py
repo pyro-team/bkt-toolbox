@@ -51,12 +51,10 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
     # _vm_class = ViewModel
 
     def __init__(self, model, context):
-        self._context = context
-
         self._model = model
         self._vm = ViewModel(model)
 
-        super(ToolboxUiWindow, self).__init__()
+        super(ToolboxUiWindow, self).__init__(context)
 
     def cancel(self, sender, event):
         self.Close()
@@ -75,7 +73,7 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
 
         self.Close()
         if bkt.helpers.confirmation("Soll die BKT nun neu geladen werden?"):
-            sys.modules["modules"].settings.BKTReload.reload_bkt(self._context)
+            self._reload_bkt()
 
     def save_settings(self, sender, event):
         self._model.set_setting("size_group", self._value2key(self._vm.size_group))
@@ -100,4 +98,8 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
 
         self.Close()
         if bkt.helpers.confirmation("Soll die BKT nun neu geladen werden?"):
-            sys.modules["modules"].settings.BKTReload.reload_bkt(self._context)
+            self._reload_bkt()
+    
+    def _reload_bkt(self):
+        from modules.settings import BKTReload
+        BKTReload.reload_bkt(self._context)

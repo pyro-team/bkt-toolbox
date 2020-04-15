@@ -108,11 +108,10 @@ class SelectWindow(bkt.ui.WpfWindowAbstract):
 
     def __init__(self, model, context):
         self._model = model
-        self._vm = ViewModel(model,context)
-        self._context = context
-        self._master_shapes = context.shapes[:]
+        self._vm = ViewModel(model, context)
+        self._master_shapes = context.shapes[:] #copy of list
 
-        super(SelectWindow, self).__init__()
+        super(SelectWindow, self).__init__(context)
 
     def cancel(self, sender, event):
         self.Close()

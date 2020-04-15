@@ -190,9 +190,9 @@ class ShapeSplitWindow(bkt.ui.WpfWindowAbstract):
     _xamlname = 'shape_split'
     _vm_class = ViewModel
     
-    def __init__(self, shapes):
+    def __init__(self, context, shapes):
         self.ref_shapes = shapes
-        super(ShapeSplitWindow, self).__init__()
+        super(ShapeSplitWindow, self).__init__(context)
 
     def cancel(self, sender, event):
         self.Close()

@@ -11,8 +11,15 @@ notify_property = bkt.ui.notify_property
 
 
 class ViewModel(bkt.ui.ViewModelAsbtract):
-    def __init__(self, model, cur_slideno, max_slideno, initial_num_slides=1):
+    default_shape_keys = {'type': False, 'x': True, 'y': True, 'x1': True, 'y1': True, 'center_x': False, 'center_y': False, 'width': False, 'height': False, 'rotation': False, 'name': False}
+    default_threshold  = 0.0
+
+    def __init__(self, context):
         super(ViewModel, self).__init__()
+        
+        cur_slideno = context.slide.slideindex
+        max_slideno = context.presentation.slides.count
+        initial_num_slides = self._get_last_slideindex_in_section(context) - cur_slideno
         
         self._num_slides = max(0, initial_num_slides)
         self._findmode_all = True
@@ -23,14 +30,23 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         self.cur_slideno = cur_slideno
         self.max_slideno = max_slideno
 
-        self._threshold = 0.0
-        self._shape_keys = model.attributes
+        self._threshold = ViewModel.default_threshold
+        self._shape_keys = ViewModel.default_shape_keys
     
+    def _get_last_slideindex_in_section(self, context):
+        sections = context.presentation.sectionProperties
+        if sections.Count == 0:
+            return context.presentation.slides.count
+        cur_section = context.slide.sectionIndex
+        return sections.FirstSlide(cur_section) + sections.SlidesCount(cur_section) - 1
+
+
     @notify_property
     def threshold(self):
         return self._threshold
     @threshold.setter
     def threshold(self, value):
+        ViewModel.default_threshold = value
         self._threshold = value
         
 
@@ -180,27 +196,18 @@ class FindWindow(bkt.ui.WpfWindowAbstract):
     _xamlname = 'linkshapes_find'
     # _vm_class = ViewModel
 
-    def __init__(self, model, context):
-        self.context = context
-        self.attributes = {'type': False, 'x': True, 'y': True, 'x1': True, 'y1': True, 'center_x': False, 'center_y': False, 'width': False, 'height': False, 'rotation': False, 'name': False}
+    def __init__(self, model, context, shape):
+        self.shape = shape
 
         self._model = model
-        cur_slide = context.slide.slideindex
-        self._vm = ViewModel(self, cur_slide, context.presentation.slides.count, self._get_last_slideindex_in_section(context)-cur_slide)
+        self._vm = ViewModel(context)
 
-        super(FindWindow, self).__init__()
-    
-    def _get_last_slideindex_in_section(self, context):
-        sections = context.presentation.sectionProperties
-        if sections.Count == 0:
-            return context.presentation.slides.count
-        cur_section = context.slide.sectionIndex
-        return sections.FirstSlide(cur_section) + sections.SlidesCount(cur_section) - 1
+        super(FindWindow, self).__init__(context)
 
     def _link_shapes(self, dry_run=False):
-        shape_keys = [k for k,v in self.attributes.items() if v]
+        shape_keys = [k for k,v in self._vm._shape_keys.items() if v]
         num_slides = None if self._vm.findmode_all else self._vm.num_slides
-        self._model.find_similar_shapes_and_link(self.context.shape, self.context, shape_keys, self._vm.threshold, num_slides, dry_run)
+        self._model.find_similar_shapes_and_link(self.shape, self._context, shape_keys, self._vm.threshold, num_slides, dry_run)
 
     def cancel(self, sender, event):
         self.Close()

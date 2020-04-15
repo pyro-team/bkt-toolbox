@@ -63,10 +63,10 @@ class ProcessWindow(bkt.ui.WpfWindowAbstract):
     _xamlname = 'shape_process'
     _vm_class = ViewModel
     
-    def __init__(self, slide, model):
+    def __init__(self, context, slide, model):
         self._slide = slide
         self._model = model
-        super(ProcessWindow, self).__init__()
+        super(ProcessWindow, self).__init__(context)
 
     def cancel(self, sender, event):
         self.Close()

@@ -98,9 +98,9 @@ class SegmentedCircleWindow(bkt.ui.WpfWindowAbstract):
     _xamlname = 'circular_segments'
     _vm_class = SegmentedCircleViewModel
     
-    def __init__(self, slide):
+    def __init__(self, context, slide):
         self.ref_slide = slide
-        super(SegmentedCircleWindow, self).__init__()
+        super(SegmentedCircleWindow, self).__init__(context)
 
     def cancel(self, sender, event):
         self.Close()

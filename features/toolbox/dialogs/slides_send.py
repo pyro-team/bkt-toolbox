@@ -118,10 +118,9 @@ class SendWindow(bkt.ui.WpfWindowAbstract):
 
     def __init__(self, model, context):
         self._model = model
-        self._vm = ViewModel(model,context)
-        self._context = context
+        self._vm = ViewModel(model, context)
 
-        super(SendWindow, self).__init__()
+        super(SendWindow, self).__init__(context)
 
     def cancel(self, sender, event):
         self.Close()
