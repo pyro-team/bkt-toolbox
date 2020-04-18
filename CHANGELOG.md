@@ -8,6 +8,7 @@
   * Added font icon search
   * Added double click for harvey moons, thumbnails, state shapes and traffic light
   * Added search for new release (incl. scheduled automatic search)
+  * Added icon font IcoMoon-Free
   * Replaced dev module with devkit feature folder (+many new dev features)
   * Slide deletion when sending selected slides works much faster now
   * Fixed calculation of shaded theme colors in all color galleries and quickedit
@@ -21,6 +22,7 @@
   * Fixed problems with ampersand in paths or chartlib filenames
   * Fixed python import to use absolute import as in python 3
   * Support for legacy annotations syntax is disabled by default
+  * Excel: Tool to apply (count, split, replace) cells by regular expression (regex)
 
 
 # Release 2019-12-13 (2.6.1)
