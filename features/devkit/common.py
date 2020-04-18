@@ -121,6 +121,8 @@ class DevGroup(object):
 
 
 class AllControls(object):
+    #TODO: save imagemso: Call SavePicture(Application.CommandBars.GetImageMso("CreateClassModule", 32, 32), "C:\test.bmp")
+
     types_include = [bkt.ribbon.Button, bkt.ribbon.ToggleButton, bkt.ribbon.Gallery, bkt.ribbon.Menu, bkt.ribbon.DynamicMenu, bkt.ribbon.EditBox, bkt.ribbon.ComboBox, bkt.ribbon.SpinnerBox, bkt.ribbon.MSOControl]
     types_exclude = [bkt.ribbon.DialogBoxLauncher]
 
@@ -324,7 +326,7 @@ class AllControls(object):
                     if group["description"]:
                         md_file.write('{description}\n\n'.format(**group))
                     if parent["type"] != "context_menu":
-                        md_file.write('<img src="documentation/groups/{id}.png">\n\n'.format(**group))
+                        md_file.write('<img src="documentation/groups/{id}.jpg">\n\n'.format(**group))
                     if len(group["children"]) > 0:
                         md_file.write("| {:50} | {:50} |\n".format("Name", "Beschreibung"))
                         md_file.write("| {:-<50} | {:-<50} |\n".format("-", "-"))
