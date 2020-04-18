@@ -497,9 +497,15 @@
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
 | Settings                                           | BKT-Einstellungen verwalten, BKT neu laden, Website aufrufen, etc. |
-| Settings > Website: bkt-toolbox.de                 | BKT-Webseite im Browser öffnen                     |
-| Settings > BKT r20-03-13 v2.7.0                    | Erweiterte Versionsinformationen anzeigen          |
+| Settings > BKT r20-04-15 v2.7.0                    | Erweiterte Versionsinformationen anzeigen          |
 | Settings > Auf neue Version prüfen                 | Überprüfen, ob neue BKT-Version verfügbar ist      |
+| Settings > Auf neue Version prüfen Optionen        | Einstellungen zur automatischen Überprüfung auf neue Versionen |
+| Settings > Auf neue Version prüfen Optionen > Jetzt auf neue Version prüfen | Überprüfen, ob neue BKT-Version verfügbar ist      |
+| Settings > Auf neue Version prüfen Optionen > Wöchentlich | Sucht automatisch ein mal pro Woche beim PowerPoint-Start nach einer neuen BKT-Version |
+| Settings > Auf neue Version prüfen Optionen > Wöchentlich, nur freitags | Sucht automatisch jeden Freitag, spätestens aber nach 30 Tagen, beim PowerPoint-Start nach einer neuen BKT-Version |
+| Settings > Auf neue Version prüfen Optionen > Monatlich | Sucht automatisch ein mal pro Woche beim PowerPoint-Start nach einer neuen BKT-Version |
+| Settings > Auf neue Version prüfen Optionen > Nie  | Automatische Suche nach einer neuen BKT-Version deaktivieren |
+| Settings > Website: bkt-toolbox.de                 | BKT-Webseite im Browser öffnen                     |
 | Settings > Feature-Ordner                          | Feature-Ordner hinzufügen oder entfernen           |
 | Settings > Addin neu laden                         | BKT-Addin beenden und neu laden (ähnlich PowerPoint-Neustart) |
 | Settings > Ribbon aktualisieren                    | Oberfläche aktualisieren und alle Werte neu laden (sog. Invalidate ausführen) |
@@ -508,11 +514,11 @@
 | Settings > Key-/Mouse-Hooks an/aus                 | Tastatur-/Maus-Events für aktuelle Sitzung ein- oder ausschalten |
 | Settings > Format-Tab ausblenden                   | Format-Tab wird ausgeblendet, um automatischen Wechsel zum Tab beim Anlegen von Shapes zu verhindern. |
 | Settings > Popup-Dialog deaktivieren               | Deaktiviert die Popup-Dialoge von BKT-Shapes wie Harvey-Balls, verknüpfte Shapes, etc. |
-| Settings > UI Theme                                | Tabs und Gruppen der PowerPoint-Toolbox auf individuelle Bedürfnisse anpassen |
-| Settings > UI Theme > Standard (3-seitig)          | Drei Tabs für die Toolbox mit allen erweiterten Features auf einer separaten Seite 3 |
-| Settings > UI Theme > Widescreen (2-seitig)        | Zwei Tabs für die Toolbox mit allen erweiterten Features gemeinsam auf Seite 2. |
-| Settings > UI Theme > Theme-Einstellungen          | Festlegung der Seite je Gruppe und Ausblenden von Gruppen. |
-| 2.7.0                                              | Powerpoint Toolbox v2.7.0<br>BKT r20-03-13         |
+| Settings > Toolbox-Tabs anpassen                   | Tabs und Gruppen der PowerPoint-Toolbox auf individuelle Bedürfnisse anpassen |
+| Settings > Toolbox-Tabs anpassen > Standard (3-seitig) | Drei Tabs für die Toolbox mit allen erweiterten Features auf einer separaten Seite 3 |
+| Settings > Toolbox-Tabs anpassen > Widescreen (2-seitig) | Zwei Tabs für die Toolbox mit allen erweiterten Features gemeinsam auf Seite 2. |
+| Settings > Toolbox-Tabs anpassen > Theme-Einstellungen anpassen | Festlegung der Seite je Gruppe und Ausblenden von Gruppen. |
+| 2.7.0                                              | Powerpoint Toolbox v2.7.0<br>BKT r20-04-15         |
 | BKT Warning                                        | At least one open presentation in protected view detected. Unexpected PowerPoint behavior may occur. |
 
 
