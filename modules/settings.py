@@ -220,6 +220,11 @@ class BKTInfos(object):
         webbrowser.open('https://www.bkt-toolbox.de')
 
     @staticmethod
+    def show_version_dialog(context):
+        from .version_dialog import VersionDialog
+        VersionDialog.create_and_show_dialog(context)
+
+    @staticmethod
     def show_debug_message(context):
         import sys
         import bkt.console
@@ -297,7 +302,7 @@ class SettingsMenu(bkt.ribbon.Menu):
                     label="{} v{}".format(bkt.full_version, bkt.version_tag_name),
                     image_mso="Info",
                     supertip="Erweiterte Versionsinformationen anzeigen",
-                    on_action=bkt.Callback(BKTInfos.show_debug_message, context=True, transaction=False)
+                    on_action=bkt.Callback(BKTInfos.show_version_dialog, context=True, transaction=False)
                 ),
                 bkt.ribbon.SplitButton(
                     id="settings-updatesplitbutton" + postfix,
