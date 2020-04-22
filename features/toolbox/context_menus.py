@@ -393,6 +393,39 @@ bkt.powerpoint.add_context_menu(
 )
 
 
+### Context menu for slide thumbnails in sort view
+
+bkt.powerpoint.add_context_menu(
+    bkt.ribbon.ContextMenu(id_mso='ContextMenuSlideSorter', children=[
+        ### Export (send, save) selected slides
+        bkt.ribbon.Menu(
+            id="context-export2-slides",
+            label="Folien exportieren",
+            supertip="Ausgewählte Folien als eigene Präsentation exportieren oder als E-Mail versenden",
+            image_mso="SaveSelectionToTextBoxGallery",
+            insertAfterMso='SlideBackgroundFormatDialog',
+            children=[
+                bkt.ribbon.Button(
+                    id = 'context-export2-save_slides',
+                    label='Speichern',
+                    image_mso='SaveSelectionToTextBoxGallery',
+                    supertip="Speichert die ausgewählten Folien in einer neuen Präsentation.",
+                    on_action=bkt.Callback(slides.FolienMenu.saveSlidesDialog)
+                ),
+                bkt.ribbon.Button(
+                    id = 'context-export2-send_slides',
+                    label='Senden',
+                    image_mso='FileSendAsAttachment',
+                    supertip="Sendet die ausgewählten Folien als E-Mail Anhang.",
+                    on_action=bkt.Callback(slides.FolienMenu.sendSlidesDialog)
+                ),
+            ]
+        ),
+        bkt.ribbon.MenuSeparator(insertAfterMso='SlideBackgroundFormatDialog'),
+    ])
+)
+
+
 
 
 # ==================
