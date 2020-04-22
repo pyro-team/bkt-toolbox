@@ -77,6 +77,20 @@ class DevGroup(object):
         import bkt.console
         
         bkt.console.show_message('\r\n'.join( sorted(sys.modules.iterkeys()) ))
+    
+    @staticmethod
+    def show_clipboard():
+        import bkt.console
+        import bkt.dotnet as dotnet
+        Forms = dotnet.import_forms()
+
+        do = Forms.Clipboard.GetDataObject()
+        
+        message = '# Formats:\r\n'
+        message += '\r\n'.join( sorted(do.GetFormats()) )
+        if do.ContainsText():
+            message += '\r\n\r\n# Text:\r\n{}'.format(do.GetText())
+        bkt.console.show_message(message)
 
     @staticmethod
     def _open_file(filename):
@@ -500,6 +514,11 @@ common_group = bkt.ribbon.Group(
                     label="Show sys.modules",
                     image_mso="CreateClassModule",
                     on_action=bkt.Callback(DevGroup.show_sysmodules, transaction=False),
+                ),
+                bkt.ribbon.Button(
+                    label="Show Clipboard DataFormats",
+                    image_mso="ShowClipboard",
+                    on_action=bkt.Callback(DevGroup.show_clipboard, transaction=False),
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
