@@ -14,6 +14,7 @@ namespace BKT
     public class BktWindow : Window
     {
         public static readonly DependencyProperty IsPopupProperty = DependencyProperty.Register("IsPopup", typeof(bool), typeof(BktWindow), new FrameworkPropertyMetadata(false));
+        public static readonly DependencyProperty IsToolbarProperty = DependencyProperty.Register("IsToolbar", typeof(bool), typeof(BktWindow), new FrameworkPropertyMetadata(false));
 
         private WindowInteropHelper _helper;
 
@@ -22,6 +23,11 @@ namespace BKT
         {
             get { return (bool)GetValue(IsPopupProperty); }
             set { SetValue(IsPopupProperty, value); }
+        }
+        public bool IsToolbar
+        {
+            get { return (bool)GetValue(IsToolbarProperty); }
+            set { SetValue(IsToolbarProperty, value); }
         }
 
         protected override void OnInitialized(EventArgs e)
@@ -43,7 +49,7 @@ namespace BKT
             DebugMessage("BKT Window: Source Initialized");
             base.OnSourceInitialized(e);
 
-            if (IsPopup)
+            if (IsPopup || IsToolbar)
             {
                 DebugMessage("BKT Window: Apply Popup Style");
                 //Never activate window
@@ -57,6 +63,15 @@ namespace BKT
                 SetWindowLong(_helper.Handle, GWL_EXSTYLE,
                     GetWindowLong(_helper.Handle, GWL_EXSTYLE) | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE);
             }
+        }
+
+        protected override void OnMouseRightButtonUp(System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (IsPopup)
+            {
+                this.Close();
+            }
+            base.OnMouseRightButtonUp(e);
         }
 
         // public void SetOwner(IntPtr handle)
