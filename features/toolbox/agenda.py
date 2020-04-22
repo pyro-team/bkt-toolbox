@@ -1616,37 +1616,43 @@ agendamenu = bkt.ribbon.Menu(
             on_action=bkt.Callback(ToolboxAgenda.update_agenda_slides_by_slide),
             get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
         ),
-        bkt.ribbon.ToggleButton(
-            id='agenda-slide-for-subitems',
-            label="Agenda-Slides für Unterpunkte",
-            supertip="Für Unterpunkte eines Agendapunkts (Indent-Level>1) werden Agenda-Slides erstellt",
-            on_toggle_action=bkt.Callback(ToolboxAgenda.set_slides_for_subitems),
-            get_pressed=bkt.Callback(ToolboxAgenda.get_slides_for_subitems),
-            get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
-        ),
-        bkt.ribbon.ToggleButton(
-            id='agenda-hide-subitems',
-            label="Andere Agenda-Unterpunkte ausblenden",
-            supertip="Unterpunkte eines Agendapunkts (Indent-Level>1) werden in den anderen Abschnitten ausgeblendet",
-            on_toggle_action=bkt.Callback(ToolboxAgenda.set_hide_subitems),
-            get_pressed=bkt.Callback(ToolboxAgenda.get_hide_subitems),
-            get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
-        ),
-        bkt.ribbon.ToggleButton(
-            id='agenda-create-sections',
-            label="Abschnitte für Agenda-Punkte erstellen",
-            supertip="Einen neuen Abschnitt je Agenda-Folie beginnen.",
-            on_toggle_action=bkt.Callback(ToolboxAgenda.set_create_sections),
-            get_pressed=bkt.Callback(ToolboxAgenda.get_create_sections),
-            get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
-        ),
-        bkt.ribbon.ToggleButton(
-            id='agenda-create-links',
-            label="Hyperlinks für Agenda-Punkte erstellen",
-            supertip="Jeden Agenda-Punkt mit der zugehörigen Agenda-Folie verlinken.",
-            on_toggle_action=bkt.Callback(ToolboxAgenda.set_create_links),
-            get_pressed=bkt.Callback(ToolboxAgenda.get_create_links),
-            get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
+        bkt.ribbon.Menu(
+            id='agenda-options-menu',
+            label="Agenda-Einstellungen",
+            children=[
+                bkt.ribbon.ToggleButton(
+                    id='agenda-slide-for-subitems',
+                    label="Agenda-Slides für Unterpunkte",
+                    supertip="Für Unterpunkte eines Agendapunkts (Indent-Level>1) werden Agenda-Slides erstellt",
+                    on_toggle_action=bkt.Callback(ToolboxAgenda.set_slides_for_subitems),
+                    get_pressed=bkt.Callback(ToolboxAgenda.get_slides_for_subitems),
+                    get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
+                ),
+                bkt.ribbon.ToggleButton(
+                    id='agenda-hide-subitems',
+                    label="Andere Agenda-Unterpunkte ausblenden",
+                    supertip="Unterpunkte eines Agendapunkts (Indent-Level>1) werden in den anderen Abschnitten ausgeblendet",
+                    on_toggle_action=bkt.Callback(ToolboxAgenda.set_hide_subitems),
+                    get_pressed=bkt.Callback(ToolboxAgenda.get_hide_subitems),
+                    get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
+                ),
+                bkt.ribbon.ToggleButton(
+                    id='agenda-create-sections',
+                    label="Abschnitte für Agenda-Punkte erstellen",
+                    supertip="Einen neuen Abschnitt je Agenda-Folie beginnen.",
+                    on_toggle_action=bkt.Callback(ToolboxAgenda.set_create_sections),
+                    get_pressed=bkt.Callback(ToolboxAgenda.get_create_sections),
+                    get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
+                ),
+                bkt.ribbon.ToggleButton(
+                    id='agenda-create-links',
+                    label="Hyperlinks für Agenda-Punkte erstellen",
+                    supertip="Jeden Agenda-Punkt mit der zugehörigen Agenda-Folie verlinken.",
+                    on_toggle_action=bkt.Callback(ToolboxAgenda.set_create_links),
+                    get_pressed=bkt.Callback(ToolboxAgenda.get_create_links),
+                    get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
+                ),
+            ]
         ),
         bkt.ribbon.MenuSeparator(),
         bkt.ribbon.Button(
