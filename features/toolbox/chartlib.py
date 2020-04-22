@@ -742,7 +742,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     def get_item_count(self, context):
         '''CustomUI-callback'''
         if not self.items_initialized:
-            self.init_gallery_items(context)
+            self.init_gallery_items(context, closing_gallery_workaround=True)
         return len(self.labels)
 
     def get_item_height(self):
@@ -766,7 +766,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
            labels are initialized by init_gallery_items
         '''
         if not self.items_initialized:
-            self.init_gallery_items(context)
+            self.init_gallery_items(context, closing_gallery_workaround=True)
         return self.labels[index][:40]
     
     def get_item_screentip(self, index):
@@ -785,7 +785,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     def get_item_image(self, index, context):
         '''CustomUI-callback: calls get_chartlib_item_image'''
         if not self.items_initialized:
-            self.init_gallery_items(context)
+            self.init_gallery_items(context, closing_gallery_workaround=True)
         return self.get_chartlib_item_image(index)
     
     
@@ -816,7 +816,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         t.join()
         # self.init_gallery_items(context, force_thumbnail_generation=True)
     
-    def init_gallery_items(self, context, force_thumbnail_generation=False):
+    def init_gallery_items(self, context, force_thumbnail_generation=False, closing_gallery_workaround=False):
         try:
             if force_thumbnail_generation:
                 raise KeyError("Thumbnail generation not possible from cache")
@@ -826,7 +826,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                 force_thumbnail_generation = True
             with open_presentation_without_window(context, self.filename) as presentation:
                 try:
-                    self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation)
+                    self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation, closing_gallery_workaround=closing_gallery_workaround)
                 except:
                     logging.error('error initializing gallery')
                     logging.debug(traceback.format_exc())
@@ -855,7 +855,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         self.item_count     = cache["item_count"]
         self.items_initialized = True
     
-    def init_gallery_items_from_presentation(self, presentation, force_thumbnail_generation=False):
+    def init_gallery_items_from_presentation(self, presentation, force_thumbnail_generation=False, closing_gallery_workaround=False):
         ''' initialize gallery items (count, labels, item-widht, item-height... ).
             Also generates thumbnail-image-files if needed.
         '''
@@ -903,7 +903,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
             if self.copy_shapes:
                 self.generate_gallery_images_from_shapes(presentation)
             else:
-                self.generate_gallery_images_from_slides(presentation)
+                self.generate_gallery_images_from_slides(presentation, closing_gallery_workaround)
         
         # # cache items for next call on library
         # # image loading still necessary
@@ -923,7 +923,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         return os.path.join(os.path.splitext(self.filename)[0] + THUMBNAIL_POSTFIX, str(index) + postfix + '.png')
     
     
-    def generate_gallery_images_from_slides(self, presentation):
+    def generate_gallery_images_from_slides(self, presentation, closing_gallery_workaround=False):
         ''' generate thumbnail images for all chart-lib items '''
         # filename = presentation.FullName
         # item_count = presentation.Slides.Count
@@ -936,19 +936,20 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         
         for slide in presentation.slides:
             if slide.shapes.hastitle != False:
-                # select shapes
-                # slide_range = presentation.slides.Range(Array[int]([ slide.SlideIndex ]))
                 image_filename = self.get_image_filename(slide.SlideIndex)
                 try:
-                    # export image as PNG,  2 = ppShapeFormatPNG, 0 = ppShapeFormatGIF
-                    # width 600, auto height (450 for 4:3)
-                    # slide_range.Export(image_filename, 'PNG', 600)
-                    # slide.Export(image_filename, 'PNG', 600) #FIXME: this line closes the chartlib menu, so every time the images are generated, the user needs to re-open the chartlib
-                    slide.Copy()
-                    Forms.Clipboard.GetImage().Save(image_filename, Drawing.Imaging.ImageFormat.Png)
+                    #NOTE: slide.Export() closes the chartlib menu, so every time the images are generated, the user needs to re-open the chartlib. As workaround we use the clipboard.
+                    if closing_gallery_workaround:
+                        logging.debug("Creation of thumbnail image via clipboard workaround")
+                        slide.Copy()
+                        Forms.Clipboard.GetImage().Save(image_filename, Drawing.Imaging.ImageFormat.Png)
+                    else:
+                        logging.debug("Creation of thumbnail image via export")
+                        slide.Export(image_filename, 'PNG', 600) 
                 except:
                     logging.warning('Creation of thumbnail image failed: %s' % image_filename)
-        Forms.Clipboard.Clear()
+        if closing_gallery_workaround:
+            Forms.Clipboard.Clear()
     
     
     def generate_gallery_images_from_shapes(self, presentation, with_placeholders=False):
@@ -980,7 +981,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                 try:
                     # export image as PNG, 
                     # ppShapeFormatGIF = 0, ppShapeFormatJPG = 1, ppShapeFormatPNG = 2, ppShapeFormatBMP = 3, ppShapeFormatWMF = 4, ppShapeFormatEMF = 5;
-                    shape_range.Export(image_filename, 2) 
+                    shape_range.Export(image_filename, 2)
                 except:
                     logging.warning('Creation of thumbnail image failed: %s' % image_filename)
                 
