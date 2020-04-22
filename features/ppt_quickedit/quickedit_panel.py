@@ -238,7 +238,7 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
         # self._model = model
         # self._context = context
         
-        self.IsPopup = True
+        self.IsToolbar = True
 
         QuickEdit.update_colors(context)
 
