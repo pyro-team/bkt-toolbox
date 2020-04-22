@@ -868,7 +868,9 @@ namespace BKT
             try {
 #if OFFICE2010
 #else
-                CreateTaskPaneForWindow(workbook.Windows[1]);
+                if(workbook.Windows.Count > 0) {
+                    CreateTaskPaneForWindow(workbook.Windows[1]);
+                }
 #endif
             } catch (Exception e) {
                 LogMessage(e.ToString());
@@ -881,7 +883,9 @@ namespace BKT
             try {
 #if OFFICE2010
 #else
-                CreateTaskPaneForWindow(workbook.Windows[1]);
+                if(workbook.Windows.Count > 0) {
+                    CreateTaskPaneForWindow(workbook.Windows[1]);
+                }
 #endif
             } catch (Exception e) {
                 LogMessage(e.ToString());
@@ -918,7 +922,9 @@ namespace BKT
             try {
 #if OFFICE2010
 #else
-                CreateTaskPaneForWindow(presentation.Windows[1]);
+                if(presentation.Windows.Count > 0) {
+                    CreateTaskPaneForWindow(presentation.Windows[1]);
+                }
 #endif
             } catch (Exception e) {
                 LogMessage(e.ToString());
@@ -931,7 +937,9 @@ namespace BKT
             try {
 #if OFFICE2010
 #else
-                CreateTaskPaneForWindow(presentation.Windows[1]);
+                if(presentation.Windows.Count > 0) {
+                    CreateTaskPaneForWindow(presentation.Windows[1]);
+                }
 #endif
             } catch (Exception e) {
                 LogMessage(e.ToString());
@@ -1047,7 +1055,9 @@ namespace BKT
             try {
 #if OFFICE2010
 #else
-                CreateTaskPaneForWindow(document.Windows[1]);
+                if(document.Windows.Count > 0) {
+                    CreateTaskPaneForWindow(document.Windows[1]);
+                }
 #endif
             } catch (Exception e) {
                 LogMessage(e.ToString());
@@ -1060,7 +1070,9 @@ namespace BKT
             try {
 #if OFFICE2010
 #else
-                CreateTaskPaneForWindow(document.Windows[1]);
+                if(document.Windows.Count > 0) {
+                    CreateTaskPaneForWindow(document.Windows[1]);
+                }
 #endif
             } catch (Exception e) {
                 LogMessage(e.ToString());
