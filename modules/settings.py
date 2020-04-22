@@ -269,6 +269,22 @@ IPY-Version:            {}
         config_filename=cls.get_bkt_config_path()
         if os.path.exists(config_filename):
             startfile(config_filename)
+    
+    @classmethod
+    def open_changelog(cls):
+        from os import startfile
+        changelog=os.path.join(cls.get_bkt_folder_path(), "documentation", "Changelog.pptx")
+        if os.path.exists(changelog):
+            startfile(changelog)
+            # try:
+            #     from bkt import dotnet
+            #     Ppt = dotnet.import_powerpoint()
+            #     pApp = Ppt.ApplicationClass()
+            #     pApp.Presentations.Open(changelog, True) #readonly, untitled, withwindow
+            #FIXME: this keeps ppt process running in background after closing?!
+            # except:
+            #     from os import startfile
+            #     startfile(changelog)
 
 
 
@@ -299,7 +315,7 @@ class SettingsMenu(bkt.ribbon.Menu):
             children=[
                 bkt.ribbon.Button(
                     id='settings-version' + postfix,
-                    label="{} v{}".format(bkt.full_version, bkt.version_tag_name),
+                    label="Über {} v{}".format(bkt.full_version, bkt.version_tag_name),
                     image_mso="Info",
                     supertip="Erweiterte Versionsinformationen anzeigen",
                     on_action=bkt.Callback(BKTInfos.show_version_dialog, context=True, transaction=False)
@@ -369,6 +385,13 @@ class SettingsMenu(bkt.ribbon.Menu):
                     supertip="BKT-Webseite im Browser öffnen",
                     image_mso="ContactWebPage",
                     on_action=bkt.Callback(BKTInfos.open_website, transaction=False)
+                ),
+                bkt.ribbon.Button(
+                    id='settings-changelog' + postfix,
+                    label="Versionsänderungen anzeigen",
+                    supertip="Präsentation mit den Versionsänderungen anzeigen",
+                    image_mso="ReviewHighlightChanges",
+                    on_action=bkt.Callback(BKTInfos.open_changelog, transaction=False)
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.DynamicMenu(
