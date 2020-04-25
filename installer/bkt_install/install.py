@@ -227,7 +227,7 @@ class Installer(object):
             # task_panes = False,
             show_exception = False,
             
-            modules = [ 'modules.dev', 'modules.settings' ],
+            modules = [ 'modules.settings' ],
             
             feature_folders = [],
         )
