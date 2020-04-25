@@ -9,9 +9,9 @@ Created on 11.11.2019
 from __future__ import absolute_import
 
 import logging
-import os.path
 
 import bkt.ribbon
+from bkt.apps import Resources
 from bkt.xml import WpfXMLFactory, linq
 
 
@@ -293,7 +293,7 @@ class BaseScrollViewer(TaskPaneControl):
         super(BaseScrollViewer, self).__init__(*args, **kwargs)
         
         # load scrollbar styling
-        xaml_filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "resources", "xml", "scrollbar_style.xaml")
+        xaml_filename=Resources.xaml.locate("scrollbar_style")
         xml_string = ""
         for line in open(xaml_filename, "r"):
             xml_string += line + "\n"
