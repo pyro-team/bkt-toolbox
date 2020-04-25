@@ -224,9 +224,10 @@ class BKTInfos(object):
         from .version_dialog import VersionDialog
         VersionDialog.create_and_show_dialog(context)
 
-    @staticmethod
-    def show_debug_message(context):
+    @classmethod
+    def show_debug_message(cls, context):
         import sys
+        import tempfile
         import bkt.console
 
         # https://docs.microsoft.com/de-de/office/troubleshoot/reference/numbering-scheme-for-product-guid
@@ -239,41 +240,39 @@ BKT-AddIn-Build:        {}, {}
 Operating System:       {} ({}.{}.{})
 Office Version:         {} {}.{} ({})
 IPY-Version:            {}
+
+BKT-Path:               {}
+Favorites-Folder:       {}
+Temp-Dir:               {}
 '''.format(
         bkt.full_version, bkt.version_tag_name,
         context.dotnet_context.addin.GetBuildConfiguration(), context.dotnet_context.addin.GetBuildRevision(),
         context.app.OperatingSystem, winver.major, winver.minor, winver.build,
         context.app.name, context.app.Version, context.app.Build, context.app.ProductCode,
         sys.version,
+        bkt.helpers.BKT_BASE,
+        bkt.helpers.get_fav_folder(),
+        tempfile.gettempdir()
         )
         bkt.console.show_message(bkt.ui.endings_to_windows(debug_info))
-
-    @staticmethod
-    def get_bkt_folder_path():
-        return os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
-
-    @staticmethod
-    def get_bkt_config_path():
-        return os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "config.txt")
         
     @classmethod
     def open_folder(cls, path=None):
         from os import startfile
-        folder_to_open=path or cls.get_bkt_folder_path()
+        folder_to_open=path or bkt.helpers.BKT_BASE
         if os.path.isdir(folder_to_open):
             startfile(folder_to_open)
     
     @classmethod
     def open_config(cls):
         from os import startfile
-        config_filename=cls.get_bkt_config_path()
-        if os.path.exists(config_filename):
-            startfile(config_filename)
+        if os.path.exists(bkt.helpers.config_filename):
+            startfile(bkt.helpers.config_filename)
     
     @classmethod
     def open_changelog(cls):
         from os import startfile
-        changelog=os.path.join(cls.get_bkt_folder_path(), "documentation", "Changelog.pptx")
+        changelog=bkt.helpers.bkt_base_path_join("documentation", "Changelog.pptx")
         if os.path.exists(changelog):
             startfile(changelog)
             # try:
