@@ -8,17 +8,17 @@ Created on 19.02.2017
 from __future__ import absolute_import, division, print_function
 
 import os.path
-# import bkt.dotnet
-# Win32 = bkt.dotnet.import_win32()
+
+import System
 import Microsoft.Win32 as Win32
+
+from System.Reflection import Assembly, AssemblyName
 
 RegistryHive = Win32.RegistryHive
 RegistryView = Win32.RegistryView
 RegistryKey = Win32.RegistryKey
 RegistryValueKind = Win32.RegistryValueKind
 
-import System
-from System.Reflection import Assembly, AssemblyName
 
 class PathString(str):
     def __truediv__(self, other):

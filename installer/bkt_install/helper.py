@@ -5,9 +5,9 @@ Created on 25.02.2019
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
-import os.path
+import os
 import ConfigParser
 import ctypes
 
@@ -38,6 +38,11 @@ def exception_as_message():
 
 
 class BKTConfigParser(ConfigParser.ConfigParser):
+    config_filename = None
+
+    def __init__(self, config_filename):
+        self.config_filename = config_filename
+        ConfigParser.ConfigParser.__init__(self)
 
     def __getattr__(self, attr):
         '''
@@ -88,15 +93,14 @@ class BKTConfigParser(ConfigParser.ConfigParser):
             self.set('BKT', option, str(value)) #always transform to string, otherwise cannot access the value in same session anymore
 
         # write config file
-        #outfilename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "config_written.txt")
-        with open(config_filename, "wb") as configfile:
-            config.write(configfile)
+        with open(self.config_filename, "wb") as configfile:
+            self.write(configfile)
 
 
-
-config = BKTConfigParser()
-config_filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "config.txt")
-if os.path.exists(config_filename):
-    config.read(config_filename)
-else:
-    config.add_section('BKT')
+def get_config(config_filename):
+    config = BKTConfigParser(config_filename)
+    if os.path.exists(config_filename):
+        config.read(config_filename)
+    else:
+        config.add_section('BKT')
+    return config

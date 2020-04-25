@@ -9,16 +9,15 @@ Refactored on 25.02.2017
 from __future__ import absolute_import, division, print_function
 
 import clr
-import os.path
+import os
 import traceback
-import argparse
-
-from . import reg
-from . import helper
-from . import defaults
 
 import System.Environment
 
+from . import reg
+from . import helper
+
+from .globals import INSTALL_BASE, default_config
 
 
 class AppInfo(object):
@@ -108,17 +107,6 @@ INSTALL_ADDINS = [
     ]
 
 
-def go_up(path, *directories):
-    current = os.path.normpath(os.path.abspath(path))
-    for d in directories:
-        current, tail = os.path.split(current)
-        if tail != d:
-            raise ValueError('expected path component %r, got %r' % (d, tail))
-    return current
-
-
-INSTALL_BASE = go_up(os.path.dirname(__file__), 'installer')
-
 
 class RegistryInfoService(object):
     def __init__(self, apps=None, addins=None, install_base=None, uninstall=False):
@@ -196,8 +184,7 @@ def check_wow6432():
         except:
             traceback.print_exc()
             
-    if len(office_is_32) == 0:
-        raise AssertionError('failed to get bitness of all tested office applications')
+    assert len(office_is_32) > 0, 'failed to get bitness of all tested office applications'
     
     return os_64 and (True in office_is_32)
 
@@ -247,22 +234,24 @@ class Installer(object):
         
         # allow Installer to be called with other default config values
         default_config.update(self.user_config)
+        config_filename = os.path.join(self.install_base, 'config.txt')
+        config = helper.get_config(config_filename)
         
         # change config
         # write default config values
         for key,value in default_config.items():
-            existing_value = getattr(helper.config, key)
+            existing_value = getattr(config, key)
             if existing_value == None or existing_value == '':
                 new_value = value
             elif type(existing_value) == list and type(value) == list:
                 new_value = existing_value + [v for v in value if not v in existing_value]
             else:
                 new_value = existing_value
-            helper.config.set_smart(key, new_value)
+            config.set_smart(key, new_value)
         
         # write fixed config values
         for key,value in install_config.items():
-            helper.config.set_smart(key, value)
+            config.set_smart(key, value)
         
         config_example = """
 ######## CONFIG examples ########
@@ -274,7 +263,7 @@ class Installer(object):
 #  
 #  ### Debugging
 #  pydev_debug = True
-#  pydev_codebase = <eclipse-folder>\plugins\org.python.pydev_<pydev-version>\pysrc'
+#  pydev_codebase = <eclipse-folder>\\plugins\\org.python.pydev_<pydev-version>\\pysrc'
 #  
 #  ### Addin Configuration
 #  log_write_file = True
@@ -286,9 +275,7 @@ class Installer(object):
 #  
 #  ### Modules',
 #  modules = 
-#       modules.dev
 #       modules.settings
-#       modules.toolbox_visio
 #       modules.tutorial
 #       modules.demo.demo_customui
 #       modules.demo.demo_bkt
@@ -316,7 +303,7 @@ class Installer(object):
 
 """
         # append config example
-        with open(os.path.join(self.install_base, 'config.txt'), 'a') as fd:
+        with open(config_filename, 'a') as fd:
             fd.write(config_example.encode('utf-8'))
 
 
@@ -332,11 +319,13 @@ class Installer(object):
     def install(self):
         self.unregister()
         try:
+            print('create registry entries for addin assemblies')
             self.register()
+            print('create/update config file')
             self.create_config_file()
-            print("\nInstallation ready -- addin available after Office restart")
-        except:
+        except Exception as e:
             self.unregister()
+            raise e #re-raise exception
     
     def register(self):
         reginfo = RegistryInfoService(install_base=self.install_base)
@@ -347,74 +336,53 @@ class Installer(object):
             reg.AddinRegService(**info).register_addin()
 
 
-def install(config=dict(), apps=["powerpoint"]):
-    try:
-        # uninstall
-        Installer(wow6432=True).unregister()
-        Installer(wow6432=False).unregister()
-
-        #app load beavhior
-        if "powerpoint" in apps:
-            PowerPoint.load_behavior = { 'bkt' : 3, 'bkt_dev': 3 }
-        if "excel" in apps:
-            Excel.load_behavior = { 'bkt' : 3, 'bkt_dev': 3 }
-        if "word" in apps:
-            Word.load_behavior = { 'bkt' : 3, 'bkt_dev': 3 }
-        if "visio" in apps:
-            Visio.load_behavior = { 'bkt' : 3, 'bkt_dev': 3 }
-        if "outlook" in apps:
-            Outlook.load_behavior = { 'bkt' : 3, 'bkt_dev': 3 }
-
-        # install
-        installer = Installer(config=config)
-        installer.install()
-    except:
-        helper.exception_as_message()
-        
-
-def uninstall():
+def uninstall(args):
+    print('Uninstalling BKT from current directory...')
     try:
         Installer(wow6432=True).unregister()
         Installer(wow6432=False).unregister()
-    except:
-        helper.exception_as_message()
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-u', '--uninstall', action='store_true', help='Remove all BKT registry entries')
-    parser.add_argument('-r', '--register_only', action='store_true', help='Only register addin without addin default features')
-    parser.add_argument('-a', '--app', action='append', default=['powerpoint'], help='Application in which BKT is activated')
-    return parser.parse_args()
-
-
-def main():
-    args = parse_args()
-    if args.uninstall:
-        print('Uninstalling BKT from current directory...')
-        uninstall()
         print("\nBKT successfully uninstalled")
-    else:
-        if helper.is_admin():
-            if helper.yes_no_question('Are you sure to run BKT installer as admin?'):
-                start_install = True
-            else:
-                start_install = False
-                print('BKT installation cancelled')
+    except:
+        helper.exception_as_message()
+
+    if args.remove_config:
+        try:
+            print("\nRemoving BKT config file...")
+            config_filename = os.path.join(INSTALL_BASE, 'config.txt')
+            if os.path.exists(config_filename):
+                os.remove(config_filename)
+        except:
+            helper.exception_as_message()
+
+
+def install(args):
+    if helper.is_admin() and not helper.yes_no_question('Are you sure to run BKT installer as admin?'):
+        print('BKT installation cancelled')
+        return
+
+    print('Installing BKT in current directory...')
+
+    #app load behaviour
+    if "powerpoint" in args.apps:
+        PowerPoint.load_behavior = { 'bkt' : 3, 'bkt_dev': 3 }
+    if "excel" in args.apps:
+        Excel.load_behavior = { 'bkt' : 3, 'bkt_dev': 3 }
+    if "word" in args.apps:
+        Word.load_behavior = { 'bkt' : 3, 'bkt_dev': 3 }
+    if "visio" in args.apps:
+        Visio.load_behavior = { 'bkt' : 3, 'bkt_dev': 3 }
+    if "outlook" in args.apps:
+        Outlook.load_behavior = { 'bkt' : 3, 'bkt_dev': 3 }
+
+    # start installation
+    try:
+        if args.register_only:
+            installer = Installer()
         else:
-            start_install = True
+            installer = Installer(config=default_config)
+        installer.install()
 
-        if start_install:
-            print('Installing BKT in current directory...')
+        print("\nInstallation ready -- addin available after Office restart")
+    except:
+        helper.exception_as_message()
 
-            # deactivate previous installation
-            uninstall()
-
-            # start installation
-            if args.register_only:
-                install(apps=args.app)
-            else:
-                install(defaults.default_config, args.app)
-
-if __name__ == '__main__':
-    main()
