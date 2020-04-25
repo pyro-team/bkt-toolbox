@@ -32,7 +32,7 @@ subparsers = parser.add_subparsers(help='BKT Installer supports 3 modes: install
 
 parser_install = subparsers.add_parser('install', help='Installation and registration of BKT')
 parser_install.add_argument('--register_only', action='store_true', help='Only register addin without creating or updating default configuration')
-parser_install.add_argument('--apps', nargs='+', choices=["powerpoint", "excel", "word", "outlook", "visio"], default=['powerpoint'], help='Define list of application(s) in which BKT is activated by default')
+parser_install.add_argument('--apps', nargs='+', choices=["excel", "word", "outlook", "visio"], default=['powerpoint'], help='Define list of application(s) in which BKT is activated by default (in addition to PowerPoint)')
 parser_install.set_defaults(func=BktInstaller.install)
 
 parser_uninstall = subparsers.add_parser('uninstall', help='Remove registration of BKT')
