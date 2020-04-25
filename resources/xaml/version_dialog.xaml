@@ -47,7 +47,7 @@
             </StackPanel>
         </Border>
         <StackPanel Orientation="Vertical" Margin="5,10" HorizontalAlignment="Center">
-            <TextBlock HorizontalAlignment="Center">Die BKT ist Open Source lizensiert unter der MIT Lizenz.</TextBlock>
+            <TextBlock HorizontalAlignment="Center">Die BKT ist Open Source lizensiert unter der MIT-Lizenz.</TextBlock>
             <TextBlock HorizontalAlignment="Center">Copyright © 2019 Christoph Schmitt, Ruben Debeerst, Florian Stallmann.</TextBlock>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="5,10" HorizontalAlignment="Center">

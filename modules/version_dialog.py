@@ -21,7 +21,7 @@ class ViewModel(bkt.ui.ViewModelSingleton):
     def __init__(self):
         super(ViewModel, self).__init__()
 
-        resource_path = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "resources", "bkt_logo", "BKT Logo 1.0.png"))
+        resource_path = bkt.helpers.bkt_base_path_join("resources", "bkt_logo", "BKT Logo 1.0.png")
         self.bkt_logo = System.Uri(resource_path)
         # self.bkt_logo = bkt.ui.load_bitmapimage("bkt_logo")
         self.bkt_version = "v" + bkt.version_tag_name
