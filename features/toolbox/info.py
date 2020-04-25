@@ -117,20 +117,20 @@ class ToolbarVariations(object):
 
     @classmethod
     def change_variation(cls, context, variation):
-        from os.path import dirname, realpath, normpath, join
+        from os.path import join
         folders = context.config.feature_folders or []
-        folder = join(dirname(realpath(__file__)), "..")
-        # print(normpath(join(folder,"toolbox")))
+        folder = bkt.helpers.file_base_path_join(__file__, "..")
+        # print(join(folder,"toolbox"))
         # remove both folders just in case
         try:
-            folders.remove(normpath(join(folder,"toolbox")))
+            folders.remove(join(folder,"toolbox"))
         except ValueError:
             pass
         try:
-            folders.remove(normpath(join(folder,"toolbox_widescreen")))
+            folders.remove(join(folder,"toolbox_widescreen"))
         except ValueError:
             pass
-        folders.insert(0, normpath(join(folder, variation)))
+        folders.insert(0, join(folder, variation))
         context.config.set_smart("feature_folders", folders)
 
         #reload bkt using settings module

@@ -11,8 +11,7 @@ from __future__ import absolute_import
 import bkt
 
 # FIXME: this should be easier
-from os.path import dirname, join, normpath, realpath
-bkt.apps.Resources.root_folders.append(normpath(join(dirname(realpath(__file__)), '..', 'toolbox', 'resources')))
+bkt.apps.Resources.root_folders.append( bkt.helpers.file_base_path_join(__file__, '..', 'toolbox', 'resources') )
 # ###
 
 from toolbox import toolboxui, info

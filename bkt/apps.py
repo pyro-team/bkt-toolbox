@@ -642,7 +642,7 @@ class Resources(object):
         self.category = category
         self.suffix = suffix
 
-        cache_file = os.path.join( _h.get_cache_folder(), "resources.%s.cache"%category )
+        cache_file = _h.get_cache_folder("resources.%s.cache"%category)
         
         try:
             self._cache = shelve.open(cache_file, protocol=2)
@@ -669,8 +669,7 @@ class Resources(object):
     
     @staticmethod
     def bootstrap():
-        package_dir = os.path.dirname(__file__)
-        Resources.root_folders = [ os.path.normpath(os.path.join(package_dir,'..','resources')) ]
+        Resources.root_folders = [ _h.bkt_base_path_join('resources') ]
         Resources.images = Resources("images", "png")
         Resources.xaml = Resources("xaml", "xaml")
     

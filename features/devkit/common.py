@@ -102,13 +102,11 @@ class DevGroup(object):
     
     @classmethod
     def open_log_py(cls):
-        bkt_folder = settings.BKTInfos.get_bkt_folder_path()
-        cls._open_file(os.path.join(bkt_folder, "bkt-debug-py.log"))
+        cls._open_file(bkt.helpers.bkt_base_path_join("bkt-debug-py.log"))
     
     @classmethod
     def open_log_dotnet(cls):
-        bkt_folder = settings.BKTInfos.get_bkt_folder_path()
-        cls._open_file(os.path.join(bkt_folder, "bkt-debug.log"))
+        cls._open_file(bkt.helpers.bkt_base_path_join("bkt-debug.log"))
         
     @staticmethod
     def toggle_show_exception(pressed):

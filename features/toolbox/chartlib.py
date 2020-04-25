@@ -56,7 +56,7 @@ class ChartLibCache(object):
 
     @classmethod
     def init_cache(cls):
-        cache_file = os.path.join( bkt.helpers.get_cache_folder(), "chartlib.cache" )
+        cache_file = bkt.helpers.get_cache_folder("chartlib.cache")
         cls.cache = shelve.open(cache_file, protocol=2)
 
 
@@ -128,7 +128,7 @@ class ChartLib(object):
                 self.library_folders.append( { 'title':os.path.basename(os.path.realpath(folder)), 'folder':os.path.join(folder, subfolder)})
         
         # add favorite folder as first folder
-        self.fav_folder = os.path.join(bkt.helpers.get_fav_folder(), subfolder)
+        self.fav_folder = bkt.helpers.get_fav_folder(subfolder)
         self.library_folders.insert(0, {'title': "Favoriten", 'folder': self.fav_folder} )
     
     
@@ -269,7 +269,7 @@ class ChartLib(object):
             bkt.ribbon.Button(label="Zu Favoriten hinzufügen",
                 screentip="Chart zu Favoriten-Library hinzufügen",
                 supertip="Ausgewählte Slides/Shapes zu Standard-Favoriten-Library hinzufügen. Falls diese Library noch nicht existiert, wird diese neu angelegt.",
-                image_mso='SourceControlCheckIn',
+                image_mso='AddToFavorites',
                 on_action=bkt.Callback(self.add_chart_to_lib)
             ),
             bkt.ribbon.Button(label="Library erneut indizieren",

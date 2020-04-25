@@ -25,7 +25,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         s_dict = {'0': False, '1': False, '2': False}
         h_dict = {'0': "", '1': "", '2': ""}
         
-        self._resource_path = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "resources", "toolboxui"))
+        self._resource_path = bkt.helpers.file_base_path_join(__file__, "..", "resources", "toolboxui")
 
         for key in toolboxui.get_all_keys():
             bool_dict = s_dict.copy()

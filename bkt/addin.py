@@ -38,7 +38,7 @@ Bitmap = bkt.dotnet.import_drawing().Bitmap
 if bkt.config.log_write_file:
     log_level = getattr(logging, bkt.config.log_level or 'WARNING', logging.WARNING)
 
-    logfile = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "bkt-debug-py.log")
+    logfile = _h.bkt_base_path_join("bkt-debug-py.log")
 
     filehandler = logging.FileHandler(logfile, 'w', 'utf-8')
     filehandler.setLevel(log_level)
@@ -571,7 +571,7 @@ class AddIn(object):
         
 
         CACHE_VERSION = "20191213"
-        cache_file = os.path.join( _h.get_cache_folder(), "%s.import.cache" % dotnet_context.hostAppName )
+        cache_file = _h.get_cache_folder("%s.import.cache" % dotnet_context.hostAppName)
         import_cache = shelve.open(cache_file, protocol=2)
 
         # STRUCTURE OF IMPORT CACHE #
