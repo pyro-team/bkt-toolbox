@@ -90,25 +90,25 @@ Name: "{group}\BKT-AddIn neu registrieren"; Filename: "{app}\installer\install.b
 Name: "{group}\BKT-Ordner öffnen"; Filename: "{app}\"
 
 [Run]
-Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m install"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: not (excel or visio)
-Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m install --app excel"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: excel and not visio
-Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m install --app visio"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: visio and not excel
-Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m install --app excel --app visio"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: excel and visio
+Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install install"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: not (excel or visio)
+Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install install --apps excel"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: excel and not visio
+Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install install --apps visio"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: visio and not excel
+Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install install --apps excel visio"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: excel and visio
 
-Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m config --add_folder features\ppt_customformats"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint Benutzerdef. Formate aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\customformats
-Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m config --add_folder features\ppt_consolidation_split"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint-Konsolidierungstool aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\consol
-Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m config --add_folder features\ppt_quickedit"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint-QuickEdit aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\quickedit
-Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m config --add_folder features\ppt_statistics"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint-Shape-Statistics aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\statistics
-Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m config --add_folder features\bkt_excel"; WorkingDir: "{app}\installer"; StatusMsg: "Excel-Toolbar aktivieren..."; Flags: runasoriginaluser runhidden; Components: excel\toolbar
-Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m config --add_folder features\xls_instacalc"; WorkingDir: "{app}\installer"; StatusMsg: "Excel-Mini-Rechner aktivieren..."; Flags: runasoriginaluser runhidden; Components: excel\calc
-Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m config --add_folder features\bkt_visio"; WorkingDir: "{app}\installer"; StatusMsg: "Visio-Toolbar aktivieren..."; Flags: runasoriginaluser runhidden; Components: visio\toolbar
+Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install configure --add_folders features\ppt_customformats"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint Benutzerdef. Formate aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\customformats
+Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install configure --add_folders features\ppt_consolidation_split"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint-Konsolidierungstool aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\consol
+Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install configure --add_folders features\ppt_quickedit"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint-QuickEdit aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\quickedit
+Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install configure --add_folders features\ppt_statistics"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint-Shape-Statistics aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\statistics
+Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install configure --add_folders features\bkt_excel"; WorkingDir: "{app}\installer"; StatusMsg: "Excel-Toolbar aktivieren..."; Flags: runasoriginaluser runhidden; Components: excel\toolbar
+Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install configure --add_folders features\xls_instacalc"; WorkingDir: "{app}\installer"; StatusMsg: "Excel-Mini-Rechner aktivieren..."; Flags: runasoriginaluser runhidden; Components: excel\calc
+Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install configure --add_folders features\bkt_visio"; WorkingDir: "{app}\installer"; StatusMsg: "Visio-Toolbar aktivieren..."; Flags: runasoriginaluser runhidden; Components: visio\toolbar
 ; NOTE: use flag "nowait" if problems with hanging script occure
 ; NOTE: use flag runhidden if DOS window should not show up
 
 Filename: "{app}\documentation\Changelog.pptx"; Description: "Neue Funktionen und Änderungen anzeigen"; Flags: postinstall shellexec skipifsilent
   
 [UninstallRun]
-Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m install --uninstall"; WorkingDir: "{app}\installer"
+Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install uninstall"; WorkingDir: "{app}\installer"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\resources\cache"
