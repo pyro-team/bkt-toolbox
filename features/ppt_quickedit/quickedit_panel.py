@@ -7,8 +7,6 @@ Created on 2018-05-29
 from __future__ import absolute_import
 
 import os.path
-import bkt.ui
-notify_property = bkt.ui.notify_property
 
 from time import time
 
@@ -16,8 +14,10 @@ from System.Collections.ObjectModel import ObservableCollection
 from System.Windows.Controls import Orientation
 from System.Windows import Visibility
 
-from bkt.callbacks import WpfActionCallback
+import bkt.ui
+notify_property = bkt.ui.notify_property
 
+from bkt.callbacks import WpfActionCallback
 from .quickedit_model import QuickEdit, QEColorButton, QEColorButtons, QECatalog
 
 
@@ -231,7 +231,8 @@ class ViewModel(bkt.ui.ViewModelSingleton):
 
 
 class QuickEditPanel(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'quickedit_panel.xaml')
+    # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'quickedit_panel.xaml')
+    _xamlname = 'quickedit_panel'
     # _vm_class = ViewModel
 
     def __init__(self, context):

@@ -740,18 +740,18 @@ bkt.powerpoint.add_context_menu(
 
 
 class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'thumbnail.xaml')
+    # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'thumbnail.xaml')
+    _xamlname = 'thumbnail'
     '''
     class representing a popup-dialog for a thumbnail shape
     '''
     
     def __init__(self, context=None):
         self.IsPopup = True
-        self._context = context
 
-        super(ThumbnailPopup, self).__init__()
+        super(ThumbnailPopup, self).__init__(context)
 
-        if self._context.app.activewindow.selection.shaperange.count > 1:
+        if context.app.activewindow.selection.shaperange.count > 1:
             self.btngoto.Visibility = Visibility.Collapsed
 
     def btnrefresh(self, sender, event):

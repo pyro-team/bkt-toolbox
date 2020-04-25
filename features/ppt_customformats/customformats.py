@@ -19,6 +19,7 @@ from collections import OrderedDict
 import bkt
 import bkt.library.powerpoint as pplib
 
+import bkt.dotnet
 D = bkt.dotnet.import_drawing()
 
 from .helpers import ShapeFormats #local helper functions
@@ -228,7 +229,7 @@ class CustomFormatCatalog(object):
 
     custom_styles = []
     
-    config_folder = os.path.join(bkt.helpers.get_fav_folder(), "custom_formats")
+    config_folder = bkt.helpers.get_fav_folder("custom_formats")
     current_file = bkt.settings.get("customformats.default_file", "styles.json")
     initialized = False
 
@@ -637,15 +638,15 @@ class CustomQuickEdit(object):
     ### Gallery funcions ###
 
     @classmethod
-    def show_pickup_window(cls, shape):
+    def show_pickup_window(cls, context, shape):
         from .pickup_style import PickupWindow
-        wnd = PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormat.default_settings, shape=shape)
+        wnd = PickupWindow.create_and_show_dialog(context, CustomFormatCatalog, CustomFormat.default_settings, shape=shape)
         return wnd.result
 
     @classmethod
-    def show_edit_window(cls, index):
+    def show_edit_window(cls, context, index):
         from .pickup_style import PickupWindow
-        wnd = PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormatCatalog.custom_styles[index].style_setting, index=index)
+        wnd = PickupWindow.create_and_show_dialog(context, CustomFormatCatalog, CustomFormatCatalog.custom_styles[index].style_setting, index=index)
         return wnd.result
 
 
@@ -671,7 +672,7 @@ class CustomQuickEdit(object):
         
         if ctrl:
             ### EDIT STYLE ###
-            result = cls.show_edit_window(index)
+            result = cls.show_edit_window(context, index)
             apply_style = result is not None
         
         if apply_style:
@@ -747,7 +748,7 @@ class FormatLibGallery(bkt.ribbon.Gallery):
             supertip="Zeigt Übersicht über alle Custom-Styles im aktuellen Katalog.",
             item_height=64, item_width=64,
             children=[
-                bkt.ribbon.Button(id=parent_id + "_pickup", label="Neuen Style aufnehmen", supertip="Nimmt Format vom gewählten Shape neu in die Gallerie auf.", image_mso="PickUpStyle", on_action=bkt.Callback(CustomQuickEdit.show_pickup_window, shape=True), get_enabled = bkt.apps.ppt_shapes_exactly1_selected,),
+                bkt.ribbon.Button(id=parent_id + "_pickup", label="Neuen Style aufnehmen", supertip="Nimmt Format vom gewählten Shape neu in die Gallerie auf.", image_mso="PickUpStyle", on_action=bkt.Callback(CustomQuickEdit.show_pickup_window, context=True, shape=True), get_enabled = bkt.apps.ppt_shapes_exactly1_selected,),
                 bkt.ribbon.Button(id=parent_id + "_help1", label="[STRG]+Klick für Bearbeiten und Löschen", supertip="Bei Klick auf ein Custom-Style mit gedrückter STRG-Taste öffnet sich ein Fenster zur Bearbeitung und Löschung dieses Styles.", enabled = False),
                 bkt.ribbon.Button(id=parent_id + "_help2", label="[SHIFT]+Klick für Anlage neues Shape", supertip="Bei Klick auf ein Custom-Style mit gedrückter SHIFT-Taste wird immer ein neues Shapes in gewähltem Style angelegt.", enabled = False),
                 bkt.ribbon.Button(id=parent_id + "_help3", label="Einschränkungen durch PowerPoint-Bugs", supertip="Liste von funktionalen Einschränkungen durch interne PowerPoint-Bugs anzeigen", image_mso="Risks", on_action=bkt.Callback(CustomQuickEdit.show_caveats)),

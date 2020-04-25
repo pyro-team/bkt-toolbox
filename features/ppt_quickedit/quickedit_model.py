@@ -397,7 +397,7 @@ class QuickEdit(object):
         QECatalog("default3.json", "Katalog 3", False)
     ]
 
-    config_folder = os.path.join(bkt.helpers.get_fav_folder(), "quickedit")
+    config_folder = bkt.helpers.get_fav_folder("quickedit")
     current_file = "default.json"
 
     @classmethod
@@ -876,7 +876,7 @@ class QuickEdit(object):
 
     @staticmethod
     def show_help():
-        helpfile = os.path.join(os.path.dirname(os.path.realpath(__file__)), "resources", "QuickEdit Help.pdf")
+        helpfile = bkt.helpers.file_base_path_join(__file__, "resources", "QuickEdit Help.pdf")
         try:
             from os import startfile
             startfile(helpfile)
