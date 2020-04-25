@@ -6,10 +6,12 @@ Created on 2017-07-24
 
 from __future__ import absolute_import
 
-import os.path #required for relative paths
+import os #required for relative paths and tempfile removal
+import tempfile
 import logging
 import traceback
 
+from contextlib import contextmanager
 from System import Array #required to create ShapeRanges
 from System.Windows import Visibility
 
@@ -23,6 +25,13 @@ Forms = dotnet.import_forms() #required to read clipboard
 PASTE_DATATYPE_BTM = 1 #ppPasteBitmap
 PASTE_DATATYPE_EMF = 2 #ppPasteEnhancedMetafile
 PASTE_DATATYPE_PNG = 6 #ppPastePNG
+
+#mapping of paste types (old method) to export functions (slide.export requires filter-name, shape.export requires ppShapeFormat)
+DATATYPE_MAPPING = {
+    PASTE_DATATYPE_BTM: (3, "BMP"), #ppShapeFormatBMP, filter-name
+    PASTE_DATATYPE_EMF: (5, "EMF"), #ppShapeFormatEMF, filter-name
+    PASTE_DATATYPE_PNG: (2, "PNG"), #ppShapeFormatPNG, filter-name
+}
 
 BKT_THUMBNAIL = "BKT_THUMBNAIL"
 
@@ -94,28 +103,46 @@ class Thumbnailer(object):
         return pres, close_afterwards
 
     @classmethod
-    def find_and_copy_object(cls, application, slide_id, slide_path, content_only=False, shape_id=None, data_type=None): #data_type not relevant for this method but makes it easier to call when unpacking tags dict
-        pres, close = cls._get_presentation(application, slide_path)
-        
+    @contextmanager
+    def find_and_export_object(cls, application, slide_id, slide_path, content_only=False, shape_id=None, data_type=None):
         try:
+            pres, close = cls._get_presentation(application, slide_path)
+
             slide = pres.Slides.FindBySlideId(slide_id)
+            filetype = DATATYPE_MAPPING.get(data_type, PASTE_DATATYPE_PNG)
+            tmpfile = os.path.join(tempfile.gettempdir(), "bkt-thumbnail-tempfile."+filetype[1])
+
             if shape_id is None and not content_only:
-                slide.Copy()
+                if data_type == PASTE_DATATYPE_PNG:
+                    slide.Export(tmpfile, filetype[1], 2000)
+                else:
+                    slide.Export(tmpfile, filetype[1])
+                # slide.Copy()
             elif content_only:
                 shpr = cls._find_content_shapes(slide)
-                shpr.Copy()
+                if shpr.Count == 0:
+                    raise ValueError("empty slide")
+                shpr.Export(tmpfile, filetype[0]) 
+                # shpr.Copy()
             else:
                 shp = cls._find_by_shape_id(slide, shape_id)
-                shp.Copy()
+                shp.Export(tmpfile, filetype[0]) 
+                # shp.Copy()
+
+            yield tmpfile
 
         except EnvironmentError:
+            logging.debug(traceback.format_exc())
             raise IndexError("slide id not found")
         except IndexError:
+            logging.debug(traceback.format_exc())
             raise IndexError("shape id not found")
         
         finally:
             if close:
                 pres.Close()
+            if tmpfile and os.path.exists(tmpfile):
+                os.remove(tmpfile)
 
     @classmethod
     def _find_by_shape_id(cls, slide, shape_id):
@@ -127,11 +154,9 @@ class Thumbnailer(object):
     @classmethod
     def _find_content_shapes(cls, slide):
         shape_indices = []
-        shape_index = 1
-        for shape in slide.Shapes:
-            if shape.type != 14: # shape is not a placeholder
+        for shape_index, shape in enumerate(slide.Shapes, start=1):
+            if shape.type != 14 and shape.visible == -1: # shape is not a placeholder and visible
                 shape_indices.append(shape_index)
-            shape_index+=1
         return pplib.shape_indices_on_slide(slide, shape_indices)
         # return slide.Shapes.Range(Array[int](shape_indices))
 
@@ -171,22 +196,26 @@ class Thumbnailer(object):
             try:
                 try:
                     #Copy
-                    cls.find_and_copy_object(application, slide_id, data["slide_path"], content_only, shape_id)
-                except:
-                    #bkt.helpers.exception_as_message()
-                    bkt.helpers.error("Fehler! Referenz nicht gefunden.", "BKT: Thumbnails")
+                    with cls.find_and_export_object(application, slide_id, data["slide_path"], content_only, shape_id, data_type) as filename:
+                        lefttop = 200+pasted_shapes*20
+                        shape = cur_slide.Shapes.AddPicture(filename, 0, -1, lefttop, lefttop)
+                        pasted_shapes += 1
+
+                except Exception as e:
+                    # bkt.helpers.exception_as_message()
+                    bkt.helpers.error("Fehler! Referenz nicht gefunden.\n\n{}".format(e), "BKT: Thumbnails")
                     continue
                 #Paste
-                cur_slide.Shapes.PasteSpecial(Datatype=data_type)
-                pasted_shapes += 1
+                # shape = cur_slide.Shapes.PasteSpecial(Datatype=data_type)
+                # pasted_shapes += 1
                 #Save tags
-                shape = application.ActiveWindow.Selection.ShapeRange(1)
+                # shape = application.ActiveWindow.Selection.ShapeRange(1)
                 with ThumbnailerTags(shape.Tags) as tags:
                     tags.set_thumbnail(slide_id, data["slide_path"], data_type, content_only, shape_id)
                 shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_THUMBNAIL)
             except Exception as e:
                 #bkt.helpers.exception_as_message()
-                bkt.helpers.error("Fehler! Thumbnail konnte nicht im gewählten Format eingefügt werden. ({})".format(e), "BKT: Thumbnails")
+                bkt.helpers.error("Fehler! Thumbnail konnte nicht im gewählten Format eingefügt werden.\n\n{}".format(e), "BKT: Thumbnails")
                 logging.error(traceback.format_exc())
         
         # select pasted shapes
@@ -195,7 +224,7 @@ class Thumbnailer(object):
             pplib.last_n_shapes_on_slide(cur_slide, pasted_shapes).Select()
         
         #Restore clipboard
-        cls.set_clipboard_data(**data)
+        # cls.set_clipboard_data(**data)
 
     @classmethod
     def replace_ref(cls, shape, application):
@@ -212,7 +241,7 @@ class Thumbnailer(object):
         cls.shape_refresh(shape, application)
         
         #Restore clipboard
-        cls.set_clipboard_data(**data)
+        # cls.set_clipboard_data(**data)
 
     @classmethod
     def replace_file_ref(cls, shape, application):
@@ -300,11 +329,13 @@ class Thumbnailer(object):
             return cls._shape_refresh(shape, application)
         except IndexError:
             bkt.helpers.error("Fehler! Folien-Referenz nicht gefunden.")
+        except ValueError:
+            bkt.helpers.error("Fehler! Folie hat keinen Inhalt.")
         except IOError:
             if bkt.helpers.confirmation("Fehler! Präsentation aus Folien-Referenz nicht gefunden. Neue Datei auswählen?", "BKT: Thumbnails", icon=bkt.helpers.Forms.MessageBoxIcon.Warning):
                 cls.replace_file_ref(shape, application)
-        except:
-            bkt.helpers.error("Fehler! Thumbnail konnte nicht aktualisiert werden.", "BKT: Thumbnails")
+        except Exception as e:
+            bkt.helpers.error("Fehler! Thumbnail konnte nicht aktualisiert werden.\n\n{}".format(e), "BKT: Thumbnails")
             logging.error("Thumbnails: Error updating thumbnail!")
             logging.error(traceback.format_exc())
 
@@ -312,10 +343,11 @@ class Thumbnailer(object):
     def _shape_refresh(cls, shape, application):
         with ThumbnailerTags(shape.Tags) as tags_old:
             #Copy
-            cls.find_and_copy_object(application, **tags_old.data)
-            # cls.find_and_copy_object(application, tags_old["slide_id"], tags_old["slide_path"])
-            #Paste (shapes.Parent = slide)
-            new_shp = shape.Parent.Shapes.PasteSpecial(Datatype=tags_old["data_type"]).Item(1)
+            with cls.find_and_export_object(application, **tags_old.data) as filename:
+                # cls.find_and_copy_object(application, tags_old["slide_id"], tags_old["slide_path"])
+                #Paste (shapes.Parent = slide)
+                # new_shp = shape.Parent.Shapes.PasteSpecial(Datatype=tags_old["data_type"]).Item(1)
+                new_shp = shape.Parent.Shapes.AddPicture(filename, 0, -1, 200, 200)
             #Duplicate tags
             with ThumbnailerTags(new_shp.Tags) as tags_new:
                 tags_new.set_thumbnail(**tags_old.data)
@@ -351,6 +383,7 @@ class Thumbnailer(object):
             new_shp.Select()
         else:
             shape.Delete()
+            new_shp.Select()
 
         return new_shp
 
@@ -470,7 +503,8 @@ class Thumbnailer(object):
         with ThumbnailerTags(shape.Tags) as tags:
             tags["content_only"] = content_only
         new_shp = cls.shape_refresh(shape, application)
-        cls.reset_aspect_ratio(new_shp)
+        if new_shp:
+            cls.reset_aspect_ratio(new_shp)
 
 
 thumbnail_gruppe = bkt.ribbon.Group(
