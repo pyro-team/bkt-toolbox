@@ -18,6 +18,8 @@ import ConfigParser #required for config.txt file
 import shelve #required for global settings database
 
 
+BKT_BASE = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
+
 log_as_messagebox = False
 log_as_uibox = False
 
@@ -111,8 +113,19 @@ def exception_as_message(additional_message=None):
     bkt.console.show_message(bkt.ui.endings_to_windows(fd.getvalue()))
 
 
+def file_base_path_join(base_file, *args):
+    return os.path.realpath(os.path.join(os.path.dirname(base_file), *args))
+
+def bkt_base_path_join(*args):
+    return os.path.realpath(os.path.join(BKT_BASE, *args))
+
 
 class BKTConfigParser(ConfigParser.ConfigParser):
+    config_filename = None
+
+    def __init__(self, config_filename):
+        self.config_filename = config_filename
+        ConfigParser.ConfigParser.__init__(self)
 
     def __getattr__(self, attr):
         '''
@@ -163,14 +176,13 @@ class BKTConfigParser(ConfigParser.ConfigParser):
             self.set('BKT', option, str(value)) #always transform to string, otherwise cannot access the value in same session anymore
 
         # write config file
-        #outfilename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "config_written.txt")
-        with open(config_filename, "wb") as configfile:
-            config.write(configfile)
+        with open(self.config_filename, "wb") as configfile:
+            self.write(configfile)
 
 
 # load config
-config = BKTConfigParser()
-config_filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "config.txt")
+config_filename=bkt_base_path_join("config.txt")
+config = BKTConfigParser(config_filename)
 if os.path.exists(config_filename):
     config.read(config_filename)
 else:
@@ -184,26 +196,30 @@ def ensure_folders_exist(folder_path):
     return folder_path
 
 
-def get_fav_folder():
+def get_fav_folder(*args):
     folder = config.local_fav_path or False
-    if folder:
-        return folder
-    else:
-        return ensure_folders_exist(os.path.join(os.path.expanduser("~"), "Documents", "BKT-Favoriten"))
+    if not folder:
+        #FIXME: this doesnt work if Documents folder has been moved by user or by OneDrive installation
+        folder = ensure_folders_exist( os.path.realpath(os.path.join(os.path.expanduser("~"), "Documents", "BKT-Favoriten")) )
+    args = args or tuple()
+    args = (folder,)+args
+    return os.path.join(*args)
 
-def get_cache_folder():
+def get_cache_folder(*args):
     folder = config.local_cache_path or False
-    if folder:
-        return folder
-    else:
-        return ensure_folders_exist(os.path.normpath( os.path.join( os.path.dirname(__file__), "../resources/cache") ))
+    if not folder:
+        folder = ensure_folders_exist( bkt_base_path_join("resources","cache") )
+    args = args or tuple()
+    args = (folder,)+args
+    return os.path.join(*args)
 
-def get_settings_folder():
+def get_settings_folder(*args):
     folder = config.local_settings_path or False
-    if folder:
-        return folder
-    else:
-        return ensure_folders_exist(os.path.normpath( os.path.join( os.path.dirname(__file__), "../resources/settings") ))
+    if not folder:
+        folder = ensure_folders_exist( bkt_base_path_join("resources","settings") )
+    args = args or tuple()
+    args = (folder,)+args
+    return os.path.join(*args)
 
 
 #lazy loading shelve
@@ -215,7 +231,7 @@ class BKTSettings(shelve.Shelf):
     def open(self, filename):
         import anydbm
         try:
-            self.dict = anydbm.open(os.path.join( get_settings_folder(), filename), 'c')
+            self.dict = anydbm.open(get_settings_folder(filename), 'c')
         except:
             logging.error("error reading bkt settings")
             # logging.debug(traceback.format_exc())
@@ -242,9 +258,3 @@ class BKTSettings(shelve.Shelf):
 
 #load global setting database
 settings = BKTSettings()
-
-# try:
-#     settings = shelve.open(os.path.join( get_settings_folder(), "bkt.settings" ))
-# except:
-#     exception_as_message()
-#     settings = dict() #fallback to empty dict
