@@ -105,6 +105,9 @@ class Thumbnailer(object):
     @classmethod
     @contextmanager
     def find_and_export_object(cls, application, slide_id, slide_path, content_only=False, shape_id=None, data_type=None):
+        #avoid referenced before assignment error in finally clause
+        close = None
+        tmpfile = None
         try:
             pres, close = cls._get_presentation(application, slide_path)
 
@@ -245,15 +248,21 @@ class Thumbnailer(object):
 
     @classmethod
     def replace_file_ref(cls, shape, application):
-        fileDialog = application.FileDialog(1) #msoFileDialogFilePicker
-        fileDialog.InitialFileName = application.ActiveWindow.Presentation.Path
-        fileDialog.title = "Neue Datei auswählen"
+        fileDialog = Forms.OpenFileDialog()
+        fileDialog.Filter = "PowerPoint (*.pptx;*.pptm;*.ppt)|*.pptx;*.pptm;*.ppt|Alle Dateien (*.*)|*.*"
+        if application.ActiveWindow.Presentation.Path:
+            fileDialog.InitialDirectory = application.ActiveWindow.Presentation.Path + '\\'
+        fileDialog.Title = "Neue PowerPoint-Datei auswählen"
+
+        # fileDialog = application.FileDialog(1) #msoFileDialogOpen
+        # fileDialog.InitialFileName = application.ActiveWindow.Presentation.Path
+        # fileDialog.Title = "Neue Datei auswählen"
 
         # Bei Abbruch ist Rückgabewert leer
-        if fileDialog.Show() == 0: #msoFalse
+        if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
             return
 
-        path = cls._prepare_path(application, fileDialog.SelectedItems(1))
+        path = cls._prepare_path(application, fileDialog.FileName)
 
         with ThumbnailerTags(shape.Tags) as tags:
             tags["slide_path"] = path
