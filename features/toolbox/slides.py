@@ -175,24 +175,28 @@ class SlideMenu(object):
 
 
     @classmethod
-        slides = context.slides
-        fileName = SendOrSaveSlides.initial_file_name(context.presentation, slides)
     def save_slides_dialog(cls, context):
+        from bkt import dotnet
+        Forms = dotnet.import_forms()
 
-        fileDialog = context.app.FileDialog(2) #msoFileDialogSaveAs
-        fileDialog.InitialFileName = context.presentation.Path + "\\" + fileName
+        slides = context.slides
 
+        fileDialog = Forms.SaveFileDialog()
+        fileDialog.Filter = "PowerPoint (*.pptx;*.pptm;*.ppt)|(*.pptx;*.pptm;*.ppt|Alle Dateien (*.*)|*.*"
+        if context.presentation.Path:
+            fileDialog.InitialDirectory = context.presentation.Path + '\\'
+        fileDialog.FileName = SendOrSaveSlides.initial_file_name(context.presentation, slides)
         if len(slides) == 1:
-            fileDialog.title = "Ausgewählte Folie speichern unter"
+            fileDialog.Title = "Ausgewählte Folie speichern unter"
         else:
-            fileDialog.title = str(len(slides)) + " ausgewählte Folien speichern unter"
+            fileDialog.Title = str(len(slides)) + " ausgewählte Folien speichern unter"
+        fileDialog.RestoreDirectory = True
 
         # Bei Abbruch ist Rückgabewert leer
-        if fileDialog.Show() == 0: #msoFalse
+        if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
             return
-        fileName = fileDialog.SelectedItems(1)
-
-        SendOrSaveSlides.save_slides(context.app, slides, fileName)
+        
+        SendOrSaveSlides.save_slides(context.app, slides, fileDialog.FileName)
 
 
     SLIDENUMBERING = 'Toolbox-SlideNumbering'
