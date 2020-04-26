@@ -149,6 +149,7 @@ class AllControls(object):
         'ContextMenuPicture': 'Kontextmenü für Grafiken und Bilder',
         'ContextMenuObjectsGroup': 'Kontextmenü bei Auswahl mehrerer Shapes oder Objekte',
         'ContextMenuThumbnail': 'Kontextmenü für die Folien-Vorschau im rechten Panel',
+        'ContextMenuSlideSorter': 'Kontextmenü für die Folien-Vorschau in der Sortier-Ansicht',
         'ContextMenuShapeConnector': 'Kontextmenü für einen einzelnen Verbinder',
         'ContextMenuShapeFreeform': 'Kontextmenü für sog. Freeform-Shapes, also Shape mit beliebiger selbst erstellter Form'
     }
