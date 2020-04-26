@@ -81,7 +81,7 @@ class DevGroup(object):
     @staticmethod
     def show_clipboard():
         import bkt.console
-        import bkt.dotnet as dotnet
+        from bkt import dotnet
         Forms = dotnet.import_forms()
 
         do = Forms.Clipboard.GetDataObject()
@@ -663,8 +663,8 @@ class ImageMso(object):
 
     @classmethod
     def copy_to_clipboard(cls, current_control):
-        import bkt.dotnet as dotnet
-        Forms = dotnet.import_forms() #required to read clipboard
+        from bkt import dotnet
+        Forms = dotnet.import_forms()
         Forms.Clipboard.SetText( current_control['label'] )
 
 
