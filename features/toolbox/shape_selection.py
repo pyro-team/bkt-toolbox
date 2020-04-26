@@ -226,7 +226,37 @@ class SlidesMore(object):
         
         pasted_shapes.select()
 
+    @staticmethod
+    def copy_in_highquality(slide):
+        import tempfile, os
+        from System import IO
 
+        from bkt import dotnet
+        Drawing = dotnet.import_drawing()
+        Forms = dotnet.import_forms()
+
+        tmpfile = os.path.join(tempfile.gettempdir(), "bkt-slidecopy.png")
+        slide.export(tmpfile, "PNG", 2000)
+        # logging.debug("high quality slide export at: %s"%tmpfile)
+
+        if not os.path.exists(tmpfile):
+            bkt.helpers.error("Folien-Export in hoher Qualität ist fehlgeschlagen!")
+            return
+
+        data = Forms.DataObject()
+        png_stream = IO.MemoryStream()
+        
+        with Drawing.Image.FromFile(tmpfile) as img:
+            #bitmap
+            data.SetImage(img)
+            #png
+            img.Save(png_stream, Drawing.Imaging.ImageFormat.Png)
+            data.SetData("PNG", False, png_stream)
+            # Forms.Clipboard.SetImage(img)
+            Forms.Clipboard.SetDataObject(data, True)
+            img.Dispose()
+        
+        os.remove(tmpfile)
 
 
 
@@ -416,9 +446,32 @@ clipboard_group = bkt.ribbon.Group(
                 )
             ]
         ),
+        bkt.ribbon.SplitButton(
+            show_label=False,
+            get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Copy"), context=True),
+            children=[
+                bkt.mso.button.Copy,
+                bkt.ribbon.Menu(
+                    label="Kopieren-Menü",
+                    supertip="Menü mit verschiedenen Kopier-Operationen",
+                    children=[
+                        bkt.mso.button.Copy,
+                        bkt.mso.button.PasteDuplicate,
+                        bkt.ribbon.Button(
+                            id="copy_slide_hq",
+                            label="Folie als HQ-Bild kopieren",
+                            supertip="Kopiert die aktuelle Folie in hoher Qualität in die Zwischenablage.",
+                            image_mso='CopyPicture',
+                            on_action=bkt.Callback(SlidesMore.copy_in_highquality, slide=True),
+                            get_enabled=bkt.CallbackTypes.get_enabled.dotnet_name
+                        ),
+                    ]
+                )
+            ]
+        ),
         #bkt.mso.control.PasteSpecialDialog,
         #bkt.mso.control.Cut,
-        bkt.mso.control.CopySplitButton,
+        # bkt.mso.control.CopySplitButton,
         
         selection_menu,
         
