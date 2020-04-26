@@ -348,15 +348,15 @@ class PPTSymbolsGallery(SymbolsGallery):
             shape.select()
 
     def create_symbol_bitmap(self, slide, item):
-        import tempfile, os.path
+        import tempfile, os
 
         font = item[0] or self.fallback_font
         img = SymbolsGallery.create_symbol_image(font, item[1], 400, None)
-        tmpfile = os.path.join(tempfile.gettempdir(), "bktymbol.png")
+        tmpfile = os.path.join(tempfile.gettempdir(), "bkt-symbol.png")
         img.Save(tmpfile, Drawing.Imaging.ImageFormat.Png)
         shape = slide.shapes.AddPicture(tmpfile, 0, -1, 200, 200) #FileName, LinkToFile, SaveWithDocument, Left, Top
         shape.select()
-
+        os.remove(tmpfile)
 
 
 class PPTSymbolsGalleryRecent(PPTSymbolsGallery):
