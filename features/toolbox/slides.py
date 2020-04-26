@@ -7,6 +7,10 @@ Created on 06.07.2016
 
 from __future__ import absolute_import
 
+import os.path
+
+from contextlib import contextmanager
+
 import bkt
 import bkt.ui
 
@@ -50,11 +54,8 @@ class SendOrSaveSlides(object):
         import time
         
         # bisheriger Dateiname
-        fileNameFull = presentation.Name.rsplit('.', 1)
-        fileName = fileNameFull[0]
-        if len(fileNameFull) > 1:
-            fileExt = "." + fileNameFull[1]
-        else:
+        fileName, fileExt = os.path.splitext(presentation.Name)
+        if fileExt == '':
             fileExt = ".pptx"
 
         # Foliennummern
@@ -78,28 +79,72 @@ class SendOrSaveSlides(object):
         # Folien rueckwaerts durchgehen und schauen, ob Index in Range dabei ist
         slideIndices = [slide.SlideIndex for slide in slides]
         removeIndices = list(set(range(1,newPres.Slides.Count+1)) - set(slideIndices))
+        if len(removeIndices) > 0:
+            newPres.Slides.Range(Array[int](removeIndices)).Delete()
         # removeIndices.sort()
         # removeIndices.reverse()
         # for slideId in removeIndices:
         #     newPres.Slides(slideId).Delete()
-        newPres.Slides.Range(Array[int](removeIndices)).Delete()
+    
+    @classmethod
+    @contextmanager
+    def _create_temporary_copy(cls, application, filename):
+        import tempfile, os
+        #avoid referenced before assignment error in finally clause
+        temporary_ppt_file = None
+        newPres = None
+        try:
+            presentation = application.ActiveWindow.Presentation
+            # Richtige Dateiendung prüfen und temporären Pfad erstellen
+            pres_ext = os.path.splitext(presentation.Name)[1]
+            if pres_ext == '':
+                pres_ext == '.pptx'
+            filename = os.path.splitext(filename)[0] + pres_ext
+            temporary_ppt_file = os.path.join(tempfile.gettempdir(), filename)
+            # Temporäre Kopie erstellen und öffnen
+            presentation.SaveCopyAs(temporary_ppt_file)
+            newPres = application.Presentations.Open(temporary_ppt_file, False, False, False) #readonly, untitled, withwindow
+            yield newPres
+        finally:
+            # Präsentation schließen
+            if newPres:
+                newPres.Saved = True
+                newPres.Close()
+            # Temporäre Datei löschen
+            if temporary_ppt_file and os.path.exists(temporary_ppt_file):
+                os.remove(temporary_ppt_file)
 
     @classmethod
-    def save_slides(cls, application, slides, fileName):
-        # Kopie speichern und öffnen
-        slides[0].Parent.SaveCopyAs(fileName)
-        newPres = application.Presentations.Open(fileName)
+    def save_slides(cls, application, slides, filepath, fileformat="ppt"):
+        import os
 
-        # Folien entfernen, die nicht ausgewählt waren
-        cls._delete_unselected_slides(slides, newPres)
+        if fileformat == "png":
+            filepath, ext = os.path.splitext(filepath)
+            for i, slide in enumerate(slides, start=1):
+                slide.Export("{}_{}{}".format(filepath, i, ext), "PNG", 2000)
+        elif fileformat == "pdf":
+            filename = os.path.basename(filepath)
+            filename = os.path.splitext(filename)[0]
+            with cls._create_temporary_copy(application, filename) as newPres:
+                # Folien entfernen, die nicht ausgewählt waren
+                cls._delete_unselected_slides(slides, newPres)
+                # PDF erstellen und öffnen
+                newPres.SaveCopyAs(filepath, 32) #ppSaveAsPDF
+                os.startfile(filepath)
+        else:
+            # Kopie speichern und öffnen
+            application.ActiveWindow.Presentation.SaveCopyAs(filepath)
+            newPres = application.Presentations.Open(filepath, False, False, False) #readonly, untitled, withwindow
 
-        # Speichern
-        newPres.Save()
+            # Folien entfernen, die nicht ausgewählt waren
+            cls._delete_unselected_slides(slides, newPres)
+
+            # Speichern und anzeigen
+            newPres.Save()
+            newPres.NewWindow()
 
     @classmethod
     def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False, remove_designs=False):
-        import tempfile, os.path
-
         from bkt import dotnet
         Outlook = dotnet.import_outlook()
 
@@ -114,56 +159,51 @@ class SendOrSaveSlides(object):
         oMail.Subject = filename
 
         # Kopie speichern und öffnen
-        fullFileName = os.path.join(tempfile.gettempdir(), filename)
-        application.ActiveWindow.Presentation.SaveCopyAs(fullFileName)
-        newPres = application.Presentations.Open(fullFileName)
-        
-        if slides is not None:
-            # Folien entfernen, die nicht ausgewählt waren
-            cls._delete_unselected_slides(slides, newPres)
-            newPres.Save()
+        with cls._create_temporary_copy(application, filename) as newPres:
 
-        if remove_sections:
-            # Alle Abschnitte entfernen
-            sections = newPres.SectionProperties
-            for i in reversed(range(sections.count)):
-                sections.Delete(i+1, 0) #index, deleteSlides=False
-            newPres.Save()
-        
-        if remove_author:
-            newPres.BuiltInDocumentProperties.item["author"].value = ''
-            newPres.Save()
-        
-        if remove_designs:
-            for design in newPres.Designs:
-                for cl in list(iter(design.SlideMaster.CustomLayouts)): #list(iter()) required as delete function will not work on all elements otherwise!
-                    try:
-                        cl.Delete()
-                    except: #deletion fails if layout in use
-                        continue
-                if design.SlideMaster.CustomLayouts.Count == 0:
-                    try:
-                        design.Delete()
-                    except:
-                        continue
-            newPres.Save()
+            if slides is not None:
+                # Folien entfernen, die nicht ausgewählt waren
+                cls._delete_unselected_slides(slides, newPres)
+                newPres.Save()
 
-        if fileformat != "pdf":
-            # PPT anhängen
-            oMail.Attachments.Add(fullFileName, Outlook.OlAttachmentType.olByValue)
+            if remove_sections:
+                # Alle Abschnitte entfernen
+                sections = newPres.SectionProperties
+                for i in reversed(range(sections.count)):
+                    sections.Delete(i+1, 0) #index, deleteSlides=False
+                newPres.Save()
+            
+            if remove_author:
+                newPres.BuiltInDocumentProperties.item["author"].value = ''
+                newPres.Save()
+            
+            if remove_designs:
+                for design in newPres.Designs:
+                    for cl in list(iter(design.SlideMaster.CustomLayouts)): #list(iter()) required as delete function will not work on all elements otherwise!
+                        try:
+                            cl.Delete()
+                        except: #deletion fails if layout in use
+                            continue
+                    if design.SlideMaster.CustomLayouts.Count == 0:
+                        try:
+                            design.Delete()
+                        except:
+                            continue
+                newPres.Save()
 
-        if fileformat != "ppt":
-            # PDF exportieren und anhängen
-            pdfFileName = fullFileName.rsplit('.', 1)[0] + ".pdf"
-            #newPres.ExportAsFixedFormat(pdfFileNameRef, 2) #ppFixedFormatTypePDF #ValueError: Could not convert argument 0 for call to ExportAsFixedFormat.
-            newPres.SaveCopyAs(pdfFileName, 32) #ppSaveAsPDF
-            oMail.Attachments.Add(pdfFileName, Outlook.OlAttachmentType.olByValue)
+            if fileformat != "pdf":
+                # PPT anhängen
+                oMail.Attachments.Add(newPres.FullName, Outlook.OlAttachmentType.olByValue)
 
-        # Datei schließen
-        newPres.Close()
+            if fileformat != "ppt":
+                # PDF exportieren und anhängen
+                pdfFileName = os.path.splitext(newPres.FullName)[0] + ".pdf"
+                #newPres.ExportAsFixedFormat(pdfFileNameRef, 2) #ppFixedFormatTypePDF #ValueError: Could not convert argument 0 for call to ExportAsFixedFormat.
+                newPres.SaveCopyAs(pdfFileName, 32) #ppSaveAsPDF
+                oMail.Attachments.Add(pdfFileName, Outlook.OlAttachmentType.olByValue)
 
-        # Email anzeigen
-        oMail.Display()
+            # Email anzeigen
+            oMail.Display()
 
 
 class SlideMenu(object):
@@ -179,24 +219,31 @@ class SlideMenu(object):
         from bkt import dotnet
         Forms = dotnet.import_forms()
 
+        presentation = context.presentation
         slides = context.slides
+        fileformats = [
+            "PowerPoint (*.pptx;*.pptm;*.ppt)|*.pptx;*.pptm;*.ppt",
+            "PDF (*.pdf)|*.pdf",
+            "PNG (*.png)|*.png",
+            "Alle Dateien (*.*)|*.*"
+        ]
 
         fileDialog = Forms.SaveFileDialog()
-        fileDialog.Filter = "PowerPoint (*.pptx;*.pptm;*.ppt)|(*.pptx;*.pptm;*.ppt|Alle Dateien (*.*)|*.*"
-        if context.presentation.Path:
-            fileDialog.InitialDirectory = context.presentation.Path + '\\'
-        fileDialog.FileName = SendOrSaveSlides.initial_file_name(context.presentation, slides)
+        fileDialog.Filter = "|".join(fileformats)
+        if presentation.Path:
+            fileDialog.InitialDirectory = presentation.Path + '\\'
+        fileDialog.FileName = SendOrSaveSlides.initial_file_name(presentation, slides)
         if len(slides) == 1:
             fileDialog.Title = "Ausgewählte Folie speichern unter"
         else:
             fileDialog.Title = str(len(slides)) + " ausgewählte Folien speichern unter"
-        fileDialog.RestoreDirectory = True
 
         # Bei Abbruch ist Rückgabewert leer
         if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
             return
-        
-        SendOrSaveSlides.save_slides(context.app, slides, fileDialog.FileName)
+
+        fileformat = ["ppt", "pdf", "png", "ppt"][fileDialog.FilterIndex-1]
+        SendOrSaveSlides.save_slides(context.app, slides, fileDialog.FileName, fileformat)
 
 
     SLIDENUMBERING = 'Toolbox-SlideNumbering'
@@ -457,14 +504,14 @@ slides_group = bkt.ribbon.Group(
                     id = 'save_slides',
                     label='Ausgewählte Folien speichern',
                     image_mso='SaveSelectionToTextBoxGallery',
-                    supertip="Speichert die ausgewählten Folien in einer neuen Präsentation.",
+                    supertip="Speichert die ausgewählten Folien in einer neuen Präsentation, als PDF-Datei oder in PNG-Bilder.",
                     on_action=bkt.Callback(SlideMenu.save_slides_dialog)
                 ),
                 bkt.ribbon.Button(
                     id = 'send_slides',
                     label='Ausgewählte Folien senden',
                     image_mso='FileSendAsAttachment',
-                    supertip="Sendet die ausgewählten Folien als Email-Anhang.",
+                    supertip="Sendet die ausgewählten Folien als Email-Anhang, wahlweise auch als PDF-Datei.",
                     on_action=bkt.Callback(SlideMenu.send_slides_dialog)
                 ),
                 bkt.ribbon.SplitButton(children=[
