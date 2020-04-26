@@ -14,6 +14,7 @@ from . import text
 from . import arrange
 from . import harvey
 from . import shapes as mod_shapes
+from . import shape_selection
 from . import info
 from . import agenda
 from . import linkshapes
@@ -169,7 +170,7 @@ bkt.powerpoint.add_context_menu(
             supertip="Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
             insertAfterMso='PasteGalleryMini',
             image_mso='PasteSingleCellExcelTableDestinationFormatting',
-            on_action=bkt.Callback(mod_shapes.ShapesMore.paste_and_replace, slide=True, shape=True),
+            on_action=bkt.Callback(shape_selection.SlidesMore.paste_and_replace, slide=True, shape=True),
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
             get_visible=bkt.apps.ppt_shapes_exactly1_selected,
         ),
@@ -206,7 +207,7 @@ bkt.powerpoint.add_context_menu(
             supertip="Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
             insertAfterMso='PasteGalleryMini',
             image_mso='PasteSingleCellExcelTableDestinationFormatting',
-            on_action=bkt.Callback(mod_shapes.ShapesMore.paste_and_replace, slide=True, shape=True),
+            on_action=bkt.Callback(shape_selection.SlidesMore.paste_and_replace, slide=True, shape=True),
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
         ),
         ### Linked shapes
@@ -253,7 +254,7 @@ bkt.powerpoint.add_context_menu(
             supertip="Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
             insertAfterMso='PasteGalleryMini',
             image_mso='PasteSingleCellExcelTableDestinationFormatting',
-            on_action=bkt.Callback(mod_shapes.ShapesMore.paste_and_replace, slide=True, shape=True),
+            on_action=bkt.Callback(shape_selection.SlidesMore.paste_and_replace, slide=True, shape=True),
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
         ),
         ### Linked shapes
@@ -306,7 +307,7 @@ bkt.powerpoint.add_context_menu(
             supertip="Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
             insertAfterMso='PasteGalleryMini',
             image_mso='PasteSingleCellExcelTableDestinationFormatting',
-            on_action=bkt.Callback(mod_shapes.ShapesMore.paste_and_replace, slide=True, shape=True),
+            on_action=bkt.Callback(shape_selection.SlidesMore.paste_and_replace, slide=True, shape=True),
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
         ),
         ### Linked shapes
@@ -352,7 +353,7 @@ bkt.powerpoint.add_context_menu(
             supertip="Zwischenablage auf allen ausgewählten Folien einfügen",
             insertAfterMso='PasteGalleryMini',
             image_mso='Paste',
-            on_action=bkt.Callback(mod_shapes.ShapesMore.paste_to_slides, slides=True),
+            on_action=bkt.Callback(shape_selection.SlidesMore.paste_to_slides, slides=True),
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
         ),
         ### Language setting
@@ -377,14 +378,14 @@ bkt.powerpoint.add_context_menu(
                     label='Speichern',
                     image_mso='SaveSelectionToTextBoxGallery',
                     supertip="Speichert die ausgewählten Folien in einer neuen Präsentation.",
-                    on_action=bkt.Callback(slides.FolienMenu.saveSlidesDialog)
+                    on_action=bkt.Callback(slides.SlideMenu.save_slides_dialog)
                 ),
                 bkt.ribbon.Button(
                     id = 'context-export-send_slides',
                     label='Senden',
                     image_mso='FileSendAsAttachment',
                     supertip="Sendet die ausgewählten Folien als E-Mail Anhang.",
-                    on_action=bkt.Callback(slides.FolienMenu.sendSlidesDialog)
+                    on_action=bkt.Callback(slides.SlideMenu.send_slides_dialog)
                 ),
             ]
         ),
@@ -410,14 +411,14 @@ bkt.powerpoint.add_context_menu(
                     label='Speichern',
                     image_mso='SaveSelectionToTextBoxGallery',
                     supertip="Speichert die ausgewählten Folien in einer neuen Präsentation.",
-                    on_action=bkt.Callback(slides.FolienMenu.saveSlidesDialog)
+                    on_action=bkt.Callback(slides.SlideMenu.save_slides_dialog)
                 ),
                 bkt.ribbon.Button(
                     id = 'context-export2-send_slides',
                     label='Senden',
                     image_mso='FileSendAsAttachment',
                     supertip="Sendet die ausgewählten Folien als E-Mail Anhang.",
-                    on_action=bkt.Callback(slides.FolienMenu.sendSlidesDialog)
+                    on_action=bkt.Callback(slides.SlideMenu.send_slides_dialog)
                 ),
             ]
         ),

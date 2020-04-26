@@ -13,7 +13,7 @@ from collections import OrderedDict
 import bkt
 import bkt.library.powerpoint as pplib
 
-from .shapes import ShapesMore
+# from .shapes import ShapesMore
 
 
 class ShapeSelector(object):
@@ -184,6 +184,48 @@ class ShapeSelector(object):
                     shp.Select(replace=False)
 
 
+class SlidesMore(object):
+    @staticmethod
+    def paste_to_slides(slides):
+        for slide in slides:
+            slide.Shapes.Paste()
+
+    @staticmethod
+    def paste_as_link(slide):
+        try:
+            slide.Shapes.PasteSpecial(Link=True)
+        except:
+            bkt.helpers.error("Das Element in der Zwischenablage unterstützt diesen Einfügetyp nicht.")
+    
+    @staticmethod
+    def paste_and_replace(slide, shape, keep_size=True):
+        pasted_shapes = slide.Shapes.Paste()
+        if pasted_shapes.count > 1:
+            pasted_shapes = pasted_shapes.group()
+        
+        #restore size
+        if keep_size:
+            pasted_shapes.LockAspectRatio = 0
+            pasted_shapes.width = shape.width
+            pasted_shapes.height = shape.height
+            pasted_shapes.LockAspectRatio = shape.LockAspectRatio
+        #restore position and zorder
+        pasted_shapes.top = shape.top
+        pasted_shapes.left = shape.left
+        pasted_shapes.rotation = shape.rotation
+        pplib.set_shape_zorder(pasted_shapes, value=shape.ZOrderPosition)
+
+        if pplib.shape_is_group_child(shape):
+            #replace shape in group
+            master = pplib.GroupManager(shape.ParentGroup)
+            master.add_child_items(pasted_shapes)
+            shape.delete()
+        else:
+            #replace shape
+            shape.delete()
+        
+        pasted_shapes.select()
+
 
 
 
@@ -351,21 +393,21 @@ clipboard_group = bkt.ribbon.Group(
                             label="Auf ausgewählte Folien einfügen",
                             supertip="Zwischenablage auf allen ausgewählten Folien gleichzeitig einfügen.",
                             image_mso='PasteDuplicate',
-                            on_action=bkt.Callback(ShapesMore.paste_to_slides, slides=True),
+                            on_action=bkt.Callback(SlidesMore.paste_to_slides, slides=True),
                         ),
                         bkt.ribbon.Button(
                             id='paste_as_link',
                             label="Als Verknüpfung einfügen",
                             supertip="Zwischenablage als verknüpftes Element (bspw. Bild, OLE-Objekt) einfügen.",
                             image_mso='PasteLink',
-                            on_action=bkt.Callback(ShapesMore.paste_as_link, slide=True),
+                            on_action=bkt.Callback(SlidesMore.paste_as_link, slide=True),
                         ),
                         bkt.ribbon.Button(
                             id='paste_and_replace',
                             label="Mit Zwischenablage ersetzen",
                             supertip="Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
                             image_mso='PasteSingleCellExcelTableDestinationFormatting',
-                            on_action=bkt.Callback(ShapesMore.paste_and_replace, slide=True, shape=True),
+                            on_action=bkt.Callback(SlidesMore.paste_and_replace, slide=True, shape=True),
                             get_enabled=bkt.apps.ppt_shapes_exactly1_selected,
                         ),
                         bkt.ribbon.MenuSeparator(),

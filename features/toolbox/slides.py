@@ -166,18 +166,18 @@ class SendOrSaveSlides(object):
         oMail.Display()
 
 
-class FolienMenu(object):
+class SlideMenu(object):
 
     @classmethod
-    def sendSlidesDialog(cls, context):
+    def send_slides_dialog(cls, context):
         from .dialogs.slides_send import SendWindow
         SendWindow.create_and_show_dialog(SendOrSaveSlides, context)
 
 
     @classmethod
-    def saveSlidesDialog(cls, context):
         slides = context.slides
         fileName = SendOrSaveSlides.initial_file_name(context.presentation, slides)
+    def save_slides_dialog(cls, context):
 
         fileDialog = context.app.FileDialog(2) #msoFileDialogSaveAs
         fileDialog.InitialFileName = context.presentation.Path + "\\" + fileName
@@ -198,7 +198,7 @@ class FolienMenu(object):
     SLIDENUMBERING = 'Toolbox-SlideNumbering'
 
     @classmethod
-    def addSlideNumbering(cls, slides, context):
+    def add_slide_numbering(cls, slides, context):
         # Alle Slides durchlaufen
         for sld in slides:
             # msoTextOrientationHorizontal = 1
@@ -219,7 +219,7 @@ class FolienMenu(object):
 
 
     @classmethod
-    def removeSlideNumbering(cls, slides):
+    def remove_slide_numbering(cls, slides):
         for slide in slides:
             for shp in slide.shapes:
                 # Shape mit SlideNumberTag loeschen
@@ -228,8 +228,8 @@ class FolienMenu(object):
                     break
 
     @classmethod
-    def toggleSlideNumbering(cls, context):
-        hasNumbering = False
+    def toggle_slide_numbering(cls, context):
+        has_numbering = False
 
         slides = context.app.ActivePresentation.Slides
         # Alle Shapes in allen Slides durchlaufen
@@ -237,15 +237,15 @@ class FolienMenu(object):
             for shp in sld.shapes:
                 # Shape mit SlideNumberTag gefunden
                 if shp.Tags.Item(cls.SLIDENUMBERING) == cls.SLIDENUMBERING:
-                    hasNumbering = True
+                    has_numbering = True
                     break
-            if hasNumbering:
+            if has_numbering:
                 break
 
-        if hasNumbering:
-            cls.removeSlideNumbering(slides)
+        if has_numbering:
+            cls.remove_slide_numbering(slides)
         else:
-            cls.addSlideNumbering(slides, context)
+            cls.add_slide_numbering(slides, context)
     
     @classmethod
     def remove_all(cls, context):
@@ -447,21 +447,21 @@ slides_group = bkt.ribbon.Group(
                     image_mso='NumberInsert',
                     #screentip="Foliennummerierung ein-/ausblenden",
                     supertip="Füge Foliennummerierungen ein, welche sich bei Umsortierung der Folien nicht ändern.\n\nHilfreich bei der Erfassung von Anmerkungen, wenn man während einer Diskussion des Foliensatzes Umsortierungen durchführt.",
-                    on_action=bkt.Callback(FolienMenu.toggleSlideNumbering)
+                    on_action=bkt.Callback(SlideMenu.toggle_slide_numbering)
                 ),
                 bkt.ribbon.Button(
                     id = 'save_slides',
                     label='Ausgewählte Folien speichern',
                     image_mso='SaveSelectionToTextBoxGallery',
                     supertip="Speichert die ausgewählten Folien in einer neuen Präsentation.",
-                    on_action=bkt.Callback(FolienMenu.saveSlidesDialog)
+                    on_action=bkt.Callback(SlideMenu.save_slides_dialog)
                 ),
                 bkt.ribbon.Button(
                     id = 'send_slides',
                     label='Ausgewählte Folien senden',
                     image_mso='FileSendAsAttachment',
                     supertip="Sendet die ausgewählten Folien als Email-Anhang.",
-                    on_action=bkt.Callback(FolienMenu.sendSlidesDialog)
+                    on_action=bkt.Callback(SlideMenu.send_slides_dialog)
                 ),
                 bkt.ribbon.SplitButton(children=[
                     bkt.ribbon.Button(
@@ -469,7 +469,7 @@ slides_group = bkt.ribbon.Group(
                         label='Slidedeck aufräumen',
                         image_mso='SlideShowFromCurrent', #AcceptTask, SlideShowFromCurrent, FilePublishSlides
                         supertip="Lösche Notizen, ausgebledete Slides, Übergänge, Animationen, Kommentare, doppelte Leerzeichen, leere Platzhalter.",
-                        on_action=bkt.Callback(FolienMenu.remove_all)
+                        on_action=bkt.Callback(SlideMenu.remove_all)
                     ),
                     bkt.ribbon.Menu(label="Slidedeck aufräumen", supertip="Funktionen zum Aufräumen aller Folien der Präsentation", image_mso='SlideShowFromCurrent', children=[
                         bkt.ribbon.MenuSeparator(title="Inhalte"),
@@ -478,35 +478,35 @@ slides_group = bkt.ribbon.Group(
                             label='Ausgeblendete Slides entfernen',
                             image_mso='SlideHide',
                             supertip="Lösche alle ausgeblendeten Slides im gesamten Foliensatz.",
-                            on_action=bkt.Callback(FolienMenu.remove_hidden_slides)
+                            on_action=bkt.Callback(SlideMenu.remove_hidden_slides)
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_notes',
                             label='Notizen entfernen',
                             image_mso='SpeakerNotes',
                             supertip="Lösche alle Notizen im gesamten Foliensatz.",
-                            on_action=bkt.Callback(FolienMenu.remove_slide_notes)
+                            on_action=bkt.Callback(SlideMenu.remove_slide_notes)
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_comments',
                             label='Kommentare entfernen',
                             image_mso='ReviewDeleteComment',
                             supertip="Lösche alle Kommentare im gesamten Foliensatz.",
-                            on_action=bkt.Callback(FolienMenu.remove_slide_comments)
+                            on_action=bkt.Callback(SlideMenu.remove_slide_comments)
                         ),
                         bkt.ribbon.Button(
                             id = 'presentation_remove_author',
                             label='Autor entfernen',
                             image_mso='ContactPictureMenu',
                             supertip="Autor aus den Dokumenteneigenschaften entfernen.",
-                            on_action=bkt.Callback(FolienMenu.remove_author)
+                            on_action=bkt.Callback(SlideMenu.remove_author)
                         ),
                         bkt.ribbon.Button(
                             id = 'presentation_break_links',
                             label='Externe Verknüpfungen entfernen',
                             image_mso='HyperlinkRemove',
                             supertip="Hebt den Link von verknüpften Objekten (bspw. Bilder und OLE-Objekten) auf.",
-                            on_action=bkt.Callback(FolienMenu.break_links)
+                            on_action=bkt.Callback(SlideMenu.break_links)
                         ),
                         bkt.ribbon.MenuSeparator(title="Animationen"),
                         bkt.ribbon.Button(
@@ -514,14 +514,14 @@ slides_group = bkt.ribbon.Group(
                             label='Folienübergänge entfernen',
                             image_mso='AnimationTransitionGallery',
                             supertip="Lösche alle Übergänge zwischen Folien.",
-                            on_action=bkt.Callback(FolienMenu.remove_transitions)
+                            on_action=bkt.Callback(SlideMenu.remove_transitions)
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_animation',
                             label='Shapeanimationen entfernen',
                             image_mso='AnimationGallery',
                             supertip="Lösche alle Shape-Animationen im gesamten Foliensatz.",
-                            on_action=bkt.Callback(FolienMenu.remove_animations)
+                            on_action=bkt.Callback(SlideMenu.remove_animations)
                         ),
                         bkt.ribbon.MenuSeparator(title="Format bereinigen"),
                         bkt.ribbon.Button(
@@ -529,21 +529,21 @@ slides_group = bkt.ribbon.Group(
                             label='Automatischen Schwarz-/Weiß-Modus deaktivieren',
                             image_mso='BlackAndWhiteGrayscale',
                             supertip="Ersetze den Schwarz-/Weiß-Modus 'Automatisch' durch 'Graustufen'.",
-                            on_action=bkt.Callback(FolienMenu.blackwhite_gray_scale)
+                            on_action=bkt.Callback(SlideMenu.blackwhite_gray_scale)
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_doublespaces',
                             label='Doppelte Leerzeichen entfernen',
                             image_mso='ParagraphMarks',
                             supertip="Lösche alle doppelten Leerzeichen im gesamten Foliensatz.",
-                            on_action=bkt.Callback(FolienMenu.remove_doublespaces)
+                            on_action=bkt.Callback(SlideMenu.remove_doublespaces)
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_empty_placeholders',
                             label='Leere Platzhalter entfernen',
                             image_mso='HeaderFooterRemoveHeaderWord',
                             supertip="Lösche leere Platzhalter-Textboxen im gesamten Foliensatz.",
-                            on_action=bkt.Callback(FolienMenu.remove_empty_placeholders)
+                            on_action=bkt.Callback(SlideMenu.remove_empty_placeholders)
                         ),
                         bkt.ribbon.MenuSeparator(title="Folienmaster"),
                         bkt.ribbon.Button(
@@ -551,14 +551,14 @@ slides_group = bkt.ribbon.Group(
                             label='Nicht genutzte Folienlayouts entfernen',
                             image_mso='SlideDelete',
                             supertip="Lösche alle nicht verwendeten Folienmaster-Layouts sowie leere Folienmaster (Designs).",
-                            on_action=bkt.Callback(FolienMenu.remove_unused_masters)
+                            on_action=bkt.Callback(SlideMenu.remove_unused_masters)
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_unused_designs',
                             label='Nicht genutzte Folienmaster entfernen',
                             image_mso='SlideDelete',
                             supertip="Lösche alle nicht verwendeten Folienmaster (Designs).",
-                            on_action=bkt.Callback(FolienMenu.remove_unused_designs)
+                            on_action=bkt.Callback(SlideMenu.remove_unused_designs)
                         ),
                     ]),
                 ]),
