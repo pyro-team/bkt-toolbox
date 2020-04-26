@@ -21,9 +21,8 @@ from collections import OrderedDict #for import cache
 
 
 import bkt
-# import bkt.helpers as _h
+import bkt.helpers as _h
 
-_h = bkt.helpers
 # linq = bkt.dotnet.import_linq() #this import doesn't seem to be required...
 Bitmap = bkt.dotnet.import_drawing().Bitmap
 

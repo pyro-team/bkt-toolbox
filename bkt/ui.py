@@ -12,15 +12,11 @@ import logging
 # import traceback
 import os.path
 
-import System
-Window = System.Windows.Window
-Popup = System.Windows.Controls.Primitives.Popup
-BitmapImage = System.Windows.Media.Imaging.BitmapImage
-BackgroundWorker = System.ComponentModel.BackgroundWorker
-
 from bkt import dotnet
-wpf = dotnet.import_wpf()
 bkt_addin = dotnet.import_bkt()
+wpf = dotnet.import_wpf() #this is required to import System.Windows.Controls
+
+import System
 
 from bkt.library.wpf.notify import NotifyPropertyChangedBase, notify_property
 from bkt.apps import Resources
@@ -101,7 +97,7 @@ class WpfWindowAbstract(bkt_addin.BktWindow):
         self.Close()
 
 
-class WpfPopupAbstract(Popup):
+class WpfPopupAbstract(System.Windows.Controls.Primitives.Popup):
     _filename = None
     _xamlname = None
     _vm_class = None
@@ -139,7 +135,7 @@ def load_bitmapimage(image_name):
         path = Resources.images.locate(image_name)  #@UndefinedVariable
         if path is None:
             raise IndexError("Image file not found")
-        return BitmapImage(System.Uri(path))
+        return System.Windows.Media.Imaging.BitmapImage(System.Uri(path))
 
 
 def endings_to_windows(text, prepend="", prepend_first=""):
@@ -439,7 +435,7 @@ class WpfProgressBar(WpfWindowAbstract):
 
         self.progress_bar.IsIndeterminate = indeterminate
 
-        self.bw = BackgroundWorker()
+        self.bw = System.ComponentModel.BackgroundWorker()
         self.bw.WorkerReportsProgress = True
         self.bw.WorkerSupportsCancellation = True
         

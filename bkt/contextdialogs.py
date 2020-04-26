@@ -14,7 +14,7 @@ import importlib #for loading context dialog modules
 
 # wpf basics
 from bkt import dotnet
-wpf = dotnet.import_wpf()
+wpf = dotnet.import_wpf() #this is required to import System.Windows.Controls
 
 # for Primitives.Popup
 from System import Windows, Diagnostics # for Primitives.Popup

@@ -9,8 +9,9 @@ Created on 23.11.2014
 from __future__ import absolute_import
 
 import logging
-import bkt.dotnet
-linq = bkt.dotnet.import_linq()
+
+from bkt import dotnet
+linq = dotnet.import_linq()
 
 
 class RibbonXMLFactory(object):
