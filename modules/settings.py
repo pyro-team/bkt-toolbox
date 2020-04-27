@@ -20,16 +20,16 @@ UPDATE_URL = "https://updates.bkt-toolbox.de/releases/latest?current_version={cu
 class FolderSetup(object):
     @classmethod
     def add_folder_by_dialog(cls, context):
-        F = bkt.dotnet.import_forms()
+        from bkt import dotnet
+        F = dotnet.import_forms()
         
         dialog = F.FolderBrowserDialog()
         # select feature folder
-        cur_folder = os.path.dirname(os.path.realpath(__file__))
-        feature_folder = os.path.realpath(os.path.join(cur_folder, "..", "features"))
+        feature_folder = bkt.helpers.bkt_base_path_join("features")
         if os.path.isdir(feature_folder):
             dialog.SelectedPath = feature_folder
         else:
-            dialog.SelectedPath = cur_folder
+            dialog.SelectedPath = os.path.dirname(os.path.realpath(__file__))
         # dialog.Description = "Please choose an additional folder with BKT-features"
         dialog.Description = "Bitte einen BKT Feature-Ordner auswählen"
         
@@ -104,15 +104,28 @@ class BKTUpdates(object):
             return False, version_string
     
     @classmethod
+    def _update_notification(cls, version_string, own_window=True):
+        #NOTE: we are not using helpers.message here as hwnd must be 0 in case there is no office window yet (at startup)
+        import ctypes
+        result = ctypes.windll.user32.MessageBoxW(
+            0 if own_window else ctypes.windll.user32.GetForegroundWindow(),
+            "Aktualisierung verfügbar auf v{}.\nInstallierte Version ist v{}.\n\nDownload-Seite jetzt aufrufen?".format(version_string, bkt.version_tag_name),
+            "BKT: Aktualisierung",
+            0x00000004L | 0x00000040L | 0x00002000L | 0x00010000L) #YESNO | ICONINFORMATION | TASKMODAL | SETFOREGROUND
+        if result == 6: #yes
+            BKTInfos.open_website()
+    
+    @classmethod
     def _check_latest_version_in_thread(cls):
         from threading import Thread
 
         def threaded_update():
             try:
-                is_update, version_string = cls._check_latest_version()
+                # is_update, version_string = cls._check_latest_version()
+                is_update, version_string = True, "3.0.0"
                 if is_update:
                     logging.info("BKT Autoupdate: new version found: "+version_string)
-                    # bkt.helpers.message("Aktualisierung verfügbar auf v{}. \nInstallierte Version ist v{}.".format(version_string, bkt.version_tag_name))
+                    cls._update_notification(version_string)
                 else:
                     logging.info("BKT Autoupdate: version is up-to-date: "+version_string)
             except Exception as e:
@@ -129,11 +142,12 @@ class BKTUpdates(object):
                 is_update, version_string = cls._check_latest_version()
 
                 if is_update:
-                    bkt.helpers.message("Aktualisierung verfügbar auf v{}. \nInstallierte Version ist v{}.".format(version_string, bkt.version_tag_name))
+                    cls._update_notification(version_string, own_window=False)
+                    # bkt.helpers.message("Aktualisierung verfügbar auf v{}.\nInstallierte Version ist v{}.\n\nDownload-Seite aufrufen?".format(version_string, bkt.version_tag_name), "BKT: Aktualisierung")
                 else:
-                    bkt.helpers.message("Keine Aktualisierung verfügbar. Aktuelle Version ist v{}.".format(version_string))
+                    bkt.helpers.message("Keine Aktualisierung verfügbar. Aktuelle Version ist v{}.".format(version_string), "BKT: Aktualisierung")
             except Exception as e:
-                bkt.helpers.message("Fehler im Aufruf der Aktualisierungs-URL: {}".format(e))
+                bkt.helpers.error("Fehler im Aufruf der Aktualisierungs-URL: {}".format(e), "BKT: Aktualisierung")
         
         bkt.ui.execute_with_progress_bar(loop, context, indeterminate=True)
     
