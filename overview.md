@@ -43,7 +43,11 @@
 | Einfügen-Menü > Als Verknüpfung einfügen           | Zwischenablage als verknüpftes Element (bspw. Bild, OLE-Objekt) einfügen. |
 | Einfügen-Menü > Mit Zwischenablage ersetzen        | Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten. |
 | Einfügen-Menü > *Office-Zwischenablage...*         | Zeigen Sie alle in die Zwischenablage kopierten Elemente an. |
-| *Kopieren*                                         | Auswählen, wie die Auswahl kopiert werden soll.    |
+| *Kopieren*                                         | Fügen Sie eine Kopie der Auswahl in die Zwischenablage ein, sodass Sie diese an einer anderen Stelle einfügen können. |
+| Kopieren-Menü                                      | Menü mit verschiedenen Kopier-Operationen          |
+| Kopieren-Menü > *Kopieren*                         | Fügen Sie eine Kopie der Auswahl in die Zwischenablage ein, sodass Sie diese an einer anderen Stelle einfügen können. |
+| Kopieren-Menü > *Duplizieren*                      |                                                    |
+| Kopieren-Menü > Folie als HQ-Bild kopieren         | Kopiert die aktuelle Folie in hoher Qualität in die Zwischenablage. |
 | Auswahl                                            | Auswahl von Shapes, die dem aktuellem Shape bzgl. Typ/Hintergrund/Rahmen ähneln |
 | Auswahl > …mit gleicher Form                       | Selektiere alle Shapes auf dem aktuellen Slide, die die gleiche Form haben wie eine der selektierten Shapes |
 | Auswahl > …mit gleichem Hintergrund                | Selektiere alle Shapes auf dem aktuellen Slide, die den gleichen Hintergrund (Farbe) haben wie eine der selektierten Shapes |
@@ -85,8 +89,8 @@
 | Mehr > Agenda-Folie entfernen                      | Entfernt Agenda-Folien der gewählten Agenda, alle Meta-Informationen werden gelöscht. |
 | Mehr > Alle Agenden aus Präsentation entfernen     | Entfernt alle Agenda-Folien in der ganzen Präsentation, alle Meta-Informationen werden gelöscht. |
 | Mehr > Foliennummerierung ein-/ausblenden          | Füge Foliennummerierungen ein, welche sich bei Umsortierung der Folien nicht ändern.<br><br>Hilfreich bei der Erfassung von Anmerkungen, wenn man während einer Diskussion des Foliensatzes Umsortierungen durchführt. |
-| Mehr > Ausgewählte Folien speichern                | Speichert die ausgewählten Folien in einer neuen Präsentation. |
-| Mehr > Ausgewählte Folien senden                   | Sendet die ausgewählten Folien als Email-Anhang.   |
+| Mehr > Ausgewählte Folien speichern                | Speichert die ausgewählten Folien in einer neuen Präsentation, als PDF-Datei oder in PNG-Bilder. |
+| Mehr > Ausgewählte Folien senden                   | Sendet die ausgewählten Folien als Email-Anhang, wahlweise auch als PDF-Datei. |
 | Mehr > Slidedeck aufräumen                         | Lösche Notizen, ausgebledete Slides, Übergänge, Animationen, Kommentare, doppelte Leerzeichen, leere Platzhalter. |
 | Mehr > Slidedeck aufräumen                         | Funktionen zum Aufräumen aller Folien der Präsentation |
 | Mehr > Slidedeck aufräumen > Ausgeblendete Slides entfernen | Lösche alle ausgeblendeten Slides im gesamten Foliensatz. |
@@ -497,7 +501,7 @@
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
 | Settings                                           | BKT-Einstellungen verwalten, BKT neu laden, Website aufrufen, etc. |
-| Settings > BKT r20-04-15 v2.7.0                    | Erweiterte Versionsinformationen anzeigen          |
+| Settings > Über BKT r20-04-22 v2.7.0               | Erweiterte Versionsinformationen anzeigen          |
 | Settings > Auf neue Version prüfen                 | Überprüfen, ob neue BKT-Version verfügbar ist      |
 | Settings > Auf neue Version prüfen Optionen        | Einstellungen zur automatischen Überprüfung auf neue Versionen |
 | Settings > Auf neue Version prüfen Optionen > Jetzt auf neue Version prüfen | Überprüfen, ob neue BKT-Version verfügbar ist      |
@@ -506,6 +510,7 @@
 | Settings > Auf neue Version prüfen Optionen > Monatlich | Sucht automatisch ein mal pro Woche beim PowerPoint-Start nach einer neuen BKT-Version |
 | Settings > Auf neue Version prüfen Optionen > Nie  | Automatische Suche nach einer neuen BKT-Version deaktivieren |
 | Settings > Website: bkt-toolbox.de                 | BKT-Webseite im Browser öffnen                     |
+| Settings > Versionsänderungen anzeigen             | Präsentation mit den Versionsänderungen anzeigen   |
 | Settings > Feature-Ordner                          | Feature-Ordner hinzufügen oder entfernen           |
 | Settings > Addin neu laden                         | BKT-Addin beenden und neu laden (ähnlich PowerPoint-Neustart) |
 | Settings > Ribbon aktualisieren                    | Oberfläche aktualisieren und alle Werte neu laden (sog. Invalidate ausführen) |
@@ -518,8 +523,9 @@
 | Settings > Toolbox-Tabs anpassen > Standard (3-seitig) | Drei Tabs für die Toolbox mit allen erweiterten Features auf einer separaten Seite 3 |
 | Settings > Toolbox-Tabs anpassen > Widescreen (2-seitig) | Zwei Tabs für die Toolbox mit allen erweiterten Features gemeinsam auf Seite 2. |
 | Settings > Toolbox-Tabs anpassen > Theme-Einstellungen anpassen | Festlegung der Seite je Gruppe und Ausblenden von Gruppen. |
-| 2.7.0                                              | Powerpoint Toolbox v2.7.0<br>BKT r20-04-15         |
+| 2.7.0                                              | Powerpoint Toolbox v2.7.0<br>BKT r20-04-22         |
 | BKT Warning                                        | At least one open presentation in protected view detected. Unexpected PowerPoint behavior may occur. |
+
 
 
 
@@ -1131,6 +1137,17 @@ Kontextmenü für leere Stelle auf der Folie
 | Als Folien-Thumbnail einfügen Menü > Als PNG einfügen (Standard) |                                                    |
 | Als Folien-Thumbnail einfügen Menü > Als Bitmap einfügen |                                                    |
 | Als Folien-Thumbnail einfügen Menü > Als Vektor (EMF) einfügen |                                                    |
+
+
+### ContextMenuSlideSorter
+
+Kontextmenü für die Folien-Vorschau in der Sortier-Ansicht
+
+| Name                                               | Beschreibung                                       |
+| -------------------------------------------------- | -------------------------------------------------- |
+| Folien exportieren                                 | Ausgewählte Folien als eigene Präsentation exportieren oder als E-Mail versenden |
+| Folien exportieren > Speichern                     | Speichert die ausgewählten Folien in einer neuen Präsentation. |
+| Folien exportieren > Senden                        | Sendet die ausgewählten Folien als E-Mail Anhang.  |
 
 
 ### ContextMenuPicture
