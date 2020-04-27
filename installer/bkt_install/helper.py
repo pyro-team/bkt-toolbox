@@ -96,11 +96,14 @@ class BKTConfigParser(ConfigParser.ConfigParser):
         with open(self.config_filename, "wb") as configfile:
             self.write(configfile)
 
-
+configs = {}
 def get_config(config_filename):
-    config = BKTConfigParser(config_filename)
-    if os.path.exists(config_filename):
-        config.read(config_filename)
-    else:
-        config.add_section('BKT')
-    return config
+    try:
+        return configs[config_filename]
+    except KeyError:
+        configs[config_filename] = config = BKTConfigParser(config_filename)
+        if os.path.exists(config_filename):
+            config.read(config_filename)
+        else:
+            config.add_section('BKT')
+        return config

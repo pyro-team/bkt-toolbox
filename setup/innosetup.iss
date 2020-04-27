@@ -90,6 +90,8 @@ Name: "{group}\BKT-AddIn neu registrieren"; Filename: "{app}\installer\install.b
 Name: "{group}\BKT-Ordner öffnen"; Filename: "{app}\"
 
 [Run]
+Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install configure --migrate 2.6"; WorkingDir: "{app}\installer"; StatusMsg: "Alte Konfiguration migrieren..."; Flags: runasoriginaluser runhidden
+
 Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install install"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: not (excel or visio)
 Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install install --apps excel"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: excel and not visio
 Filename: "{app}\installer\ipy-2.7.9\ipy.exe"; Parameters: "-m bkt_install install --apps visio"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: visio and not excel
