@@ -12,12 +12,13 @@ from functools import wraps
 
 cache = {}
 def memoize(func):
-    # cache = {}
     @wraps(func)
-    def memoizer(*args):
-        if not func in cache:
-            cache[func] = func(*args)
-        return cache[func]
+    def memoizer():
+        try:
+            return cache[func]
+        except KeyError:
+            result = cache[func] = func()
+            return result
     return memoizer
 
 @memoize
