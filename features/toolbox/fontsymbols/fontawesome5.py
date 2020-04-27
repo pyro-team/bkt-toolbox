@@ -94,10 +94,14 @@ def get_content_categories():
 
 def update_search_index(search_engine):
     search_writer = search_engine.writer()
-    full_icon_infos = dict()
+    full_icon_infos = {
+        'regular': OrderedDict(),
+        'solid': OrderedDict(),
+        'brands': OrderedDict(),
+    }
 
     def _add_icon(ident, font, unicode, label, keywords):
-        full_icon_infos[font+"|"+ident] = {
+        full_icon_infos[font][ident] = {
             "module":    "fontawesome5",
             "fontlabel": font_name_hash[font],
             "fontname":  font_name_hash[font],
@@ -119,9 +123,13 @@ def update_search_index(search_engine):
         for _, value in cats.iteritems():
             for ident in value["icons"]:
                 for font in all_icons[ident]["styles"]:
-                    full_icon_infos[font+"|"+ident]["keywords"].update( value["label"].lower().replace("&", " ").split() )
+                    full_icon_infos[font][ident]["keywords"].update( value["label"].lower().replace("&", " ").split() )
 
-    for _,icon in full_icon_infos.iteritems():
+    for icon in full_icon_infos['regular'].itervalues():
+        search_writer.add_document(**icon)
+    for icon in full_icon_infos['solid'].itervalues():
+        search_writer.add_document(**icon)
+    for icon in full_icon_infos['brands'].itervalues():
         search_writer.add_document(**icon)
     search_writer.commit()
 
