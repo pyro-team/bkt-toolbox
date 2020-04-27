@@ -199,8 +199,10 @@ def ensure_folders_exist(folder_path):
 def get_fav_folder(*args):
     folder = config.local_fav_path or False
     if not folder:
-        #FIXME: this doesnt work if Documents folder has been moved by user or by OneDrive installation
-        folder = ensure_folders_exist( os.path.realpath(os.path.join(os.path.expanduser("~"), "Documents", "BKT-Favoriten")) )
+        from System import Environment
+        folder = ensure_folders_exist( os.path.join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "BKT-Favoriten") )
+        # NOTE: os.path.expanduser("~")/Documents doesnt work if Documents folder has been moved by user or by OneDrive installation
+        # folder = ensure_folders_exist( os.path.realpath(os.path.join(os.path.expanduser("~"), "Documents", "BKT-Favoriten")) )
     args = args or tuple()
     args = (folder,)+args
     return os.path.join(*args)
