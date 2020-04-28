@@ -10,11 +10,10 @@ import weakref
 import os.path
 import logging
 
-import clr
 from System.Runtime.InteropServices import COMException
 
-clr.AddReference("Microsoft.Office.Interop.Visio")
-import Microsoft.Office.Interop.Visio as Visio #@UnresolvedImport
+from bkt import dotnet
+Visio = dotnet.import_visio()
 
 Units =  Visio.VisUnitCodes #@UndefinedVariable
 Sections = Visio.VisSectionIndices #@UndefinedVariable
