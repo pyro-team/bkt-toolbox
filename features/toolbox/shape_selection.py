@@ -205,10 +205,11 @@ class SlidesMore(object):
         
         #restore size
         if keep_size:
-            pasted_shapes.LockAspectRatio = 0
             pasted_shapes.width = shape.width
-            pasted_shapes.height = shape.height
+            if pasted_shapes.LockAspectRatio == 0 or pasted_shapes.height > shape.height:
+                    pasted_shapes.height = shape.height
             pasted_shapes.LockAspectRatio = shape.LockAspectRatio
+        
         #restore position and zorder
         pasted_shapes.top = shape.top
         pasted_shapes.left = shape.left

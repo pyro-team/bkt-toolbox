@@ -116,7 +116,8 @@ class Swap(object):
         new, ref = shapes
         new.rotation = ref.rotation
         new.width    = ref.width
-        new.height   = ref.height
+        if new.LockAspectRatio == 0 or new.height > ref.height:
+            new.height   = ref.height
         new.top      = ref.top
         new.left     = ref.left
         pplib.set_shape_zorder(new, value=ref.ZOrderPosition)
