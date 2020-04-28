@@ -9,18 +9,20 @@ Created on 10.09.2013
 
 from __future__ import absolute_import
 
-#Use StandardLib.dll as alternative to /bin/Lib, but seems to have problems with wpf/fluent
+# NOTE: Use StandardLib.dll as alternative to /bin/Lib, but seems to have problems with wpf/fluent
 # import clr
 # clr.AddReference("IronPython.StdLib")
 
-import platform
 
-if not 'IronPython' in platform.python_implementation():
-    from bkt.compat import clrmock
-    clrmock.inject_mock()
-    del clrmock
+# FIXME: clrmock needs to be fixed so this is currently commented out!
+# import platform
 
-del platform
+# if not 'IronPython' in platform.python_implementation():
+#     from bkt.compat import clrmock
+#     clrmock.inject_mock()
+#     del clrmock
+
+# del platform
 
 
 full_version     = 'BKT r20-03-13'
