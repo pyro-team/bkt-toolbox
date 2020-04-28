@@ -66,7 +66,8 @@ class Configurator(object):
         from_tuple = tuple(int(x) for x in from_version.split("."))
         migration_funcs = [
             ((2,4), cls._mig_moved_feature_folders),
-            ((2,6), cls._mig_new_fav_folder)
+            ((2,6), cls._mig_remove_dev_module),
+            ((2,6), cls._mig_new_fav_folder),
         ]
 
         for version, func in migration_funcs:
@@ -90,6 +91,16 @@ class Configurator(object):
             config.set_smart("feature_folders", new_folders)
         else:
             print("No folders to update")
+    
+    @staticmethod
+    def _mig_remove_dev_module(config):
+        modules = config.modules or []
+        try:
+            modules.remove("modules.dev")
+            print("Dev module deactivated")
+            config.set_smart("modules", modules)
+        except ValueError:
+            print("No dev module activated")
     
     @staticmethod
     def _mig_new_fav_folder(config):

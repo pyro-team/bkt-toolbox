@@ -360,6 +360,14 @@ def install(args):
         print('BKT installation cancelled')
         return
 
+    print('Deactivate any previous installation...')
+    try:
+        #this is required to avoid BKT loading when doing wow6232 check during installation
+        Installer(wow6432=True).unregister()
+        Installer(wow6432=False).unregister()
+    except:
+        helper.exception_as_message()
+
     print('Installing BKT in current directory...')
 
     #app load behaviour
