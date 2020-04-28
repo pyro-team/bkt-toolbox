@@ -27,6 +27,7 @@
   * Fixed use of FileDialogs by using WinForms dialogs instead of internal office dialogs
   * Fixed local documents folder is now correctly identified if moved by user or OneDrive
   * Support for legacy annotations syntax is disabled by default
+  * Updated to IronPython 2.7.10
   * Excel: Tool to apply (count, split, replace) cells by regular expression (regex)
 
 
