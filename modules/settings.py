@@ -121,8 +121,8 @@ class BKTUpdates(object):
 
         def threaded_update():
             try:
-                # is_update, version_string = cls._check_latest_version()
-                is_update, version_string = True, "3.0.0"
+                is_update, version_string = cls._check_latest_version()
+                # FOR TESTING: is_update, version_string = True, "3.0.0"
                 if is_update:
                     logging.info("BKT Autoupdate: new version found: "+version_string)
                     cls._update_notification(version_string)
