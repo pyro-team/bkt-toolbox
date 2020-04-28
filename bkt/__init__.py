@@ -13,15 +13,15 @@ from __future__ import absolute_import
 # import clr
 # clr.AddReference("IronPython.StdLib")
 
-import sys
+import platform
 
-# print sys.version
-if not 'IronPython' in sys.version:
+if not 'IronPython' in platform.python_implementation():
     from bkt.compat import clrmock
     clrmock.inject_mock()
     del clrmock
 
-del sys
+del platform
+
 
 full_version     = 'BKT r20-03-13'
 version_tag_name = '2.7.0'
