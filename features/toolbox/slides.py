@@ -119,9 +119,11 @@ class SendOrSaveSlides(object):
         import os
 
         if fileformat == "png":
-            filepath, ext = os.path.splitext(filepath)
+            filename, ext = os.path.splitext(filepath)
             for i, slide in enumerate(slides, start=1):
-                slide.Export("{}_{}{}".format(filepath, i, ext), "PNG", 2000)
+                slide.Export("{}_{}{}".format(filename, i, ext), "PNG", 2000)
+            #open folder
+            os.startfile(os.path.dirname(filepath))
         elif fileformat == "pdf":
             filename = os.path.basename(filepath)
             filename = os.path.splitext(filename)[0]
