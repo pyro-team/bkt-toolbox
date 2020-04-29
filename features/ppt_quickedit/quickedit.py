@@ -86,10 +86,13 @@ class QuickEditPanelManager(object):
     
     @classmethod
     def _is_windowed_presentation(cls, context, presentation):
-        #only show if at least one window exists
-        return presentation.Windows.Count > 0
-        #ALTERNATIVE: only show if opened presentation equals active presentation (not the case if opened without window)
-        # return presentation.FullName == context.presentation.FullName
+        try:
+            #only show if at least one window exists
+            return presentation.Windows.Count > 0
+            #ALTERNATIVE: only show if opened presentation equals active presentation (not the case if opened without window)
+            # return presentation.FullName == context.presentation.FullName
+        except: #COMException
+            return False
 
     @classmethod
     def close_all_panels(cls):
