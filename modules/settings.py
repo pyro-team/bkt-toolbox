@@ -10,6 +10,8 @@ from __future__ import absolute_import
 import logging
 import os.path
 
+from collections import namedtuple
+
 import bkt
 
 
@@ -77,43 +79,59 @@ class BKTUpdates(object):
         import json
         import urllib2
 
+        LatestVersion = namedtuple("LatestVersion", "version_string, download_url")
+
+        # FOR TESTING:
+        # return LatestVersion("999.0.0", "www.bkt-toolbox.de")
+
         response = urllib2.urlopen(UPDATE_URL.format(current_version=bkt.version_tag_name), timeout=5).read()
         data = json.loads(response)
-        version_string = data["tag_name"]
 
-        return version_string
+        return LatestVersion(data["tag_name"], data["html_url"])
 
     @classmethod
     def _check_latest_version(cls):
         # from time import time
         from datetime import date
 
-        version_string = cls._get_latest_version()
+        latest_version = cls._get_latest_version()
 
-        bkt.settings["bkt.updates.latest_version"] = version_string
+        bkt.settings["bkt.updates.latest_version"] = latest_version.version_string
         bkt.settings["bkt.updates.last_check"] = date.today()
 
-        latest_version = tuple(int(x) for x in version_string.split("."))
-        current_version = tuple(int(x) for x in bkt.version_tag_name.split("."))
+        latest_version_tuple = tuple(int(x) for x in latest_version.version_string.split("."))
+        current_version_tuple = tuple(int(x) for x in bkt.version_tag_name.split("."))
 
-        if latest_version > current_version:
+        if latest_version_tuple > current_version_tuple:
             cls.update_available = True
-            return True, version_string
+            return True, latest_version
         else:
             cls.update_available = False
-            return False, version_string
+            return False, latest_version
     
     @classmethod
-    def _update_notification(cls, version_string, own_window=True):
+    def _update_notification(cls, latest_version, own_window=True):
         #NOTE: we are not using helpers.message here as hwnd must be 0 in case there is no office window yet (at startup)
         import ctypes
+        bkt_branding = BKTInfos.get_branding_info()
+        if bkt_branding.is_branded:
+            download_text = "Diese BKT-Version ist modifiziert für {}. Die Download-URL wurde überschreiben. Download-Seite {} jetzt aufrufen?".format(bkt_branding.brand_name, bkt_branding.download_url)
+            download_url = bkt_branding.download_url
+        else:
+            download_text = "Download-Seite {} jetzt aufrufen?".format(latest_version.download_url)
+            download_url = latest_version.download_url
         result = ctypes.windll.user32.MessageBoxW(
             0 if own_window else ctypes.windll.user32.GetForegroundWindow(),
-            "Aktualisierung verfügbar auf v{}.\nInstallierte Version ist v{}.\n\nDownload-Seite jetzt aufrufen?".format(version_string, bkt.version_tag_name),
+            "Aktualisierung verfügbar auf v{}.\nInstallierte Version ist v{}.\n\n{}".format(latest_version.version_string, bkt.version_tag_name, download_text),
             "BKT: Aktualisierung",
             0x00000004L | 0x00000040L | 0x00002000L | 0x00010000L) #YESNO | ICONINFORMATION | TASKMODAL | SETFOREGROUND
         if result == 6: #yes
-            BKTInfos.open_website()
+            cls.open_download(download_url)
+
+    @staticmethod
+    def open_download(download_url):
+        import webbrowser
+        webbrowser.open(download_url)
     
     @classmethod
     def _check_latest_version_in_thread(cls):
@@ -121,13 +139,12 @@ class BKTUpdates(object):
 
         def threaded_update():
             try:
-                is_update, version_string = cls._check_latest_version()
-                # FOR TESTING: is_update, version_string = True, "3.0.0"
+                is_update, latest_version = cls._check_latest_version()
                 if is_update:
-                    logging.info("BKT Autoupdate: new version found: "+version_string)
-                    cls._update_notification(version_string)
+                    logging.info("BKT Autoupdate: new version found: "+latest_version.version_string)
+                    cls._update_notification(latest_version)
                 else:
-                    logging.info("BKT Autoupdate: version is up-to-date: "+version_string)
+                    logging.info("BKT Autoupdate: version is up-to-date: "+latest_version.version_string)
             except Exception as e:
                 logging.error("BKT Autoupdate Error: {}".format(e))
 
@@ -139,13 +156,12 @@ class BKTUpdates(object):
         def loop(worker):
             try:
                 worker.ReportProgress(1, "Prüfe auf Aktualisierungen...")
-                is_update, version_string = cls._check_latest_version()
+                is_update, latest_version = cls._check_latest_version()
 
                 if is_update:
-                    cls._update_notification(version_string, own_window=False)
-                    # bkt.helpers.message("Aktualisierung verfügbar auf v{}.\nInstallierte Version ist v{}.\n\nDownload-Seite aufrufen?".format(version_string, bkt.version_tag_name), "BKT: Aktualisierung")
+                    cls._update_notification(latest_version, own_window=False)
                 else:
-                    bkt.helpers.message("Keine Aktualisierung verfügbar. Aktuelle Version ist v{}.".format(version_string), "BKT: Aktualisierung")
+                    bkt.helpers.message("Keine Aktualisierung verfügbar. Aktuelle Version ist v{}.".format(latest_version.version_string), "BKT: Aktualisierung")
             except Exception as e:
                 bkt.helpers.error("Fehler im Aufruf der Aktualisierungs-URL: {}".format(e), "BKT: Aktualisierung")
         
@@ -227,6 +243,15 @@ bkt.AppEvents.bkt_load += bkt.Callback(BKTUpdates.auto_check_for_updates)
 
 
 class BKTInfos(object):
+    @staticmethod
+    def get_branding_info():
+        Branding = namedtuple("Branding", "is_branded, brand_name, download_url")
+        branding_name = bkt.config.branding_name or False
+        branding_download = bkt.config.branding_download or False
+        if branding_name and branding_download:
+            return Branding(True, branding_name, branding_download)
+        else:
+            return Branding(False, None, None)
     
     @staticmethod
     def open_website():

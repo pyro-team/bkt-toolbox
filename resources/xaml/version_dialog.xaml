@@ -21,6 +21,7 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#159957" />
+                                <Setter Property="Foreground" Value="#bbffffff" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -49,10 +50,21 @@
         <StackPanel Orientation="Vertical" Margin="5,10" HorizontalAlignment="Center">
             <TextBlock HorizontalAlignment="Center">Die BKT ist Open Source lizensiert unter der MIT-Lizenz.</TextBlock>
             <TextBlock HorizontalAlignment="Center">Copyright © 2019 Christoph Schmitt, Ruben Debeerst, Florian Stallmann.</TextBlock>
+            <TextBlock HorizontalAlignment="Center" Margin="0,10,0,0" FontStyle="Italic" Foreground="DarkRed" Visibility="{Binding bkt_branded_visible}" Text="{Binding bkt_branding_text}" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="5,10" HorizontalAlignment="Center">
             <Button Click="open_website" Content="BKT-Toolbox.de" />
-            <Button Click="check_for_updates" Content="{Binding bkt_update_label}" />
+            <Button Click="check_for_updates" Content="{Binding bkt_update_label}">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding bkt_update_available}" Value="True">
+                                <Setter Property="Background" Value="DarkRed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
             <Button Click="show_debug_message" Content="Debug-Informationen" />
         </StackPanel>
     </StackPanel>

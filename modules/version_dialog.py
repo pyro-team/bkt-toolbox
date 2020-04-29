@@ -9,6 +9,7 @@ from __future__ import absolute_import
 import os.path
 
 import System
+from System.Windows import Visibility
 
 import modules.settings as settings
 
@@ -25,7 +26,16 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         self.bkt_logo = System.Uri(resource_path)
         # self.bkt_logo = bkt.ui.load_bitmapimage("bkt_logo")
         self.bkt_version = "v" + bkt.version_tag_name
+        self.bkt_update_available = settings.BKTUpdates.is_update_available()
         self.bkt_update_label = settings.BKTUpdates.get_label_update()
+
+        self.bkt_branded_visible = Visibility.Collapsed
+        self.bkt_branding_text = ""
+
+        branding = settings.BKTInfos.get_branding_info()
+        if branding.is_branded:
+            self.bkt_branded_visible = Visibility.Visible
+            self.bkt_branding_text = "Diese BKT-Version wurde modifiziert für {}.".format(branding.brand_name)
 
 class VersionDialog(bkt.ui.WpfWindowAbstract):
     _xamlname = 'version_dialog'
