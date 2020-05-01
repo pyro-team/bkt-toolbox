@@ -7,23 +7,30 @@ import ctypes
 # _User32 = None
 # _GetKeyState = None
 
+# def get_key_state(code):
+#     global' _User32, _GetKeyState
+#     if _User32 == None:
+#         _User32 = ctypes.CDLL("User32.dll")
+#     if _GetKeyState == None:
+#         _GetKeyState = _User32.__getattr__("GetKeyState")
+    
+#     return' (_GetKeyState(code) & 128) == 128
+
+
 class KeyCodes(object):
     # More Key Codes: http://msdn.microsoft.com/en-us/library/dd375731(v=vs.85).aspx
     SHIFT = 0x10
     CTRL  = 0x11
     ALT   = 0x12
 
+class KeyState(object):
+    def __call__(self, code):
+        return (ctypes.windll.user32.GetKeyState(code) & 128) == 128
 
-def get_key_state(code):
-    # global _User32, _GetKeyState
-    # if _User32 == None:
-    #     _User32 = ctypes.CDLL("User32.dll")
-    # if _GetKeyState == None:
-    #     _GetKeyState = _User32.__getattr__("GetKeyState")
+    def __getattr__(self, attr):
+        return self(getattr(KeyCodes, attr))
     
-    # return (_GetKeyState(code) & 128) == 128
-    
-    return (ctypes.windll.user32.GetKeyState(code) & 128) == 128
+get_key_state = KeyState()
 
 
 def apply_delta_on_ALT_key(setter_method, getter_method, shapes, value, **kwargs):

@@ -35,20 +35,21 @@ __release__ = "BKT r20-03-13"
 # via bkt.xxx after 'import bkt'
 
 # import modules with less dependencies first
-from bkt.callbacks import CallbackTypes, Callback
+from bkt.callbacks import CallbackTypes, Callback #no internal dependencies
 
-from bkt.helpers import config, settings
-from bkt.apps import AppEvents
+from bkt.helpers import config, settings #no internal dependencies
+from bkt.apps import AppEvents #imports callbacks and context (imports helpers)
 
-from bkt.ribbon import mso
+from bkt.ribbon import mso #imports callbacks, dotnet, xml (imports dotnet)
 from bkt.appui import (excel,
                       outlook,
                       powerpoint,
                       word,
-                      visio)
+                      visio) #imports helpers, xml, ribbon, contextdialogs (imports library.algorithms, dotnet), taskpane (import helpers, ribbon, xml), ui (imports dotnet, library.wpf, helpers)
 
 from bkt.library.system import (
-    apply_delta_on_ALT_key
+    apply_delta_on_ALT_key,
+    get_key_state
 )
 
 # enable legacy annotations syntax with decorators
