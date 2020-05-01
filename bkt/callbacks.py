@@ -13,14 +13,17 @@ import logging
 
 def get_dotnet_callback_name(python_name):
     # example: on_action --> OnAction
-    dotnet_name = ''.join([x[0].upper() + x[1:] for x in python_name.split('_')])
-    return 'Python'  + dotnet_name
+    # dotnet_name = ''.join([x[0].upper() + x[1:] for x in python_name.split('_')])
+    dotnet_name = ''.join(x.title() for x in python_name.split('_'))
+    return 'Python' + dotnet_name
 
 def get_xml_callback_name(python_name):
-    # example: on_action --> OnAction
-    dotnet_name = ''.join([x[0].upper() + x[1:] for x in python_name.split('_')])
-    # OnAction --> onAction
-    return  (dotnet_name[0].lower() + dotnet_name[1:])
+    # # example: on_action --> OnAction
+    # dotnet_name = ''.join([x[0].upper() + x[1:] for x in python_name.split('_')])
+    # # OnAction --> onAction
+    # return  (dotnet_name[0].lower() + dotnet_name[1:])
+    parts = python_name.split('_')
+    return parts[0] + ''.join(x.title() for x in parts[1:])
 
 
 
