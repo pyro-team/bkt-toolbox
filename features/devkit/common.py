@@ -574,7 +574,7 @@ class ImageMso(object):
         if cls.search_engine:
             return cls.search_engine
 
-        from bkt.search import get_search_engine
+        from bkt.library.search import get_search_engine
         cls.search_engine = get_search_engine("imagemso")
         # initialize search index on first use of engine
         cls.load_json(cls.search_engine)

@@ -87,7 +87,7 @@ class Fontawesome(object):
         if cls.search_engine:
             return cls.search_engine
 
-        from bkt.search import get_search_engine
+        from bkt.library.search import get_search_engine
         cls.search_engine = get_search_engine("fonticons", FontSymbol)
         # initialize search index on first use of engine
         cls.update_search_index(cls.search_engine)
