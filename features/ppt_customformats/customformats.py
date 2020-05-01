@@ -664,9 +664,9 @@ class CustomQuickEdit(object):
 
     @classmethod
     def apply_custom_style(cls, index, context):
-        shift = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
-        ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-        # alt   = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+        shift = bkt.get_key_state.SHIFT
+        ctrl  = bkt.get_key_state.CTRL
+        # alt   = bkt.get_key_state.ALT
 
         apply_style = True
         
@@ -698,22 +698,18 @@ class CustomQuickEdit(object):
 
     @classmethod
     def temp_pickup(cls, shape):
-        import bkt.console
-        ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-
         cls.temp_custom_format = CustomFormat.from_shape(shape)
         cls.temp_settings_done = False
 
-        if ctrl:
+        if bkt.get_key_state.CTRL:
+            import bkt.console
             # logging.debug(json.dumps(cls.temp_custom_format.to_json()))
             bkt.console.show_message("%r" % cls.temp_custom_format.to_json())
 
     @classmethod
     def temp_apply(cls, shapes):
-        ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-
         do_apply = True
-        if ctrl or not cls.temp_settings_done:
+        if bkt.get_key_state.CTRL or not cls.temp_settings_done:
             from .pickup_style import PickupWindow
             wnd = PickupWindow.create_and_show_dialog(cls, cls.temp_custom_format.style_setting)
         

@@ -74,7 +74,7 @@ class ShapeTables(object):
     ### ALIGN TABLE / do not consider resize-option ###
 
     def align_table(self, shapes):
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
+        if bkt.get_key_state.SHIFT:
             self.align_table_zero(shapes)
         else:
             tr = self._prepare_table(shapes)
@@ -122,7 +122,7 @@ class ShapeTables(object):
 
 
     def get_resize_cells(self):
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.ALT):
+        if bkt.get_key_state.ALT:
             return not self.resize_cells
         else:
             return self.resize_cells

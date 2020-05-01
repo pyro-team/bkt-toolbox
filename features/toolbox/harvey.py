@@ -9,7 +9,6 @@ from __future__ import absolute_import
 
 import bkt
 import bkt.library.powerpoint as powerpoint
-import bkt.library.system as libsystem
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
@@ -127,24 +126,24 @@ class HarveyBalls(object):
         
 
     def harvey_percent_inc(self, shapes):
-        if libsystem.get_key_state(libsystem.key_code.CTRL):
+        if bkt.get_key_state.CTRL:
             step = 1
-        elif libsystem.get_key_state(libsystem.key_code.SHIFT):
+        elif bkt.get_key_state.SHIFT:
             step = 25
         else:
             step = 5
-        # step = 1 if libsystem.get_key_state(libsystem.key_code.CTRL) else 5
+        # step = 1 if bkt.get_key_state.CTRL else 5
         value = round(self.get_harvey_percent(shapes),3) + step
         self.harvey_percent_setter(shapes, value)
 
     def harvey_percent_dec(self, shapes):
-        if libsystem.get_key_state(libsystem.key_code.CTRL):
+        if bkt.get_key_state.CTRL:
             step = 1
-        elif libsystem.get_key_state(libsystem.key_code.SHIFT):
+        elif bkt.get_key_state.SHIFT:
             step = 25
         else:
             step = 5
-        # step = 1 if libsystem.get_key_state(libsystem.key_code.CTRL) else 5
+        # step = 1 if bkt.get_key_state.CTRL else 5
         value = round(self.get_harvey_percent(shapes),3) - step
         self.harvey_percent_setter(shapes, value)
     

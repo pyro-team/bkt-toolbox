@@ -10,7 +10,6 @@ from __future__ import absolute_import
 from collections import deque
 
 import bkt
-import bkt.library.system as lib_sys
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
@@ -244,7 +243,7 @@ class PPTSymbolsSettings(object):
     
     @classmethod
     def get_convert_into_shape(cls):
-        return (cls.convert_into_shape or system.get_key_state(system.key_code.SHIFT)) and not system.get_key_state(system.key_code.CTRL)
+        return (cls.convert_into_shape or bkt.get_key_state.SHIFT) and not bkt.get_key_state.CTRL
     
     @classmethod
     def switch_convert_into_bitmap(cls, pressed):
@@ -255,7 +254,7 @@ class PPTSymbolsSettings(object):
     
     @classmethod
     def get_convert_into_bitmap(cls):
-        return (cls.convert_into_bitmap or system.get_key_state(system.key_code.CTRL)) and not system.get_key_state(system.key_code.SHIFT)
+        return (cls.convert_into_bitmap or bkt.get_key_state.CTRL) and not bkt.get_key_state.SHIFT
 
 
 class PPTSymbolsGallery(bkt.ribbon.SymbolsGallery):
@@ -268,7 +267,7 @@ class PPTSymbolsGallery(bkt.ribbon.SymbolsGallery):
         item = self.symbols[index]
         self._add_to_recent(item)
 
-        shift_or_ctrl = system.get_key_state(system.key_code.CTRL) or system.get_key_state(system.key_code.SHIFT)
+        shift_or_ctrl = bkt.get_key_state.CTRL or bkt.get_key_state.SHIFT
 
         if selection.Type == 3 and not shift_or_ctrl: #text selected
             selection.TextRange2.Text = "" #remove selected text first and then insert symbol

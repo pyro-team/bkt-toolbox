@@ -112,9 +112,9 @@ At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergr
 class Characters(object):
     @staticmethod
     def symbol_insert(context):
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
+        if bkt.get_key_state.SHIFT:
             Characters.add_protected_hyphen(context.app.ActiveWindow.Selection)
-        elif bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+        elif bkt.get_key_state.CTRL:
             Characters.add_protected_space(context.app.ActiveWindow.Selection)
         else:
             context.app.commandbars.ExecuteMso("SymbolInsert")
@@ -924,9 +924,9 @@ class TextShapes(object):
 
     @staticmethod
     def textbox_insert(context, pressed):
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
+        if bkt.get_key_state.SHIFT:
             TextShapes.addUnderlinedTextbox(context.app.ActiveWindow.Selection.SlideRange[1], context.app.ActivePresentation)
-        elif bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+        elif bkt.get_key_state.CTRL:
             TextShapes.addSticker(context.app.ActiveWindow.Selection.SlideRange[1], context.app.ActivePresentation)
         else:
             # NOTE: idMso is different on some machines, see: https://answers.microsoft.com/en-us/msoffice/forum/msoffice_powerpoint-msoffice_custom-mso_2007/powerpoint-2007-textboxinsert-vs/52f12b52-7e1c-4d7c-86a7-bded312437b0

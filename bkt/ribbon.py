@@ -716,8 +716,8 @@ class RoundingSpinnerBox(SpinnerBox):
     def _dec(self, context, **kwargs):
         ''' decrement-callback using the on_change/get_text-callback from the editbox '''
         value = self._get(context)
-        ctrl_pressed = lib_sys.get_key_state(lib_sys.key_code.CTRL)
-        shift_pressed = lib_sys.get_key_state(lib_sys.key_code.SHIFT)
+        ctrl_pressed = lib_sys.get_key_state.CTRL
+        shift_pressed = lib_sys.get_key_state.SHIFT
         step = self.big_step if not ctrl_pressed else self.small_step
         step = step if not shift_pressed else self.huge_step
         context.invoke_callback(self.txt_box._callbacks['on_change'], value=value-step)
@@ -725,16 +725,16 @@ class RoundingSpinnerBox(SpinnerBox):
     def _inc(self, context, **kwargs):
         ''' increment-callback using the on_change/get_text-callback from the editbox '''
         value = self._get(context)
-        ctrl_pressed = lib_sys.get_key_state(lib_sys.key_code.CTRL)
-        shift_pressed = lib_sys.get_key_state(lib_sys.key_code.SHIFT)
+        ctrl_pressed = lib_sys.get_key_state.CTRL
+        shift_pressed = lib_sys.get_key_state.SHIFT
         step = self.big_step if not ctrl_pressed else self.small_step
         step = step if not shift_pressed else self.huge_step
         context.invoke_callback(self.txt_box._callbacks['on_change'], value=value+step)
 
     def _res(self, context, **kwargs):
         ''' reset-callback using the on_change/get_text-callback from the editbox '''
-        # ctrl_pressed = lib_sys.get_key_state(lib_sys.key_code.CTRL)
-        shift_pressed = lib_sys.get_key_state(lib_sys.key_code.SHIFT)
+        # ctrl_pressed = lib_sys.get_key_state.CTRL
+        shift_pressed = lib_sys.get_key_state.SHIFT
         value = self.big_step if shift_pressed else self.reset_value
         context.invoke_callback(self.txt_box._callbacks['on_change'], value=value)
 
