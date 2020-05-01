@@ -479,7 +479,7 @@ class PositionGallery(bkt.ribbon.Gallery):
                     label="Benutzerdef. Bereich festlegen",
                     supertip="Der benutzerdefinierte Bereich wird anhand des gewählten Shapes festgelegt. Dieser Bereich ist anschließend über die Gallery wählbar und wird dauerhaft in der aktuellen Prästentation vorgehalten.",
                     on_action=bkt.Callback(self.set_userdefined_area),
-                    get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name
+                    get_enabled = bkt.get_enabled_auto
                 )
             ],
             **kwargs

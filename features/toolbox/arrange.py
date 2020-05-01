@@ -212,7 +212,7 @@ swap_button = bkt.ribbon.SplitButton(
                 image='replace_keep_size',
                 supertip="Zuletzt gewähltes Shape mit zuerst gewähltem Shape ersetzen und dabei die Größe vom Original-Shape erhalten.",
                 on_action=bkt.Callback(Swap.replace_keep_size, shapes=True, shapes_min=2, shapes_max=2),
-                get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                get_enabled = bkt.get_enabled_auto,
             ),
         ])
     ]
@@ -3330,7 +3330,7 @@ arrange_group = bkt.ribbon.Group(
                     screentip="Gleiches Shape auf Folgefolien suchen und verknüpfen",
                     supertip="Sucht das aktuelle Shape auf allen Folien hinter der aktuellen Folie anhand Position und Größe und verknüpft diese miteinander.",
                     on_action=bkt.Callback(LinkedShapes.find_similar_and_link),
-                    get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    get_enabled = bkt.apps.ppt_shapes_exactly1_selected,
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(

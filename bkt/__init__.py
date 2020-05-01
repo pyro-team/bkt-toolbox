@@ -36,6 +36,7 @@ __release__ = "BKT r20-03-13"
 
 # import modules with less dependencies first
 from bkt.callbacks import CallbackTypes, Callback #no internal dependencies
+get_enabled_auto = CallbackTypes.get_enabled.dotnet_name #convenience name
 
 from bkt.helpers import config, settings #no internal dependencies
 from bkt.apps import AppEvents #imports callbacks and context (imports helpers)

@@ -464,7 +464,7 @@ clipboard_group = bkt.ribbon.Group(
                             supertip="Kopiert die aktuelle Folie in hoher Qualität in die Zwischenablage.",
                             image_mso='CopyPicture',
                             on_action=bkt.Callback(SlidesMore.copy_in_highquality, slide=True),
-                            get_enabled=bkt.CallbackTypes.get_enabled.dotnet_name
+                            get_enabled=bkt.get_enabled_auto
                         ),
                     ]
                 )

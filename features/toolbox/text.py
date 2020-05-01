@@ -1585,7 +1585,7 @@ paragraph_group = bkt.ribbon.Group(
                     supertip="Konfiguriere die Textoption auf 'Text in Form umbrechen'.",
                     on_toggle_action=bkt.Callback(Absatz.set_word_wrap , shapes=True, require_text=True),
                     get_pressed=bkt.Callback(Absatz.get_word_wrap , shapes=True, require_text=True),
-                    get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    get_enabled = bkt.get_enabled_auto,
                 ),
                 bkt.ribbon.ToggleButton(
                     id = 'autosize',
@@ -1595,7 +1595,7 @@ paragraph_group = bkt.ribbon.Group(
                     supertip="Konfiguriere die Textoption auf 'Größe der Form dem Text anpassen' bzw. 'Größe nicht automatisch anpassen'.",
                     on_toggle_action=bkt.Callback(Absatz.set_auto_size , shapes=True, require_text=True),
                     get_pressed=bkt.Callback(Absatz.get_auto_size , shapes=True, require_text=True),
-                    get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    get_enabled = bkt.get_enabled_auto,
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.mso.control.TextAlignMoreOptionsDialog
@@ -1687,7 +1687,7 @@ paragraph_indent_group = bkt.ribbon.Group(
             supertip="Konfiguriere die Textoption auf 'Text in Form umbrechen'.",
             on_toggle_action=bkt.Callback(Absatz.set_word_wrap , shapes=True, require_text=True),
             get_pressed=bkt.Callback(Absatz.get_word_wrap , shapes=True, require_text=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
         bkt.ribbon.CheckBox(
             id = 'autosize2',
@@ -1697,7 +1697,7 @@ paragraph_indent_group = bkt.ribbon.Group(
             supertip="Konfiguriere die Textoption auf 'Größe der Form dem Text anpassen' bzw. 'Größe nicht automatisch anpassen'.",
             on_toggle_action=bkt.Callback(Absatz.set_auto_size , shapes=True, require_text=True),
             get_pressed=bkt.Callback(Absatz.get_auto_size , shapes=True, require_text=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
         bkt.ribbon.DialogBoxLauncher(idMso='PowerPointParagraphDialog')
     ]

@@ -79,7 +79,7 @@ tags_gruppe = bkt.ribbon.Group(
             show_label=True,
             image_mso='NameDefine',
             on_action=bkt.Callback(Shapetags.presentation_tags, presentation=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
         bkt.ribbon.Button(
             id = 'dev_slide_tags',
@@ -87,7 +87,7 @@ tags_gruppe = bkt.ribbon.Group(
             show_label=True,
             image_mso='NameDefine',
             on_action=bkt.Callback(Shapetags.slide_tags, slides=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
         bkt.ribbon.Button(
             id = 'dev_shape_tags',
@@ -95,7 +95,7 @@ tags_gruppe = bkt.ribbon.Group(
             show_label=True,
             image_mso='NameDefine',
             on_action=bkt.Callback(Shapetags.shape_tags, shapes=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
 
         bkt.ribbon.Button(
@@ -104,7 +104,7 @@ tags_gruppe = bkt.ribbon.Group(
             show_label=False,
             image_mso='Delete',
             on_action=bkt.Callback(Shapetags.remove_presentation_tags, presentation=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
         bkt.ribbon.Button(
             id = 'dev_slide_tags-remove',
@@ -112,7 +112,7 @@ tags_gruppe = bkt.ribbon.Group(
             show_label=False,
             image_mso='Delete',
             on_action=bkt.Callback(Shapetags.remove_slide_tags, slides=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
         bkt.ribbon.Button(
             id = 'dev_shape_tags-remove',
@@ -120,7 +120,7 @@ tags_gruppe = bkt.ribbon.Group(
             show_label=False,
             image_mso='Delete',
             on_action=bkt.Callback(Shapetags.remove_shape_tags, shapes=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
     ]
 )
@@ -190,21 +190,21 @@ nodes_gruppe = bkt.ribbon.Group(
             show_label=True,
             image_mso='RecursiveSection',
             on_action=bkt.Callback(ShapeNodes.draw_shape_nodes, shape=True, slide=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
         bkt.ribbon.Button(
             label="Bounding Nodes",
             show_label=True,
             image_mso='RecursiveSection',
             on_action=bkt.Callback(ShapeNodes.draw_bounding_nodes, shape=True, slide=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
         bkt.ribbon.Button(
             label="Locpin Nodes",
             show_label=True,
             image_mso='RecursiveSection',
             on_action=bkt.Callback(ShapeNodes.draw_locpin_nodes, shape=True, slide=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
 
         bkt.ribbon.Button(
@@ -212,7 +212,7 @@ nodes_gruppe = bkt.ribbon.Group(
             show_label=False,
             image_mso='Delete',
             on_action=bkt.Callback(ShapeNodes.remove_shape_nodes, slide=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
 
         bkt.ribbon.Button(
@@ -220,7 +220,7 @@ nodes_gruppe = bkt.ribbon.Group(
             show_label=False,
             image_mso='Delete',
             on_action=bkt.Callback(ShapeNodes.remove_bounding_nodes, slide=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
 
         bkt.ribbon.Button(
@@ -228,7 +228,7 @@ nodes_gruppe = bkt.ribbon.Group(
             show_label=False,
             image_mso='Delete',
             on_action=bkt.Callback(ShapeNodes.remove_locpin_nodes, slide=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            get_enabled = bkt.get_enabled_auto,
         ),
     ]
 )
