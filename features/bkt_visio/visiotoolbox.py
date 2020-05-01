@@ -181,7 +181,7 @@ info_gruppe = bkt.ribbon.Group(
     label="Settings",
     children=[
         settings.settings_menu,
-        bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.full_version),
+        bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.__release__),
     ]
 )
 

@@ -9,6 +9,13 @@ Created on 10.09.2013
 
 from __future__ import absolute_import
 
+__author__ = "Christoph Schmitt, Ruben Debeerst, Florian Stallmann"
+__copyright__ = "Copyright 2019 Christoph Schmitt, Ruben Debeerst, Florian Stallmann"
+__license__ = "MIT"
+__version__ = "2.7.0"
+__release__ = "BKT r20-03-13"
+
+
 # NOTE: Use StandardLib.dll as alternative to /bin/Lib, but seems to have problems with wpf/fluent
 # import clr
 # clr.AddReference("IronPython.StdLib")
@@ -16,17 +23,13 @@ from __future__ import absolute_import
 
 # FIXME: clrmock needs to be fixed so this is currently commented out!
 # import platform
-
 # if not 'IronPython' in platform.python_implementation():
 #     from bkt.compat import clrmock
 #     clrmock.inject_mock()
 #     del clrmock
-
 # del platform
 
 
-full_version     = 'BKT r20-03-13'
-version_tag_name = '2.7.0'
 
 # make the followig classes and decorators accessible 
 # via bkt.xxx after 'import bkt'

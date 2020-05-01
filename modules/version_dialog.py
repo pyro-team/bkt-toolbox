@@ -25,7 +25,7 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         resource_path = bkt.helpers.bkt_base_path_join("resources", "bkt_logo", "BKT Logo 1.0.png")
         self.bkt_logo = System.Uri(resource_path)
         # self.bkt_logo = bkt.ui.load_bitmapimage("bkt_logo")
-        self.bkt_version = "v" + bkt.version_tag_name
+        self.bkt_version = "v" + bkt.__version__
         self.bkt_update_available = settings.BKTUpdates.is_update_available()
         self.bkt_update_label = settings.BKTUpdates.get_label_update()
 

@@ -84,7 +84,7 @@ class BKTUpdates(object):
         # FOR TESTING:
         # return LatestVersion("999.0.0", "www.bkt-toolbox.de")
 
-        response = urllib2.urlopen(UPDATE_URL.format(current_version=bkt.version_tag_name), timeout=5).read()
+        response = urllib2.urlopen(UPDATE_URL.format(current_version=bkt.__version__), timeout=5).read()
         data = json.loads(response)
 
         return LatestVersion(data["tag_name"], data["html_url"])
@@ -100,7 +100,7 @@ class BKTUpdates(object):
         bkt.settings["bkt.updates.last_check"] = date.today()
 
         latest_version_tuple = tuple(int(x) for x in latest_version.version_string.split("."))
-        current_version_tuple = tuple(int(x) for x in bkt.version_tag_name.split("."))
+        current_version_tuple = tuple(int(x) for x in bkt.__version__.split("."))
 
         if latest_version_tuple > current_version_tuple:
             cls.update_available = True
@@ -122,7 +122,7 @@ class BKTUpdates(object):
             download_url = latest_version.download_url
         result = ctypes.windll.user32.MessageBoxW(
             0 if own_window else ctypes.windll.user32.GetForegroundWindow(),
-            "Aktualisierung verfügbar auf v{}.\nInstallierte Version ist v{}.\n\n{}".format(latest_version.version_string, bkt.version_tag_name, download_text),
+            "Aktualisierung verfügbar auf v{}.\nInstallierte Version ist v{}.\n\n{}".format(latest_version.version_string, bkt.__version__, download_text),
             "BKT: Aktualisierung",
             0x00000004L | 0x00000040L | 0x00002000L | 0x00010000L) #YESNO | ICONINFORMATION | TASKMODAL | SETFOREGROUND
         if result == 6: #yes
@@ -199,7 +199,7 @@ class BKTUpdates(object):
                 version_string = bkt.settings.get("bkt.updates.latest_version", None)
                 if version_string:
                     latest_version = tuple(int(x) for x in version_string.split("."))
-                    current_version = tuple(int(x) for x in bkt.version_tag_name.split("."))
+                    current_version = tuple(int(x) for x in bkt.__version__.split("."))
                     cls.update_available = latest_version > current_version
                 else:
                     cls.update_available = False
@@ -284,7 +284,7 @@ BKT-Path:               {}
 Favorites-Folder:       {}
 Temp-Dir:               {}
 '''.format(
-        bkt.full_version, bkt.version_tag_name,
+        bkt.__release__, bkt.__version__,
         context.dotnet_context.addin.GetBuildConfiguration(), context.dotnet_context.addin.GetBuildRevision(),
         context.app.OperatingSystem, winver.major, winver.minor, winver.build,
         context.app.name, context.app.Version, context.app.Build, context.app.ProductCode,
@@ -353,7 +353,7 @@ class SettingsMenu(bkt.ribbon.Menu):
             children=[
                 bkt.ribbon.Button(
                     id='settings-version' + postfix,
-                    label="Über {} v{}".format(bkt.full_version, bkt.version_tag_name),
+                    label="Über {} v{}".format(bkt.__release__, bkt.__version__),
                     image_mso="Info",
                     supertip="Erweiterte Versionsinformationen anzeigen",
                     on_action=bkt.Callback(BKTInfos.show_version_dialog, context=True, transaction=False)

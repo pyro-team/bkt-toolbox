@@ -14,8 +14,8 @@ import bkt
 # reuse settings-menu from bkt-framework
 import modules.settings as settings
 
-version_short = bkt.version_tag_name
-version_long  = 'Powerpoint Toolbox v{}'.format(bkt.version_tag_name)
+version_short = bkt.__version__
+version_long  = 'Powerpoint Toolbox v{}'.format(bkt.__version__)
 
 
 # Workaround to activate Tab when new shape is added instead of auto switching to "Format" contextual tab
@@ -192,7 +192,7 @@ info_group = bkt.ribbon.Group(
     get_visible=bkt.Callback(TabActivator.enable, context=True),
     children=[
         settings.settings_menu,
-        bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.full_version, on_action=bkt.Callback(settings.BKTInfos.show_version_dialog)),
+        bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.__release__, on_action=bkt.Callback(settings.BKTInfos.show_version_dialog)),
         bkt.ribbon.Button(
             label="BKT Warning",
             size="large",
