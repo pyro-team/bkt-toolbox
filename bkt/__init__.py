@@ -47,7 +47,7 @@ from bkt.appui import (excel,
                       word,
                       visio)
 
-from bkt.library.general import (
+from bkt.library.system import (
     apply_delta_on_ALT_key
 )
 
