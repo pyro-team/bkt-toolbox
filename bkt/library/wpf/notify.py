@@ -3,7 +3,7 @@
 # source: http://gui-at.blogspot.de/2009/11/inotifypropertychanged-in-ironpython.html
 
 from System.ComponentModel import INotifyPropertyChanged, PropertyChangedEventArgs
-import pyevent
+from . import pyevent
 
 
 class notify_property(property):

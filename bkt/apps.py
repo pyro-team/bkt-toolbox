@@ -15,7 +15,6 @@ import shelve #for resources cache
 import os.path #for resources cache
 import time #for cache invalidation and event throttling
 
-import bkt.helpers as _h
 from bkt.context import InappropriateContextError
 from bkt.callbacks import Callback, CallbackTypes
 
@@ -285,7 +284,6 @@ class AppCallbacksExcel(AppCallbacksBase):
     
     def unbind_app_events(self):
         from System.Runtime.InteropServices.Marshal import ReleaseComObject
-        #import bkt.ui
         #bkt.console.show_message("%s.on_destroy()" % type(self).__name__)
 
         if self.context:

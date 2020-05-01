@@ -9,16 +9,16 @@ from __future__ import absolute_import
 
 from collections import deque
 
-from bkt import apps, dotnet, settings, CallbackTypes, Callback
-Drawing = dotnet.import_drawing()
+import bkt
+import bkt.library.system as lib_sys
 
-from bkt.ribbon import Button, Gallery, SymbolsGallery, RoundingSpinnerBox, Item
-from bkt.library import system
+from bkt import dotnet
+Drawing = dotnet.import_drawing()
 
 from . import helpers as pplib
 
 
-class TextframeSpinnerBox(RoundingSpinnerBox):
+class TextframeSpinnerBox(bkt.ribbon.RoundingSpinnerBox):
     ### Instance initialization
     attr = 'MarginTop'
     
@@ -33,7 +33,7 @@ class TextframeSpinnerBox(RoundingSpinnerBox):
             size_string = '###',
             round_cm = True,
             convert = 'pt_to_cm',
-            get_enabled = apps.ppt_selection_contains_textframe,
+            get_enabled = bkt.apps.ppt_selection_contains_textframe,
         )
         my_kwargs.update(kwargs)
         
@@ -85,7 +85,7 @@ class TextframeSpinnerBox(RoundingSpinnerBox):
 
 
 
-class ParagraphFormatSpinnerBox(RoundingSpinnerBox):
+class ParagraphFormatSpinnerBox(bkt.ribbon.RoundingSpinnerBox):
     ### Instance initialization
     attr = 'SpaceBefore'
     
@@ -98,7 +98,7 @@ class ParagraphFormatSpinnerBox(RoundingSpinnerBox):
         
         my_kwargs = dict(
             size_string = '-###',
-            get_enabled = apps.ppt_selection_contains_textframe,
+            get_enabled = bkt.apps.ppt_selection_contains_textframe,
         )
 
         if self.attr in ["SpaceBefore", "SpaceAfter", "SpaceWithin"]:
@@ -204,10 +204,10 @@ class ParagraphFormatSpinnerBox(RoundingSpinnerBox):
 
 
 class PPTSymbolsSettings(object):
-    recent_symbols = deque(settings.get("bkt.symbols.recent_symbols", []), maxlen=3)
-    convert_into_shape = settings.get("bkt.symbols.convert_into_shape", True) #always convert newly inserted symbols into shapes
-    convert_into_bitmap = settings.get("bkt.symbols.convert_into_bitmap", False) #always convert newly inserted symbols into bitmap picture
-    unicode_font = settings.get("bkt.symbols.unicode_font", None) #insert unicode characters as symbol with special font (e.g. Arial Unicode)
+    recent_symbols = deque(bkt.settings.get("bkt.symbols.recent_symbols", []), maxlen=3)
+    convert_into_shape = bkt.settings.get("bkt.symbols.convert_into_shape", True) #always convert newly inserted symbols into shapes
+    convert_into_bitmap = bkt.settings.get("bkt.symbols.convert_into_bitmap", False) #always convert newly inserted symbols into bitmap picture
+    unicode_font = bkt.settings.get("bkt.symbols.unicode_font", None) #insert unicode characters as symbol with special font (e.g. Arial Unicode)
 
     @classmethod
     def add_to_recent(cls, item):
@@ -217,12 +217,12 @@ class PPTSymbolsSettings(object):
             cls.recent_symbols.append(item)
         except ValueError:
             cls.recent_symbols.append(item)
-        settings["bkt.symbols.recent_symbols"] = cls.recent_symbols
+        bkt.settings["bkt.symbols.recent_symbols"] = cls.recent_symbols
     
     @classmethod
     def switch_unicode_font(cls, font=None):
         cls.unicode_font = font #if font else SymbolsGallery.fallback_font
-        settings["bkt.symbols.unicode_font"] = cls.unicode_font
+        bkt.settings["bkt.symbols.unicode_font"] = cls.unicode_font
     
     @classmethod
     def convert_into_text(cls):
@@ -232,15 +232,15 @@ class PPTSymbolsSettings(object):
     def switch_convert_into_text(cls, pressed):
         cls.convert_into_shape = False
         cls.convert_into_bitmap = False
-        settings["bkt.symbols.convert_into_shape"] = cls.convert_into_shape
-        settings["bkt.symbols.convert_into_bitmap"] = cls.convert_into_bitmap
+        bkt.settings["bkt.symbols.convert_into_shape"] = cls.convert_into_shape
+        bkt.settings["bkt.symbols.convert_into_bitmap"] = cls.convert_into_bitmap
     
     @classmethod
     def switch_convert_into_shape(cls, pressed):
         cls.convert_into_shape = pressed
         cls.convert_into_bitmap = False
-        settings["bkt.symbols.convert_into_shape"] = cls.convert_into_shape
-        settings["bkt.symbols.convert_into_bitmap"] = cls.convert_into_bitmap
+        bkt.settings["bkt.symbols.convert_into_shape"] = cls.convert_into_shape
+        bkt.settings["bkt.symbols.convert_into_bitmap"] = cls.convert_into_bitmap
     
     @classmethod
     def get_convert_into_shape(cls):
@@ -250,18 +250,18 @@ class PPTSymbolsSettings(object):
     def switch_convert_into_bitmap(cls, pressed):
         cls.convert_into_shape = False
         cls.convert_into_bitmap = pressed
-        settings["bkt.symbols.convert_into_shape"] = cls.convert_into_shape
-        settings["bkt.symbols.convert_into_bitmap"] = cls.convert_into_bitmap
+        bkt.settings["bkt.symbols.convert_into_shape"] = cls.convert_into_shape
+        bkt.settings["bkt.symbols.convert_into_bitmap"] = cls.convert_into_bitmap
     
     @classmethod
     def get_convert_into_bitmap(cls):
         return (cls.convert_into_bitmap or system.get_key_state(system.key_code.CTRL)) and not system.get_key_state(system.key_code.SHIFT)
 
 
-class PPTSymbolsGallery(SymbolsGallery):
+class PPTSymbolsGallery(bkt.ribbon.SymbolsGallery):
     @property
     def fallback_font(self):
-        return PPTSymbolsSettings.unicode_font or SymbolsGallery.fallback_font
+        return PPTSymbolsSettings.unicode_font or bkt.ribbon.SymbolsGallery.fallback_font
 
     def on_action_indexed(self, selected_item, index, context, selection, **kwargs):
         ''' create numberd shape according of settings in clicked element '''
@@ -351,7 +351,7 @@ class PPTSymbolsGallery(SymbolsGallery):
         import tempfile, os
 
         font = item[0] or self.fallback_font
-        img = SymbolsGallery.create_symbol_image(font, item[1], 400, None)
+        img = bkt.ribbon.SymbolsGallery.create_symbol_image(font, item[1], 400, None)
         tmpfile = os.path.join(tempfile.gettempdir(), "bkt-symbol.png")
         img.Save(tmpfile, Drawing.Imaging.ImageFormat.Png)
         shape = slide.shapes.AddPicture(tmpfile, 0, -1, 200, 200) #FileName, LinkToFile, SaveWithDocument, Left, Top
@@ -386,17 +386,17 @@ class PPTSymbolsGalleryRecent(PPTSymbolsGallery):
             return False
     
     def get_index_as_button(self, index):
-        return Button(
+        return bkt.ribbon.Button(
                     id="{}_button_{}".format(self.id, index),
-                    get_label=Callback(lambda: self.button_get_label(index)),
-                    on_action=Callback(lambda context, selection: self.on_action_indexed(None, index, context, selection)),
-                    get_image=Callback(lambda: self.get_item_image(index)),
-                    get_visible=Callback(lambda: self.button_get_visible(index)),
+                    get_label=bkt.Callback(lambda: self.button_get_label(index)),
+                    on_action=bkt.Callback(lambda context, selection: self.on_action_indexed(None, index, context, selection)),
+                    get_image=bkt.Callback(lambda: self.get_item_image(index)),
+                    get_visible=bkt.Callback(lambda: self.button_get_visible(index)),
                 )
 
 
 
-class LocpinGallery(Gallery):
+class LocpinGallery(bkt.ribbon.Gallery):
     def __init__(self, locpin=None, item_supertip="Shape-Fixpunkt bzw. Fixierung bei Änderung {}", **kwargs):
         self.locpin = locpin or pplib.GlobalLocPin
         self.items = [
@@ -412,25 +412,25 @@ class LocpinGallery(Gallery):
         ]
         
         my_kwargs = dict(
-            # get_enabled=apps.ppt_shapes_or_text_selected,
+            # get_enabled=bkt.apps.ppt_shapes_or_text_selected,
             columns="3",
             item_height="24",
             item_width="24",
             show_item_label=False,
-            on_action_indexed  = Callback(self.locpin_on_action_indexed),
-            get_selected_item_index = Callback(lambda: self.locpin.index),
-            get_item_count = Callback(lambda: len(self.items)),
-            get_item_label = Callback(lambda index: self.items[index][1]),
-            get_item_image = Callback(self.locpin_get_image, context=True),
-            get_item_screentip = Callback(lambda index: self.items[index][1]),
-            get_item_supertip = Callback(lambda index: self.items[index][2]),
+            on_action_indexed  = bkt.Callback(self.locpin_on_action_indexed),
+            get_selected_item_index = bkt.Callback(lambda: self.locpin.index),
+            get_item_count = bkt.Callback(lambda: len(self.items)),
+            get_item_label = bkt.Callback(lambda index: self.items[index][1]),
+            get_item_image = bkt.Callback(self.locpin_get_image, context=True),
+            get_item_screentip = bkt.Callback(lambda index: self.items[index][1]),
+            get_item_supertip = bkt.Callback(lambda index: self.items[index][2]),
             # children = [
             #     Item(image=gal_item[0], screentip=gal_item[1], supertip=gal_item[2])
             #     for gal_item in self.items
             # ]
         )
         if not "image" in kwargs and not "image_mso" in kwargs:
-            my_kwargs["get_image"] = Callback(self.locpin_get_image, context=True)
+            my_kwargs["get_image"] = bkt.Callback(self.locpin_get_image, context=True)
         my_kwargs.update(kwargs)
         super(LocpinGallery, self).__init__(**my_kwargs)
 
@@ -444,7 +444,7 @@ class LocpinGallery(Gallery):
             return context.python_addin.load_image(self.items[index][0])
 
 
-class PositionGallery(Gallery):
+class PositionGallery(bkt.ribbon.Gallery):
     
     # items: [label, position, reference]
     #   position: [left, top, width, height]
@@ -476,11 +476,11 @@ class PositionGallery(Gallery):
             image_mso='PositionAnchoringGallery',
             supertip=u"Positioniere die ausgewählten Shapes auf eine Standardposition.",
             children=[
-                Button(
+                bkt.ribbon.Button(
                     label="Benutzerdef. Bereich festlegen",
                     supertip="Der benutzerdefinierte Bereich wird anhand des gewählten Shapes festgelegt. Dieser Bereich ist anschließend über die Gallery wählbar und wird dauerhaft in der aktuellen Prästentation vorgehalten.",
-                    on_action=Callback(self.set_userdefined_area),
-                    get_enabled = CallbackTypes.get_enabled.dotnet_name
+                    on_action=bkt.Callback(self.set_userdefined_area),
+                    get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name
                 )
             ],
             **kwargs

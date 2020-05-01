@@ -10,6 +10,8 @@ from __future__ import absolute_import
 import json # required for tags
 from collections import namedtuple # required for color class
 
+import System.Array # to create int/str-Arrays
+
 from bkt import settings, dotnet # required to save global locpin setting
 from bkt.library import algorithms # required for color helper
 
@@ -375,7 +377,6 @@ def shape_is_group_child(shape):
 
 def shape_indices_on_slide(slide, indices):
     ''' return shape-range in slide by indices '''
-    import System.Array # to create int-Arrays
     return slide.Shapes.Range(System.Array[int](indices))
 
 def last_n_shapes_on_slide(slide, n):
@@ -386,7 +387,6 @@ def shape_names_on_slide(slide, names):
     ''' return shape-range in slide by names '''
     #NOTE: If there are multiple shapes with the same name, only one of them is returned!
     #NOTE: This function is also looking for shapes within groups.
-    import System.Array # to create str-Arrays
     return slide.Shapes.Range(System.Array[str](names))
 
 def shapes_to_range(shapes):
@@ -402,7 +402,6 @@ def shapes_to_range(shapes):
 
     ###############
     ### Approach 2:
-    import System.Array # to create int-Arrays
     #shape indices and range-function are different if shapes are within a group
     if shape_is_group_child(shapes[0]):
         all_shapes = shapes[0].ParentGroup.GroupItems
@@ -1147,7 +1146,7 @@ class BoundingFrame(object):
 
     @classmethod
     def from_shapes(cls, shapes):
-        from wrapper import wrap_shapes
+        from .wrapper import wrap_shapes
         shapes = wrap_shapes(shapes)
 
         bf = BoundingFrame()

@@ -10,8 +10,9 @@ from __future__ import absolute_import
 
 import logging
 
-import bkt.ribbon
-from bkt.helpers import Resources
+import bkt.helpers as _h #for loading Resources
+
+from bkt.ribbon import TypedRibbonControl
 from bkt.xml import WpfXMLFactory, linq
 
 
@@ -20,7 +21,7 @@ from bkt.xml import WpfXMLFactory, linq
 # = General Control Classes =
 # ===========================
 
-class TaskPaneControl(bkt.ribbon.TypedRibbonControl):
+class TaskPaneControl(TypedRibbonControl):
     _xml_name = 'TaskPaneControl'
     _id_attribute_key = "Name"
     xml_namespace = 'http://schemas.microsoft.com/winfx/2006/xaml/presentation'
@@ -293,7 +294,7 @@ class BaseScrollViewer(TaskPaneControl):
         super(BaseScrollViewer, self).__init__(*args, **kwargs)
         
         # load scrollbar styling
-        xaml_filename=Resources.xaml.locate("scrollbar_style")
+        xaml_filename=_h.Resources.xaml.locate("scrollbar_style")
         xml_string = ""
         for line in open(xaml_filename, "r"):
             xml_string += line + "\n"

@@ -18,8 +18,6 @@ import bkt.helpers as _h #used to access config and resources
 import bkt.xml as mod_xml #creating customui xml
 import bkt.ribbon as mod_ribbon #ribbon controls
 
-from bkt.contextdialogs import ContextDialogs
-
 import bkt.taskpane
 import bkt.ui #bkt.ui is not required here, but if it is not loaded anywhere, its not available in feature folders. This happended to me when I remove dev module from config.
 
@@ -384,6 +382,8 @@ class AppUIPowerPoint(AppUI):
     '''
     def __init__(self, ribbon_ids=[], short_ids=[]):
         super(AppUIPowerPoint, self).__init__(ribbon_ids=ribbon_ids, short_ids=short_ids)
+        
+        from bkt.contextdialogs import ContextDialogs
         
         self.use_contextdialogs = not _h.config.ppt_use_contextdialogs is False
         self.context_dialogs = ContextDialogs()

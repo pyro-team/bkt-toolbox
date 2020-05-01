@@ -11,7 +11,7 @@ from __future__ import absolute_import
 # import logging
 import time #required for cache
 
-import bkt.helpers #for providing config and settings
+import bkt.helpers as _h #for providing config and settings
 
 
 class InappropriateContextError(Exception):
@@ -70,7 +70,7 @@ class AppContext(object):
         if self._config:
             return self._config
         else:
-            return bkt.helpers.config
+            return _h.config
     
     @property
     def settings(self):
@@ -78,7 +78,7 @@ class AppContext(object):
         if self._settings:
             return self._settings
         else:
-            return bkt.helpers.settings
+            return _h.settings
     
     # ===========================================
     # = convenience properties for .Net-Context =
