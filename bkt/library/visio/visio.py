@@ -4,6 +4,9 @@ Created on 03.01.2013
 
 @author: cschmitt
 '''
+
+from __future__ import absolute_import
+
 import re
 import traceback
 import weakref
