@@ -19,7 +19,7 @@ wpf = dotnet.import_wpf() #this is required to import System.Windows.Controls
 import System
 
 from bkt.library.wpf.notify import NotifyPropertyChangedBase, notify_property
-from bkt.apps import Resources
+from bkt.helpers import Resources
 
 
 

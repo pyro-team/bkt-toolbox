@@ -13,8 +13,7 @@ import traceback
 
 from collections import OrderedDict, defaultdict
 
-import bkt.helpers as _h #only used to access config
-import bkt.apps as mod_apps #only used to acces Resources
+import bkt.helpers as _h #used to access config and resources
 
 import bkt.xml as mod_xml #creating customui xml
 import bkt.ribbon as mod_ribbon #ribbon controls
@@ -363,7 +362,7 @@ class AppUI(object):
                 ]
             )
             image_resources = {
-                image_name: mod_apps.Resources.images.locate(image_name)
+                image_name: _h.Resources.images.locate(image_name)
                 for image_name in stack_panel.collect_image_resources()
             }
             logging.debug('image resources: %s' % image_resources)

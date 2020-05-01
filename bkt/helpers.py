@@ -11,6 +11,7 @@ from __future__ import absolute_import, print_function
 
 import os.path
 import logging
+import traceback
 
 import ctypes #required for messagebox
 
@@ -23,8 +24,13 @@ BKT_BASE = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
 log_as_messagebox = False
 log_as_uibox = False
 
-#class is compatible to systems.forms
+# ==============================
+# = Typical os.path operations =
+# ==============================
+
 class Forms(object):
+    ''' Parameters for message boxes that are compatible with WinForms '''
+
     class MessageBoxButtons(object):
         OK =                     0x00000000L #OK
         OKCancel =               0x00000001L #OK | Cancel
@@ -113,6 +119,12 @@ def exception_as_message(additional_message=None):
     bkt.console.show_message(bkt.ui.endings_to_windows(fd.getvalue()))
 
 
+
+
+# ==============================
+# = Typical os.path operations =
+# ==============================
+
 def file_base_path_join(base_file, *args):
     return os.path.realpath(os.path.join(os.path.dirname(base_file), *args))
 
@@ -120,7 +132,14 @@ def bkt_base_path_join(*args):
     return os.path.realpath(os.path.join(BKT_BASE, *args))
 
 
+
+
+# ========================
+# = Load config.txt file =
+# ========================
+
 class BKTConfigParser(ConfigParser.ConfigParser):
+    ''' Global configuration is stored in config.txt file '''
     config_filename = None
 
     def __init__(self, config_filename):
@@ -189,6 +208,13 @@ else:
     config.add_section('BKT')
 
 
+
+
+
+# ======================================
+# = Helper to get configurable folders =
+# ======================================
+
 def ensure_folders_exist(folder_path):
     if not os.path.isdir(folder_path):
         from os import makedirs
@@ -224,8 +250,14 @@ def get_settings_folder(*args):
     return os.path.join(*args)
 
 
-#lazy loading shelve
+
+
+# =============================================
+# = Lazy loading app-specific settings shelve =
+# =============================================
+
 class BKTSettings(shelve.Shelf):
+    ''' App-specific settings are stored as shelve object that supports various python data formats '''
 
     def __init__(self):
         shelve.Shelf.__init__(self, shelve._ClosedDict(), protocol=2)
@@ -260,3 +292,53 @@ class BKTSettings(shelve.Shelf):
 
 #load global setting database
 settings = BKTSettings()
+
+
+
+
+# =======================================
+# = Find resources (images, xaml files) =
+# =======================================
+
+class Resources(object):
+    ''' Encapsulated path resolution for file resources (such as images) '''
+    root_folders = []
+    images = None
+    xaml = None
+    
+    def __init__(self, category, suffix):
+        self.category = category
+        self.suffix = suffix
+
+        cache_file = get_cache_folder("resources.%s.cache"%category)
+        
+        try:
+            self._cache = shelve.open(cache_file, protocol=2)
+        except:
+            logging.error("Loading resource cache failed")
+            logging.debug(traceback.format_exc())
+            
+    def locate(self, name):
+        try:
+            return self._cache[name]
+        except KeyError:
+            logging.info("Locate resource: %s"%name)
+            for root_folder in self.root_folders:
+                path = os.path.join(root_folder, self.category, name + '.' + self.suffix)
+                if os.path.exists(path):
+                    self._cache[name] = path
+                    self._cache.sync() #sync after each change as .close() is never called
+                    return path
+            return None
+        except:
+            logging.error("Unknown error reading from resource cache")
+            logging.debug(traceback.format_exc())
+            return None
+    
+    @staticmethod
+    def bootstrap():
+        Resources.root_folders = [ bkt_base_path_join('resources') ]
+        Resources.images = Resources("images", "png")
+        Resources.xaml = Resources("xaml", "xaml")
+
+Resources.bootstrap()

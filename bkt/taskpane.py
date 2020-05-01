@@ -11,7 +11,7 @@ from __future__ import absolute_import
 import logging
 
 import bkt.ribbon
-from bkt.apps import Resources
+from bkt.helpers import Resources
 from bkt.xml import WpfXMLFactory, linq
 
 

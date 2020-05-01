@@ -592,7 +592,7 @@ class AddIn(object):
 
             logging.info('start import from cache')
             sys.path.extend(import_cache['sys.path'])
-            bkt.apps.Resources.root_folders.extend(import_cache['resources.path'])
+            _h.Resources.root_folders.extend(import_cache['resources.path'])
 
             for module_name, feature in import_cache['inits.features'].iteritems():
                 # feature = import_cache['feature.'+module_name]
@@ -654,7 +654,7 @@ class AddIn(object):
                 # initialize resource-folders from feature-folders
                 res_path = os.path.join(folder,'resources')
                 if os.path.exists(res_path):
-                    bkt.apps.Resources.root_folders.append(res_path)
+                    _h.Resources.root_folders.append(res_path)
                     _c_resources_paths.add(res_path)
 
                 # load using bkt_init.py file
@@ -798,7 +798,7 @@ class AddIn(object):
         self.app_callbacks.fire_event(self.events.bkt_load)
     
     def load_image(self, image_name):
-        path = bkt.apps.Resources.images.locate(image_name)  #@UndefinedVariable
+        path = _h.Resources.images.locate(image_name)  #@UndefinedVariable
         if path is None:
             return
         return Bitmap.FromFile(path)
