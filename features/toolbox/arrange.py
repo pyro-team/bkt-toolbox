@@ -41,7 +41,7 @@ class Swap(object):
     
     @classmethod
     def multi_swap(cls, shapes):
-        if bkt.get_key_state.SHIFT:
+        if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             # change position *and size*
             return Swap.multi_swap_pos_size(shapes)
 
@@ -224,9 +224,9 @@ swap_button = bkt.ribbon.SplitButton(
 class EqualSize(object):
     @classmethod
     def _get_func(cls):
-        if bkt.get_key_state.SHIFT:
+        if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             return min
-        elif bkt.get_key_state.CTRL:
+        elif bkt.get_key_state(bkt.KeyCodes.CTRL):
             if ArrangeAdvanced.master == "FIRST":
                 return lambda l: l.pop(0)
             else:
@@ -483,7 +483,7 @@ class ShapeDistance(object):
     
     @classmethod
     def get_vertical_fix(cls):
-        if bkt.get_key_state.ALT:
+        if bkt.get_key_state(bkt.KeyCodes.ALT):
             if cls.vertical_fix == "bottom":
                 return "top"
             else:
@@ -566,7 +566,7 @@ class ShapeDistance(object):
 
     @classmethod
     def get_horizontal_fix(cls):
-        if bkt.get_key_state.ALT:
+        if bkt.get_key_state(bkt.KeyCodes.ALT):
             if cls.horizontal_fix == "right":
                 return "left"
             else:
@@ -650,18 +650,18 @@ class ShapeDistance(object):
 
     @classmethod
     def set_shape_sep_vertical_zero(cls, shapes):
-        if bkt.get_key_state.SHIFT:
+        if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             cls.set_shape_sep_vertical(shapes, cm_to_pt(cls.default_sep))
-        elif bkt.get_key_state.CTRL:
+        elif bkt.get_key_state(bkt.KeyCodes.CTRL):
             cls.set_shape_sep_vertical(shapes, cls.get_shape_sep_vertical(shapes))
         else:
             cls.set_shape_sep_vertical(shapes, 0)
 
     @classmethod
     def set_shape_sep_horizontal_zero(cls, shapes):
-        if bkt.get_key_state.SHIFT:
+        if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             cls.set_shape_sep_horizontal(shapes, cm_to_pt(cls.default_sep))
-        elif bkt.get_key_state.CTRL:
+        elif bkt.get_key_state(bkt.KeyCodes.CTRL):
             cls.set_shape_sep_horizontal(shapes, cls.get_shape_sep_horizontal(shapes))
         else:
             cls.set_shape_sep_horizontal(shapes, 0)
@@ -675,7 +675,7 @@ class ShapeDistance(object):
 
     @classmethod
     def is_mode_delta(cls):
-        alt = bkt.get_key_state.ALT
+        alt = bkt.get_key_state(bkt.KeyCodes.ALT)
         return alt or cls.euclid_multi_shape_mode == "delta"
 
     @classmethod
@@ -722,7 +722,7 @@ class ShapeDistance(object):
         shapes = pplib.wrap_shapes(shapes[cls.shape1_index+1:], cls.shape2_locpin)
         # shape2_x, shape2_y = shapes[0].left, shapes[0].top
 
-        # alt = bkt.get_key_state.ALT
+        # alt = bkt.get_key_state(bkt.KeyCodes.ALT)
 
         # if cls.is_mode_centric() or cls.is_mode_distribute():
         if not cls.is_mode_delta():
@@ -789,7 +789,7 @@ class ShapeDistance(object):
         shapes = pplib.wrap_shapes(shapes[cls.shape1_index+1:], cls.shape2_locpin)
         # shape_rotation = (360-value) % 360
 
-        # alt = bkt.get_key_state.ALT
+        # alt = bkt.get_key_state(bkt.KeyCodes.ALT)
 
         # if cls.is_mode_centric() or cls.is_mode_distribute():
         if not cls.is_mode_delta():
@@ -852,9 +852,9 @@ class ShapeRotation(object):
 
     @classmethod
     def set_rotation_zero(cls, shapes):
-        if bkt.get_key_state.SHIFT:
+        if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             cls.set_rotation(shapes, 180)
-        elif bkt.get_key_state.CTRL:
+        elif bkt.get_key_state(bkt.KeyCodes.CTRL):
             cls.set_rotation(shapes, cls.get_rotation(shapes))
         else:
             cls.set_rotation(shapes, 0)
@@ -1589,7 +1589,7 @@ class ArrangeAdvanced(object):
                 return self.get_master_from_shapes(shapes)
 
         ''' obtain master shape from given shapes according to master-setting '''
-        if bkt.get_key_state.CTRL:
+        if bkt.get_key_state(bkt.KeyCodes.CTRL):
             return pplib.BoundingFrame(shapes[0].parent, contentarea=True)
         
         elif ArrangeAdvanced.master == "FIXED-SHAPE" and self.ref_shape != None:
@@ -1643,7 +1643,7 @@ class ArrangeAdvanced(object):
     
     def use_resizing(self):
         ''' returns if resizing-option should be used. Depends on setting for resize-option, and SHIFT-key-state '''
-        if bkt.get_key_state.SHIFT:
+        if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             return True
         else:
             return self.get_resizing()
@@ -2823,11 +2823,11 @@ class RepositionGallery(pplib.PositionGallery):
         # CTRL = position only
         # SHIFT = size only
         
-        if not bkt.get_key_state.SHIFT:
+        if not bkt.get_key_state(bkt.KeyCodes.SHIFT):
             shape.left   = target_frame.left
             shape.top    = target_frame.top
         
-        if not bkt.get_key_state.CTRL:
+        if not bkt.get_key_state(bkt.KeyCodes.CTRL):
             shape.width  = target_frame.width
             shape.height = target_frame.height
 

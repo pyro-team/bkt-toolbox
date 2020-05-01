@@ -36,7 +36,7 @@ class SelectionOps(object):
     @classmethod
     def _inc_dec_selection_size(cls, areas, direction):
         bottom_right_cell = areas[0].Cells(areas[0].Rows.Count,areas[0].Columns.Count)
-        if bkt.get_key_state.CTRL:
+        if bkt.get_key_state(bkt.KeyCodes.CTRL):
             cell = xllib.get_next_cell(bottom_right_cell, direction)
         else:
             cell = xllib.get_next_visible_cell(bottom_right_cell, direction)
@@ -84,7 +84,7 @@ class SelectionOps(object):
 
     @classmethod
     def _inc_dec_selection_pos(cls, selection, areas, direction):
-        if bkt.get_key_state.CTRL:
+        if bkt.get_key_state(bkt.KeyCodes.CTRL):
             cell = xllib.get_next_cell(areas[0].Cells(1,1), direction)
         else:
             cell = xllib.get_next_visible_cell(areas[0].Cells(1,1), direction)

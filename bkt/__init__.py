@@ -50,7 +50,8 @@ from bkt.appui import (excel,
 
 from bkt.library.system import (
     apply_delta_on_ALT_key,
-    get_key_state
+    get_key_state,
+    KeyCodes
 )
 
 # enable legacy annotations syntax with decorators

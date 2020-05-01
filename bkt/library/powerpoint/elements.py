@@ -243,7 +243,7 @@ class PPTSymbolsSettings(object):
     
     @classmethod
     def get_convert_into_shape(cls):
-        return (cls.convert_into_shape or bkt.get_key_state.SHIFT) and not bkt.get_key_state.CTRL
+        return (cls.convert_into_shape or bkt.get_key_state(bkt.KeyCodes.SHIFT)) and not bkt.get_key_state(bkt.KeyCodes.CTRL)
     
     @classmethod
     def switch_convert_into_bitmap(cls, pressed):
@@ -254,7 +254,7 @@ class PPTSymbolsSettings(object):
     
     @classmethod
     def get_convert_into_bitmap(cls):
-        return (cls.convert_into_bitmap or bkt.get_key_state.CTRL) and not bkt.get_key_state.SHIFT
+        return (cls.convert_into_bitmap or bkt.get_key_state(bkt.KeyCodes.CTRL)) and not bkt.get_key_state(bkt.KeyCodes.SHIFT)
 
 
 class PPTSymbolsGallery(bkt.ribbon.SymbolsGallery):
@@ -267,7 +267,7 @@ class PPTSymbolsGallery(bkt.ribbon.SymbolsGallery):
         item = self.symbols[index]
         self._add_to_recent(item)
 
-        shift_or_ctrl = bkt.get_key_state.CTRL or bkt.get_key_state.SHIFT
+        shift_or_ctrl = bkt.get_key_state(bkt.KeyCodes.CTRL) or bkt.get_key_state(bkt.KeyCodes.SHIFT)
 
         if selection.Type == 3 and not shift_or_ctrl: #text selected
             selection.TextRange2.Text = "" #remove selected text first and then insert symbol

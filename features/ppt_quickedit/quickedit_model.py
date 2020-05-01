@@ -505,7 +505,7 @@ class QuickEdit(object):
 
     @classmethod
     def pickup_color(cls, context, selected_color=None):
-        shift = bkt.get_key_state.SHIFT
+        shift = bkt.get_key_state(bkt.KeyCodes.SHIFT)
         selection = context.app.ActiveWindow.Selection
 
         color_from_selection = cls._get_color_from_selection(selection)
@@ -683,9 +683,9 @@ class QuickEdit(object):
 
     @classmethod
     def action(cls, qebutton, context, pressed=False):
-        shift = bkt.get_key_state.SHIFT
-        ctrl  = bkt.get_key_state.CTRL
-        alt   = bkt.get_key_state.ALT
+        shift = bkt.get_key_state(bkt.KeyCodes.SHIFT)
+        ctrl  = bkt.get_key_state(bkt.KeyCodes.CTRL)
+        alt   = bkt.get_key_state(bkt.KeyCodes.ALT)
         # color_index = cls._get_index(current_control)
         
         selection = context.app.ActiveWindow.Selection
@@ -779,9 +779,9 @@ class QuickEdit(object):
 
     @classmethod
     def action_no_fill(cls, context):
-        shift = bkt.get_key_state.SHIFT
-        ctrl  = bkt.get_key_state.CTRL
-        alt   = bkt.get_key_state.ALT
+        shift = bkt.get_key_state(bkt.KeyCodes.SHIFT)
+        ctrl  = bkt.get_key_state(bkt.KeyCodes.CTRL)
+        alt   = bkt.get_key_state(bkt.KeyCodes.ALT)
         
         selection = context.app.ActiveWindow.Selection
 
@@ -856,7 +856,7 @@ class QuickEdit(object):
 
     @classmethod
     def action_transparency(cls, context, delta):
-        ctrl  = bkt.get_key_state.CTRL
+        ctrl  = bkt.get_key_state(bkt.KeyCodes.CTRL)
 
         selection = context.app.ActiveWindow.Selection
 

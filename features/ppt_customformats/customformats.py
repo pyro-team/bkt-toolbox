@@ -664,9 +664,9 @@ class CustomQuickEdit(object):
 
     @classmethod
     def apply_custom_style(cls, index, context):
-        shift = bkt.get_key_state.SHIFT
-        ctrl  = bkt.get_key_state.CTRL
-        # alt   = bkt.get_key_state.ALT
+        shift = bkt.get_key_state(bkt.KeyCodes.SHIFT)
+        ctrl  = bkt.get_key_state(bkt.KeyCodes.CTRL)
+        # alt   = bkt.get_key_state(bkt.KeyCodes.ALT)
 
         apply_style = True
         
@@ -701,7 +701,7 @@ class CustomQuickEdit(object):
         cls.temp_custom_format = CustomFormat.from_shape(shape)
         cls.temp_settings_done = False
 
-        if bkt.get_key_state.CTRL:
+        if bkt.get_key_state(bkt.KeyCodes.CTRL):
             import bkt.console
             # logging.debug(json.dumps(cls.temp_custom_format.to_json()))
             bkt.console.show_message("%r" % cls.temp_custom_format.to_json())
@@ -709,7 +709,7 @@ class CustomQuickEdit(object):
     @classmethod
     def temp_apply(cls, shapes):
         do_apply = True
-        if bkt.get_key_state.CTRL or not cls.temp_settings_done:
+        if bkt.get_key_state(bkt.KeyCodes.CTRL) or not cls.temp_settings_done:
             from .pickup_style import PickupWindow
             wnd = PickupWindow.create_and_show_dialog(cls, cls.temp_custom_format.style_setting)
         

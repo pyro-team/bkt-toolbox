@@ -126,24 +126,24 @@ class HarveyBalls(object):
         
 
     def harvey_percent_inc(self, shapes):
-        if bkt.get_key_state.CTRL:
+        if bkt.get_key_state(bkt.KeyCodes.CTRL):
             step = 1
-        elif bkt.get_key_state.SHIFT:
+        elif bkt.get_key_state(bkt.KeyCodes.SHIFT):
             step = 25
         else:
             step = 5
-        # step = 1 if bkt.get_key_state.CTRL else 5
+        # step = 1 if bkt.get_key_state(bkt.KeyCodes.CTRL) else 5
         value = round(self.get_harvey_percent(shapes),3) + step
         self.harvey_percent_setter(shapes, value)
 
     def harvey_percent_dec(self, shapes):
-        if bkt.get_key_state.CTRL:
+        if bkt.get_key_state(bkt.KeyCodes.CTRL):
             step = 1
-        elif bkt.get_key_state.SHIFT:
+        elif bkt.get_key_state(bkt.KeyCodes.SHIFT):
             step = 25
         else:
             step = 5
-        # step = 1 if bkt.get_key_state.CTRL else 5
+        # step = 1 if bkt.get_key_state(bkt.KeyCodes.CTRL) else 5
         value = round(self.get_harvey_percent(shapes),3) - step
         self.harvey_percent_setter(shapes, value)
     
