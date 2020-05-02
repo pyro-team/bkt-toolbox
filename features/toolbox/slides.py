@@ -154,7 +154,7 @@ class SendOrSaveSlides(object):
             oApp = Outlook.ApplicationClass()
             oMail = oApp.CreateItem(Outlook.OlItemType.olMailItem)
         except EnvironmentError:
-            bkt.helpers.error("Fehler beim Erstellen der E-Mail in Outlook!")
+            bkt.message.error("Fehler beim Erstellen der E-Mail in Outlook!")
             return
 
         # Betreff
@@ -430,15 +430,15 @@ class SlideMenu(object):
         
         unused_designs_len = len(unused_designs)
         if unused_designs_len > 0:
-            if bkt.helpers.confirmation("Es wurden {} Folienlayouts gelöscht und {} Folienmaster sind nun ohne Layout. Sollen diese gelöscht werden?".format(deleted_layouts, unused_designs_len)):
+            if bkt.message.confirmation("Es wurden {} Folienlayouts gelöscht und {} Folienmaster sind nun ohne Layout. Sollen diese gelöscht werden?".format(deleted_layouts, unused_designs_len)):
                 for design in unused_designs:
                     try:
                         design.Delete()
                     except:
                         continue
-            bkt.helpers.message("Leere Folienmaster wurden gelöscht!")
+            bkt.message("Leere Folienmaster wurden gelöscht!")
         else:
-            bkt.helpers.message("Es wurden {} Folienlayouts gelöscht!".format(deleted_layouts))
+            bkt.message("Es wurden {} Folienlayouts gelöscht!".format(deleted_layouts))
     
     @classmethod
     def remove_unused_designs(cls, context):
@@ -458,7 +458,7 @@ class SlideMenu(object):
             except:
                 continue
         
-        bkt.helpers.message("Es wurden {} Folienmaster gelöscht!".format(deleted_designs))
+        bkt.message("Es wurden {} Folienmaster gelöscht!".format(deleted_designs))
 
     @classmethod
     def break_links(cls, context):

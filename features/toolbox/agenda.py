@@ -291,7 +291,7 @@ class ToolboxAgenda(object):
         
         master_textbox = cls.get_agenda_textbox_on_slide(slide)
         if master_textbox is None:
-            bkt.helpers.warning("Keine Agenda-Textbox auf der Folie vorhanden.", title="Toolbox: Agenda")
+            bkt.message.warning("Keine Agenda-Textbox auf der Folie vorhanden.", title="Toolbox: Agenda")
             return
         
         cls.create_agenda_from_textbox(master_textbox, context)
@@ -328,7 +328,7 @@ class ToolboxAgenda(object):
         elif cls.can_create_agenda_from_slide(slide):
             cls.create_agenda_from_slide(slide, context)
         else:
-            bkt.helpers.warning("Agenda nicht gefunden!", title="Toolbox: Agenda")
+            bkt.message.warning("Agenda nicht gefunden!", title="Toolbox: Agenda")
 
 
     
@@ -350,12 +350,12 @@ class ToolboxAgenda(object):
             # no agenda settings found on slide
             if cls.is_agenda_slide(slide):
                 # find all agenda-slides in presentation
-                # bkt.helpers.message(slide.Tags.Item(TOOLBOX_AGENDA))
-                bkt.helpers.warning("Keine Agenda-Einstellungen auf aktueller Folie. Durchsuche alle Agenda-Folien.", title="Toolbox: Agenda")
+                # bkt.message(slide.Tags.Item(TOOLBOX_AGENDA))
+                bkt.message.warning("Keine Agenda-Einstellungen auf aktueller Folie. Durchsuche alle Agenda-Folien.", title="Toolbox: Agenda")
                 return cls.find_all_agenda_slides(slide.parent)
             else:
                 # slide is not an agenda slide
-                bkt.helpers.warning("Aktuelle Folie ist keine Agenda-Folie!", title="Toolbox: Agenda")
+                bkt.message.warning("Aktuelle Folie ist keine Agenda-Folie!", title="Toolbox: Agenda")
                 return []
         
         return cls.find_agenda_items_by_id(slide.parent, settings[SETTING_AGENDA_ID])
@@ -439,7 +439,7 @@ class ToolboxAgenda(object):
         '''
         agenda_slides = cls.find_agenda_items_by_slide(slide)
         if len(agenda_slides) == 0:
-            bkt.helpers.warning("Keine Agenda gefunden!", title="Toolbox: Agenda")
+            bkt.message.warning("Keine Agenda gefunden!", title="Toolbox: Agenda")
             return
         
         # search master slide
@@ -523,15 +523,15 @@ class ToolboxAgenda(object):
         # show warning-message and ask to continue, if SETTING_HIDE_SUBITEMS=True
         settings = cls.get_agenda_settings(agenda_slide)
         if settings.get(SETTING_HIDE_SUBITEMS, False) == True:
-            return_value = bkt.helpers.Forms.MessageBox.Show(
+            return_value = bkt.message.confirmation(
                 "Agenda-Master nicht gefunden!\nAgenda kann aus der ersten Agendafolie wiederhergestellt werden, aber versteckte Unterpunkte gehen dabei verloren.\n\nAgenda-Aktualisierung forsetzen?",
                 "Toolbox: Agenda", 
-                bkt.helpers.Forms.MessageBoxButtons.YesNo,
-                bkt.helpers.Forms.MessageBoxIcon.Warning)
+                bkt.MessageBox.MB_YESNO,
+                bkt.MessageBox.WARNING)
         else:
-            return_value = bkt.helpers.Forms.DialogResult.Yes
+            return_value = True
         
-        if return_value == bkt.helpers.Forms.DialogResult.Yes:
+        if return_value:
             #duplicate first agenda_slide as new master slide
             master_slide = agenda_slide.Duplicate(1)
             master_slide.MoveTo(agenda_slide.SlideIndex)
@@ -878,7 +878,7 @@ class ToolboxAgenda(object):
     #     try:
     #         # In normaler Ansicht
     #         if context.app.ActiveWindow.View.Type != ppt.PpViewType.ppViewNormal.value__:
-    #             bkt.helpers.message("In Slide-View wechseln!")
+    #             bkt.message("In Slide-View wechseln!")
     #             return
     #
     #         # Aktuelles Slide
@@ -895,7 +895,7 @@ class ToolboxAgenda(object):
     #                         break
     #
     #             if shp is None:
-    #                 bkt.helpers.message("Textbox mit Agenda-Einträgen auswählen oder als Bullet-Liste formatieren.")
+    #                 bkt.message("Textbox mit Agenda-Einträgen auswählen oder als Bullet-Liste formatieren.")
     #
     #         if not shp is None:
     #             if slide.Tags.Item(TOOLBOX_AGENDA) != "":
@@ -950,7 +950,7 @@ class ToolboxAgenda(object):
     #         sldMaster = slides.values()[0]
     #         textbox = cls.get_agenda_textbox_on_slide(sldMaster)
     #         if textbox is None:
-    #             bkt.helpers.message("Update nicht möglich! Agenda-Textbox fehlt auf erstem Agenda-Slide.")
+    #             bkt.message("Update nicht möglich! Agenda-Textbox fehlt auf erstem Agenda-Slide.")
     #
     #         # Pro Absatz das zugehörige Slide aktualisieren (bzw. neu erstellen)
     #         for idx in range(1, textbox.TextFrame.TextRange.Paragraphs().Count+1):
@@ -976,7 +976,7 @@ class ToolboxAgenda(object):
     #                             slides["slide-" + str(idx)].Delete()
     #                             cls.set_tags_for_slide(sld, idx)
     #                     else:
-    #                         bkt.helpers.message("Not implemented yet!")
+    #                         bkt.message("Not implemented yet!")
     #                     slides.pop("slide-" + str(idx))
     #
     #                 # Agenda aktualisieren
@@ -1053,7 +1053,7 @@ class ToolboxAgenda(object):
         try:
             agenda_slides = cls.find_agenda_items_by_slide(slide)
             if len(agenda_slides) == 0:
-                if bkt.helpers.confirmation("Keine zugehörigen Agenda-Folien gefunden!\nStattdessen alle Agenda-Folie der Präsentation löschen?", title="Toolbox: Agenda"):
+                if bkt.message.confirmation("Keine zugehörigen Agenda-Folien gefunden!\nStattdessen alle Agenda-Folie der Präsentation löschen?", title="Toolbox: Agenda"):
                     cls.remove_agendas_from_presentation(presentation, True)
                 return
 
@@ -1403,7 +1403,7 @@ class ToolboxAgenda(object):
     @classmethod
     def set_selector_margin(cls, margin, slide):
         # cls._update_setting_value(slide, SETTING_SELECTOR_MARGIN, margin)
-        # if bkt.helpers.confirmation("Agenda jetzt aktualisieren?", title="Toolbox: Agenda"):
+        # if bkt.message.confirmation("Agenda jetzt aktualisieren?", title="Toolbox: Agenda"):
         #     cls.update_agenda_slides_by_slide(slide)
         
         agenda_items = cls.find_agenda_items_by_slide(slide)

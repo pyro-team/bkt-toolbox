@@ -72,7 +72,7 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
         self._model.reset_to_defaults()
 
         self.Close()
-        if bkt.helpers.confirmation("Soll die BKT nun neu geladen werden?"):
+        if bkt.message.confirmation("Soll die BKT nun neu geladen werden?"):
             self._reload_bkt()
 
     def save_settings(self, sender, event):
@@ -97,7 +97,7 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
         self._model.set_setting("iconsearch_group", self._value2key(self._vm.iconsearch_group))
 
         self.Close()
-        if bkt.helpers.confirmation("Soll die BKT nun neu geladen werden?"):
+        if bkt.message.confirmation("Soll die BKT nun neu geladen werden?"):
             self._reload_bkt()
     
     def _reload_bkt(self):

@@ -30,14 +30,14 @@ class ProcessChevronsPopup(bkt.ui.WpfWindowAbstract):
         try:
             ProcessChevrons.add_chevron(list(iter(self._context.selection.ShapeRange)))
         except:
-            bkt.helpers.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
+            bkt.message.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
             # bkt.helpers.exception_as_message()
 
     def btnminus(self, sender, event):
         try:
             ProcessChevrons.remove_chevron(list(iter(self._context.selection.ShapeRange)))
         except:
-            bkt.helpers.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
+            bkt.message.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
             # bkt.helpers.exception_as_message()
 
 #initialization function called by contextdialogs.py

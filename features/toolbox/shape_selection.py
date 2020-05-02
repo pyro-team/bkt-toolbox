@@ -195,7 +195,7 @@ class SlidesMore(object):
         try:
             slide.Shapes.PasteSpecial(Link=True)
         except:
-            bkt.helpers.error("Das Element in der Zwischenablage unterstützt diesen Einfügetyp nicht.")
+            bkt.message.error("Das Element in der Zwischenablage unterstützt diesen Einfügetyp nicht.")
     
     @staticmethod
     def paste_and_replace(slide, shape, keep_size=True):
@@ -241,7 +241,7 @@ class SlidesMore(object):
         # logging.debug("high quality slide export at: %s"%tmpfile)
 
         if not os.path.exists(tmpfile):
-            bkt.helpers.error("Folien-Export in hoher Qualität ist fehlgeschlagen!")
+            bkt.message.error("Folien-Export in hoher Qualität ist fehlgeschlagen!")
             return
 
         data = Forms.DataObject()

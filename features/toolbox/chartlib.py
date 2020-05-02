@@ -356,7 +356,7 @@ class ChartLib(object):
         )
     
     def update_thumbnails_and_reset_cashes(self, context):
-        if not bkt.helpers.confirmation("Dieser Vorgang kann bei vielen Libraries einige Minuten dauern und nicht abgebrochen werden. Trotzdem fortsetzen?"):
+        if not bkt.message.confirmation("Dieser Vorgang kann bei vielen Libraries einige Minuten dauern und nicht abgebrochen werden. Trotzdem fortsetzen?"):
             return
 
         def loop(worker):

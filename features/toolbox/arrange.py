@@ -1584,7 +1584,7 @@ class ArrangeAdvanced(object):
                 ref.left #test if ref still exists
                 return ref
             except:
-                bkt.helpers.warning("Fehler: Referenz wurde nicht gefunden. Fallback zu Ausrichtung am Mastershape innerhalb der Selektion.")
+                bkt.message.warning("Fehler: Referenz wurde nicht gefunden. Fallback zu Ausrichtung am Mastershape innerhalb der Selektion.")
                 ArrangeAdvanced.master = self.fallback_first_last
                 return self.get_master_from_shapes(shapes)
 

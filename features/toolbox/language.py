@@ -50,7 +50,7 @@ class LangSetter(object):
             cls.active_langs = ['de', 'us', 'gb']
         bkt.settings["toolbox.languages_checked"] = cls.active_langs
 
-        bkt.helpers.message("Die Änderungen werden nach einem PowerPoint-Neustart sichtbar.")
+        bkt.message("Die Änderungen werden nach einem PowerPoint-Neustart sichtbar.")
 
     @classmethod
     def get_button(cls, language, idtag=""):
@@ -90,16 +90,16 @@ class LangSetter(object):
             textrange.LanguageID = lang_code
             # selection.TextRange2.LanguageID = lang_code
         elif len(shapes) > 0:
-            #bkt.helpers.message("Setze Sprache für Shapes: " + str(len(shapes)))
+            #bkt.message("Setze Sprache für Shapes: " + str(len(shapes)))
             cls.set_language_for_shapes(shapes, lang_code)
         elif len(slides) != presentation.slides.count and (len(slides) > 1 or context.app.ActiveWindow.ActivePane.ViewType in [7, 11]): #7=ppViewSlideSorter, 11=ppViewThumbnails
-            #bkt.helpers.message("Setze Sprache für Slides: " + str(len(slides)))
-            if len(slides) > 1 and not bkt.helpers.confirmation("Sprache aller Shapes auf ausgewählten Folien ändern?"):
+            #bkt.message("Setze Sprache für Slides: " + str(len(slides)))
+            if len(slides) > 1 and not bkt.message.confirmation("Sprache aller Shapes auf ausgewählten Folien ändern?"):
                 return
             cls.set_language_for_slides(slides, lang_code)
         else:
-            #bkt.helpers.message("Setze Sprache für Präsentation")
-            if not bkt.helpers.confirmation("Sprache aller Shapes auf allen Folien (inkl. Standardsprache der Präsentation) ändern?"):
+            #bkt.message("Setze Sprache für Präsentation")
+            if not bkt.message.confirmation("Sprache aller Shapes auf allen Folien (inkl. Standardsprache der Präsentation) ändern?"):
                 return
             presentation.DefaultLanguageID = lang_code
             cls.set_language_for_slides(presentation.slides, lang_code)

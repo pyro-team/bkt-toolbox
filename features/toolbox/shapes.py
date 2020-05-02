@@ -475,7 +475,7 @@ class TrackerShape(object):
         LinkedShapes.link_shapes(all_trackers_list)
 
         #ask to distribute trackers
-        if bkt.helpers.confirmation("Tracker auf Folgefolien verteilen?"):
+        if bkt.message.confirmation("Tracker auf Folgefolien verteilen?"):
             cls.distributeTracker(all_trackers_list, context)
             all_trackers_list[0].select()
 
@@ -589,7 +589,7 @@ class ShapeConnectors(object):
                 shape1 = cls._find_shape_by_id(slide, tags["shape1_id"])
                 shape2 = cls._find_shape_by_id(slide, tags["shape2_id"])
             except IndexError:
-                bkt.helpers.error("Fehler: Verbundenes Shape nicht gefunden!")
+                bkt.message.error("Fehler: Verbundenes Shape nicht gefunden!")
             else:
                 cls._set_connector_shape_nodes(shape, shape1, shape2, tags["shape1_side"], tags["shape2_side"])
 
@@ -690,7 +690,7 @@ class ShapesMore(object):
     @classmethod
     def texts_to_shapes(cls, shapes):
         if pplib.shape_is_group_child(shapes[0]) or any(shape.type == pplib.MsoShapeType["msoGroup"] for shape in shapes):
-            bkt.helpers.error("PowerPoint unterstützt diese Funktion leider nicht für Gruppen.")
+            bkt.message.error("PowerPoint unterstützt diese Funktion leider nicht für Gruppen.")
             return
         all_shapes = []
         for shape in shapes:
@@ -1426,7 +1426,7 @@ line_transparency_gallery = bkt.ribbon.Gallery(
 class PictureFormat(object):
     @staticmethod
     def make_img_transparent(slide, shapes, transparency=0.5):
-        if not bkt.helpers.confirmation("Das bestehende Bild wird dabei ersetzt. Fortfahren?"):
+        if not bkt.message.confirmation("Das bestehende Bild wird dabei ersetzt. Fortfahren?"):
             return
 
         import tempfile, os

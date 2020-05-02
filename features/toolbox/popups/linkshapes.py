@@ -31,39 +31,39 @@ class LinkedShapePopup(bkt.ui.WpfWindowAbstract):
         try:
             self._context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
         except:
-            bkt.helpers.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
+            bkt.message.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
 
     def btnsync_text(self, sender, event):
         try:
             LinkedShapes.text_linked_shapes(self._context.shapes[-1], self._context)
         except:
-            bkt.helpers.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
+            bkt.message.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
     def btnsync_possize(self, sender, event):
         try:
             LinkedShapes.align_linked_shapes(self._context.shapes[-1], self._context)
             LinkedShapes.size_linked_shapes(self._context.shapes[-1], self._context)
         except:
-            bkt.helpers.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
+            bkt.message.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
     def btnsync_format(self, sender, event):
         try:
             LinkedShapes.format_linked_shapes(self._context.shapes[-1], self._context)
         except:
-            bkt.helpers.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
+            bkt.message.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
     def btnnext(self, sender, event):
         try:
             LinkedShapes.goto_linked_shape(self._context.shapes[-1], self._context)
         except:
-            bkt.helpers.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
+            bkt.message.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
 
     @staticmethod
     def double_click(shape, context):
         try:
             context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
         except:
-            bkt.helpers.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
+            bkt.message.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
 
 
 

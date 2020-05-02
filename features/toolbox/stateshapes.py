@@ -220,7 +220,7 @@ class StateShape(object):
     @staticmethod
     def show_help():
         #TODO
-        bkt.helpers.message("TODO: show help file, image, or something...")
+        bkt.message("TODO: show help file, image, or something...")
 
 
 class LikertScale(bkt.ribbon.Gallery):

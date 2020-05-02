@@ -31,7 +31,7 @@ class TabActivator(object):
         try:
             count_shapes = selection.SlideRange[1].Shapes.Count
             if selection.type == 2 and count_shapes > cls.shapes_on_slide and selection.ShapeRange[1].Type != 6: #ppSelectionShape, shapes increased, no group
-                #bkt.helpers.message("shape added")
+                #bkt.message("shape added")
                 cls.context.ribbon.ActivateTab(cls.tab_id)
                 # print("tab activator: default tab activated")
             cls.shapes_on_slide = count_shapes
@@ -61,7 +61,7 @@ class ProtectedView(object):
         message = '''At least one open presentation in protected view detected. Even if the protected view window is in the background, PowerPoint might show unexpected behavior such as keyboard input lags or shapes are glued to the cursor on selection.
 
 If you continue editing in PowerPoint it is highly recommended to open all presentations in editing mode or close all protected view windows. This is not a BKT bug but a PowerPoint bug.'''
-        bkt.helpers.warning(message, "BKT: Protected view window detected!")
+        bkt.message.warning(message, "BKT: Protected view window detected!")
 
 
 
@@ -134,7 +134,7 @@ class ToolbarVariations(object):
         context.config.set_smart("feature_folders", folders)
 
         #reload bkt using settings module
-        if bkt.helpers.confirmation("Soll die BKT nun neu geladen werden?"):
+        if bkt.message.confirmation("Soll die BKT nun neu geladen werden?"):
             settings.BKTReload.reload_bkt(context)
     
     @classmethod

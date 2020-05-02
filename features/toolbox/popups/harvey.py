@@ -31,14 +31,14 @@ class HarveyPopup(bkt.ui.WpfWindowAbstract):
         try:
             self._context.ribbon.ActivateTab('bkt_context_tab_harvey')
         except:
-            bkt.helpers.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
+            bkt.message.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
 
     def btnplus(self, sender, event):
         try:
             harvey_balls.harvey_percent_setter_popup(list(iter(self._context.selection.ShapeRange)))
             self._context.ribbon.Invalidate()
         except:
-            bkt.helpers.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
+            bkt.message.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
             # bkt.helpers.exception_as_message()
 
     def btnminus(self, sender, event):
@@ -46,7 +46,7 @@ class HarveyPopup(bkt.ui.WpfWindowAbstract):
             harvey_balls.harvey_percent_setter_popup(list(iter(self._context.selection.ShapeRange)), inc=False)
             self._context.ribbon.Invalidate()
         except:
-            bkt.helpers.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
+            bkt.message.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
             # bkt.helpers.exception_as_message()
 
     @staticmethod
@@ -54,7 +54,7 @@ class HarveyPopup(bkt.ui.WpfWindowAbstract):
         try:
             context.ribbon.ActivateTab('bkt_context_tab_harvey')
         except:
-            bkt.helpers.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
+            bkt.message.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
 
 
 #initialization function called by contextdialogs.py
