@@ -37,7 +37,7 @@ class MyWindow(Window):
         self.getColorR = System.Windows.Media.Brushes.Red
 
     def btnClickMe_Click(self, sender, e):
-        bkt.helpers.message("test")
+        bkt.message("test")
 
     def btnClose_Click(self, sender, e):
         self.Close()

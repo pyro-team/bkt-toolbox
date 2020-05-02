@@ -69,7 +69,7 @@ class DevGroup(object):
     
     @staticmethod
     def show_contextmenuids():
-        bkt.helpers.message("All ContextMenuIds are automatically shown in context menus when log-level is set to DEBUG!")
+        bkt.message("All ContextMenuIds are automatically shown in context menus when log-level is set to DEBUG!")
     
     @staticmethod
     def show_sysmodules():
@@ -98,7 +98,7 @@ class DevGroup(object):
         if os.path.exists(filename):
             startfile(filename)
         else:
-            bkt.helpers.error("File not found: " + filename)
+            bkt.message.error("File not found: " + filename)
     
     @classmethod
     def open_log_py(cls):
@@ -364,7 +364,7 @@ class AllControls(object):
     def generate_overview(context):
         controls = AllControls(context)
         controls.run()
-        bkt.helpers.message("Files successfully created")
+        bkt.message("Files successfully created")
 
 
 

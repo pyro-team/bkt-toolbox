@@ -44,7 +44,7 @@ class Shapetags(object):
         else:
             msg = "No tags for " + name + " found!"
 
-        # bkt.helpers.message(msg)
+        # bkt.message(msg)
         bkt.console.show_message(msg)
     
 

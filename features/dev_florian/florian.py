@@ -107,7 +107,7 @@ class TestsFST(object):
         if cd.ShowDialog() == F.DialogResult.OK:
             color = D.ColorTranslator.ToOle(cd.Color)
             shape.Fill.ForeColor.RGB = color
-            # bkt.helpers.message("Farbe: %r" % color)
+            # bkt.message("Farbe: %r" % color)
 
     @staticmethod
     def export_as_png(presentation, slides):
@@ -296,7 +296,7 @@ def get_content_symbols_test():
                 screentip="sjdfs &amp;&amp;sdf &amp;&amp; sdfsdf",
                 supertip="sjdfs &amp;sdf &amp; sdfsdf",
                 tag="TAG er&amp;zeichen &amp; bla test",
-                on_action=bkt.Callback(lambda current_control: bkt.helpers.message("here: %s"%current_control["tag"])),
+                on_action=bkt.Callback(lambda current_control: bkt.message("here: %s"%current_control["tag"])),
             ),
         ],
     )
@@ -313,7 +313,7 @@ ampersand_gruppe = bkt.ribbon.Group(
             screentip="sjdfs &&sdf && sdfsdf",
             supertip="sjdfs &sdf & sdfsdf",
             tag="TAG er&zeichen & bla test",
-            on_action=bkt.Callback(lambda current_control: bkt.helpers.message("here: %s"%current_control["tag"])),
+            on_action=bkt.Callback(lambda current_control: bkt.message("here: %s"%current_control["tag"])),
         ),
         bkt.ribbon.Button(
             get_label=bkt.Callback(lambda: "Sonder&&zeichen && bla test"),

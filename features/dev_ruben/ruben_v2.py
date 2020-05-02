@@ -483,7 +483,7 @@ class Diverses(object):
     #     # Kurve aus Beziers erstellen
     #     # start beim ersten Punkt
     #     P = kurven[0][0][0];
-    #     #bkt.helpers.message( "%d/%d" % (P[0], P[1]) )
+    #     #bkt.message( "%d/%d" % (P[0], P[1]) )
     #     ffb = slide.Shapes.BuildFreeform(1, P[0], P[1])
     #     for kl in kurven:
     #         k = kl[0]
@@ -508,7 +508,7 @@ class Diverses(object):
     #         deltaY = dest[1]-origin[1]
     #         for i in range(0,segments+1):
     #             # SegmentType=0 (Line), EditingType=1 (Corner)
-    #             #bkt.helpers.message( "%d/%d" % (origin[0]+float(i)/segments*deltaX, origin[1]+float(i)/segments*deltaY) )
+    #             #bkt.message( "%d/%d" % (origin[0]+float(i)/segments*deltaX, origin[1]+float(i)/segments*deltaY) )
     #             # SegmentType=0 (Line), EditingType=1 (Corner)
     #             #ffb.addNodes(0,1, origin[0]+float(i)/segments*deltaX, origin[1]+float(i)/segments*deltaY)
     #
