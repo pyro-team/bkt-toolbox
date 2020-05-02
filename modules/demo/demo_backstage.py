@@ -2,7 +2,7 @@ import bkt
 
 # define some default callbacks for the demo-tab
 action_callback = bkt.Callback(
-    lambda current_control: bkt.helpers.message('current_control clicked: label=%s,\nid=%s' % (current_control['label'], current_control['id'])),
+    lambda current_control: bkt.message('current_control clicked: label=%s,\nid=%s' % (current_control['label'], current_control['id'])),
     current_control=True)
 
 
