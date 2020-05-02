@@ -455,9 +455,9 @@ class Button(FluentRibbon.Button):
 
 
 def convert_value_to_string(v):
-    if v == True:
+    if v is True:
         return 'true'
-    elif v == False:
+    elif v is False:
         return 'false'
     elif isinstance(v, (str, unicode)):
         return v
@@ -469,15 +469,16 @@ def convert_value_to_string(v):
 
 def convert_key_to_upper_camelcase(key):
     parts = key.split('_')
-    parts_new = []
-    for i, part in enumerate(parts):
-        if len(part) > 1:
-            p = part[0].upper() + part[1:]
-        else:
-            p = part.upper()
+    return ''.join(x.title() for x in parts)
+    # parts_new = []
+    # for i, part in enumerate(parts):
+    #     if len(part) > 1:
+    #         p = part[0].upper() + part[1:]
+    #     else:
+    #         p = part.upper()
             
-        parts_new.append(p)
-    return ''.join(parts_new)
+    #     parts_new.append(p)
+    # return ''.join(parts_new)
 
 def convert_dict_to_ribbon_xml_style(d):
     return {convert_key_to_upper_camelcase(k):convert_value_to_string(v) for k, v in d.items() if v != None and not isinstance(v, XamlPropertyElement) and not isinstance(v, TaskPaneControl)}
