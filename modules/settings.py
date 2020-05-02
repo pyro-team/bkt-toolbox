@@ -66,7 +66,7 @@ class BKTReload(object):
     @staticmethod
     def invalidate(context):
         try:
-            context.addin.invalidate_ribbon()
+            context.python_addin.invalidate_ribbon()
         except:
             pass
 

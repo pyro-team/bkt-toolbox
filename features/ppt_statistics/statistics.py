@@ -72,7 +72,7 @@ class Statistics(object):
         cls.do_refresh2 = True
         cls.do_refresh3 = True
         try:
-            context.addin.invalidate_ribbon()
+            context.python_addin.invalidate_ribbon()
         except:
             pass
 
