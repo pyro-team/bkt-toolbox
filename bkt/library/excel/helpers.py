@@ -8,7 +8,7 @@ from __future__ import absolute_import
 
 from collections import namedtuple # required for color class
 
-from bkt import config, confirmation
+from bkt import config, message
 from bkt.library.excel import constants
 from bkt.library import algorithms # required for color helper
 
@@ -28,7 +28,7 @@ def confirm_no_undo(text="Dies kann nicht rückgängig gemacht werden. Ausführe
 	if config.excel_ignore_warnings:
 		return True
 	else:
-		return confirmation(text)
+		return message.confirmation(text)
 
 
 restore_screen_updating = True
@@ -37,6 +37,7 @@ restore_interactive = True
 restore_calculation = constants.XlCalculation["xlCalculationAutomatic"]
 
 def freeze_app(disable_screen_updating=True, disable_display_alerts=False, disable_interactive=False, disable_calculation=False):
+    global restore_screen_updating, restore_display_alerts, restore_interactive, restore_calculation
     restore_screen_updating = application.ScreenUpdating
     restore_display_alerts = application.DisplayAlerts
     restore_interactive = application.Interactive
