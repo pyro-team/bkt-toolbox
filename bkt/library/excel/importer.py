@@ -4,9 +4,10 @@ Created on 09.09.2014
 @author: cschmitt
 '''
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 from collections import OrderedDict
+
 from bkt.library.excel.model import ModelData, EntityData
 
 def import_all_sheets(workbook):

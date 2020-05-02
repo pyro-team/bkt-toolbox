@@ -3,11 +3,14 @@
 Created on 2017-07-18
 @author: Florian Stallmann
 '''
-from bkt import config, helpers
-from bkt.library.excel import constants
-from bkt.library import algorithms # required for color helper
+
+from __future__ import absolute_import
 
 from collections import namedtuple # required for color class
+
+from bkt import config, confirmation
+from bkt.library.excel import constants
+from bkt.library import algorithms # required for color helper
 
 # from System.Runtime.InteropServices.Marshal import ReleaseComObject
 
@@ -25,7 +28,7 @@ def confirm_no_undo(text="Dies kann nicht rückgängig gemacht werden. Ausführe
 	if config.excel_ignore_warnings:
 		return True
 	else:
-		return helpers.confirmation(text)
+		return confirmation(text)
 
 
 restore_screen_updating = True

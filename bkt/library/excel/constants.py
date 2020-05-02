@@ -4,6 +4,8 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
 XlPasteType = {
     'xlPasteAll':                       -4104,
     'xlPasteColumnWidths':                  8,
