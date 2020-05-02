@@ -26,13 +26,13 @@ class TestVisio(object):
     def bounding_box(page, shape):
         rect = shape.bounding_box
 
-        #bkt.helpers.message("Bounding Box: " + str(rect.x) + "/" + str(rect.y) + " & " + str(rect.width) + "/" + str(rect.height))
-        #bkt.helpers.message("Real Values: " + str(shape._x) + "/" + str(shape._y) + " & " + str(shape.width) + "/" + str(shape.height))
+        #bkt.message("Bounding Box: " + str(rect.x) + "/" + str(rect.y) + " & " + str(rect.width) + "/" + str(rect.height))
+        #bkt.message("Real Values: " + str(shape._x) + "/" + str(shape._y) + " & " + str(shape.width) + "/" + str(shape.height))
 
         shp_bb = page.drawRect(rect.x, rect.y, rect.width, rect.height)
         shp_bb.fillpattern = 0
 
-        #bkt.helpers.message("farbe: " + str(shp_bb.fillpattern))
+        #bkt.message("farbe: " + str(shp_bb.fillpattern))
 
         #shp_bb.CellsSRC(visSectionObject, visRowFill, visFillPattern).FormulaU = "0"
 
@@ -42,7 +42,7 @@ class TestVisio(object):
         # dblBottom = visio.inch2mm(out[1].Value)
         # dblRight = visio.inch2mm(out[2].Value)
         # dblTop = visio.inch2mm(out[3].Value)
-        # bkt.helpers.message("Bounding Box: " + str(dblLeft) + "/" + str(dblBottom) + "/" + str(dblRight) + "/" + str(dblTop))
+        # bkt.message("Bounding Box: " + str(dblLeft) + "/" + str(dblBottom) + "/" + str(dblRight) + "/" + str(dblTop))
 
 
     @staticmethod
@@ -60,10 +60,10 @@ class TestVisio(object):
         hypotenuse = math.hypot(shape.localpinx, shape.localpiny)
         #hypotenuse = shape.localpinx
         #hypotenuse = hypot(shape.width, shape.height)
-        #bkt.helpers.message("hyp: " + str(round(hypotenuse,2)))
+        #bkt.message("hyp: " + str(round(hypotenuse,2)))
 
-        #bkt.helpers.message("cos: " + str(round(cos(shape.angle),2)))
-        #bkt.helpers.message("sin: " + str(round(sin(shape.angle),2)))
+        #bkt.message("cos: " + str(round(cos(shape.angle),2)))
+        #bkt.message("sin: " + str(round(sin(shape.angle),2)))
 
         ankathete1 = hypotenuse * cos_angle
         ankathete2 = hypotenuse * sin_angle
@@ -72,22 +72,22 @@ class TestVisio(object):
         #ankathete7 = cos(radians(degrees(shape.angle))) / hypotenuse
         #ankathete8 = sin(radians(degrees(shape.angle))) / hypotenuse
 
-        bkt.helpers.message("ank1: " + str(round(shape.x - ankathete1,2)))
-        bkt.helpers.message("ank2: " + str(round(shape.x - ankathete2,2)))
-        #bkt.helpers.message("ank4: " + str(round(shape.x - ankathete4,2)))
-        #bkt.helpers.message("ank5: " + str(round(shape.x - ankathete5,2)))
-        #bkt.helpers.message("ank7: " + str(round(shape.x - ankathete7,2)))
-        #bkt.helpers.message("ank8: " + str(round(shape.x - ankathete8,2)))
+        bkt.message("ank1: " + str(round(shape.x - ankathete1,2)))
+        bkt.message("ank2: " + str(round(shape.x - ankathete2,2)))
+        #bkt.message("ank4: " + str(round(shape.x - ankathete4,2)))
+        #bkt.message("ank5: " + str(round(shape.x - ankathete5,2)))
+        #bkt.message("ank7: " + str(round(shape.x - ankathete7,2)))
+        #bkt.message("ank8: " + str(round(shape.x - ankathete8,2)))
 
-        # bkt.helpers.message("bb_x: " + str(round(shape.x-ankathete,2)))
+        # bkt.message("bb_x: " + str(round(shape.x-ankathete,2)))
         #bb_x = shape.x - dis
-        #bkt.helpers.message("dis: " + str(round(dis,2)))
-        #bkt.helpers.message("bb_x: " + str(round(bb_x,2)))
+        #bkt.message("dis: " + str(round(dis,2)))
+        #bkt.message("bb_x: " + str(round(bb_x,2)))
 
     @staticmethod
     def clipboard_data(application):
         formats = F.Clipboard.GetDataObject().GetFormats(True)
-        bkt.helpers.message("Formats: " + ", ".join(formats))
+        bkt.message("Formats: " + ", ".join(formats))
 
         #TestVisio._show_clipboard_data("Visio 15.0 Shapes")
         #TestVisio._show_clipboard_data("Preferred DropEffect")
@@ -104,7 +104,7 @@ class TestVisio(object):
             data_string = data.ReadToEnd()
 
             print "Clipboard data for " + name + ": " + data_string
-            bkt.helpers.message("Clipboard data for " + name + ": " + data_string)
+            bkt.message("Clipboard data for " + name + ": " + data_string)
         except:
             print "could not read " + name
     

@@ -166,7 +166,7 @@ class CellsOps(object):
         try:
             s = _get_slicer(form_return["text"])
         except:
-            bkt.helpers.message("Ungültige Eingabe!")
+            bkt.message("Ungültige Eingabe!")
             return
 
         for cell in cells:
@@ -293,7 +293,7 @@ class CellsOps(object):
                 #bkt.helpers.exception_as_message(str(cell.AddressLocal()))
 
         if err_counter > 0:
-            bkt.helpers.message("Fehler! Formel war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
+            bkt.message("Fehler! Formel war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
 
 
     @classmethod
@@ -342,7 +342,7 @@ class CellsOps(object):
         try:
             regex = re.compile(form_return["regex"], _get_flags())
         except Exception as e:
-            bkt.helpers.message("Fehler! RegEx kann nicht kompiliert werden: "+str(e))
+            bkt.message("Fehler! RegEx kann nicht kompiliert werden: "+str(e))
             return
 
         if not xllib.confirm_no_undo(): return
@@ -361,7 +361,7 @@ class CellsOps(object):
                 #bkt.helpers.exception_as_message(str(cell.AddressLocal()))
 
         if err_counter > 0:
-            bkt.helpers.message("Fehler! RegEx war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
+            bkt.message("Fehler! RegEx war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
 
     @classmethod
     def regex_split_to_columns(cls, cells, application):
@@ -427,7 +427,7 @@ class CellsOps(object):
         try:
             regex = re.compile(form_return["regex"], _get_flags())
         except Exception as e:
-            bkt.helpers.message("Fehler! RegEx kann nicht kompiliert werden: "+str(e))
+            bkt.message("Fehler! RegEx kann nicht kompiliert werden: "+str(e))
             return
 
         if not xllib.confirm_no_undo(): return
@@ -452,7 +452,7 @@ class CellsOps(object):
                 # bkt.helpers.exception_as_message(str(cell.AddressLocal()))
 
         if err_counter > 0:
-            bkt.helpers.message("Fehler! RegEx war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
+            bkt.message("Fehler! RegEx war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
 
     @classmethod
     def regex_replace(cls, cells, application):
@@ -494,7 +494,7 @@ class CellsOps(object):
         try:
             regex_pattern = re.compile(form_return["pattern"], _get_flags())
         except Exception as e:
-            bkt.helpers.message("Fehler! RegEx kann nicht kompiliert werden: "+str(e))
+            bkt.message("Fehler! RegEx kann nicht kompiliert werden: "+str(e))
             return
 
         if not xllib.confirm_no_undo(): return
@@ -514,7 +514,7 @@ class CellsOps(object):
                 #bkt.helpers.exception_as_message(str(cell.AddressLocal()))
 
         if err_counter > 0:
-            bkt.helpers.message("Fehler! RegEx war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
+            bkt.message("Fehler! RegEx war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
 
 
     @staticmethod
@@ -695,8 +695,8 @@ class CellsOps(object):
             value = value.replace('.', application.International(xlcon.XlApplicationInternational["xlDecimalSeparator"]))
             Forms.Clipboard.SetText(value)
         except:
-            bkt.helpers.message('Fehler beim Kopieren!')
-        #bkt.helpers.message('Kopiert: ' + value)
+            bkt.message('Fehler beim Kopieren!')
+        #bkt.message('Kopiert: ' + value)
 
     @staticmethod
     def enabled_subtotal(application, selection):
@@ -799,7 +799,7 @@ class CellsOps(object):
                 selection.EntireColumn.Hidden = True
             
             else:
-                bkt.helpers.message("Keine ausgeblendeten Spalten im genutzten Bereich gefunden.")
+                bkt.message("Keine ausgeblendeten Spalten im genutzten Bereich gefunden.")
 
 
     @classmethod
@@ -834,7 +834,7 @@ class CellsOps(object):
                 selection.EntireRow.Hidden = True
             
             else:
-                bkt.helpers.message("Keine ausgeblendeten Zeilen im genutzten Bereich gefunden.")
+                bkt.message("Keine ausgeblendeten Zeilen im genutzten Bereich gefunden.")
 
     @staticmethod
     def show_all_cells(sheet):
@@ -896,7 +896,7 @@ class CellsOps(object):
             cell.PasteSpecial(pasteType, SkipBlanks=True)
             
         except:
-            bkt.helpers.message("Sorry, etwas ist schiefgelaufen!?")
+            bkt.message("Sorry, etwas ist schiefgelaufen!?")
 
         temporary_sheet.Delete()
         xllib.unfreeze_app()

@@ -104,7 +104,7 @@ class SelectionOps(object):
                 cells_selected = xllib.range_union(cells_selected, area.Rows(i).EntireRow)
 
         if not cells_selected:
-            bkt.helpers.message("Keine leeren Zeilen im genutzten Bereich!")
+            bkt.message("Keine leeren Zeilen im genutzten Bereich!")
         else:
             cells_selected.Select()
 
@@ -126,7 +126,7 @@ class SelectionOps(object):
                 cells_selected = xllib.range_union(cells_selected, area.Columns(i).EntireColumn)
 
         if not cells_selected:
-            bkt.helpers.message("Keine leeren Spalten im genutzten Bereich!")
+            bkt.message("Keine leeren Spalten im genutzten Bereich!")
         else:
             cells_selected.Select()
 
@@ -152,7 +152,7 @@ class SelectionOps(object):
         selection = xllib.get_unused_ranges(sheet)
 
         if len(selection) == 0:
-            bkt.helpers.message("Kein ungenutzter Bereich!")
+            bkt.message("Kein ungenutzter Bereich!")
         elif len(selection) == 1:
             selection[0].Select()
         else:
@@ -170,7 +170,7 @@ class SelectionOps(object):
             return
         cells_selected = xllib.range_substract(rng_input, selection)
         if not cells_selected:
-            bkt.helpers.message("Leerer Bereich, keine Zellen zum Markieren!")
+            bkt.message("Leerer Bereich, keine Zellen zum Markieren!")
         else:
             cells_selected.Select()
 
@@ -181,7 +181,7 @@ class SelectionOps(object):
             return
         cells_selected = xllib.range_substract(selection, rng_input)
         if not cells_selected:
-            bkt.helpers.message("Leerer Bereich, keine Zellen zum Markieren!")
+            bkt.message("Leerer Bereich, keine Zellen zum Markieren!")
         else:
             cells_selected.Select()
 
@@ -192,7 +192,7 @@ class SelectionOps(object):
             return
         cells_selected = application.Intersect(selection, rng_input)
         if not cells_selected:
-            bkt.helpers.message("Leerer Bereich, keine Zellen zum Markieren!")
+            bkt.message("Leerer Bereich, keine Zellen zum Markieren!")
         else:
             cells_selected.Select()
 
@@ -203,7 +203,7 @@ class SelectionOps(object):
             return
         cells_selected = application.Union(selection, rng_input)
         if not cells_selected:
-            bkt.helpers.message("Leerer Bereich, keine Zellen zum Markieren!")
+            bkt.message("Leerer Bereich, keine Zellen zum Markieren!")
         else:
             cells_selected.Select()
 
@@ -217,7 +217,7 @@ class SelectionOps(object):
         if intersection:
             cells_selected = xllib.range_substract(cells_selected, intersection)
         if not cells_selected:
-            bkt.helpers.message("Leerer Bereich, keine Zellen zum Markieren!")
+            bkt.message("Leerer Bereich, keine Zellen zum Markieren!")
         else:
             cells_selected.Select()
 

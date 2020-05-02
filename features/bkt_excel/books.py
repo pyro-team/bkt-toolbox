@@ -22,7 +22,7 @@ class BooksOps(object):
     @staticmethod
     def reset_workbook(workbook, application):
         # Show warning regardless of setting "ignore warnings"
-        if not bkt.helpers.confirmation("Dies löscht alles Änderungen seit dem letzten Speichern und kann nicht rückgängig gemacht werden. Ausführen?"): return
+        if not bkt.message.confirmation("Dies löscht alles Änderungen seit dem letzten Speichern und kann nicht rückgängig gemacht werden. Ausführen?"): return
         wb_path = workbook.FullName
         wb_updatelinks = workbook.UpdateLinks
         wb_readonly = workbook.ReadOnly
@@ -50,7 +50,7 @@ class BooksOps(object):
         colorschemePath = fileDialog.FileName
         workbook.Theme.ThemeColorScheme.Save(colorschemePath)
 
-        bkt.helpers.message("Theme Color Scheme erfolgreich exportiert!")
+        bkt.message("Theme Color Scheme erfolgreich exportiert!")
 
     @staticmethod
     def theme_import(workbook, application):
@@ -67,9 +67,9 @@ class BooksOps(object):
 
         try:
             workbook.Theme.ThemeColorScheme.Load(colorschemePath)
-            bkt.helpers.message("Theme Color Scheme erfolgreich importiert!")
+            bkt.message("Theme Color Scheme erfolgreich importiert!")
         except:
-            bkt.helpers.message("Fehler beim Import!")
+            bkt.message("Fehler beim Import!")
 
     @staticmethod
     def copy_selected_sheets(workbook, application):
@@ -116,7 +116,7 @@ class BooksOps(object):
     @classmethod
     def copy_sheets_and_save(cls, sheets, selected_sheets, workbook, application):
         if not workbook.Path:
-            bkt.helpers.message("Bitte erst die Arbeitsmappe speichern!")
+            bkt.message("Bitte erst die Arbeitsmappe speichern!")
             return
 
         #generate list for checked listbox, if multiple sheets are selected mark them as checked, otherwise all are checked
@@ -134,7 +134,7 @@ class BooksOps(object):
         #worksheets to be consolidated
         sel_worksheets = form_return["sel_worksheets"]
         if len(sel_worksheets) == 0:
-            bkt.helpers.message("Keine Blätter ausgewählt.")
+            bkt.message("Keine Blätter ausgewählt.")
             return
 
         err_counter = 0
@@ -155,7 +155,7 @@ class BooksOps(object):
                 err_counter += 1
 
         if err_counter > 0:
-            bkt.helpers.message("Fehler! " + str(err_counter) + " Blatt/Blätter konnte(n) nicht kopiert werden.")
+            bkt.message("Fehler! " + str(err_counter) + " Blatt/Blätter konnte(n) nicht kopiert werden.")
 
     @classmethod
     def consolidate_file_workbooks(cls, workbook, sheets, application):
@@ -202,7 +202,7 @@ class BooksOps(object):
         #sel_workbooks = list(form_return["sel_workbooks"].Item)
         sel_workbooks = form_return["sel_workbooks"]
         if len(sel_workbooks) == 0:
-            bkt.helpers.message("Keine Arbeitsmappen ausgwählt.")
+            bkt.message("Keine Arbeitsmappen ausgwählt.")
             return
 
         if form_return["exclude_sheets"] == '':
@@ -338,7 +338,7 @@ class BooksOps(object):
         xllib.unfreeze_app()
 
         if err_counter > 0:
-            bkt.helpers.message("Fehler! " + str(err_counter) + " Arbeitemappe(n) konnte(n) nicht oder nur teilweise konsolidiert werden.")
+            bkt.message("Fehler! " + str(err_counter) + " Arbeitemappe(n) konnte(n) nicht oder nur teilweise konsolidiert werden.")
 
     @classmethod
     def consolidate_worksheets(cls, workbook, sheet, sheets, selected_sheets, application):
@@ -398,7 +398,7 @@ class BooksOps(object):
         #worksheets to be consolidated
         sel_worksheets = form_return["sel_worksheets"]
         if len(sel_worksheets) == 0:
-            bkt.helpers.message("Keine Blätter ausgewählt.")
+            bkt.message("Keine Blätter ausgewählt.")
             return
 
         #Number of skipped rows
@@ -408,7 +408,7 @@ class BooksOps(object):
             cut_rows = form_return["cut_rows"]
             cut_rows = 0 if cut_rows == '' else int(cut_rows)
         except:
-            bkt.helpers.message("Fehler, Eingabe ist keine Zahl!")
+            bkt.message("Fehler, Eingabe ist keine Zahl!")
             return
         err_counter = 0
 
@@ -495,7 +495,7 @@ class BooksOps(object):
         xllib.unfreeze_app()
 
         if err_counter > 0:
-            bkt.helpers.message("Fehler! " + str(err_counter) + " Blatt/Blätter konnte(n) nicht konsolidiert werden.")
+            bkt.message("Fehler! " + str(err_counter) + " Blatt/Blätter konnte(n) nicht konsolidiert werden.")
 
 
 mappen_gruppe = bkt.ribbon.Group(
