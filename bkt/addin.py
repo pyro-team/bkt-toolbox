@@ -305,7 +305,7 @@ class AddIn(object):
         # logging.debug("routed source details: type=%s" % type(eventargs.Source))
         # logging.debug("routed source details: get-type=%s" % eventargs.Source.GetType())
         # logging.warning("routed event details: owner-type==ButtonBase %s" % (eventargs.RoutedEvent.OwnerType == controls.Primitives.ButtonBase))
-        #_h.message("Hello World from Python!\nYou just clicked a task pane control!\n\nyou clicked: %s\nevent-type: %s" % (eventargs.Source, eventargs.RoutedEvent))
+        #bkt.message("Hello World from Python!\nYou just clicked a task pane control!\n\nyou clicked: %s\nevent-type: %s" % (eventargs.Source, eventargs.RoutedEvent))
         
         try:        
             # 1) handle general wpf-event
@@ -564,7 +564,7 @@ class AddIn(object):
                 except:
                     logging.critical('failed to load %s' % module)
                     logging.debug(traceback.format_exc())
-                    _h.error('failed to load %s' % module)
+                    bkt.message.error('failed to load %s' % module)
                     if bkt.config.show_exception:
                         _h.exception_as_message('failed to load %s' % module)
         
@@ -612,7 +612,7 @@ class AddIn(object):
                 except:
                     logging.critical('failed to load feature %s from cache' % module_name)
                     logging.debug(traceback.format_exc())
-                    _h.error('failed to load feature %s from cache' % module_name)
+                    bkt.message.error('failed to load feature %s from cache' % module_name)
                     if bkt.config.show_exception:
                         _h.exception_as_message('failed to load feature %s from cache' % module_name)
                     #TODO: remove cache on error?
@@ -625,7 +625,7 @@ class AddIn(object):
                 except:
                     logging.critical('failed to load legacy feature %s from cache' % module_name)
                     logging.debug(traceback.format_exc())
-                    _h.error('failed to load legacy feature %s from cache' % module_name)
+                    bkt.message.error('failed to load legacy feature %s from cache' % module_name)
                     if bkt.config.show_exception:
                         _h.exception_as_message('failed to load legacy feature %s from cache' % module_name)
                     #TODO: remove cache on error?
@@ -709,7 +709,7 @@ class AddIn(object):
                     except:
                         logging.critical('failed to load feature-folder %s' % folder)
                         logging.debug(traceback.format_exc())
-                        _h.error('failed to load feature-folder %s' % folder)
+                        bkt.message.error('failed to load feature-folder %s' % folder)
                         if bkt.config.show_exception:
                             _h.exception_as_message('failed to load feature-folder %s' % folder)
                         #TODO: Offer user to remove feature folder from config on error
@@ -728,7 +728,7 @@ class AddIn(object):
                     except:
                         logging.critical('failed to load legacy feature-folder %s' % folder)
                         logging.debug(traceback.format_exc())
-                        _h.error('failed to load legacy feature-folder %s' % folder)
+                        bkt.message.error('failed to load legacy feature-folder %s' % folder)
                         if bkt.config.show_exception:
                             _h.exception_as_message('failed to load legacy feature-folder %s' % folder)
                         #TODO: Offer user to remove feature folder from config on error
@@ -772,7 +772,7 @@ class AddIn(object):
         except:
             logging.critical("initialize app-classes failed")
             logging.debug(traceback.format_exc())
-            _h.error("initialize app-classes failed")
+            bkt.message.error("initialize app-classes failed")
         
         
             
@@ -784,11 +784,11 @@ class AddIn(object):
         except:
             logging.critical("binding of callbacks to application events failed")
             logging.debug(traceback.format_exc())
-            _h.error("binding of callbacks to application events failed")
+            bkt.message.error("binding of callbacks to application events failed")
         
         
         logging.debug('on_create done ')
-        #_h.message('on_create done')
+        #bkt.message('on_create done')
     
     
     
@@ -820,7 +820,7 @@ class AddIn(object):
             except:
                 logging.critical("initialization of ui-callbacks failed")
                 logging.debug(traceback.format_exc())
-                _h.error("initialization of ui-callbacks failed")
+                bkt.message.error("initialization of ui-callbacks failed")
             
             
             ### retrieve ribbon ui
@@ -831,7 +831,7 @@ class AddIn(object):
             #traceback.print_exc()
             logging.critical('get_custom_ui failed!')
             logging.debug(traceback.format_exc())
-            _h.error(traceback.format_exc())
+            bkt.message.error(traceback.format_exc())
             #_h.exception_as_message()
     
     
@@ -847,6 +847,6 @@ class AddIn(object):
         except:
             logging.critical('get_custom_taskpane_ui failed!')
             logging.debug(traceback.format_exc())
-            _h.error(traceback.format_exc())
+            bkt.message.error(traceback.format_exc())
             #_h.exception_as_message()
 

@@ -13,95 +13,27 @@ import os.path
 import logging
 import traceback
 
-import ctypes #required for messagebox
-
 import ConfigParser #required for config.txt file
 import shelve #required for global settings database
 
 
 BKT_BASE = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
 
-log_as_messagebox = False
-log_as_uibox = False
 
-# ==============================
-# = Typical os.path operations =
-# ==============================
+# ==================
+# = Error messages =
+# ==================
 
-class Forms(object):
-    ''' Parameters for message boxes that are compatible with WinForms '''
+def message(*args, **kwargs):
+    #only for backwards compatibility
+    from bkt import message
+    return message(*args, **kwargs)
 
-    class MessageBoxButtons(object):
-        OK =                     0x00000000L #OK
-        OKCancel =               0x00000001L #OK | Cancel
-        AbortRetryIgnore =       0x00000002L #Abort | Retry | Ignore
-        YesNoCancel =            0x00000003L #Yes | No | Cancel
-        YesNo =                  0x00000004L #Yes | No
-        RetryCancel =            0x00000005L #Retry | Cancel 
-        CancelTryAgainContinue = 0x00000006L #Cancel | Try Again | Continue
-
-    class MessageBoxIcon(object):
-        #None =        0x00000000L
-        Stop =        0x00000010L #=Error=Hand
-        Error =       0x00000010L
-        Hand =        0x00000010L
-        Question =    0x00000020L
-        Exclamation = 0x00000030L #=Warning
-        Warning     = 0x00000030L
-        Information = 0x00000040L #=Asterisk
-        Asterisk    = 0x00000040L
-
-    class DialogResult(object):
-        OK          = 1
-        Yes         = 6
-        No          = 7
-        Cancel      = 2
-        Abort       = 3
-        Continue    = 11
-        Ignore      = 5
-        Retry       = 4
-        TryAgain    = 10
-
-    class MessageBox(object):
-        @staticmethod
-        def Show(text, title, buttons, icon):
-            def _get_hwnd():
-                try:
-                    return ctypes.windll.user32.GetForegroundWindow()
-                except:
-                    return 0
-            
-            return ctypes.windll.user32.MessageBoxW(_get_hwnd(), text, title, buttons | icon | 0x00002000L | 0x00010000L) #TASKMODAL | SETFOREGROUND
-
-
-def message(text, title="BKT", icon=Forms.MessageBoxIcon.Information):
-    #MessageBox.Show(text, title, buttons, icon, default button, options, help-string)
-    Forms.MessageBox.Show(text, title, Forms.MessageBoxButtons.OK, icon)
-
-def confirmation(text, title="BKT", buttons=Forms.MessageBoxButtons.OKCancel, icon=Forms.MessageBoxIcon.Question):
-    result = Forms.MessageBox.Show(text, title, buttons, icon)
-    if buttons == Forms.MessageBoxButtons.OKCancel or buttons == Forms.MessageBoxButtons.YesNo:
-        if result == Forms.DialogResult.OK or result == Forms.DialogResult.Yes:
-            return True
-        else:
-            return False
-    else:
-        return result
-
-def warning(text, title="BKT"):
-    message(text, title, icon=Forms.MessageBoxIcon.Exclamation)
-
-def error(text, title="BKT"):
-    message(text, title, icon=Forms.MessageBoxIcon.Error)
 
 def log(s):
+    import bkt.console
     logging.warning(s)
-    #print(s)
-    if log_as_messagebox:
-        message(s)
-    elif log_as_uibox:
-        import bkt.console
-        bkt.console.show_message(s)
+    bkt.console.show_message(s)
 
 def exception_as_message(additional_message=None):
     from cStringIO import StringIO
@@ -225,6 +157,7 @@ def ensure_folders_exist(folder_path):
 def get_fav_folder(*args):
     folder = config.local_fav_path or False
     if not folder:
+        #FIXME: we could also get this with pure python using ctypes, refer to SHGetKnownFolderPath (https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shgetknownfolderpath)
         from System import Environment
         folder = ensure_folders_exist( os.path.join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "BKT-Favoriten") )
         # NOTE: os.path.expanduser("~")/Documents doesnt work if Documents folder has been moved by user or by OneDrive installation
@@ -280,7 +213,9 @@ class BKTSettings(shelve.Shelf):
             return default
         except EOFError:
             logging.error("EOF-Error in settings for getting key {}. Reset to default value: {}".format(key, default))
-            exception_as_message("Settings database corrupt for key {}. Trying to repair now.".format(key))
+            if config.show_exception and not key.startswith("bkt.console."):
+                #if key starts with bkt.console its not possible to show exception in console as error happended during console initialization
+                exception_as_message("Settings database corrupt for key {}. Trying to repair now.".format(key))
 
             #settings database corrupt, trying to fix it
             if default is None:
