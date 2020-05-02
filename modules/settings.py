@@ -57,9 +57,10 @@ class BKTReload(object):
     @staticmethod
     def reload_bkt(context):
         try:
-            addin = context.app.COMAddIns["BKT.AddIn"]
-            addin.Connect = False
-            addin.Connect = True
+            context.addin.Reload()
+            # addin = context.app.COMAddIns["BKT.AddIn"]
+            # addin.Connect = False
+            # addin.Connect = True
         except:
             pass
 

@@ -174,6 +174,62 @@ namespace BKT
             async_startup_ribbon = null;
             
         }
+
+        private COMAddIns GetCOMAddIns()
+        {
+            if (host == HostApplication.PowerPoint)
+            {
+                return ((PowerPoint.Application)app).COMAddIns;
+            }
+            else if (host == HostApplication.Excel)
+            {
+                return ((Excel.Application)app).COMAddIns;
+            }
+            else if (host == HostApplication.Word)
+            {
+                return ((Word.Application)app).COMAddIns;
+            }
+            else if (host == HostApplication.Outlook)
+            {
+                return ((Outlook.Application)app).COMAddIns;
+            }
+            else if (host == HostApplication.Visio)
+            {
+                return ((Visio.Application)app).COMAddIns;
+            }
+            else
+            {
+                DebugMessage("unknown host, reload not possible");
+                return null;
+            }
+        }
+
+        public void Reload() {
+            try {
+                COMAddIns addins = GetCOMAddIns();
+                if (addins != null)
+                {
+                    COMAddIn addIn = null;
+                    foreach(COMAddIn addin in addins)
+                    {
+                        if(addin.ProgId == "BKT.AddIn")
+                        {
+                            addIn = addin;
+                            break;
+                        }
+                    }
+                    if (addIn != null)
+                    {
+                        DebugMessage("Reloading....");
+                        addIn.Connect = false;
+                        addIn.Connect = true;
+                        DebugMessage("Reloading complete!");
+                    }
+                }
+            } catch (Exception) {
+                DebugMessage("error reloading addin");
+            }
+        }
         #endregion
 
 
