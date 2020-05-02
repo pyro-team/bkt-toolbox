@@ -73,7 +73,7 @@ class QuickEditPanelManager(object):
             if bkt.config.show_exception:
                 bkt.helpers.exception_as_message()
             else:
-                bkt.helpers.message("Unbekannter Fehler beim Anzeigen des QuickEdit-Panels!")
+                bkt.message("Unbekannter Fehler beim Anzeigen des QuickEdit-Panels!")
 
     @classmethod
     def _close_panel(cls, windowid):
@@ -271,8 +271,8 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
 # # qe_taskpane = bkt.taskpane.Expander(auto_wrap=True, IsExpanded=True, header="QuickEdit",
 # #     children=[
 # qe_taskpane = bkt.taskpane.Wpf.WrapPanel(
-#     # Initialized = bkt.Callback(lambda: bkt.helpers.message("test1")),
-#     # Loaded = bkt.Callback(lambda: bkt.helpers.message("test2")),
+#     # Initialized = bkt.Callback(lambda: bkt.message("test1")),
+#     # Loaded = bkt.Callback(lambda: bkt.message("test2")),
 #     children=[
 #         bkt.taskpane.Group(auto_wrap=True, show_separator=False,
 #             children=[
@@ -287,7 +287,7 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
 #                     id="qe_col2",
 #                     header="color2",
 #                     size="small",
-#                     on_action = bkt.Callback(lambda shapes: bkt.helpers.message(str(len(shapes))), shapes=True),
+#                     on_action = bkt.Callback(lambda shapes: bkt.message(str(len(shapes))), shapes=True),
 #                     prop1 = bkt.taskpane.Icon(children=[
 #                                     bkt.taskpane.Wpf.Rectangle(
 #                                         Fill="Green",

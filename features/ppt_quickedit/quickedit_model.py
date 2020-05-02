@@ -822,7 +822,7 @@ class QuickEdit(object):
                             textframe.TextRange.Font.Line.Visible = 0
                         except:
                             continue
-                bkt.helpers.message("Sorry, aber Microsoft hat die Funktion zur Deaktivierung der Textkontur nicht in die Schnittstelle implementiert.")
+                bkt.message("Sorry, aber Microsoft hat die Funktion zur Deaktivierung der Textkontur nicht in die Schnittstelle implementiert.")
             elif alt:
                 try:
                     if selection.TextRange2.Count == 0:
@@ -882,7 +882,7 @@ class QuickEdit(object):
             startfile(helpfile)
         except:
             logging.error("QuickEdit: Error opening the help file.")
-            bkt.helpers.message("Fehler beim Öffnen der PDF-Hilfedatei. Bitte Datei manuell öffnen: {}".format(helpfile))
+            bkt.message("Fehler beim Öffnen der PDF-Hilfedatei. Bitte Datei manuell öffnen: {}".format(helpfile))
 
 #         help_msg = '''
 # 1. Reihe: Farben des Design-Farbschemas der aktuellen Folie.
@@ -910,7 +910,7 @@ class QuickEdit(object):
 # Hinweis für Mac-Nutzer: Je nach Einstellung fängt Parallels einige Tastenkombinationen ab.
 # Hinweis für Experten: Die 2. Reihe weist ausschließlich RGB-Werte zu und nicht Farben des Farbschemas.
 # '''
-#         # bkt.helpers.message(help_msg)
+#         # bkt.message(help_msg)
 #         import bkt.console
 #         bkt.console.show_message(bkt.ui.endings_to_windows(help_msg))
 

@@ -279,7 +279,7 @@ class CustomFormatCatalog(object):
             
             if not isinstance(catalog, OrderedDict) or catalog.get("version", 0) != CF_VERSION:
                 #pre-migration TODO: create backup-file
-                bkt.helpers.message("Einmalige Migration des Katalogformats erforderlich. Diese wird nun gestartet.")
+                bkt.message("Einmalige Migration des Katalogformats erforderlich. Diese wird nun gestartet.")
 
                 try:
                     #migration from old list-format
@@ -296,9 +296,9 @@ class CustomFormatCatalog(object):
                     
                     #migration successful, save file to config later
                     catalog_migration = True
-                    bkt.helpers.message("Migration erfolgreich. Katalog wird nun geladen.")
+                    bkt.message("Migration erfolgreich. Katalog wird nun geladen.")
                 except:
-                    bkt.helpers.message("Migration fehlgeschlagen!")
+                    bkt.message("Migration fehlgeschlagen!")
                     logging.error("Customformats: Migration failed")
                     logging.error(traceback.format_exc())
                     return
@@ -595,7 +595,7 @@ class CustomQuickEdit(object):
         try:
             CustomFormatCatalog.create_new_config(filename)
         except OSError:
-            bkt.helpers.message("Dateiname existiert bereits")
+            bkt.message("Dateiname existiert bereits")
 
 
     @staticmethod
@@ -725,7 +725,7 @@ class CustomQuickEdit(object):
 
     @staticmethod
     def show_caveats():
-        bkt.helpers.message("Aufgrund von PowerPoint-Bugs gibt es folgende Einschränkungen:\r\n- Textkontur kann gesetzt, aber nicht wieder entfernt werden\r\n- Farb-Verläufe werden nur für Hintergrund (nicht Linien) unterstützt\r\n- Farb-Verläufe (insb. Winkel) werden nicht immer richtig übertragen\r\n- Schatten werden nicht auf Gruppen angewendet\r\n- Abschluss-/Anschlusstyp bei Linien werden nicht gesetzt")
+        bkt.message("Aufgrund von PowerPoint-Bugs gibt es folgende Einschränkungen:\r\n- Textkontur kann gesetzt, aber nicht wieder entfernt werden\r\n- Farb-Verläufe werden nur für Hintergrund (nicht Linien) unterstützt\r\n- Farb-Verläufe (insb. Winkel) werden nicht immer richtig übertragen\r\n- Schatten werden nicht auf Gruppen angewendet\r\n- Abschluss-/Anschlusstyp bei Linien werden nicht gesetzt")
 
 
 class FormatLibGallery(bkt.ribbon.Gallery):

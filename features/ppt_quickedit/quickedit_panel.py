@@ -252,7 +252,7 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
 
         # first start detection
         if "quickedit.viewstate" not in context.settings:
-            if bkt.helpers.confirmation("Dies scheint dein erster Start von QuickEdit zu sein. Soll die Anleitung (PDF) geöffnet werden?"):
+            if bkt.message.confirmation("Dies scheint dein erster Start von QuickEdit zu sein. Soll die Anleitung (PDF) geöffnet werden?"):
                 QuickEdit.show_help()
 
         self._last_catalog_change = 0

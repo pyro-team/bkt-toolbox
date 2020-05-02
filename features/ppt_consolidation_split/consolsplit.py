@@ -90,7 +90,7 @@ class ConsolSplit(object):
     @classmethod
     def split_slides_to_ppt(cls, context, slides):
         # if not presentation.Path:
-        #     bkt.helpers.warning("Bitte erst Datei speichern.")
+        #     bkt.message.warning("Bitte erst Datei speichern.")
         #     return
 
         application = context.app
@@ -145,11 +145,11 @@ class ConsolSplit(object):
 
             worker.ReportProgress(100)
             if worker.CancellationPending:
-                bkt.helpers.warning("Export durch Nutzer abgebrochen", "BKT: Export")
+                bkt.message.warning("Export durch Nutzer abgebrochen", "BKT: Export")
             elif error:
-                bkt.helpers.warning("Export mit Fehlern abgeschlossen", "BKT: Export")
+                bkt.message.warning("Export mit Fehlern abgeschlossen", "BKT: Export")
             else:
-                bkt.helpers.message("Export erfolgreich abgeschlossen", "BKT: Export")
+                bkt.message("Export erfolgreich abgeschlossen", "BKT: Export")
             os.startfile(folder)
 
         bkt.ui.execute_with_progress_bar(loop, context, modal=False) #modal=False important so main thread can handle app events and all presentations close properly
@@ -157,7 +157,7 @@ class ConsolSplit(object):
     @classmethod
     def split_sections_to_ppt(cls, context, slides):
         # if not presentation.Path:
-        #     bkt.helpers.warning("Bitte erst Datei speichern.")
+        #     bkt.message.warning("Bitte erst Datei speichern.")
         #     return
 
         application = context.app
@@ -165,7 +165,7 @@ class ConsolSplit(object):
 
         sections = presentation.SectionProperties
         if sections.count < 2:
-            bkt.helpers.warning("Präsentation hat weniger als 2 Abschnitte!", "BKT: Export")
+            bkt.message.warning("Präsentation hat weniger als 2 Abschnitte!", "BKT: Export")
             return
 
         # save_pattern = "[sectionnumber]_[sectiontitle]"
@@ -223,11 +223,11 @@ class ConsolSplit(object):
 
             worker.ReportProgress(100)
             if worker.CancellationPending:
-                bkt.helpers.warning("Export durch Nutzer abgebrochen", "BKT: Export")
+                bkt.message.warning("Export durch Nutzer abgebrochen", "BKT: Export")
             elif error:
-                bkt.helpers.warning("Export mit Fehlern abgeschlossen", "BKT: Export")
+                bkt.message.warning("Export mit Fehlern abgeschlossen", "BKT: Export")
             else:
-                bkt.helpers.message("Export erfolgreich abgeschlossen", "BKT: Export")
+                bkt.message("Export erfolgreich abgeschlossen", "BKT: Export")
             os.startfile(folder)
 
         bkt.ui.execute_with_progress_bar(loop, context, modal=False) #modal=False important so main thread can handle app events and all presentations close properly

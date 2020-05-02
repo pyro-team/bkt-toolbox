@@ -209,7 +209,7 @@ class ShapeTables(object):
         msg = u""
         msg += "Tabellengröße: Zeilen=%d, Spalten=%d\r\n" % tr.dimension
         msg += "Median-Abstand: %s cm" % round(pt_to_cm(tr.median_spacing()),2)
-        bkt.helpers.message(msg)
+        bkt.message(msg)
 
     def table_info_desc(self,context):
         try:
