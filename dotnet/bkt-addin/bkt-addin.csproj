@@ -214,7 +214,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="BKT\TaskPaneControl.xaml.cs">
-      <DependentUpon>BKT\TaskPaneControl.xaml</DependentUpon>
+      <DependentUpon>TaskPaneControl.xaml</DependentUpon>
     </Compile>
     <None Include="packages.config" />
     <AppDesigner Include="Properties\" />
@@ -224,6 +224,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <EmbeddedResource Include="Properties\xml_schemata.resx" />
   </ItemGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

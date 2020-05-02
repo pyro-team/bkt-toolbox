@@ -579,7 +579,7 @@ namespace BKT
         }
         
         public void OnAddInsUpdate(ref Array custom)
-        {    
+        {
         }
         
         public void OnStartupComplete(ref Array custom)
@@ -587,7 +587,7 @@ namespace BKT
         }
         
         public void OnBeginShutdown(ref Array custom)
-        {    
+        {
             DebugMessage("OnBeginShutdown");
         }
         
@@ -611,6 +611,9 @@ namespace BKT
                 file.WriteLine(customUI);
                 file.Close();
                 LogMessage("wrote xml in: " + filename);
+#if DEBUG
+                VerifyCustomUI(customUI);
+#endif
                 return customUI;
             } catch (Exception e) {
                 broken = true;
@@ -674,7 +677,7 @@ namespace BKT
         
         public void VerifyCustomUI(string text)
         {
-            ResourceManager resources = new ResourceManager("BKT.xml_schemata", Assembly.GetExecutingAssembly());
+            ResourceManager resources = new ResourceManager("BKT.Properties.xml_schemata", Assembly.GetExecutingAssembly());
             byte[] xsd_data = (byte[]) resources.GetObject("customui14_xsd");
             Stream xsd_res = new MemoryStream(xsd_data);
             
@@ -685,15 +688,16 @@ namespace BKT
             xsd_res.Close();
             
             XDocument doc = XDocument.Parse(text);
-            Console.WriteLine("Validating XML");
+            DebugMessage("Validating XML...");
             doc.Validate(ss, new ValidationEventHandler(ValidationCallBack));
+            DebugMessage("Validating XML completed!");
         }
 
         private void ValidationCallBack(object sender, ValidationEventArgs vea)
         {    
-            Console.WriteLine("\t event sender: " + sender);
-            Console.WriteLine("\t validation args: " + vea);
-            Console.WriteLine("");
+            DebugMessage("\t event sender: " + sender);
+            DebugMessage("\t validation args: " + vea.Exception);
+            DebugMessage("");
         }
         #endregion
         
