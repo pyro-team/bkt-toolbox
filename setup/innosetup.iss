@@ -64,6 +64,7 @@ Name: "visio\toolbar"; Description: "Visio Toolbar (BETA)"; Types: full
 [InstallDelete]
 ; NOTE: Remove files from old version before 2.7.0
 Type: files; Name: "{app}\bkt\*.xaml"
+Type: files; Name: "{app}\bkt\library\general.py"
 Type: files; Name: "{app}\modules\contextmenu_ids.py"
 Type: files; Name: "{app}\features\toolbox\dialogs\*.xaml"
 Type: files; Name: "{app}\features\toolbox\popups\*.xaml"
