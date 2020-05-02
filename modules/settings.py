@@ -111,8 +111,8 @@ class BKTUpdates(object):
     
     @classmethod
     def _update_notification(cls, latest_version, own_window=True):
-        #NOTE: we are not using helpers.message here as hwnd must be 0 in case there is no office window yet (at startup)
-        import ctypes
+        #NOTE: we are not using bkt.message here as hwnd must be 0 in case there is no office window yet (at startup)
+        from bkt import MessageBox
         bkt_branding = BKTInfos.get_branding_info()
         if bkt_branding.is_branded:
             download_text = "Diese BKT-Version ist modifiziert für {}. Die Download-URL wurde überschreiben. Download-Seite {} jetzt aufrufen?".format(bkt_branding.brand_name, bkt_branding.download_url)
@@ -120,12 +120,12 @@ class BKTUpdates(object):
         else:
             download_text = "Download-Seite {} jetzt aufrufen?".format(latest_version.download_url)
             download_url = latest_version.download_url
-        result = ctypes.windll.user32.MessageBoxW(
-            0 if own_window else ctypes.windll.user32.GetForegroundWindow(),
+        result = MessageBox._show_message_box(
+            0 if own_window else MessageBox._get_hwnd(),
             "Aktualisierung verfügbar auf v{}.\nInstallierte Version ist v{}.\n\n{}".format(latest_version.version_string, bkt.__version__, download_text),
             "BKT: Aktualisierung",
-            0x00000004L | 0x00000040L | 0x00002000L | 0x00010000L) #YESNO | ICONINFORMATION | TASKMODAL | SETFOREGROUND
-        if result == 6: #yes
+            MessageBox.MB_YESNO | MessageBox.INFO | MessageBox.MB_TASKMODAL | MessageBox.MB_SETFOREGROUND) #YESNO | ICONINFORMATION | TASKMODAL | SETFOREGROUND
+        if result == MessageBox.IDYES: #yes
             cls.open_download(download_url)
 
     @staticmethod
@@ -161,9 +161,9 @@ class BKTUpdates(object):
                 if is_update:
                     cls._update_notification(latest_version, own_window=False)
                 else:
-                    bkt.helpers.message("Keine Aktualisierung verfügbar. Aktuelle Version ist v{}.".format(latest_version.version_string), "BKT: Aktualisierung")
+                    bkt.message("Keine Aktualisierung verfügbar. Aktuelle Version ist v{}.".format(latest_version.version_string), "BKT: Aktualisierung")
             except Exception as e:
-                bkt.helpers.error("Fehler im Aufruf der Aktualisierungs-URL: {}".format(e), "BKT: Aktualisierung")
+                bkt.message.error("Fehler im Aufruf der Aktualisierungs-URL: {}".format(e), "BKT: Aktualisierung")
         
         bkt.ui.execute_with_progress_bar(loop, context, indeterminate=True)
     

@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import bkt
 
 
-if bkt.helpers.confirmation("Dev module replaced by devkit feature folder. Remove module from config?"):
+if bkt.message.confirmation("Dev module replaced by devkit feature folder. Remove module from config?"):
     modules = bkt.config.modules or []
     try:
         modules.remove("modules.dev")
