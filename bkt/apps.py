@@ -17,6 +17,7 @@ import time #for cache invalidation and event throttling
 
 from bkt.context import InappropriateContextError
 from bkt.callbacks import Callback, CallbackTypes
+from bkt.library.comrelease import AutoReleasingComObject
 
 
 
@@ -211,6 +212,7 @@ class AppCallbacksBase(AppCallbacks):
 
         for i, arg in enumerate(args):
             kwargs[callback.callback_type.pos_args[i]] = arg
+        return_value = None
         
         if callback.invocation_context is not None:
             try:
@@ -228,6 +230,9 @@ class AppCallbacksBase(AppCallbacks):
         logging.debug("AppCallbacksBase.invoke_callback: run callback method\nkwargs=%s" % kwargs)
         return_value = callback.method(**kwargs)
         self.undo_end(callback)
+        
+        # release com objects
+        context.release_com_references()
         
         if do_cache:
             self.cache[cache_key] = return_value

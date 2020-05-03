@@ -13,6 +13,11 @@ import time #required for cache
 
 import bkt.helpers as _h #for providing config and settings
 
+import System
+from System.Runtime.InteropServices import Marshal
+
+from bkt.library.comrelease import AutoReleasingComObject
+
 
 class InappropriateContextError(Exception):
     pass
@@ -54,6 +59,13 @@ class AppContext(object):
         self.cache_timeout = 0.5
         self.cache_last_refresh = 0
         
+        # references with auto-release-effect
+        self.app = AutoReleasingComObject(dotnet_context.app, release_self=False)
+    
+    
+    def release_com_references(self):
+        self.app.dispose()
+    
     
     def refresh_cache(self, force=False):
         #global cache timeout will prevent that manual invalidates are not working properly
@@ -84,9 +96,9 @@ class AppContext(object):
     # = convenience properties for .Net-Context =
     # ===========================================
     
-    @property
-    def app(self):
-        return self.dotnet_context.app
+    # @property
+    # def app(self):
+    #     return self.dotnet_context.app
     
     @property
     def addin(self):
@@ -185,7 +197,9 @@ class AppContext(object):
         # resolve generic arguments
         kwargs.update(self.resolve_generic_arguments(callback.invocation_context))
         # application-specific arguments should be resolved by invoke_callback
-        return self.app_callbacks.invoke_callback(self, callback, *args, **kwargs)
+        return_value = self.app_callbacks.invoke_callback(self, callback, *args, **kwargs)
+        self.release_com_references()
+        return return_value
     
     
     
@@ -224,9 +238,8 @@ class AppContextPowerPoint(AppContext):
     @property
     def shapes(self):
         ''' gives list-access to app.ActiveWindow.Selection.ShapeRange / ChildShapeRange '''
-        selection = self.app.ActiveWindow.Selection
-        
         # ShapeRange accessible if shape or text selected
+        selection = self.selection
         if selection.Type != 2 and selection.Type != 3:
             return []
         
@@ -235,6 +248,7 @@ class AppContextPowerPoint(AppContext):
             shapes = list(iter(selection.ChildShapeRange))
         else:
             shapes = list(iter(selection.ShapeRange))
+        
         
         return shapes
 
