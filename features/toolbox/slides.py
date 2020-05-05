@@ -180,7 +180,7 @@ class SendOrSaveSlides(object):
                 newPres.Save()
             
             if remove_designs:
-                for design in newPres.Designs:
+                for design in list(iter(newPres.Designs)):
                     for cl in list(iter(design.SlideMaster.CustomLayouts)): #list(iter()) required as delete function will not work on all elements otherwise!
                         try:
                             cl.Delete()
