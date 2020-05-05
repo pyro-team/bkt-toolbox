@@ -9,8 +9,8 @@ Created on 10.09.2013
 
 from __future__ import absolute_import
 
-__author__ = "Christoph Schmitt, Ruben Debeerst, Florian Stallmann"
-__copyright__ = "Copyright 2019 Christoph Schmitt, Ruben Debeerst, Florian Stallmann"
+__author__ = "Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann"
+__copyright__ = "Copyright 2019 Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann"
 __license__ = "MIT"
 __version__ = "2.7.0"
 __release__ = "BKT r20-03-13"

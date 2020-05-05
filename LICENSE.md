@@ -1,5 +1,5 @@
 # MIT License
-Copyright (c) 2019 Christoph Schmitt, Ruben Debeerst, Florian Stallmann
+Copyright (c) 2019 Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann
 
 * * *
 

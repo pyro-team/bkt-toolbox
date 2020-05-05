@@ -28,6 +28,9 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         self.bkt_version = "v" + bkt.__version__
         self.bkt_update_available = settings.BKTUpdates.is_update_available()
         self.bkt_update_label = settings.BKTUpdates.get_label_update()
+        
+        self.bkt_license_text = "Die BKT ist Open Source lizensiert unter der {}-Lizenz.".format(bkt.__license__)
+        self.bkt_copyright_text = "{}.".format(bkt.__copyright__)
 
         self.bkt_branded_visible = Visibility.Collapsed
         self.bkt_branding_text = ""
