@@ -11,11 +11,9 @@ from __future__ import absolute_import
 # import logging
 import time #required for cache
 
-import bkt.helpers as _h #for providing config and settings
-
-import System
 from System.Runtime.InteropServices import Marshal
 
+import bkt.helpers as _h #for providing config and settings
 from bkt.library.comrelease import AutoReleasingComObject
 
 

@@ -257,7 +257,7 @@ class Resources(object):
         try:
             return self._cache[name]
         except KeyError:
-            logging.info("Locate resource: %s"%name)
+            logging.info("Locate {} resource: {}.{}".format(self.category, name, self.suffix))
             for root_folder in self.root_folders:
                 path = os.path.join(root_folder, self.category, name + '.' + self.suffix)
                 if os.path.exists(path):
