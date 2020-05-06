@@ -539,4 +539,6 @@ settings_home_tab = bkt.ribbon.Tab(
 bkt.powerpoint.add_tab(settings_home_tab)
 bkt.word.add_tab(settings_home_tab)
 bkt.excel.add_tab(settings_home_tab)
+bkt.visio.add_tab(settings_home_tab)
+# bkt.outlook.add_tab(settings_home_tab) #Outlook has not TabHome!
 
