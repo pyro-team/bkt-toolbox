@@ -570,7 +570,7 @@ class AddIn(object):
         
 
         CACHE_VERSION = "20191213"
-        cache_file = _h.get_cache_folder("%s.import.cache" % dotnet_context.hostAppName)
+        cache_file = _h.get_cache_folder("%s.import.cache" % self.context.host_app_name)
         import_cache = shelve.open(cache_file, protocol=2)
 
         # STRUCTURE OF IMPORT CACHE #
@@ -672,7 +672,7 @@ class AddIn(object):
                         
                         try:
                             #only load if relevant for active app
-                            if self.context.app_name not in module.BktFeature.relevant_apps:
+                            if self.context.host_app_name not in module.BktFeature.relevant_apps:
                                 logging.info("bkt feature %s not relevant for current app" % module.BktFeature.name)
                                 continue
                         except AttributeError:
@@ -739,7 +739,7 @@ class AddIn(object):
 
             
             #save to cache
-            import_cache['cache.app']       = self.context.app_name
+            import_cache['cache.app']       = self.context.host_app_name
             import_cache['cache.time']      = time.time()
             import_cache['cache.version']   = CACHE_VERSION
             import_cache['cache.hash']      = hash(str(bkt.config.feature_folders))
