@@ -409,7 +409,7 @@ class AppUIs(object):
         'Microsoft Excel':      ['Microsoft.Excel.Workbook'],
         'Microsoft Visio':      ['Microsoft.Visio.Drawing'],
         'Microsoft Word':       ['Microsoft.Word.Document'],
-        'Microsoft Outlook': [
+        'Outlook':              [
             'Microsoft.Outlook.Explorer',
             'Microsoft.OMS.MMS.Compose',
             'Microsoft.OMS.MMS.Read',
@@ -443,7 +443,8 @@ class AppUIs(object):
     # @classmethod
     # def PowerPoint(cls):
     #     return cls.get_app_ui("Microsoft PowerPoint")
-    
+
+
     @classmethod
     def get_app_ui(cls, app_name):
         if app_name in cls.registry:
@@ -460,13 +461,13 @@ class AppUIs(object):
         # get AppUI-subclass for app name
         app_ui_class = cls.app_ui_classes.get(app_name, AppUI)
         # create instance
-        return app_ui_class(ribbon_ids = cls.ribbon_ids.get(app_name, 'none'))
+        return app_ui_class(ribbon_ids = cls.ribbon_ids.get(app_name, []))
 
         
 
 
 excel        = AppUIs.get_app_ui('Microsoft Excel')
-outlook      = AppUIs.get_app_ui('Microsoft Outlook')
+outlook      = AppUIs.get_app_ui('Outlook') #NOTE: Its not Microsoft Outlook!
 powerpoint   = AppUIs.get_app_ui('Microsoft PowerPoint')
 visio        = AppUIs.get_app_ui('Microsoft Visio')
 word         = AppUIs.get_app_ui('Microsoft Word')
