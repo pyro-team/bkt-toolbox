@@ -49,3 +49,12 @@ bkt.visio.add_tab(bkt.ribbon.Tab(
     # insert_before_mso="TabHome",
     children = common_groups
 ), extend=True)
+
+
+bkt.outlook.add_tab(bkt.ribbon.Tab(
+    idMso="TabDeveloper",
+    # id="bkt_outlook_devkit",
+    # label="BKT DEVKIT",
+    # insert_before_mso="TabHome",
+    children = common_groups
+), extend=True)
