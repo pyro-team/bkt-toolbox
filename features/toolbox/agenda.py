@@ -511,6 +511,7 @@ class ToolboxAgenda(object):
         cls.write_agenda_settings_to_slide(master_slide, new_settings)
             
         master_textbox = cls.get_agenda_textbox_on_slide(master_slide)
+        cls.set_tags_for_textbox(master_textbox) #create tags, i.e. add contextdialog-tag for old agenda textboxes
         cls.update_agenda_slides(master_textbox, agenda_slides=agenda_slides)
         
     
