@@ -42,7 +42,7 @@ class AutoReleasingComObject(object):
         self._comobj = comobj
         self._release_self = release_self
         self._accessed_com_attributes = []
-        logging.debug("Com-Release: created AutoReleasingComObject %s for %s" % (self, comobj))
+        logging.debug("Com-Release: created %s" % (self))
     
     
     # Magic methods: https://rszalski.github.io/magicmethods/
@@ -73,10 +73,14 @@ class AutoReleasingComObject(object):
     
     
     ##### CLASS REPRESENTATION #####
-    # TODO:
-    #def __str__(self):
-    #def __repr__(self):
-    #def __dir__(self):
+    # def __str__(self): #__str__ not required as __repr__ returns a string
+    
+    def __repr__(self):
+        return "<AutoReleasingComObject for %s>" % (self._comobj)
+
+    def __dir__(self):
+        #this is essential for interactive python console
+        return dir(self._comobj)
     
     
     
