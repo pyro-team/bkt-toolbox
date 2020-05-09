@@ -181,14 +181,12 @@ class AddinRegService(object):
 
 
 class QueryRegService(object):
-    def __init__(self):
-        pass
 
     def get_hklm(self, view=RegistryView.Default):
         return RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view)
 
-    def get_hkcu(self, view=RegistryView.Default):
-        return RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view)
+    # def get_hkcu(self, view=RegistryView.Default):
+    #     return RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view)
 
     def _get_path_for_base(self, base, app_name):
         app_paths = PathString('Software') / 'Microsoft' / 'Windows' / 'CurrentVersion' / 'App Paths' / app_name
@@ -197,16 +195,14 @@ class QueryRegService(object):
     
     def get_app_path(self, app_name='excel.exe'):
         with self.get_hklm() as base:
-            try:
-                return self._get_path_for_base(base, app_name)
-            except KeyError:
-                pass
+            return self._get_path_for_base(base, app_name)
 
-        with self.get_hkcu() as base:
-            try:
-                return self._get_path_for_base(base, app_name)
-            except KeyError:
-                pass
-        
-        raise KeyError("no path in registry found for %s" % app_name)
+        # NOTE: If office is installed from Microsoft Store the app path exists in HKCU, but
+        #       the path is under Program Files\WindowsApps\... which is not readable, so no need to check this
+        # with self.get_hkcu() as base:
+        #     try:
+        #         return self._get_path_for_base(base, app_name)
+        #     except KeyError:
+        #         pass
+        # raise KeyError("no path in registry found for %s" % app_name)
 

@@ -178,8 +178,8 @@ def check_wow6432():
         for app_exe in apps:
             try:
                 app_path = path_getter.get_app_path(app_exe)
-            except KeyError as e:
-                helper.log(e)
+            except KeyError:
+                helper.log("no path in registry found for %s" % app_exe)
                 continue
             if os.path.isfile(app_path):
                 try:
@@ -192,7 +192,7 @@ def check_wow6432():
             else:
                 helper.log("file not found: %s" % app_path)
 
-        assert len(office_is_32) > 0, 'failed to get bitness of all tested office applications via method 1, trying fallback method'
+        assert len(office_is_32) > 0, 'failed to get bitness via registry method, trying fallback method'
 
         return True in office_is_32
 
@@ -202,7 +202,8 @@ def check_wow6432():
         helper.exception_as_message()
 
     # Method 2: Load interop assemblies, start app instance and get product code GUID
-    helper.log("loading fallback method to get office bitness")
+    # This method is required if office is installed via Microsoft Store as no readable exe path exists!
+    helper.log("loading interop method to get office bitness")
 
     iop_base = 'Microsoft.Office.Interop.'
     apps = ['PowerPoint',
@@ -232,7 +233,7 @@ def check_wow6432():
         except:
             helper.exception_as_message()
             
-    assert len(office_is_32) > 0, 'failed to get bitness of all tested office applications via method 2, installation failed'
+    assert len(office_is_32) > 0, 'failed to get bitness of all tested office applications, installation failed'
     
     return True in office_is_32
 
