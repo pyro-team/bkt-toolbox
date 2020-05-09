@@ -8,6 +8,7 @@ Created on 23.04.2020
 from __future__ import absolute_import, print_function
 
 import argparse
+import platform
 
 
 class BktInstaller(object):
@@ -32,6 +33,7 @@ subparsers = parser.add_subparsers(help='BKT Installer supports 3 modes: install
 
 parser_install = subparsers.add_parser('install', help='Installation and registration of BKT')
 parser_install.add_argument('--register_only', action='store_true', help='Only register addin without creating or updating default configuration')
+parser_install.add_argument('--force_office_bitness', choices=['32', '64', 'x64', 'x86'], help='On 64-bit windows skip auto check for 32/64 bit office version and force particular bitness')
 parser_install.add_argument('--apps', nargs='+', choices=["excel", "word", "outlook", "visio"], default=['powerpoint'], help='Define list of application(s) in which BKT is activated by default (in addition to PowerPoint)')
 parser_install.set_defaults(func=BktInstaller.install)
 
@@ -47,4 +49,9 @@ parser_configure.add_argument('--migrate_from', metavar='OLD_VERSION', help='Mig
 parser_configure.set_defaults(func=BktInstaller.configure)
 
 args = parser.parse_args()
-args.func(args)
+
+if not 'IronPython' in platform.python_implementation():
+    raise SystemError("BKT-Installer needs to be run by IronPython")
+else:
+    print("Loading BKT-Installer running IronPython %s\n" % platform.python_version())
+    args.func(args)

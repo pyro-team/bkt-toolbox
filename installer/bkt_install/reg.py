@@ -9,6 +9,8 @@ from __future__ import absolute_import, division, print_function
 
 import os.path
 
+from contextlib import contextmanager
+
 import System
 import Microsoft.Win32 as Win32
 
@@ -29,17 +31,28 @@ class PathString(str):
     __div__ = __truediv__
     __floordiv__ = __truediv__
 
+@contextmanager
 def open_key(base, path, *args, **kwargs):
-    value = base.OpenSubKey(path, *args, **kwargs)
-    if value is None:
-        raise KeyError(str(base) + '\\' + path)
-    return value
+    try:
+        value = base.OpenSubKey(path, *args, **kwargs)
+        if value is None:
+            raise KeyError(str(base) + '\\' + path)
+        yield value
+    finally:
+        if value:
+            value.Close()
 
+@contextmanager
 def open_or_create(base, path, *args, **kwargs):
-    value = base.CreateSubKey(path, *args, **kwargs)
-    if value is None:
-        raise KeyError(str(base) + '\\' + path)
-    return value
+    try:
+        value = base.CreateSubKey(path, *args, **kwargs)
+        if value is None:
+            raise KeyError(str(base) + '\\' + path)
+        yield value
+    finally:
+        if value:
+            value.Close()
+
 
 class Properties(object):
     pass
@@ -164,3 +177,36 @@ class AddinRegService(object):
         prog_id_path = self.addins_regpath / self.prog_id
         with self.get_hkcu() as base:
             base.DeleteSubKeyTree(prog_id_path, False)
+
+
+
+class QueryRegService(object):
+    def __init__(self):
+        pass
+
+    def get_hklm(self, view=RegistryView.Default):
+        return RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view)
+
+    def get_hkcu(self, view=RegistryView.Default):
+        return RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view)
+
+    def _get_path_for_base(self, base, app_name):
+        app_paths = PathString('Software') / 'Microsoft' / 'Windows' / 'CurrentVersion' / 'App Paths' / app_name
+        with open_key(base, app_paths) as path:
+            return path.GetValue('')
+    
+    def get_app_path(self, app_name='excel.exe'):
+        with self.get_hklm() as base:
+            try:
+                return self._get_path_for_base(base, app_name)
+            except KeyError:
+                pass
+
+        with self.get_hkcu() as base:
+            try:
+                return self._get_path_for_base(base, app_name)
+            except KeyError:
+                pass
+        
+        raise KeyError("no path in registry found for %s" % app_name)
+

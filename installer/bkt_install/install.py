@@ -10,7 +10,6 @@ from __future__ import absolute_import, division, print_function
 
 import clr
 import os
-import traceback
 
 import System.Environment
 
@@ -158,35 +157,84 @@ class RegistryInfoService(object):
 
 
 def check_wow6432():
-    ''' returns true if office-32-bit is running on 64 bit machine '''
-    iop_base = 'Microsoft.Office.Interop.'        
+    '''
+    Returns true if office-32-bit is running on 64-bit windows machine, or if it is a 32-bit machine.
+    Note: According to https://support.microsoft.com/en-us/help/2778964/addins-for-office-programs-may-be-registered-under-the-wow6432node
+    this is not required for addin registration (we register in HKCU), but it is required for register of DLL in Classes/CLSID/* (refer to reg.py)
+    '''
     
+    # If os is 32-bit no need to do further check
+    # Alternative python way: if not helper.is_64bit_os():
+    if not System.Environment.Is64BitOperatingSystem:
+        return False
+
+    office_is_32 = set()
+
+    # Method 1: Try to find binaries via registry and get type (faster than method 2)
+    try:
+        path_getter = reg.QueryRegService()
+        apps = ['powerpnt.exe',
+                'excel.exe']
+        for app_exe in apps:
+            try:
+                app_path = path_getter.get_app_path(app_exe)
+            except KeyError as e:
+                helper.log(e)
+                continue
+            if os.path.isfile(app_path):
+                try:
+                    office_is_32.add(not helper.is_64bit_exe(app_path))
+                except:
+                    helper.log("failed to get binary type for: %s" % app_path)
+                else:
+                    if True in office_is_32:
+                        break
+            else:
+                helper.log("file not found: %s" % app_path)
+
+        assert len(office_is_32) > 0, 'failed to get bitness of all tested office applications via method 1, trying fallback method'
+
+        return True in office_is_32
+
+    except AssertionError as e:
+        helper.log(e)
+    except:
+        helper.exception_as_message()
+
+    # Method 2: Load interop assemblies, start app instance and get product code GUID
+    helper.log("loading fallback method to get office bitness")
+
+    iop_base = 'Microsoft.Office.Interop.'
     apps = ['PowerPoint',
             'Excel']
-    
-    os_64 = System.Environment.Is64BitOperatingSystem
-    if os_64 == False:
-        return False
-    
-    office_is_32 = set()
     for app_name in apps:
         iop_name = iop_base + app_name
         try:
             clr.AddReference(iop_name)
-            module = None
-            # FIXME: this is ugly, but __import__(iop_name) does not seem to work
-            exec 'import ' + iop_name + ' as module'
+            # module = None
+            # # FIXME: this is ugly, but __import__(iop_name) does not seem to work
+            # exec 'import ' + iop_name + ' as module'
+            import Microsoft #no need to import the whole iop name
+            module = getattr(Microsoft.Office.Interop, app_name)
             app = module.ApplicationClass()
             try:
-                office_is_32.add(app.OperatingSystem.startswith('Windows (32-bit)'))
+                #NOTE: As of Office 2016 PPT will return "Windows (64-bit)" no matter of the Office bitness, but Excel returns "Windows (32-bit)"
+                # office_is_32.add(app.OperatingSystem.startswith('Windows (32-bit)'))
+                #NOTE: Using GUID should be more reliable, explanation: https://docs.microsoft.com/en-us/office/troubleshoot/miscellaneous/numbering-scheme-for-product-guid
+                office_is_32.add(app.ProductCode[20] == '0')
+            except:
+                helper.log("failed to get bitness of %s" % app_name)
+            else:
+                if True in office_is_32:
+                    break
             finally:
                 app.Quit()
         except:
-            traceback.print_exc()
+            helper.exception_as_message()
             
-    assert len(office_is_32) > 0, 'failed to get bitness of all tested office applications'
+    assert len(office_is_32) > 0, 'failed to get bitness of all tested office applications via method 2, installation failed'
     
-    return os_64 and (True in office_is_32)
+    return True in office_is_32
 
 def fmt_load_behavior(integer):
     return ('%08x' % integer).upper()
@@ -201,8 +249,9 @@ class Installer(object):
         self.user_config = config
         
         if wow6432 is None:
-            print('checking system and office for 32/64 bit')
+            helper.log('checking system and office for 32/64 bit')
             wow6432 = check_wow6432()
+            helper.log('office is running in %s' % ("32-bit" if wow6432 else "64-bit"))
         
         self.wow6432 = wow6432
     
@@ -319,19 +368,22 @@ class Installer(object):
     def install(self):
         self.unregister()
         try:
-            print('create registry entries for addin assemblies')
+            helper.log('create registry entries')
             self.register()
-            print('create/update config file')
-            self.create_config_file()
+            if self.user_config is not None:
+                helper.log('create/update config file')
+                self.create_config_file()
         except Exception as e:
             self.unregister()
             raise e #re-raise exception
     
     def register(self):
         reginfo = RegistryInfoService(install_base=self.install_base)
+        helper.log('register assemblies in registry')
         for info in reginfo.iter_addin_assembly_infos():
             reg.AssemblyRegService(wow6432=self.wow6432, **info).register_assembly()
 
+        helper.log('register office addin in registry')
         for info in reginfo.iter_application_addin_infos():
             reg.AddinRegService(**info).register_addin()
 
@@ -382,12 +434,17 @@ def install(args):
     if "outlook" in args.apps:
         Outlook.load_behavior = { 'bkt' : 3, 'bkt_dev': 3 }
 
+    wow6432 = None
+    if args.force_office_bitness:
+        wow6432 = args.force_office_bitness in ('32', 'x86')
+        helper.log("forced office bitness to %s" % ("32-bit" if wow6432 else "64-bit"))
+
     # start installation
     try:
         if args.register_only:
-            installer = Installer()
+            installer = Installer(wow6432=wow6432, config=None)
         else:
-            installer = Installer(config=default_config)
+            installer = Installer(wow6432=wow6432, config=default_config)
         installer.install()
 
         print("\nInstallation ready -- addin available after Office restart")

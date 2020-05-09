@@ -9,7 +9,13 @@ from __future__ import absolute_import, print_function
 
 import os
 import ConfigParser
-import ctypes
+from ctypes import windll, POINTER
+from ctypes.wintypes import LPWSTR, DWORD, BOOL
+
+
+def log(message):
+    # pass
+    print("\t> %s" % message)
 
 
 def is_admin():
@@ -17,7 +23,7 @@ def is_admin():
     try:
         return os.getuid() == 0
     except AttributeError:
-        return ctypes.windll.shell32.IsUserAnAdmin() != 0
+        return windll.shell32.IsUserAnAdmin() != 0
 
 
 def yes_no_question(question):
@@ -26,6 +32,24 @@ def yes_no_question(question):
         return True
     else:
         return False
+
+
+def is_64bit_os():
+    import platform
+    #https://stackoverflow.com/questions/2208828/detect-64bit-os-windows-in-python
+    return platform.machine().endswith('64')
+
+
+_GetBinaryType = windll.kernel32.GetBinaryTypeW
+_GetBinaryType.argtypes = (LPWSTR, POINTER(DWORD))
+_GetBinaryType.restype = BOOL
+
+def is_64bit_exe(path):
+    #https://stackoverflow.com/questions/1345632/determine-if-an-executable-or-library-is-32-or-64-bits-on-windows
+    res = DWORD()
+    if not _GetBinaryType(path, res):
+        raise SystemError("could not get binary type")
+    return res == 6 #SCS_64BIT_BINARY
 
 
 def exception_as_message():
