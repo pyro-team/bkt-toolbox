@@ -2,5 +2,5 @@
 %~d0
 cd %~dp0
 @echo on
-ipy-2.7.10\ipy.exe -m bkt_install.build_stdlib
+..\bin\ipy.exe -m bkt_install.build_stdlib
 pause

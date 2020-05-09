@@ -2,11 +2,11 @@
 %~d0
 cd %~dp0
 @echo on
-ipy-2.7.10\ipy.exe -m bkt_install -h
+..\bin\ipy.exe -m bkt_install -h
 pause
-ipy-2.7.10\ipy.exe -m bkt_install install -h
+..\bin\ipy.exe -m bkt_install install -h
 pause
-ipy-2.7.10\ipy.exe -m bkt_install uninstall -h
+..\bin\ipy.exe -m bkt_install uninstall -h
 pause
-ipy-2.7.10\ipy.exe -m bkt_install configure -h
+..\bin\ipy.exe -m bkt_install configure -h
 pause

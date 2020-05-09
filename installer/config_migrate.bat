@@ -2,5 +2,5 @@
 %~d0
 cd %~dp0
 @echo on
-ipy-2.7.10\ipy.exe -m bkt_install configure --migrate_from "2.4"
+..\bin\ipy.exe -m bkt_install configure --migrate_from "2.4"
 pause
