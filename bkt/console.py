@@ -8,7 +8,7 @@ Created on 23.01.2014
 
 from __future__ import absolute_import
 
-import code
+# import code
 from cStringIO import StringIO
 import sys
 import traceback
