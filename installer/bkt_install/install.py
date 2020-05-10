@@ -8,10 +8,7 @@ Refactored on 25.02.2017
 
 from __future__ import absolute_import, division, print_function
 
-import clr
 import os
-
-import System.Environment
 
 from . import reg
 from . import helper
@@ -162,6 +159,7 @@ def check_wow6432():
     Note: According to https://support.microsoft.com/en-us/help/2778964/addins-for-office-programs-may-be-registered-under-the-wow6432node
     this is not required for addin registration (we register in HKCU), but it is required for register of DLL in Classes/CLSID/* (refer to reg.py)
     '''
+    import System.Environment
     
     # If os is 32-bit no need to do further check
     # Alternative python way: if not helper.is_64bit_os():
@@ -211,6 +209,7 @@ def check_wow6432():
     for app_name in apps:
         iop_name = iop_base + app_name
         try:
+            import clr
             clr.AddReference(iop_name)
             # module = None
             # # FIXME: this is ugly, but __import__(iop_name) does not seem to work
