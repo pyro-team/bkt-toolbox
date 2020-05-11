@@ -8,14 +8,13 @@ Created on 04.05.2016
 from __future__ import absolute_import
 
 import os #for os.path, listdir and makedirs
-import shelve
 import time
 
 import logging
 import traceback
 
 from threading import Thread #used for non-blocking gallery thumbnails refresh
-from contextlib import contextmanager
+from contextlib import contextmanager #used for opening and closing presentations
 
 from System import Array
 
@@ -24,7 +23,7 @@ import bkt.library.powerpoint as pplib
 
 from bkt import dotnet
 
-Drawing = dotnet.import_drawing()
+Drawing = dotnet.import_drawing() #required for image resizing
 Bitmap = Drawing.Bitmap
 ColorTranslator = Drawing.ColorTranslator
 
@@ -49,15 +48,6 @@ def open_presentation_without_window(context, filename):
 #    copy shape/slide action
 
 THUMBNAIL_POSTFIX = '_thumbnails'
-
-
-class ChartLibCache(object):
-    cache = {}
-
-    @classmethod
-    def init_cache(cls):
-        cache_file = bkt.helpers.get_cache_folder("chartlib.cache")
-        cls.cache = shelve.open(cache_file, protocol=2)
 
 
 
@@ -101,9 +91,6 @@ class ChartLib(object):
 
     def init_chartlib(self):
         logging.debug('initializing chartlib')
-
-        #load gallery items cache
-        ChartLibCache.init_cache()
 
         if self.copy_shapes_setting:
             # copy shapes
@@ -684,7 +671,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         
         self.this_id = filename_as_ui_id(filename) + "--" + str(copy_shapes)
         
-        
+        self.cache = bkt.helpers.caches.get("chartlib")
         
         # default settings
         kwargs = dict(
@@ -846,7 +833,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     def init_gallery_items_from_cache(self):
         ''' initialize gallery items from cache if file has not been modified.
         '''
-        cache = ChartLibCache.cache[self.filename]
+        cache = self.cache[self.filename]
         if os.path.getmtime(self.filename) != cache["file_mtime"]:
             raise KeyError("CACHE_FILEMTIME_INVALID")
         self.item_width     = cache["item_width"]
@@ -887,7 +874,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         self.items_initialized = True
 
         #create cache
-        ChartLibCache.cache[self.filename] = dict(
+        self.cache[self.filename] = dict(
             # cache_time      = time.time(),
             file_mtime      = os.path.getmtime(self.filename),
             item_width      = self.item_width,
@@ -895,7 +882,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
             labels          = self.labels,
             item_count      = self.item_count,
         )
-        ChartLibCache.cache.sync()
+        self.cache.sync()
 
         # init images, if first thumbnail does not exist
         image_filename = self.get_image_filename(1)
