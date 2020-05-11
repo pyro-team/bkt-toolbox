@@ -42,6 +42,10 @@ UninstallDisplayIcon={uninstallexe}
 ;Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "german"; MessagesFile: "compiler:Languages\German.isl"; LicenseFile:"setup\license-de.txt"
 
+[CustomMessages]
+DeleteSettings=Delete all settings?
+german.DeleteSettings=Alle Einstellungen löschen?
+
 [Types]
 Name: "compact"; Description: "PowerPoint-Toolbar mit Standardfeatures"
 Name: "minimal"; Description: "Nur Basis-PowerPoint-Toolbar"
@@ -118,16 +122,32 @@ Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --add_folde
 Filename: "{app}\documentation\Changelog.pptx"; Description: "Neue Funktionen und Änderungen anzeigen"; Flags: postinstall shellexec skipifsilent
   
 [UninstallRun]
-Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install uninstall"; WorkingDir: "{app}\installer"
+Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install uninstall"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn entfernen..."; Flags: runhidden
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\resources\cache"
 Type: filesandordirs; Name: "{app}\resources\xml"
 
 [Code]
+// check if .net framework is installed before install
 function InitializeSetup: Boolean;
 begin
   Result := IsDotNetInstalled(net45, 0); //Returns True if .NET Framework version 4.5 is installed, or a compatible version such as 4.8
   if not Result then
     SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.5.0']), mbCriticalError, MB_OK, IDOK);
+end;
+
+// ask for delete config file and settings files during uninstall
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  case CurUninstallStep of
+    usUninstall:
+      begin
+        if MsgBox(ExpandConstant('{cm:DeleteSettings}'), mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then
+          begin
+            DelTree(ExpandConstant('{app}\resources\settings\*'), False, True, False);
+            DelTree(ExpandConstant('{app}\config.txt'), False, True, False);
+          end
+      end;
+  end;
 end;
