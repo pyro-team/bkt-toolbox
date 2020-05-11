@@ -27,18 +27,18 @@ using System.Diagnostics; // for Debug
 
 namespace BKT
 {
-	public partial class TaskPaneControl : UserControl
-	{
+    public partial class TaskPaneControl : UserControl
+    {
 
         // link to the python delegate, where events are routed to
-		private dynamic python_delegate;
+        private dynamic python_delegate;
         
         
-		public TaskPaneControl()
-		{
-			InitializeComponent();
-		}
-		
+        public TaskPaneControl()
+        {
+            InitializeComponent();
+        }
+        
         
         
         #region python delegate
@@ -79,7 +79,7 @@ namespace BKT
         #endregion
         
         
-		
+        
         #region events
         
         // handles any standard routed event
@@ -305,9 +305,9 @@ namespace BKT
         
         #region Debug
         
-		private void Message(string s) {
-			System.Windows.Forms.MessageBox.Show(s);
-		}
+        private void Message(string s) {
+            System.Windows.Forms.MessageBox.Show(s);
+        }
         
         private void DebugMessage(string message)
         {
@@ -316,5 +316,5 @@ namespace BKT
         
         #endregion
         
-	}
+    }
 }
