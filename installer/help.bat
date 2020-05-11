@@ -10,3 +10,5 @@ pause
 pause
 ..\bin\ipy.exe -m bkt_install configure -h
 pause
+..\bin\ipy.exe -m bkt_install cleanup -h
+pause

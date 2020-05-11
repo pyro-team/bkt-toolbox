@@ -27,6 +27,11 @@ class BktInstaller(object):
         from . import config
         config.configure(args)
 
+    @staticmethod
+    def cleanup(args):
+        from . import cleanup
+        cleanup.clean(args)
+
 
 parser = argparse.ArgumentParser(prog="bkt_install", description='BKT install and configuration scripts')
 subparsers = parser.add_subparsers(help='BKT Installer supports 3 modes: install, uninstall and configure')
@@ -47,6 +52,13 @@ parser_configure.add_argument('--add_folders', metavar=('PATH1','PATH2'), nargs=
 parser_configure.add_argument('--remove_folders', metavar=('PATH1','PATH2'), nargs='+', help='Remove feature folder (absolute path or path relative to bkt install folder) from config file')
 parser_configure.add_argument('--migrate_from', metavar='OLD_VERSION', help='Migrate config.txt from the given version to the current one')
 parser_configure.set_defaults(func=BktInstaller.configure)
+
+parser_uninstall = subparsers.add_parser('cleanup', help='Perform clean-up tasks to fix problems with BKT')
+parser_uninstall.add_argument('--clear_cache', action='store_true', help='Clear all caches')
+parser_uninstall.add_argument('--clear_config', action='store_true', help='Clear config.txt file')
+parser_uninstall.add_argument('--clear_settings', action='store_true', help='Clear all app settings')
+parser_uninstall.add_argument('--clear_xml', action='store_true', help='Clear all generated XML files')
+parser_uninstall.set_defaults(func=BktInstaller.cleanup)
 
 args = parser.parse_args()
 
