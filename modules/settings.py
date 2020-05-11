@@ -11,6 +11,7 @@ import logging
 import os.path
 
 from collections import namedtuple
+from datetime import datetime
 
 import bkt
 
@@ -72,8 +73,39 @@ class BKTReload(object):
             pass
 
 
+class BKTUpdatesConfig(object):
+    @property
+    def cache(self):
+        return bkt.helpers.caches.get("updates")
+
+    @property
+    def check_frequency(self):
+        return bkt.config.updates_auto_check_frequency or "friday-only"
+    @check_frequency.setter
+    def check_frequency(self, value):
+        bkt.config.set_smart("updates_auto_check_frequency", value)
+
+    @property
+    def latest_version(self):
+        return self.cache.get("latest_version", None)
+    @latest_version.setter
+    def latest_version(self, value):
+        self.cache["latest_version"] = value
+        self.last_check = datetime.now()
+
+    @property
+    def last_check(self):
+        try:
+            return datetime.strptime(self.cache.get("last_check", None), "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            return datetime.min
+    @last_check.setter
+    def last_check(self, value):
+        self.cache["last_check"] = value.strftime("%Y-%m-%d %H:%M:%S")
+
 class BKTUpdates(object):
     update_available = None
+    config = BKTUpdatesConfig()
 
     @staticmethod
     def _get_latest_version():
@@ -92,13 +124,9 @@ class BKTUpdates(object):
 
     @classmethod
     def _check_latest_version(cls):
-        # from time import time
-        from datetime import date
-
         latest_version = cls._get_latest_version()
 
-        bkt.settings["bkt.updates.latest_version"] = latest_version.version_string
-        bkt.settings["bkt.updates.last_check"] = date.today()
+        cls.config.latest_version = latest_version.version_string #also sets last_check
 
         latest_version_tuple = tuple(int(x) for x in latest_version.version_string.split("."))
         current_version_tuple = tuple(int(x) for x in bkt.__version__.split("."))
@@ -170,20 +198,21 @@ class BKTUpdates(object):
     
     @classmethod
     def auto_check_for_updates(cls):
-        # from time import time, strftime
-        from datetime import date
+        check_frequency = cls.config.check_frequency
 
-        last_check = bkt.settings.get("bkt.updates.last_check", date(2020,1,1))
-        check_frequency = bkt.settings.get("bkt.updates.check_frequency", "friday-only")
+        if check_frequency == 'never':
+            logging.info("BKT Autoupdate disabled via config")
+            return
 
-        today = date.today()
+        last_check = cls.config.last_check
+        today = datetime.today()
         diff_last_check = today - last_check
         if check_frequency == "weekly":
             do_update = diff_last_check.days > 6
         elif check_frequency == "friday-only":
             do_update = (diff_last_check.days > 6 and today.weekday() == 4) or diff_last_check.days > 30
         elif check_frequency == "monthly":
-            do_update = diff_last_check.days > 30
+            do_update = diff_last_check.days > 28 and (today.year, today.month) > (last_check.year, last_check.month)
         else: #check_frequency == "never"
             do_update = False
 
@@ -197,7 +226,7 @@ class BKTUpdates(object):
     def is_update_available(cls):
         if cls.update_available is None:
             try:
-                version_string = bkt.settings.get("bkt.updates.latest_version", None)
+                version_string = cls.config.latest_version
                 if version_string:
                     latest_version = tuple(int(x) for x in version_string.split("."))
                     current_version = tuple(int(x) for x in bkt.__version__.split("."))
@@ -222,21 +251,21 @@ class BKTUpdates(object):
         else:
             return "Auf neue Version prüfen"
         
-    @staticmethod
-    def get_last_check():
-        last_check = bkt.settings.get("bkt.updates.last_check")
-        if last_check:
-            return "Letzte Prüfung: " + last_check.strftime("%d.%m.%Y")
-        else:
+    @classmethod
+    def get_last_check(cls):
+        last_check = cls.config.last_check
+        if last_check == datetime.min:
             return "Letzte Prüfung: noch nie"
+        else:
+            return "Letzte Prüfung: " + last_check.strftime("%d.%m.%Y")
     
-    @staticmethod
-    def get_check_frequency(current_control):
-        return bkt.settings.get("bkt.updates.check_frequency", "friday-only") == current_control["tag"]
+    @classmethod
+    def get_check_frequency(cls, current_control):
+        return cls.config.check_frequency == current_control["tag"]
     
-    @staticmethod
-    def change_check_frequency(current_control, pressed):
-        bkt.settings["bkt.updates.check_frequency"] = current_control["tag"]
+    @classmethod
+    def change_check_frequency(cls, current_control, pressed):
+        cls.config.check_frequency = current_control["tag"]
 
 
 bkt.AppEvents.bkt_load += bkt.Callback(BKTUpdates.auto_check_for_updates)
@@ -394,14 +423,14 @@ class SettingsMenu(bkt.ribbon.Menu):
                                 ),
                                 bkt.ribbon.ToggleButton(
                                     label="Wöchentlich, nur freitags",
-                                    supertip="Sucht automatisch jeden Freitag, spätestens aber nach 30 Tagen, beim PowerPoint-Start nach einer neuen BKT-Version",
+                                    supertip="Sucht automatisch jeden Freitag, spätestens aber nach 31 Tagen, beim PowerPoint-Start nach einer neuen BKT-Version",
                                     tag="friday-only",
                                     get_pressed=bkt.Callback(BKTUpdates.get_check_frequency, current_control=True),
                                     on_toggle_action=bkt.Callback(BKTUpdates.change_check_frequency, current_control=True),
                                 ),
                                 bkt.ribbon.ToggleButton(
                                     label="Monatlich",
-                                    supertip="Sucht automatisch ein mal pro Woche beim PowerPoint-Start nach einer neuen BKT-Version",
+                                    supertip="Sucht automatisch ein mal pro Monat beim PowerPoint-Start nach einer neuen BKT-Version",
                                     tag="monthly",
                                     get_pressed=bkt.Callback(BKTUpdates.get_check_frequency, current_control=True),
                                     on_toggle_action=bkt.Callback(BKTUpdates.change_check_frequency, current_control=True),
