@@ -91,9 +91,9 @@ class BKTConfigParser(ConfigParser.ConfigParser):
             return None
         if value == "":
             return value
-        elif value in ['false', 'False']:
+        elif value.lower() in ['false', 'no', 'off', '0']:
             return False
-        elif value in ['true', 'True']:
+        elif value.lower() in ['true', 'yes', 'on', '1']:
             return True
         elif value[0] != "\n":
             return value
@@ -101,6 +101,10 @@ class BKTConfigParser(ConfigParser.ConfigParser):
             return value[1:].split("\n")
 
     def get_smart(self, attr, default=None, attr_type=str):
+        '''
+        Method to get config-values and force a particular data type, return
+        default value on error. This method does not work for lists.
+        '''
         try:
             if attr_type==bool:
                 return self.getboolean("BKT", attr)
@@ -121,8 +125,7 @@ class BKTConfigParser(ConfigParser.ConfigParser):
         using attribute notation (e.g. config.my_list_option).
         '''
         if type(value) == list:
-            value_list = [str(v) for v in value]
-            self.set('BKT', option, "\n" + "\n".join(value_list))
+            self.set('BKT', option, "\n" + "\n".join(str(v) for v in value))
         else:
             self.set('BKT', option, str(value)) #always transform to string, otherwise cannot access the value in same session anymore
 
