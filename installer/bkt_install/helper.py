@@ -81,16 +81,27 @@ class BKTConfigParser(ConfigParser.ConfigParser):
             return None
         if value == "":
             return value
-        elif value in ['false', 'False']:
+        elif value.lower() in ['false', 'no', 'off', '0']:
             return False
-        elif value in ['true', 'True']:
+        elif value.lower() in ['true', 'yes', 'on', '1']:
             return True
         elif value[0] != "\n":
             return value
         else:
             return value[1:].split("\n")
+    
+    def save_to_disk(self):
+        '''
+        Save the config back to disk.
+        '''
+        with open(self.config_filename, "wb") as configfile:
+            self.write(configfile)
 
     def get_smart(self, attr, default=None, attr_type=str):
+        '''
+        Method to get config-values and force a particular data type, return
+        default value on error. This method does not work for lists.
+        '''
         try:
             if attr_type==bool:
                 return self.getboolean("BKT", attr)
@@ -103,7 +114,7 @@ class BKTConfigParser(ConfigParser.ConfigParser):
         except:
             return default
 
-    def set_smart(self, option, value):
+    def set_smart(self, option, value, write_back=True):
         '''
         Method is injected into ConfigParser-class.
         Sets the config-value for option in section 'BKT', converts lists-values
@@ -111,14 +122,13 @@ class BKTConfigParser(ConfigParser.ConfigParser):
         using attribute notation (e.g. config.my_list_option).
         '''
         if type(value) == list:
-            value_list = [str(v) for v in value]
-            self.set('BKT', option, "\n" + "\n".join(value_list))
+            self.set('BKT', option, "\n" + "\n".join(str(v) for v in value))
         else:
             self.set('BKT', option, str(value)) #always transform to string, otherwise cannot access the value in same session anymore
 
         # write config file
-        with open(self.config_filename, "wb") as configfile:
-            self.write(configfile)
+        if write_back:
+            self.save_to_disk()
 
 configs = {}
 def get_config(config_filename):
@@ -128,6 +138,8 @@ def get_config(config_filename):
         configs[config_filename] = config = BKTConfigParser(config_filename)
         if os.path.exists(config_filename):
             config.read(config_filename)
+            if not config.has_section('BKT'):
+                config.add_section('BKT')
         else:
             config.add_section('BKT')
         return config

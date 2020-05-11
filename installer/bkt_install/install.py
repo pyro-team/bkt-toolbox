@@ -9,6 +9,7 @@ Refactored on 25.02.2017
 from __future__ import absolute_import, division, print_function
 
 import os
+from collections import OrderedDict
 
 from . import reg
 from . import helper
@@ -260,26 +261,20 @@ class Installer(object):
         ipy_addin_path = self.install_base
         
         # fixed config values, will always be written into config
-        install_config = dict(
-            # ironpython_root = os.path.join(self.install_base, 'bin', 'ipy-2.7.9'),
-            ironpython_root = os.path.join(self.install_base, 'bin'),
-            ipy_addin_path = ipy_addin_path,
-            ipy_addin_module = "bkt.bootstrap",
-        )
+        install_config = OrderedDict()
+        install_config["ironpython_root"]  = os.path.join(self.install_base, 'bin')
+        install_config["ipy_addin_path"]   = ipy_addin_path
+        install_config["ipy_addin_module"] = "bkt.bootstrap"
         
         # default config values, existing values in config will not be overwritten
-        default_config = dict(
-            log_show_msgbox = False,
-            log_write_file = False,
-            log_level = 'WARNING',
-            async_startup = False,
-            # task_panes = False,
-            show_exception = False,
-            
-            modules = [ 'modules.settings' ],
-            
-            feature_folders = [],
-        )
+        default_config = install_config.copy() #use copy of install_config to preserve order
+        default_config["log_write_file"]    = False
+        default_config["log_level"]         = 'WARNING'
+        default_config["log_show_msgbox"]   = False
+        default_config["show_exception"]    = False
+        default_config["async_startup"]     = False
+        default_config["modules"]           = [ 'modules.settings' ]
+        default_config["feature_folders"]   = []
         
         # allow Installer to be called with other default config values
         default_config.update(self.user_config)
@@ -296,60 +291,84 @@ class Installer(object):
                 new_value = existing_value + [v for v in value if not v in existing_value]
             else:
                 new_value = existing_value
-            config.set_smart(key, new_value)
+            config.set_smart(key, new_value, False)
         
         # write fixed config values
         for key,value in install_config.items():
-            config.set_smart(key, value)
+            config.set_smart(key, value, False)
         
+        # remove example section (incl. all contents) as it is re-created later
+        config.remove_section("EXAMPLE")
+
+        # save file
+        config.save_to_disk()
+        
+        # create example in section with dummy value (section starting with comment leads to parsing error)
         config_example = """
-######## CONFIG examples ########
-
-#  ### Iron Python
-#  ironpython_root = <installation_folder>\\bkt-framework\\bin
-#  ipy_addin_path = <installation_folder>\\bkt-framework
-#  ipy_addin_module = bkt.bootstrap
-#  
-#  ### Debugging
-#  pydev_debug = True
-#  pydev_codebase = <eclipse-folder>\\plugins\\org.python.pydev_<pydev-version>\\pysrc'
-#  
-#  ### Addin Configuration
-#  log_write_file = True
-#  log_level = False
-#  log_show_msgbox = False
-#  show_exception = False
-#  async_startup = False
-#  task_panes = False
-#  
-#  ### Modules',
-#  modules = 
-#       modules.settings
-#       modules.tutorial
-#       modules.demo.demo_customui
-#       modules.demo.demo_bkt
-#       modules.demo.demo_image_mso
-#  	    modules.demo.demo_task_pane
-#  
-#  ### Feature-Folders
-#  feature_folders = 
-#       <some_feature_folder>
-#       <another_feature_folder>
-#  
-#  ### Toolbox settings
-#  chart_library_folders = 
-#       <some_folder>
-#       <another_folder>
-#  chart_libraries = 
-#       <some_file>
-#       <another_file>
-#  shape_library_folders = 
-#       <some_folder>
-#       <another_folder>
-#  shape_libraries = 
-#       <some_file>
-#       <another_file>
-
+[EXAMPLE]
+dummy_option = dummy_value
+	#
+	######## CONFIG examples ########
+	#
+	#  ### Iron Python
+	#  ironpython_root = <installation_folder>\\bkt-framework\\bin
+	#  ipy_addin_path = <installation_folder>\\bkt-framework
+	#  ipy_addin_module = bkt.bootstrap
+	#  
+	#  ### Debugging
+	#  pydev_debug = True
+	#  pydev_codebase = <eclipse-folder>\\plugins\\org.python.pydev_<pydev-version>\\pysrc'
+	#  
+	#  ### Addin Configuration
+	#  log_write_file = True
+	#  log_level = False
+	#  log_show_msgbox = False
+	#  show_exception = False
+	#  async_startup = False
+	#  task_panes = False
+	#  use_keymouse_hooks = True
+	#  enable_legacy_syntax = False
+	#  updates_auto_check_frequency = fridays-only
+	#  
+	#  ### Optional path settings
+	#  local_fav_path = <path>
+	#  local_cache_path = <path>
+	#  local_settings_path = <path>
+	#  
+	#  ### App-specific config
+	#  ppt_use_contextdialogs = True
+	#  ppt_hide_format_tab = False
+	#  ppt_activate_tab_on_new_shape = False
+	#  excel_ignore_warnings = False
+	#  
+	#  ### Modules',
+	#  modules = 
+	#       modules.settings
+	#       modules.tutorial
+	#       modules.demo.demo_customui
+	#       modules.demo.demo_bkt
+	#       modules.demo.demo_image_mso
+	#  	    modules.demo.demo_task_pane
+	#  
+	#  ### Feature-Folders
+	#  feature_folders = 
+	#       <some_feature_folder>
+	#       <another_feature_folder>
+	#  
+	#  ### Toolbox settings
+	#  chart_library_folders = 
+	#       <some_folder>
+	#       <another_folder>
+	#  chart_libraries = 
+	#       <some_file>
+	#       <another_file>
+	#  shape_library_folders = 
+	#       <some_folder>
+	#       <another_folder>
+	#  shape_libraries = 
+	#       <some_file>
+	#       <another_file>
+	#
 """
         # append config example
         with open(config_filename, 'a') as fd:
