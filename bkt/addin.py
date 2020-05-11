@@ -13,7 +13,6 @@ import logging #for logging errors and debug messages
 
 import time #for throttling error messages and setting cache time
 import os.path #for getting module paths and log file path
-import shelve #for import cache
 
 # import imp #for importing feature folder -> changed to importlib 2019-12-13
 import importlib #for importing traditional modules
@@ -534,6 +533,7 @@ class AddIn(object):
     def on_destroy(self):
         self.app_callbacks.fire_event(self.events.bkt_unload)
         _h.settings.close() #save settings to database
+        _h.caches.close() #save caches to disk
         self.reset()
     
     def on_create(self, dotnet_context):
@@ -570,8 +570,8 @@ class AddIn(object):
         
 
         CACHE_VERSION = "20191213"
-        cache_file = _h.get_cache_folder("%s.import.cache" % self.context.host_app_name)
-        import_cache = shelve.open(cache_file, protocol=2)
+        cache_name = "%s.import" % self.context.host_app_name
+        import_cache = _h.caches.get(cache_name)
 
         # STRUCTURE OF IMPORT CACHE #
         #############################
@@ -748,7 +748,7 @@ class AddIn(object):
             import_cache['inits.features']  = _c_bkt_inits
             import_cache['inits.legacy']    = _c_legacy_inits
         finally:
-            import_cache.close()
+            _h.caches.close(cache_name)
 
 
         

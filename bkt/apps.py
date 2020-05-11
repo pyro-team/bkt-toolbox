@@ -11,8 +11,6 @@ from __future__ import absolute_import
 import traceback
 import logging
 
-import shelve #for resources cache
-import os.path #for resources cache
 import time #for cache invalidation and event throttling
 
 from bkt.context import InappropriateContextError

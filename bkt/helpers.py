@@ -14,7 +14,7 @@ import logging
 import traceback
 
 import ConfigParser #required for config.txt file
-import shelve #required for global settings database
+import shelve #required for BKTShelf
 
 
 BKT_BASE = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
@@ -188,11 +188,45 @@ def get_settings_folder(*args):
 
 
 
+
+# =========================
+# = BKT version of shelve =
+# =========================
+
+class BKTShelf(shelve.DbfilenameShelf):
+    ''' BKT-style shelf with auto repair on corruption used for settings database and for caches '''
+
+    def __init__(self, filename):
+        shelve.DbfilenameShelf.__init__(self, filename, protocol=2)
+    
+    def get(self, key, default=None):
+        try:
+            # super(BKTShelf, self).get(key, default) #doesnt work as Shelf is not a new-style object
+            if key in self.dict:
+                return self[key]
+            return default
+        except EOFError:
+            logging.error("EOF-Error in shelf for getting key {}. Reset to default value: {}".format(key, default))
+            if config.show_exception and not key.startswith("bkt.console."):
+                #if key starts with bkt.console its not possible to show exception in console as error happended during console initialization
+                exception_as_message("Shelf database corrupt for key {}. Trying to repair now.".format(key))
+
+            #shelf database corrupt, trying to fix it
+            if default is None:
+                del self[key]
+            else:
+                self[key] = default
+
+            return default
+
+
+
+
 # =============================================
 # = Lazy loading app-specific settings shelve =
 # =============================================
 
-class BKTSettings(shelve.Shelf):
+class BKTSettings(BKTShelf):
     ''' App-specific settings are stored as shelve object that supports various python data formats '''
 
     def __init__(self):
@@ -207,29 +241,47 @@ class BKTSettings(shelve.Shelf):
             # logging.debug(traceback.format_exc())
             exception_as_message()
             self.dict = dict() #fallback to empty dict
-    
-    def get(self, key, default=None):
-        try:
-            # super(BKTSettings, self).get(key, default) #doesnt work as Shelf is not a new-style object
-            if key in self.dict:
-                return self[key]
-            return default
-        except EOFError:
-            logging.error("EOF-Error in settings for getting key {}. Reset to default value: {}".format(key, default))
-            if config.show_exception and not key.startswith("bkt.console."):
-                #if key starts with bkt.console its not possible to show exception in console as error happended during console initialization
-                exception_as_message("Settings database corrupt for key {}. Trying to repair now.".format(key))
-
-            #settings database corrupt, trying to fix it
-            if default is None:
-                del self[key]
-            else:
-                self[key] = default
-
-            return default
 
 #load global setting database
 settings = BKTSettings()
+
+
+
+
+# =======================================
+# = Helper to create caches with shelve =
+# =======================================
+
+class BKTCacheFactory(object):
+    ''' Factory to create caches that are automatically closed on bkt unload '''
+
+    def __init__(self):
+        self._caches = dict()
+
+    def get(self, name):
+        try:
+            return self._caches[name]
+        except KeyError:
+            cache_file = get_cache_folder("%s.cache" % name)
+            self._caches[name] = cache = BKTShelf(cache_file)
+            return cache
+    
+    def _close(self, name):
+        try:
+            self._caches[name].close()
+            del self._caches[name]
+        except KeyError:
+            pass
+    
+    def close(self, name=None):
+        if name is None:
+            #close all
+            for name in self._caches.keys():
+                self._close(name)
+        else:
+            self._close(name)
+
+caches = BKTCacheFactory()
 
 
 
@@ -247,11 +299,9 @@ class Resources(object):
     def __init__(self, category, suffix):
         self.category = category
         self.suffix = suffix
-
-        cache_file = get_cache_folder("resources.%s.cache"%category)
         
         try:
-            self._cache = shelve.open(cache_file, protocol=2)
+            self._cache = caches.get("resources.%s"%category)
         except:
             logging.error("Loading resource cache failed")
             logging.debug(traceback.format_exc())
@@ -265,7 +315,7 @@ class Resources(object):
                 path = os.path.join(root_folder, self.category, name + '.' + self.suffix)
                 if os.path.exists(path):
                     self._cache[name] = path
-                    self._cache.sync() #sync after each change as .close() is never called
+                    # self._cache.sync() #sync after each change as .close() is never called
                     return path
             return None
         except:
