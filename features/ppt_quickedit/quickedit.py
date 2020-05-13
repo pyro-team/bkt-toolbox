@@ -268,7 +268,7 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
 #     # tpbuttons[1]["Fill"] = System.Windows.Media.Brushes.Red
 #     # tpbuttons[1].attributes.Fill = System.Windows.Media.Brushes.Red
 
-# # qe_taskpane = bkt.taskpane.Expander(auto_wrap=True, IsExpanded=True, header="QuickEdit",
+# # qe_taskpane = bkt.taskpane.Expander(auto_wrap=True, is_expanded=True, header="QuickEdit",
 # #     children=[
 # qe_taskpane = bkt.taskpane.Wpf.WrapPanel(
 #     # Initialized = bkt.Callback(lambda: bkt.message("test1")),

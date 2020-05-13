@@ -363,12 +363,12 @@ class Expander(Wpf.Expander):
         self.auto_wrap   = userkwargs.pop('auto_wrap', False)
         
         if self.auto_stack:
-            super(Expander, self).__init__(Header=userkwargs.pop('header', None), IsExpanded=userkwargs.pop('IsExpanded', False))
+            super(Expander, self).__init__(Header=userkwargs.pop('header', None), IsExpanded=userkwargs.pop('is_expanded', False))
             kwargs = dict(Orientation="Vertical")
             kwargs.update(userkwargs)
             self.children = [Wpf.StackPanel(*args, **kwargs)]
         elif self.auto_wrap:
-            super(Expander, self).__init__(Header=userkwargs.pop('header', None), IsExpanded=userkwargs.pop('IsExpanded', False))
+            super(Expander, self).__init__(Header=userkwargs.pop('header', None), IsExpanded=userkwargs.pop('is_expanded', False))
             kwargs = dict(Orientation="Horizontal")
             kwargs.update(userkwargs)
             self.children = [Wpf.WrapPanel(*args, **kwargs)]
