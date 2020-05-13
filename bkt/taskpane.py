@@ -468,8 +468,12 @@ def convert_value_to_string(v):
             return str(v)
 
 def convert_key_to_upper_camelcase(key):
-    parts = key.split('_')
-    return ''.join(x.title() for x in parts)
+    if '_' in key:
+        parts = key.split('_')
+        return ''.join(x.title() for x in parts)
+    else:
+        return key[0].upper() + key[1:]
+
     # parts_new = []
     # for i, part in enumerate(parts):
     #     if len(part) > 1:

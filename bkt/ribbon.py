@@ -1254,8 +1254,11 @@ def convert_value_to_string(v, key=None):
             return str(v)
     
 def convert_key_to_lower_camelcase(key):
-    parts = key.split('_')
-    return parts[0] + ''.join(x.title() for x in parts[1:])
+    if '_' in key:
+        parts = key.split('_')
+        return parts[0].lower() + ''.join(x.title() for x in parts[1:])
+    else:
+        return key[0].lower() + key[1:]
 
     # if not '_' in key:
     #     return key
