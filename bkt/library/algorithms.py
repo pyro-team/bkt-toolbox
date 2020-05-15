@@ -30,7 +30,8 @@ def mid_point(points):
         sum_x +=p[0]
         sum_y +=p[1]
     
-    return [sum_x/len(points), sum_y/len(points)]
+    len_points = len(points)
+    return (sum_x/len_points, sum_y/len_points)
 
 def mid_point_shapes(shapes):
     sum_x = 0
@@ -40,7 +41,8 @@ def mid_point_shapes(shapes):
         sum_x +=s.left+s.width/2
         sum_y +=s.top+s.height/2
     
-    return [sum_x/len(shapes), sum_y/len(shapes)]
+    len_shapes = len(shapes)
+    return (sum_x/len_shapes, sum_y/len_shapes)
 
 def is_close(a, b, tolerence=1e-9):
     # refer to https://github.com/PythonCHB/close_pep/blob/master/is_close.py

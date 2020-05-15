@@ -609,9 +609,9 @@ class AppCallbacksFactory(object):
     
     @classmethod
     def get_app_callbacks(cls, app_name):
-        if app_name in cls.registry:
+        try:
             return cls.registry[app_name]
-        else:
+        except KeyError:
             instance = cls.create_app_callbacks(app_name)
             cls.registry[app_name] = instance
             return instance

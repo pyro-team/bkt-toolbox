@@ -197,7 +197,7 @@ class ContextDialogs(object):
         logging.debug('ContextDialogs.unregister: id=%s' % id)
         try:
             del self.dialogs[id]
-        except IndexError:
+        except KeyError:
             pass
 
     def re_show_shape_dialogs(self):
@@ -273,15 +273,12 @@ class ContextDialogs(object):
             logging.debug('ContextDialogs.show_shape_dialog_for_shape check tag')
             
             shape_tag = shape.Tags(BKT_CONTEXTDIALOG_TAGKEY)
-            if shape_tag == '':
+            if not shape_tag:
                 return
-            elif not shape_tag in self.dialogs:
-                logging.warning('No dialog registerd for given key: %s' % shape_tag)
-                return
-            else:
-                ctx_dialog = self.dialogs.get(shape_tag) or None
-            
-            if not ctx_dialog:
+            try:
+                ctx_dialog = self.dialogs[shape_tag]
+            except KeyError:
+                logging.warning('No dialog registered for given key: %s' % shape_tag)
                 return
             
             self.active_dialog = ctx_dialog.show_dialog_at_shape_position(shape, context)
@@ -307,9 +304,9 @@ class ContextDialogs(object):
             ### check shape tag and show suitable dialog
             logging.debug('ContextDialogs.show_master_shape_dialog check tag')
             
-            ctx_dialog = self.dialogs.get("MASTER") or None
-            
-            if not ctx_dialog:
+            try:
+                ctx_dialog = self.dialogs["MASTER"]
+            except KeyError:
                 return
             
             master_shape = ctx_dialog.get_master_shape(shapes)
@@ -354,13 +351,10 @@ class ContextDialogs(object):
             shape_tag = shape.Tags(BKT_CONTEXTDIALOG_TAGKEY)
             if shape_tag == '':
                 return
-            elif not shape_tag in self.dialogs:
-                logging.warning('No dialog registerd for given key: %s' % shape_tag)
-                return
-            else:
-                ctx_dialog = self.dialogs.get(shape_tag) or None
-            
-            if not ctx_dialog:
+            try:
+                ctx_dialog = self.dialogs[shape_tag]
+            except KeyError:
+                logging.warning('No dialog registered for given key: %s' % shape_tag)
                 return
             
             ctx_dialog.trigger_doubleclick(shape, context)
@@ -394,7 +388,7 @@ class ContextDialogs(object):
         logging.debug("ContextDialogs.mouse_double_click")
         if self.context:
             shape = DialogHelpers.coordinates_within_shape(e.X, e.Y, self.context)
-            if shape is not None:
+            if shape:
                 self.trigger_doubleclick_for_shape(shape, self.context)
 
 

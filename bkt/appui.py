@@ -181,9 +181,9 @@ class AppUI(object):
     def get_customui_control(self, ribbon_id=None):
         ribbon_id = ribbon_id or self.default_custom_ribbon_id
         
-        if ribbon_id in self.base_customui_controls:
+        try:
             return self.base_customui_controls[ribbon_id]
-        else:
+        except KeyError:
             customui_control = self.create_customui_control(ribbon_id)
             self.base_customui_controls[ribbon_id] = customui_control
             return customui_control
@@ -447,9 +447,9 @@ class AppUIs(object):
 
     @classmethod
     def get_app_ui(cls, app_name):
-        if app_name in cls.registry:
+        try:
             return cls.registry[app_name]
-        else:
+        except KeyError:
             instance = cls.create_app_ui(app_name)
             cls.registry[app_name] = instance
             return instance
@@ -461,7 +461,7 @@ class AppUIs(object):
         # get AppUI-subclass for app name
         app_ui_class = cls.app_ui_classes.get(app_name, AppUI)
         # create instance
-        return app_ui_class(ribbon_ids = cls.ribbon_ids.get(app_name, []))
+        return app_ui_class(ribbon_ids = cls.ribbon_ids.get(app_name, ["Default"]))
 
         
 
