@@ -121,11 +121,19 @@ class SearchWriter(object):
     def get_keywords_from_string(self, keywords):
         return set(re.findall(r'\w+', keywords.lower()))
 
-    def add_document(self, **kwargs):
-        if "keywords" not in kwargs:
-            raise ValueError("Documents need a keywords field")
-        doc = self._engine._schema(**kwargs)
-        self._documents.append(doc)
+    def add_document(self, document=None, **kwargs):
+        if document:
+            if isinstance(document, self._engine._schema):
+                self._documents.append(document)
+                return document
+            else:
+                raise TypeError("document is not instance of schema")
+        elif "keywords" not in kwargs:
+            raise ValueError("Keywords is a mandatory field for all documents")
+        else:
+            doc = self._engine._schema(**kwargs)
+            self._documents.append(doc)
+            return doc
     
     def commit(self):
         for doc in self._documents:
@@ -150,6 +158,7 @@ class SearchWriter(object):
             self._engine._docs[doc_hash] = doc
             logging.debug("SEARCH: commit document {} for keywords: {}".format(doc_hash, keywords))
             for keyword in keywords:
+                keyword = keyword.lower()
                 self._engine._keywords.add(keyword)
                 self._engine._db.setdefault(hash(keyword), set()).add(doc_hash)
 
@@ -287,6 +296,9 @@ class SearchSearcher(object):
 
 class SearchEngine(object):
     def __init__(self, name, schema):
+        if not hasattr(schema, "keywords"):
+            raise TypeError("Documents need a 'keywords' field")
+
         self._name = name
         self._schema = schema
 
@@ -337,6 +349,6 @@ search_engines = dict()
 def get_search_engine(name, schema=SearchDocument):
     try:
         return search_engines[name]
-    except:
+    except KeyError:
         search_engines[name] = SearchEngine(name, schema)
         return search_engines[name]
