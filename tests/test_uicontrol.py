@@ -5,14 +5,20 @@ Created on 29.07.2015
 @author: rdebeerst
 '''
 
-import bkt
-import bkt.addin
-import bkt.ribbon
+from __future__ import absolute_import
+
 import unittest
+
+import bkt
+# import bkt.addin
+import bkt.appui
+import bkt.ribbon
+
 from bkt.xml import RibbonXMLFactory
 from bkt.callbacks import CallbackTypes, Callback
-from bkt.apps import ApplicationRibbonInformation
+# from bkt.apps import ApplicationRibbonInformation
 
+bkt.helpers.settings = bkt.settings = dict()
 RibbonXMLFactory.namespace = ""
 
 def ctrl_to_str(ctrl):
@@ -50,7 +56,7 @@ class UIControlTest(unittest.TestCase):
         
         ctrl = bkt.ribbon.RibbonControl('button')
         ctrl['ButtonSize'] = 'large'
-        self.assertEqual(ctrl_to_str(ctrl), '<button ButtonSize="large" />')
+        self.assertEqual(ctrl_to_str(ctrl), '<button buttonSize="large" />')
         
     
     def test_uicontrol_ids(self):
@@ -182,9 +188,9 @@ class UIControlTest(unittest.TestCase):
         
     def test_color_gallery(self):
         bkt.ribbon.RibbonControl.no_id = True
-        self.maxDiff = None;
+        self.maxDiff = None
         ctrl = bkt.ribbon.ColorGallery()
-        self.assertEqual(ctrl_to_str(ctrl), u'<gallery columns="10" getItemCount="PythonGetItemCount" getItemImage="PythonGetItemImage" getItemLabel="PythonGetItemLabel" getSelectedItemIndex="PythonGetSelectedItemIndex" imageMso="SmartArtChangeColorsGallery" onAction="PythonOnActionIndexed" showItemLabel="false" />')
+        self.assertEqual(ctrl_to_str(ctrl), u'<gallery columns="10" getItemCount="PythonGetItemCount" getItemImage="PythonGetItemImage" getItemLabel="PythonGetItemLabel" imageMso="SmartArtChangeColorsGallery" itemHeight="14" itemWidth="14" onAction="PythonOnActionIndexed" showItemLabel="false" />')
         
         def set_rgb(color):
             return 'set rgb: ' + str(color)
@@ -192,7 +198,7 @@ class UIControlTest(unittest.TestCase):
             return 'set theme: ' + str(color_index)+ '/' + str(brightness)
             
         ctrl.add_callback(Callback(set_rgb, CallbackTypes.on_rgb_color_change))
-        self.assertEqual(ctrl_to_str(ctrl), u'<gallery columns="10" getItemCount="PythonGetItemCount" getItemImage="PythonGetItemImage" getItemLabel="PythonGetItemLabel" getSelectedItemIndex="PythonGetSelectedItemIndex" imageMso="SmartArtChangeColorsGallery" onAction="PythonOnActionIndexed" showItemLabel="false" />')
+        self.assertEqual(ctrl_to_str(ctrl), u'<gallery columns="10" getItemCount="PythonGetItemCount" getItemImage="PythonGetItemImage" getItemLabel="PythonGetItemLabel" imageMso="SmartArtChangeColorsGallery" itemHeight="14" itemWidth="14" onAction="PythonOnActionIndexed" showItemLabel="false" />')
         
         callbacks = ctrl.collect_callbacks()
         lst = { cb.callback_type:cb.method  for cb in callbacks}
@@ -207,7 +213,8 @@ class UIControlTest(unittest.TestCase):
     def test_tab_definition(self):
         bkt.ribbon.RibbonControl.no_id = True
         
-        myofficeapp = ApplicationRibbonInformation('myofficeapp', 'app')
+        # myofficeapp = ApplicationRibbonInformation('myofficeapp', 'app')
+        myofficeapp = bkt.appui.AppUIs.get_app_ui("MyOfficeApp")
         
         myofficeapp.add_tab(bkt.ribbon.Tab(label="TestTab", children=[
             bkt.ribbon.Group(label="TestGroup", children=[
@@ -215,7 +222,8 @@ class UIControlTest(unittest.TestCase):
             ])
         ]))
         
-        ctrl = bkt.addin.AddinCustomUI('myofficeapp').create_base_control(ribbon_info=myofficeapp)
+        # ctrl = bkt.addin.AddinCustomUI('myofficeapp').create_base_control(ribbon_info=myofficeapp)
+        ctrl = myofficeapp.get_customui_control()
         # ctrl is customUI-control
         # TODO: check just ribbon-child of customUI, not customUI attributes
         self.assertEqual(ctrl_to_str(ctrl), u'<customUI loadImage="PythonLoadImage" onLoad="PythonOnRibbonLoad" {http://www.w3.org/2000/xmlns/}nsBKT="http://www.business-kasper-toolbox.com/toolbox">\n<ribbon startFromScratch="false">\n<tabs>\n<tab label="TestTab">\n<group label="TestGroup">\n<button label="test button" />\n</group>\n</tab>\n</tabs>\n</ribbon>\n</customUI>')

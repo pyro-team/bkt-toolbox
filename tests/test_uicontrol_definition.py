@@ -5,9 +5,13 @@ Created on 07.08.2015
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
+import unittest
+
 import bkt
 import bkt.ribbon
-import unittest
+
 from bkt.xml import RibbonXMLFactory
 from bkt.callbacks import CallbackTypes, Callback
 
@@ -113,7 +117,7 @@ class UIDefinitionTest(unittest.TestCase):
     def test_simple_spinner(self):
         bkt.ribbon.RibbonControl.no_id = True
         
-        self.maxDiff = None;
+        self.maxDiff = None
         ctrl = SpinnerBox()
         self.assertEqual(ctrl_to_str(ctrl), u'<box>\n<editBox sizeString="###" />\n<button label="\xab" />\n<button label="\xbb" />\n</box>')
 
