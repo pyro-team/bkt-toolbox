@@ -16,6 +16,7 @@ import traceback
 import ConfigParser #required for config.txt file
 import shelve #required for BKTShelf
 
+from functools import wraps
 
 BKT_BASE = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -50,6 +51,40 @@ def exception_as_message(additional_message=None):
 
     bkt.console.show_message(bkt.ui.endings_to_windows(fd.getvalue()))
 
+
+
+# ==============================
+# = Typical programming helpers =
+# ==============================
+
+def memoize(func):
+    ''' Memoize a functions return value for each set of args (kwargs not supported) '''
+    cache = {}
+    @wraps(func)
+    def memoizer(*args):
+        try:
+            return cache[args]
+        except KeyError:
+            result = cache[args] = func(*args)
+            return result
+    return memoizer
+
+@memoize
+def snake_to_lower_camelcase(string):
+    ''' convert on_action to onAction, but leave onAction as is '''
+    if '_' in string:
+        parts = string.split('_')
+        return parts[0].lower() + ''.join(x.title() for x in parts[1:])
+    else:
+        return string[0].lower() + string[1:]
+
+@memoize
+def snake_to_upper_camelcase(string):
+    ''' convert on_action to OnAction, but leave OnAction as is '''
+    if '_' in string:
+        return ''.join(x.title() for x in string.split('_'))
+    else:
+        return string[0].upper() + string[1:]
 
 
 
