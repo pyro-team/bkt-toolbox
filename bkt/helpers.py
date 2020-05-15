@@ -197,6 +197,7 @@ class BKTShelf(shelve.DbfilenameShelf):
     ''' BKT-style shelf with auto repair on corruption used for settings database and for caches '''
 
     def __init__(self, filename):
+        self._filename = filename
         shelve.DbfilenameShelf.__init__(self, filename, protocol=2)
     
     def get(self, key, default=None):
@@ -206,10 +207,10 @@ class BKTShelf(shelve.DbfilenameShelf):
                 return self[key]
             return default
         except EOFError:
-            logging.error("EOF-Error in shelf for getting key {}. Reset to default value: {}".format(key, default))
+            logging.error("EOF-Error in shelf file {} for getting key {}. Reset to default value: {}".format(self._filename, key, default))
             if config.show_exception and not key.startswith("bkt.console."):
                 #if key starts with bkt.console its not possible to show exception in console as error happended during console initialization
-                exception_as_message("Shelf database corrupt for key {}. Trying to repair now.".format(key))
+                exception_as_message("Shelf file {} corrupt for key {}. Trying to repair now.".format(self._filename, key))
 
             #shelf database corrupt, trying to fix it
             if default is None:
