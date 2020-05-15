@@ -66,7 +66,7 @@ class TaskPaneControl(TypedRibbonControl):
                 property_node = XamlPropertyElement(
                     xml_namespace = self.xml_namespace,
                     type_name=self.xml_name,
-                    property_name=convert_key_to_upper_camelcase(key)
+                    property_name=_h.snake_to_upper_camelcase(key)
                 ).wpf_xml()
                 property_node.Add(value.wpf_xml())
                 node.Add(property_node)
@@ -467,13 +467,7 @@ def convert_value_to_string(v):
         except:
             return str(v)
 
-def convert_key_to_upper_camelcase(key):
-    if '_' in key:
-        parts = key.split('_')
-        return ''.join(x.title() for x in parts)
-    else:
-        return key[0].upper() + key[1:]
-
+# def convert_key_to_upper_camelcase(key):
     # parts_new = []
     # for i, part in enumerate(parts):
     #     if len(part) > 1:
@@ -485,7 +479,7 @@ def convert_key_to_upper_camelcase(key):
     # return ''.join(parts_new)
 
 def convert_dict_to_ribbon_xml_style(d):
-    return {convert_key_to_upper_camelcase(k):convert_value_to_string(v) for k, v in d.items() if v != None and not isinstance(v, XamlPropertyElement) and not isinstance(v, TaskPaneControl)}
+    return {_h.snake_to_upper_camelcase(k):convert_value_to_string(v) for k, v in d.items() if v != None and not isinstance(v, XamlPropertyElement) and not isinstance(v, TaskPaneControl)}
 
 
 

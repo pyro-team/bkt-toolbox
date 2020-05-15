@@ -10,20 +10,20 @@ from __future__ import absolute_import
 
 import logging
 
+import bkt.helpers as _h
+
 
 def get_dotnet_callback_name(python_name):
     # example: on_action --> OnAction
     # dotnet_name = ''.join([x[0].upper() + x[1:] for x in python_name.split('_')])
-    dotnet_name = ''.join(x.title() for x in python_name.split('_'))
-    return 'Python' + dotnet_name
+    return 'Python' + _h.snake_to_upper_camelcase(python_name)
 
 def get_xml_callback_name(python_name):
     # # example: on_action --> OnAction
     # dotnet_name = ''.join([x[0].upper() + x[1:] for x in python_name.split('_')])
     # # OnAction --> onAction
     # return  (dotnet_name[0].lower() + dotnet_name[1:])
-    parts = python_name.split('_')
-    return parts[0] + ''.join(x.title() for x in parts[1:])
+    return _h.snake_to_lower_camelcase(python_name)
 
 
 

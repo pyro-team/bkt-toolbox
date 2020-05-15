@@ -13,6 +13,7 @@ import uuid #for getting random id
 
 from itertools import count #NOTE: DEPRECATED: this is required for setting target_order which is only used by legacy annotations syntax
 
+import bkt.helpers as _h #for snake-to-camelcase
 import bkt.library.system as lib_sys #for getting key-states in spinner
 
 from bkt.callbacks import CallbackTypes, CallbackType, Callback
@@ -1240,6 +1241,7 @@ def escape_field(value, field=None):
 # =======================================
 
 
+
 def convert_value_to_string(v, key=None):
     if v is True:
         return 'true'
@@ -1252,14 +1254,8 @@ def convert_value_to_string(v, key=None):
             return v.xml()
         except:
             return str(v)
-    
-def convert_key_to_lower_camelcase(key):
-    if '_' in key:
-        parts = key.split('_')
-        return parts[0].lower() + ''.join(x.title() for x in parts[1:])
-    else:
-        return key[0].lower() + key[1:]
 
+# def convert_key_to_lower_camelcase(key):
     # if not '_' in key:
     #     return key
     # parts = key.split('_')
@@ -1280,6 +1276,6 @@ def convert_key_to_lower_camelcase(key):
     # return ''.join(parts_new)
 
 def convert_dict_to_ribbon_xml_style(d):
-    return {convert_key_to_lower_camelcase(k):convert_value_to_string(v, k) for k, v in d.iteritems()}
+    return {_h.snake_to_lower_camelcase(k):convert_value_to_string(v, k) for k, v in d.iteritems()}
 
 
