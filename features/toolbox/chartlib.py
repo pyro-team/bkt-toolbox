@@ -5,29 +5,30 @@ Created on 04.05.2016
 @author: rdebeerst
 '''
 
-
-import bkt
-import bkt.library.powerpoint as pplib
+from __future__ import absolute_import
 
 import os #for os.path, listdir and makedirs
-import shelve
 import time
 
 import logging
 import traceback
 
+from threading import Thread #used for non-blocking gallery thumbnails refresh
+from contextlib import contextmanager #used for opening and closing presentations
+
 from System import Array
 
+import bkt
+import bkt.library.powerpoint as pplib
+
 from bkt import dotnet
-Drawing = dotnet.import_drawing()
+
+Drawing = dotnet.import_drawing() #required for image resizing
 Bitmap = Drawing.Bitmap
 ColorTranslator = Drawing.ColorTranslator
 
 Forms = dotnet.import_forms() #required for clipboard functions
 
-
-from threading import Thread #used for non-blocking gallery thumbnails refresh
-from contextlib import contextmanager
 
 @contextmanager
 def open_presentation_without_window(context, filename):
@@ -47,15 +48,6 @@ def open_presentation_without_window(context, filename):
 #    copy shape/slide action
 
 THUMBNAIL_POSTFIX = '_thumbnails'
-
-
-class ChartLibCache(object):
-    cache = {}
-
-    @classmethod
-    def init_cache(cls):
-        cache_file = os.path.join( bkt.helpers.get_cache_folder(), "chartlib.cache" )
-        cls.cache = shelve.open(cache_file, protocol=2)
 
 
 
@@ -100,9 +92,6 @@ class ChartLib(object):
     def init_chartlib(self):
         logging.debug('initializing chartlib')
 
-        #load gallery items cache
-        ChartLibCache.init_cache()
-
         if self.copy_shapes_setting:
             # copy shapes
             subfolder = "shapelib"
@@ -126,7 +115,7 @@ class ChartLib(object):
                 self.library_folders.append( { 'title':os.path.basename(os.path.realpath(folder)), 'folder':os.path.join(folder, subfolder)})
         
         # add favorite folder as first folder
-        self.fav_folder = os.path.join(bkt.helpers.get_fav_folder(), subfolder)
+        self.fav_folder = bkt.helpers.get_fav_folder(subfolder)
         self.library_folders.insert(0, {'title': "Favoriten", 'folder': self.fav_folder} )
     
     
@@ -267,7 +256,7 @@ class ChartLib(object):
             bkt.ribbon.Button(label="Zu Favoriten hinzufügen",
                 screentip="Chart zu Favoriten-Library hinzufügen",
                 supertip="Ausgewählte Slides/Shapes zu Standard-Favoriten-Library hinzufügen. Falls diese Library noch nicht existiert, wird diese neu angelegt.",
-                image_mso='SourceControlCheckIn',
+                image_mso='AddToFavorites',
                 on_action=bkt.Callback(self.add_chart_to_lib)
             ),
             bkt.ribbon.Button(label="Library erneut indizieren",
@@ -354,7 +343,7 @@ class ChartLib(object):
         )
     
     def update_thumbnails_and_reset_cashes(self, context):
-        if not bkt.helpers.confirmation("Dieser Vorgang kann bei vielen Libraries einige Minuten dauern und nicht abgebrochen werden. Trotzdem fortsetzen?"):
+        if not bkt.message.confirmation("Dieser Vorgang kann bei vielen Libraries einige Minuten dauern und nicht abgebrochen werden. Trotzdem fortsetzen?"):
             return
 
         def loop(worker):
@@ -589,7 +578,7 @@ class ChartLib(object):
         ''' Open library file with window and write access '''
         filename = current_control['tag']
         # Parameter: rw-access, ohne Titel, mit Fenster
-        presentation = context.app.Presentations.Open(filename, False, False, True)
+        context.app.Presentations.Open(filename, False, False, True)
     
     @classmethod
     def copy_slide_callback(cls, context, current_control):
@@ -678,11 +667,11 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         self.labels = []
         self.slide_indices = []
         
-        parent_id = user_kwargs.get('id') or ""
+        # parent_id = user_kwargs.get('id') or ""
         
         self.this_id = filename_as_ui_id(filename) + "--" + str(copy_shapes)
         
-        
+        self.cache = bkt.helpers.caches.get("chartlib")
         
         # default settings
         kwargs = dict(
@@ -740,7 +729,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     def get_item_count(self, context):
         '''CustomUI-callback'''
         if not self.items_initialized:
-            self.init_gallery_items(context)
+            self.init_gallery_items(context, closing_gallery_workaround=True)
         return len(self.labels)
 
     def get_item_height(self):
@@ -759,12 +748,12 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         '''CustomUI-callback: returns corresponding item id'''
         return self.this_id + "--" + str(index)
         
-    def get_item_label(self, index):
+    def get_item_label(self, index, context):
         '''CustomUI-callback: returns corresponding item label
            labels are initialized by init_gallery_items
         '''
         if not self.items_initialized:
-            self.init_gallery_items(context)
+            self.init_gallery_items(context, closing_gallery_workaround=True)
         return self.labels[index][:40]
     
     def get_item_screentip(self, index):
@@ -780,10 +769,10 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     # def get_item_supertip(self, index):
     #     return "tbd"
     
-    def get_item_image(self, index):
+    def get_item_image(self, index, context):
         '''CustomUI-callback: calls get_chartlib_item_image'''
         if not self.items_initialized:
-            self.init_gallery_items(context)
+            self.init_gallery_items(context, closing_gallery_workaround=True)
         return self.get_chartlib_item_image(index)
     
     
@@ -814,7 +803,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         t.join()
         # self.init_gallery_items(context, force_thumbnail_generation=True)
     
-    def init_gallery_items(self, context, force_thumbnail_generation=False):
+    def init_gallery_items(self, context, force_thumbnail_generation=False, closing_gallery_workaround=False):
         try:
             if force_thumbnail_generation:
                 raise KeyError("Thumbnail generation not possible from cache")
@@ -824,7 +813,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                 force_thumbnail_generation = True
             with open_presentation_without_window(context, self.filename) as presentation:
                 try:
-                    self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation)
+                    self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation, closing_gallery_workaround=closing_gallery_workaround)
                 except:
                     logging.error('error initializing gallery')
                     logging.debug(traceback.format_exc())
@@ -844,7 +833,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     def init_gallery_items_from_cache(self):
         ''' initialize gallery items from cache if file has not been modified.
         '''
-        cache = ChartLibCache.cache[self.filename]
+        cache = self.cache[self.filename]
         if os.path.getmtime(self.filename) != cache["file_mtime"]:
             raise KeyError("CACHE_FILEMTIME_INVALID")
         self.item_width     = cache["item_width"]
@@ -853,7 +842,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         self.item_count     = cache["item_count"]
         self.items_initialized = True
     
-    def init_gallery_items_from_presentation(self, presentation, force_thumbnail_generation=False):
+    def init_gallery_items_from_presentation(self, presentation, force_thumbnail_generation=False, closing_gallery_workaround=False):
         ''' initialize gallery items (count, labels, item-widht, item-height... ).
             Also generates thumbnail-image-files if needed.
         '''
@@ -885,7 +874,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         self.items_initialized = True
 
         #create cache
-        ChartLibCache.cache[self.filename] = dict(
+        self.cache[self.filename] = dict(
             # cache_time      = time.time(),
             file_mtime      = os.path.getmtime(self.filename),
             item_width      = self.item_width,
@@ -893,7 +882,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
             labels          = self.labels,
             item_count      = self.item_count,
         )
-        ChartLibCache.cache.sync()
+        self.cache.sync()
 
         # init images, if first thumbnail does not exist
         image_filename = self.get_image_filename(1)
@@ -901,7 +890,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
             if self.copy_shapes:
                 self.generate_gallery_images_from_shapes(presentation)
             else:
-                self.generate_gallery_images_from_slides(presentation)
+                self.generate_gallery_images_from_slides(presentation, closing_gallery_workaround)
         
         # # cache items for next call on library
         # # image loading still necessary
@@ -921,11 +910,11 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         return os.path.join(os.path.splitext(self.filename)[0] + THUMBNAIL_POSTFIX, str(index) + postfix + '.png')
     
     
-    def generate_gallery_images_from_slides(self, presentation):
+    def generate_gallery_images_from_slides(self, presentation, closing_gallery_workaround=False):
         ''' generate thumbnail images for all chart-lib items '''
-        filename = presentation.FullName
-        item_count = presentation.Slides.Count
-        control_chars = dict.fromkeys(range(32))
+        # filename = presentation.FullName
+        # item_count = presentation.Slides.Count
+        # control_chars = dict.fromkeys(range(32))
         
         # make sure, directory exists
         directory = os.path.split( self.get_image_filename(1) )[0]
@@ -934,26 +923,27 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         
         for slide in presentation.slides:
             if slide.shapes.hastitle != False:
-                # select shapes
-                # slide_range = presentation.slides.Range(Array[int]([ slide.SlideIndex ]))
                 image_filename = self.get_image_filename(slide.SlideIndex)
                 try:
-                    # export image as PNG,  2 = ppShapeFormatPNG, 0 = ppShapeFormatGIF
-                    # width 600, auto height (450 for 4:3)
-                    # slide_range.Export(image_filename, 'PNG', 600)
-                    # slide.Export(image_filename, 'PNG', 600) #FIXME: this line closes the chartlib menu, so every time the images are generated, the user needs to re-open the chartlib
-                    slide.Copy()
-                    Forms.Clipboard.GetImage().Save(image_filename, Drawing.Imaging.ImageFormat.Png)
+                    #NOTE: slide.Export() closes the chartlib menu, so every time the images are generated, the user needs to re-open the chartlib. As workaround we use the clipboard.
+                    if closing_gallery_workaround:
+                        logging.debug("Creation of thumbnail image via clipboard workaround")
+                        slide.Copy()
+                        Forms.Clipboard.GetImage().Save(image_filename, Drawing.Imaging.ImageFormat.Png)
+                    else:
+                        logging.debug("Creation of thumbnail image via export")
+                        slide.Export(image_filename, 'PNG', 600) 
                 except:
                     logging.warning('Creation of thumbnail image failed: %s' % image_filename)
-        Forms.Clipboard.Clear()
+        if closing_gallery_workaround:
+            Forms.Clipboard.Clear()
     
     
     def generate_gallery_images_from_shapes(self, presentation, with_placeholders=False):
         ''' generate thumbnail images for all shape-lib items '''
-        filename = presentation.FullName
-        item_count = presentation.Slides.Count
-        control_chars = dict.fromkeys(range(32))
+        # filename = presentation.FullName
+        # item_count = presentation.Slides.Count
+        # control_chars = dict.fromkeys(range(32))
         
         # make sure, directory exists
         directory = os.path.split( self.get_image_filename(1) )[0]
@@ -978,7 +968,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                 try:
                     # export image as PNG, 
                     # ppShapeFormatGIF = 0, ppShapeFormatJPG = 1, ppShapeFormatPNG = 2, ppShapeFormatBMP = 3, ppShapeFormatWMF = 4, ppShapeFormatEMF = 5;
-                    shape_range.Export(image_filename, 2) 
+                    shape_range.Export(image_filename, 2)
                 except:
                     logging.warning('Creation of thumbnail image failed: %s' % image_filename)
                 
@@ -1046,7 +1036,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
             # return empty white image
             img = Bitmap(50, 50)
             color = ColorTranslator.FromHtml('#ffffff00')
-            img.SetPixel(0, 0, color);
+            img.SetPixel(0, 0, color)
             return img
 
 

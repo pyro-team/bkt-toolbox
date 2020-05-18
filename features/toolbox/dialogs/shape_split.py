@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import os.path
+from __future__ import absolute_import
+
+import logging
+
 import bkt.ui
 notify_property = bkt.ui.notify_property
 
-import logging
 from bkt.library.powerpoint import pt_to_cm, cm_to_pt
 
 
@@ -185,12 +187,12 @@ class ViewModel(bkt.ui.ViewModelSingleton):
 
 #class ShapeSplitWindow(MetroWindow):
 class ShapeSplitWindow(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'shape_split.xaml')
+    _xamlname = 'shape_split'
     _vm_class = ViewModel
     
-    def __init__(self, shapes):
+    def __init__(self, context, shapes):
         self.ref_shapes = shapes
-        super(ShapeSplitWindow, self).__init__()
+        super(ShapeSplitWindow, self).__init__(context)
 
     def cancel(self, sender, event):
         self.Close()

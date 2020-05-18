@@ -2,13 +2,15 @@
 
 # https://fontawesome.com/v4.7.0/
 
-import bkt
-from bkt.library.powerpoint import PPTSymbolsGallery
+from __future__ import absolute_import
 
 import os.path
 import io
 import json
 from collections import OrderedDict,defaultdict
+
+import bkt
+from bkt.library.powerpoint import PPTSymbolsGallery
 
 
 # define the menu parts
@@ -38,7 +40,7 @@ menu_settings = [
 def get_content_categories():
     # Automatically generate categories from json file from https://gist.github.com/AmirOfir/daee915574b1ba0d877da90777dc2181
     file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "materialicons.json")
-    with io.open(file, 'r') as json_file:
+    with io.open(file, 'r', encoding='utf-8') as json_file:
         chars = json.load(json_file, object_pairs_hook=OrderedDict)
 
     # categories = OrderedDict()
@@ -49,7 +51,7 @@ def get_content_categories():
                 "Material Icons",
                 unichr(int(ico['codepoint'], 16)),
                 ico['name'],
-                "Material Icons > {}\n{}".format(char['name'].capitalize(), ", ".join(ico.get('keywords', [])))
+                "Material Icons > {}\n{}".format(char['name'].capitalize(), ico.get('keywords', [""])[0])
             )
             categories[char['name'].capitalize()].append(t)
     
@@ -61,6 +63,28 @@ def get_content_categories():
                     for cat in sorted(categories.keys())
                 ]
             )
+
+def update_search_index(search_engine):
+    search_writer = search_engine.writer()
+
+    # Automatically generate categories from json file from https://gist.github.com/AmirOfir/daee915574b1ba0d877da90777dc2181
+    file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "materialicons.json")
+    with io.open(file, 'r', encoding='utf-8') as json_file:
+        chars = json.load(json_file, object_pairs_hook=OrderedDict)
+        
+        for char in chars['categories']:
+            for ico in char['icons']:
+                search_writer.add_document(
+                    module="materialicons",
+                    fontlabel="Material Icons",
+                    fontname="Material Icons",
+                    unicode=unichr(int(ico['codepoint'], 16)),
+                    label=ico['name'],
+                    keywords=ico.get('keywords', [""])[0].replace(",", " ").split()
+                )
+    
+    search_writer.commit()
+
 
 menus = [
     PPTSymbolsGallery(label="{} ({})".format(label, len(symbollist)), symbols=symbollist, columns=columns)

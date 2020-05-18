@@ -4,14 +4,14 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
 import bkt.ui
 notify_property = bkt.ui.notify_property
 
 import bkt.library.powerpoint as pplib
 pt_to_cm = pplib.pt_to_cm
 cm_to_pt = pplib.cm_to_pt
-
-import os.path
 
 
 
@@ -60,13 +60,13 @@ class ViewModel(bkt.ui.ViewModelSingleton):
 
 
 class ProcessWindow(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'shape_process.xaml')
+    _xamlname = 'shape_process'
     _vm_class = ViewModel
     
-    def __init__(self, slide, model):
+    def __init__(self, context, slide, model):
         self._slide = slide
         self._model = model
-        super(ProcessWindow, self).__init__()
+        super(ProcessWindow, self).__init__(context)
 
     def cancel(self, sender, event):
         self.Close()

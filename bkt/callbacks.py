@@ -1,22 +1,29 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 13.11.2014
+Definition of callbacks and invocation context
 
+Created on 13.11.2014
 @authors: cschmitt, rdebeerst
 '''
 
+from __future__ import absolute_import
+
+import logging
+
+import bkt.helpers as _h
 
 
 def get_dotnet_callback_name(python_name):
     # example: on_action --> OnAction
-    dotnet_name = ''.join([x[0].upper() + x[1:] for x in python_name.split('_')])
-    return 'Python'  + dotnet_name
+    # dotnet_name = ''.join([x[0].upper() + x[1:] for x in python_name.split('_')])
+    return 'Python' + _h.snake_to_upper_camelcase(python_name)
 
 def get_xml_callback_name(python_name):
-    # example: on_action --> OnAction
-    dotnet_name = ''.join([x[0].upper() + x[1:] for x in python_name.split('_')])
-    # OnAction --> onAction
-    return  (dotnet_name[0].lower() + dotnet_name[1:])
+    # # example: on_action --> OnAction
+    # dotnet_name = ''.join([x[0].upper() + x[1:] for x in python_name.split('_')])
+    # # OnAction --> onAction
+    # return  (dotnet_name[0].lower() + dotnet_name[1:])
+    return _h.snake_to_lower_camelcase(python_name)
 
 
 
@@ -259,7 +266,7 @@ class Callback(object):
         if self.callback_type:
             return self.callback_type.xml()
         else:
-            return self.__name__
+            return self.__class__.__name__
     
 
 

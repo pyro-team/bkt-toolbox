@@ -5,13 +5,19 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
+import os.path
+
+from contextlib import contextmanager
+
 import bkt
 import bkt.ui
 
 # for ui composition
-import agenda
-import language
-from chartlib import chartlib_button
+from . import agenda
+from . import language
+from .chartlib import chartlib_button
 
 
 class SendOrSaveSlides(object):
@@ -48,11 +54,8 @@ class SendOrSaveSlides(object):
         import time
         
         # bisheriger Dateiname
-        fileNameFull = presentation.Name.rsplit('.', 1)
-        fileName = fileNameFull[0]
-        if len(fileNameFull) > 1:
-            fileExt = "." + fileNameFull[1]
-        else:
+        fileName, fileExt = os.path.splitext(presentation.Name)
+        if fileExt == '':
             fileExt = ".pptx"
 
         # Foliennummern
@@ -71,123 +74,184 @@ class SendOrSaveSlides(object):
 
     @classmethod
     def _delete_unselected_slides(cls, slides, newPres):
+        from System import Array
+
         # Folien rueckwaerts durchgehen und schauen, ob Index in Range dabei ist
-        slideIds = [slide.SlideIndex for slide in slides]
-        removeIds = list(set(range(1,newPres.Slides.Count+1)) - set(slideIds))
-        removeIds.sort()
-        removeIds.reverse()
-        for slideId in removeIds:
-            newPres.Slides(slideId).Delete()
+        slideIndices = [slide.SlideIndex for slide in slides]
+        removeIndices = list(set(range(1,newPres.Slides.Count+1)) - set(slideIndices))
+        if len(removeIndices) > 0:
+            newPres.Slides.Range(Array[int](removeIndices)).Delete()
+        # removeIndices.sort()
+        # removeIndices.reverse()
+        # for slideId in removeIndices:
+        #     newPres.Slides(slideId).Delete()
+    
+    @classmethod
+    @contextmanager
+    def _create_temporary_copy(cls, application, filename):
+        import tempfile, os
+        #avoid referenced before assignment error in finally clause
+        temporary_ppt_file = None
+        newPres = None
+        try:
+            presentation = application.ActiveWindow.Presentation
+            # Richtige Dateiendung prüfen und temporären Pfad erstellen
+            pres_ext = os.path.splitext(presentation.Name)[1]
+            if pres_ext == '':
+                pres_ext == '.pptx'
+            filename = os.path.splitext(filename)[0] + pres_ext
+            temporary_ppt_file = os.path.join(tempfile.gettempdir(), filename)
+            # Temporäre Kopie erstellen und öffnen
+            presentation.SaveCopyAs(temporary_ppt_file)
+            newPres = application.Presentations.Open(temporary_ppt_file, False, False, False) #readonly, untitled, withwindow
+            yield newPres
+        finally:
+            # Präsentation schließen
+            if newPres:
+                newPres.Saved = True
+                newPres.Close()
+            # Temporäre Datei löschen
+            if temporary_ppt_file and os.path.exists(temporary_ppt_file):
+                os.remove(temporary_ppt_file)
 
     @classmethod
-    def save_slides(cls, application, slides, fileName):
-        # Kopie speichern und öffnen
-        slides[0].Parent.SaveCopyAs(fileName)
-        newPres = application.Presentations.Open(fileName)
+    def save_slides(cls, application, slides, filepath, fileformat="ppt"):
+        import os
 
-        # Folien entfernen, die nicht ausgewählt waren
-        cls._delete_unselected_slides(slides, newPres)
+        if fileformat == "png":
+            filename, ext = os.path.splitext(filepath)
+            for i, slide in enumerate(slides, start=1):
+                slide.Export("{}_{}{}".format(filename, i, ext), "PNG", 2000)
+            #open folder
+            os.startfile(os.path.dirname(filepath))
+        elif fileformat == "pdf":
+            filename = os.path.basename(filepath)
+            filename = os.path.splitext(filename)[0]
+            with cls._create_temporary_copy(application, filename) as newPres:
+                # Folien entfernen, die nicht ausgewählt waren
+                cls._delete_unselected_slides(slides, newPres)
+                # PDF erstellen und öffnen
+                newPres.SaveCopyAs(filepath, 32) #ppSaveAsPDF
+                os.startfile(filepath)
+        else:
+            # Kopie speichern und öffnen
+            application.ActiveWindow.Presentation.SaveCopyAs(filepath)
+            newPres = application.Presentations.Open(filepath, False, False, False) #readonly, untitled, withwindow
 
-        # Speichern
-        newPres.Save()
+            # Folien entfernen, die nicht ausgewählt waren
+            cls._delete_unselected_slides(slides, newPres)
+
+            # Speichern und anzeigen
+            newPres.Save()
+            newPres.NewWindow()
 
     @classmethod
     def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False, remove_designs=False):
-        import tempfile, os.path
-
         from bkt import dotnet
         Outlook = dotnet.import_outlook()
 
-        oApp = Outlook.ApplicationClass()
-        oMail = oApp.CreateItem(Outlook.OlItemType.olMailItem)
+        try:
+            oApp = Outlook.ApplicationClass()
+            oMail = oApp.CreateItem(Outlook.OlItemType.olMailItem)
+        except EnvironmentError:
+            bkt.message.error("Fehler beim Erstellen der E-Mail in Outlook!")
+            return
+
+        # Betreff
         oMail.Subject = filename
 
         # Kopie speichern und öffnen
-        fullFileName = os.path.join(tempfile.gettempdir(), filename)
-        application.ActiveWindow.Presentation.SaveCopyAs(fullFileName)
-        newPres = application.Presentations.Open(fullFileName)
-        
-        if slides is not None:
-            # Folien entfernen, die nicht ausgewählt waren
-            cls._delete_unselected_slides(slides, newPres)
-            newPres.Save()
+        with cls._create_temporary_copy(application, filename) as newPres:
 
-        if remove_sections:
-            # Alle Abschnitte entfernen
-            sections = newPres.SectionProperties
-            for i in reversed(range(sections.count)):
-                sections.Delete(i+1, 0) #index, deleteSlides=False
-            newPres.Save()
-        
-        if remove_author:
-            newPres.BuiltInDocumentProperties.item["author"].value = ''
-            newPres.Save()
-        
-        if remove_designs:
-            for design in newPres.Designs:
-                for cl in list(iter(design.SlideMaster.CustomLayouts)): #list(iter()) required as delete function will not work on all elements otherwise!
-                    try:
-                        cl.Delete()
-                    except: #deletion fails if layout in use
-                        continue
-                if design.SlideMaster.CustomLayouts.Count == 0:
-                    try:
-                        design.Delete()
-                    except:
-                        continue
-            newPres.Save()
+            if slides is not None:
+                # Folien entfernen, die nicht ausgewählt waren
+                cls._delete_unselected_slides(slides, newPres)
+                newPres.Save()
 
-        if fileformat != "pdf":
-            # PPT anhängen
-            oMail.Attachments.Add(fullFileName, Outlook.OlAttachmentType.olByValue)
+            if remove_sections:
+                # Alle Abschnitte entfernen
+                sections = newPres.SectionProperties
+                for i in reversed(range(sections.count)):
+                    sections.Delete(i+1, 0) #index, deleteSlides=False
+                newPres.Save()
+            
+            if remove_author:
+                newPres.BuiltInDocumentProperties.item["author"].value = ''
+                newPres.Save()
+            
+            if remove_designs:
+                for design in list(iter(newPres.Designs)):
+                    for cl in list(iter(design.SlideMaster.CustomLayouts)): #list(iter()) required as delete function will not work on all elements otherwise!
+                        try:
+                            cl.Delete()
+                        except: #deletion fails if layout in use
+                            continue
+                    if design.SlideMaster.CustomLayouts.Count == 0:
+                        try:
+                            design.Delete()
+                        except:
+                            continue
+                newPres.Save()
 
-        if fileformat != "ppt":
-            # PDF exportieren und anhängen
-            pdfFileName = fullFileName.rsplit('.', 1)[0] + ".pdf"
-            #newPres.ExportAsFixedFormat(pdfFileNameRef, 2) #ppFixedFormatTypePDF #ValueError: Could not convert argument 0 for call to ExportAsFixedFormat.
-            newPres.SaveCopyAs(pdfFileName, 32) #ppSaveAsPDF
-            oMail.Attachments.Add(pdfFileName, Outlook.OlAttachmentType.olByValue)
+            if fileformat != "pdf":
+                # PPT anhängen
+                oMail.Attachments.Add(newPres.FullName, Outlook.OlAttachmentType.olByValue)
 
-        # Datei schließen
-        newPres.Close()
+            if fileformat != "ppt":
+                # PDF exportieren und anhängen
+                pdfFileName = os.path.splitext(newPres.FullName)[0] + ".pdf"
+                #newPres.ExportAsFixedFormat(pdfFileNameRef, 2) #ppFixedFormatTypePDF #ValueError: Could not convert argument 0 for call to ExportAsFixedFormat.
+                newPres.SaveCopyAs(pdfFileName, 32) #ppSaveAsPDF
+                oMail.Attachments.Add(pdfFileName, Outlook.OlAttachmentType.olByValue)
 
-        # Email anzeigen
-        oMail.Display()
+            # Email anzeigen
+            oMail.Display()
 
 
-class FolienMenu(object):
+class SlideMenu(object):
 
     @classmethod
-    def sendSlidesDialog(cls, context):
-        from dialogs.slides_send import SendWindow
+    def send_slides_dialog(cls, context):
+        from .dialogs.slides_send import SendWindow
         SendWindow.create_and_show_dialog(SendOrSaveSlides, context)
 
 
     @classmethod
-    def saveSlidesDialog(cls, context):
+    def save_slides_dialog(cls, context):
+        from bkt import dotnet
+        Forms = dotnet.import_forms()
+
+        presentation = context.presentation
         slides = context.slides
-        fileName = SendOrSaveSlides.initial_file_name(context.presentation, slides)
+        fileformats = [
+            "PowerPoint (*.pptx;*.pptm;*.ppt)|*.pptx;*.pptm;*.ppt",
+            "PDF (*.pdf)|*.pdf",
+            "PNG (*.png)|*.png",
+            "Alle Dateien (*.*)|*.*"
+        ]
 
-        fileDialog = context.app.FileDialog(2) #msoFileDialogSaveAs
-        fileDialog.InitialFileName = context.presentation.Path + "\\" + fileName
-
+        fileDialog = Forms.SaveFileDialog()
+        fileDialog.Filter = "|".join(fileformats)
+        if presentation.Path:
+            fileDialog.InitialDirectory = presentation.Path + '\\'
+        fileDialog.FileName = SendOrSaveSlides.initial_file_name(presentation, slides)
         if len(slides) == 1:
-            fileDialog.title = "Ausgewählte Folie speichern unter"
+            fileDialog.Title = "Ausgewählte Folie speichern unter"
         else:
-            fileDialog.title = str(len(slides)) + " ausgewählte Folien speichern unter"
+            fileDialog.Title = str(len(slides)) + " ausgewählte Folien speichern unter"
 
         # Bei Abbruch ist Rückgabewert leer
-        if fileDialog.Show() == 0: #msoFalse
+        if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
             return
-        fileName = fileDialog.SelectedItems(1)
 
-        SendOrSaveSlides.save_slides(context.app, slides, fileName)
+        fileformat = ["ppt", "pdf", "png", "ppt"][fileDialog.FilterIndex-1]
+        SendOrSaveSlides.save_slides(context.app, slides, fileDialog.FileName, fileformat)
 
 
     SLIDENUMBERING = 'Toolbox-SlideNumbering'
 
     @classmethod
-    def addSlideNumbering(cls, slides, context):
+    def add_slide_numbering(cls, slides, context):
         # Alle Slides durchlaufen
         for sld in slides:
             # msoTextOrientationHorizontal = 1
@@ -208,7 +272,7 @@ class FolienMenu(object):
 
 
     @classmethod
-    def removeSlideNumbering(cls, slides):
+    def remove_slide_numbering(cls, slides):
         for slide in slides:
             for shp in slide.shapes:
                 # Shape mit SlideNumberTag loeschen
@@ -217,8 +281,8 @@ class FolienMenu(object):
                     break
 
     @classmethod
-    def toggleSlideNumbering(cls, context):
-        hasNumbering = False
+    def toggle_slide_numbering(cls, context):
+        has_numbering = False
 
         slides = context.app.ActivePresentation.Slides
         # Alle Shapes in allen Slides durchlaufen
@@ -226,15 +290,15 @@ class FolienMenu(object):
             for shp in sld.shapes:
                 # Shape mit SlideNumberTag gefunden
                 if shp.Tags.Item(cls.SLIDENUMBERING) == cls.SLIDENUMBERING:
-                    hasNumbering = True
+                    has_numbering = True
                     break
-            if hasNumbering:
+            if has_numbering:
                 break
 
-        if hasNumbering:
-            cls.removeSlideNumbering(slides)
+        if has_numbering:
+            cls.remove_slide_numbering(slides)
         else:
-            cls.addSlideNumbering(slides, context)
+            cls.add_slide_numbering(slides, context)
     
     @classmethod
     def remove_all(cls, context):
@@ -366,15 +430,15 @@ class FolienMenu(object):
         
         unused_designs_len = len(unused_designs)
         if unused_designs_len > 0:
-            if bkt.helpers.confirmation("Es wurden {} Folienlayouts gelöscht und {} Folienmaster sind nun ohne Layout. Sollen diese gelöscht werden?".format(deleted_layouts, unused_designs_len)):
+            if bkt.message.confirmation("Es wurden {} Folienlayouts gelöscht und {} Folienmaster sind nun ohne Layout. Sollen diese gelöscht werden?".format(deleted_layouts, unused_designs_len)):
                 for design in unused_designs:
                     try:
                         design.Delete()
                     except:
                         continue
-            bkt.helpers.message("Leere Folienmaster wurden gelöscht!")
+            bkt.message("Leere Folienmaster wurden gelöscht!")
         else:
-            bkt.helpers.message("Es wurden {} Folienlayouts gelöscht!".format(deleted_layouts))
+            bkt.message("Es wurden {} Folienlayouts gelöscht!".format(deleted_layouts))
     
     @classmethod
     def remove_unused_designs(cls, context):
@@ -394,7 +458,7 @@ class FolienMenu(object):
             except:
                 continue
         
-        bkt.helpers.message("Es wurden {} Folienmaster gelöscht!".format(deleted_designs))
+        bkt.message("Es wurden {} Folienmaster gelöscht!".format(deleted_designs))
 
     @classmethod
     def break_links(cls, context):
@@ -421,7 +485,7 @@ slides_group = bkt.ribbon.Group(
             show_label=False,
             image_mso='TableDesign',
             screentip="Weitere Slide-Funktionen",
-            supertip="Agenda, Foliennummerierung, ...",
+            supertip="Agenda, Foliennummerierung, Slidedeck aufräumen, und viele weitere Folien-bezogene Funktionen",
             children=[
                 bkt.ribbon.MenuSeparator(title="Layout"),
                 bkt.mso.control.SlideLayoutGallery,
@@ -436,20 +500,21 @@ slides_group = bkt.ribbon.Group(
                     image_mso='NumberInsert',
                     #screentip="Foliennummerierung ein-/ausblenden",
                     supertip="Füge Foliennummerierungen ein, welche sich bei Umsortierung der Folien nicht ändern.\n\nHilfreich bei der Erfassung von Anmerkungen, wenn man während einer Diskussion des Foliensatzes Umsortierungen durchführt.",
-                    on_action=bkt.Callback(FolienMenu.toggleSlideNumbering)
+                    on_action=bkt.Callback(SlideMenu.toggle_slide_numbering)
                 ),
                 bkt.ribbon.Button(
                     id = 'save_slides',
                     label='Ausgewählte Folien speichern',
                     image_mso='SaveSelectionToTextBoxGallery',
-                    supertip="Speichert die ausgewählten Folien in einer neuen Präsentation.",
-                    on_action=bkt.Callback(FolienMenu.saveSlidesDialog)
+                    supertip="Speichert die ausgewählten Folien in einer neuen Präsentation, als PDF-Datei oder in PNG-Bilder.",
+                    on_action=bkt.Callback(SlideMenu.save_slides_dialog)
                 ),
                 bkt.ribbon.Button(
                     id = 'send_slides',
                     label='Ausgewählte Folien senden',
                     image_mso='FileSendAsAttachment',
-                    on_action=bkt.Callback(FolienMenu.sendSlidesDialog)
+                    supertip="Sendet die ausgewählten Folien als Email-Anhang, wahlweise auch als PDF-Datei.",
+                    on_action=bkt.Callback(SlideMenu.send_slides_dialog)
                 ),
                 bkt.ribbon.SplitButton(children=[
                     bkt.ribbon.Button(
@@ -457,44 +522,44 @@ slides_group = bkt.ribbon.Group(
                         label='Slidedeck aufräumen',
                         image_mso='SlideShowFromCurrent', #AcceptTask, SlideShowFromCurrent, FilePublishSlides
                         supertip="Lösche Notizen, ausgebledete Slides, Übergänge, Animationen, Kommentare, doppelte Leerzeichen, leere Platzhalter.",
-                        on_action=bkt.Callback(FolienMenu.remove_all)
+                        on_action=bkt.Callback(SlideMenu.remove_all)
                     ),
-                    bkt.ribbon.Menu(label="Slidedeck aufräumen", image_mso='SlideShowFromCurrent', children=[
+                    bkt.ribbon.Menu(label="Slidedeck aufräumen", supertip="Funktionen zum Aufräumen aller Folien der Präsentation", image_mso='SlideShowFromCurrent', children=[
                         bkt.ribbon.MenuSeparator(title="Inhalte"),
                         bkt.ribbon.Button(
                             id = 'slide_remove_hidden_slides',
                             label='Ausgeblendete Slides entfernen',
                             image_mso='SlideHide',
                             supertip="Lösche alle ausgeblendeten Slides im gesamten Foliensatz.",
-                            on_action=bkt.Callback(FolienMenu.remove_hidden_slides)
+                            on_action=bkt.Callback(SlideMenu.remove_hidden_slides)
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_notes',
                             label='Notizen entfernen',
                             image_mso='SpeakerNotes',
                             supertip="Lösche alle Notizen im gesamten Foliensatz.",
-                            on_action=bkt.Callback(FolienMenu.remove_slide_notes)
+                            on_action=bkt.Callback(SlideMenu.remove_slide_notes)
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_comments',
                             label='Kommentare entfernen',
                             image_mso='ReviewDeleteComment',
                             supertip="Lösche alle Kommentare im gesamten Foliensatz.",
-                            on_action=bkt.Callback(FolienMenu.remove_slide_comments)
+                            on_action=bkt.Callback(SlideMenu.remove_slide_comments)
                         ),
                         bkt.ribbon.Button(
                             id = 'presentation_remove_author',
                             label='Autor entfernen',
                             image_mso='ContactPictureMenu',
                             supertip="Autor aus den Dokumenteneigenschaften entfernen.",
-                            on_action=bkt.Callback(FolienMenu.remove_author)
+                            on_action=bkt.Callback(SlideMenu.remove_author)
                         ),
                         bkt.ribbon.Button(
                             id = 'presentation_break_links',
                             label='Externe Verknüpfungen entfernen',
                             image_mso='HyperlinkRemove',
                             supertip="Hebt den Link von verknüpften Objekten (bspw. Bilder und OLE-Objekten) auf.",
-                            on_action=bkt.Callback(FolienMenu.break_links)
+                            on_action=bkt.Callback(SlideMenu.break_links)
                         ),
                         bkt.ribbon.MenuSeparator(title="Animationen"),
                         bkt.ribbon.Button(
@@ -502,14 +567,14 @@ slides_group = bkt.ribbon.Group(
                             label='Folienübergänge entfernen',
                             image_mso='AnimationTransitionGallery',
                             supertip="Lösche alle Übergänge zwischen Folien.",
-                            on_action=bkt.Callback(FolienMenu.remove_transitions)
+                            on_action=bkt.Callback(SlideMenu.remove_transitions)
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_animation',
                             label='Shapeanimationen entfernen',
                             image_mso='AnimationGallery',
                             supertip="Lösche alle Shape-Animationen im gesamten Foliensatz.",
-                            on_action=bkt.Callback(FolienMenu.remove_animations)
+                            on_action=bkt.Callback(SlideMenu.remove_animations)
                         ),
                         bkt.ribbon.MenuSeparator(title="Format bereinigen"),
                         bkt.ribbon.Button(
@@ -517,21 +582,21 @@ slides_group = bkt.ribbon.Group(
                             label='Automatischen Schwarz-/Weiß-Modus deaktivieren',
                             image_mso='BlackAndWhiteGrayscale',
                             supertip="Ersetze den Schwarz-/Weiß-Modus 'Automatisch' durch 'Graustufen'.",
-                            on_action=bkt.Callback(FolienMenu.blackwhite_gray_scale)
+                            on_action=bkt.Callback(SlideMenu.blackwhite_gray_scale)
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_doublespaces',
                             label='Doppelte Leerzeichen entfernen',
                             image_mso='ParagraphMarks',
                             supertip="Lösche alle doppelten Leerzeichen im gesamten Foliensatz.",
-                            on_action=bkt.Callback(FolienMenu.remove_doublespaces)
+                            on_action=bkt.Callback(SlideMenu.remove_doublespaces)
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_empty_placeholders',
                             label='Leere Platzhalter entfernen',
                             image_mso='HeaderFooterRemoveHeaderWord',
                             supertip="Lösche leere Platzhalter-Textboxen im gesamten Foliensatz.",
-                            on_action=bkt.Callback(FolienMenu.remove_empty_placeholders)
+                            on_action=bkt.Callback(SlideMenu.remove_empty_placeholders)
                         ),
                         bkt.ribbon.MenuSeparator(title="Folienmaster"),
                         bkt.ribbon.Button(
@@ -539,25 +604,25 @@ slides_group = bkt.ribbon.Group(
                             label='Nicht genutzte Folienlayouts entfernen',
                             image_mso='SlideDelete',
                             supertip="Lösche alle nicht verwendeten Folienmaster-Layouts sowie leere Folienmaster (Designs).",
-                            on_action=bkt.Callback(FolienMenu.remove_unused_masters)
+                            on_action=bkt.Callback(SlideMenu.remove_unused_masters)
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_unused_designs',
                             label='Nicht genutzte Folienmaster entfernen',
                             image_mso='SlideDelete',
                             supertip="Lösche alle nicht verwendeten Folienmaster (Designs).",
-                            on_action=bkt.Callback(FolienMenu.remove_unused_designs)
+                            on_action=bkt.Callback(SlideMenu.remove_unused_designs)
                         ),
                     ]),
                 ]),
                 language.sprachen_menu,
                 bkt.ribbon.MenuSeparator(title="Ansicht"),
-                bkt.ribbon.Menu(label="Masteransichten", image_mso='GroupPresentationViews', children=[
+                bkt.ribbon.Menu(label="Masteransichten", supertip="Umschalten auf verschiedene Master-Ansichten", image_mso='GroupPresentationViews', children=[
                     bkt.mso.control.ViewSlideMasterView(show_label=True),
                     bkt.mso.control.ViewHandoutMasterView(show_label=True),
                     bkt.mso.control.ViewNotesMasterView(show_label=True),
                 ]),
-                bkt.ribbon.Menu(label="Farbe/Graustufen", image_mso='ColorGrayscaleMenu', children=[
+                bkt.ribbon.Menu(label="Farbe/Graustufen", supertip="Umschalten auf verschiedene Farbmodi", image_mso='ColorGrayscaleMenu', children=[
                     bkt.mso.control.ViewDisplayInColor(show_label=True),
                     bkt.mso.control.ViewDisplayInGrayscale(show_label=True),
                     bkt.mso.control.ViewDisplayInPureBlackAndWhite(show_label=True),

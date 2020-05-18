@@ -1,0 +1,5210 @@
+[
+  {
+    "font":"Wingdings",
+    "dec":33,
+    "hex":"0x21",
+    "name":"Lower left pencil"
+  },
+  {
+    "font":"Wingdings",
+    "dec":34,
+    "hex":"0x22",
+    "name":"Black scissors"
+  },
+  {
+    "font":"Wingdings",
+    "dec":35,
+    "hex":"0x23",
+    "name":"Upper blade scissors"
+  },
+  {
+    "font":"Wingdings",
+    "dec":36,
+    "hex":"0x24",
+    "name":"Eyeglasses"
+  },
+  {
+    "font":"Wingdings",
+    "dec":37,
+    "hex":"0x25",
+    "name":"Ringing bell"
+  },
+  {
+    "font":"Wingdings",
+    "dec":38,
+    "hex":"0x26",
+    "name":"Book"
+  },
+  {
+    "font":"Wingdings",
+    "dec":39,
+    "hex":"0x27",
+    "name":"Candle"
+  },
+  {
+    "font":"Wingdings",
+    "dec":40,
+    "hex":"0x28",
+    "name":"Black touchtone telephone"
+  },
+  {
+    "font":"Wingdings",
+    "dec":41,
+    "hex":"0x29",
+    "name":"Telephone location sign"
+  },
+  {
+    "font":"Wingdings",
+    "dec":42,
+    "hex":"0x2A",
+    "name":"Back of envelope"
+  },
+  {
+    "font":"Wingdings",
+    "dec":43,
+    "hex":"0x2B",
+    "name":"Stamped envelope"
+  },
+  {
+    "font":"Wingdings",
+    "dec":44,
+    "hex":"0x2C",
+    "name":"Closed mailbox with lowered flag"
+  },
+  {
+    "font":"Wingdings",
+    "dec":45,
+    "hex":"0x2D",
+    "name":"Closed mailbox with raised flag"
+  },
+  {
+    "font":"Wingdings",
+    "dec":46,
+    "hex":"0x2E",
+    "name":"Open mailbox with raised flag"
+  },
+  {
+    "font":"Wingdings",
+    "dec":47,
+    "hex":"0x2F",
+    "name":"Open mailbox with lowered flag"
+  },
+  {
+    "font":"Wingdings",
+    "dec":48,
+    "hex":"0x30",
+    "name":"File folder"
+  },
+  {
+    "font":"Wingdings",
+    "dec":49,
+    "hex":"0x31",
+    "name":"Open file folder"
+  },
+  {
+    "font":"Wingdings",
+    "dec":50,
+    "hex":"0x32",
+    "name":"Page facing up"
+  },
+  {
+    "font":"Wingdings",
+    "dec":51,
+    "hex":"0x33",
+    "name":"Page"
+  },
+  {
+    "font":"Wingdings",
+    "dec":52,
+    "hex":"0x34",
+    "name":"Pages"
+  },
+  {
+    "font":"Wingdings",
+    "dec":53,
+    "hex":"0x35",
+    "name":"File cabinet"
+  },
+  {
+    "font":"Wingdings",
+    "dec":54,
+    "hex":"0x36",
+    "name":"Hourglass"
+  },
+  {
+    "font":"Wingdings",
+    "dec":55,
+    "hex":"0x37",
+    "name":"Wired keyboard"
+  },
+  {
+    "font":"Wingdings",
+    "dec":56,
+    "hex":"0x38",
+    "name":"Two button mouse"
+  },
+  {
+    "font":"Wingdings",
+    "dec":57,
+    "hex":"0x39",
+    "name":"Trackball"
+  },
+  {
+    "font":"Wingdings",
+    "dec":58,
+    "hex":"0x3A",
+    "name":"Old personal computer"
+  },
+  {
+    "font":"Wingdings",
+    "dec":59,
+    "hex":"0x3B",
+    "name":"Hard disk"
+  },
+  {
+    "font":"Wingdings",
+    "dec":60,
+    "hex":"0x3C",
+    "name":"White hard shell floppy disk"
+  },
+  {
+    "font":"Wingdings",
+    "dec":61,
+    "hex":"0x3D",
+    "name":"Soft shell floppy disk"
+  },
+  {
+    "font":"Wingdings",
+    "dec":62,
+    "hex":"0x3E",
+    "name":"Tape drive"
+  },
+  {
+    "font":"Wingdings",
+    "dec":63,
+    "hex":"0x3F",
+    "name":"Writing hand"
+  },
+  {
+    "font":"Wingdings",
+    "dec":64,
+    "hex":"0x40",
+    "name":"Left writing hand"
+  },
+  {
+    "font":"Wingdings",
+    "dec":65,
+    "hex":"0x41",
+    "name":"Victory hand"
+  },
+  {
+    "font":"Wingdings",
+    "dec":66,
+    "hex":"0x42",
+    "name":"OK hand sign"
+  },
+  {
+    "font":"Wingdings",
+    "dec":67,
+    "hex":"0x43",
+    "name":"Thumbs up sign"
+  },
+  {
+    "font":"Wingdings",
+    "dec":68,
+    "hex":"0x44",
+    "name":"Thumbs down sign"
+  },
+  {
+    "font":"Wingdings",
+    "dec":69,
+    "hex":"0x45",
+    "name":"White left pointing index"
+  },
+  {
+    "font":"Wingdings",
+    "dec":70,
+    "hex":"0x46",
+    "name":"White right pointing index"
+  },
+  {
+    "font":"Wingdings",
+    "dec":71,
+    "hex":"0x47",
+    "name":"White up pointing index"
+  },
+  {
+    "font":"Wingdings",
+    "dec":72,
+    "hex":"0x48",
+    "name":"White down pointing index"
+  },
+  {
+    "font":"Wingdings",
+    "dec":73,
+    "hex":"0x49",
+    "name":"Raised hand with fingers splayed"
+  },
+  {
+    "font":"Wingdings",
+    "dec":74,
+    "hex":"0x4A",
+    "name":"White smiling face"
+  },
+  {
+    "font":"Wingdings",
+    "dec":75,
+    "hex":"0x4B",
+    "name":"Neutral face"
+  },
+  {
+    "font":"Wingdings",
+    "dec":76,
+    "hex":"0x4C",
+    "name":"White frowning face"
+  },
+  {
+    "font":"Wingdings",
+    "dec":77,
+    "hex":"0x4D",
+    "name":"Bomb"
+  },
+  {
+    "font":"Wingdings",
+    "dec":78,
+    "hex":"0x4E",
+    "name":"Skull and crossbones"
+  },
+  {
+    "font":"Wingdings",
+    "dec":79,
+    "hex":"0x4F",
+    "name":"Waving white flag"
+  },
+  {
+    "font":"Wingdings",
+    "dec":80,
+    "hex":"0x50",
+    "name":"White pennant"
+  },
+  {
+    "font":"Wingdings",
+    "dec":81,
+    "hex":"0x51",
+    "name":"Airplane"
+  },
+  {
+    "font":"Wingdings",
+    "dec":82,
+    "hex":"0x52",
+    "name":"White sun with rays"
+  },
+  {
+    "font":"Wingdings",
+    "dec":83,
+    "hex":"0x53",
+    "name":"Droplet"
+  },
+  {
+    "font":"Wingdings",
+    "dec":84,
+    "hex":"0x54",
+    "name":"Snowflake"
+  },
+  {
+    "font":"Wingdings",
+    "dec":85,
+    "hex":"0x55",
+    "name":"White Latin cross"
+  },
+  {
+    "font":"Wingdings",
+    "dec":86,
+    "hex":"0x56",
+    "name":"Shadowed white Latin cross"
+  },
+  {
+    "font":"Wingdings",
+    "dec":87,
+    "hex":"0x57",
+    "name":"Celtic cross"
+  },
+  {
+    "font":"Wingdings",
+    "dec":88,
+    "hex":"0x58",
+    "name":"Maltese cross"
+  },
+  {
+    "font":"Wingdings",
+    "dec":89,
+    "hex":"0x59",
+    "name":"Star of David"
+  },
+  {
+    "font":"Wingdings",
+    "dec":90,
+    "hex":"0x5A",
+    "name":"Star and crescent"
+  },
+  {
+    "font":"Wingdings",
+    "dec":91,
+    "hex":"0x5B",
+    "name":"Yin Yang"
+  },
+  {
+    "font":"Wingdings",
+    "dec":92,
+    "hex":"0x5C",
+    "name":"Devanagari Om"
+  },
+  {
+    "font":"Wingdings",
+    "dec":93,
+    "hex":"0x5D",
+    "name":"Wheel of Dharma"
+  },
+  {
+    "font":"Wingdings",
+    "dec":94,
+    "hex":"0x5E",
+    "name":"Aries"
+  },
+  {
+    "font":"Wingdings",
+    "dec":95,
+    "hex":"0x5F",
+    "name":"Taurus"
+  },
+  {
+    "font":"Wingdings",
+    "dec":96,
+    "hex":"0x60",
+    "name":"Gemini"
+  },
+  {
+    "font":"Wingdings",
+    "dec":97,
+    "hex":"0x61",
+    "name":"Cancer"
+  },
+  {
+    "font":"Wingdings",
+    "dec":98,
+    "hex":"0x62",
+    "name":"Leo"
+  },
+  {
+    "font":"Wingdings",
+    "dec":99,
+    "hex":"0x63",
+    "name":"Virgo"
+  },
+  {
+    "font":"Wingdings",
+    "dec":100,
+    "hex":"0x64",
+    "name":"Libra"
+  },
+  {
+    "font":"Wingdings",
+    "dec":101,
+    "hex":"0x65",
+    "name":"Scorpio"
+  },
+  {
+    "font":"Wingdings",
+    "dec":102,
+    "hex":"0x66",
+    "name":"Sagittarius"
+  },
+  {
+    "font":"Wingdings",
+    "dec":103,
+    "hex":"0x67",
+    "name":"Capricorn"
+  },
+  {
+    "font":"Wingdings",
+    "dec":104,
+    "hex":"0x68",
+    "name":"Aquarius"
+  },
+  {
+    "font":"Wingdings",
+    "dec":105,
+    "hex":"0x69",
+    "name":"Pisces"
+  },
+  {
+    "font":"Wingdings",
+    "dec":106,
+    "hex":"0x6A",
+    "name":"Script ligature et ornament"
+  },
+  {
+    "font":"Wingdings",
+    "dec":107,
+    "hex":"0x6B",
+    "name":"Swash ampersand ornament"
+  },
+  {
+    "font":"Wingdings",
+    "dec":108,
+    "hex":"0x6C",
+    "name":"Black circle"
+  },
+  {
+    "font":"Wingdings",
+    "dec":109,
+    "hex":"0x6D",
+    "name":"Lower right shadowed white circle"
+  },
+  {
+    "font":"Wingdings",
+    "dec":110,
+    "hex":"0x6E",
+    "name":"Black square"
+  },
+  {
+    "font":"Wingdings",
+    "dec":111,
+    "hex":"0x6F",
+    "name":"White square"
+  },
+  {
+    "font":"Wingdings",
+    "dec":112,
+    "hex":"0x70",
+    "name":"Bold white square"
+  },
+  {
+    "font":"Wingdings",
+    "dec":113,
+    "hex":"0x71",
+    "name":"Lower right shadowed white square"
+  },
+  {
+    "font":"Wingdings",
+    "dec":114,
+    "hex":"0x72",
+    "name":"Upper right shadowed white square"
+  },
+  {
+    "font":"Wingdings",
+    "dec":115,
+    "hex":"0x73",
+    "name":"Black medium lozenge"
+  },
+  {
+    "font":"Wingdings",
+    "dec":116,
+    "hex":"0x74",
+    "name":"Black lozenge"
+  },
+  {
+    "font":"Wingdings",
+    "dec":117,
+    "hex":"0x75",
+    "name":"Black diamond"
+  },
+  {
+    "font":"Wingdings",
+    "dec":118,
+    "hex":"0x76",
+    "name":"Black diamond minus white X"
+  },
+  {
+    "font":"Wingdings",
+    "dec":119,
+    "hex":"0x77",
+    "name":"Black medium diamond"
+  },
+  {
+    "font":"Wingdings",
+    "dec":120,
+    "hex":"0x78",
+    "name":"X in a rectangle box"
+  },
+  {
+    "font":"Wingdings",
+    "dec":121,
+    "hex":"0x79",
+    "name":"Up arrowhead in a rectangle box"
+  },
+  {
+    "font":"Wingdings",
+    "dec":122,
+    "hex":"0x7A",
+    "name":"Place of interest sign"
+  },
+  {
+    "font":"Wingdings",
+    "dec":123,
+    "hex":"0x7B",
+    "name":"Rosette"
+  },
+  {
+    "font":"Wingdings",
+    "dec":124,
+    "hex":"0x7C",
+    "name":"Black rosette"
+  },
+  {
+    "font":"Wingdings",
+    "dec":125,
+    "hex":"0x7D",
+    "name":"Sans-serif heavy double turned comma quotation mark ornament"
+  },
+  {
+    "font":"Wingdings",
+    "dec":126,
+    "hex":"0x7E",
+    "name":"Sans-serif heavy double comma quotation mark ornament"
+  },
+  {
+    "font":"Wingdings",
+    "dec":127,
+    "hex":"0x7F",
+    "name":""
+  },
+  {
+    "font":"Wingdings",
+    "dec":128,
+    "hex":"0x80",
+    "name":"Circled digit zero"
+  },
+  {
+    "font":"Wingdings",
+    "dec":129,
+    "hex":"0x81",
+    "name":"Circled digit one"
+  },
+  {
+    "font":"Wingdings",
+    "dec":130,
+    "hex":"0x82",
+    "name":"Circled digit two"
+  },
+  {
+    "font":"Wingdings",
+    "dec":131,
+    "hex":"0x83",
+    "name":"Circled digit three"
+  },
+  {
+    "font":"Wingdings",
+    "dec":132,
+    "hex":"0x84",
+    "name":"Circled digit four"
+  },
+  {
+    "font":"Wingdings",
+    "dec":133,
+    "hex":"0x85",
+    "name":"Circled digit five"
+  },
+  {
+    "font":"Wingdings",
+    "dec":134,
+    "hex":"0x86",
+    "name":"Circled digit six"
+  },
+  {
+    "font":"Wingdings",
+    "dec":135,
+    "hex":"0x87",
+    "name":"Circled digit seven"
+  },
+  {
+    "font":"Wingdings",
+    "dec":136,
+    "hex":"0x88",
+    "name":"Circled digit eight"
+  },
+  {
+    "font":"Wingdings",
+    "dec":137,
+    "hex":"0x89",
+    "name":"Circled digit nine"
+  },
+  {
+    "font":"Wingdings",
+    "dec":138,
+    "hex":"0x8A",
+    "name":"Circled number ten"
+  },
+  {
+    "font":"Wingdings",
+    "dec":139,
+    "hex":"0x8B",
+    "name":"Negative circled digit zero"
+  },
+  {
+    "font":"Wingdings",
+    "dec":140,
+    "hex":"0x8C",
+    "name":"Dingbat negative circled digit one"
+  },
+  {
+    "font":"Wingdings",
+    "dec":141,
+    "hex":"0x8D",
+    "name":"Dingbat negative circled digit two"
+  },
+  {
+    "font":"Wingdings",
+    "dec":142,
+    "hex":"0x8E",
+    "name":"Dingbat negative circled digit three"
+  },
+  {
+    "font":"Wingdings",
+    "dec":143,
+    "hex":"0x8F",
+    "name":"Dingbat negative circled digit four"
+  },
+  {
+    "font":"Wingdings",
+    "dec":144,
+    "hex":"0x90",
+    "name":"Dingbat negative circled digit five"
+  },
+  {
+    "font":"Wingdings",
+    "dec":145,
+    "hex":"0x91",
+    "name":"Dingbat negative circled digit six"
+  },
+  {
+    "font":"Wingdings",
+    "dec":146,
+    "hex":"0x92",
+    "name":"Dingbat negative circled digit seven"
+  },
+  {
+    "font":"Wingdings",
+    "dec":147,
+    "hex":"0x93",
+    "name":"Dingbat negative circled digit eight"
+  },
+  {
+    "font":"Wingdings",
+    "dec":148,
+    "hex":"0x94",
+    "name":"Dingbat negative circled digit nine"
+  },
+  {
+    "font":"Wingdings",
+    "dec":149,
+    "hex":"0x95",
+    "name":"Dingbat negative circled number ten"
+  },
+  {
+    "font":"Wingdings",
+    "dec":150,
+    "hex":"0x96",
+    "name":"North east pointing bud"
+  },
+  {
+    "font":"Wingdings",
+    "dec":151,
+    "hex":"0x97",
+    "name":"North west pointing bud"
+  },
+  {
+    "font":"Wingdings",
+    "dec":152,
+    "hex":"0x98",
+    "name":"South west pointing bud"
+  },
+  {
+    "font":"Wingdings",
+    "dec":153,
+    "hex":"0x99",
+    "name":"South east pointing bud"
+  },
+  {
+    "font":"Wingdings",
+    "dec":154,
+    "hex":"0x9A",
+    "name":"Heavy north east pointing vine leaf"
+  },
+  {
+    "font":"Wingdings",
+    "dec":155,
+    "hex":"0x9B",
+    "name":"Heavy north west pointing vine leaf"
+  },
+  {
+    "font":"Wingdings",
+    "dec":156,
+    "hex":"0x9C",
+    "name":"Heavy south west pointing vine leaf"
+  },
+  {
+    "font":"Wingdings",
+    "dec":157,
+    "hex":"0x9D",
+    "name":"Heavy south east pointing vine leaf"
+  },
+  {
+    "font":"Wingdings",
+    "dec":158,
+    "hex":"0x9E",
+    "name":"Middle dot"
+  },
+  {
+    "font":"Wingdings",
+    "dec":159,
+    "hex":"0x9F",
+    "name":"Bullet"
+  },
+  {
+    "font":"Wingdings",
+    "dec":160,
+    "hex":"0xA0",
+    "name":"Black small square"
+  },
+  {
+    "font":"Wingdings",
+    "dec":161,
+    "hex":"0xA1",
+    "name":"Medium white circle"
+  },
+  {
+    "font":"Wingdings",
+    "dec":162,
+    "hex":"0xA2",
+    "name":"Heavy large circle"
+  },
+  {
+    "font":"Wingdings",
+    "dec":163,
+    "hex":"0xA3",
+    "name":"Very heavy white circle"
+  },
+  {
+    "font":"Wingdings",
+    "dec":164,
+    "hex":"0xA4",
+    "name":"Fisheye"
+  },
+  {
+    "font":"Wingdings",
+    "dec":165,
+    "hex":"0xA5",
+    "name":"Bullseye"
+  },
+  {
+    "font":"Wingdings",
+    "dec":166,
+    "hex":"0xA6",
+    "name":"Upper right shadowed white circle"
+  },
+  {
+    "font":"Wingdings",
+    "dec":167,
+    "hex":"0xA7",
+    "name":"Black small square"
+  },
+  {
+    "font":"Wingdings",
+    "dec":168,
+    "hex":"0xA8",
+    "name":"White medium square"
+  },
+  {
+    "font":"Wingdings",
+    "dec":169,
+    "hex":"0xA9",
+    "name":"Three pointed black star"
+  },
+  {
+    "font":"Wingdings",
+    "dec":170,
+    "hex":"0xAA",
+    "name":"Black four pointed star"
+  },
+  {
+    "font":"Wingdings",
+    "dec":171,
+    "hex":"0xAB",
+    "name":"Black star"
+  },
+  {
+    "font":"Wingdings",
+    "dec":172,
+    "hex":"0xAC",
+    "name":"Six pointed black star"
+  },
+  {
+    "font":"Wingdings",
+    "dec":173,
+    "hex":"0xAD",
+    "name":"Eight pointed black star"
+  },
+  {
+    "font":"Wingdings",
+    "dec":174,
+    "hex":"0xAE",
+    "name":"Twelve pointed black star"
+  },
+  {
+    "font":"Wingdings",
+    "dec":175,
+    "hex":"0xAF",
+    "name":"Eight pointed pinwheel star"
+  },
+  {
+    "font":"Wingdings",
+    "dec":176,
+    "hex":"0xB0",
+    "name":"Square position indicator"
+  },
+  {
+    "font":"Wingdings",
+    "dec":177,
+    "hex":"0xB1",
+    "name":"Position indicator"
+  },
+  {
+    "font":"Wingdings",
+    "dec":178,
+    "hex":"0xB2",
+    "name":"White concave-sided diamond"
+  },
+  {
+    "font":"Wingdings",
+    "dec":179,
+    "hex":"0xB3",
+    "name":"Square lozenge"
+  },
+  {
+    "font":"Wingdings",
+    "dec":180,
+    "hex":"0xB4",
+    "name":"Uncertainty sign"
+  },
+  {
+    "font":"Wingdings",
+    "dec":181,
+    "hex":"0xB5",
+    "name":"Circled white star"
+  },
+  {
+    "font":"Wingdings",
+    "dec":182,
+    "hex":"0xB6",
+    "name":"Shadowed white star"
+  },
+  {
+    "font":"Wingdings",
+    "dec":183,
+    "hex":"0xB7",
+    "name":"Clock face one oclock"
+  },
+  {
+    "font":"Wingdings",
+    "dec":184,
+    "hex":"0xB8",
+    "name":"Clock face two oclock"
+  },
+  {
+    "font":"Wingdings",
+    "dec":185,
+    "hex":"0xB9",
+    "name":"Clock face three oclock"
+  },
+  {
+    "font":"Wingdings",
+    "dec":186,
+    "hex":"0xBA",
+    "name":"Clock face four oclock"
+  },
+  {
+    "font":"Wingdings",
+    "dec":187,
+    "hex":"0xBB",
+    "name":"Clock face five oclock"
+  },
+  {
+    "font":"Wingdings",
+    "dec":188,
+    "hex":"0xBC",
+    "name":"Clock face six oclock"
+  },
+  {
+    "font":"Wingdings",
+    "dec":189,
+    "hex":"0xBD",
+    "name":"Clock face seven oclock"
+  },
+  {
+    "font":"Wingdings",
+    "dec":190,
+    "hex":"0xBE",
+    "name":"Clock face eight oclock"
+  },
+  {
+    "font":"Wingdings",
+    "dec":191,
+    "hex":"0xBF",
+    "name":"Clock face nine oclock"
+  },
+  {
+    "font":"Wingdings",
+    "dec":192,
+    "hex":"0xC0",
+    "name":"Clock face ten oclock"
+  },
+  {
+    "font":"Wingdings",
+    "dec":193,
+    "hex":"0xC1",
+    "name":"Clock face eleven oclock"
+  },
+  {
+    "font":"Wingdings",
+    "dec":194,
+    "hex":"0xC2",
+    "name":"Clock face twelve oclock"
+  },
+  {
+    "font":"Wingdings",
+    "dec":195,
+    "hex":"0xC3",
+    "name":"Ribbon arrow down left"
+  },
+  {
+    "font":"Wingdings",
+    "dec":196,
+    "hex":"0xC4",
+    "name":"Ribbon arrow down right"
+  },
+  {
+    "font":"Wingdings",
+    "dec":197,
+    "hex":"0xC5",
+    "name":"Ribbon arrow up left"
+  },
+  {
+    "font":"Wingdings",
+    "dec":198,
+    "hex":"0xC6",
+    "name":"Ribbon arrow up right"
+  },
+  {
+    "font":"Wingdings",
+    "dec":199,
+    "hex":"0xC7",
+    "name":"Ribbon arrow left up"
+  },
+  {
+    "font":"Wingdings",
+    "dec":200,
+    "hex":"0xC8",
+    "name":"Ribbon arrow right up"
+  },
+  {
+    "font":"Wingdings",
+    "dec":201,
+    "hex":"0xC9",
+    "name":"Ribbon arrow left down"
+  },
+  {
+    "font":"Wingdings",
+    "dec":202,
+    "hex":"0xCA",
+    "name":"Ribbon arrow right down"
+  },
+  {
+    "font":"Wingdings",
+    "dec":203,
+    "hex":"0xCB",
+    "name":"Solid quilt square ornament"
+  },
+  {
+    "font":"Wingdings",
+    "dec":204,
+    "hex":"0xCC",
+    "name":"Solid quilt square ornament in black square"
+  },
+  {
+    "font":"Wingdings",
+    "dec":205,
+    "hex":"0xCD",
+    "name":"Turned south west pointing leaf"
+  },
+  {
+    "font":"Wingdings",
+    "dec":206,
+    "hex":"0xCE",
+    "name":"Turned north west pointing leaf"
+  },
+  {
+    "font":"Wingdings",
+    "dec":207,
+    "hex":"0xCF",
+    "name":"Turned south east pointing leaf"
+  },
+  {
+    "font":"Wingdings",
+    "dec":208,
+    "hex":"0xD0",
+    "name":"Turned north east pointing leaf"
+  },
+  {
+    "font":"Wingdings",
+    "dec":209,
+    "hex":"0xD1",
+    "name":"North west pointing leaf"
+  },
+  {
+    "font":"Wingdings",
+    "dec":210,
+    "hex":"0xD2",
+    "name":"South west pointing leaf"
+  },
+  {
+    "font":"Wingdings",
+    "dec":211,
+    "hex":"0xD3",
+    "name":"North east pointing leaf"
+  },
+  {
+    "font":"Wingdings",
+    "dec":212,
+    "hex":"0xD4",
+    "name":"South east pointing leaf"
+  },
+  {
+    "font":"Wingdings",
+    "dec":213,
+    "hex":"0xD5",
+    "name":"Erase to the left"
+  },
+  {
+    "font":"Wingdings",
+    "dec":214,
+    "hex":"0xD6",
+    "name":"Erase to the right"
+  },
+  {
+    "font":"Wingdings",
+    "dec":215,
+    "hex":"0xD7",
+    "name":"Three-D top-lighted leftwards equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings",
+    "dec":216,
+    "hex":"0xD8",
+    "name":"Three-D top-lighted rightwards equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings",
+    "dec":217,
+    "hex":"0xD9",
+    "name":"Three-D right-lighted upwards equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings",
+    "dec":218,
+    "hex":"0xDA",
+    "name":"Three-D left-lighted downwards equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings",
+    "dec":219,
+    "hex":"0xDB",
+    "name":"Leftwards black circled white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":220,
+    "hex":"0xDC",
+    "name":"Rightwards black circled white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":221,
+    "hex":"0xDD",
+    "name":"Upwards black circled white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":222,
+    "hex":"0xDE",
+    "name":"Downwards black circled white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":223,
+    "hex":"0xDF",
+    "name":"Wide-headed leftwards barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":224,
+    "hex":"0xE0",
+    "name":"Wide-headed rightwards barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":225,
+    "hex":"0xE1",
+    "name":"Wide-headed upwards barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":226,
+    "hex":"0xE2",
+    "name":"Wide-headed downwards barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":227,
+    "hex":"0xE3",
+    "name":"Wide-headed north west barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":228,
+    "hex":"0xE4",
+    "name":"Wide-headed north east barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":229,
+    "hex":"0xE5",
+    "name":"Wide-headed south west barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":230,
+    "hex":"0xE6",
+    "name":"Wide-headed south east barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":231,
+    "hex":"0xE7",
+    "name":"Wide-headed leftwards heavy barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":232,
+    "hex":"0xE8",
+    "name":"Wide-headed rightwards heavy barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":233,
+    "hex":"0xE9",
+    "name":"Wide-headed upwards heavy barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":234,
+    "hex":"0xEA",
+    "name":"Wide-headed downwards heavy barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":235,
+    "hex":"0xEB",
+    "name":"Wide-headed north west heavy barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":236,
+    "hex":"0xEC",
+    "name":"Wide-headed north east heavy barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":237,
+    "hex":"0xED",
+    "name":"Wide-headed south west heavy barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":238,
+    "hex":"0xEE",
+    "name":"Wide-headed south east heavy barb arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":239,
+    "hex":"0xEF",
+    "name":"Leftwards white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":240,
+    "hex":"0xF0",
+    "name":"Rightwards white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":241,
+    "hex":"0xF1",
+    "name":"Upwards white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":242,
+    "hex":"0xF2",
+    "name":"Downwards white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":243,
+    "hex":"0xF3",
+    "name":"Left right white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":244,
+    "hex":"0xF4",
+    "name":"Up down white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":245,
+    "hex":"0xF5",
+    "name":"North east white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":246,
+    "hex":"0xF6",
+    "name":"North west white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":247,
+    "hex":"0xF7",
+    "name":"South west white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":248,
+    "hex":"0xF8",
+    "name":"South east white arrow"
+  },
+  {
+    "font":"Wingdings",
+    "dec":249,
+    "hex":"0xF9",
+    "name":"White arrow shaft width one"
+  },
+  {
+    "font":"Wingdings",
+    "dec":250,
+    "hex":"0xFA",
+    "name":"White arrow shaft width two thirds"
+  },
+  {
+    "font":"Wingdings",
+    "dec":251,
+    "hex":"0xFB",
+    "name":"Ballot bold script X"
+  },
+  {
+    "font":"Wingdings",
+    "dec":252,
+    "hex":"0xFC",
+    "name":"Heavy check mark"
+  },
+  {
+    "font":"Wingdings",
+    "dec":253,
+    "hex":"0xFD",
+    "name":"Ballot box with bold script X"
+  },
+  {
+    "font":"Wingdings",
+    "dec":254,
+    "hex":"0xFE",
+    "name":"Ballot box with bold check"
+  },
+  {
+    "font":"Wingdings",
+    "dec":255,
+    "hex":"0xFF",
+    "name":""
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":33,
+    "hex":"0x21",
+    "name":"Lower left ballpoint pen"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":34,
+    "hex":"0x22",
+    "name":"Lower left fountain pen"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":35,
+    "hex":"0x23",
+    "name":"Lower left paintbrush"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":36,
+    "hex":"0x24",
+    "name":"Lower left crayon"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":37,
+    "hex":"0x25",
+    "name":"White scissors"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":38,
+    "hex":"0x26",
+    "name":"Black safety scissors"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":39,
+    "hex":"0x27",
+    "name":"White touchtone telephone"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":40,
+    "hex":"0x28",
+    "name":"Right hand telephone receiver"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":41,
+    "hex":"0x29",
+    "name":"Empty note"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":42,
+    "hex":"0x2A",
+    "name":"Empty note page"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":43,
+    "hex":"0x2B",
+    "name":"Empty note pad"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":44,
+    "hex":"0x2C",
+    "name":"Note"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":45,
+    "hex":"0x2D",
+    "name":"Note page"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":46,
+    "hex":"0x2E",
+    "name":"Note pad"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":47,
+    "hex":"0x2F",
+    "name":"Empty document"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":48,
+    "hex":"0x30",
+    "name":"Empty page"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":49,
+    "hex":"0x31",
+    "name":"Empty pages"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":50,
+    "hex":"0x32",
+    "name":"Clipboard"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":51,
+    "hex":"0x33",
+    "name":"Wastebasket"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":52,
+    "hex":"0x34",
+    "name":"Desktop window"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":53,
+    "hex":"0x35",
+    "name":"Screen"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":54,
+    "hex":"0x36",
+    "name":"Printer icon"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":55,
+    "hex":"0x37",
+    "name":"Fax icon"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":56,
+    "hex":"0x38",
+    "name":"Optical disc icon"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":57,
+    "hex":"0x39",
+    "name":"Tape cartridge"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":58,
+    "hex":"0x3A",
+    "name":"One button mouse"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":59,
+    "hex":"0x3B",
+    "name":"Three button mouse"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":60,
+    "hex":"0x3C",
+    "name":"Reversed thumbs up sign"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":61,
+    "hex":"0x3D",
+    "name":"Reversed thumbs down sign"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":62,
+    "hex":"0x3E",
+    "name":"Sideways white left pointing index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":63,
+    "hex":"0x3F",
+    "name":"Sideways white left pointing index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":64,
+    "hex":"0x40",
+    "name":"Sideways black left pointing index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":65,
+    "hex":"0x41",
+    "name":"Sideways black right pointing index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":66,
+    "hex":"0x42",
+    "name":"White left pointing backhand index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":67,
+    "hex":"0x43",
+    "name":"White right pointing backhand index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":68,
+    "hex":"0x44",
+    "name":"Black left pointing backhand index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":69,
+    "hex":"0x45",
+    "name":"Black right pointing backhand index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":70,
+    "hex":"0x46",
+    "name":"Sideways white up pointing index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":71,
+    "hex":"0x47",
+    "name":"Sideways white down pointing index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":72,
+    "hex":"0x48",
+    "name":"Sideways black up pointing index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":73,
+    "hex":"0x49",
+    "name":"Sideways black down pointing index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":74,
+    "hex":"0x4A",
+    "name":"White up pointing backhand index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":75,
+    "hex":"0x4B",
+    "name":"White down pointing backhand index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":76,
+    "hex":"0x4C",
+    "name":"Black up pointing backhand index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":77,
+    "hex":"0x4D",
+    "name":"Black down pointing backhand index"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":78,
+    "hex":"0x4E",
+    "name":"Reversed raised hand with fingers splayed"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":79,
+    "hex":"0x4F",
+    "name":"Ballot script X"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":80,
+    "hex":"0x50",
+    "name":"Check mark"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":81,
+    "hex":"0x51",
+    "name":"Ballot box with script X"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":82,
+    "hex":"0x52",
+    "name":"Ballot box with check"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":83,
+    "hex":"0x53",
+    "name":"Ballot box with X"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":84,
+    "hex":"0x54",
+    "name":"Ballot box with X [bold style]"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":85,
+    "hex":"0x55",
+    "name":"Circled X"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":86,
+    "hex":"0x56",
+    "name":"Circled bold X"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":87,
+    "hex":"0x57",
+    "name":"Circled reverse solidus"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":88,
+    "hex":"0x58",
+    "name":"Circled reverse solidus [bold style]"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":89,
+    "hex":"0x59",
+    "name":"Heavy script ligature et ornament"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":90,
+    "hex":"0x5A",
+    "name":"Heavy ampersand ornament"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":91,
+    "hex":"0x5B",
+    "name":"Ligature open ET ornament"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":92,
+    "hex":"0x5C",
+    "name":"Heavy ligature open ET ornament"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":93,
+    "hex":"0x5D",
+    "name":"Interrobang"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":94,
+    "hex":"0x5E",
+    "name":"Heavy interrobang ornament"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":95,
+    "hex":"0x5F",
+    "name":"Sans-serif interrobang ornament"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":96,
+    "hex":"0x60",
+    "name":"Heavy sans-serif interrobang ornament"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":97,
+    "hex":"0x61",
+    "name":"Heavy north east pointing bud"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":98,
+    "hex":"0x62",
+    "name":"Heavy north west pointing bud"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":99,
+    "hex":"0x63",
+    "name":"Heavy south west pointing bud"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":100,
+    "hex":"0x64",
+    "name":"Heavy south east pointing bud"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":101,
+    "hex":"0x65",
+    "name":"North east pointing vine leaf"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":102,
+    "hex":"0x66",
+    "name":"North west pointing vine leaf"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":103,
+    "hex":"0x67",
+    "name":"South west pointing vine leaf"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":104,
+    "hex":"0x68",
+    "name":"South east pointing vine leaf"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":105,
+    "hex":"0x69",
+    "name":"Circled digit zero"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":106,
+    "hex":"0x6A",
+    "name":"Circled digit one"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":107,
+    "hex":"0x6B",
+    "name":"Circled digit two"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":108,
+    "hex":"0x6C",
+    "name":"Circled digit three"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":109,
+    "hex":"0x6D",
+    "name":"Circled digit four"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":110,
+    "hex":"0x6E",
+    "name":"Circled digit five"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":111,
+    "hex":"0x6F",
+    "name":"Circled digit six"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":112,
+    "hex":"0x70",
+    "name":"Circled digit seven"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":113,
+    "hex":"0x71",
+    "name":"Circled digit eight"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":114,
+    "hex":"0x72",
+    "name":"Circled digit nine"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":115,
+    "hex":"0x73",
+    "name":"Circled digit ten"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":116,
+    "hex":"0x74",
+    "name":"Negative circled digit zero"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":117,
+    "hex":"0x75",
+    "name":"Dingbat negative circled digit one"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":118,
+    "hex":"0x76",
+    "name":"Dingbat negative circled digit two"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":119,
+    "hex":"0x77",
+    "name":"Dingbat negative circled digit three"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":120,
+    "hex":"0x78",
+    "name":"Dingbat negative circled digit four"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":121,
+    "hex":"0x79",
+    "name":"Dingbat negative circled digit five"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":122,
+    "hex":"0x7A",
+    "name":"Dingbat negative circled digit six"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":123,
+    "hex":"0x7B",
+    "name":"Dingbat negative circled digit seven"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":124,
+    "hex":"0x7C",
+    "name":"Dingbat negative circled digit eight"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":125,
+    "hex":"0x7D",
+    "name":"Dingbat negative circled digit nine"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":126,
+    "hex":"0x7E",
+    "name":"Dingbat negative circled number ten"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":128,
+    "hex":"0x80",
+    "name":"Sun"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":129,
+    "hex":"0x81",
+    "name":"Full moon symbol"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":130,
+    "hex":"0x82",
+    "name":"First quarter moon"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":131,
+    "hex":"0x83",
+    "name":"Last quarter moon"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":132,
+    "hex":"0x84",
+    "name":"Capitulum"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":133,
+    "hex":"0x85",
+    "name":"Latin cross"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":134,
+    "hex":"0x86",
+    "name":"Heavy latin cross"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":135,
+    "hex":"0x87",
+    "name":"Clock face one-thirty"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":136,
+    "hex":"0x88",
+    "name":"Clock face two-thirty"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":137,
+    "hex":"0x89",
+    "name":"Clock face three-thirty"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":138,
+    "hex":"0x8A",
+    "name":"Clock face four-thirty"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":139,
+    "hex":"0x8B",
+    "name":"Clock face five-thirty"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":140,
+    "hex":"0x8C",
+    "name":"Clock face six-thirty"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":141,
+    "hex":"0x8D",
+    "name":"Clock face seven-thirty"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":142,
+    "hex":"0x8E",
+    "name":"Clock face eight-thirty"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":143,
+    "hex":"0x8F",
+    "name":"Clock face nine-thirty"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":144,
+    "hex":"0x90",
+    "name":"Clock face ten-thirty"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":145,
+    "hex":"0x91",
+    "name":"Clock face eleven-thirty"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":146,
+    "hex":"0x92",
+    "name":"Clock face twelve-thirty"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":147,
+    "hex":"0x93",
+    "name":"Hollow quilt square ornament"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":148,
+    "hex":"0x94",
+    "name":"Hollow quilt square ornament in black square"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":149,
+    "hex":"0x95",
+    "name":"Bullet"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":150,
+    "hex":"0x96",
+    "name":"Black circle"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":151,
+    "hex":"0x97",
+    "name":"Medium black circle"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":152,
+    "hex":"0x98",
+    "name":"Black large circle"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":153,
+    "hex":"0x99",
+    "name":"Medium bold white circle"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":154,
+    "hex":"0x9A",
+    "name":"Bold white circle"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":155,
+    "hex":"0x9B",
+    "name":"Heavy white circle"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":156,
+    "hex":"0x9C",
+    "name":"Very heavy white circle"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":157,
+    "hex":"0x9D",
+    "name":"White circle containing black small circle"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":158,
+    "hex":"0x9E",
+    "name":"Circled bullet"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":159,
+    "hex":"0x9F",
+    "name":"Black medium small square"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":160,
+    "hex":"0xA0",
+    "name":"Black square"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":161,
+    "hex":"0xA1",
+    "name":"Black medium square"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":162,
+    "hex":"0xA2",
+    "name":"Black large square"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":163,
+    "hex":"0xA3",
+    "name":"White large square"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":164,
+    "hex":"0xA4",
+    "name":"Heavy white square"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":165,
+    "hex":"0xA5",
+    "name":"Very heavy white square"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":166,
+    "hex":"0xA6",
+    "name":"Extremely heavy white square"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":167,
+    "hex":"0xA7",
+    "name":"White square containing black very small square"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":168,
+    "hex":"0xA8",
+    "name":"White square containing black small square"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":169,
+    "hex":"0xA9",
+    "name":"White square containing black medium square"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":170,
+    "hex":"0xAA",
+    "name":"Square target"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":171,
+    "hex":"0xAB",
+    "name":"Black tiny diamond"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":172,
+    "hex":"0xAC",
+    "name":"Black small diamond"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":173,
+    "hex":"0xAD",
+    "name":"Black medium diamond"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":174,
+    "hex":"0xAE",
+    "name":"Black diamond"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":175,
+    "hex":"0xAF",
+    "name":"White diamond"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":176,
+    "hex":"0xB0",
+    "name":"White diamond containing black very small diamond"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":177,
+    "hex":"0xB1",
+    "name":"White diamond containing black small diamond"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":178,
+    "hex":"0xB2",
+    "name":"White diamond containing black medium diamond"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":179,
+    "hex":"0xB3",
+    "name":"Diamond target"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":180,
+    "hex":"0xB4",
+    "name":"Black tiny lozenge"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":181,
+    "hex":"0xB5",
+    "name":"Black small lozenge"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":182,
+    "hex":"0xB6",
+    "name":"Black medium lozenge"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":183,
+    "hex":"0xB7",
+    "name":"Black lozenge"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":184,
+    "hex":"0xB8",
+    "name":"Lozenge"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":185,
+    "hex":"0xB9",
+    "name":"White lozenge containing black small lozenge"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":186,
+    "hex":"0xBA",
+    "name":"Left half black circle"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":187,
+    "hex":"0xBB",
+    "name":"Right half black circle"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":188,
+    "hex":"0xBC",
+    "name":"Top half black circle"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":189,
+    "hex":"0xBD",
+    "name":"Bottom half black circle"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":190,
+    "hex":"0xBE",
+    "name":"Black medium square"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":191,
+    "hex":"0xBF",
+    "name":"Black medium diamond"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":192,
+    "hex":"0xC0",
+    "name":"Black pentagon"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":193,
+    "hex":"0xC1",
+    "name":"Turned black pentagon"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":194,
+    "hex":"0xC2",
+    "name":"Horizontal black hexagon"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":195,
+    "hex":"0xC3",
+    "name":"Black hexagon"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":196,
+    "hex":"0xC4",
+    "name":"Horizontal black octagon"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":197,
+    "hex":"0xC5",
+    "name":"Black octagon"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":198,
+    "hex":"0xC6",
+    "name":"Thin Greek cross"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":199,
+    "hex":"0xC7",
+    "name":"Light Greek cross"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":200,
+    "hex":"0xC8",
+    "name":"Medium Greek cross"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":201,
+    "hex":"0xC9",
+    "name":"Bold Greek cross"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":202,
+    "hex":"0xCA",
+    "name":"Very bold Greek cross"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":203,
+    "hex":"0xCB",
+    "name":"Very heavy Greek cross"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":204,
+    "hex":"0xCC",
+    "name":"Extremely heavy Greek cross"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":205,
+    "hex":"0xCD",
+    "name":"Thin saltire"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":206,
+    "hex":"0xCE",
+    "name":"Light saltire"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":207,
+    "hex":"0xCF",
+    "name":"Medium saltire"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":208,
+    "hex":"0xD0",
+    "name":"Bold saltire"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":209,
+    "hex":"0xD1",
+    "name":"Heavy saltire"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":210,
+    "hex":"0xD2",
+    "name":"Very heavy saltire"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":211,
+    "hex":"0xD3",
+    "name":"Extremely heavy saltire"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":212,
+    "hex":"0xD4",
+    "name":"Light five spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":213,
+    "hex":"0xD5",
+    "name":"Medium five spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":214,
+    "hex":"0xD6",
+    "name":"Bold five spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":215,
+    "hex":"0xD7",
+    "name":"Heavy five spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":216,
+    "hex":"0xD8",
+    "name":"Very heavy five spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":217,
+    "hex":"0xD9",
+    "name":"Extremely heavy five spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":218,
+    "hex":"0xDA",
+    "name":"Light six spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":219,
+    "hex":"0xDB",
+    "name":"Medium six spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":220,
+    "hex":"0xDC",
+    "name":"Bold six spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":221,
+    "hex":"0xDD",
+    "name":"Heavy six spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":222,
+    "hex":"0xDE",
+    "name":"Very heavy six spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":223,
+    "hex":"0xDF",
+    "name":"Extremely heavy six spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":224,
+    "hex":"0xE0",
+    "name":"Light eight spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":225,
+    "hex":"0xE1",
+    "name":"Medium eight spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":226,
+    "hex":"0xE2",
+    "name":"Bold eight spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":227,
+    "hex":"0xE3",
+    "name":"Heavy eight spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":228,
+    "hex":"0xE4",
+    "name":"Very heavy eight spoked asterisk"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":229,
+    "hex":"0xE5",
+    "name":"Light three pointed black star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":230,
+    "hex":"0xE6",
+    "name":"Three pointed black star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":231,
+    "hex":"0xE7",
+    "name":"Light four pointed black star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":232,
+    "hex":"0xE8",
+    "name":"Black four pointed star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":233,
+    "hex":"0xE9",
+    "name":"Light five pointed black star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":234,
+    "hex":"0xEA",
+    "name":"Black star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":235,
+    "hex":"0xEB",
+    "name":"Six pointed black star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":236,
+    "hex":"0xEC",
+    "name":"Medium six pointed black star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":237,
+    "hex":"0xED",
+    "name":"Eight pointed rectilinear black star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":238,
+    "hex":"0xEE",
+    "name":"Heavy eight pointed black star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":239,
+    "hex":"0xEF",
+    "name":"Light twelve pointed black star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":240,
+    "hex":"0xF0",
+    "name":"Twelve pointed black star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":241,
+    "hex":"0xF1",
+    "name":"Medium three pointed pinwheel star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":242,
+    "hex":"0xF2",
+    "name":"Medium four pointed pinwheel star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":243,
+    "hex":"0xF3",
+    "name":"Pinwheel star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":244,
+    "hex":"0xF4",
+    "name":"Six pointed pinwheel star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":245,
+    "hex":"0xF5",
+    "name":"Heavy twelve pointed pinwheel star"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":246,
+    "hex":"0xF6",
+    "name":"Light four pointed black cusp"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":247,
+    "hex":"0xF7",
+    "name":"Rotated light four pointed black cusp"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":248,
+    "hex":"0xF8",
+    "name":"Reference mark"
+  },
+  {
+    "font":"Wingdings 2",
+    "dec":249,
+    "hex":"0xF9",
+    "name":"Asterism"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":33,
+    "hex":"0x21",
+    "name":"Leftwards triangle-headed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":34,
+    "hex":"0x22",
+    "name":"Rightwards triangle-headed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":35,
+    "hex":"0x23",
+    "name":"Upwards triangle-headed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":36,
+    "hex":"0x24",
+    "name":"Downwards triangle-headed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":37,
+    "hex":"0x25",
+    "name":"North west triangle-headed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":38,
+    "hex":"0x26",
+    "name":"North east triangle-headed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":39,
+    "hex":"0x27",
+    "name":"South west triangle-headed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":40,
+    "hex":"0x28",
+    "name":"South east triangle-headed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":41,
+    "hex":"0x29",
+    "name":"Leftwards triangle-headed arrow to bar"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":42,
+    "hex":"0x2A",
+    "name":"Rightwards triangle-headed arrow to bar"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":43,
+    "hex":"0x2B",
+    "name":"Upwards triangle-headed arrow to bar"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":44,
+    "hex":"0x2C",
+    "name":"Downwards triangle-headed arrow to bar"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":45,
+    "hex":"0x2D",
+    "name":"North west triangle-headed arrow to bar"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":46,
+    "hex":"0x2E",
+    "name":"South east triangle-headed arrow to bar"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":47,
+    "hex":"0x2F",
+    "name":"Upwards triangle-headed arrow with double horizontal stroke"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":48,
+    "hex":"0x30",
+    "name":"Downwards triangle-headed arrow with double horizontal stroke"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":49,
+    "hex":"0x31",
+    "name":"Left right triangle-headed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":50,
+    "hex":"0x32",
+    "name":"Up down triangle-headed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":51,
+    "hex":"0x33",
+    "name":"Leftwards triangle-headed dashed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":52,
+    "hex":"0x34",
+    "name":"Rightwards triangle-headed dashed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":53,
+    "hex":"0x35",
+    "name":"Upwards triangle-headed dashed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":54,
+    "hex":"0x36",
+    "name":"Downwards triangle-headed dashed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":55,
+    "hex":"0x37",
+    "name":"Downwards triangle-headed zigzag arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":56,
+    "hex":"0x38",
+    "name":"Downwards triangle-headed arrow with long tip leftwards"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":57,
+    "hex":"0x39",
+    "name":"Downwards triangle-headed arrow with long tip rightwards"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":58,
+    "hex":"0x3A",
+    "name":"Upwards triangle-headed arrow with long tip leftwards"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":59,
+    "hex":"0x3B",
+    "name":"Upwards triangle-headed arrow with long tip rightwards"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":60,
+    "hex":"0x3C",
+    "name":"Leftwards triangle-headed arrow with long tip upwards"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":61,
+    "hex":"0x3D",
+    "name":"Rightwards triangle-headed arrow with long tip upwards"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":62,
+    "hex":"0x3E",
+    "name":"Leftwards triangle-headed arrow with long tip downwards"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":63,
+    "hex":"0x3F",
+    "name":"Rightwards triangle-headed arrow with long tip downwards"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":64,
+    "hex":"0x40",
+    "name":"Return left"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":65,
+    "hex":"0x41",
+    "name":"Return right"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":66,
+    "hex":"0x42",
+    "name":"New line left"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":67,
+    "hex":"0x43",
+    "name":"New line right"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":68,
+    "hex":"0x44",
+    "name":"Leftwards triangle-headed arrow over rightwards triangle-headed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":69,
+    "hex":"0x45",
+    "name":"Downwards triangle-headed arrow leftwards of upwards triangle-headed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":70,
+    "hex":"0x46",
+    "name":"Horizontal tab key"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":71,
+    "hex":"0x47",
+    "name":"Vertical tab key"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":72,
+    "hex":"0x48",
+    "name":"Leftwards triangle-headed paired arrows"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":73,
+    "hex":"0x49",
+    "name":"Rightwards triangle-headed paired arrows"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":74,
+    "hex":"0x4A",
+    "name":"Upwards triangle-headed paired arrows"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":75,
+    "hex":"0x4B",
+    "name":"Downwards triangle-headed paired arrows"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":76,
+    "hex":"0x4C",
+    "name":"Anticlockwise triangle-headed top u-shaped arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":77,
+    "hex":"0x4D",
+    "name":"Anticlockwise triangle-headed bottom u-shaped arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":78,
+    "hex":"0x4E",
+    "name":"Anticlockwise triangle-headed left u-shaped arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":79,
+    "hex":"0x4F",
+    "name":"Anticlockwise triangle-headed right u-shaped arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":80,
+    "hex":"0x50",
+    "name":"Clockwise triangle-headed open circle arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":81,
+    "hex":"0x51",
+    "name":"Anticlockwise triangle-headed open circle arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":82,
+    "hex":"0x52",
+    "name":"Broken circle with northwest arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":83,
+    "hex":"0x53",
+    "name":"Up arrowhead between two horizontal bars"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":84,
+    "hex":"0x54",
+    "name":"Up arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":85,
+    "hex":"0x55",
+    "name":"Option key"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":86,
+    "hex":"0x56",
+    "name":"Bottom square bracket"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":87,
+    "hex":"0x57",
+    "name":"Shouldered open box"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":88,
+    "hex":"0x58",
+    "name":"Upwards white arrow from bar"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":89,
+    "hex":"0x59",
+    "name":"Upwards white arrow from bar with horizontal bar"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":90,
+    "hex":"0x5A",
+    "name":"Leftwards bottom-shaded white arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":91,
+    "hex":"0x5B",
+    "name":"Rightwards bottom-shaded white arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":92,
+    "hex":"0x5C",
+    "name":"Leftwards top shaded white arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":93,
+    "hex":"0x5D",
+    "name":"Rightwards top shaded white arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":94,
+    "hex":"0x5E",
+    "name":"Leftwards left-shaded white arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":95,
+    "hex":"0x5F",
+    "name":"Rightwards right-shaded white arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":96,
+    "hex":"0x60",
+    "name":"Leftwards right-shaded white arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":97,
+    "hex":"0x61",
+    "name":"Rightwards left-shaded white arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":98,
+    "hex":"0x62",
+    "name":"Leftwards back-tilted shadowed white arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":99,
+    "hex":"0x63",
+    "name":"Rightwards back-tilted shadowed white arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":100,
+    "hex":"0x64",
+    "name":"Leftwards front-tilted shadowed white arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":101,
+    "hex":"0x65",
+    "name":"Rightwards front-tilted shadowed white arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":102,
+    "hex":"0x66",
+    "name":"Leftwards arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":103,
+    "hex":"0x67",
+    "name":"Rightwards arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":104,
+    "hex":"0x68",
+    "name":"Upwards arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":105,
+    "hex":"0x69",
+    "name":"Downwards arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":106,
+    "hex":"0x6A",
+    "name":"North west arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":107,
+    "hex":"0x6B",
+    "name":"North east arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":108,
+    "hex":"0x6C",
+    "name":"South west arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":109,
+    "hex":"0x6D",
+    "name":"South east arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":110,
+    "hex":"0x6E",
+    "name":"Left right sans-serif arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":111,
+    "hex":"0x6F",
+    "name":"Up down sans-serif arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":112,
+    "hex":"0x70",
+    "name":"Black up-pointing triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":113,
+    "hex":"0x71",
+    "name":"Black down-pointing triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":114,
+    "hex":"0x72",
+    "name":"White up-pointing triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":115,
+    "hex":"0x73",
+    "name":"White down-pointing triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":116,
+    "hex":"0x74",
+    "name":"Black left-pointing pointer"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":117,
+    "hex":"0x75",
+    "name":"Black right-pointing pointer"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":118,
+    "hex":"0x76",
+    "name":"White left-pointing triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":119,
+    "hex":"0x77",
+    "name":"White right-pointing triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":120,
+    "hex":"0x78",
+    "name":"Black lower left triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":121,
+    "hex":"0x79",
+    "name":"Black lower right triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":122,
+    "hex":"0x7A",
+    "name":"Black upper left triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":123,
+    "hex":"0x7B",
+    "name":"Black upper right triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":124,
+    "hex":"0x7C",
+    "name":"Black left-pointing isosceles right triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":125,
+    "hex":"0x7D",
+    "name":"Black right-pointing isosceles right triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":126,
+    "hex":"0x7E",
+    "name":"Black up-pointing isosceles right triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":128,
+    "hex":"0x80",
+    "name":"Black down-pointing isosceles right triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":129,
+    "hex":"0x81",
+    "name":"Black up-pointing triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":130,
+    "hex":"0x82",
+    "name":"Black down-pointing small triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":131,
+    "hex":"0x83",
+    "name":"Black left-pointing triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":132,
+    "hex":"0x84",
+    "name":"Black right-pointing triangle"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":133,
+    "hex":"0x85",
+    "name":"Black leftwards equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":134,
+    "hex":"0x86",
+    "name":"Black rightwards equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":135,
+    "hex":"0x87",
+    "name":"Black upwards equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":136,
+    "hex":"0x88",
+    "name":"Black downwards equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":137,
+    "hex":"0x89",
+    "name":"Leftwards arrow with small equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":138,
+    "hex":"0x8A",
+    "name":"Rightwards arrow with small equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":139,
+    "hex":"0x8B",
+    "name":"Upwards arrow with small equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":140,
+    "hex":"0x8C",
+    "name":"Downwards arrow with small equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":141,
+    "hex":"0x8D",
+    "name":"Leftwards arrow with equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":142,
+    "hex":"0x8E",
+    "name":"Rightwards arrow with equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":143,
+    "hex":"0x8F",
+    "name":"Upwards arrow with equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":144,
+    "hex":"0x90",
+    "name":"Downwards arrow with equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":145,
+    "hex":"0x91",
+    "name":"Heavy leftwards arrow with equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":146,
+    "hex":"0x92",
+    "name":"Heavy rightwards arrow with equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":147,
+    "hex":"0x93",
+    "name":"Heavy upwards arrow with equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":148,
+    "hex":"0x94",
+    "name":"Heavy downwards arrow with equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":149,
+    "hex":"0x95",
+    "name":"Heavy leftwards arrow with large equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":150,
+    "hex":"0x96",
+    "name":"Heavy rightwards arrow with large equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":151,
+    "hex":"0x97",
+    "name":"Heavy upwards arrow with large equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":152,
+    "hex":"0x98",
+    "name":"Heavy downwards arrow with large equilateral arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":153,
+    "hex":"0x99",
+    "name":"Leftwards arrow with small triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":154,
+    "hex":"0x9A",
+    "name":"Rightwards arrow with small triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":155,
+    "hex":"0x9B",
+    "name":"Upwards arrow with small triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":156,
+    "hex":"0x9C",
+    "name":"Downwards arrow with small triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":157,
+    "hex":"0x9D",
+    "name":"Leftwards arrow with medium triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":158,
+    "hex":"0x9E",
+    "name":"Rightwards arrow with medium triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":159,
+    "hex":"0x9F",
+    "name":"Upwards arrow with medium triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":160,
+    "hex":"0xA0",
+    "name":"Downwards arrow with medium triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":161,
+    "hex":"0xA1",
+    "name":"Leftwards arrow with large triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":162,
+    "hex":"0xA2",
+    "name":"Rightwards arrow with large triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":163,
+    "hex":"0xA3",
+    "name":"Upwards arrow with large triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":164,
+    "hex":"0xA4",
+    "name":"Downwards arrow with large triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":165,
+    "hex":"0xA5",
+    "name":"Leftwards triangle-headed arrow with narrow shaft"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":166,
+    "hex":"0xA6",
+    "name":"Rightwards triangle-headed arrow with narrow shaft"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":167,
+    "hex":"0xA7",
+    "name":"Leftwards triangle-headed arrow with medium shaft"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":168,
+    "hex":"0xA8",
+    "name":"Rightwards triangle-headed arrow with medium shaft"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":169,
+    "hex":"0xA9",
+    "name":"Leftwards triangle-headed arrow with bold shaft"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":170,
+    "hex":"0xAA",
+    "name":"Rightwards triangle-headed arrow with bold shaft"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":171,
+    "hex":"0xAB",
+    "name":"Leftwards triangle-headed arrow with heavy shaft"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":172,
+    "hex":"0xAC",
+    "name":"Heavy arrow shaft width one"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":173,
+    "hex":"0xAD",
+    "name":"Heavy arrow shaft width two thirds"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":174,
+    "hex":"0xAE",
+    "name":"Heavy arrow shaft width one half"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":175,
+    "hex":"0xAF",
+    "name":"Heavy arrow shaft width one third"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":176,
+    "hex":"0xB0",
+    "name":"Rightwards triangle-headed arrow with heavy shaft"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":177,
+    "hex":"0xB1",
+    "name":"Leftwards triangle-headed arrow with very heavy shaft"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":178,
+    "hex":"0xB2",
+    "name":"Rightwards triangle-headed arrow with very heavy shaft"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":179,
+    "hex":"0xB3",
+    "name":"Leftwards finger-post arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":180,
+    "hex":"0xB4",
+    "name":"Rightwards finger-post arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":181,
+    "hex":"0xB5",
+    "name":"Leftwards squared arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":182,
+    "hex":"0xB6",
+    "name":"Rightwards squared arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":183,
+    "hex":"0xB7",
+    "name":"Upwards squared arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":184,
+    "hex":"0xB8",
+    "name":"Downwards squared arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":185,
+    "hex":"0xB9",
+    "name":"Leftwards arrow with notched tail"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":186,
+    "hex":"0xBA",
+    "name":"Rightwards arrow with notched tail"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":187,
+    "hex":"0xBB",
+    "name":"Upwards arrow with notched tail"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":188,
+    "hex":"0xBC",
+    "name":"Downwards arrow with notched tail"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":189,
+    "hex":"0xBD",
+    "name":"Leftwards compressed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":190,
+    "hex":"0xBE",
+    "name":"Rightwards compressed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":191,
+    "hex":"0xBF",
+    "name":"Upwards compressed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":192,
+    "hex":"0xC0",
+    "name":"Downwards compressed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":193,
+    "hex":"0xC1",
+    "name":"Leftwards heavy compressed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":194,
+    "hex":"0xC2",
+    "name":"Rightwards heavy compressed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":195,
+    "hex":"0xC3",
+    "name":"Upwards heavy compressed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":196,
+    "hex":"0xC4",
+    "name":"Downwards heavy compressed arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":197,
+    "hex":"0xC5",
+    "name":"Leftwards heavy arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":198,
+    "hex":"0xC6",
+    "name":"Rightwards heavy arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":199,
+    "hex":"0xC7",
+    "name":"Upwards heavy arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":200,
+    "hex":"0xC8",
+    "name":"Downwards heavy arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":201,
+    "hex":"0xC9",
+    "name":"Black curved downwards and leftwards arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":202,
+    "hex":"0xCA",
+    "name":"Black curved downwards and rightwards arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":203,
+    "hex":"0xCB",
+    "name":"Black curved upwards and leftwards arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":204,
+    "hex":"0xCC",
+    "name":"Black curved upwards and rightwards arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":205,
+    "hex":"0xCD",
+    "name":"Black curved leftwards and upwards arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":206,
+    "hex":"0xCE",
+    "name":"Black curved rightwards and upwards arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":207,
+    "hex":"0xCF",
+    "name":"Black curved leftwards and downwards arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":208,
+    "hex":"0xD0",
+    "name":"Black curved rightwards and downwards arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":209,
+    "hex":"0xD1",
+    "name":"Wide-headed leftwards light barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":210,
+    "hex":"0xD2",
+    "name":"Wide-headed rightwards light barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":211,
+    "hex":"0xD3",
+    "name":"Wide-headed upwards light barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":212,
+    "hex":"0xD4",
+    "name":"Wide-headed downwards light barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":213,
+    "hex":"0xD5",
+    "name":"Wide-headed north west light barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":214,
+    "hex":"0xD6",
+    "name":"Wide-headed north east light barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":215,
+    "hex":"0xD7",
+    "name":"Wide-headed south west light barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":216,
+    "hex":"0xD8",
+    "name":"Wide-headed south east light barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":217,
+    "hex":"0xD9",
+    "name":"Wide-headed leftwards medium barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":218,
+    "hex":"0xDA",
+    "name":"Wide-headed rightwards medium barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":219,
+    "hex":"0xDB",
+    "name":"Wide-headed upwards medium barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":220,
+    "hex":"0xDC",
+    "name":"Wide-headed downwards medium barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":221,
+    "hex":"0xDD",
+    "name":"Wide-headed north west medium barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":222,
+    "hex":"0xDE",
+    "name":"Wide-headed north east medium barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":223,
+    "hex":"0xDF",
+    "name":"Wide-headed south west medium barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":224,
+    "hex":"0xE0",
+    "name":"Wide-headed south east medium barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":225,
+    "hex":"0xE1",
+    "name":"Wide-headed leftwards very heavy barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":226,
+    "hex":"0xE2",
+    "name":"Wide-headed rightwards very heavy barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":227,
+    "hex":"0xE3",
+    "name":"Wide-headed upwards very heavy barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":228,
+    "hex":"0xE4",
+    "name":"Wide-headed downwards very heavy barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":229,
+    "hex":"0xE5",
+    "name":"Wide-headed north west very heavy barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":230,
+    "hex":"0xE6",
+    "name":"Wide-headed north east very heavy barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":231,
+    "hex":"0xE7",
+    "name":"Wide-headed south west very heavy barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":232,
+    "hex":"0xE8",
+    "name":"Wide-headed south east very heavy barb arrow"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":233,
+    "hex":"0xE9",
+    "name":"Leftwards triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":234,
+    "hex":"0xEA",
+    "name":"Rightwards triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":235,
+    "hex":"0xEB",
+    "name":"Upwards triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":236,
+    "hex":"0xEC",
+    "name":"Downwards triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":237,
+    "hex":"0xED",
+    "name":"Leftwards white arrow within triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":238,
+    "hex":"0xEE",
+    "name":"Rightwards white arrow within triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":239,
+    "hex":"0xEF",
+    "name":"Upwards white arrow within triangle arrowhead"
+  },
+  {
+    "font":"Wingdings 3",
+    "dec":240,
+    "hex":"0xF0",
+    "name":"Downwards white arrow within triangle arrowhead"
+  },
+  {
+    "font":"Webdings",
+    "dec":33,
+    "hex":"0x21",
+    "name":"Spider"
+  },
+  {
+    "font":"Webdings",
+    "dec":34,
+    "hex":"0x22",
+    "name":"Spider web"
+  },
+  {
+    "font":"Webdings",
+    "dec":35,
+    "hex":"0x23",
+    "name":"No piracy"
+  },
+  {
+    "font":"Webdings",
+    "dec":36,
+    "hex":"0x24",
+    "name":"Dark sunglasses"
+  },
+  {
+    "font":"Webdings",
+    "dec":37,
+    "hex":"0x25",
+    "name":"Trophy"
+  },
+  {
+    "font":"Webdings",
+    "dec":38,
+    "hex":"0x26",
+    "name":"Military medal"
+  },
+  {
+    "font":"Webdings",
+    "dec":39,
+    "hex":"0x27",
+    "name":"Linked paperclips"
+  },
+  {
+    "font":"Webdings",
+    "dec":40,
+    "hex":"0x28",
+    "name":"Left speech bubble"
+  },
+  {
+    "font":"Webdings",
+    "dec":41,
+    "hex":"0x29",
+    "name":"Right speech bubble"
+  },
+  {
+    "font":"Webdings",
+    "dec":42,
+    "hex":"0x2A",
+    "name":"Mood bubble"
+  },
+  {
+    "font":"Webdings",
+    "dec":43,
+    "hex":"0x2B",
+    "name":"Lightning mood bubble"
+  },
+  {
+    "font":"Webdings",
+    "dec":44,
+    "hex":"0x2C",
+    "name":"Hot pepper"
+  },
+  {
+    "font":"Webdings",
+    "dec":45,
+    "hex":"0x2D",
+    "name":"Reminder ribbon"
+  },
+  {
+    "font":"Webdings",
+    "dec":46,
+    "hex":"0x2E",
+    "name":"Checker board"
+  },
+  {
+    "font":"Webdings",
+    "dec":47,
+    "hex":"0x2F",
+    "name":"Very heavy solidus"
+  },
+  {
+    "font":"Webdings",
+    "dec":48,
+    "hex":"0x30",
+    "name":"Minimize"
+  },
+  {
+    "font":"Webdings",
+    "dec":49,
+    "hex":"0x31",
+    "name":"Maximize"
+  },
+  {
+    "font":"Webdings",
+    "dec":50,
+    "hex":"0x32",
+    "name":"Overlap"
+  },
+  {
+    "font":"Webdings",
+    "dec":51,
+    "hex":"0x33",
+    "name":"Black medium left-pointing triangle"
+  },
+  {
+    "font":"Webdings",
+    "dec":52,
+    "hex":"0x34",
+    "name":"Black medium right-pointing triangle"
+  },
+  {
+    "font":"Webdings",
+    "dec":53,
+    "hex":"0x35",
+    "name":"Black medium up-pointing triangle"
+  },
+  {
+    "font":"Webdings",
+    "dec":54,
+    "hex":"0x36",
+    "name":"Black medium down-pointing triangle"
+  },
+  {
+    "font":"Webdings",
+    "dec":55,
+    "hex":"0x37",
+    "name":"Black left-pointing double triangle"
+  },
+  {
+    "font":"Webdings",
+    "dec":56,
+    "hex":"0x38",
+    "name":"Black right-pointing double triangle"
+  },
+  {
+    "font":"Webdings",
+    "dec":57,
+    "hex":"0x39",
+    "name":"Black left-pointing double triangle with vertical bar"
+  },
+  {
+    "font":"Webdings",
+    "dec":58,
+    "hex":"0x3A",
+    "name":"Black right-pointing double triangle with vertical bar"
+  },
+  {
+    "font":"Webdings",
+    "dec":59,
+    "hex":"0x3B",
+    "name":"Double vertical bar"
+  },
+  {
+    "font":"Webdings",
+    "dec":60,
+    "hex":"0x3C",
+    "name":"Black square for stop"
+  },
+  {
+    "font":"Webdings",
+    "dec":61,
+    "hex":"0x3D",
+    "name":"Black circle for record"
+  },
+  {
+    "font":"Webdings",
+    "dec":62,
+    "hex":"0x3E",
+    "name":"Increase font size symbol"
+  },
+  {
+    "font":"Webdings",
+    "dec":63,
+    "hex":"0x3F",
+    "name":"Ballot box with ballot"
+  },
+  {
+    "font":"Webdings",
+    "dec":64,
+    "hex":"0x40",
+    "name":"Hammer and wrench"
+  },
+  {
+    "font":"Webdings",
+    "dec":65,
+    "hex":"0x41",
+    "name":"Building construction"
+  },
+  {
+    "font":"Webdings",
+    "dec":66,
+    "hex":"0x42",
+    "name":"House buildings"
+  },
+  {
+    "font":"Webdings",
+    "dec":67,
+    "hex":"0x43",
+    "name":"Cityscape"
+  },
+  {
+    "font":"Webdings",
+    "dec":68,
+    "hex":"0x44",
+    "name":"Derelict house building"
+  },
+  {
+    "font":"Webdings",
+    "dec":69,
+    "hex":"0x45",
+    "name":"Desert"
+  },
+  {
+    "font":"Webdings",
+    "dec":70,
+    "hex":"0x46",
+    "name":"Factory"
+  },
+  {
+    "font":"Webdings",
+    "dec":71,
+    "hex":"0x47",
+    "name":"Classical building"
+  },
+  {
+    "font":"Webdings",
+    "dec":72,
+    "hex":"0x48",
+    "name":"House building"
+  },
+  {
+    "font":"Webdings",
+    "dec":73,
+    "hex":"0x49",
+    "name":"Beach with umbrella"
+  },
+  {
+    "font":"Webdings",
+    "dec":74,
+    "hex":"0x4A",
+    "name":"Desert island"
+  },
+  {
+    "font":"Webdings",
+    "dec":75,
+    "hex":"0x4B",
+    "name":"Motorway"
+  },
+  {
+    "font":"Webdings",
+    "dec":76,
+    "hex":"0x4C",
+    "name":"Left-pointing magnifying glass"
+  },
+  {
+    "font":"Webdings",
+    "dec":77,
+    "hex":"0x4D",
+    "name":"Snow capped mountain"
+  },
+  {
+    "font":"Webdings",
+    "dec":78,
+    "hex":"0x4E",
+    "name":"Eye"
+  },
+  {
+    "font":"Webdings",
+    "dec":79,
+    "hex":"0x4F",
+    "name":"Ear"
+  },
+  {
+    "font":"Webdings",
+    "dec":80,
+    "hex":"0x50",
+    "name":"National park"
+  },
+  {
+    "font":"Webdings",
+    "dec":81,
+    "hex":"0x51",
+    "name":"Camping"
+  },
+  {
+    "font":"Webdings",
+    "dec":82,
+    "hex":"0x52",
+    "name":"Railway track"
+  },
+  {
+    "font":"Webdings",
+    "dec":83,
+    "hex":"0x53",
+    "name":"Stadium"
+  },
+  {
+    "font":"Webdings",
+    "dec":84,
+    "hex":"0x54",
+    "name":"Passenger ship"
+  },
+  {
+    "font":"Webdings",
+    "dec":85,
+    "hex":"0x55",
+    "name":"Bullhorn with sound waves"
+  },
+  {
+    "font":"Webdings",
+    "dec":86,
+    "hex":"0x56",
+    "name":"Bullhorn"
+  },
+  {
+    "font":"Webdings",
+    "dec":87,
+    "hex":"0x57",
+    "name":"Right speaker"
+  },
+  {
+    "font":"Webdings",
+    "dec":88,
+    "hex":"0x58",
+    "name":"Speaker"
+  },
+  {
+    "font":"Webdings",
+    "dec":89,
+    "hex":"0x59",
+    "name":"Heart with tip on the left"
+  },
+  {
+    "font":"Webdings",
+    "dec":90,
+    "hex":"0x5A",
+    "name":"Bouquet of flowers"
+  },
+  {
+    "font":"Webdings",
+    "dec":91,
+    "hex":"0x5B",
+    "name":"Left thought bubble"
+  },
+  {
+    "font":"Webdings",
+    "dec":92,
+    "hex":"0x5C",
+    "name":"Very heavy reverse solidus"
+  },
+  {
+    "font":"Webdings",
+    "dec":93,
+    "hex":"0x5D",
+    "name":"Right thought bubble"
+  },
+  {
+    "font":"Webdings",
+    "dec":94,
+    "hex":"0x5E",
+    "name":"Two speech bubbles"
+  },
+  {
+    "font":"Webdings",
+    "dec":95,
+    "hex":"0x5F",
+    "name":"Three speech bubbles"
+  },
+  {
+    "font":"Webdings",
+    "dec":96,
+    "hex":"0x60",
+    "name":"Four corner arrows circling anticlockwise"
+  },
+  {
+    "font":"Webdings",
+    "dec":97,
+    "hex":"0x61",
+    "name":"Heavy check mark"
+  },
+  {
+    "font":"Webdings",
+    "dec":98,
+    "hex":"0x62",
+    "name":"Bicycle"
+  },
+  {
+    "font":"Webdings",
+    "dec":99,
+    "hex":"0x63",
+    "name":"White square"
+  },
+  {
+    "font":"Webdings",
+    "dec":100,
+    "hex":"0x64",
+    "name":"Shield"
+  },
+  {
+    "font":"Webdings",
+    "dec":101,
+    "hex":"0x65",
+    "name":"Package"
+  },
+  {
+    "font":"Webdings",
+    "dec":102,
+    "hex":"0x66",
+    "name":"Oncoming fire engine"
+  },
+  {
+    "font":"Webdings",
+    "dec":103,
+    "hex":"0x67",
+    "name":"Black square"
+  },
+  {
+    "font":"Webdings",
+    "dec":104,
+    "hex":"0x68",
+    "name":"Ambulance"
+  },
+  {
+    "font":"Webdings",
+    "dec":105,
+    "hex":"0x69",
+    "name":"Circled information source"
+  },
+  {
+    "font":"Webdings",
+    "dec":106,
+    "hex":"0x6A",
+    "name":"Small airplane"
+  },
+  {
+    "font":"Webdings",
+    "dec":107,
+    "hex":"0x6B",
+    "name":"Satellite"
+  },
+  {
+    "font":"Webdings",
+    "dec":108,
+    "hex":"0x6C",
+    "name":"Reverse light four pointed pinwheel star"
+  },
+  {
+    "font":"Webdings",
+    "dec":109,
+    "hex":"0x6D",
+    "name":"Man in business suit levitating"
+  },
+  {
+    "font":"Webdings",
+    "dec":110,
+    "hex":"0x6E",
+    "name":"Medium black circle"
+  },
+  {
+    "font":"Webdings",
+    "dec":111,
+    "hex":"0x6F",
+    "name":"Motor boat"
+  },
+  {
+    "font":"Webdings",
+    "dec":112,
+    "hex":"0x70",
+    "name":"Oncoming police car"
+  },
+  {
+    "font":"Webdings",
+    "dec":113,
+    "hex":"0x71",
+    "name":"Clockwise right and left semicircle arrows"
+  },
+  {
+    "font":"Webdings",
+    "dec":114,
+    "hex":"0x72",
+    "name":"Cancellation X"
+  },
+  {
+    "font":"Webdings",
+    "dec":115,
+    "hex":"0x73",
+    "name":"Black question mark ornament"
+  },
+  {
+    "font":"Webdings",
+    "dec":116,
+    "hex":"0x74",
+    "name":"Diesel locomotive"
+  },
+  {
+    "font":"Webdings",
+    "dec":117,
+    "hex":"0x75",
+    "name":"Metro"
+  },
+  {
+    "font":"Webdings",
+    "dec":118,
+    "hex":"0x76",
+    "name":"Oncoming bus"
+  },
+  {
+    "font":"Webdings",
+    "dec":119,
+    "hex":"0x77",
+    "name":"Flag in hole"
+  },
+  {
+    "font":"Webdings",
+    "dec":120,
+    "hex":"0x78",
+    "name":"Prohibited sign"
+  },
+  {
+    "font":"Webdings",
+    "dec":121,
+    "hex":"0x79",
+    "name":"Circled minus"
+  },
+  {
+    "font":"Webdings",
+    "dec":122,
+    "hex":"0x7A",
+    "name":"No smoking symbol"
+  },
+  {
+    "font":"Webdings",
+    "dec":123,
+    "hex":"0x7B",
+    "name":"Left anger bubble"
+  },
+  {
+    "font":"Webdings",
+    "dec":124,
+    "hex":"0x7C",
+    "name":"Vertical line"
+  },
+  {
+    "font":"Webdings",
+    "dec":125,
+    "hex":"0x7D",
+    "name":"Right anger bubble"
+  },
+  {
+    "font":"Webdings",
+    "dec":126,
+    "hex":"0x7E",
+    "name":"Lightning mood"
+  },
+  {
+    "font":"Webdings",
+    "dec":128,
+    "hex":"0x80",
+    "name":"Mens symbol"
+  },
+  {
+    "font":"Webdings",
+    "dec":129,
+    "hex":"0x81",
+    "name":"Womens symbol"
+  },
+  {
+    "font":"Webdings",
+    "dec":130,
+    "hex":"0x82",
+    "name":"Boys symbol"
+  },
+  {
+    "font":"Webdings",
+    "dec":131,
+    "hex":"0x83",
+    "name":"Girls symbol"
+  },
+  {
+    "font":"Webdings",
+    "dec":132,
+    "hex":"0x84",
+    "name":"Baby symbol"
+  },
+  {
+    "font":"Webdings",
+    "dec":133,
+    "hex":"0x85",
+    "name":"Extraterrestrial alien"
+  },
+  {
+    "font":"Webdings",
+    "dec":134,
+    "hex":"0x86",
+    "name":"Weight lifter"
+  },
+  {
+    "font":"Webdings",
+    "dec":135,
+    "hex":"0x87",
+    "name":"Skier"
+  },
+  {
+    "font":"Webdings",
+    "dec":136,
+    "hex":"0x88",
+    "name":"Snowboarder"
+  },
+  {
+    "font":"Webdings",
+    "dec":137,
+    "hex":"0x89",
+    "name":"Golfer"
+  },
+  {
+    "font":"Webdings",
+    "dec":138,
+    "hex":"0x8A",
+    "name":"Swimmer"
+  },
+  {
+    "font":"Webdings",
+    "dec":139,
+    "hex":"0x8B",
+    "name":"Surfer"
+  },
+  {
+    "font":"Webdings",
+    "dec":140,
+    "hex":"0x8C",
+    "name":"Racing motorcycle"
+  },
+  {
+    "font":"Webdings",
+    "dec":141,
+    "hex":"0x8D",
+    "name":"Racing car"
+  },
+  {
+    "font":"Webdings",
+    "dec":142,
+    "hex":"0x8E",
+    "name":"Oncoming automobile"
+  },
+  {
+    "font":"Webdings",
+    "dec":143,
+    "hex":"0x8F",
+    "name":"Stock chart"
+  },
+  {
+    "font":"Webdings",
+    "dec":144,
+    "hex":"0x90",
+    "name":"Oil drum"
+  },
+  {
+    "font":"Webdings",
+    "dec":145,
+    "hex":"0x91",
+    "name":"Money bag"
+  },
+  {
+    "font":"Webdings",
+    "dec":146,
+    "hex":"0x92",
+    "name":"Label"
+  },
+  {
+    "font":"Webdings",
+    "dec":147,
+    "hex":"0x93",
+    "name":"Credit card"
+  },
+  {
+    "font":"Webdings",
+    "dec":148,
+    "hex":"0x94",
+    "name":"Family"
+  },
+  {
+    "font":"Webdings",
+    "dec":149,
+    "hex":"0x95",
+    "name":"Dagger knife"
+  },
+  {
+    "font":"Webdings",
+    "dec":150,
+    "hex":"0x96",
+    "name":"Lips"
+  },
+  {
+    "font":"Webdings",
+    "dec":151,
+    "hex":"0x97",
+    "name":"Speaking head in silhouette"
+  },
+  {
+    "font":"Webdings",
+    "dec":152,
+    "hex":"0x98",
+    "name":"Pinwheel star"
+  },
+  {
+    "font":"Webdings",
+    "dec":153,
+    "hex":"0x99",
+    "name":"Envelope with lightning"
+  },
+  {
+    "font":"Webdings",
+    "dec":154,
+    "hex":"0x9A",
+    "name":"Flying envelope"
+  },
+  {
+    "font":"Webdings",
+    "dec":155,
+    "hex":"0x9B",
+    "name":"Stamped envelope"
+  },
+  {
+    "font":"Webdings",
+    "dec":156,
+    "hex":"0x9C",
+    "name":"Pen over stamped envelope"
+  },
+  {
+    "font":"Webdings",
+    "dec":157,
+    "hex":"0x9D",
+    "name":"Document with text"
+  },
+  {
+    "font":"Webdings",
+    "dec":158,
+    "hex":"0x9E",
+    "name":"Document with text and picture"
+  },
+  {
+    "font":"Webdings",
+    "dec":159,
+    "hex":"0x9F",
+    "name":"Document with picture"
+  },
+  {
+    "font":"Webdings",
+    "dec":160,
+    "hex":"0xA0",
+    "name":"Sleuth or spy"
+  },
+  {
+    "font":"Webdings",
+    "dec":161,
+    "hex":"0xA1",
+    "name":"Mantelpiece clock"
+  },
+  {
+    "font":"Webdings",
+    "dec":162,
+    "hex":"0xA2",
+    "name":"Frame with tiles"
+  },
+  {
+    "font":"Webdings",
+    "dec":163,
+    "hex":"0xA3",
+    "name":"Frame with an X"
+  },
+  {
+    "font":"Webdings",
+    "dec":164,
+    "hex":"0xA4",
+    "name":"Clipboard"
+  },
+  {
+    "font":"Webdings",
+    "dec":165,
+    "hex":"0xA5",
+    "name":"Spiral note pad"
+  },
+  {
+    "font":"Webdings",
+    "dec":166,
+    "hex":"0xA6",
+    "name":"Spiral calendar pad"
+  },
+  {
+    "font":"Webdings",
+    "dec":167,
+    "hex":"0xA7",
+    "name":"Open book"
+  },
+  {
+    "font":"Webdings",
+    "dec":168,
+    "hex":"0xA8",
+    "name":"Books"
+  },
+  {
+    "font":"Webdings",
+    "dec":169,
+    "hex":"0xA9",
+    "name":"Rolled-up newspaper"
+  },
+  {
+    "font":"Webdings",
+    "dec":170,
+    "hex":"0xAA",
+    "name":"Page with circled text"
+  },
+  {
+    "font":"Webdings",
+    "dec":171,
+    "hex":"0xAB",
+    "name":"Card file box"
+  },
+  {
+    "font":"Webdings",
+    "dec":172,
+    "hex":"0xAC",
+    "name":"Card index dividers"
+  },
+  {
+    "font":"Webdings",
+    "dec":173,
+    "hex":"0xAD",
+    "name":"Frame with picture"
+  },
+  {
+    "font":"Webdings",
+    "dec":174,
+    "hex":"0xAE",
+    "name":"Performing arts"
+  },
+  {
+    "font":"Webdings",
+    "dec":175,
+    "hex":"0xAF",
+    "name":"Beamed ascending musical notes"
+  },
+  {
+    "font":"Webdings",
+    "dec":176,
+    "hex":"0xB0",
+    "name":"Musical keyboard with jacks"
+  },
+  {
+    "font":"Webdings",
+    "dec":177,
+    "hex":"0xB1",
+    "name":"Studio microphone"
+  },
+  {
+    "font":"Webdings",
+    "dec":178,
+    "hex":"0xB2",
+    "name":"Headphone"
+  },
+  {
+    "font":"Webdings",
+    "dec":179,
+    "hex":"0xB3",
+    "name":"Optical disc"
+  },
+  {
+    "font":"Webdings",
+    "dec":180,
+    "hex":"0xB4",
+    "name":"Film frames"
+  },
+  {
+    "font":"Webdings",
+    "dec":181,
+    "hex":"0xB5",
+    "name":"Camera"
+  },
+  {
+    "font":"Webdings",
+    "dec":182,
+    "hex":"0xB6",
+    "name":"Admission tickets"
+  },
+  {
+    "font":"Webdings",
+    "dec":183,
+    "hex":"0xB7",
+    "name":"Clapper board"
+  },
+  {
+    "font":"Webdings",
+    "dec":184,
+    "hex":"0xB8",
+    "name":"Film projector"
+  },
+  {
+    "font":"Webdings",
+    "dec":185,
+    "hex":"0xB9",
+    "name":"Video camera"
+  },
+  {
+    "font":"Webdings",
+    "dec":186,
+    "hex":"0xBA",
+    "name":"Portable stereo"
+  },
+  {
+    "font":"Webdings",
+    "dec":187,
+    "hex":"0xBB",
+    "name":"Radio"
+  },
+  {
+    "font":"Webdings",
+    "dec":188,
+    "hex":"0xBC",
+    "name":"Level slider"
+  },
+  {
+    "font":"Webdings",
+    "dec":189,
+    "hex":"0xBD",
+    "name":"Control knobs"
+  },
+  {
+    "font":"Webdings",
+    "dec":190,
+    "hex":"0xBE",
+    "name":"Television"
+  },
+  {
+    "font":"Webdings",
+    "dec":191,
+    "hex":"0xBF",
+    "name":"Personal computer"
+  },
+  {
+    "font":"Webdings",
+    "dec":192,
+    "hex":"0xC0",
+    "name":"Desktop computer"
+  },
+  {
+    "font":"Webdings",
+    "dec":193,
+    "hex":"0xC1",
+    "name":"Keyboard and mouse"
+  },
+  {
+    "font":"Webdings",
+    "dec":194,
+    "hex":"0xC2",
+    "name":"Three networked computers"
+  },
+  {
+    "font":"Webdings",
+    "dec":195,
+    "hex":"0xC3",
+    "name":"Joystick"
+  },
+  {
+    "font":"Webdings",
+    "dec":196,
+    "hex":"0xC4",
+    "name":"Video game"
+  },
+  {
+    "font":"Webdings",
+    "dec":197,
+    "hex":"0xC5",
+    "name":"Left hand telephone receiver"
+  },
+  {
+    "font":"Webdings",
+    "dec":198,
+    "hex":"0xC6",
+    "name":"Telephone receiver with page"
+  },
+  {
+    "font":"Webdings",
+    "dec":199,
+    "hex":"0xC7",
+    "name":"Pager"
+  },
+  {
+    "font":"Webdings",
+    "dec":200,
+    "hex":"0xC8",
+    "name":"Clamshell mobile phone"
+  },
+  {
+    "font":"Webdings",
+    "dec":201,
+    "hex":"0xC9",
+    "name":"Telephone on top of modem"
+  },
+  {
+    "font":"Webdings",
+    "dec":202,
+    "hex":"0xCA",
+    "name":"Printer"
+  },
+  {
+    "font":"Webdings",
+    "dec":203,
+    "hex":"0xCB",
+    "name":"Pocket calculator"
+  },
+  {
+    "font":"Webdings",
+    "dec":204,
+    "hex":"0xCC",
+    "name":"Black folder"
+  },
+  {
+    "font":"Webdings",
+    "dec":205,
+    "hex":"0xCD",
+    "name":"Black hard shell floppy disk"
+  },
+  {
+    "font":"Webdings",
+    "dec":206,
+    "hex":"0xCE",
+    "name":"Compression"
+  },
+  {
+    "font":"Webdings",
+    "dec":207,
+    "hex":"0xCF",
+    "name":"Lock"
+  },
+  {
+    "font":"Webdings",
+    "dec":208,
+    "hex":"0xD0",
+    "name":"Open lock"
+  },
+  {
+    "font":"Webdings",
+    "dec":209,
+    "hex":"0xD1",
+    "name":"Old key"
+  },
+  {
+    "font":"Webdings",
+    "dec":210,
+    "hex":"0xD2",
+    "name":"Inbox tray"
+  },
+  {
+    "font":"Webdings",
+    "dec":211,
+    "hex":"0xD3",
+    "name":"Outbox tray"
+  },
+  {
+    "font":"Webdings",
+    "dec":212,
+    "hex":"0xD4",
+    "name":"Hole"
+  },
+  {
+    "font":"Webdings",
+    "dec":213,
+    "hex":"0xD5",
+    "name":"White sun"
+  },
+  {
+    "font":"Webdings",
+    "dec":214,
+    "hex":"0xD6",
+    "name":"White sun with small cloud"
+  },
+  {
+    "font":"Webdings",
+    "dec":215,
+    "hex":"0xD7",
+    "name":"White sun behind cloud"
+  },
+  {
+    "font":"Webdings",
+    "dec":216,
+    "hex":"0xD8",
+    "name":"White sun behind cloud with rain"
+  },
+  {
+    "font":"Webdings",
+    "dec":217,
+    "hex":"0xD9",
+    "name":"Cloud"
+  },
+  {
+    "font":"Webdings",
+    "dec":218,
+    "hex":"0xDA",
+    "name":"Cloud with rain"
+  },
+  {
+    "font":"Webdings",
+    "dec":219,
+    "hex":"0xDB",
+    "name":"Cloud with snow"
+  },
+  {
+    "font":"Webdings",
+    "dec":220,
+    "hex":"0xDC",
+    "name":"Cloud with lightning"
+  },
+  {
+    "font":"Webdings",
+    "dec":221,
+    "hex":"0xDD",
+    "name":"Cloud with tornado"
+  },
+  {
+    "font":"Webdings",
+    "dec":222,
+    "hex":"0xDE",
+    "name":"Wind blowing face"
+  },
+  {
+    "font":"Webdings",
+    "dec":223,
+    "hex":"0xDF",
+    "name":"Fog"
+  },
+  {
+    "font":"Webdings",
+    "dec":224,
+    "hex":"0xE0",
+    "name":"Last quarter moon with face"
+  },
+  {
+    "font":"Webdings",
+    "dec":225,
+    "hex":"0xE1",
+    "name":"Thermometer"
+  },
+  {
+    "font":"Webdings",
+    "dec":226,
+    "hex":"0xE2",
+    "name":"Couch and lamp"
+  },
+  {
+    "font":"Webdings",
+    "dec":227,
+    "hex":"0xE3",
+    "name":"Bed"
+  },
+  {
+    "font":"Webdings",
+    "dec":228,
+    "hex":"0xE4",
+    "name":"Fork and knife with plate"
+  },
+  {
+    "font":"Webdings",
+    "dec":229,
+    "hex":"0xE5",
+    "name":"Cocktail glass"
+  },
+  {
+    "font":"Webdings",
+    "dec":230,
+    "hex":"0xE6",
+    "name":"Bellhop bell"
+  },
+  {
+    "font":"Webdings",
+    "dec":231,
+    "hex":"0xE7",
+    "name":"Shopping bags"
+  },
+  {
+    "font":"Webdings",
+    "dec":232,
+    "hex":"0xE8",
+    "name":"Circled latin capital letter P"
+  },
+  {
+    "font":"Webdings",
+    "dec":233,
+    "hex":"0xE9",
+    "name":"Wheelchair symbol"
+  },
+  {
+    "font":"Webdings",
+    "dec":234,
+    "hex":"0xEA",
+    "name":"Triangle with rounded corners"
+  },
+  {
+    "font":"Webdings",
+    "dec":235,
+    "hex":"0xEB",
+    "name":"Black pushpin"
+  },
+  {
+    "font":"Webdings",
+    "dec":236,
+    "hex":"0xEC",
+    "name":"Graduation cap"
+  },
+  {
+    "font":"Webdings",
+    "dec":237,
+    "hex":"0xED",
+    "name":"Three rays above"
+  },
+  {
+    "font":"Webdings",
+    "dec":238,
+    "hex":"0xEE",
+    "name":"Three rays below"
+  },
+  {
+    "font":"Webdings",
+    "dec":239,
+    "hex":"0xEF",
+    "name":"Three rays left"
+  },
+  {
+    "font":"Webdings",
+    "dec":240,
+    "hex":"0xF0",
+    "name":"Three rays right"
+  },
+  {
+    "font":"Webdings",
+    "dec":241,
+    "hex":"0xF1",
+    "name":"Northeast-pointing airplane"
+  },
+  {
+    "font":"Webdings",
+    "dec":242,
+    "hex":"0xF2",
+    "name":"Chipmunk"
+  },
+  {
+    "font":"Webdings",
+    "dec":243,
+    "hex":"0xF3",
+    "name":"Bird"
+  },
+  {
+    "font":"Webdings",
+    "dec":244,
+    "hex":"0xF4",
+    "name":"Fish"
+  },
+  {
+    "font":"Webdings",
+    "dec":245,
+    "hex":"0xF5",
+    "name":"Dog"
+  },
+  {
+    "font":"Webdings",
+    "dec":246,
+    "hex":"0xF6",
+    "name":"Cat"
+  },
+  {
+    "font":"Webdings",
+    "dec":247,
+    "hex":"0xF7",
+    "name":"Leftwards rocket"
+  },
+  {
+    "font":"Webdings",
+    "dec":248,
+    "hex":"0xF8",
+    "name":"Rightwards rocket"
+  },
+  {
+    "font":"Webdings",
+    "dec":249,
+    "hex":"0xF9",
+    "name":"Upwards rocket"
+  },
+  {
+    "font":"Webdings",
+    "dec":250,
+    "hex":"0xFA",
+    "name":"Downwards rocket"
+  },
+  {
+    "font":"Webdings",
+    "dec":251,
+    "hex":"0xFB",
+    "name":"World map"
+  },
+  {
+    "font":"Webdings",
+    "dec":252,
+    "hex":"0xFC",
+    "name":"Earth globe Europe-Africa"
+  },
+  {
+    "font":"Webdings",
+    "dec":253,
+    "hex":"0xFD",
+    "name":"Earth globe Asia-Australia"
+  },
+  {
+    "font":"Webdings",
+    "dec":254,
+    "hex":"0xFE",
+    "name":"Earth globe Americas"
+  },
+  {
+    "font":"Webdings",
+    "dec":255,
+    "hex":"0xFF",
+    "name":"Dove of peace"
+  }
+]

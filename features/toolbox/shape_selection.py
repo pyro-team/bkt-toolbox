@@ -5,14 +5,15 @@ Created on 06.02.2018
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
+import logging
+from collections import OrderedDict
+
 import bkt
 import bkt.library.powerpoint as pplib
 
-from shapes import ShapesMore
-
-from collections import OrderedDict
-
-import logging
+# from .shapes import ShapesMore
 
 
 class ShapeSelector(object):
@@ -72,7 +73,7 @@ class ShapeSelector(object):
 
     @staticmethod
     def selectionForm(context):
-        from dialogs.shape_select import SelectWindow
+        from .dialogs.shape_select import SelectWindow
         wnd = SelectWindow(ShapeSelector, context)
         wnd.show_dialog(modal=True)
 
@@ -183,7 +184,80 @@ class ShapeSelector(object):
                     shp.Select(replace=False)
 
 
+class SlidesMore(object):
+    @staticmethod
+    def paste_to_slides(slides):
+        for slide in slides:
+            slide.Shapes.Paste()
 
+    @staticmethod
+    def paste_as_link(slide):
+        try:
+            slide.Shapes.PasteSpecial(Link=True)
+        except:
+            bkt.message.error("Das Element in der Zwischenablage unterstützt diesen Einfügetyp nicht.")
+    
+    @staticmethod
+    def paste_and_replace(slide, shape, keep_size=True):
+        pasted_shapes = slide.Shapes.Paste()
+        if pasted_shapes.count > 1:
+            pasted_shapes = pasted_shapes.group()
+        
+        #restore size
+        if keep_size:
+            pasted_shapes.width = shape.width
+            if pasted_shapes.LockAspectRatio == 0 or pasted_shapes.height > shape.height:
+                    pasted_shapes.height = shape.height
+            pasted_shapes.LockAspectRatio = shape.LockAspectRatio
+        
+        #restore position and zorder
+        pasted_shapes.top = shape.top
+        pasted_shapes.left = shape.left
+        pasted_shapes.rotation = shape.rotation
+        pplib.set_shape_zorder(pasted_shapes, value=shape.ZOrderPosition)
+
+        if pplib.shape_is_group_child(shape):
+            #replace shape in group
+            master = pplib.GroupManager(shape.ParentGroup)
+            master.add_child_items(pasted_shapes)
+            shape.delete()
+        else:
+            #replace shape
+            shape.delete()
+        
+        pasted_shapes.select()
+
+    @staticmethod
+    def copy_in_highquality(slide):
+        import tempfile, os
+        from System import IO
+
+        from bkt import dotnet
+        Drawing = dotnet.import_drawing()
+        Forms = dotnet.import_forms()
+
+        tmpfile = os.path.join(tempfile.gettempdir(), "bkt-slidecopy.png")
+        slide.export(tmpfile, "PNG", 2000)
+        # logging.debug("high quality slide export at: %s"%tmpfile)
+
+        if not os.path.exists(tmpfile):
+            bkt.message.error("Folien-Export in hoher Qualität ist fehlgeschlagen!")
+            return
+
+        data = Forms.DataObject()
+        png_stream = IO.MemoryStream()
+        
+        with Drawing.Image.FromFile(tmpfile) as img:
+            #bitmap
+            data.SetImage(img)
+            #png
+            img.Save(png_stream, Drawing.Imaging.ImageFormat.Png)
+            data.SetData("PNG", False, png_stream)
+            # Forms.Clipboard.SetImage(img)
+            Forms.Clipboard.SetDataObject(data, True)
+            img.Dispose()
+        
+        os.remove(tmpfile)
 
 
 
@@ -296,7 +370,7 @@ selection_menu = bkt.ribbon.Menu(
         bkt.ribbon.Button(
             id = 'shapes_select_containing',
             image_mso = 'SlideShowResolutionGallery',
-            label='Inner- && oberhalb',
+            label='Inner- & oberhalb',
             #show_label=False,
             on_action=bkt.Callback(ShapeSelector.select_containing, context=True),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
@@ -306,7 +380,7 @@ selection_menu = bkt.ribbon.Menu(
         bkt.ribbon.Button(
             id = 'shapes_select_behind',
             image_mso = 'SlideShowResolutionGallery',
-            label='Inner- && unterhalb',
+            label='Inner- & unterhalb',
             #show_label=False,
             on_action=bkt.Callback(ShapeSelector.select_behind, context=True),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
@@ -341,6 +415,7 @@ clipboard_group = bkt.ribbon.Group(
                 bkt.mso.button.PasteSpecialDialog,
                 bkt.ribbon.Menu(
                     label="Einfügen-Menü",
+                    supertip="Menü mit verschiedenen Einfüge-Operationen",
                     children=[
                         bkt.mso.button.PasteSpecialDialog,
                         bkt.ribbon.MenuSeparator(),
@@ -349,21 +424,21 @@ clipboard_group = bkt.ribbon.Group(
                             label="Auf ausgewählte Folien einfügen",
                             supertip="Zwischenablage auf allen ausgewählten Folien gleichzeitig einfügen.",
                             image_mso='PasteDuplicate',
-                            on_action=bkt.Callback(ShapesMore.paste_to_slides, slides=True),
+                            on_action=bkt.Callback(SlidesMore.paste_to_slides, slides=True),
                         ),
                         bkt.ribbon.Button(
                             id='paste_as_link',
                             label="Als Verknüpfung einfügen",
                             supertip="Zwischenablage als verknüpftes Element (bspw. Bild, OLE-Objekt) einfügen.",
                             image_mso='PasteLink',
-                            on_action=bkt.Callback(ShapesMore.paste_as_link, slide=True),
+                            on_action=bkt.Callback(SlidesMore.paste_as_link, slide=True),
                         ),
                         bkt.ribbon.Button(
                             id='paste_and_replace',
                             label="Mit Zwischenablage ersetzen",
                             supertip="Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
                             image_mso='PasteSingleCellExcelTableDestinationFormatting',
-                            on_action=bkt.Callback(ShapesMore.paste_and_replace, slide=True, shape=True),
+                            on_action=bkt.Callback(SlidesMore.paste_and_replace, slide=True, shape=True),
                             get_enabled=bkt.apps.ppt_shapes_exactly1_selected,
                         ),
                         bkt.ribbon.MenuSeparator(),
@@ -372,9 +447,32 @@ clipboard_group = bkt.ribbon.Group(
                 )
             ]
         ),
+        bkt.ribbon.SplitButton(
+            show_label=False,
+            get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Copy"), context=True),
+            children=[
+                bkt.mso.button.Copy,
+                bkt.ribbon.Menu(
+                    label="Kopieren-Menü",
+                    supertip="Menü mit verschiedenen Kopier-Operationen",
+                    children=[
+                        bkt.mso.button.Copy,
+                        bkt.mso.button.PasteDuplicate,
+                        bkt.ribbon.Button(
+                            id="copy_slide_hq",
+                            label="Folie als HQ-Bild kopieren",
+                            supertip="Kopiert die aktuelle Folie in hoher Qualität in die Zwischenablage.",
+                            image_mso='CopyPicture',
+                            on_action=bkt.Callback(SlidesMore.copy_in_highquality, slide=True),
+                            get_enabled=bkt.get_enabled_auto
+                        ),
+                    ]
+                )
+            ]
+        ),
         #bkt.mso.control.PasteSpecialDialog,
         #bkt.mso.control.Cut,
-        bkt.mso.control.CopySplitButton,
+        # bkt.mso.control.CopySplitButton,
         
         selection_menu,
         

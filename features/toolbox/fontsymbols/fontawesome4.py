@@ -2,13 +2,15 @@
 
 # https://fontawesome.com/v4.7.0/
 
-import bkt
-from bkt.library.powerpoint import PPTSymbolsGallery
+from __future__ import absolute_import
 
 import os.path
 import io
 import json
 from collections import OrderedDict,defaultdict
+
+import bkt
+from bkt.library.powerpoint import PPTSymbolsGallery
 
 
 symbols_communication = [
@@ -187,7 +189,7 @@ def get_content_categories():
     
     # Automatically generate categories from json file (based on yaml file provided by fontawesome)
     file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fontawesome4.json")
-    with io.open(file, 'r') as json_file:
+    with io.open(file, 'r', encoding='utf-8') as json_file:
         chars = json.load(json_file, object_pairs_hook=OrderedDict)
 
     # categories = OrderedDict()
@@ -210,6 +212,35 @@ def get_content_categories():
                 ]
             )
     return cache_menu
+
+
+def update_search_index(search_engine):
+    search_writer = search_engine.writer()
+
+    # Automatically generate categories from json file (based on yaml file provided by fontawesome)
+    file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fontawesome4.json")
+    with io.open(file, 'r', encoding='utf-8') as json_file:
+        chars = json.load(json_file, object_pairs_hook=OrderedDict)
+        
+        for char in chars['icons']:
+            keywords = set(char['name'].lower().split())
+            try:
+                #filter can be non-existent or null
+                keywords.update(char['filter'])
+            except:
+                pass
+            for cat in char['categories']:
+                keywords.update(cat.lower().replace("icons", "").split())
+            search_writer.add_document(
+                module="fontawesome4",
+                fontlabel="Font Awesome 4",
+                fontname="FontAwesome",
+                unicode=unichr(int(char['unicode'], 16)),
+                label=char['name'],
+                keywords=keywords
+            )
+    search_writer.commit()
+
 
 menus = [
     PPTSymbolsGallery(label="{} ({})".format(label, len(symbollist)), symbols=symbollist, columns=columns)

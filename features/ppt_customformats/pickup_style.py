@@ -4,19 +4,23 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
 import os.path
+from collections import namedtuple
+
+from System.Windows import Visibility
+
 import bkt.ui
 notify_property = bkt.ui.notify_property
 
-from System.Windows import Visibility
-from collections import namedtuple
 
 class ViewModel(bkt.ui.ViewModelAsbtract):
     def __init__(self, settings, mode, name=None):
         super(ViewModel, self).__init__()
 
         self.settings = settings
-        self.settings_all = all(self.settings.values())
+        # self.settings_all = all(self.settings.values())
         
         self.show_delete = Visibility.Collapsed
         if mode == "edit" and name is not None:
@@ -126,10 +130,11 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
 
 
 class PickupWindow(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pickup_style.xaml')
+    # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pickup_style.xaml')
+    _xamlname = 'pickup_style'
     # _vm_class = ViewModel
 
-    def __init__(self, model, style_setting, shape=None, index=None): #modes: new, edit, apply
+    def __init__(self, context, model, style_setting, shape=None, index=None): #modes: new, edit, apply
         self._model = model
 
         self.shape = shape
@@ -147,9 +152,9 @@ class PickupWindow(bkt.ui.WpfWindowAbstract):
             self._vm = ViewModel(style_setting.copy(), "apply")
 
 
-        name = None if index is None else index+1
+        # name = None if index is None else index+1
 
-        super(PickupWindow, self).__init__()
+        super(PickupWindow, self).__init__(context)
 
     def cancel(self, sender, event):
         self.Close()

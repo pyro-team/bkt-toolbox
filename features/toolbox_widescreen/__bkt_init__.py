@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+
 class BktFeature(object):
     name            = "PowerPoint Toolbox Widescreen"
     relevant_apps   = ["Microsoft PowerPoint"]
@@ -9,4 +11,4 @@ class BktFeature(object):
     
     @staticmethod
     def contructor():
-        import my_toolbox
+        from . import my_toolbox

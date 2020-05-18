@@ -4,19 +4,22 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
 import os.path
-import bkt.ui
-notify_property = bkt.ui.notify_property
 
-from bkt.callbacks import WpfActionCallback
-
-from quickedit_model import QuickEdit, QEColorButton, QEColorButtons, QECatalog
+from time import time
 
 from System.Collections.ObjectModel import ObservableCollection
 from System.Windows.Controls import Orientation
 from System.Windows import Visibility
 
-from time import time
+import bkt.ui
+notify_property = bkt.ui.notify_property
+
+from bkt.callbacks import WpfActionCallback
+from .quickedit_model import QuickEdit, QEColorButton, QEColorButtons, QECatalog
+
 
 # class ColorButton(bkt.ui.NotifyPropertyChangedBase):
 #     def __init__(self, index, color):
@@ -228,14 +231,15 @@ class ViewModel(bkt.ui.ViewModelSingleton):
 
 
 class QuickEditPanel(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'quickedit_panel.xaml')
+    # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'quickedit_panel.xaml')
+    _xamlname = 'quickedit_panel'
     # _vm_class = ViewModel
 
     def __init__(self, context):
         # self._model = model
         # self._context = context
         
-        self.IsPopup = True
+        self.IsToolbar = True
 
         QuickEdit.update_colors(context)
 
@@ -248,7 +252,7 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
 
         # first start detection
         if "quickedit.viewstate" not in context.settings:
-            if bkt.helpers.confirmation("Dies scheint dein erster Start von QuickEdit zu sein. Soll die Anleitung (PDF) geöffnet werden?"):
+            if bkt.message.confirmation("Dies scheint dein erster Start von QuickEdit zu sein. Soll die Anleitung (PDF) geöffnet werden?"):
                 QuickEdit.show_help()
 
         self._last_catalog_change = 0

@@ -4,13 +4,15 @@ Created on 2016-04-27
 @author: Tobias Schickling, Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
 import bkt
 
-import arrange
-import connection
-import text
+from . import arrange
+from . import connection
+from . import text
 
-# import tests
+# from . import tests
 
 # reuse settings-menu from bkt-framework
 import modules.settings as settings
@@ -179,7 +181,7 @@ info_gruppe = bkt.ribbon.Group(
     label="Settings",
     children=[
         settings.settings_menu,
-        bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.full_version),
+        bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.__release__, on_action=bkt.Callback(settings.BKTInfos.show_version_dialog)),
     ]
 )
 

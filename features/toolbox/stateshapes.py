@@ -5,13 +5,14 @@ Created on 21.12.2017
 @author: fstallmann
 '''
 
-import os.path
+from __future__ import absolute_import
+
+import logging
+
+from System import Array
 
 import bkt
 import bkt.library.powerpoint as pplib
-
-import logging
-from System import Array
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
@@ -219,7 +220,7 @@ class StateShape(object):
     @staticmethod
     def show_help():
         #TODO
-        bkt.helpers.message("TODO: show help file, image, or something...")
+        bkt.message("TODO: show help file, image, or something...")
 
 
 class LikertScale(bkt.ribbon.Gallery):
@@ -239,7 +240,7 @@ class LikertScale(bkt.ribbon.Gallery):
     ]
     
     def __init__(self, **kwargs):
-        parent_id = kwargs.get('id') or ""
+        # parent_id = kwargs.get('id') or ""
         my_kwargs = dict(
             label = 'Likert-Scale',
             image = 'likert',
@@ -357,6 +358,7 @@ stateshape_gruppe = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.Menu(
                     label="Wechselshapes-Menü",
+                    supertip="In Wechselshapes konvertieren oder wieder alle Shapes sichtbar machen",
                     children=[
                         bkt.ribbon.Button(
                             id="stateshape_convert2",
@@ -430,6 +432,7 @@ stateshape_gruppe = bkt.ribbon.Group(
         bkt.ribbon.Menu(
             id="stateshape_color_menu",
             label="Farbe ändern",
+            supertip="Die Farben von Wechselshapes anpassen",
             image_mso="RecolorColorPicker",
             children=[
                 bkt.ribbon.ColorGallery(
@@ -445,7 +448,7 @@ stateshape_gruppe = bkt.ribbon.Group(
                     children=[
                         bkt.ribbon.Button(
                             label="Kein Hintergrund",
-                            screentip="Wechsel-Shape Hintergrundfarbe transparent",
+                            supertip="Wechsel-Shape Hintergrundfarbe auf transparent setzen",
                             on_action=bkt.Callback(StateShape.set_color_fill_none1, shapes=True),
                         ),
                     ]
@@ -484,36 +487,3 @@ stateshape_gruppe = bkt.ribbon.Group(
         # likert_button,
     ]
 )
-
-
-class StateShapePopup(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'popups', 'stateshapes.xaml')
-    '''
-    class representing a popup-dialog for a stateshape
-    '''
-    
-    def __init__(self, context=None):
-        self.IsPopup = True
-        self._context = context
-
-        super(StateShapePopup, self).__init__()
-
-    def btnprev(self, sender, event):
-        try:
-            #always use ShapeRange, never ChildShapeRange
-            shapes = list(iter(self._context.selection.ShapeRange))
-            StateShape.previous_state(shapes)
-        except Exception as e:
-            logging.error("Error in StateShape popup: %s" % str(e))
-
-    def btnnext(self, sender, event):
-        try:
-            #always use ShapeRange, never ChildShapeRange
-            shapes = list(iter(self._context.selection.ShapeRange))
-            StateShape.next_state(shapes)
-        except Exception as e:
-            logging.error("Error in StateShape popup: %s" % str(e))
-
-
-def create_window(context):
-    return StateShapePopup(context)

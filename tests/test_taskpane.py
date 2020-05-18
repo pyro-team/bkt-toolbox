@@ -1,5 +1,10 @@
-import bkt
+# -*- coding: utf-8 -*-
+
+from __future__ import absolute_import
+
 import unittest
+
+import bkt
 
 
 XMLNS = ' xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"'
@@ -225,13 +230,16 @@ class TaskpaneBaseObjectTest(unittest.TestCase):
         bkt.taskpane.FluentRibbonControl.no_id = True
         
         b = bkt.taskpane.Expander(auto_stack=True, children=[bkt.taskpane.Wpf.Button()])
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Expander'+XMLNS+'>\r\n  <StackPanel Orientation="Vertical">\r\n    <Button />\r\n  </StackPanel>\r\n</Expander>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Expander IsExpanded="false"'+XMLNS+'>\r\n  <StackPanel Orientation="Vertical">\r\n    <Button />\r\n  </StackPanel>\r\n</Expander>')
 
         b = bkt.taskpane.Expander(auto_wrap=True, children=[bkt.taskpane.Wpf.Button()])
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Expander'+XMLNS+'>\r\n  <WrapPanel Orientation="Horizontal">\r\n    <Button />\r\n  </WrapPanel>\r\n</Expander>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Expander IsExpanded="false"'+XMLNS+'>\r\n  <WrapPanel Orientation="Horizontal">\r\n    <Button />\r\n  </WrapPanel>\r\n</Expander>')
         
         b = bkt.taskpane.Expander(auto_stack=True, header="Test Header", children=[bkt.taskpane.Wpf.Button()])
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Expander Header="Test Header"'+XMLNS+'>\r\n  <StackPanel Orientation="Vertical">\r\n    <Button />\r\n  </StackPanel>\r\n</Expander>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Expander Header="Test Header" IsExpanded="false"'+XMLNS+'>\r\n  <StackPanel Orientation="Vertical">\r\n    <Button />\r\n  </StackPanel>\r\n</Expander>')
+    
+        b = bkt.taskpane.Expander(auto_stack=True, is_expanded=True, children=[bkt.taskpane.Wpf.Button()])
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Expander IsExpanded="true"'+XMLNS+'>\r\n  <StackPanel Orientation="Vertical">\r\n    <Button />\r\n  </StackPanel>\r\n</Expander>')
     
     
     def test_Group(self):

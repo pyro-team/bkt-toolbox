@@ -4,10 +4,12 @@ Created on 2018-01-10
 @author: Florian Stallmann
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
+from __future__ import absolute_import
 
 import logging
+
+import bkt
+import bkt.library.powerpoint as pplib
 
 
 class QuickEditPanelManager(object):
@@ -15,7 +17,7 @@ class QuickEditPanelManager(object):
 
     @classmethod
     def _create_panel(cls, context):
-        from quickedit_panel import QuickEditPanel
+        from .quickedit_panel import QuickEditPanel
         return QuickEditPanel(context)
 
     @classmethod
@@ -71,7 +73,7 @@ class QuickEditPanelManager(object):
             if bkt.config.show_exception:
                 bkt.helpers.exception_as_message()
             else:
-                bkt.helpers.message("Unbekannter Fehler beim Anzeigen des QuickEdit-Panels!")
+                bkt.message("Unbekannter Fehler beim Anzeigen des QuickEdit-Panels!")
 
     @classmethod
     def _close_panel(cls, windowid):
@@ -84,10 +86,13 @@ class QuickEditPanelManager(object):
     
     @classmethod
     def _is_windowed_presentation(cls, context, presentation):
-        #only show if at least one window exists
-        return presentation.Windows.Count > 0
-        #ALTERNATIVE: only show if opened presentation equals active presentation (not the case if opened without window)
-        # return presentation.FullName == context.presentation.FullName
+        try:
+            #only show if at least one window exists
+            return presentation.Windows.Count > 0
+            #ALTERNATIVE: only show if opened presentation equals active presentation (not the case if opened without window)
+            # return presentation.FullName == context.presentation.FullName
+        except: #COMException
+            return False
 
     @classmethod
     def close_all_panels(cls):
@@ -116,11 +121,13 @@ bkt.AppEvents.window_activate    += bkt.Callback(QuickEditPanelManager.update_pa
 color_selector_gruppe = bkt.ribbon.Group(
     id="bkt_quickedit_group",
     label='QuickEdit',
+    supertip="Aktiviert eine kleine freischwebende Mini-Toolbar mit einer interaktiven Farbauswahl. Das Feature `ppt_quickedit` muss installiert sein.",
     image_mso='SmartArtChangeColorsGallery',
     children = [
         bkt.ribbon.Button(
             image="qe_icon",
             label="QuickEdit Panel",
+            supertip="Blendet das QuickEdit Panel mit der interaktiven Farbauswahl ein.",
             size="large",
             on_action=bkt.Callback(QuickEditPanelManager.show_panel_for_active_window, context=True)
         ),
@@ -261,11 +268,11 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
 #     # tpbuttons[1]["Fill"] = System.Windows.Media.Brushes.Red
 #     # tpbuttons[1].attributes.Fill = System.Windows.Media.Brushes.Red
 
-# # qe_taskpane = bkt.taskpane.Expander(auto_wrap=True, IsExpanded=True, header="QuickEdit",
+# # qe_taskpane = bkt.taskpane.Expander(auto_wrap=True, is_expanded=True, header="QuickEdit",
 # #     children=[
 # qe_taskpane = bkt.taskpane.Wpf.WrapPanel(
-#     # Initialized = bkt.Callback(lambda: bkt.helpers.message("test1")),
-#     # Loaded = bkt.Callback(lambda: bkt.helpers.message("test2")),
+#     # Initialized = bkt.Callback(lambda: bkt.message("test1")),
+#     # Loaded = bkt.Callback(lambda: bkt.message("test2")),
 #     children=[
 #         bkt.taskpane.Group(auto_wrap=True, show_separator=False,
 #             children=[
@@ -280,7 +287,7 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
 #                     id="qe_col2",
 #                     header="color2",
 #                     size="small",
-#                     on_action = bkt.Callback(lambda shapes: bkt.helpers.message(str(len(shapes))), shapes=True),
+#                     on_action = bkt.Callback(lambda shapes: bkt.message(str(len(shapes))), shapes=True),
 #                     prop1 = bkt.taskpane.Icon(children=[
 #                                     bkt.taskpane.Wpf.Rectangle(
 #                                         Fill="Green",

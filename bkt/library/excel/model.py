@@ -4,6 +4,8 @@ Created on 08.09.2014
 @author: cschmitt
 '''
 
+from __future__ import absolute_import
+
 from collections import OrderedDict
 
 class TemporaryBuildObject(object):

@@ -5,19 +5,21 @@ Created on 29.08.2019
 @author: fstallmann
 '''
 
+from __future__ import absolute_import
 
 import bkt
 
 # import toolbox modules with ui
-import arrange
-import info
-import language
-import text
-import shape_adjustments
-import stateshapes
-import slides
-import shapes as mod_shapes
-import shape_selection
+from . import arrange
+from . import info
+from . import language
+from . import text
+from . import fontawesome
+from . import shape_adjustments
+from . import stateshapes
+from . import slides
+from . import shapes as mod_shapes
+from . import shape_selection
 
 
 class ToolboxUi(object):
@@ -44,6 +46,7 @@ class ToolboxUi(object):
         "language_group": 0, #off
         "adjustments_group": 1, #page no 1
         "stateshape_group": 2, #page no 2
+        "iconsearch_group": 2, #page no 2
     }
 
     @classmethod
@@ -147,11 +150,12 @@ class ToolboxUi(object):
         self.toolboxui_pages[self.toolboxui_settings["language_group"]].append(language.sprachen_gruppe)
         self.toolboxui_pages[self.toolboxui_settings["adjustments_group"]].append(shape_adjustments.adjustments_group)
         self.toolboxui_pages[self.toolboxui_settings["stateshape_group"]].append(stateshapes.stateshape_gruppe)
+        self.toolboxui_pages[self.toolboxui_settings["iconsearch_group"]].append(fontawesome.fontsearch_gruppe)
 
 
     def render_contextmenus(self):
         # define context-menus and context-tabs
-        import context_menus
+        from . import context_menus
 
 
     def get_page(self, index):
@@ -163,5 +167,5 @@ class ToolboxUi(object):
     
 
     def show_settings_editor(self, context):
-        from dialogs.toolbox_ui import ToolboxUiWindow
+        from .dialogs.toolbox_ui import ToolboxUiWindow
         ToolboxUiWindow.create_and_show_dialog(self, context)

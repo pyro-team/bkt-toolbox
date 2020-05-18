@@ -4,23 +4,34 @@ Created on 2017-07-24
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
+import os #required for relative paths and tempfile removal
+import tempfile
+import logging
+import traceback
+
+from contextlib import contextmanager
+from System import Array #required to create ShapeRanges
+from System.Windows import Visibility
+
 import bkt
 import bkt.library.powerpoint as pplib
 
 import bkt.dotnet as dotnet
 Forms = dotnet.import_forms() #required to read clipboard
 
-import os.path #required for relative paths
-
-from System import Array #required to create ShapeRanges
-
-import logging
-import traceback
-
 
 PASTE_DATATYPE_BTM = 1 #ppPasteBitmap
 PASTE_DATATYPE_EMF = 2 #ppPasteEnhancedMetafile
 PASTE_DATATYPE_PNG = 6 #ppPastePNG
+
+#mapping of paste types (old method) to export functions (slide.export requires filter-name, shape.export requires ppShapeFormat)
+DATATYPE_MAPPING = {
+    PASTE_DATATYPE_BTM: (3, "BMP"), #ppShapeFormatBMP, filter-name
+    PASTE_DATATYPE_EMF: (5, "EMF"), #ppShapeFormatEMF, filter-name
+    PASTE_DATATYPE_PNG: (2, "PNG"), #ppShapeFormatPNG, filter-name
+}
 
 BKT_THUMBNAIL = "BKT_THUMBNAIL"
 
@@ -59,48 +70,82 @@ class Thumbnailer(object):
 
     @classmethod
     def _get_presentation(cls, application, path, silent=True):
+        logging.debug("Thumbnails: get presentation for path {}".format(path))
         if path == "CURRENT" or path == application.ActivePresentation.FullName:
             pres = application.ActivePresentation
             close_afterwards = False
+            logging.debug("Thumbnails: return current presentation")
         else:
             #convert relative to absolute paths
             if not os.path.isabs(path):
                 path = os.path.normpath(os.path.join(application.ActivePresentation.Path, path))
+                logging.debug("Thumbnails: relative path converted to {}".format(path))
             try:
-                pres = application.Presentations[path]
+                #app.presentations can be used using a full path, but it fails if the path contains special characters, so fallback to filename
+                try:
+                    pres = application.Presentations[path]
+                except:
+                    basename = os.path.basename(path)
+                    pres = application.Presentations[basename]
+                    #different open files might have the same filename
+                    if pres.FullName != path:
+                        raise IndexError("deviating path. fallback to open presentation.")
                 close_afterwards = False
+                logging.debug("Thumbnails: return already open presentation")
             except:
                 if silent:
                     pres = application.Presentations.Open(path, True, False, False) #Readonly, Untitled, WithWindow
                 else:
                     pres = application.Presentations.Open(path)
                 close_afterwards = True
+                logging.debug("Thumbnails: open and return presentation")
 
         return pres, close_afterwards
 
     @classmethod
-    def find_and_copy_object(cls, application, slide_id, slide_path, content_only=False, shape_id=None, data_type=None): #data_type not relevant for this method but makes it easier to call when unpacking tags dict
-        pres, close = cls._get_presentation(application, slide_path)
-        
+    @contextmanager
+    def find_and_export_object(cls, application, slide_id, slide_path, content_only=False, shape_id=None, data_type=None):
+        #avoid referenced before assignment error in finally clause
+        close = None
+        tmpfile = None
         try:
+            pres, close = cls._get_presentation(application, slide_path)
+
             slide = pres.Slides.FindBySlideId(slide_id)
+            filetype = DATATYPE_MAPPING.get(data_type, PASTE_DATATYPE_PNG)
+            tmpfile = os.path.join(tempfile.gettempdir(), "bkt-thumbnail-tempfile."+filetype[1])
+
             if shape_id is None and not content_only:
-                slide.Copy()
+                if data_type == PASTE_DATATYPE_PNG:
+                    slide.Export(tmpfile, filetype[1], 2000)
+                else:
+                    slide.Export(tmpfile, filetype[1])
+                # slide.Copy()
             elif content_only:
                 shpr = cls._find_content_shapes(slide)
-                shpr.Copy()
+                if shpr.Count == 0:
+                    raise ValueError("empty slide")
+                shpr.Export(tmpfile, filetype[0]) 
+                # shpr.Copy()
             else:
                 shp = cls._find_by_shape_id(slide, shape_id)
-                shp.Copy()
+                shp.Export(tmpfile, filetype[0]) 
+                # shp.Copy()
+
+            yield tmpfile
 
         except EnvironmentError:
+            logging.debug(traceback.format_exc())
             raise IndexError("slide id not found")
         except IndexError:
+            logging.debug(traceback.format_exc())
             raise IndexError("shape id not found")
         
         finally:
             if close:
                 pres.Close()
+            if tmpfile and os.path.exists(tmpfile):
+                os.remove(tmpfile)
 
     @classmethod
     def _find_by_shape_id(cls, slide, shape_id):
@@ -112,11 +157,9 @@ class Thumbnailer(object):
     @classmethod
     def _find_content_shapes(cls, slide):
         shape_indices = []
-        shape_index = 1
-        for shape in slide.Shapes:
-            if shape.type != 14: # shape is not a placeholder
+        for shape_index, shape in enumerate(slide.Shapes, start=1):
+            if shape.type != 14 and shape.visible == -1: # shape is not a placeholder and visible
                 shape_indices.append(shape_index)
-            shape_index+=1
         return pplib.shape_indices_on_slide(slide, shape_indices)
         # return slide.Shapes.Range(Array[int](shape_indices))
 
@@ -143,7 +186,8 @@ class Thumbnailer(object):
             return
 
         data = cls.get_clipboard_data(application)
-        cur_slide = application.ActiveWindow.View.Slide
+        # cur_slide = application.ActiveWindow.View.Slide
+        cur_slide = application.ActiveWindow.Selection.SlideRange[1]
         # cur_shapes = cur_slide.Shapes.Count
         pasted_shapes = 0
         for slide_id in data["slide_ids"]:
@@ -155,22 +199,26 @@ class Thumbnailer(object):
             try:
                 try:
                     #Copy
-                    cls.find_and_copy_object(application, slide_id, data["slide_path"], content_only, shape_id)
-                except:
-                    #bkt.helpers.exception_as_message()
-                    bkt.helpers.message("Fehler! Referenz nicht gefunden.")
+                    with cls.find_and_export_object(application, slide_id, data["slide_path"], content_only, shape_id, data_type) as filename:
+                        lefttop = 200+pasted_shapes*20
+                        shape = cur_slide.Shapes.AddPicture(filename, 0, -1, lefttop, lefttop)
+                        pasted_shapes += 1
+
+                except Exception as e:
+                    # bkt.helpers.exception_as_message()
+                    bkt.message.error("Fehler! Referenz nicht gefunden.\n\n{}".format(e), "BKT: Thumbnails")
                     continue
                 #Paste
-                application.ActiveWindow.Selection.SlideRange[1].Shapes.PasteSpecial(Datatype=data_type)
-                pasted_shapes += 1
+                # shape = cur_slide.Shapes.PasteSpecial(Datatype=data_type)
+                # pasted_shapes += 1
                 #Save tags
-                shape = application.ActiveWindow.Selection.ShapeRange(1)
+                # shape = application.ActiveWindow.Selection.ShapeRange(1)
                 with ThumbnailerTags(shape.Tags) as tags:
                     tags.set_thumbnail(slide_id, data["slide_path"], data_type, content_only, shape_id)
                 shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_THUMBNAIL)
-            except:
+            except Exception as e:
                 #bkt.helpers.exception_as_message()
-                bkt.helpers.message("Fehler! Thumbnail konnte nicht im gewählten Format eingefügt werden.")
+                bkt.message.error("Fehler! Thumbnail konnte nicht im gewählten Format eingefügt werden.\n\n{}".format(e), "BKT: Thumbnails")
                 logging.error(traceback.format_exc())
         
         # select pasted shapes
@@ -179,7 +227,7 @@ class Thumbnailer(object):
             pplib.last_n_shapes_on_slide(cur_slide, pasted_shapes).Select()
         
         #Restore clipboard
-        cls.set_clipboard_data(**data)
+        # cls.set_clipboard_data(**data)
 
     @classmethod
     def replace_ref(cls, shape, application):
@@ -196,19 +244,25 @@ class Thumbnailer(object):
         cls.shape_refresh(shape, application)
         
         #Restore clipboard
-        cls.set_clipboard_data(**data)
+        # cls.set_clipboard_data(**data)
 
     @classmethod
     def replace_file_ref(cls, shape, application):
-        fileDialog = application.FileDialog(1) #msoFileDialogFilePicker
-        fileDialog.InitialFileName = application.ActiveWindow.Presentation.Path
-        fileDialog.title = "Neue Datei auswählen"
+        fileDialog = Forms.OpenFileDialog()
+        fileDialog.Filter = "PowerPoint (*.pptx;*.pptm;*.ppt)|*.pptx;*.pptm;*.ppt|Alle Dateien (*.*)|*.*"
+        if application.ActiveWindow.Presentation.Path:
+            fileDialog.InitialDirectory = application.ActiveWindow.Presentation.Path + '\\'
+        fileDialog.Title = "Neue PowerPoint-Datei auswählen"
+
+        # fileDialog = application.FileDialog(1) #msoFileDialogOpen
+        # fileDialog.InitialFileName = application.ActiveWindow.Presentation.Path
+        # fileDialog.Title = "Neue Datei auswählen"
 
         # Bei Abbruch ist Rückgabewert leer
-        if fileDialog.Show() == 0: #msoFalse
+        if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
             return
 
-        path = cls._prepare_path(application, fileDialog.SelectedItems(1))
+        path = cls._prepare_path(application, fileDialog.FileName)
 
         with ThumbnailerTags(shape.Tags) as tags:
             tags["slide_path"] = path
@@ -221,7 +275,7 @@ class Thumbnailer(object):
             slide_id = tags["slide_id"]
             slide_path = tags["slide_path"]
             try:
-                pres, close = cls._get_presentation(application, slide_path, False)
+                pres, _ = cls._get_presentation(application, slide_path, False)
                 
                 #bring window to front
                 if pres.Windows.Count > 0:
@@ -238,11 +292,11 @@ class Thumbnailer(object):
                             shp = cls._find_by_shape_id(slide, tags["shape_id"])
                             shp.Select()
                         except:
-                            bkt.helpers.message("Fehler! Shape in der referenzierten Präsentation nicht gefunden.")
+                            bkt.message.error("Fehler! Shape in der referenzierten Präsentation nicht gefunden.", "BKT: Thumbnails")
                 except:
-                    bkt.helpers.message("Fehler! Folie in der referenzierten Präsentation nicht gefunden.")
+                    bkt.message.error("Fehler! Folie in der referenzierten Präsentation nicht gefunden.", "BKT: Thumbnails")
             except:
-                if bkt.helpers.confirmation("Fehler! Referenzierte Präsentation '%s' nicht gefunden. Neue Datei auswählen?" % slide_path):
+                if bkt.message.confirmation("Fehler! Referenzierte Präsentation '%s' nicht gefunden. Neue Datei auswählen?" % slide_path, "BKT: Thumbnails", icon=bkt.MessageBox.WARNING):
                     cls.replace_file_ref(shape, application)
 
     @classmethod
@@ -258,10 +312,10 @@ class Thumbnailer(object):
                     thumbs.append(shp)
 
         if len(thumbs) == 0:
-            bkt.helpers.message("Keine Folien-Thumbnails gefunden.")
+            bkt.message.warning("Keine Folien-Thumbnails gefunden.", "BKT: Thumbnails")
             return
 
-        cls.shapes_refresh(thumbs)
+        cls.shapes_refresh(thumbs, application)
 
     @classmethod
     def shapes_refresh(cls, shapes, application):
@@ -274,32 +328,35 @@ class Thumbnailer(object):
                 err_counter += 1
                 # bkt.helpers.exception_as_message()
         if err_counter > 0:
-            bkt.helpers.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert, aber %r Folien-Thumbnail/s konnten wegen eines Fehlers nicht aktualisiert werden. Die fehlerhaften Thumbnails wurden mit dem Text 'BKT THUMB UPDATE FAILED' markiert." % (len(shapes)-err_counter, err_counter))
+            bkt.message.warning("Es wurde/n %r Folien-Thumbnail/s aktualisiert, aber %r Folien-Thumbnail/s konnten wegen eines Fehlers nicht aktualisiert werden. Die fehlerhaften Thumbnails wurden mit dem Text 'BKT THUMB UPDATE FAILED' markiert." % (len(shapes)-err_counter, err_counter), "BKT: Thumbnails")
         else:
-            bkt.helpers.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert." % len(shapes))
+            bkt.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert." % len(shapes), "BKT: Thumbnails")
 
     @classmethod
     def shape_refresh(cls, shape, application):
         try:
             return cls._shape_refresh(shape, application)
         except IndexError:
-            bkt.helpers.message("Fehler! Folien-Referenz nicht gefunden.")
+            bkt.message.error("Fehler! Folien-Referenz nicht gefunden.")
+        except ValueError:
+            bkt.message.error("Fehler! Folie hat keinen Inhalt.")
         except IOError:
-            if bkt.helpers.confirmation("Fehler! Präsentation aus Folien-Referenz nicht gefunden. Neue Datei auswählen?"):
+            if bkt.message.confirmation("Fehler! Präsentation aus Folien-Referenz nicht gefunden. Neue Datei auswählen?", "BKT: Thumbnails", icon=bkt.MessageBox.WARNING):
                 cls.replace_file_ref(shape, application)
-        except:
-            bkt.helpers.message("Fehler! Thumbnail konnte nicht aktualisiert werden.")
-            logging.error("Error updating thumbnail!")
+        except Exception as e:
+            bkt.message.error("Fehler! Thumbnail konnte nicht aktualisiert werden.\n\n{}".format(e), "BKT: Thumbnails")
+            logging.error("Thumbnails: Error updating thumbnail!")
             logging.error(traceback.format_exc())
 
     @classmethod
     def _shape_refresh(cls, shape, application):
         with ThumbnailerTags(shape.Tags) as tags_old:
             #Copy
-            cls.find_and_copy_object(application, **tags_old.data)
-            # cls.find_and_copy_object(application, tags_old["slide_id"], tags_old["slide_path"])
-            #Paste (shapes.Parent = slide)
-            new_shp = shape.Parent.Shapes.PasteSpecial(Datatype=tags_old["data_type"]).Item(1)
+            with cls.find_and_export_object(application, **tags_old.data) as filename:
+                # cls.find_and_copy_object(application, tags_old["slide_id"], tags_old["slide_path"])
+                #Paste (shapes.Parent = slide)
+                # new_shp = shape.Parent.Shapes.PasteSpecial(Datatype=tags_old["data_type"]).Item(1)
+                new_shp = shape.Parent.Shapes.AddPicture(filename, 0, -1, 200, 200)
             #Duplicate tags
             with ThumbnailerTags(new_shp.Tags) as tags_new:
                 tags_new.set_thumbnail(**tags_old.data)
@@ -335,6 +392,7 @@ class Thumbnailer(object):
             new_shp.Select()
         else:
             shape.Delete()
+            new_shp.Select()
 
         return new_shp
 
@@ -357,7 +415,7 @@ class Thumbnailer(object):
     @classmethod
     def get_clipboard_data(cls, application):
         if Forms.Clipboard.ContainsData(BKT_THUMBNAIL):
-            logging.info("Get thumbnail from BKT_THUMBNAIL clipboard data")
+            logging.info("Thumbnails: Get thumbnail from BKT_THUMBNAIL clipboard data")
             try:
                 data = Forms.Clipboard.GetData(BKT_THUMBNAIL)
                 #bruteforce method to convert data into correct type
@@ -367,7 +425,7 @@ class Thumbnailer(object):
                 raise ValueError("Invalid clipboard format")
         
         else:
-            logging.info("Get thumbnail from OLE object in clipboard")
+            logging.info("Thumbnails: Get thumbnail from OLE object in clipboard")
             try:
                 shp = application.ActiveWindow.Selection.SlideRange[1].Shapes.PasteSpecial(Datatype=10, Link=True) #ppPasteOLEObject
                 try:
@@ -379,8 +437,8 @@ class Thumbnailer(object):
                 path,slideid = shp.LinkFormat.SourceFullName.split("!")
                 data = ([slideid], path)
             except:
-                raise ValueError("Invalid clipboard format")
                 logging.error(traceback.format_exc())
+                raise ValueError("Invalid clipboard format")
             finally:
                 if shp:
                     shp.Delete()
@@ -394,8 +452,8 @@ class Thumbnailer(object):
 
     @classmethod
     def _prepare_path(cls, application, path):
-        drive1, tail1 = os.path.splitdrive(path)
-        drive2, tail2 = os.path.splitdrive(application.ActivePresentation.FullName)
+        drive1, _ = os.path.splitdrive(path)
+        drive2, _ = os.path.splitdrive(application.ActivePresentation.FullName)
         if path == application.ActivePresentation.FullName:
             path = "CURRENT"
         elif USE_RELATIVE_PATHS and drive1 != '' and drive1 == drive2: #same drive -> use relative path
@@ -427,7 +485,7 @@ class Thumbnailer(object):
 
     @classmethod
     def unset_thumbnail(cls, shape):
-        if bkt.helpers.confirmation("Dies löscht dauerhaft die Folien-Referenz und damit die Möglichkeit der Aktualisierung des Thumbnails."):
+        if bkt.message.confirmation("Dies löscht dauerhaft die Folien-Referenz und damit die Möglichkeit der Aktualisierung des Thumbnails.", "BKT: Thumbnails"):
             shape.Tags.Delete(BKT_THUMBNAIL)
 
     @classmethod
@@ -454,12 +512,14 @@ class Thumbnailer(object):
         with ThumbnailerTags(shape.Tags) as tags:
             tags["content_only"] = content_only
         new_shp = cls.shape_refresh(shape, application)
-        cls.reset_aspect_ratio(new_shp)
+        if new_shp:
+            cls.reset_aspect_ratio(new_shp)
 
 
 thumbnail_gruppe = bkt.ribbon.Group(
     id="bkt_slidethumbnails_group",
     label='Folien-Thumbnails',
+    supertip="Ermöglicht das Einfügen von aktualisierbaren Folien-Thumbnails. Das Feature `ppt_thumbnails` muss installiert sein.",
     image_mso='PasteAsPicture',
     children = [
         bkt.ribbon.Button(
@@ -490,7 +550,7 @@ thumbnail_gruppe = bkt.ribbon.Group(
                     on_action=bkt.Callback(Thumbnailer.slide_paste, application=True),
                     # get_enabled = bkt.Callback(Thumbnailer.enabled_paste),
                 ),
-                bkt.ribbon.Menu(label="Einfügen-Menü", children=[
+                bkt.ribbon.Menu(label="Einfügen-Menü", supertip="Einfüge-Optionen für aktualisierbare Folien-Thumbnails", children=[
                     bkt.ribbon.Button(
                         id = 'slide_paste_png',
                         label="Folien-Thumbnail als PNG einfügen",
@@ -531,7 +591,7 @@ thumbnail_gruppe = bkt.ribbon.Group(
                     supertip="Alle Folien-Thumbnails auf den ausgewählten Folien aktualisieren. Das Thumbnail muss vorher mit dieser Funktion eingefügt worden sein. Stammt die Folie aus einer anderen Datei, wird diese automatisch kurzzeitig geöffnet.",
                     on_action=bkt.Callback(Thumbnailer.slide_refresh, application=True, slides=True),
                 ),
-                bkt.ribbon.Menu(label="Aktualisieren-Menü", item_size="large", children=[
+                bkt.ribbon.Menu(label="Aktualisieren-Menü", supertip="Aktualisierung der Folien-Thumbnails auf dieser Folie oder in der ganzen Präsentation", item_size="large", children=[
                     bkt.ribbon.Button(
                         id = 'slide_refresh2',
                         label="Thumbnails auf Folie/n aktualisieren",
@@ -577,6 +637,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id='context-thumbnail-refresh',
             label="Thumbnail aktualisieren",
+            supertip="Ausgewähltes Folien-Thumbnail aktualisieren",
             insertBeforeMso='Cut',
             image_mso='PictureChange',
             on_action=bkt.Callback(Thumbnailer.shape_refresh, shape=True, application=True),
@@ -585,6 +646,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Menu(
             id='context-thumbnail-settings',
             label="Thumbnail-Einstellungen",
+            supertip="Einstellungen des gewählten Folien-Thumbnails ändern",
             image_mso='PictureSharpenSoftenGallery',
             insertBeforeMso='Cut',
             get_visible=bkt.Callback(Thumbnailer.is_thumbnail, shape=True),
@@ -632,6 +694,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Menu(
             id='context-thumbnail-reference',
             label="Folien-Referenz",
+            supertip="Referenz des gewählten Folien-Thumbnails öffnen oder ändern",
             image_mso='PictureInsertFromFile',
             insertBeforeMso='Cut',
             get_visible=bkt.Callback(Thumbnailer.is_thumbnail, shape=True),
@@ -675,6 +738,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id='context-thumbnail-slide-copy',
             label="Als Folien-Thumbnail kopieren",
+            supertip="Gewählte Folie als aktualisierbares Thumbnail kopieren",
             insertAfterMso='Copy',
             image_mso='Copy',
             on_action=bkt.Callback(Thumbnailer.slides_copy, presentation=True, slides=True),
@@ -692,12 +756,13 @@ bkt.powerpoint.add_context_menu(
                 bkt.ribbon.Button(
                     id='context-thumbnail-slide-paste',
                     label="Als Folien-Thumbnail einfügen",
+                    supertip="Als aktualisierbares Folien-Thumbnail im PNG-Format einfügen",
                     image_mso='PasteAsPicture',
                     on_action=bkt.Callback(Thumbnailer.slide_paste, application=True),
                     #get_visible=bkt.Callback(Thumbnailer.is_thumbnail, shape=True),
                     get_enabled=bkt.Callback(Thumbnailer.enabled_paste),
                 ),
-                bkt.ribbon.Menu(children=[
+                bkt.ribbon.Menu(label="Als Folien-Thumbnail einfügen Menü", supertip="Format zum Einfügen des Thumbnails auswählen", children=[
                     bkt.ribbon.Button(
                         label="Als PNG einfügen (Standard)",
                         on_action=bkt.Callback(lambda application: Thumbnailer.slide_paste(application, PASTE_DATATYPE_PNG), application=True),
@@ -718,16 +783,19 @@ bkt.powerpoint.add_context_menu(
 
 
 class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'thumbnail.xaml')
+    # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'thumbnail.xaml')
+    _xamlname = 'thumbnail'
     '''
     class representing a popup-dialog for a thumbnail shape
     '''
     
     def __init__(self, context=None):
         self.IsPopup = True
-        self._context = context
 
-        super(ThumbnailPopup, self).__init__()
+        super(ThumbnailPopup, self).__init__(context)
+
+        if context.app.activewindow.selection.shaperange.count > 1:
+            self.btngoto.Visibility = Visibility.Collapsed
 
     def btnrefresh(self, sender, event):
         try:
@@ -737,8 +805,16 @@ class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
             else:
                 Thumbnailer.shapes_refresh(shapes, self._context.app)
         except:
-            bkt.helpers.message("Thumbnail-Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
+            bkt.message.error("Thumbnail-Aktualisierung aus unbekannten Gründen fehlgeschlagen.", "BKT: Thumbnails")
             logging.error(traceback.format_exc())
+
+    def btngoto(self, sender, event):
+        try:
+            Thumbnailer.goto_ref(self._context.shape, self._context.app)
+        except:
+            bkt.message.error("Fehler beim Öffnen der Folienreferenz.", "BKT: Thumbnails")
+            logging.error(traceback.format_exc())
+
 
 # register dialog
 bkt.powerpoint.context_dialogs.register_dialog(

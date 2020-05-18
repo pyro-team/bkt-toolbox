@@ -5,23 +5,26 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
-from bkt.library.powerpoint import pt_to_cm, cm_to_pt
+from __future__ import absolute_import
 
 import logging
 
-# other toolbox modules
-from chartlib import shapelib_button
-from agenda import ToolboxAgenda
-import text
-import harvey
-import stateshapes
-
+import bkt
+import bkt.library.powerpoint as pplib
+pt_to_cm = pplib.pt_to_cm
+cm_to_pt = pplib.cm_to_pt
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
 office = dotnet.import_officecore()
+
+# other toolbox modules
+from .chartlib import shapelib_button
+from .agenda import ToolboxAgenda
+from . import text
+from . import harvey
+from . import stateshapes
+
 
 
 
@@ -199,19 +202,21 @@ spinner_top = bkt.ribbon.RoundingSpinnerBox(
         bkt.ribbon.Button(
             label="Visuelle Position",
             get_image=bkt.Callback(PositionSize.get_image_use_visual_pos),
-            screentip="Visuelle Position unter Berücksichtigung der Rotation verwenden",
+            supertip="Visuelle Position unter Berücksichtigung der Rotation verwenden",
             on_action=bkt.Callback(PositionSize.toggle_use_visual_pos)
         ),
         bkt.ribbon.Button(
             label="Oben = Links",
             image="possize_t2l",
             screentip="Oben = Links setzen",
+            supertip="Setzt die obere Kante gleich der linken Kante unter Berücksichtigung des Fixpunkts",
             on_action=bkt.Callback(PositionSize.set_top_to_left, shapes=True, wrap_shapes=True)
         ),
         bkt.ribbon.Button(
             label="Oben ⇄ Links",
             image="possize_swap_tl",
             screentip="Oben und Links tauschen",
+            supertip="Tauscht die obere Kante mit der linken Kante unter Berücksichtigung des Fixpunkts",
             on_action=bkt.Callback(PositionSize.swap_left_and_top, shapes=True, wrap_shapes=True)
         ),
     ])
@@ -233,19 +238,21 @@ spinner_left = bkt.ribbon.RoundingSpinnerBox(
         bkt.ribbon.Button(
             label="Visuelle Position",
             get_image=bkt.Callback(PositionSize.get_image_use_visual_pos),
-            screentip="Visuelle Position unter Berücksichtigung der Rotation verwenden",
+            supertip="Visuelle Position unter Berücksichtigung der Rotation verwenden",
             on_action=bkt.Callback(PositionSize.toggle_use_visual_pos)
         ),
         bkt.ribbon.Button(
             label="Links = Oben",
             image="possize_l2t",
             screentip="Links = Oben setzen",
+            supertip="Setzt die linke Kante gleich der oberen Kante unter Berücksichtigung des Fixpunkts",
             on_action=bkt.Callback(PositionSize.set_left_to_top, shapes=True, wrap_shapes=True)
         ),
         bkt.ribbon.Button(
             label="Links ⇄ Oben",
             image="possize_swap_tl",
             screentip="Links und Oben tauschen",
+            supertip="Tauscht die linke Kante mit der oberen Kante unter Berücksichtigung des Fixpunkts",
             on_action=bkt.Callback(PositionSize.swap_left_and_top, shapes=True, wrap_shapes=True)
         ),
     ])
@@ -267,19 +274,21 @@ spinner_height = bkt.ribbon.RoundingSpinnerBox(
         bkt.ribbon.Button(
             label="Visuelle Größe",
             get_image=bkt.Callback(PositionSize.get_image_use_visual_size),
-            screentip="Visuelle Größe unter Berücksichtigung der Rotation verwenden",
+            supertip="Visuelle Größe unter Berücksichtigung der Rotation verwenden",
             on_action=bkt.Callback(PositionSize.toggle_use_visual_size)
         ),
         bkt.ribbon.Button(
             label="Höhe = Breite",
             image="possize_h2w",
             screentip="Höhe = Breite setzen",
+            supertip="Setzt die Höhe gleich der Breite unter Berücksichtigung des Fixpunkts. Ist das Seitenverhältnis gesperrt, wird dies temporär aufgehoben.",
             on_action=bkt.Callback(PositionSize.set_height_to_width, shapes=True, wrap_shapes=True)
         ),
         bkt.ribbon.Button(
             label="Höhe ⇄ Breite",
             image="possize_swap_hw",
             screentip="Höhe und Breite tauschen",
+            supertip="Tauscht die Höhe mit der Breite unter Berücksichtigung des Fixpunkts",
             on_action=bkt.Callback(PositionSize.swap_width_and_height, shapes=True, wrap_shapes=True)
         ),
     ])
@@ -301,19 +310,21 @@ spinner_width = bkt.ribbon.RoundingSpinnerBox(
         bkt.ribbon.Button(
             label="Visuelle Größe",
             get_image=bkt.Callback(PositionSize.get_image_use_visual_size),
-            screentip="Visuelle Größe unter Berücksichtigung der Rotation verwenden",
+            supertip="Visuelle Größe unter Berücksichtigung der Rotation verwenden",
             on_action=bkt.Callback(PositionSize.toggle_use_visual_size)
         ),
         bkt.ribbon.Button(
             label="Breite = Höhe",
             image="possize_w2h",
             screentip="Breite = Höhe setzen",
+            supertip="Setzt die Breite gleich der Höhe unter Berücksichtigung des Fixpunkts. Ist das Seitenverhältnis gesperrt, wird dies temporär aufgehoben.",
             on_action=bkt.Callback(PositionSize.set_width_to_height, shapes=True, wrap_shapes=True)
         ),
         bkt.ribbon.Button(
             label="Breite ⇄ Höhe",
             image="possize_swap_hw",
             screentip="Breite und Höhe tauschen",
+            supertip="Tauscht die Breite mit der Höhe unter Berücksichtigung des Fixpunkts",
             on_action=bkt.Callback(PositionSize.swap_width_and_height, shapes=True, wrap_shapes=True)
         ),
     ])
@@ -413,7 +424,7 @@ class TrackerShape(object):
     @classmethod
     def generateTracker(cls, shapes, context):
         import uuid
-        from linkshapes import LinkedShapes
+        from .linkshapes import LinkedShapes
 
         #shapes to copy formatting
         shapes_count = len(shapes)
@@ -464,7 +475,7 @@ class TrackerShape(object):
         LinkedShapes.link_shapes(all_trackers_list)
 
         #ask to distribute trackers
-        if bkt.helpers.confirmation("Tracker auf Folgefolien verteilen?"):
+        if bkt.message.confirmation("Tracker auf Folgefolien verteilen?"):
             cls.distributeTracker(all_trackers_list, context)
             all_trackers_list[0].select()
 
@@ -578,7 +589,7 @@ class ShapeConnectors(object):
                 shape1 = cls._find_shape_by_id(slide, tags["shape1_id"])
                 shape2 = cls._find_shape_by_id(slide, tags["shape2_id"])
             except IndexError:
-                bkt.helpers.message("Fehler: Verbundenes Shape nicht gefunden!")
+                bkt.message.error("Fehler: Verbundenes Shape nicht gefunden!")
             else:
                 cls._set_connector_shape_nodes(shape, shape1, shape2, tags["shape1_side"], tags["shape2_side"])
 
@@ -665,51 +676,9 @@ class ShapesMore(object):
     def show_shapes(slide):
         slide.Application.ActiveWindow.Selection.Unselect()
         for shape in slide.shapes:
-            if not shape.visible:
+            if not shape.visible and not pplib.TagHelper.has_tag(shape, "THINKCELLSHAPEDONOTDELETE"):
                 shape.visible = True
                 shape.Select(replace=False)
-
-    @staticmethod
-    def paste_to_slides(slides):
-        for slide in slides:
-            slide.Shapes.Paste()
-
-    @staticmethod
-    def paste_as_link(slide):
-        try:
-            slide.Shapes.PasteSpecial(Link=True)
-        except:
-            bkt.helpers.message("Das Element in der Zwischenablage unterstützt diesen Einfügetyp nicht.")
-    
-    @staticmethod
-    def paste_and_replace(slide, shape, keep_size=True):
-        pasted_shapes = slide.Shapes.Paste()
-        if pasted_shapes.count > 1:
-            pasted_shapes = pasted_shapes.group()
-        
-        #restore size
-        if keep_size:
-            pasted_shapes.LockAspectRatio = 0
-            pasted_shapes.width = shape.width
-            pasted_shapes.height = shape.height
-            pasted_shapes.LockAspectRatio = shape.LockAspectRatio
-        #restore position and zorder
-        pasted_shapes.top = shape.top
-        pasted_shapes.left = shape.left
-        pasted_shapes.rotation = shape.rotation
-        pplib.set_shape_zorder(pasted_shapes, value=shape.ZOrderPosition)
-
-        if pplib.shape_is_group_child(shape):
-            #replace shape in group
-            master = pplib.GroupManager(shape.ParentGroup)
-            master.add_child_items(pasted_shapes)
-            shape.delete()
-        else:
-            #replace shape
-            shape.delete()
-        
-        pasted_shapes.select()
-
     
     @staticmethod
     def _text_to_shape(shape):
@@ -721,7 +690,7 @@ class ShapesMore(object):
     @classmethod
     def texts_to_shapes(cls, shapes):
         if pplib.shape_is_group_child(shapes[0]) or any(shape.type == pplib.MsoShapeType["msoGroup"] for shape in shapes):
-            bkt.helpers.message("PowerPoint unterstützt diese Funktion leider nicht für Gruppen")
+            bkt.message.error("PowerPoint unterstützt diese Funktion leider nicht für Gruppen.")
             return
         all_shapes = []
         for shape in shapes:
@@ -735,36 +704,40 @@ class ShapesMore(object):
 
 class ShapeDialogs(object):
     
-    @staticmethod
-    def shape_split(shapes):
-        from dialogs.shape_split import ShapeSplitWindow
-        ShapeSplitWindow.create_and_show_dialog(shapes)
-    
-    @staticmethod
-    def create_traffic_light(slide):
-        from popups.traffic_light import Ampel
-        Ampel.create(slide)
-    
-    @staticmethod
-    def show_segmented_circle_dialog(slide):
-        from dialogs.circular_segments import SegmentedCircleWindow
-        SegmentedCircleWindow.create_and_show_dialog(slide)
+    ### DIALOG WINDOWS ###
 
     @staticmethod
-    def show_process_chevrons_dialog(slide):
-        from processshapes import ProcessChevrons
-        from dialogs.shape_process import ProcessWindow
-        ProcessWindow.create_and_show_dialog(slide, ProcessChevrons)
+    def shape_split(context, shapes):
+        from .dialogs.shape_split import ShapeSplitWindow
+        ShapeSplitWindow.create_and_show_dialog(context, shapes)
+    
+    @staticmethod
+    def show_segmented_circle_dialog(context, slide):
+        from .dialogs.circular_segments import SegmentedCircleWindow
+        SegmentedCircleWindow.create_and_show_dialog(context, slide)
+
+    @staticmethod
+    def show_process_chevrons_dialog(context, slide):
+        from .processshapes import ProcessChevrons
+        from .dialogs.shape_process import ProcessWindow
+        ProcessWindow.create_and_show_dialog(context, slide, ProcessChevrons)
+
+    ### DIRECT CREATE ###
 
     @staticmethod
     def create_headered_pentagon(slide):
-        from processshapes import Pentagon
+        from .processshapes import Pentagon
         Pentagon.create_headered_pentagon(slide)
 
     @staticmethod
     def create_headered_chevron(slide):
-        from processshapes import Pentagon
+        from .processshapes import Pentagon
         Pentagon.create_headered_chevron(slide)
+    
+    @staticmethod
+    def create_traffic_light(slide):
+        from .popups.traffic_light import Ampel
+        Ampel.create(slide)
 
 
 
@@ -1365,6 +1338,7 @@ format_group = bkt.ribbon.Group(
         bkt.ribbon.RoundingSpinnerBox(
             id = 'fill_transparency',
             label=u"Transparenz Hintergrund",
+            supertip="Ändere die Transparenz vom Hintergrund",
             show_label=False,
             round_int = True,
             image="fill_transparency",
@@ -1375,6 +1349,7 @@ format_group = bkt.ribbon.Group(
         bkt.ribbon.RoundingSpinnerBox(
             id = 'line_transparency',
             label=u"Transparenz Linie/Rahmen",
+            supertip="Ändere die Transparenz vom Rahmen bzw. der Linie",
             show_label=False,
             round_int = True,
             image="line_transparency",
@@ -1385,6 +1360,7 @@ format_group = bkt.ribbon.Group(
         bkt.ribbon.RoundingSpinnerBox(
             id = 'line_weight',
             label=u"Dicke Linie/Rahmen",
+            supertip="Ändere die Dicke vom Rahmen bzw. der Linie",
             show_label=False,
             round_pt = True,
             rounding_factor=0.25,
@@ -1450,7 +1426,7 @@ line_transparency_gallery = bkt.ribbon.Gallery(
 class PictureFormat(object):
     @staticmethod
     def make_img_transparent(slide, shapes, transparency=0.5):
-        if not bkt.helpers.confirmation("Das bestehende Bild wird dabei ersetzt. Fortfahren?"):
+        if not bkt.message.confirmation("Das bestehende Bild wird dabei ersetzt. Fortfahren?"):
             return
 
         import tempfile, os
@@ -1504,9 +1480,9 @@ class ShapeTableGallery(bkt.ribbon.Gallery):
             supertip="Füge eine Tabelle aus Standard-Shapes ein",
             description="Füge eine Tabelle aus Standard-Shapes ein",
             children=[
-                bkt.ribbon.Button(id=parent_id + "_margin0", label="Ohne Abstand", on_action=bkt.Callback(lambda: setattr(self, "_margin", 0)), get_image=bkt.Callback(lambda: self.get_toggle_image(0))),
-                bkt.ribbon.Button(id=parent_id + "_margin10", label="Kleiner Abstand", on_action=bkt.Callback(lambda: setattr(self, "_margin", 10)), get_image=bkt.Callback(lambda: self.get_toggle_image(10))),
-                bkt.ribbon.Button(id=parent_id + "_margin20", label="Großer Abstand", on_action=bkt.Callback(lambda: setattr(self, "_margin", 20)), get_image=bkt.Callback(lambda: self.get_toggle_image(20))),
+                bkt.ribbon.Button(id=parent_id + "_margin0", label="Ohne Abstand", supertip="Abstand bei Shape-Tabelle deaktivieren", on_action=bkt.Callback(lambda: setattr(self, "_margin", 0)), get_image=bkt.Callback(lambda: self.get_toggle_image(0))),
+                bkt.ribbon.Button(id=parent_id + "_margin10", label="Kleiner Abstand", supertip="Abstand bei Shape-Tabelle auf klein setzen", on_action=bkt.Callback(lambda: setattr(self, "_margin", 10)), get_image=bkt.Callback(lambda: self.get_toggle_image(10))),
+                bkt.ribbon.Button(id=parent_id + "_margin20", label="Großer Abstand", supertip="Abstand bei Shape-Tabelle auf groß setzen", on_action=bkt.Callback(lambda: setattr(self, "_margin", 20)), get_image=bkt.Callback(lambda: self.get_toggle_image(20))),
             ]
         )
         my_kwargs.update(kwargs)
@@ -1698,7 +1674,8 @@ shapes_group = bkt.ribbon.Group(
         text.text_splitbutton,
         bkt.ribbon.Menu(
             image_mso='TableInsertGallery',
-            screentip="Tabelle einfügen",
+            label="Tabelle einfügen",
+            show_label=False,
             supertip="Einfügen von Standard- oder Shape-Tabellen",
             item_size="large",
             children=[
@@ -1718,7 +1695,7 @@ shapes_group = bkt.ribbon.Group(
             show_label=False,
             image_mso='SmartArtInsert',
             screentip="Spezielle und Interaktive Formen ",
-            supertip="Bilder, Objekte, Spezial-Shapes, Text-Zerlegung, Shapes verstecken, ...",
+            supertip="Interaktive BKT-Shapes und spezielle zusammengesetzte Shapes einfügen, die sonst nur umständlich zu erstellen sind.",
             children = [
                 bkt.ribbon.MenuSeparator(title="Einfügehilfen"),
                 bkt.ribbon.Button(
@@ -1732,7 +1709,7 @@ shapes_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     id='agenda_textbox',
                     label="Agenda-Textbox einfügen",
-                    screentip="Standard Agenda-Textbox einfügen.",
+                    supertip="Standard Agenda-Textbox einfügen, um daraus eine aktualisierbare Agenda zu generieren.",
                     imageMso="TextBoxInsert",
                     on_action=bkt.Callback(ToolboxAgenda.create_agenda_textbox_on_slide)
                 ),
@@ -1790,7 +1767,7 @@ shapes_group = bkt.ribbon.Group(
                     image = "process_chevrons",
                     screentip="Prozess-Pfeile einfügen",
                     supertip="Erstelle Standard Prozess-Pfeile.",
-                    on_action=bkt.Callback(ShapeDialogs.show_process_chevrons_dialog, slide=True)
+                    on_action=bkt.Callback(ShapeDialogs.show_process_chevrons_dialog)
                 ),
                 bkt.ribbon.Button(
                     id = 'headered_pentagon',
@@ -1798,7 +1775,7 @@ shapes_group = bkt.ribbon.Group(
                     image = "headered_pentagon",
                     screentip="Prozess-Schritt-Shape mit Kopfzeile erstellen",
                     supertip="Erstelle einen Prozess-Pfeil mit Header-Shape. Das Header-Shape kann im Prozess-Pfeil über Kontext-Menü des Header-Shapes passend angeordnet werden.",
-                    on_action=bkt.Callback(ShapeDialogs.create_headered_pentagon, slide=True)
+                    on_action=bkt.Callback(ShapeDialogs.create_headered_pentagon)
                 ),
                 bkt.ribbon.Button(
                     id = 'headered_chevron',
@@ -1806,7 +1783,7 @@ shapes_group = bkt.ribbon.Group(
                     image = "headered_chevron",
                     screentip="Prozess-Schritt-Shape mit Kopfzeile erstellen",
                     supertip="Erstelle einen Prozess-Pfeil mit Header-Shape. Das Header-Shape kann im Prozess-Pfeil über Kontext-Menü des Header-Shapes passend angeordnet werden.",
-                    on_action=bkt.Callback(ShapeDialogs.create_headered_chevron, slide=True)
+                    on_action=bkt.Callback(ShapeDialogs.create_headered_chevron)
                 ),
                 harvey.harvey_create_button,
                 bkt.ribbon.Button(
@@ -1814,7 +1791,7 @@ shapes_group = bkt.ribbon.Group(
                     image="traffic_light",
                     screentip='Status-Ampel erstellen',
                     supertip="Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden.",
-                    on_action=bkt.Callback(ShapeDialogs.create_traffic_light, slide=True)
+                    on_action=bkt.Callback(ShapeDialogs.create_traffic_light)
                 ),
                 stateshapes.likert_button,
                 bkt.ribbon.MenuSeparator(title="Verbindungsflächen"),
@@ -1849,6 +1826,7 @@ shapes_group = bkt.ribbon.Group(
         bkt.ribbon.Menu(
             image_mso='CombineShapesMenu',
             label="Shape verändern",
+            supertip="Funktionen um Shape-Punkte zu manipulieren, Shapes zu duplizieren, und Text in Symbol/Grafik umzuwandeln",
             show_label=False,
             children=[
                 bkt.ribbon.MenuSeparator(title="Formen manipulieren"),
@@ -1882,7 +1860,7 @@ shapes_group = bkt.ribbon.Group(
             show_label=False,
             image_mso='TableDesign',
             screentip="Weitere Funktionen",
-            supertip="Bilder, Objekte, Spezial-Shapes, Text-Zerlegung, Shapes verstecken, ...",
+            supertip="Standardobjekte (Bilder, Smart-Art, etc.) einfügen, Shapes verstecken und wieder anzeigen, Kopf- und Fußzeile anpassen",
             children = [
                 bkt.ribbon.MenuSeparator(title="Bilder und Objekte"),
                 bkt.mso.control.PictureInsertFromFilePowerPoint,
@@ -1890,7 +1868,7 @@ shapes_group = bkt.ribbon.Group(
                 bkt.mso.control.ClipArtInsertDialog,
                 bkt.mso.control.SmartArtInsert,
                 bkt.mso.control.ChartInsert,
-                bkt.ribbon.MenuSeparator(title="Text && Beschriftungen"),
+                bkt.ribbon.MenuSeparator(title="Text & Beschriftungen"),
                 bkt.mso.control.HeaderFooterInsert,
                 bkt.mso.control.DateAndTimeInsert,
                 bkt.mso.control.NumberInsert,

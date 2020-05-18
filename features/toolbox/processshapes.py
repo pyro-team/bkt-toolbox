@@ -5,14 +5,15 @@ Created on 08.07.2019
 @author: fstallmann
 '''
 
+from __future__ import absolute_import
+
+from contextlib import contextmanager #for flip and rotation correction
+
 import bkt
 
 import bkt.library.powerpoint as pplib
 pt_to_cm = pplib.pt_to_cm
 cm_to_pt = pplib.cm_to_pt
-
-import os.path
-
 
 
 class ProcessChevrons(object):
@@ -42,7 +43,7 @@ class ProcessChevrons(object):
 
     @classmethod
     def create_process(cls, slide, num_steps=3, first_pentagon=True, spacing=5):
-        ref_left,ref_top,ref_width,ref_height = pplib.slide_content_size(slide.parent)
+        ref_left,ref_top,ref_width,_ = pplib.slide_content_size(slide.parent)
 
         width=(ref_width+spacing)/num_steps-spacing
         height=50
@@ -54,7 +55,7 @@ class ProcessChevrons(object):
         else:
             slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeChevron'] , left, top, width, height)
         
-        for i in range(num_steps-1):
+        for _ in range(num_steps-1):
             left += width+spacing
             slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeChevron'] , left, top, width, height)
         
@@ -76,8 +77,6 @@ class ProcessChevrons(object):
 
     @classmethod
     def _add_chevron(cls, shape):
-        slide = shape.parent
-
         group = pplib.GroupManager(shape, additional_attrs=["width"])
         group.prepare_ungroup()
 
@@ -122,36 +121,55 @@ class ProcessChevrons(object):
         return group.shape
 
 
-class ProcessChevronsPopup(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'popups', 'process_shapes.xaml')
-    '''
-    class representing a popup-dialog for a linked shape
-    '''
-    
-    def __init__(self, context=None):
-        self.IsPopup = True
-        self._context = context
 
-        super(ProcessChevronsPopup, self).__init__()
+@contextmanager
+def flip_and_rotation_correction(body, header):
+    # NOTE: is this flipping correction useful for any other bkt function?
+    # following situations can happen:
+    #   group   | header    | flipping correction
+    #   --------|-----------|----------------------
+    #   0       | 0         | no correction
+    #   -1      | 0         | flip group
+    #   0       | -1        | flip group
+    #  -1       | -1        | no correction
+    #  (none)   | 0         | no correction
+    #  (none)   | -1        | flip header, align edge at the end
+    #
 
-    def btnplus(self, sender, event):
-        try:
-            ProcessChevrons.add_chevron(list(iter(self._context.selection.ShapeRange)))
-        except:
-            bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
-            # bkt.helpers.exception_as_message()
+    try:
+        flip_header = False
+        flip_body = False
+        stored_rotation = 0 #FIXME: works only for groups
 
-    def btnminus(self, sender, event):
-        try:
-            ProcessChevrons.remove_chevron(list(iter(self._context.selection.ShapeRange)))
-        except:
-            bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
-            # bkt.helpers.exception_as_message()
+        is_group_child = pplib.shape_is_group_child(header)
+        group_is_flipped = is_group_child and header.ParentGroup.HorizontalFlip
 
-#initialization function called by contextdialogs.py
-def create_window(context):
-    return ProcessChevronsPopup(context)
+        #set rotation to 0 for rotated groups
+        if is_group_child and header.ParentGroup.Rotation != 0:
+            stored_rotation = header.ParentGroup.Rotation
+            header.ParentGroup.Rotation = 0
 
+        #check if flip correction needs to be applied
+        if group_is_flipped != header.HorizontalFlip: #XOR
+            if is_group_child:
+                flip_body = True
+                header.ParentGroup.Flip(0) #msoFlipHorizontal
+            else:
+                flip_header = True
+                header.Flip(0) #msoFlipHorizontal
+
+        yield body, header #contextmanager requires a yield
+    finally:
+        #restore flip for groups
+        if flip_body:
+            header.ParentGroup.Flip(0) #msoFlipHorizontal
+        #restore flip and correct edge for header without group
+        elif flip_header:
+            header.Flip(0) #msoFlipHorizontal
+            header.left = body.left + body.width - header.width
+        #restore group rotation
+        if stored_rotation != 0:
+            header.ParentGroup.Rotation = stored_rotation
 
 
 class Pentagon(object):
@@ -258,29 +276,31 @@ class Pentagon(object):
         ''' updates the header of the given pentagon '''
         offset = pentagon.Adjustments.item[1] * min(pentagon.width, pentagon.height)
 
-        # header punkt links oben / links unten
-        header.left = pentagon.left
-        header.top = pentagon.top
-        # header punkt rechts oben
-        header.Nodes.SetPosition(2, pentagon.left + pentagon.width - offset, pentagon.top)
-        # header punkt rechts unten
-        header.Nodes.SetPosition(3, pentagon.left + pentagon.width - offset + ( header.height/(pentagon.height/2) * offset), pentagon.top + header.height)
+        with flip_and_rotation_correction(pentagon, header):
+            # header punkt links oben / links unten
+            header.left = pentagon.left
+            header.top = pentagon.top
+            # header punkt rechts oben
+            header.Nodes.SetPosition(2, pentagon.left + pentagon.width - offset, pentagon.top)
+            # header punkt rechts unten
+            header.Nodes.SetPosition(3, pentagon.left + pentagon.width - offset + ( header.height/(pentagon.height/2) * offset), pentagon.top + header.height)
 
     @classmethod
     def update_chevron_header(cls, chevron, header):
         ''' updates the header of the given pentagon '''
-        cls.update_pentagon_header(chevron, header)
         
-        # header punkt links unten
-        offset = chevron.Adjustments.item[1] * min(chevron.width, chevron.height)
-        header.Nodes.SetPosition(4, chevron.left + ( header.height/(chevron.height/2) * offset), chevron.top + header.height)
+        with flip_and_rotation_correction(chevron, header):
+            cls.update_pentagon_header(chevron, header)
+            # header punkt links unten
+            offset = chevron.Adjustments.item[1] * min(chevron.width, chevron.height)
+            header.Nodes.SetPosition(4, chevron.left + ( header.height/(chevron.height/2) * offset), chevron.top + header.height)
         
         
 
     @classmethod
     def is_headered_group(cls, shape):
         ''' returns true for group-shapes (header+body) '''
-        pentagon, header = cls.get_body_and_header_from_group(shape)
+        pentagon, _ = cls.get_body_and_header_from_group(shape)
         return pentagon != None
 
     @classmethod
@@ -303,7 +323,7 @@ class Pentagon(object):
             shapes = list(iter(context.slide.shapes))
         body = cls.find_corresponding_body_shape(shapes, header)
         if not body:
-            bkt.helpers.message("Fehler: Zugehöriges Prozess-Shape nicht gefunden!")
+            bkt.message.error("Fehler: Zugehöriges Prozess-Shape nicht gefunden!")
         else:
             cls.update_header(body, header)
         

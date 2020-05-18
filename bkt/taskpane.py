@@ -1,9 +1,19 @@
 # -*- coding: utf-8 -*-
+'''
+Taskpane controls
+
+Created on 11.11.2019
+@author: rdebeerst
+'''
+
+from __future__ import absolute_import
 
 import logging
-import bkt.ribbon
+
+import bkt.helpers as _h #for loading Resources
+
+from bkt.ribbon import TypedRibbonControl
 from bkt.xml import WpfXMLFactory, linq
-import os.path
 
 
 
@@ -11,7 +21,7 @@ import os.path
 # = General Control Classes =
 # ===========================
 
-class TaskPaneControl(bkt.ribbon.TypedRibbonControl):
+class TaskPaneControl(TypedRibbonControl):
     _xml_name = 'TaskPaneControl'
     _id_attribute_key = "Name"
     xml_namespace = 'http://schemas.microsoft.com/winfx/2006/xaml/presentation'
@@ -56,7 +66,7 @@ class TaskPaneControl(bkt.ribbon.TypedRibbonControl):
                 property_node = XamlPropertyElement(
                     xml_namespace = self.xml_namespace,
                     type_name=self.xml_name,
-                    property_name=convert_key_to_upper_camelcase(key)
+                    property_name=_h.snake_to_upper_camelcase(key)
                 ).wpf_xml()
                 property_node.Add(value.wpf_xml())
                 node.Add(property_node)
@@ -284,7 +294,7 @@ class BaseScrollViewer(TaskPaneControl):
         super(BaseScrollViewer, self).__init__(*args, **kwargs)
         
         # load scrollbar styling
-        xaml_filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "resources", "xml", "scrollbar_style.xaml")
+        xaml_filename=_h.Resources.xaml.locate("scrollbar_style")
         xml_string = ""
         for line in open(xaml_filename, "r"):
             xml_string += line + "\n"
@@ -334,7 +344,7 @@ class ExpanderWrapPanel(Wpf.Expander):
     Simplified definition of WrapPanel within Expander
     '''
     def __init__(self, *args, **userkwargs):
-        super(ExpanderStackPanel, self).__init__()
+        super(ExpanderWrapPanel, self).__init__()
         kwargs = dict(Orientation="Horizontal")
         kwargs.update(userkwargs)
         self.children = [
@@ -353,12 +363,12 @@ class Expander(Wpf.Expander):
         self.auto_wrap   = userkwargs.pop('auto_wrap', False)
         
         if self.auto_stack:
-            super(Expander, self).__init__(Header=userkwargs.pop('header', None), IsExpanded=userkwargs.pop('IsExpanded', False))
+            super(Expander, self).__init__(Header=userkwargs.pop('header', None), IsExpanded=userkwargs.pop('is_expanded', False))
             kwargs = dict(Orientation="Vertical")
             kwargs.update(userkwargs)
             self.children = [Wpf.StackPanel(*args, **kwargs)]
         elif self.auto_wrap:
-            super(Expander, self).__init__(Header=userkwargs.pop('header', None), IsExpanded=userkwargs.pop('IsExpanded', False))
+            super(Expander, self).__init__(Header=userkwargs.pop('header', None), IsExpanded=userkwargs.pop('is_expanded', False))
             kwargs = dict(Orientation="Horizontal")
             kwargs.update(userkwargs)
             self.children = [Wpf.WrapPanel(*args, **kwargs)]
@@ -445,9 +455,9 @@ class Button(FluentRibbon.Button):
 
 
 def convert_value_to_string(v):
-    if v == True:
+    if v is True:
         return 'true'
-    elif v == False:
+    elif v is False:
         return 'false'
     elif isinstance(v, (str, unicode)):
         return v
@@ -457,20 +467,19 @@ def convert_value_to_string(v):
         except:
             return str(v)
 
-def convert_key_to_upper_camelcase(key):
-    parts = key.split('_')
-    parts_new = []
-    for i, part in enumerate(parts):
-        if len(part) > 1:
-            p = part[0].upper() + part[1:]
-        else:
-            p = part.upper()
+# def convert_key_to_upper_camelcase(key):
+    # parts_new = []
+    # for i, part in enumerate(parts):
+    #     if len(part) > 1:
+    #         p = part[0].upper() + part[1:]
+    #     else:
+    #         p = part.upper()
             
-        parts_new.append(p)
-    return ''.join(parts_new)
+    #     parts_new.append(p)
+    # return ''.join(parts_new)
 
 def convert_dict_to_ribbon_xml_style(d):
-    return {convert_key_to_upper_camelcase(k):convert_value_to_string(v) for k, v in d.items() if v != None and not isinstance(v, XamlPropertyElement) and not isinstance(v, TaskPaneControl)}
+    return {_h.snake_to_upper_camelcase(k):convert_value_to_string(v) for k, v in d.items() if v != None and not isinstance(v, XamlPropertyElement) and not isinstance(v, TaskPaneControl)}
 
 
 

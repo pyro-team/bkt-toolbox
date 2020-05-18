@@ -24,7 +24,7 @@ namespace BKT
         internal System.Windows.Forms.Integration.ElementHost _host;
         
         TaskPaneControl usrctrl;
-		//private dynamic python_delegate;
+        //private dynamic python_delegate;
         
         public TaskPane()
         {
@@ -52,9 +52,9 @@ namespace BKT
         }
         
         
-		private void Message(string s) {
-			System.Windows.Forms.MessageBox.Show(s);
-		}
+        private void Message(string s) {
+            System.Windows.Forms.MessageBox.Show(s);
+        }
         
         private void DebugMessage(string message)
         {

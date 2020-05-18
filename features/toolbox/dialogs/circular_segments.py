@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import os.path
-import bkt.ui
-notify_property = bkt.ui.notify_property
+from __future__ import absolute_import
 
 import logging
+
+import bkt.ui
+notify_property = bkt.ui.notify_property
 
 import bkt.library.bezier as bezier
 import bkt.library.algorithms as algorithms
@@ -94,12 +95,12 @@ class SegmentedCircleViewModel(bkt.ui.ViewModelSingleton):
 
 
 class SegmentedCircleWindow(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'circular_segments.xaml')
+    _xamlname = 'circular_segments'
     _vm_class = SegmentedCircleViewModel
     
-    def __init__(self, slide):
+    def __init__(self, context, slide):
         self.ref_slide = slide
-        super(SegmentedCircleWindow, self).__init__()
+        super(SegmentedCircleWindow, self).__init__(context)
 
     def cancel(self, sender, event):
         self.Close()

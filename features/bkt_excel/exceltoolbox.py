@@ -4,26 +4,28 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
 import bkt
 import bkt.library.excel.helpers as xllib
 
 # reuse settings-menu from bkt-framework
 import modules.settings as settings
 
-import sheets
-import cells
-import selection
-import books
+from . import sheets
+from . import cells
+from . import selection
+from . import books
 
-version_short = 'v0.5b'
-version_long  = 'Excel Toolbox v0.5 beta'
+version_short = 'v0.6b'
+version_long  = 'Excel Toolbox v0.6 beta'
 
 
 info_gruppe = bkt.ribbon.Group(
     label="Settings",
     children=[
         settings.settings_menu,
-        bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.full_version),
+        bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.__release__, on_action=bkt.Callback(settings.BKTInfos.show_version_dialog)),
     ]
 )
 

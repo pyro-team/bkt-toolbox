@@ -5,27 +5,27 @@ Created on 13.11.2014
 @authors: cschmitt, rdebeerst
 '''
 
-import sys
-import traceback
+from __future__ import absolute_import
 
-import bkt
-# import bkt.helpers as _h
+import sys #for appending sys.paths
+import traceback #for error tracing
+import logging #for logging errors and debug messages
 
-_h = bkt.helpers
-# linq = bkt.dotnet.import_linq() #this import doesn't seem to be required...
-Bitmap = bkt.dotnet.import_drawing().Bitmap
-
-import time
-import logging
-import os.path
+import time #for throttling error messages and setting cache time
+import os.path #for getting module paths and log file path
 
 # import imp #for importing feature folder -> changed to importlib 2019-12-13
 import importlib #for importing traditional modules
-
 from collections import OrderedDict #for import cache
-import shelve #for import cache
 
-#from helpers import config
+
+import bkt
+import bkt.helpers as _h
+
+# linq = bkt.dotnet.import_linq() #this import doesn't seem to be required...
+Bitmap = bkt.dotnet.import_drawing().Bitmap
+
+
 
 
 # ======================
@@ -33,17 +33,15 @@ import shelve #for import cache
 # ======================
 
 #FIXME: gleiche Log-Datei wie im .Net-Addin verwenden. Verwendung von bkt-debug.log führt noch zu Fehlern (Verlust von log-Text), da die Logger nicht Zeilenweise schreiben. Alternativ logging über C#-Addin-Klasse durchführen
-if bkt.config.log_write_file == 'true' or (type(bkt.config.log_write_file) == bool and bkt.config.log_write_file):
-    log_level = logging.WARNING
-    try:
-        log_level = getattr(logging, bkt.config.log_level or 'WARNING')
-    except:
-        pass
-    
-    logfile = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "bkt-debug-py.log")
+if bkt.config.log_write_file:
+    log_level = getattr(logging, bkt.config.log_level or 'WARNING', logging.WARNING)
+
+    logfile = _h.bkt_base_path_join("bkt-debug-py.log")
+
     filehandler = logging.FileHandler(logfile, 'w', 'utf-8')
     filehandler.setLevel(log_level)
     filehandler.setFormatter(logging.Formatter(u'%(asctime)s %(levelname)s: %(message)s'))
+
     logger = logging.getLogger()
     logger.setLevel(log_level)
     logger.addHandler(filehandler)
@@ -139,7 +137,7 @@ def add_callbacks(cls):
         addin_callback.__name__ = callback.python_name
         return addin_callback
     
-    for name, callback in bkt.callbacks.CallbackTypes.callback_map().items():
+    for name, callback in bkt.callbacks.CallbackTypes.callback_map().iteritems():
         if callback.custom:
             continue
         setattr(cls, name, create_cb_method(callback))
@@ -163,7 +161,7 @@ class AddIn(object):
         logging.info('\n=================================\n===== New AddIn initialized =====\n=================================')
         
 
-        self.fallback_map = {bkt.callbacks.CallbackTypes.get_enabled: self.fallback_get_enabled}
+        self.fallback_map = {bkt.CallbackTypes.get_enabled: self.fallback_get_enabled}
         self.last_exception = None
         self.last_exception_time = 0
         self.app_callbacks = None
@@ -218,14 +216,14 @@ class AddIn(object):
         
         if my_control is None:
             logging.warning("could not process callback. no control for control %s, event type %s" % (control, callback_type))
-            if callback_type == bkt.callbacks.CallbackTypes.get_enabled:
+            if callback_type == bkt.CallbackTypes.get_enabled:
                 return True
             else:
                 return
         
         if callback is None:
             #Do not show hundreds of warnings due to get_enabled
-            if callback_type == bkt.callbacks.CallbackTypes.get_enabled:
+            if callback_type == bkt.CallbackTypes.get_enabled:
                 logging.debug("could not process callback. no callback of type %s for control %s. trying fallback" %  (callback_type, control))
             else:
                 logging.warning("could not process callback. no callback of type %s for control %s. trying fallback" %  (callback_type, control))
@@ -248,13 +246,15 @@ class AddIn(object):
             return_value= self.context.invoke_callback(callback, *args, **kwargs)
             logging.debug("return value={}".format(return_value))
             
-            if callback.callback_type == bkt.callbacks.CallbackTypes.get_content:
+            if callback.callback_type == bkt.CallbackTypes.get_content:
                 # get_content return ribbon-menu-object
                 # initialize callbacks and return xml
                 menu = return_value
                 if isinstance(menu, bkt.ribbon.Menu):
                     self.callback_manager.init_callbacks_from_control(menu)
                     return_value = menu.xml_string()
+                    #FIXME: workaround for ampersand in label, etc... But would be better to escape this properly also incl. < and >
+                    return_value = return_value.replace("&", "&amp;")
                 else:
                     logging.warning("Unexpected return-type in callback for get_content: got %s, expected %s" % (type(menu), bkt.ribbon.Menu))
                     return_value = str(menu)
@@ -304,11 +304,11 @@ class AddIn(object):
         # logging.debug("routed source details: type=%s" % type(eventargs.Source))
         # logging.debug("routed source details: get-type=%s" % eventargs.Source.GetType())
         # logging.warning("routed event details: owner-type==ButtonBase %s" % (eventargs.RoutedEvent.OwnerType == controls.Primitives.ButtonBase))
-        #_h.message("Hello World from Python!\nYou just clicked a task pane control!\n\nyou clicked: %s\nevent-type: %s" % (eventargs.Source, eventargs.RoutedEvent))
+        #bkt.message("Hello World from Python!\nYou just clicked a task pane control!\n\nyou clicked: %s\nevent-type: %s" % (eventargs.Source, eventargs.RoutedEvent))
         
         try:        
             # 1) handle general wpf-event
-            self._callback(bkt.callbacks.CallbackTypes.wpf_event, eventargs.Source)
+            self._callback(bkt.CallbackTypes.wpf_event, eventargs.Source)
             # TODO: check whether event was handled
             
             # 2) reroute by EventType
@@ -320,53 +320,53 @@ class AddIn(object):
                 if str(eventargs.Source.GetType()) in ['Fluent.TextBox', 'Fluent.Spinner']:
                     ### TEXTBOX LOST FOCUS EVENT
                     logging.debug("map RoutedEvent to CallbackType.on_change: text=%s" % eventargs.Source.Text)
-                    self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
+                    self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
                     
                 elif str(eventargs.Source.GetType()) in ['Fluent.ComboBox']:
                     if not eventargs.Source.IsReadOnly:
                         ### EDITABLE COMBOBOX LOST FOCUS EVENT
                         logging.debug("map RoutedEvent to CallbackType.on_change: text=%s" % eventargs.Source.Text)
-                        self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
+                        self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
                     
             elif str(eventargs.RoutedEvent.Name)=='KeyDown':
                 if str(eventargs.Source.GetType()) in ['Fluent.TextBox', 'Fluent.Spinner']:
                     ### TEXTBOX ENTER FIRED
                     logging.debug("map RoutedEvent to CallbackType.on_change: text=%s" % eventargs.Source.Text)
-                    self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
+                    self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
                     
                 elif str(eventargs.Source.GetType()) in ['Fluent.ComboBox']:
                     if not eventargs.Source.IsReadOnly:
                         ### EDITABLE COMBOBOX ENTER FIRED
                         logging.debug("map RoutedEvent to CallbackType.on_change: text=%s" % eventargs.Source.Text)
-                        self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
+                        self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Text)
             
             elif str(eventargs.RoutedEvent.Name)=='Click':
                 if str(eventargs.Source.GetType()) in ['Fluent.MenuItem']:
                     if eventargs.Source.IsCheckable == True:
                         ### MENU ITEM TOGGLE EVENT
                         logging.debug("map RoutedEvent to CallbackType.on_toggle_action: pressed/checked=%s" % eventargs.Source.IsChecked)
-                        self._callback(bkt.callbacks.CallbackTypes.on_toggle_action, eventargs.Source, eventargs.Source.IsChecked)
+                        self._callback(bkt.CallbackTypes.on_toggle_action, eventargs.Source, eventargs.Source.IsChecked)
                         
                     else:
                         ### MENU ITEM CLICK EVENT
                         logging.debug("map RoutedEvent to CallbackType.on_action")
-                        self._callback(bkt.callbacks.CallbackTypes.on_action, eventargs.Source)
+                        self._callback(bkt.CallbackTypes.on_action, eventargs.Source)
                         
                 elif str(eventargs.Source.GetType()) in ['Fluent.Spinner']:
                     ### SPINNER BUTTON CLICK
                     logging.debug("map RoutedEvent to CallbackType.on_change")
-                    self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Value)
-                    #self._callback(bkt.callbacks.CallbackTypes.on_action, eventargs.Source, eventargs.Source.Value)
+                    self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.Value)
+                    #self._callback(bkt.CallbackTypes.on_action, eventargs.Source, eventargs.Source.Value)
                     
                 elif str(eventargs.Source.GetType()) in ['System.Windows.Controls.Primitives.ToggleButton', 'Fluent.ToggleButton', 'Fluent.CheckBox', 'Fluent.RadioButton']:
                     ### TOGGLE EVENT
                     logging.debug("map RoutedEvent to CallbackType.on_toggle_action: pressed/checked=%s" % eventargs.Source.IsChecked)
-                    self._callback(bkt.callbacks.CallbackTypes.on_toggle_action, eventargs.Source, eventargs.Source.IsChecked)
+                    self._callback(bkt.CallbackTypes.on_toggle_action, eventargs.Source, eventargs.Source.IsChecked)
                     
                 else:
                     ### OTHER CLICK EVENT
                     logging.debug("map RoutedEvent to CallbackType.on_action")
-                    self._callback(bkt.callbacks.CallbackTypes.on_action, eventargs.Source)
+                    self._callback(bkt.CallbackTypes.on_action, eventargs.Source)
             
             # FIXME
             # elif str(eventargs.RoutedEvent.Name)=='ValueChanged':
@@ -378,27 +378,27 @@ class AddIn(object):
                     ### GALLERY SELECTION CHANGE EVENT
                     # assume eventargs.Source.SelectedValue is TextBlock
                     logging.debug("map RoutedEvent to on_change: value=%s" % eventargs.Source.SelectedValue.Text)
-                    self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.SelectedValue.Text)
+                    self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.SelectedValue.Text)
                 
                 elif str(eventargs.Source.GetType()) in ['Fluent.ComboBox']:
                     ### COMBOBOX ACTION INDEXD EVENT / SELECTION CHANGE EVENT
                     logging.debug("map RoutedEvent to on_action_indexed: index=%s" % eventargs.Source.SelectedIndex)
-                    self._callback(bkt.callbacks.CallbackTypes.on_action_indexed, eventargs.Source, eventargs.Source.SelectedIndex, eventargs.Source.SelectedIndex)
+                    self._callback(bkt.CallbackTypes.on_action_indexed, eventargs.Source, eventargs.Source.SelectedIndex, eventargs.Source.SelectedIndex)
                     
                     logging.debug("map RoutedEvent to on_change: value=%s" % str(eventargs.Source.SelectedValue))
-                    self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, str(eventargs.Source.SelectedValue.Content))
+                    self._callback(bkt.CallbackTypes.on_change, eventargs.Source, str(eventargs.Source.SelectedValue.Content))
             
             
             elif str(eventargs.RoutedEvent.Name)=='SelectedDateChanged':
                 ### DATE PICKER CHANGE EVENT
                 logging.debug("map RoutedEvent to CallbackType.on_change: value=%s" % eventargs.Source.SelectedDate)
-                self._callback(bkt.callbacks.CallbackTypes.on_change, eventargs.Source, eventargs.Source.SelectedDate)
+                self._callback(bkt.CallbackTypes.on_change, eventargs.Source, eventargs.Source.SelectedDate)
             
             
             elif str(eventargs.RoutedEvent.Name)=='SelectedColorChanged':
                 ### SELECTED COLOR CHANGE EVENT
                 logging.debug("map RoutedEvent to on_rgb_color_change: value=%s" % eventargs.Source.SelectedColor)
-                self._callback(bkt.callbacks.CallbackTypes.on_rgb_color_change, eventargs.Source, color=eventargs.Source.SelectedColor)
+                self._callback(bkt.CallbackTypes.on_rgb_color_change, eventargs.Source, color=eventargs.Source.SelectedColor)
                 logging.debug("done")
                 
             else:
@@ -431,7 +431,7 @@ class AddIn(object):
             logging.debug('value changed, old-value=%s, new-value=%s' % (eventargs.OldValue, eventargs.NewValue) )
             
             logging.debug("map RoutedEvent to CallbackType.on_change")
-            self._callback(bkt.callbacks.CallbackTypes.on_change, sender, eventargs.NewValue, old_value=eventargs.OldValue, new_value=eventargs.NewValue)
+            self._callback(bkt.CallbackTypes.on_change, sender, eventargs.NewValue, old_value=eventargs.OldValue, new_value=eventargs.NewValue)
         
             logging.debug("----------")
         
@@ -456,43 +456,49 @@ class AddIn(object):
     def mouse_down(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
         if self.app_ui:
-            if hasattr(self.app_ui, 'context_dialogs'):
+            if getattr(self.app_ui, "use_contextdialogs", False):
                 self.app_ui.context_dialogs.mouse_down(sender, e)
         
     def mouse_up(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
         if self.app_ui:
-            if hasattr(self.app_ui, 'context_dialogs'):
+            if getattr(self.app_ui, "use_contextdialogs", False):
                 self.app_ui.context_dialogs.mouse_up(sender, e)
 
     # def mouse_move(self, sender, e):
     #     ''' object sender, MouseEventExtArgs e) '''
     #     if self.app_ui:
-    #         if hasattr(self.app_ui, 'context_dialogs'):
+    #         if getattr(self.app_ui, "use_contextdialogs", False):
     #             self.app_ui.context_dialogs.mouse_move(sender, e)
+
+    def mouse_double_click(self, sender, e):
+        ''' object sender, MouseEventArgs e) '''
+        if self.app_ui:
+            if getattr(self.app_ui, "use_contextdialogs", False):
+                self.app_ui.context_dialogs.mouse_double_click(sender, e)
 
     def mouse_drag_start(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
         if self.app_ui:
-            if hasattr(self.app_ui, 'context_dialogs'):
+            if getattr(self.app_ui, "use_contextdialogs", False):
                 self.app_ui.context_dialogs.mouse_drag_start(sender, e)
 
     def mouse_drag_end(self, sender, e):
         ''' object sender, MouseEventExtArgs e) '''
         if self.app_ui:
-            if hasattr(self.app_ui, 'context_dialogs'):
+            if getattr(self.app_ui, "use_contextdialogs", False):
                 self.app_ui.context_dialogs.mouse_drag_end(sender, e)
         
     def key_down(self, sender, e):
         ''' object sender, KeyEventArgs e) '''
         if self.app_ui:
-            if hasattr(self.app_ui, 'context_dialogs'):
+            if getattr(self.app_ui, "use_contextdialogs", False):
                 self.app_ui.context_dialogs.key_down(sender, e)
     
     def key_up(self, sender, e):
         ''' object sender, KeyEventArgs e) '''
         if self.app_ui:
-            if hasattr(self.app_ui, 'context_dialogs'):
+            if getattr(self.app_ui, "use_contextdialogs", False):
                 self.app_ui.context_dialogs.key_up(sender, e)
     
     
@@ -527,6 +533,7 @@ class AddIn(object):
     def on_destroy(self):
         self.app_callbacks.fire_event(self.events.bkt_unload)
         _h.settings.close() #save settings to database
+        _h.caches.close() #save caches to disk
         self.reset()
     
     def on_create(self, dotnet_context):
@@ -555,15 +562,16 @@ class AddIn(object):
                     importlib.import_module(module)
                     # __import__(module)
                 except:
-                    logging.error('failed to load %s' % module)
-                    _h.message('failed to load %s' % module)
-                    _h.message(traceback.format_exc())
-                    #_h.exception_as_message('failed to load %s' % module)
+                    logging.critical('failed to load %s' % module)
+                    logging.debug(traceback.format_exc())
+                    bkt.message.error('failed to load %s' % module)
+                    if bkt.config.show_exception:
+                        _h.exception_as_message('failed to load %s' % module)
         
 
         CACHE_VERSION = "20191213"
-        cache_file = os.path.join( _h.get_cache_folder(), "%s.import.cache" % self.context.app_name )
-        import_cache = shelve.open(cache_file, protocol=2)
+        cache_name = "%s.import" % self.context.host_app_name
+        import_cache = _h.caches.get(cache_name)
 
         # STRUCTURE OF IMPORT CACHE #
         #############################
@@ -584,9 +592,9 @@ class AddIn(object):
 
             logging.info('start import from cache')
             sys.path.extend(import_cache['sys.path'])
-            bkt.apps.Resources.root_folders.extend(import_cache['resources.path'])
+            _h.Resources.root_folders.extend(import_cache['resources.path'])
 
-            for module_name, feature in import_cache['inits.features'].items():
+            for module_name, feature in import_cache['inits.features'].iteritems():
                 # feature = import_cache['feature.'+module_name]
                 logging.info('importing bkt feature: %s' % feature['name'])
                 try:
@@ -602,11 +610,11 @@ class AddIn(object):
                         module.BktFeature.contructor()
                     
                 except:
-                    logging.error('failed to load feature %s from cache' % module_name)
-                    logging.error(traceback.format_exc())
-                    _h.message('failed to load feature %s from cache' % module_name)
+                    logging.critical('failed to load feature %s from cache' % module_name)
+                    logging.debug(traceback.format_exc())
+                    bkt.message.error('failed to load feature %s from cache' % module_name)
                     if bkt.config.show_exception:
-                        _h.exception_as_message()
+                        _h.exception_as_message('failed to load feature %s from cache' % module_name)
                     #TODO: remove cache on error?
 
             for module_name, folder in import_cache['inits.legacy']:
@@ -615,11 +623,11 @@ class AddIn(object):
                     # imp.load_source(module_name, os.path.join(folder, "__init__.py"))
                     importlib.import_module(module_name)
                 except:
-                    logging.error('failed to load legacy feature %s from cache' % module_name)
-                    logging.error(traceback.format_exc())
-                    _h.message('failed to load legacy feature %s from cache' % module_name)
+                    logging.critical('failed to load legacy feature %s from cache' % module_name)
+                    logging.debug(traceback.format_exc())
+                    bkt.message.error('failed to load legacy feature %s from cache' % module_name)
                     if bkt.config.show_exception:
-                        _h.exception_as_message()
+                        _h.exception_as_message('failed to load legacy feature %s from cache' % module_name)
                     #TODO: remove cache on error?
         
         # load and renew cache:
@@ -646,7 +654,7 @@ class AddIn(object):
                 # initialize resource-folders from feature-folders
                 res_path = os.path.join(folder,'resources')
                 if os.path.exists(res_path):
-                    bkt.apps.Resources.root_folders.append(res_path)
+                    _h.Resources.root_folders.append(res_path)
                     _c_resources_paths.add(res_path)
 
                 # load using bkt_init.py file
@@ -664,9 +672,18 @@ class AddIn(object):
                         
                         try:
                             #only load if relevant for active app
-                            if self.context.app_name not in module.BktFeature.relevant_apps:
+                            if self.context.host_app_name not in module.BktFeature.relevant_apps:
                                 logging.info("bkt feature %s not relevant for current app" % module.BktFeature.name)
                                 continue
+                        except AttributeError:
+                            #legacy bkt_init, load for all apps, always
+                            logging.warning("bkt feature %s not using new loading mechanism" % module_name)
+                            _c_bkt_inits[module_name] = {
+                                'name': module_name,
+                                'folder': folder,
+                                'use_constructor': False
+                            }
+                        else:
                             #only load if dependencies are loaded
                             dependencies = getattr(module.BktFeature, "dependencies", [])
                             if not all(d in _c_bkt_inits for d in dependencies):
@@ -689,20 +706,12 @@ class AddIn(object):
                             }
                             #add conflicting modules
                             _known_conflicts.extend(conflicts)
-                        except AttributeError:
-                            #legacy bkt_init, load for all apps, always
-                            logging.warning("bkt feature %s not using new loading mechanism" % module_name)
-                            _c_bkt_inits[module_name] = {
-                                'name': module_name,
-                                'folder': folder,
-                                'use_constructor': False
-                            }
                     except:
-                        logging.error('failed to load feature-folder %s' % folder)
-                        logging.error(traceback.format_exc())
-                        _h.message('failed to load feature-folder %s' % folder)
+                        logging.critical('failed to load feature-folder %s' % folder)
+                        logging.debug(traceback.format_exc())
+                        bkt.message.error('failed to load feature-folder %s' % folder)
                         if bkt.config.show_exception:
-                            _h.exception_as_message()
+                            _h.exception_as_message('failed to load feature-folder %s' % folder)
                         #TODO: Offer user to remove feature folder from config on error
 
                 # backwards compatibility: load module from init.py
@@ -717,15 +726,20 @@ class AddIn(object):
                         _c_sys_paths.add(base_folder)
                         _c_legacy_inits.append((module_name, folder))
                     except:
-                        logging.error('failed to load legacy feature-folder %s' % folder)
-                        logging.error(traceback.format_exc())
-                        _h.message('failed to load legacy feature-folder %s' % folder)
+                        logging.critical('failed to load legacy feature-folder %s' % folder)
+                        logging.debug(traceback.format_exc())
+                        bkt.message.error('failed to load legacy feature-folder %s' % folder)
                         if bkt.config.show_exception:
-                            _h.exception_as_message()
+                            _h.exception_as_message('failed to load legacy feature-folder %s' % folder)
                         #TODO: Offer user to remove feature folder from config on error
+                
+                # feature folder without python init file
+                else:
+                    logging.warning('feature-folder %s has no init files' % folder)
+
             
             #save to cache
-            import_cache['cache.app']       = self.context.app_name
+            import_cache['cache.app']       = self.context.host_app_name
             import_cache['cache.time']      = time.time()
             import_cache['cache.version']   = CACHE_VERSION
             import_cache['cache.hash']      = hash(str(bkt.config.feature_folders))
@@ -734,7 +748,7 @@ class AddIn(object):
             import_cache['inits.features']  = _c_bkt_inits
             import_cache['inits.legacy']    = _c_legacy_inits
         finally:
-            import_cache.close()
+            _h.caches.close(cache_name)
 
 
         
@@ -758,7 +772,7 @@ class AddIn(object):
         except:
             logging.critical("initialize app-classes failed")
             logging.debug(traceback.format_exc())
-            _h.message("initialize app-classes failed")
+            bkt.message.error("initialize app-classes failed")
         
         
             
@@ -770,11 +784,11 @@ class AddIn(object):
         except:
             logging.critical("binding of callbacks to application events failed")
             logging.debug(traceback.format_exc())
-            _h.message("binding of callbacks to application events failed")
+            bkt.message.error("binding of callbacks to application events failed")
         
         
         logging.debug('on_create done ')
-        #_h.message('on_create done')
+        #bkt.message('on_create done')
     
     
     
@@ -784,7 +798,7 @@ class AddIn(object):
         self.app_callbacks.fire_event(self.events.bkt_load)
     
     def load_image(self, image_name):
-        path = bkt.apps.Resources.images.locate(image_name)  #@UndefinedVariable
+        path = _h.Resources.images.locate(image_name)  #@UndefinedVariable
         if path is None:
             return
         return Bitmap.FromFile(path)
@@ -806,7 +820,7 @@ class AddIn(object):
             except:
                 logging.critical("initialization of ui-callbacks failed")
                 logging.debug(traceback.format_exc())
-                _h.message("initialization of ui-callbacks failed")
+                bkt.message.error("initialization of ui-callbacks failed")
             
             
             ### retrieve ribbon ui
@@ -817,7 +831,7 @@ class AddIn(object):
             #traceback.print_exc()
             logging.critical('get_custom_ui failed!')
             logging.debug(traceback.format_exc())
-            _h.message(traceback.format_exc())
+            bkt.message.error(traceback.format_exc())
             #_h.exception_as_message()
     
     
@@ -831,12 +845,8 @@ class AddIn(object):
                 logging.debug(self.app_ui.get_taskpane_ui())
                 return self.app_ui.get_taskpane_ui()
         except:
-            #traceback.print_exc()
             logging.critical('get_custom_taskpane_ui failed!')
-            _h.message(traceback.format_exc())
+            logging.debug(traceback.format_exc())
+            bkt.message.error(traceback.format_exc())
             #_h.exception_as_message()
-
-        
-
-
 

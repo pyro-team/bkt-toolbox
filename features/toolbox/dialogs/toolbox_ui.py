@@ -4,11 +4,13 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
-import System
+from __future__ import absolute_import
 
 import sys
 import os.path
 import logging
+
+import System
 
 import bkt
 import bkt.ui
@@ -23,7 +25,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         s_dict = {'0': False, '1': False, '2': False}
         h_dict = {'0': "", '1': "", '2': ""}
         
-        self._resource_path = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "resources", "toolboxui"))
+        self._resource_path = bkt.helpers.file_base_path_join(__file__, "..", "resources", "toolboxui")
 
         for key in toolboxui.get_all_keys():
             bool_dict = s_dict.copy()
@@ -45,16 +47,14 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
 
 
 class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'toolbox_ui.xaml')
+    _xamlname = 'toolbox_ui'
     # _vm_class = ViewModel
 
     def __init__(self, model, context):
-        self._context = context
-
         self._model = model
         self._vm = ViewModel(model)
 
-        super(ToolboxUiWindow, self).__init__()
+        super(ToolboxUiWindow, self).__init__(context)
 
     def cancel(self, sender, event):
         self.Close()
@@ -72,8 +72,8 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
         self._model.reset_to_defaults()
 
         self.Close()
-        if bkt.helpers.confirmation("Soll die BKT nun neu geladen werden?"):
-            sys.modules["modules"].settings.BKTReload.reload_bkt(self._context)
+        if bkt.message.confirmation("Soll die BKT nun neu geladen werden?"):
+            self._reload_bkt()
 
     def save_settings(self, sender, event):
         self._model.set_setting("size_group", self._value2key(self._vm.size_group))
@@ -94,7 +94,12 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
         self._model.set_setting("split_group", self._value2key(self._vm.split_group))
         self._model.set_setting("language_group", self._value2key(self._vm.language_group))
         self._model.set_setting("stateshape_group", self._value2key(self._vm.stateshape_group))
+        self._model.set_setting("iconsearch_group", self._value2key(self._vm.iconsearch_group))
 
         self.Close()
-        if bkt.helpers.confirmation("Soll die BKT nun neu geladen werden?"):
-            sys.modules["modules"].settings.BKTReload.reload_bkt(self._context)
+        if bkt.message.confirmation("Soll die BKT nun neu geladen werden?"):
+            self._reload_bkt()
+    
+    def _reload_bkt(self):
+        from modules.settings import BKTReload
+        BKTReload.reload_bkt(self._context)

@@ -1,0 +1,1 @@
+*Note:* This is a test feature folder to test the load behavior of the legacy loading mechanism without `__bkt_init__.py`

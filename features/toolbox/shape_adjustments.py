@@ -5,11 +5,14 @@ Created on 06.02.2018
 @author: rdebeerst
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
-from bkt.library.powerpoint import pt_to_cm, cm_to_pt
+from __future__ import absolute_import
 
 import logging
+
+import bkt
+import bkt.library.powerpoint as pplib
+pt_to_cm = pplib.pt_to_cm
+cm_to_pt = pplib.cm_to_pt
 
 class ShapeAdjustments(object):
     adjustment_nums_all = [(1,2), (3,4), (5,6), (7,8)]
@@ -176,7 +179,7 @@ class ShapeAdjustments(object):
         if cls.get_shape_type(shape) in cls.allowed_shape_types and shape.adjustments.count >= num:
             # if cls.get_shape_autotype(shape) in cls.auto_shape_type_settings.keys():
             try:
-                ref, minimum, maximum = cls.get_ref_min_max(shape, num)
+                ref, _, _ = cls.get_ref_min_max(shape, num)
                 return round(pt_to_cm( shape.adjustments.item[num] * ref ), 2)
             # else:
             except (KeyError, IndexError): #KeyError = shape type is not in database, IndexError = adjustment number is not in database
@@ -283,6 +286,7 @@ adjustments_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     label="<", #"#«",
                     screentip="Vorherige Anfasser-Werte anzeigen",
+                    supertip="Springe zu vorheriger Seite für die Anfasser-Werte.",
                     on_action=bkt.Callback(ShapeAdjustments.adjustment_nums_prev, context=True),
                 ),
                 bkt.ribbon.Menu(
@@ -294,25 +298,25 @@ adjustments_group = bkt.ribbon.Group(
                         bkt.ribbon.MenuSeparator(title="Rundungen/Spitzen/Ecken"),
                         bkt.ribbon.ToggleButton(
                             label="Werte 1 und 2",
-                            screentip="Anfasser-Werte Nr. 1 und 2 in Spinner-Boxen anpassen",
+                            supertip="Anfasser-Werte Nr. 1 und 2 in Spinner-Boxen anpassen",
                             on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((1,2), context), context=True),
                             get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (1,2)),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="Werte 3 und 4",
-                            screentip="Anfasser-Werte Nr. 3 und 4 in Spinner-Boxen anpassen",
+                            supertip="Anfasser-Werte Nr. 3 und 4 in Spinner-Boxen anpassen",
                             on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((3,4), context), context=True),
                             get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (3,4)),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="Werte 5 und 6",
-                            screentip="Anfasser-Werte Nr. 5 und 6 in Spinner-Boxen anpassen",
+                            supertip="Anfasser-Werte Nr. 5 und 6 in Spinner-Boxen anpassen",
                             on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((5,6), context), context=True),
                             get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (5,6)),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="Werte 7 und 8",
-                            screentip="Anfasser-Werte Nr. 7 und 8 in Spinner-Boxen anpassen",
+                            supertip="Anfasser-Werte Nr. 7 und 8 in Spinner-Boxen anpassen",
                             on_toggle_action=bkt.Callback(lambda pressed, context: ShapeAdjustments.set_adjustment_nums((7,8), context), context=True),
                             get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (7,8)),
                         ),
@@ -336,6 +340,7 @@ adjustments_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     label=">", #"»",
                     screentip="Nächste Anfasser-Werte anzeigen",
+                    supertip="Springe zu nächsten Seite für die Anfasser-Werte.",
                     on_action=bkt.Callback(ShapeAdjustments.adjustment_nums_next, context=True),
                 ),
             ]

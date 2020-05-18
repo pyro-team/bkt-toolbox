@@ -183,7 +183,7 @@ button = bkt.ribbon.Button(label=u'my first button', image_mso='ShapeHeight')
 # these parameter names:
 
 def on_change_function(value):
-    bkt.helpers.message('edit-box changed: new text=%s' % value)
+    bkt.message('edit-box changed: new text=%s' % value)
 
 textbox = bkt.ribbon.EditBox(
     label=u'my first editbox',

@@ -125,6 +125,27 @@
   -->
   <ItemGroup>
     <!-- C#, .Net Core & co -->
+    <Reference Include="IronPython, Version=2.7.10.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.10\lib\net45\IronPython.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.Modules, Version=2.7.10.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.10\lib\net45\IronPython.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.SQLite, Version=2.7.10.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.10\lib\net45\IronPython.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.Wpf, Version=2.7.10.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\IronPython.2.7.10\lib\net45\IronPython.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Dynamic, Version=1.2.3.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicLanguageRuntime.1.2.3\lib\net45\Microsoft.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting, Version=1.2.3.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicLanguageRuntime.1.2.3\lib\net45\Microsoft.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Metadata, Version=1.2.3.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicLanguageRuntime.1.2.3\lib\net45\Microsoft.Scripting.Metadata.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -166,29 +187,8 @@
     <Reference Include="Fluent, Version=6.1.0.326, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Fluent.Ribbon.6.1.0.326\lib\net45\Fluent.dll</HintPath>
     </Reference>
-    <Reference Include="IronPython, Version=2.7.9.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\IronPython.2.7.9\lib\net45\IronPython.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython.Modules, Version=2.7.9.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\IronPython.2.7.9\lib\net45\IronPython.Modules.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython.SQLite, Version=2.7.9.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\IronPython.2.7.9\lib\net45\IronPython.SQLite.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython.Wpf, Version=2.7.9.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\IronPython.2.7.9\lib\net45\IronPython.Wpf.dll</HintPath>
-    </Reference>
     <Reference Include="MahApps.Metro, Version=1.6.5.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.1.6.5\lib\net46\MahApps.Metro.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Dynamic, Version=1.2.2.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicLanguageRuntime.1.2.2\lib\net45\Microsoft.Dynamic.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting, Version=1.2.2.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicLanguageRuntime.1.2.2\lib\net45\Microsoft.Scripting.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting.Metadata, Version=1.2.2.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicLanguageRuntime.1.2.2\lib\net45\Microsoft.Scripting.Metadata.dll</HintPath>
     </Reference>
   </ItemGroup>
   <!--
@@ -214,7 +214,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="BKT\TaskPaneControl.xaml.cs">
-      <DependentUpon>BKT\TaskPaneControl.xaml</DependentUpon>
+      <DependentUpon>TaskPaneControl.xaml</DependentUpon>
     </Compile>
     <None Include="packages.config" />
     <AppDesigner Include="Properties\" />
@@ -224,6 +224,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <EmbeddedResource Include="Properties\xml_schemata.resx" />
   </ItemGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

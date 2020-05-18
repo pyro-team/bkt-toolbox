@@ -5,18 +5,20 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
+import math
+from heapq import nsmallest, nlargest
+
 import bkt
 
 import bkt.library.algorithms as algos
 import bkt.library.powerpoint as pplib
-from bkt.library.powerpoint import pt_to_cm, cm_to_pt
+pt_to_cm = pplib.pt_to_cm
+cm_to_pt = pplib.cm_to_pt
 
-import math
-import os.path
-from heapq import nsmallest, nlargest
-
-from linkshapes import LinkedShapes
-from shapes import PositionSize
+from .linkshapes import LinkedShapes
+from .shapes import PositionSize
 
 class Swap(object):
     locpin = pplib.LocPin(settings_key="toolbox.swap_locpin")
@@ -39,7 +41,7 @@ class Swap(object):
     
     @classmethod
     def multi_swap(cls, shapes):
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
+        if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             # change position *and size*
             return Swap.multi_swap_pos_size(shapes)
 
@@ -114,7 +116,8 @@ class Swap(object):
         new, ref = shapes
         new.rotation = ref.rotation
         new.width    = ref.width
-        new.height   = ref.height
+        if new.LockAspectRatio == 0 or new.height > ref.height:
+            new.height   = ref.height
         new.top      = ref.top
         new.left     = ref.left
         pplib.set_shape_zorder(new, value=ref.ZOrderPosition)
@@ -135,7 +138,7 @@ swap_button = bkt.ribbon.SplitButton(
             on_action=bkt.Callback(Swap.multi_swap, shapes=True, shapes_min=2),
             # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
         ),
-        bkt.ribbon.Menu(label="Tauschen", children=[
+        bkt.ribbon.Menu(label="Tauschen Menü", supertip="Funktionen zum Tauschen von Shape-Position, -Größe oder Formatierung", children=[
             bkt.ribbon.MenuSeparator(title="Gewählte Shapes tauschen"),
             bkt.ribbon.Button(
                 id = 'swap2',
@@ -209,7 +212,7 @@ swap_button = bkt.ribbon.SplitButton(
                 image='replace_keep_size',
                 supertip="Zuletzt gewähltes Shape mit zuerst gewähltem Shape ersetzen und dabei die Größe vom Original-Shape erhalten.",
                 on_action=bkt.Callback(Swap.replace_keep_size, shapes=True, shapes_min=2, shapes_max=2),
-                get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                get_enabled = bkt.get_enabled_auto,
             ),
         ])
     ]
@@ -221,9 +224,9 @@ swap_button = bkt.ribbon.SplitButton(
 class EqualSize(object):
     @classmethod
     def _get_func(cls):
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
+        if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             return min
-        elif bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+        elif bkt.get_key_state(bkt.KeyCodes.CTRL):
             if ArrangeAdvanced.master == "FIRST":
                 return lambda l: l.pop(0)
             else:
@@ -302,7 +305,7 @@ equal_height_button = bkt.ribbon.SplitButton(
             on_action=bkt.Callback(EqualSize.equal_height, shapes=True, shapes_min=2),
             # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
         ),
-        bkt.ribbon.Menu(label="Höhe angleichen", children=[
+        bkt.ribbon.Menu(label="Gleiche Höhe Menü", supertip="Mehrere Shapes auf verschiedene Weise auf die gleiche Höhe setzen", children=[
             bkt.ribbon.MenuSeparator(title="Ausrichten an Shape-Auswahl"),
             bkt.ribbon.Button(
                 id = 'equal_height2',
@@ -366,7 +369,7 @@ equal_width_button = bkt.ribbon.SplitButton(
             on_action=bkt.Callback(EqualSize.equal_width, shapes=True, shapes_min=2),
             # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
         ),
-        bkt.ribbon.Menu(label="Breite angleichen", children=[
+        bkt.ribbon.Menu(label="Gleiche Breite Menü", supertip="Mehrere Shapes auf verschiedene Weise auf die gleiche Breite setzen", children=[
             bkt.ribbon.MenuSeparator(title="Ausrichten an Shape-Auswahl"),
             bkt.ribbon.Button(
                 id = 'equal_width2',
@@ -480,7 +483,7 @@ class ShapeDistance(object):
     
     @classmethod
     def get_vertical_fix(cls):
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.ALT):
+        if bkt.get_key_state(bkt.KeyCodes.ALT):
             if cls.vertical_fix == "bottom":
                 return "top"
             else:
@@ -563,7 +566,7 @@ class ShapeDistance(object):
 
     @classmethod
     def get_horizontal_fix(cls):
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.ALT):
+        if bkt.get_key_state(bkt.KeyCodes.ALT):
             if cls.horizontal_fix == "right":
                 return "left"
             else:
@@ -647,18 +650,18 @@ class ShapeDistance(object):
 
     @classmethod
     def set_shape_sep_vertical_zero(cls, shapes):
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
+        if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             cls.set_shape_sep_vertical(shapes, cm_to_pt(cls.default_sep))
-        elif bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+        elif bkt.get_key_state(bkt.KeyCodes.CTRL):
             cls.set_shape_sep_vertical(shapes, cls.get_shape_sep_vertical(shapes))
         else:
             cls.set_shape_sep_vertical(shapes, 0)
 
     @classmethod
     def set_shape_sep_horizontal_zero(cls, shapes):
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
+        if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             cls.set_shape_sep_horizontal(shapes, cm_to_pt(cls.default_sep))
-        elif bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+        elif bkt.get_key_state(bkt.KeyCodes.CTRL):
             cls.set_shape_sep_horizontal(shapes, cls.get_shape_sep_horizontal(shapes))
         else:
             cls.set_shape_sep_horizontal(shapes, 0)
@@ -672,7 +675,7 @@ class ShapeDistance(object):
 
     @classmethod
     def is_mode_delta(cls):
-        alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+        alt = bkt.get_key_state(bkt.KeyCodes.ALT)
         return alt or cls.euclid_multi_shape_mode == "delta"
 
     @classmethod
@@ -719,7 +722,7 @@ class ShapeDistance(object):
         shapes = pplib.wrap_shapes(shapes[cls.shape1_index+1:], cls.shape2_locpin)
         # shape2_x, shape2_y = shapes[0].left, shapes[0].top
 
-        # alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+        # alt = bkt.get_key_state(bkt.KeyCodes.ALT)
 
         # if cls.is_mode_centric() or cls.is_mode_distribute():
         if not cls.is_mode_delta():
@@ -786,7 +789,7 @@ class ShapeDistance(object):
         shapes = pplib.wrap_shapes(shapes[cls.shape1_index+1:], cls.shape2_locpin)
         # shape_rotation = (360-value) % 360
 
-        # alt = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+        # alt = bkt.get_key_state(bkt.KeyCodes.ALT)
 
         # if cls.is_mode_centric() or cls.is_mode_distribute():
         if not cls.is_mode_delta():
@@ -796,7 +799,7 @@ class ShapeDistance(object):
                 else: #is_mode_distribute
                     delta_angle = -(_get_current_angle(shape1, shape) - value*(i+1))
                 new_vector, shape_rotation = _get_new_shape_coords(shape1, shape, delta_angle)
-                shape2_x, shape2_y = shape.left, shape.top
+                # shape2_x, shape2_y = shape.left, shape.top
 
                 # vector = [shape2_x-shape1_x, shape2_y-shape1_y]
                 # cur_angle = round(-180/math.pi * math.atan2(vector[1], vector[0]), 1)
@@ -849,9 +852,9 @@ class ShapeRotation(object):
 
     @classmethod
     def set_rotation_zero(cls, shapes):
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
+        if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             cls.set_rotation(shapes, 180)
-        elif bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+        elif bkt.get_key_state(bkt.KeyCodes.CTRL):
             cls.set_rotation(shapes, cls.get_rotation(shapes))
         else:
             cls.set_rotation(shapes, 0)
@@ -905,7 +908,7 @@ distance_rotation_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeDistance.set_shape_sep_vertical_zero, shapes=True),
                 ),
-                bkt.ribbon.Menu(label="Vertikaler Abstand Einstellungen", item_size="large", children=[
+                bkt.ribbon.Menu(label="Objektabstand vertikal Menü", supertip="Optionen zur Berechnung des vertikalen Abstands zwischen Shapes", item_size="large", children=[
                     bkt.ribbon.MenuSeparator(title="Vertikaler Abstand"),
                     bkt.ribbon.ToggleButton(
                         label="Shape-Abstand (Standard)",
@@ -981,7 +984,7 @@ distance_rotation_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeDistance.set_shape_sep_horizontal_zero, shapes=True),
                 ),
-                bkt.ribbon.Menu(label="Horizontaler Abstand Einstellungen", item_size="large", children=[
+                bkt.ribbon.Menu(label="Objektabstand horizontal Menü", supertip="Optionen zur Berechnung des horizontalen Abstands zwischen Shapes", item_size="large", children=[
                     bkt.ribbon.MenuSeparator(title="Horizontaler Abstand"),
                     bkt.ribbon.ToggleButton(
                         label="Shape-Abstand (Standard)",
@@ -1040,7 +1043,7 @@ distance_rotation_group = bkt.ribbon.Group(
 
         bkt.ribbon.RoundingSpinnerBox(
             id = 'rotation',
-            label=u"Rotation",
+            label="Rotation",
             show_label=False,
             image_mso='Repeat',
             # image_button=True,
@@ -1057,7 +1060,7 @@ distance_rotation_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeRotation.set_rotation_zero, shapes=True),
                 ),
-                bkt.ribbon.Menu(label="Rotation und Spiegelung Menü", children=[
+                bkt.ribbon.Menu(label="Rotation und Spiegelung Menü", supertip="Shapes rotieren und Spiegelung anzeigen", children=[
                     bkt.ribbon.MenuSeparator(title="Rotation"),
                     pplib.LocpinGallery(
                         label="Ankerpunkt beim Rotieren",
@@ -1068,11 +1071,13 @@ distance_rotation_group = bkt.ribbon.Group(
                     bkt.ribbon.Button(
                         label="Auf 0 Grad setzen",
                         screentip="Shape-Rotation auf 0 Grad setzen",
+                        supertip="Shape-Rotation aller gewählten Shapes auf 0 Grad setzen",
                         on_action=bkt.Callback(lambda shapes: ShapeRotation.set_rotation(shapes, 0), shapes=True),
                     ),
                     bkt.ribbon.Button(
                         label="Auf 180 Grad setzen",
                         screentip="Shape-Rotation auf 180 Grad setzen",
+                        supertip="Shape-Rotation aller gewählten Shapes auf 180 Grad setzen",
                         on_action=bkt.Callback(lambda shapes: ShapeRotation.set_rotation(shapes, 180), shapes=True),
                     ),
                     # bkt.mso.button.ObjectRotateRight90,
@@ -1081,6 +1086,7 @@ distance_rotation_group = bkt.ribbon.Group(
                     bkt.ribbon.ToggleButton(
                         label="Horizontal gespiegelt an/aus",
                         screentip="Shape ist horizontal gespiegelt",
+                        supertip="Aktiviert, wenn das erste gewählte Shape horizontal gespiegelt ist",
                         image_mso="ObjectFlipHorizontal",
                         get_pressed=bkt.Callback(ShapeRotation.get_pressed_fliph, shapes=True),
                         on_toggle_action=bkt.Callback(ShapeRotation.set_fliph, shapes=True),
@@ -1088,6 +1094,7 @@ distance_rotation_group = bkt.ribbon.Group(
                     bkt.ribbon.ToggleButton(
                         label="Vertikal gespiegelt an/aus",
                         screentip="Shape ist vertikal gespiegelt",
+                        supertip="Aktiviert, wenn das erste gewählte Shape vertikal gespiegelt ist",
                         image_mso="ObjectFlipVertical",
                         get_pressed=bkt.Callback(ShapeRotation.get_pressed_flipv, shapes=True),
                         on_toggle_action=bkt.Callback(ShapeRotation.set_flipv, shapes=True),
@@ -1165,11 +1172,13 @@ euclid_angle_group = bkt.ribbon.Group(
                     children=[
                         bkt.ribbon.ToggleButton(
                             label="Zuerst selektiertes Shape (Standard)",
+                            supertip="Legt fest, dass das zuerst selektierte Shape innerhalb der Selektion im Zentrum stehen soll.",
                             get_pressed=bkt.Callback(lambda: ShapeDistance.shape1_index==0),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "shape1_index", 0)),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="Zuletzt selektiertes Shape",
+                            supertip="Legt fest, dass das zuletzt selektierte Shape innerhalb der Selektion im Zentrum stehen soll.",
                             get_pressed=bkt.Callback(lambda: ShapeDistance.shape1_index==-1),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "shape1_index", -1)),
                         ),
@@ -1177,21 +1186,24 @@ euclid_angle_group = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.Menu(
                     label="Verhalten für >2 Shapes",
-                    screentip="Verhalten bei Auswahl von mehr als 2 Shapes festlegen",
+                    screentip="Verhalten bei Auswahl von mehr als 2 Shapes",
                     supertip="Bei Auswahl von mehr als 2 Shapes können unterschiedliche Optionen zur Berechnung zwischen Zentrum-Shape und allen weitere Shapes gewählt werden.",
                     children=[
                         bkt.ribbon.ToggleButton(
                             label="Abstand/Winkel einzeln vom Zentrum zu Shapes (Standard)",
+                            supertip="Legt fest, dass Abstand bzw. Winkel für jedes Shape einzeln vom Zentrum zum jeweiligen Shape berechnet wird.\n\nDiese Funktion ist nützlich, um den Winkel einer Diagonalen von Shapes zu ändern oder eine sternförmige Anordnung von Shapes zu erreichen.",
                             get_pressed=bkt.Callback(lambda: ShapeDistance.euclid_multi_shape_mode == "centric"),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "euclid_multi_shape_mode", "centric")),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="Abstände/Winkel immer um gleiche Differenz ändern [ALT]",
+                            supertip="Legt fest, dass Abstand bzw. Winkel immer um die gleiche Differenz von Zentrum zum jeweiligen Shape geändert wird.\n\nTemporäre Umschaltung mit ALT-Taste möglich.",
                             get_pressed=bkt.Callback(lambda: ShapeDistance.euclid_multi_shape_mode == "delta"),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "euclid_multi_shape_mode", "delta")),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="Abstände/Winkel gleichmäßig zwischen Shapes verteilen",
+                            supertip="Legt fest, dass Abstand bzw. Winkel gleichmäßig von Zentrum und zwischen jedem Shape verteilt wird.\n\nDiese Funktion ist nützlich, um mehrere Shapes entlang einer Diagonalen oder um ein Zentrum herum zu verteilen.",
                             get_pressed=bkt.Callback(lambda: ShapeDistance.euclid_multi_shape_mode == "distribute"),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(ShapeDistance, "euclid_multi_shape_mode", "distribute")),
                         ),
@@ -1211,7 +1223,8 @@ euclid_angle_group = bkt.ribbon.Group(
 
 
 class MasterShapeIndicator(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'master_shape.xaml')
+    # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'master_shape.xaml')
+    _xamlname = 'master_shape'
     IsPopup = True
 
     # def __init__(self, context=None):
@@ -1245,10 +1258,10 @@ class ArrangeAdvanced(object):
     master_indicator = True
 
     #instance variables:
-    margin = 0
-    resize = False
-    ref_shape = None
-    ref_frame = None
+    # margin = 0
+    # resize = False
+    # ref_shape = None
+    # ref_frame = None
     
 
     # def _create_control(self, control, children, callbacks):
@@ -1296,10 +1309,10 @@ class ArrangeAdvanced(object):
 
     def __init__(self):
         #instance variables:
-        margin = 0
-        resize = False
-        ref_shape = None
-        ref_frame = None
+        self.margin = 0
+        self.resize = False
+        self.ref_shape = None
+        self.ref_frame = None
         
         #save preference for master shape (first or last selected) into class variables
         ArrangeAdvanced.fallback_first_last = bkt.settings.get("arrange_advanced.default", "LAST")
@@ -1571,12 +1584,15 @@ class ArrangeAdvanced(object):
                 ref.left #test if ref still exists
                 return ref
             except:
-                bkt.helpers.message("Fehler: Referenz wurde nicht gefunden. Fallback zu Ausrichtung am Mastershape innerhalb der Selektion.")
+                bkt.message.warning("Fehler: Referenz wurde nicht gefunden. Fallback zu Ausrichtung am Mastershape innerhalb der Selektion.")
                 ArrangeAdvanced.master = self.fallback_first_last
                 return self.get_master_from_shapes(shapes)
 
         ''' obtain master shape from given shapes according to master-setting '''
-        if ArrangeAdvanced.master == "FIXED-SHAPE" and self.ref_shape != None:
+        if bkt.get_key_state(bkt.KeyCodes.CTRL):
+            return pplib.BoundingFrame(shapes[0].parent, contentarea=True)
+        
+        elif ArrangeAdvanced.master == "FIXED-SHAPE" and self.ref_shape != None:
             return _test_ref_or_use_fallback(self.ref_shape)
         elif ArrangeAdvanced.master == "FIXED-SLIDE" and self.ref_frame !=None:
             return _test_ref_or_use_fallback(self.ref_frame)
@@ -1627,7 +1643,7 @@ class ArrangeAdvanced(object):
     
     def use_resizing(self):
         ''' returns if resizing-option should be used. Depends on setting for resize-option, and SHIFT-key-state '''
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
+        if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             return True
         else:
             return self.get_resizing()
@@ -1933,7 +1949,7 @@ class ArrangeAdvanced(object):
                 supertip="Bei Aktivierung werden anschließend alle Shapes am selektierten Shape (Mastershape) ausgerichtet. Ist bei Aktivierung kein Shape selektiert, erfolgt die Ausrichtung am Inhaltsbereich."
             ),
             
-            bkt.ribbon.Menu(label='Auswahl der Ausrichtung', children=[
+            bkt.ribbon.Menu(label='Master-Menü', screentip='Auswahl der Ausrichtung', supertip="Festlegen an welchem Referenz-Objekt die Shapes ausgerichtet werden wollen", children=[
                 
                 bkt.ribbon.Button(
                     id="arrange_master_auto"+postfix,
@@ -1985,11 +2001,11 @@ class ArrangeAdvanced(object):
                 ),
                 bkt.ribbon.ToggleButton(
                     id="arrange_use_contentarea"+postfix,
-                    label="Inhaltsbereich",
+                    label="Inhaltsbereich [STRG]",
                     on_toggle_action=bkt.Callback(self.specify_master_contentarea),
                     get_pressed=bkt.Callback(self.is_contentarea_specified),
                     screentip="Ausrichtung an Inhaltsbereich",
-                    supertip="Shapes werden am Inhaltsbereich ausgerichtet.\n\nDer Inhaltsbereich entspricht der Fläche des Text-Platzhalters auf dem Master-Slide.",
+                    supertip="Shapes werden am Inhaltsbereich ausgerichtet.\n\nDer Inhaltsbereich entspricht der Fläche des Text-Platzhalters auf dem Master-Slide.\n\nMit STRG-Taste wird dieser Master temporär aktiviert.",
                 ),
                 bkt.ribbon.ToggleButton(
                     id="arrange_use_customarea"+postfix,
@@ -2081,6 +2097,7 @@ arrange_advanced_group = bkt.ribbon.Group(
             on_action=bkt.Callback(arrange_advaced.arrange_quick_position),
             get_enabled=bkt.Callback(arrange_advaced.enabled),
             screentip="Gleiche Position wie Master",
+            supertip="Shapes erhalten die gleiche Position wie das Master-Shape.",
         ),
         bkt.ribbon.Button(
             id="arrange_quick_size",
@@ -2089,6 +2106,7 @@ arrange_advanced_group = bkt.ribbon.Group(
             on_action=bkt.Callback(arrange_advaced.arrange_quick_size),
             get_enabled=bkt.Callback(arrange_advaced.enabled),
             screentip="Gleiche Größe wie Master",
+            supertip="Shapes erhalten die gleiche Größe wie das Master-Shape.",
         ),
     ]
 )
@@ -2098,12 +2116,12 @@ arrange_advanced_small_group = bkt.ribbon.Group(
     label=u'Erw. Anordnen',
     image='arrange_left_at_left',
     children=[
-        arrange_advaced.get_button("arrange_left_at_left", "-small",        label="Links an Links"),
-        arrange_advaced.get_button("arrange_right_at_right", "-small",      label="Rechts an Rechts"),
-        arrange_advaced.get_button("arrange_middle_at_middle", "-small",    label="Mitte an Mitte"),
-        arrange_advaced.get_button("arrange_top_at_top", "-small",          label="Oben an Oben"),
-        arrange_advaced.get_button("arrange_bottom_at_bottom", "-small",    label="Unten an Unten"),
-        arrange_advaced.get_button("arrange_vmiddle_at_vmiddle", "-small",  label="Mitte an Mitte"),
+        arrange_advaced.get_button("arrange_left_at_left", "-small",        label="Links an Links",   screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_right_at_right", "-small",      label="Rechts an Rechts", screentip='Ausrichtung rechte Kante an rechte Kante', supertip='Ausrichtung der rechten Kante an der rechten Kante des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_middle_at_middle", "-small",    label="Mitte an Mitte",   screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.\n(kein Abstand)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_top_at_top", "-small",          label="Oben an Oben",     screentip='Ausrichtung obere Kante an obere Kante',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_bottom_at_bottom", "-small",    label="Unten an Unten",   screentip='Ausrichtung untere Kante an untere Kante', supertip='Ausrichtung der unteren Kante an der unteren Kante des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_vmiddle_at_vmiddle", "-small",  label="Mitte an Mitte",   screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.\n(kein Abstand)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
 
         bkt.ribbon.Button(
             id="arrange_quick_position-small",
@@ -2113,6 +2131,7 @@ arrange_advanced_small_group = bkt.ribbon.Group(
             on_action=bkt.Callback(arrange_advaced.arrange_quick_position),
             get_enabled=bkt.Callback(arrange_advaced.enabled),
             screentip="Gleiche Position wie Master",
+            supertip="Shapes erhalten die gleiche Position wie das Master-Shape.",
         ),
         bkt.ribbon.Button(
             id="arrange_quick_size-small",
@@ -2122,6 +2141,7 @@ arrange_advanced_small_group = bkt.ribbon.Group(
             on_action=bkt.Callback(arrange_advaced.arrange_quick_size),
             get_enabled=bkt.Callback(arrange_advaced.enabled),
             screentip="Gleiche Größe wie Master",
+            supertip="Shapes erhalten die gleiche Größe wie das Master-Shape.",
         ),
 
         arrange_advaced.get_master_button("-small", show_label=False)
@@ -2130,10 +2150,10 @@ arrange_advanced_small_group = bkt.ribbon.Group(
 
 
 class ArrangeAdvancedEasy(ArrangeAdvanced):
-    margin = 0
 
     def __init__(self, resize_mode):
         self.resize_mode = resize_mode
+        self.margin = 0
         # super(ArrangeAdvancedEasy, self).__init__()
 
     def get_master_from_shapes(self, shapes):
@@ -2633,7 +2653,7 @@ tablearrange_button = bkt.ribbon.SplitButton(
             on_action=bkt.Callback(TableArrange.arrange_overlay_shapes, shapes=True, shapes_min=2),
             # get_enabled = bkt.apps.ppt_shapes_min2_selected,
         ),
-        bkt.ribbon.Menu(label="Einstellungen für Anordnen auf Tabelle/Absatz", item_size="large", children=[
+        bkt.ribbon.Menu(label="Auf Tabelle/Absatz/Shapes anordnen Menü", supertip="Einstellungen für das Anordnen auf Tabellen, Absätzen oder Shapes", item_size="large", children=[
             bkt.ribbon.MenuSeparator(title="Shapes anordnen"),
             bkt.ribbon.Button(
                 id = 'table-shapes2',
@@ -2803,11 +2823,11 @@ class RepositionGallery(pplib.PositionGallery):
         # CTRL = position only
         # SHIFT = size only
         
-        if not bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
+        if not bkt.get_key_state(bkt.KeyCodes.SHIFT):
             shape.left   = target_frame.left
             shape.top    = target_frame.top
         
-        if not bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL):
+        if not bkt.get_key_state(bkt.KeyCodes.CTRL):
             shape.width  = target_frame.width
             shape.height = target_frame.height
 
@@ -3115,6 +3135,7 @@ arrange_group = bkt.ribbon.Group(
                 reposition_gallery,
                 bkt.ribbon.Menu(
                     label='Dimensionen/Größen übertragen',
+                    supertip="Dimensionen von Diagrammen, Bild-Ausschnitten und Tabellen von einem Objekt auf ein anderes kopieren",
                     image_mso='PasteWithColumnWidths',
                     children=[
                         bkt.ribbon.Button(
@@ -3189,6 +3210,7 @@ arrange_group = bkt.ribbon.Group(
                         ),
                         bkt.ribbon.Menu(
                             label="Kanten-Autofixer Menü",
+                            supertip="Einstellungsmöglichkeiten für den Kanten-Autofixer",
                             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
                             children=[
                                 bkt.ribbon.Button(
@@ -3230,18 +3252,21 @@ arrange_group = bkt.ribbon.Group(
                                         bkt.ribbon.ToggleButton(
                                             label="Klein 0,1cm",
                                             screentip="Toleranz klein 0,1cm",
+                                            supertip="Setzt Toleranz vom Kanten-Autofixer auf klein = 0,1cm",
                                             get_pressed=bkt.Callback(lambda: EdgeAutoFixer.threshold == 0.1),
                                             on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("threshold", 0.1)),
                                         ),
                                         bkt.ribbon.ToggleButton(
                                             label="Mittel 0,3cm",
                                             screentip="Toleranz mittel 0,3cm",
+                                            supertip="Setzt Toleranz vom Kanten-Autofixer auf mittel = 0,3cm",
                                             get_pressed=bkt.Callback(lambda: EdgeAutoFixer.threshold == 0.3),
                                             on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("threshold", 0.3)),
                                         ),
                                         bkt.ribbon.ToggleButton(
                                             label="Groß 1 cm",
                                             screentip="Toleranz groß 1 cm",
+                                            supertip="Setzt Toleranz vom Kanten-Autofixer auf groß = 1cm",
                                             get_pressed=bkt.Callback(lambda: EdgeAutoFixer.threshold == 1.0),
                                             on_toggle_action=bkt.Callback(lambda pressed: EdgeAutoFixer.settings_setter("threshold", 1.0)),
                                         ),
@@ -3305,7 +3330,7 @@ arrange_group = bkt.ribbon.Group(
                     screentip="Gleiches Shape auf Folgefolien suchen und verknüpfen",
                     supertip="Sucht das aktuelle Shape auf allen Folien hinter der aktuellen Folie anhand Position und Größe und verknüpft diese miteinander.",
                     on_action=bkt.Callback(LinkedShapes.find_similar_and_link),
-                    get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    get_enabled = bkt.apps.ppt_shapes_exactly1_selected,
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
@@ -3461,7 +3486,7 @@ arrange_group = bkt.ribbon.Group(
             show_label=False,
             children=[
                 bkt.mso.button.ObjectBringToFront,
-                bkt.ribbon.Menu(label="Vordergrund-Menü", children=[
+                bkt.ribbon.Menu(label="Vordergrund-Menü", supertip="Funktionen um Shapes in den Vordergrund zu holen", children=[
                     bkt.mso.control.ObjectBringToFront,
                     bkt.mso.control.ObjectBringForward,
                     bkt.ribbon.Button(
@@ -3480,7 +3505,7 @@ arrange_group = bkt.ribbon.Group(
             show_label=False,
             children=[
                 bkt.mso.button.ObjectSendToBack,
-                bkt.ribbon.Menu(label="Hintergrund-Menü", children=[
+                bkt.ribbon.Menu(label="Hintergrund-Menü", supertip="Funktionen um Shapes in den Hintergrund zu setzen", children=[
                     bkt.mso.control.ObjectSendToBack,
                     bkt.mso.control.ObjectSendBackward,
                     bkt.ribbon.Button(

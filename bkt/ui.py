@@ -1,27 +1,26 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23.01.2014
+Abstract class for WPF windows and popups, standard input and progress bar windows
 
-@author: cschmitt
+Created on 23.01.2014
+@author: cschmitt, fstallmann
 '''
 
-import System
-Window = System.Windows.Window
-Popup = System.Windows.Controls.Primitives.Popup
-BitmapImage = System.Windows.Media.Imaging.BitmapImage
-BackgroundWorker = System.ComponentModel.BackgroundWorker
-
-import os.path
-
-from . import dotnet
-wpf = dotnet.import_wpf()
-bkt_addin = dotnet.import_bkt()
-
-from bkt.library.wpf.notify import NotifyPropertyChangedBase, notify_property
-from bkt.apps import Resources
+from __future__ import absolute_import
 
 import logging
 # import traceback
+import os.path
+
+from bkt import dotnet
+bkt_addin = dotnet.import_bkt()
+wpf = dotnet.import_wpf() #this is required to import System.Windows.Controls
+
+import System
+
+from bkt.library.wpf.notify import NotifyPropertyChangedBase, notify_property
+from bkt.helpers import Resources
+
 
 
 # =======================
@@ -49,6 +48,7 @@ class ViewModelAsbtract(NotifyPropertyChangedBase):
 
 class WpfWindowAbstract(bkt_addin.BktWindow):
     _filename = None
+    _xamlname = None
     _vm_class = None
     _vm       = None
     _context  = None
@@ -78,6 +78,8 @@ class WpfWindowAbstract(bkt_addin.BktWindow):
             return self.Show()
 
     def __init__(self, context=None):
+        if not self._filename:
+            self._filename = Resources.xaml.locate(self._xamlname)
         wpf.LoadComponent(self, self._filename)
 
         if context is not None:
@@ -95,12 +97,15 @@ class WpfWindowAbstract(bkt_addin.BktWindow):
         self.Close()
 
 
-class WpfPopupAbstract(Popup):
+class WpfPopupAbstract(System.Windows.Controls.Primitives.Popup):
     _filename = None
+    _xamlname = None
     _vm_class = None
     _vm       = None
 
     def __init__(self, context=None):
+        if not self._filename:
+            self._filename = Resources.xaml.locate(self._xamlname)
         wpf.LoadComponent(self, self._filename)
 
         self._context = context
@@ -130,7 +135,7 @@ def load_bitmapimage(image_name):
         path = Resources.images.locate(image_name)  #@UndefinedVariable
         if path is None:
             raise IndexError("Image file not found")
-        return BitmapImage(System.Uri(path))
+        return System.Windows.Media.Imaging.BitmapImage(System.Uri(path))
 
 
 def endings_to_windows(text, prepend="", prepend_first=""):
@@ -171,11 +176,11 @@ class UserInputBox(object):
             D = dotnet.import_drawing()
             F.Application.EnableVisualStyles()  
 
-        prompt = F.Form();
-        prompt.Width = 500;
-        prompt.Height = 10;
-        prompt.Text = title;
-        prompt.StartPosition = F.FormStartPosition.CenterScreen;
+        prompt = F.Form()
+        prompt.Width = 500
+        prompt.Height = 10
+        prompt.Text = title
+        prompt.StartPosition = F.FormStartPosition.CenterScreen
         prompt.AutoSize = True
         #prompt.TopMost = True
         prompt.MinimizeBox = False
@@ -217,8 +222,8 @@ class UserInputBox(object):
         buttonsPanel.DockPadding.All = 10
         #buttonsPanel.BorderStyle = F.BorderStyle.Fixed3D
 
-        prompt.AcceptButton = confirmation;
-        prompt.CancelButton = cancel;
+        prompt.AcceptButton = confirmation
+        prompt.CancelButton = cancel
 
         self.superPanel = superPanel
         self.buttonsPanel = buttonsPanel
@@ -350,7 +355,7 @@ class UserInputBox(object):
         groupBox.Height = top + 10
         self.superPanel.Controls.Add(groupBox)
         self.input.append( (input_id, radioButtons, _get_checked) )
-        return groupBox
+        return groupBox, radioButtons
 
     def _add_custom(self, input_id, input_element):
         input_element.Width = self.prompt.Width - 40
@@ -385,7 +390,8 @@ class UserInputBox(object):
 
 
 class WpfUserInput(WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui_inputbox.xaml')
+    # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui_inputbox.xaml')
+    _xamlname = 'ui_inputbox'
 
     def __init__(self, text, title, default, multiline):
         super(WpfUserInput, self).__init__()
@@ -421,14 +427,15 @@ def show_user_input(text, title, default=None, multiline=False):
 
 
 class WpfProgressBar(WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui_progressbar.xaml')
+    # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui_progressbar.xaml')
+    _xamlname = 'ui_progressbar'
 
     def __init__(self, work_func, context=None, indeterminate=False):
         super(WpfProgressBar, self).__init__(context=context)
 
         self.progress_bar.IsIndeterminate = indeterminate
 
-        self.bw = BackgroundWorker()
+        self.bw = System.ComponentModel.BackgroundWorker()
         self.bw.WorkerReportsProgress = True
         self.bw.WorkerSupportsCancellation = True
         

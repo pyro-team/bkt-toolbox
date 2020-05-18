@@ -5,11 +5,12 @@ Created on 06.09.2018
 @author: fstallmann
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
+from __future__ import absolute_import
 
 import uuid
-import os.path
+
+import bkt
+import bkt.library.powerpoint as pplib
 
 
 BKT_LINK_UUID = "BKT_LINK_UUID"
@@ -36,10 +37,10 @@ class LinkedShapes(object):
         return cls.current_link_guid != None
 
     @classmethod
-    def find_similar_and_link(cls, shape, context): #shape as parameter for get_enabled required
+    def find_similar_and_link(cls, shape, context):
         #open wpf window
-        from dialogs.linkshapes_find import FindWindow
-        FindWindow.create_and_show_dialog(cls, context)
+        from .dialogs.linkshapes_find import FindWindow
+        FindWindow.create_and_show_dialog(cls, context, shape)
 
     @classmethod
     def find_similar_shapes_and_link(cls, shape, context, attributes, threshold=0, limit_slides=None, dry_run=False):
@@ -54,7 +55,7 @@ class LinkedShapes(object):
         active_slide_index = shape.Parent.SlideIndex
         shapes_found = 0
         # comparer_values = lambda val1, val2: abs(round(val1,3)-round(val2,3))/round(val1,3)<=threshold
-        comparer_values = lambda val1, val2: is_close(val1, val2, threshold)
+        comparer_values = lambda val1, val2: val1==val2 if type(val1) == str else is_close(val1, val2, threshold)
         
         all_slides = context.app.ActivePresentation.Slides
         num_slides = limit_slides or all_slides.Count
@@ -86,27 +87,34 @@ class LinkedShapes(object):
                 break
 
         if shapes_found == 0:
-            bkt.helpers.message("Keine vergleichbaren Shapes gefunden.")
+            bkt.message("Keine vergleichbaren Shapes gefunden.", "BKT: Verknüpfte Shapes")
         elif dry_run:
-            bkt.helpers.message("Es wurden %s Shapes zum verknüpfen gefunden." % shapes_found)
+            bkt.message("Es wurden %s Shapes zum verknüpfen gefunden." % shapes_found, "BKT: Verknüpfte Shapes")
         else:
             cls._add_tags(shape, link_guid)
-            bkt.helpers.message("Das Shape wurde mit %s Shapes verknüpft." % shapes_found)
+            bkt.message("Das Shape wurde mit %s Shapes verknüpft." % shapes_found, "BKT: Verknüpfte Shapes")
             context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
 
     @classmethod
     def copy_to_all(cls, shape, context): #shape as parameter for get_enabled required
         #open wpf window
-        from dialogs.linkshapes_copy import CopyWindow
-        CopyWindow.create_and_show_dialog(cls, context)
+        from .dialogs.linkshapes_copy import CopyWindow
+        wnd = CopyWindow(cls, context, shape)
+        wnd.show_dialog(modal=False)
+        # CopyWindow.create_and_show_dialog(cls, context)
 
     @classmethod
     def copy_shapes_to_slides(cls, shapes, context, limit_slides=None):
         for shape in shapes:
             cls.copy_shape_to_slides(shape, context, limit_slides)
         
-        shapes[0].select()
-        context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
+        try:
+            #activate view (note: parent.select does not work)
+            context.app.ActiveWindow.View.GotoSlide(shapes[0].Parent.SlideIndex)
+            shapes[0].select()
+            context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
+        except:
+            bkt.helpers.exception_as_message()
 
     @classmethod
     def copy_shape_to_slides(cls, shape, context, limit_slides=None):
@@ -145,7 +153,7 @@ class LinkedShapes(object):
     @classmethod
     def extend_link_shapes(cls, shape):
         cls.current_link_guid = shape.Tags.Item(BKT_LINK_UUID)
-        bkt.helpers.message('Die Link-ID wurde zwischengespeichert. Als nächstes können weitere Shapes ausgewählt und über "Ausgewählte Shapes zur Verknüpfung hinzufügen" mit diesem Shape verknüpft werden.')
+        bkt.message('Die Link-ID wurde zwischengespeichert. Als nächstes können weitere Shapes ausgewählt und über "Ausgewählte Shapes zur Verknüpfung hinzufügen" mit diesem Shape verknüpft werden.', "BKT: Verknüpfte Shapes")
 
     @classmethod
     def add_to_link_shapes(cls, shapes):
@@ -155,9 +163,9 @@ class LinkedShapes(object):
     @classmethod
     def count_link_shapes(cls, shape, context):
         count_shapes = 0
-        for cShp in cls._iterate_linked_shapes(shape, context):
+        for _ in cls._iterate_linked_shapes(shape, context):
             count_shapes += 1
-        bkt.helpers.message("Es wurden %s verknüpfte Shapes gefunden." % count_shapes)
+        bkt.message("Es wurden %s verknüpfte Shapes gefunden." % count_shapes, "BKT: Verknüpfte Shapes")
     
     @classmethod
     def goto_linked_shape(cls, shape, context, goto=1, delta=True): #goto=1 -> next linked shape, delta=False -> goto interpreted as absolute index
@@ -228,7 +236,7 @@ class LinkedShapes(object):
             if shape.Type == pplib.MsoShapeType["msoGroup"]:
                 mode = "group"
             else:
-                bkt.helpers.message("Formatierung angleichen für gewähltes Shape nicht verfügbar.")
+                bkt.message.warning("Formatierung angleichen für gewähltes Shape nicht verfügbar.", "BKT: Verknüpfte Shapes")
                 return
 
         for cShp in cls._iterate_linked_shapes(shape, context):
@@ -238,9 +246,9 @@ class LinkedShapes(object):
                 except:
                     pass
             elif mode == "group" and cShp.Type == pplib.MsoShapeType["msoGroup"]:
-                for index, iShp in enumerate(cShp.GroupItems):
+                for index, iShp in enumerate(cShp.GroupItems, start=1):
                     try:
-                        shape.GroupItems[index+1].Pickup()
+                        shape.GroupItems[index].Pickup()
                         iShp.Apply()
                     except:
                         pass
@@ -253,7 +261,7 @@ class LinkedShapes(object):
 
     @classmethod
     def adjustments_linked_shapes(cls, shape, context):
-        from shape_adjustments import ShapeAdjustments
+        from .shape_adjustments import ShapeAdjustments
         for cShp in cls._iterate_linked_shapes(shape, context):
             ShapeAdjustments.equalize_adjustments([shape, cShp])
 
@@ -261,33 +269,36 @@ class LinkedShapes(object):
     def text_linked_shapes(cls, shape, context, with_formatting=True):
         if shape.HasTextFrame == -1: #msoTrue
             if with_formatting:
-                shape.TextFrame2.TextRange.Copy()
+                # shape.TextFrame2.TextRange.Copy()
+                pass #nothing to do here as pplib.transfer_textrange function is used
             else:
                 ref_text = shape.TextFrame2.TextRange.Text
             mode = "simple"
         elif shape.Type == pplib.MsoShapeType["msoGroup"]:
             mode = "group"
         else:
-            bkt.helpers.message("Text angleichen für gewähltes Shape nicht verfügbar.")
+            bkt.message.warning("Text angleichen für gewähltes Shape nicht verfügbar.", "BKT: Verknüpfte Shapes")
             return
 
         for cShp in cls._iterate_linked_shapes(shape, context):
             if mode == "simple":
                 try:
                     if with_formatting:
-                        cShp.TextFrame2.TextRange.Paste()
+                        # cShp.TextFrame2.TextRange.Paste()
+                        pplib.transfer_textrange(shape.TextFrame2.TextRange, cShp.TextFrame2.TextRange)
                     else:
                         cShp.TextFrame2.TextRange.Text = ref_text
                 except:
                     pass
             elif mode == "group" and cShp.Type == pplib.MsoShapeType["msoGroup"]:
-                for index, iShp in enumerate(cShp.GroupItems):
+                for index, iShp in enumerate(cShp.GroupItems, start=1):
                     try:
                         if with_formatting:
-                            shape.GroupItems[index+1].TextFrame2.TextRange.Copy()
-                            iShp.TextFrame2.TextRange.Paste()
+                            # shape.GroupItems[index].TextFrame2.TextRange.Copy()
+                            # iShp.TextFrame2.TextRange.Paste()
+                            pplib.transfer_textrange(shape.GroupItems[index].TextFrame2.TextRange, iShp.TextFrame2.TextRange)
                         else:
-                            iShp.TextFrame2.TextRange.Text = shape.GroupItems[index+1].TextFrame2.TextRange.Text
+                            iShp.TextFrame2.TextRange.Text = shape.GroupItems[index].TextFrame2.TextRange.Text
                     except:
                         pass
 
@@ -415,12 +426,13 @@ def linked_shapes_context_menu(prefix):
                 bkt.ribbon.Button(
                     id = prefix+'-linked-shapes-all',
                     label="Verknüpfte Shapes angleichen",
+                    supertip="Alle Eigenschaften aller verknüpfter Shapes wie ausgewähltes Shape setzen.",
                     # image_mso="GroupUpdate",
                     image_mso='HyperlinkCreate',
                     on_action=bkt.Callback(LinkedShapes.equalize_linked_shapes, shape=True, context=True),
                     # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                 ),
-                bkt.ribbon.Menu(children=[
+                bkt.ribbon.Menu(label="Verknüpfte Shapes angleichen Menü", supertip="Auswählen, was angeglichen werden soll", children=[
                     bkt.ribbon.Button(
                         id = prefix+'-linked-shapes-all2',
                         label="Alles angleichen",
@@ -494,6 +506,7 @@ def linked_shapes_context_menu(prefix):
         bkt.ribbon.Menu(
             id=prefix+'-not-linked-shapes',
             label="Verknüpftes Shape anlegen",
+            supertip="Entweder ähnliche Shapes auf Folgefolien anhand Position oder Größe suchen, oder dieses Shape auf Folgefolien kopieren und verknüpfen.",
             image_mso='HyperlinkCreate',
             insertBeforeMso='ObjectsGroupMenu',
             get_visible=bkt.Callback(LinkedShapes.not_is_linked_shape, shape=True),
@@ -521,6 +534,7 @@ linkshapes_tab = bkt.ribbon.Tab(
     get_visible=bkt.Callback(LinkedShapes.is_linked_shape, shape=True),
     children = [
         bkt.ribbon.Group(
+            id="bkt_linkshapes_find_group",
             label = "Verknüpfte Shapes finden",
             children = [
                 bkt.ribbon.Button(
@@ -550,6 +564,7 @@ linkshapes_tab = bkt.ribbon.Tab(
             ]
         ),
         bkt.ribbon.Group(
+            id="bkt_linkshapes_align_group",
             label = "Verknüpfte Shapes angleichen",
             children = [
                 bkt.ribbon.Button(
@@ -597,22 +612,23 @@ linkshapes_tab = bkt.ribbon.Tab(
                 bkt.ribbon.Menu(
                     id="linked_shapes_actions",
                     label="Aktion ausführen",
+                    supertip="Diverse Aktionen auf alle verknüpften Shapes ausführen",
                     image_mso="ObjectBringToFront",
                     children=[
                         bkt.ribbon.Button(
                             id = 'linked_shapes_tofront',
                             label="In den Vordergrund",
                             image_mso="ObjectBringToFront",
-                            screentip="Alle verknüpften Shapes in den Vordergrund bringen",
-                            # supertip="",
+                            screentip="Verknüpfte Shapes in den Vordergrund",
+                            supertip="Alle verknüpften Shapes in den Vordergrund bringen",
                             on_action=bkt.Callback(LinkedShapes.linked_shapes_tofront, shape=True, context=True),
                         ),
                         bkt.ribbon.Button(
                             id = 'linked_shapes_toback',
                             label="In den Hintergrund",
                             image_mso="ObjectSendToBack",
-                            screentip="Alle verknüpften Shapes in den Hintergrund bringen",
-                            # supertip="",
+                            screentip="Verknüpfte Shapes in den Hintergrund",
+                            supertip="Alle verknüpften Shapes in den Hintergrund bringen",
                             on_action=bkt.Callback(LinkedShapes.linked_shapes_toback, shape=True, context=True),
                         ),
                         bkt.ribbon.MenuSeparator(),
@@ -620,16 +636,16 @@ linkshapes_tab = bkt.ribbon.Tab(
                             id = 'linked_shapes_fliph',
                             label="Horizontal spiegeln",
                             image_mso="ObjectFlipHorizontal",
-                            screentip="Alle verknüpften Shapes horizontal spiegeln",
-                            # supertip="",
+                            screentip="Verknüpfte Shapes horizontal spiegeln",
+                            supertip="Alle verknüpften Shapes horizontal spiegeln",
                             on_action=bkt.Callback(LinkedShapes.linked_shapes_fliph, shape=True, context=True),
                         ),
                         bkt.ribbon.Button(
                             id = 'linked_shapes_flipv',
                             label="Vertikal spiegeln",
                             image_mso="ObjectFlipVertical",
-                            screentip="Alle verknüpften Shapes vertikal spiegeln",
-                            # supertip="",
+                            screentip="Verknüpfte Shapes vertikal spiegeln",
+                            supertip="Alle verknüpften Shapes vertikal spiegeln",
                             on_action=bkt.Callback(LinkedShapes.linked_shapes_flipv, shape=True, context=True),
                         ),
                         bkt.ribbon.MenuSeparator(),
@@ -637,38 +653,44 @@ linkshapes_tab = bkt.ribbon.Tab(
                             id = 'linked_shapes_slidenum',
                             label="Foliennummer einfügen",
                             image_mso="NumberInsert",
-                            screentip="Aktualisierbare Foliennummer anstellen",
-                            # supertip="",
+                            screentip="Verknüpfte Shapes aktualisierbare Foliennummer anstellen",
+                            supertip="Fügt allen verknüpften Shapes am Ende vom Text automatisch aktualisierbare Foliennummer an",
                             on_action=bkt.Callback(LinkedShapes.linked_shapes_slidenum, shape=True, context=True),
                         ),
                         bkt.ribbon.Menu(
                             id='linked_shapes_changecase',
                             label="Groß-/Kleinschreibung ändern",
+                            supertip="Groß-/Kleinschreibung für alle verknüpften Shapes anpassen",
                             image_mso="ChangeCaseGallery",
                             children=[
                                 bkt.ribbon.Button(
                                     id = 'linked_shapes_changecase-1',
-                                    label="Ersten Buchstaben im Satz großschreiben.",
+                                    label="Ersten Buchstaben im Satz großschreiben",
+                                    supertip="Ersten Buchstaben im Satz aller verknüpften Shapes großschreiben",
                                     on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_changecase(shape, context, 1), shape=True, context=True),
                                 ),
                                 bkt.ribbon.Button(
                                     id = 'linked_shapes_changecase-2',
                                     label="kleinbuchstaben",
+                                    supertip="Text aller verknüpften Shapes kleinschreiben",
                                     on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_changecase(shape, context, 2), shape=True, context=True),
                                 ),
                                 bkt.ribbon.Button(
                                     id = 'linked_shapes_changecase-3',
                                     label="GROẞBUCHSTABEN",
+                                    supertip="Text aller verknüpften Shapes großschreiben",
                                     on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_changecase(shape, context, 3), shape=True, context=True),
                                 ),
                                 bkt.ribbon.Button(
                                     id = 'linked_shapes_changecase-4',
-                                    label="Ersten Buchstaben Im Wort Großschreiben.",
+                                    label="Ersten Buchstaben Im Wort Großschreiben",
+                                    supertip="Ersten Buchstaben im Wort aller verknüpften Shapes großschreiben",
                                     on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_changecase(shape, context, 4), shape=True, context=True),
                                 ),
                                 bkt.ribbon.Button(
                                     id = 'linked_shapes_changecase-5',
                                     label="gROẞ-/kLEINSCHREIBUNG umkehren",
+                                    supertip="Groß-/Kleinschreibung aller verknüpften Shapes umkehren",
                                     on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_changecase(shape, context, 5), shape=True, context=True),
                                 ),
                             ]
@@ -678,71 +700,89 @@ linkshapes_tab = bkt.ribbon.Tab(
                 bkt.ribbon.Menu(
                     id="linked_shapes_properties",
                     label="Eigenschaft angleichen",
+                    supertip="Eine einzelne Eigenschaft auf alle verknüpften Shapes übertragen",
                     image_mso="ObjectNudgeRight",
                     children=[
                         bkt.ribbon.Button(
                             id = 'linked_shapes_custom-text',
                             label="Text (ohne Formatierung)",
+                            screentip="Text (ohne Formatierung) angleichen",
                             # image_mso="TextBoxInsert",
-                            screentip="Text ohne Formatierungen für alle verknüpften Shapes angleichen",
+                            supertip="Text ohne Formatierungen für alle verknüpften Shapes angleichen",
                             on_action=bkt.Callback(lambda shape, context: LinkedShapes.text_linked_shapes(shape, context, with_formatting=False), shape=True, context=True),
                         ),
                         bkt.ribbon.MenuSeparator(),
                         bkt.ribbon.Button(
                             id = 'linked_shapes_custom-lar',
                             label="Seitenverhältnis gesperrt",
+                            screentip="Seitenverhältnis gesperrt angleichen",
                             # image_mso="ObjectBringToFront",
-                            screentip="Seitenverhältnis sperren an/aus für alle verknüpften Shapes angleichen",
+                            supertip="Seitenverhältnis sperren an/aus für alle verknüpften Shapes angleichen",
                             on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "LockAspectRatio", False), shape=True, context=True),
                         ),
                         bkt.ribbon.Button(
                             id = 'linked_shapes_custom-rot',
                             label="Rotation",
+                            screentip="Rotation angleichen",
                             # image_mso="ObjectBringToFront",
-                            screentip="Rotation für alle verknüpften Shapes angleichen",
+                            supertip="Rotation für alle verknüpften Shapes angleichen",
                             on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "Rotation", False), shape=True, context=True),
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'linked_shapes_custom-bwmode',
+                            label="Schwarz-Weiß-Modus",
+                            screentip="Schwarz-Weiß-Modus angleichen",
+                            # image_mso="ObjectBringToFront",
+                            supertip="Schwarz-Weiß-Modus für alle verknüpften Shapes angleichen",
+                            on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "BlackWhiteMode", False), shape=True, context=True),
                         ),
                         bkt.ribbon.MenuSeparator(),
                         bkt.ribbon.Button(
                             id = 'linked_shapes_custom-left',
                             label="Linke Seite",
+                            screentip="Linke Seite angleichen",
                             # image_mso="ObjectBringToFront",
-                            screentip="Linke Seite für alle verknüpften Shapes angleichen",
+                            supertip="Linke Seite für alle verknüpften Shapes angleichen",
                             on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "x"), shape=True, context=True),
                         ),
                         bkt.ribbon.Button(
                             id = 'linked_shapes_custom-right',
                             label="Rechte Seite",
+                            screentip="Rechte Seite angleichen",
                             # image_mso="ObjectBringToFront",
-                            screentip="Rechte Seite für alle verknüpften Shapes angleichen",
+                            supertip="Rechte Seite für alle verknüpften Shapes angleichen",
                             on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "x1"), shape=True, context=True),
                         ),
                         bkt.ribbon.Button(
                             id = 'linked_shapes_custom-top',
                             label="Obere Seite",
+                            screentip="Obere Seite angleichen",
                             # image_mso="ObjectBringToFront",
-                            screentip="Obere Seite für alle verknüpften Shapes angleichen",
+                            supertip="Obere Seite für alle verknüpften Shapes angleichen",
                             on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "y"), shape=True, context=True),
                         ),
                         bkt.ribbon.Button(
                             id = 'linked_shapes_custom-bottom',
                             label="Untere Seite",
+                            screentip="Untere Seite angleichen",
                             # image_mso="ObjectBringToFront",
-                            screentip="Untere Seite für alle verknüpften Shapes angleichen",
+                            supertip="Untere Seite für alle verknüpften Shapes angleichen",
                             on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "y1"), shape=True, context=True),
                         ),
                         bkt.ribbon.Button(
                             id = 'linked_shapes_custom-centerx',
                             label="Mittelpunkt links",
+                            screentip="Mittelpunkt links angleichen",
                             # image_mso="ObjectBringToFront",
-                            screentip="Mittelpunkt links für alle verknüpften Shapes angleichen",
+                            supertip="Mittelpunkt links für alle verknüpften Shapes angleichen",
                             on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "center_x"), shape=True, context=True),
                         ),
                         bkt.ribbon.Button(
                             id = 'linked_shapes_custom-centery',
                             label="Mittelpunkt oben",
+                            screentip="Mittelpunkt oben angleichen",
                             # image_mso="ObjectBringToFront",
-                            screentip="Mittelpunkt oben für alle verknüpften Shapes angleichen",
+                            supertip="Mittelpunkt oben für alle verknüpften Shapes angleichen",
                             on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "center_y"), shape=True, context=True),
                         ),
                         bkt.ribbon.MenuSeparator(),
@@ -750,14 +790,14 @@ linkshapes_tab = bkt.ribbon.Tab(
                             id = 'linked_shapes_custom-width',
                             label="Breite",
                             # image_mso="ObjectBringToFront",
-                            screentip="Breite für alle verknüpften Shapes angleichen",
+                            supertip="Breite für alle verknüpften Shapes angleichen",
                             on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "width", False), shape=True, context=True),
                         ),
                         bkt.ribbon.Button(
                             id = 'linked_shapes_custom-height',
                             label="Höhe",
                             # image_mso="ObjectBringToFront",
-                            screentip="Höhe für alle verknüpften Shapes angleichen",
+                            supertip="Höhe für alle verknüpften Shapes angleichen",
                             on_action=bkt.Callback(lambda shape, context: LinkedShapes.linked_shapes_custom(shape, context, "height", False), shape=True, context=True),
                         ),
                     ]
@@ -798,6 +838,7 @@ linkshapes_tab = bkt.ribbon.Tab(
             ]
         ),
         bkt.ribbon.Group(
+            id="bkt_linkshapes_unlink_group",
             label = "Verknüpfung aufheben",
             children = [
                 bkt.ribbon.Button(
@@ -819,57 +860,4 @@ linkshapes_tab = bkt.ribbon.Tab(
             ]
         ),
     ]
-)
-
-
-class LinkedShapePopup(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'popups', 'linkedshape.xaml')
-    '''
-    class representing a popup-dialog for a linked shape
-    '''
-    
-    def __init__(self, context=None):
-        self.IsPopup = True
-        self._context = context
-
-        super(LinkedShapePopup, self).__init__()
-
-    def btntab(self, sender, event):
-        try:
-            self._context.ribbon.ActivateTab('bkt_context_tab_linkshapes')
-        except:
-            bkt.helpers.message("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
-
-    def btnsync_text(self, sender, event):
-        try:
-            LinkedShapes.text_linked_shapes(self._context.shapes[-1], self._context)
-        except:
-            bkt.helpers.message("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
-
-    def btnsync_possize(self, sender, event):
-        try:
-            LinkedShapes.align_linked_shapes(self._context.shapes[-1], self._context)
-            LinkedShapes.size_linked_shapes(self._context.shapes[-1], self._context)
-        except:
-            bkt.helpers.message("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
-
-    def btnsync_format(self, sender, event):
-        try:
-            LinkedShapes.format_linked_shapes(self._context.shapes[-1], self._context)
-        except:
-            bkt.helpers.message("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
-
-    def btnnext(self, sender, event):
-        try:
-            LinkedShapes.goto_linked_shape(self._context.shapes[-1], self._context)
-        except:
-            bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
-
-# register dialog
-bkt.powerpoint.context_dialogs.register_dialog(
-    bkt.contextdialogs.ContextDialog(
-        id=BKT_LINK_UUID,
-        module=None,
-        window_class=LinkedShapePopup
-    )
 )

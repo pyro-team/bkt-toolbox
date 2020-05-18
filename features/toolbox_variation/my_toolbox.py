@@ -24,7 +24,7 @@ from toolbox import text
 
 # FIXME: this should be easier
 import os
-bkt.apps.Resources.root_folders.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'toolbox', 'resources'))
+bkt.helpers.Resources.root_folders.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'toolbox', 'resources'))
 
 
 

@@ -5,9 +5,13 @@ Created on 07.08.2015
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
 import unittest
+
 import bkt
 import bkt.ribbon
+
 from bkt.xml import RibbonXMLFactory
 from bkt.callbacks import CallbackType, CallbackTypes
 

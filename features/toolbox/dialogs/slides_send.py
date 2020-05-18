@@ -4,7 +4,8 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
-import os.path
+from __future__ import absolute_import
+
 import bkt.ui
 notify_property = bkt.ui.notify_property
 
@@ -112,15 +113,14 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
 
 
 class SendWindow(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'slides_send.xaml')
+    _xamlname = 'slides_send'
     # _vm_class = ViewModel
 
     def __init__(self, model, context):
         self._model = model
-        self._vm = ViewModel(model,context)
-        self._context = context
+        self._vm = ViewModel(model, context)
 
-        super(SendWindow, self).__init__()
+        super(SendWindow, self).__init__(context)
 
     def cancel(self, sender, event):
         self.Close()

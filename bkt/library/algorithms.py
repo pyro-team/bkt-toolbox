@@ -5,7 +5,7 @@ Created on 11.09.2013
 @author: cschmitt
 '''
 
-from __future__ import division #always force float-division, for int divison use //
+from __future__ import absolute_import, division #always force float-division, for int divison use //
 
 import math
 
@@ -30,7 +30,8 @@ def mid_point(points):
         sum_x +=p[0]
         sum_y +=p[1]
     
-    return [sum_x/len(points), sum_y/len(points)]
+    len_points = len(points)
+    return (sum_x/len_points, sum_y/len_points)
 
 def mid_point_shapes(shapes):
     sum_x = 0
@@ -40,7 +41,8 @@ def mid_point_shapes(shapes):
         sum_x +=s.left+s.width/2
         sum_y +=s.top+s.height/2
     
-    return [sum_x/len(shapes), sum_y/len(shapes)]
+    len_shapes = len(shapes)
+    return (sum_x/len_shapes, sum_y/len_shapes)
 
 def is_close(a, b, tolerence=1e-9):
     # refer to https://github.com/PythonCHB/close_pep/blob/master/is_close.py
@@ -103,3 +105,22 @@ def get_ellipse_points(n, r1, r2, start_deg=0, midpoint=(0,0)):
             (r1 * math.cos(theta) + midpoint[0], r2 * math.sin(theta) + midpoint[1])
             for theta in (math.radians(start_deg) + math.pi*2 * i/n for i in range(n))
             ]
+
+def get_rgb_from_ole(ole):
+    ''' get rgb values from ole color value '''
+    # return ole%256, ole//256%256, ole//256//256%256
+    ole = int(ole)
+    return (ole & 255 << 0) >> 0, (ole & 255 << 8) >> 8, (ole & 255 << 16) >> 16
+
+def get_ole_from_rgb(r,g,b):
+    ''' get rgb values from ole color value '''
+    # return round(r + g*256 + b*256*256)
+    return int(r) << 0 | int(g) << 8 | int(b) << 16
+
+def get_brightness_from_rgb(r,g,b):
+    ''' get brightness/lightness from rgb values '''
+    #code from colorsys.rgb_to_hls
+    maxc = max(r, g, b)
+    minc = min(r, g, b)
+    l = (minc+maxc)/2.0
+    return l

@@ -1,24 +1,29 @@
 # -*- coding: utf-8 -*-
+'''
+Created on 02.11.2017
 
-# DO NOT REMOVE REFERENCE
-# reference is used by other modules
-import clr
+@author: fstallmann
+'''
 
-clr.AddReference("Microsoft.Office.Interop.PowerPoint")
-import Microsoft.Office.Interop.PowerPoint as PowerPoint
-
-clr.AddReference('System.Drawing')
-import System.Drawing as Drawing
+from __future__ import absolute_import
 
 import json # required for tags
 from collections import namedtuple # required for color class
-from bkt import settings # required to save global locpin setting
 
-ptToCmFactor = 2.54 / 72;
+import System.Array # to create int/str-Arrays
+
+from bkt import settings, dotnet # required to save global locpin setting
+from bkt.library import algorithms # required for color helper
+
+# DO NOT REMOVE REFERENCE
+# reference is used by other modules
+PowerPoint = dotnet.import_powerpoint()
+
+ptToCmFactor = 2.54 / 72
 def pt_to_cm(pt):
-    return float(pt) * ptToCmFactor;
+    return float(pt) * ptToCmFactor
 def cm_to_pt(cm):
-    return float(cm) / ptToCmFactor;
+    return float(cm) / ptToCmFactor
 
 # shape.AutoShapeType
 MsoAutoShapeType = {
@@ -371,16 +376,17 @@ def shape_is_group_child(shape):
 
 
 def shape_indices_on_slide(slide, indices):
-    import System.Array # to create int-Arrays
+    ''' return shape-range in slide by indices '''
     return slide.Shapes.Range(System.Array[int](indices))
 
 def last_n_shapes_on_slide(slide, n):
+    ''' return last n shapes in slide as range'''
     return shape_indices_on_slide(slide, range(slide.shapes.Count + 1 -n, slide.shapes.Count + 1))
 
 def shape_names_on_slide(slide, names):
+    ''' return shape-range in slide by names '''
     #NOTE: If there are multiple shapes with the same name, only one of them is returned!
     #NOTE: This function is also looking for shapes within groups.
-    import System.Array # to create str-Arrays
     return slide.Shapes.Range(System.Array[str](names))
 
 def shapes_to_range(shapes):
@@ -396,14 +402,13 @@ def shapes_to_range(shapes):
 
     ###############
     ### Approach 2:
-    import System.Array # to create int-Arrays
     #shape indices and range-function are different if shapes are within a group
     if shape_is_group_child(shapes[0]):
         all_shapes = shapes[0].ParentGroup.GroupItems
     else:
         all_shapes = shapes[0].Parent.Shapes
     #create mapping dict from all shape ids to shape indices
-    shape_id2idx = {s.id: i+1 for i,s in enumerate(all_shapes)}
+    shape_id2idx = {s.id: i for i,s in enumerate(all_shapes, start=1)}
     #get indices of shapes
     indices = []
     for s in shapes:
@@ -441,6 +446,7 @@ def shapes_to_range(shapes):
 
 
 def get_shapes_from_selection(selection):
+    ''' get list of shapes from selection (considers child shape selection) '''
     # ShapeRange accessible if shape or text selected
     if selection.Type == 2 or selection.Type == 3:
         try:
@@ -455,6 +461,7 @@ def get_shapes_from_selection(selection):
         return []
 
 def get_slides_from_selection(selection):
+    ''' get list of slides from selection '''
     # SlideRange accessible if slides, shapes or text selected
     try:
         return list(iter(selection.SlideRange))
@@ -466,7 +473,7 @@ def set_shape_zorder(shape, value=None, delta=None):
     Sets the shapes Z-Order to a specific value (if value != None) or by a specific delta (if delta != None). Delta can be negative.
     '''
     if not delta and not value:
-        raise ArgumentError("Neither value nor delta are given!")
+        raise TypeError("Neither value nor delta are given!")
 
     if value is None:
         value = shape.ZOrderPosition + delta
@@ -492,6 +499,28 @@ def set_shape_zorder(shape, value=None, delta=None):
         if factor*shape.ZOrderPosition >= factor*value:
             break
             #zorder reached
+
+
+def transfer_textrange(from_textrange, to_textrange):
+    '''
+    This function copy-pastes a textrange into another textrange. The standard textrange.copy() function works fine,
+    but the textrange.paste() via code does replace ThemeColors with RGB values (Note: via GUI this works fine).
+    So this function manually copies color values after copying the textrange.
+    '''
+    from_textrange.Copy()
+    to_textrange.Paste()
+
+    def copy_color(from_obj, to_obj):
+        if from_obj.ObjectThemeColor != 0:
+            to_obj.ObjectThemeColor = from_obj.ObjectThemeColor
+            to_obj.Brightness = from_obj.Brightness
+
+    for i,run in enumerate(from_textrange.Runs(), start=1):
+        copy_color(run.Font.Fill.ForeColor, to_textrange.Runs(i).Font.Fill.ForeColor)
+        copy_color(run.Font.Fill.BackColor, to_textrange.Runs(i).Font.Fill.BackColor)
+        copy_color(run.Font.Line.ForeColor, to_textrange.Runs(i).Font.Line.ForeColor)
+        copy_color(run.Font.Line.BackColor, to_textrange.Runs(i).Font.Line.BackColor)
+
 
 def replicate_shape(shape, force_textbox=False):
     '''
@@ -528,8 +557,9 @@ def replicate_shape(shape, force_textbox=False):
     new_shape.Apply()
 
     #copy text
-    shape.TextFrame2.TextRange.Copy()
-    new_shape.TextFrame2.TextRange.Paste()
+    # shape.TextFrame2.TextRange.Copy()
+    # new_shape.TextFrame2.TextRange.Paste()
+    transfer_textrange(shape.TextFrame2.TextRange, new_shape.TextFrame2.TextRange)
 
     #ensure correct size and position (size may change due to AutoSize, Flip can change position)
     new_shape.Height = shape.Height
@@ -556,9 +586,9 @@ def convert_text_into_shape(shape):
     slide = shape.Parent
 
     #find shape index
-    for index, shp in enumerate(slide.shapes):
+    for index, shp in enumerate(slide.shapes, start=1):
         if shape.id == shp.id:
-            shape_index = index+1
+            shape_index = index
             break
     else:
         #shape not found
@@ -573,7 +603,7 @@ def convert_text_into_shape(shape):
         shape.Line.visible = 0
 
         #add temporary shape
-        tmp_shp = slide.shapes.AddShape( MsoAutoShapeType['msoShapeRectangle']
+        slide.shapes.AddShape( MsoAutoShapeType['msoShapeRectangle']
             , -10, 0, 10, 10)
         
         #select shape and temporary shape
@@ -640,6 +670,9 @@ class TagHelper(object):
 
     @staticmethod
     def has_tag(obj, tag_name, check_value=None):
+        '''
+        Test if shape has specified tag (with value)
+        '''
         try:
             if check_value is not None:
                 return obj.Tags(tag_name) == check_value
@@ -651,6 +684,9 @@ class TagHelper(object):
 
     @staticmethod
     def get_tag(obj, tag_name, default=None, attr_type=None):
+        '''
+        Get value of tag and try to convert attribute type, otherwise return default
+        '''
         try:
             value = obj.Tags(tag_name)
             if value == '':
@@ -672,6 +708,7 @@ class ColorHelper(object):
     '''
     So, puhhh, how to start, ... colors and color indices are a huge mess in PowerPoint (and Office in general).
     Here is a good article about the mess in Word: http://www.wordarticles.com/Articles/Colours/2007.php
+    Here is an article about the shade indices: https://stackoverflow.com/questions/21142732/how-to-get-the-rgb-long-values-from-powerpoint-color-palette
     Basically, a color object has 2 attributes, ObjectThemeColor and SchemeColor.
     ObjectThemeColor goes from index 1 to 16. The default color palette is using 5-10 and 13-16 (11+12 are hyperlink colors).
     SchemeColor goes from 1 to 8, where 7+8 are Hyperlink colors. The ObjectThemeColor indices 13-16 are mappes to 1-4 in SchemeColor internally, not in order, of course.
@@ -693,11 +730,11 @@ class ColorHelper(object):
     _theme_color_shades = [
         # depending on HSL-Luminosity, different brightness-values are used
         # brightness-values = percentage brighter  (darker if negative)
-        [range(0,1),     [ 50,   35,  25,  15,   5] ],
-        [range(1,51),    [ 90,   75,  50,  25,  10] ],
-        [range(51,204),  [ 80,   60,  40, -25, -50] ],
-        [range(204,255), [-10,  -25, -50, -75, -90] ],
-        [range(255,256), [ -5,  -15, -25, -35, -50] ]
+        [[0],           [ 50,   35,  25,  15,   5] ],
+        [range(1,20),   [ 90,   75,  50,  25,  10] ],
+        [range(20,80),  [ 80,   60,  40, -25, -50] ],
+        [range(80,100), [-10,  -25, -50, -75, -90] ],
+        [[100],         [ -5,  -15, -25, -35, -50] ]
     ] #using int values to avoid floating point comparison problems
 
     _color_class = namedtuple("ThemeColor", "rgb brightness shade_index theme_index name")
@@ -733,9 +770,14 @@ class ColorHelper(object):
 
     @classmethod
     def _get_factors_for_rgb(cls, color_rgb):
-        color = Drawing.ColorTranslator.FromOle(color_rgb)
-        l = color.GetBrightness()*255
-        return [factors[1] for factors in cls._theme_color_shades if round(l) in factors[0]][0]
+        r,g,b = algorithms.get_rgb_from_ole(color_rgb)
+        l = round( algorithms.get_brightness_from_rgb(r,g,b) / 255. *100 )
+        return [factors[1] for factors in cls._theme_color_shades if l in factors[0]][0]
+
+        ### old method with Drawing:
+        # color = Drawing.ColorTranslator.FromOle(color_rgb)
+        # l = color.GetBrightness()*255
+        # return [factors[1] for factors in cls._theme_color_shades if round(l) in factors[0]][0]
     
     @classmethod
     def _get_color_name(cls, index, shade_index, brightness):
@@ -752,21 +794,38 @@ class ColorHelper(object):
         if brightness == 0:
             return color_rgb
         
+        # load python color transformation library
+        import colorsys
         # split rgb color in r,g,b
-        color = Drawing.ColorTranslator.FromOle(color_rgb)
-        r,g,b = color.R, color.G, color.B
-        # apply brightness factor
-        if brightness < 0:
-            r = round(r * (1+brightness))
-            g = round(g * (1+brightness))
-            b = round(b * (1+brightness))
+        r,g,b = algorithms.get_rgb_from_ole(color_rgb)
+        # split r,g,b in h,l,s
+        h,l,s = colorsys.rgb_to_hls(r/255.,g/255.,b/255.)
+        # adjust l value
+        if brightness > 0:
+            l += (1.-l)*brightness
         else:
-            r = round(r + (255.-r)*brightness)
-            g = round(g + (255.-g)*brightness)
-            b = round(b + (255.-b)*brightness)
-        # store color rgb
-        color = Drawing.Color.FromArgb(r, g, b);
-        return Drawing.ColorTranslator.ToOle(color)
+            l += l*brightness
+        # convert back into r,g,b
+        r,g,b = colorsys.hls_to_rgb(h,l,s)
+        # return rgb color
+        return algorithms.get_ole_from_rgb(round(r*255),round(g*255),round(b*255))
+
+        ### old method with Drawing:
+        # # split rgb color in r,g,b
+        # color = Drawing.ColorTranslator.FromOle(color_rgb)
+        # r,g,b = color.R, color.G, color.B
+        # # apply brightness factor
+        # if brightness < 0:
+        #     r = round(r * (1+brightness))
+        #     g = round(g * (1+brightness))
+        #     b = round(b * (1+brightness))
+        # else:
+        #     r = round(r + (255.-r)*brightness)
+        #     g = round(g + (255.-g)*brightness)
+        #     b = round(b + (255.-b)*brightness)
+        # # store color rgb
+        # color = Drawing.Color.FromArgb(r, g, b);
+        # return Drawing.ColorTranslator.ToOle(color)
     
     @classmethod
     def get_brightness_from_shade_index(cls, color_rgb, shade_index):
@@ -838,14 +897,14 @@ class BKTTag(object):
     def save(self):
         try:
             if len(self.data) > 0:
-                tag_data = json.dumps(self.data)
+                tag_data = json.dumps(self.data, ensure_ascii=False)
                 self.tags.Add(self.TAG_NAME,tag_data)
             else:
                 self.tags.Delete(self.TAG_NAME)
         except:
             #import traceback #debugging only
             #traceback.print_exc()
-            raise AttributeError
+            raise AttributeError("error saving json to tags")
     
     def remove(self):
         self.data = {}
@@ -864,7 +923,7 @@ class BKTTag(object):
     def __setitem__(self, arg, value):
         ''' access ribbon-attributes in dict-style, e.g. button['label'] = 'foo' '''
         if arg is None or value is None:
-            raise ValueError
+            raise ValueError("value cannot be none")
         
         self.data[arg] = value
     
@@ -878,6 +937,16 @@ class BKTTag(object):
 # = Slide content size =
 # ======================
 
+def slide_content_size(presentation):
+    ''' get size of content area (i.e. big text field of standard layout) '''
+    shapes_sizes = [[shape.left, shape.top, shape.width, shape.height] for shape in iter(presentation.SlideMaster.Shapes) if shape.type == 14 and shape.Placeholderformat.type == 2]
+    if len(shapes_sizes) == 0:
+        return 0, 0, presentation.PageSetup.SlideWidth, presentation.PageSetup.SlideHeight
+    else:
+        slide_content_size = shapes_sizes[0]
+        return slide_content_size[0], slide_content_size[1], slide_content_size[2], slide_content_size[3]
+
+
 BKT_CONTENTAREA = "BKT_CONTENTAREA"
 
 class ContentAreaTags(BKTTag):
@@ -890,47 +959,50 @@ class ContentAreaTags(BKTTag):
     def get_area(self):
         return self.data["contentarea_left"], self.data["contentarea_top"], self.data["contentarea_width"], self.data["contentarea_height"]
 
-def slide_content_size(presentation):
-    shapes_sizes = [[shape.left, shape.top, shape.width, shape.height] for shape in iter(presentation.SlideMaster.Shapes) if shape.type == 14 and shape.Placeholderformat.type == 2]
-    if len(shapes_sizes) == 0:
-        return 0, 0, presentation.PageSetup.SlideWidth, presentation.PageSetup.SlideHeight
-    else:
-        slide_content_size = shapes_sizes[0]
-        return slide_content_size[0], slide_content_size[1], slide_content_size[2], slide_content_size[3]
-
-def isset_contentarea(presentation):
-    if presentation.Tags.Item(BKT_CONTENTAREA) != '':
-        with ContentAreaTags(presentation.Tags) as tags:
-            return tags.is_area_set
-    else:
-        return False
-
-def define_contentarea(presentation, shape):
-    with ContentAreaTags(presentation.Tags) as tags:
-        tags["contentarea_left"]   = float(shape.left)
-        tags["contentarea_top"]    = float(shape.top)
-        tags["contentarea_width"]  = float(shape.width)
-        tags["contentarea_height"] = float(shape.height)
-    #shape.Delete()
-
-def reset_contentarea(presentation):
-    presentation.tags.Delete(BKT_CONTENTAREA)
-
-def read_contentarea(presentation):
-    with ContentAreaTags(presentation.Tags) as tags:
-        if tags.is_area_set:
-            return tags.get_area() #left,top,width,height
+class ContentArea(object):
+    @staticmethod
+    def isset_contentarea(presentation):
+        ''' test if custom content area is defined for given presentation '''
+        if presentation.Tags.Item(BKT_CONTENTAREA) != '':
+            with ContentAreaTags(presentation.Tags) as tags:
+                return tags.is_area_set
         else:
-            return slide_content_size(presentation) #left,top,width,height
+            return False
+
+    @staticmethod
+    def define_contentarea(presentation, shape):
+        ''' define custom content area for given presentation '''
+        with ContentAreaTags(presentation.Tags) as tags:
+            tags["contentarea_left"]   = float(shape.left)
+            tags["contentarea_top"]    = float(shape.top)
+            tags["contentarea_width"]  = float(shape.width)
+            tags["contentarea_height"] = float(shape.height)
+        #shape.Delete()
+
+    @staticmethod
+    def reset_contentarea(presentation):
+        ''' delete custom content area from given presentation '''
+        presentation.tags.Delete(BKT_CONTENTAREA)
+
+    @staticmethod
+    def read_contentarea(presentation):
+        ''' get custom content area from given presentation '''
+        with ContentAreaTags(presentation.Tags) as tags:
+            if tags.is_area_set:
+                return tags.get_area() #left,top,width,height
+            else:
+                return slide_content_size(presentation) #left,top,width,height
 
 
 # =========================================
 # = Iterator for "subshapes" & textframes =
 # =========================================
 
-#Iterate through shapes of different types and return every shapes "subhsapes", e.g. group shapes or table cells
-#arg 'from_selection': If shapes are not from a selection (e.g. iterate all shapes of a slide), set this to False to disable selected table cells detection,
-#                      otherwise not all table cells are iterated at least in the rare case that a table is the only shape on a slide.
+'''
+Iterate through shapes of different types and return every shapes "subhsapes", e.g. group shapes or table cells
+arg 'from_selection': If shapes are not from a selection (e.g. iterate all shapes of a slide), set this to False to disable selected table cells detection,
+                      otherwise not all table cells are iterated at least in the rare case that a table is the only shape on a slide.
+'''
 
 class SubShapeIterator(object):
     def __init__(self, shapes, from_selection=True):
@@ -1008,7 +1080,9 @@ def iterate_shape_subshapes(shapes, from_selection=True, filter_method=lambda sh
     return SubShapeIterator(shapes, from_selection)
 
 
-#Iterate through shapes of different types and return every shapes textframe
+'''
+Iterate through shapes of different types and return every shapes textframe
+'''
 
 class TextframeIterator(SubShapeIterator):
     
@@ -1072,7 +1146,7 @@ class BoundingFrame(object):
 
     @classmethod
     def from_shapes(cls, shapes):
-        from wrapper import wrap_shapes
+        from .wrapper import wrap_shapes
         shapes = wrap_shapes(shapes)
 
         bf = BoundingFrame()
@@ -1196,7 +1270,7 @@ class GroupManager(object):
     def regroup(self, new_shape_range=None):
         '''
         Perform regroup (actually group) and reset all attributes (name, tags, rotation) to original values.
-        If new_shpae_range is given, the stored shape-range from ungroup is replaced with the given shape-range.
+        If new_shape_range is given, the stored shape-range from ungroup is replaced with the given shape-range.
         '''
         self._ungroup = new_shape_range or self._ungroup
         if not self._ungroup:

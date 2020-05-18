@@ -103,24 +103,22 @@ namespace BKT
                 string path = Path.Combine(codebase, "..", "bkt-debug.log");
                 try
                 {
-                    logFileStream = new FileStream(path, FileMode.Truncate, FileAccess.Write, FileShare.ReadWrite);
+                    logFileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+
+                    TextWriterTraceListener listener;
+                    listener = new TextWriterTraceListener(logFileStream);
+                    Debug.Listeners.Add(listener);
                 }
                 catch(Exception ex)
                 {
                     Console.WriteLine("Error creating FileStream for trace file \"{0}\":" +
                         "\r\n{1}", path, ex.Message);
-                    return;
                 }
-                
-                TextWriterTraceListener listener;
-                listener = new TextWriterTraceListener(logFileStream);
-                Debug.Listeners.Add(listener);
             }
             Debug.AutoFlush = true;
             Debug.WriteLine("");
             Debug.WriteLine("================================================================================");
             DebugMessage("Addin started");
-            Console.WriteLine("Addin startet");
             
             // initialize Mouse/Key-Hooks
             try
@@ -176,6 +174,62 @@ namespace BKT
             async_startup_ribbon = null;
             
         }
+
+        private COMAddIns GetCOMAddIns()
+        {
+            if (host == HostApplication.PowerPoint)
+            {
+                return ((PowerPoint.Application)app).COMAddIns;
+            }
+            else if (host == HostApplication.Excel)
+            {
+                return ((Excel.Application)app).COMAddIns;
+            }
+            else if (host == HostApplication.Word)
+            {
+                return ((Word.Application)app).COMAddIns;
+            }
+            else if (host == HostApplication.Outlook)
+            {
+                return ((Outlook.Application)app).COMAddIns;
+            }
+            else if (host == HostApplication.Visio)
+            {
+                return ((Visio.Application)app).COMAddIns;
+            }
+            else
+            {
+                DebugMessage("unknown host, reload not possible");
+                return null;
+            }
+        }
+
+        public void Reload() {
+            try {
+                COMAddIns addins = GetCOMAddIns();
+                if (addins != null)
+                {
+                    COMAddIn addIn = null;
+                    foreach(COMAddIn addin in addins)
+                    {
+                        if(addin.ProgId == "BKT.AddIn")
+                        {
+                            addIn = addin;
+                            break;
+                        }
+                    }
+                    if (addIn != null)
+                    {
+                        DebugMessage("Reloading....");
+                        addIn.Connect = false;
+                        addIn.Connect = true;
+                        DebugMessage("Reloading complete!");
+                    }
+                }
+            } catch (Exception) {
+                DebugMessage("error reloading addin");
+            }
+        }
         #endregion
 
 
@@ -189,9 +243,8 @@ namespace BKT
         }
         
         private void DebugMessage(string s) {
-            DateTime now = DateTime.Now;
             Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + ": " + s);
-            Debug.Flush();
+            // Debug.Flush(); --> not required as AutoFlush=true
         }
 
         private void LogMessage(string s) {
@@ -235,6 +288,20 @@ namespace BKT
                 s = s + key + " = " + GetConfigEntry(key) + "\r\n";
             }
             return s;
+        }
+
+        public string GetBuildConfiguration() {
+#if OFFICE2010
+            return "OFFICE2010";
+#elif DEBUG
+            return "DEBUG";
+#else
+            return "RELEASE";
+#endif
+        }
+
+        public string GetBuildRevision() {
+            return Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
         #endregion
         
@@ -377,8 +444,8 @@ namespace BKT
             ICollection<string> paths = ipy.GetSearchPaths();
             paths.Clear();
             string root = GetConfigEntry("ironpython_root");
-            paths.Add(root);
-            paths.Add(Path.Combine(root,"Lib"));
+            paths.Add(root); //path is required for loading wpf fluent ribbon resources
+            paths.Add(Path.Combine(root,"Lib")); //path is standard python library
             //path.Add(Path.Combine(root,"DLLs"));
             //path.Add(Path.Combine(root,"site-packages"));
             
@@ -568,7 +635,7 @@ namespace BKT
         }
         
         public void OnAddInsUpdate(ref Array custom)
-        {    
+        {
         }
         
         public void OnStartupComplete(ref Array custom)
@@ -576,7 +643,7 @@ namespace BKT
         }
         
         public void OnBeginShutdown(ref Array custom)
-        {    
+        {
             DebugMessage("OnBeginShutdown");
         }
         
@@ -600,6 +667,9 @@ namespace BKT
                 file.WriteLine(customUI);
                 file.Close();
                 LogMessage("wrote xml in: " + filename);
+#if DEBUG
+                VerifyCustomUI(customUI);
+#endif
                 return customUI;
             } catch (Exception e) {
                 broken = true;
@@ -663,7 +733,7 @@ namespace BKT
         
         public void VerifyCustomUI(string text)
         {
-            ResourceManager resources = new ResourceManager("BKT.xml_schemata", Assembly.GetExecutingAssembly());
+            ResourceManager resources = new ResourceManager("BKT.Properties.xml_schemata", Assembly.GetExecutingAssembly());
             byte[] xsd_data = (byte[]) resources.GetObject("customui14_xsd");
             Stream xsd_res = new MemoryStream(xsd_data);
             
@@ -674,15 +744,16 @@ namespace BKT
             xsd_res.Close();
             
             XDocument doc = XDocument.Parse(text);
-            Console.WriteLine("Validating XML");
+            DebugMessage("Validating XML...");
             doc.Validate(ss, new ValidationEventHandler(ValidationCallBack));
+            DebugMessage("Validating XML completed!");
         }
 
         private void ValidationCallBack(object sender, ValidationEventArgs vea)
         {    
-            Console.WriteLine("\t event sender: " + sender);
-            Console.WriteLine("\t validation args: " + vea);
-            Console.WriteLine("");
+            DebugMessage("\t event sender: " + sender);
+            DebugMessage("\t validation args: " + vea.Exception);
+            DebugMessage("");
         }
         #endregion
         
@@ -722,6 +793,13 @@ namespace BKT
         //     python_delegate.mouse_move(sender, e);
         // }
 
+        private void MouseDoubleClickEvent(object sender, MouseEventArgs e)
+        {
+            DebugMessage(String.Format("MouseDoubleClick: \t{0}", e.Button));
+            if (!created) return;
+            python_delegate.mouse_double_click(sender, e);
+        }
+
         private void MouseDragStartedEvent(object sender, MouseEventExtArgs e)
         {
             DebugMessage(String.Format("MouseDragStartedEvent: \t{0} / {1}; \t System Timestamp: \t{2}", e.X, e.Y, e.Timestamp));
@@ -759,6 +837,7 @@ namespace BKT
             m_GlobalHook = Hook.AppEvents(); //Only application events
             m_GlobalHook.MouseDownExt += MouseDownEvent;
             m_GlobalHook.MouseUpExt += MouseUpEvent;
+            m_GlobalHook.MouseDoubleClick += MouseDoubleClickEvent;
             // m_GlobalHook.MouseMoveExt += MouseMoveEvent;
 
             m_GlobalHook.MouseDragStartedExt += MouseDragStartedEvent;
@@ -775,6 +854,7 @@ namespace BKT
             {
                 m_GlobalHook.MouseDownExt -= MouseDownEvent;
                 m_GlobalHook.MouseUpExt -= MouseUpEvent;
+                m_GlobalHook.MouseDoubleClick -= MouseDoubleClickEvent;
                 // m_GlobalHook.MouseMoveExt -= MouseMoveEvent;
                 m_GlobalHook.MouseDragStartedExt -= MouseDragStartedEvent;
                 m_GlobalHook.MouseDragFinishedExt -= MouseDragFinishedEvent;
@@ -848,7 +928,9 @@ namespace BKT
             try {
 #if OFFICE2010
 #else
-                CreateTaskPaneForWindow(workbook.Windows[1]);
+                if(workbook.Windows.Count > 0) {
+                    CreateTaskPaneForWindow(workbook.Windows[1]);
+                }
 #endif
             } catch (Exception e) {
                 LogMessage(e.ToString());
@@ -861,7 +943,9 @@ namespace BKT
             try {
 #if OFFICE2010
 #else
-                CreateTaskPaneForWindow(workbook.Windows[1]);
+                if(workbook.Windows.Count > 0) {
+                    CreateTaskPaneForWindow(workbook.Windows[1]);
+                }
 #endif
             } catch (Exception e) {
                 LogMessage(e.ToString());
@@ -898,7 +982,9 @@ namespace BKT
             try {
 #if OFFICE2010
 #else
-                CreateTaskPaneForWindow(presentation.Windows[1]);
+                if(presentation.Windows.Count > 0) {
+                    CreateTaskPaneForWindow(presentation.Windows[1]);
+                }
 #endif
             } catch (Exception e) {
                 LogMessage(e.ToString());
@@ -911,7 +997,9 @@ namespace BKT
             try {
 #if OFFICE2010
 #else
-                CreateTaskPaneForWindow(presentation.Windows[1]);
+                if(presentation.Windows.Count > 0) {
+                    CreateTaskPaneForWindow(presentation.Windows[1]);
+                }
 #endif
             } catch (Exception e) {
                 LogMessage(e.ToString());
@@ -1027,7 +1115,9 @@ namespace BKT
             try {
 #if OFFICE2010
 #else
-                CreateTaskPaneForWindow(document.Windows[1]);
+                if(document.Windows.Count > 0) {
+                    CreateTaskPaneForWindow(document.Windows[1]);
+                }
 #endif
             } catch (Exception e) {
                 LogMessage(e.ToString());
@@ -1040,7 +1130,9 @@ namespace BKT
             try {
 #if OFFICE2010
 #else
-                CreateTaskPaneForWindow(document.Windows[1]);
+                if(document.Windows.Count > 0) {
+                    CreateTaskPaneForWindow(document.Windows[1]);
+                }
 #endif
             } catch (Exception e) {
                 LogMessage(e.ToString());

@@ -3,15 +3,15 @@ import bkt
 
 # define some default callbacks for the demo-tab
 action_callback = bkt.Callback(
-    lambda current_control: bkt.helpers.message('current_control clicked: label=%s,\nid=%s' % (current_control['label'], current_control['id'])),
+    lambda current_control: bkt.message('current_control clicked: label=%s,\nid=%s' % (current_control['label'], current_control['id'])),
     current_control=True)
 
 toggle_callback = bkt.Callback(
-    lambda pressed, current_control: bkt.helpers.message('toggle-button clicked: label=%s,\nid=%s\n\npressed-state after click=%s' % (current_control['label'], current_control['id'], pressed)),
+    lambda pressed, current_control: bkt.message('toggle-button clicked: label=%s,\nid=%s\n\npressed-state after click=%s' % (current_control['label'], current_control['id'], pressed)),
     current_control=True)
 
 change_callback = bkt.Callback(
-    lambda value, current_control: bkt.helpers.message('edit-box changed: label=%s,\nid=%s\n\nnew text=%s\n(text will be reset by get_text-Callback)' % (current_control['label'], current_control['id'], value)),
+    lambda value, current_control: bkt.message('edit-box changed: label=%s,\nid=%s\n\nnew text=%s\n(text will be reset by get_text-Callback)' % (current_control['label'], current_control['id'], value)),
     current_control=True)
 
 get_text_callback = bkt.Callback(lambda : 'default text')
@@ -20,7 +20,7 @@ get_content_callback = bkt.callbacks.Callback(
     lambda : '<menu xmlns="http://schemas.microsoft.com/office/2006/01/customui"><button id="button1" label="Button 1" /><button id="button2" label="Button 2" /><button id="button3" label="Button 3" /></menu>')
 
 action_indexed_callback = bkt.Callback(
-    lambda selected_item, index, current_control: bkt.helpers.message('current_control clicked: label=%s,\nid=%s\n\nindex=%s, selected_item_id=%s' % (current_control['label'], current_control['id'], index, selected_item)),
+    lambda selected_item, index, current_control: bkt.message('current_control clicked: label=%s,\nid=%s\n\nindex=%s, selected_item_id=%s' % (current_control['label'], current_control['id'], index, selected_item)),
     current_control=True)
 
 
@@ -261,7 +261,7 @@ bkt.powerpoint.add_tab(
                         
                         # on_action
                         #   applies to: button
-                        on_action       = bkt.Callback(lambda: bkt.helpers.message('message'))
+                        on_action       = bkt.Callback(lambda: bkt.message('message'))
                     ),
                     
                     
@@ -276,7 +276,7 @@ bkt.powerpoint.add_tab(
                         # on_action
                         #   applies to: checkBox toggleButton
                         on_toggle_action = bkt.Callback(
-                            lambda pressed: bkt.helpers.message('toggle-button clicked, pressed-state=%s' % (pressed)),
+                            lambda pressed: bkt.message('toggle-button clicked, pressed-state=%s' % (pressed)),
                             bkt.CallbackTypes.on_toggle_action),
                         
                         # via customui.LoadImage, the image is automatically loaded from /resources/images
@@ -347,7 +347,7 @@ bkt.powerpoint.add_tab(
                         
                         # on_action_indexed
                         #   applies to: dropDown gallery
-                        on_action_indexed       = bkt.Callback(lambda selected_item, index: bkt.helpers.message('gallery item %s clicked' % (index)))
+                        on_action_indexed       = bkt.Callback(lambda selected_item, index: bkt.message('gallery item %s clicked' % (index)))
                     ),
                     
                     
@@ -361,7 +361,7 @@ bkt.powerpoint.add_tab(
                         # on_change
                         #   applies to: comboBox editBox
                         on_change = bkt.Callback(
-                            lambda value: bkt.helpers.message('text changed, value=%s' % (value)),
+                            lambda value: bkt.message('text changed, value=%s' % (value)),
                             bkt.CallbackTypes.on_change)
                     ),
                     

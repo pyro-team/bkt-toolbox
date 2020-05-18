@@ -1,17 +1,29 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 23.11.2014
+DEPRECATED: Factory of creating controls from annotation-syntax
 
+Created on 23.11.2014
 @author: cschmitt
 '''
+
+from __future__ import absolute_import
+
+import logging
+import sys, inspect
 
 import bkt.annotation as mod_annotation
 import bkt.ribbon as mod_ribbon
 import bkt.callbacks as mod_callbacks
-import bkt.helpers as _h
-import logging
 
-CALLBACK_FROM_ANNOTATION = object()
+
+# ====================================
+# = Access to Ribbon Control classes =
+# ====================================
+# NOTE: The following 2 lines used to be in bkt.ribbon, but it was moved here as it is only required for legacy annotation syntax
+
+clsmembers = inspect.getmembers(sys.modules["bkt.ribbon"], inspect.isclass)
+RIBBON_CONTROL_CLASSES = {member[1]._python_name:member[1] for member in clsmembers if issubclass(member[1], mod_ribbon.RibbonControl) and hasattr(member[1], '_python_name')}
+
 
 class ControlFactory(object):
     def __init__(self, annotation, id_tag=None, ribbon_info=None):
@@ -60,7 +72,7 @@ class ControlFactory(object):
         
         # Root-Control erstellen
         if type(annotation.ui_info.node_type) == str:
-            instance = mod_ribbon.RIBBON_CONTROL_CLASSES[annotation.ui_info.node_type](id_tag=self.id_tag, **annotation.ui_info.control_args)
+            instance = RIBBON_CONTROL_CLASSES[annotation.ui_info.node_type](id_tag=self.id_tag, **annotation.ui_info.control_args)
         else:
             instance = annotation.ui_info.node_type(id_tag=self.id_tag, **annotation.ui_info.control_args)
         instance.set_id(annotation.target_name, self.ribbon_short_id, self.id_tag)

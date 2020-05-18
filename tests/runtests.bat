@@ -1,1 +1,8 @@
-bin\ipy-2.7.8\ipy.exe -m unittest discover
+@echo off
+%~d0
+cd %~dp0
+cd ..
+@echo on
+
+bin\ipy.exe -m unittest discover -v -s tests
+pause

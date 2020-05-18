@@ -5,18 +5,22 @@ Created on 06.02.2018
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
 import bkt
 
-import text
-import arrange
-import harvey
-import shapes as mod_shapes
-import info
-import agenda
-import linkshapes
-import processshapes
-import language
-import slides
+#FIXME: would be nice to have less dependencies and more lazy loading of modules on callback
+from . import text
+from . import arrange
+from . import harvey
+from . import shapes as mod_shapes
+from . import shape_selection
+from . import info
+from . import agenda
+from . import linkshapes
+from . import processshapes
+from . import language
+from . import slides
 
 
 # =================
@@ -30,11 +34,13 @@ bkt.powerpoint.add_context_menu(
     bkt.ribbon.ContextMenu(id_mso='ContextMenuObjectsGroup', children=[
         ### Chevron with header
         bkt.ribbon.Button(id='context-arrange-header-group', label="Überschrift anordnen", insertBeforeMso='Cut', image="headered_pentagon",
+            supertip="Kopfzeile (Überschrift) wieder richtig auf dem Prozessschritt-Shape positionieren",
             on_action=bkt.Callback(processshapes.Pentagon.update_pentagon_group, shape=True),
             get_visible=bkt.Callback(processshapes.Pentagon.is_headered_group, shape=True)
         ),
         ### Updatable process chevrons
         bkt.ribbon.Button(id='context-convert-process', label="In Prozess konvertieren", insertBeforeMso='Cut', image="process_chevrons",
+            supertip="Ausgewählte Prozess-Shapes in eine interaktive Prozess-Gruppe umwandeln, um einfach Prozesschritte hinzuzufügen",
             on_action=bkt.Callback(processshapes.ProcessChevrons.convert_to_process_chevrons, shape=True),
             get_visible=bkt.Callback(processshapes.ProcessChevrons.is_convertible, shape=True)
         ),
@@ -55,6 +61,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Menu(
             id='context-connectors-type',
             label="Verbindungstypen",
+            supertip="Verbindungstyp für alle ausgewählten Verbinder ändern",
             image_mso='ShapeConnectorStyleMenu',
             insertBeforeMso='ObjectsGroupMenu',
             get_visible=bkt.Callback(mod_shapes.CtxVerbinder.ctx_connectors_visible, shapes=True),
@@ -82,6 +89,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id='context-connectors-reroute',
             label="Verbindungen neu erstellen",
+            supertip="Alle ausgewählten Verbinder neu erstellen",
             insertBeforeMso='ObjectsGroupMenu',
             image_mso='ShapeRerouteConnectors',
             on_action=bkt.Callback(mod_shapes.CtxVerbinder.reroute_connectors, shapes=True),
@@ -91,6 +99,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id='context-connectors-invert',
             label="Pfeilrichtung umdrehen",
+            supertip="Pfeilrichtung des Verbinders umkehren",
             insertBeforeMso='ObjectsGroupMenu',
             image_mso='ArrowStyleGallery',
             on_action=bkt.Callback(mod_shapes.CtxVerbinder.invert_direction, shapes=True),
@@ -101,6 +110,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.DynamicMenu(
             id="context-lang-change-shapes",
             label="Sprache ändern",
+            supertip="Sprache der Rechtschreibkorrektur für ausgewählte Shapes anpassen",
             image_mso="GroupLanguage",
             insertAfterMso='ObjectFormatDialog',
             get_content=bkt.Callback(language.LangSetter.get_dynamicmenu_content),
@@ -109,6 +119,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id = 'text_in_shape-context',
             label = u"Text in Shape kombinieren",
+            supertip="Kopiere den Text eines Text-Shapes in das zweite markierte Shape und löscht das Text-Shape.",
             image_mso = "TextBoxInsert",
             on_action=bkt.Callback(text.TextOnShape.textIntoShape, shapes=True, shapes_min=2),
             get_visible = bkt.Callback(text.TextOnShape.is_mergable, shapes=True),
@@ -117,6 +128,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id = 'compose_text-context',
             label = u"Shape-Text zusammenführen",
+            supertip="Führe die markierten Shapes in ein Shape zusammen. Der Text aller Shapes wird übernommen und aneinandergehängt.",
             image_mso = "TracePrecedents",
             on_action=bkt.Callback(text.SplitTextShapes.joinShapesWithText, shapes=True),
             get_visible = bkt.Callback(text.SplitTextShapes.is_joinable, shapes=True),
@@ -125,6 +137,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id = 'text_truncate-context',
             label="Shape-Texte löschen",
+            supertip="Führe die markierten Shapes in ein Shape zusammen. Der Text aller Shapes wird übernommen und aneinandergehängt.",
             image_mso='ReviewDeleteMarkup',
             on_action=bkt.Callback(text.TextPlaceholder.text_truncate, shapes=True),
             get_visible = bkt.Callback(text.SplitTextShapes.is_joinable, shapes=True), #reuse callback from SplitTextShapes
@@ -133,6 +146,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id = 'text_replace-context',
             label="Shape-Texte ersetzen…",
+            supertip="Text aller gewählten Shapes mit im Dialogfeld eingegebenen Text ersetzen.",
             image_mso='ReplaceDialog',
             on_action=bkt.Callback(text.TextPlaceholder.text_replace, shapes=True),
             get_visible = bkt.Callback(text.SplitTextShapes.is_joinable, shapes=True), #reuse callback from SplitTextShapes
@@ -143,6 +157,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id='add_into_group-context',
             label="In Gruppe einfügen",
+            supertip="Sofern das zuerst oder zuletzt markierte Shape eine Gruppe ist, werden alle anderen Shapes in diese Gruppe eingefügt. Anderenfalls werden alle Shapes gruppiert.",
             image_mso="ObjectsRegroup",
             on_action=bkt.Callback(arrange.GroupsMore.add_into_group, shapes=True),
             get_visible = bkt.Callback(arrange.GroupsMore.visible_add_into_group, shapes=True),
@@ -152,9 +167,10 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id='paste_and_replace-context-shapes',
             label="Mit Zwischenablage ersetzen",
+            supertip="Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
             insertAfterMso='PasteGalleryMini',
             image_mso='PasteSingleCellExcelTableDestinationFormatting',
-            on_action=bkt.Callback(mod_shapes.ShapesMore.paste_and_replace, slide=True, shape=True),
+            on_action=bkt.Callback(shape_selection.SlidesMore.paste_and_replace, slide=True, shape=True),
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
             get_visible=bkt.apps.ppt_shapes_exactly1_selected,
         ),
@@ -169,13 +185,15 @@ bkt.powerpoint.add_context_menu(
     bkt.ribbon.ContextMenu(id_mso='ContextMenuShapeFreeform', children=[
         ### Chevron with header
         bkt.ribbon.Button(id='context-arrange-header', label="Überschrift anordnen", insertBeforeMso='Cut', image="headered_pentagon",
+            supertip="Kopfzeile (Überschrift) wieder richtig auf dem Prozessschritt-Shape positionieren",
             on_action=bkt.Callback(processshapes.Pentagon.search_body_and_update_header, shape=True, context=True),
             get_visible=bkt.Callback(processshapes.Pentagon.is_header_shape, shape=True)
         ),
         ### Shape connectors
         bkt.ribbon.Button(
             id = 'connector_update-context',
-            label = u"Verbindungsfläche neu verbinden",
+            label = "Verbindungsfläche neu verbinden",
+            supertip="Aktualisiere die Verbindungsfläche nachdem sich die verbundenen Shapes geändert haben.",
             image = "ConnectorUpdate",
             on_action=bkt.Callback(mod_shapes.ShapeConnectors.update_connector_shape, context=True, shape=True),
             get_visible = bkt.Callback(mod_shapes.ShapeConnectors.is_connector, shape=True),
@@ -186,9 +204,10 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id='paste_and_replace-context-freeform',
             label="Mit Zwischenablage ersetzen",
+            supertip="Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
             insertAfterMso='PasteGalleryMini',
             image_mso='PasteSingleCellExcelTableDestinationFormatting',
-            on_action=bkt.Callback(mod_shapes.ShapesMore.paste_and_replace, slide=True, shape=True),
+            on_action=bkt.Callback(shape_selection.SlidesMore.paste_and_replace, slide=True, shape=True),
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
         ),
         ### Linked shapes
@@ -204,6 +223,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.DynamicMenu(
             id="context-lang-change-shp",
             label="Sprache ändern",
+            supertip="Sprache der Rechtschreibkorrektur für ausgewähltes Shape anpassen",
             image_mso="GroupLanguage",
             insertAfterMso='ObjectFormatDialog',
             get_content=bkt.Callback(language.LangSetter.get_dynamicmenu_content),
@@ -211,7 +231,8 @@ bkt.powerpoint.add_context_menu(
         ### Text operations
         bkt.ribbon.Button(
             id = 'decompose_text-context',
-            label = u"Shape-Text zerlegen",
+            label = "Shape-Text zerlegen",
+            supertip="Zerlege die markierten Shapes anhand der Text-Absätze in mehrere Shapes. Pro Absatz wird ein Shape mit dem entsprechenden Text angelegt.",
             image_mso = "TraceDependents",
             on_action=bkt.Callback(text.SplitTextShapes.splitShapesByParagraphs, shapes=True, context=True),
             get_visible = bkt.Callback(text.SplitTextShapes.is_splitable, shape=True),
@@ -219,7 +240,8 @@ bkt.powerpoint.add_context_menu(
         ),
         bkt.ribbon.Button(
             id = 'text_on_shape-context',
-            label = u"Text auf Shape zerlegen",
+            label = "Text auf Shape zerlegen",
+            supertip="Überführe jeweils den Textinhalt der markierten Shapes in ein separates Text-Shape.",
             image_mso = "TableCellCustomMarginsDialog",
             on_action=bkt.Callback(text.TextOnShape.textOutOfShape, shapes=True, context=True),
             get_visible = bkt.Callback(text.TextOnShape.is_outable, shape=True),
@@ -229,9 +251,10 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id='paste_and_replace-context-shp',
             label="Mit Zwischenablage ersetzen",
+            supertip="Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
             insertAfterMso='PasteGalleryMini',
             image_mso='PasteSingleCellExcelTableDestinationFormatting',
-            on_action=bkt.Callback(mod_shapes.ShapesMore.paste_and_replace, slide=True, shape=True),
+            on_action=bkt.Callback(shape_selection.SlidesMore.paste_and_replace, slide=True, shape=True),
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
         ),
         ### Linked shapes
@@ -247,6 +270,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.DynamicMenu(
             id="context-lang-change-txt",
             label="Sprache ändern",
+            supertip="Sprache der Rechtschreibkorrektur ausgewählten Text anpassen",
             image_mso="GroupLanguage",
             insertAfterMso='ObjectFormatDialog',
             get_content=bkt.Callback(language.LangSetter.get_dynamicmenu_content),
@@ -263,6 +287,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.DynamicMenu(
             id="context-lang-change-spell",
             label="Sprache ändern",
+            supertip="Sprache der Rechtschreibkorrektur ausgewählten Text anpassen",
             image_mso="GroupLanguage",
             insertAfterMso='ObjectFormatDialog',
             get_content=bkt.Callback(language.LangSetter.get_dynamicmenu_content),
@@ -279,9 +304,10 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id='paste_and_replace-context-pic',
             label="Mit Zwischenablage ersetzen",
+            supertip="Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
             insertAfterMso='PasteGalleryMini',
             image_mso='PasteSingleCellExcelTableDestinationFormatting',
-            on_action=bkt.Callback(mod_shapes.ShapesMore.paste_and_replace, slide=True, shape=True),
+            on_action=bkt.Callback(shape_selection.SlidesMore.paste_and_replace, slide=True, shape=True),
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
         ),
         ### Linked shapes
@@ -297,6 +323,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id='context-connector-invert',
             label="Pfeilrichtung umdrehen",
+            supertip="Pfeilrichtung des Verbinders umkehren",
             insertAfterMso='ShapeRerouteConnectors',
             image_mso='ArrowStyleGallery',
             on_action=bkt.Callback(mod_shapes.CtxVerbinder.invert_direction, shapes=True),
@@ -323,15 +350,17 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Button(
             id='context-paste-to-slides',
             label="Auf ausgewählte Folien einfügen",
+            supertip="Zwischenablage auf allen ausgewählten Folien einfügen",
             insertAfterMso='PasteGalleryMini',
             image_mso='Paste',
-            on_action=bkt.Callback(mod_shapes.ShapesMore.paste_to_slides, slides=True),
+            on_action=bkt.Callback(shape_selection.SlidesMore.paste_to_slides, slides=True),
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
         ),
         ### Language setting
         bkt.ribbon.DynamicMenu(
             id="context-lang-change-slides",
             label="Sprache ändern",
+            supertip="Sprache der Rechtschreibkorrektur für ausgewählte Folien anpassen",
             image_mso="GroupLanguage",
             insertAfterMso='SlideBackgroundFormatDialog',
             get_content=bkt.Callback(language.LangSetter.get_dynamicmenu_content),
@@ -340,6 +369,7 @@ bkt.powerpoint.add_context_menu(
         bkt.ribbon.Menu(
             id="context-export-slides",
             label="Ausgewählte Folien exportieren",
+            supertip="Ausgewählte Folien als eigene Präsentation exportieren oder als E-Mail versenden",
             image_mso="SaveSelectionToTextBoxGallery",
             insertAfterMso='SlideBackgroundFormatDialog',
             children=[
@@ -348,13 +378,47 @@ bkt.powerpoint.add_context_menu(
                     label='Speichern',
                     image_mso='SaveSelectionToTextBoxGallery',
                     supertip="Speichert die ausgewählten Folien in einer neuen Präsentation.",
-                    on_action=bkt.Callback(slides.FolienMenu.saveSlidesDialog)
+                    on_action=bkt.Callback(slides.SlideMenu.save_slides_dialog)
                 ),
                 bkt.ribbon.Button(
                     id = 'context-export-send_slides',
                     label='Senden',
                     image_mso='FileSendAsAttachment',
-                    on_action=bkt.Callback(slides.FolienMenu.sendSlidesDialog)
+                    supertip="Sendet die ausgewählten Folien als E-Mail Anhang.",
+                    on_action=bkt.Callback(slides.SlideMenu.send_slides_dialog)
+                ),
+            ]
+        ),
+        bkt.ribbon.MenuSeparator(insertAfterMso='SlideBackgroundFormatDialog'),
+    ])
+)
+
+
+### Context menu for slide thumbnails in sort view
+
+bkt.powerpoint.add_context_menu(
+    bkt.ribbon.ContextMenu(id_mso='ContextMenuSlideSorter', children=[
+        ### Export (send, save) selected slides
+        bkt.ribbon.Menu(
+            id="context-export2-slides",
+            label="Folien exportieren",
+            supertip="Ausgewählte Folien als eigene Präsentation exportieren oder als E-Mail versenden",
+            image_mso="SaveSelectionToTextBoxGallery",
+            insertAfterMso='SlideBackgroundFormatDialog',
+            children=[
+                bkt.ribbon.Button(
+                    id = 'context-export2-save_slides',
+                    label='Speichern',
+                    image_mso='SaveSelectionToTextBoxGallery',
+                    supertip="Speichert die ausgewählten Folien in einer neuen Präsentation.",
+                    on_action=bkt.Callback(slides.SlideMenu.save_slides_dialog)
+                ),
+                bkt.ribbon.Button(
+                    id = 'context-export2-send_slides',
+                    label='Senden',
+                    image_mso='FileSendAsAttachment',
+                    supertip="Sendet die ausgewählten Folien als E-Mail Anhang.",
+                    on_action=bkt.Callback(slides.SlideMenu.send_slides_dialog)
                 ),
             ]
         ),
@@ -399,6 +463,10 @@ bkt.powerpoint.add_contextual_tab(
 # ==========
 
 
-bkt.powerpoint.context_dialogs.register("BKT_PROCESS_CHEVRONS", "toolbox.processshapes") #process chevrons
 bkt.powerpoint.context_dialogs.register("BKT_DIALOG_AMPEL3", "toolbox.popups.traffic_light") #traffic light
-bkt.powerpoint.context_dialogs.register("BKT_DIALOG_STATESHAPE", "toolbox.stateshapes") #stateshapes, e.g. likert scale
+bkt.powerpoint.context_dialogs.register("BKT_DIALOG_STATESHAPE", "toolbox.popups.stateshapes") #stateshapes, e.g. likert scale
+
+bkt.powerpoint.context_dialogs.register(processshapes.ProcessChevrons.BKT_DIALOG_TAG, "toolbox.popups.processshapes") #process chevrons
+bkt.powerpoint.context_dialogs.register(harvey.HarveyBalls.BKT_HARVEY_DIALOG_TAG, "toolbox.popups.harvey") #harvey balls
+bkt.powerpoint.context_dialogs.register(linkshapes.BKT_LINK_UUID, "toolbox.popups.linkshapes") #linked shapesD
+bkt.powerpoint.context_dialogs.register(agenda.TOOLBOX_AGENDA_POPUP, "toolbox.popups.agenda") #linked shapesD

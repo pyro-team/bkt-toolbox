@@ -4,8 +4,7 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
+from __future__ import absolute_import
 
 import logging
 import traceback
@@ -17,9 +16,13 @@ import uuid
 
 from collections import OrderedDict
 
+import bkt
+import bkt.library.powerpoint as pplib
+
+import bkt.dotnet
 D = bkt.dotnet.import_drawing()
 
-from helpers import ShapeFormats #local helper functions
+from .helpers import ShapeFormats #local helper functions
 
 
 CF_VERSION = "20191112"
@@ -226,7 +229,7 @@ class CustomFormatCatalog(object):
 
     custom_styles = []
     
-    config_folder = os.path.join(bkt.helpers.get_fav_folder(), "custom_formats")
+    config_folder = bkt.helpers.get_fav_folder("custom_formats")
     current_file = bkt.settings.get("customformats.default_file", "styles.json")
     initialized = False
 
@@ -243,7 +246,7 @@ class CustomFormatCatalog(object):
     def create_new_config(cls, filename):
         file = os.path.join(cls.config_folder, filename)
         if os.path.exists(file):
-            raise FileExistsError("file already exists")
+            raise OSError("file already exists")
         
         cls.current_file = filename
         cls.custom_styles = []
@@ -258,25 +261,25 @@ class CustomFormatCatalog(object):
         if not os.path.exists(cls.config_folder):
             os.makedirs(cls.config_folder)
         
-        with io.open(file, 'w') as json_file:
+        with io.open(file, 'w', encoding='utf-8') as json_file:
             catalog = OrderedDict()
             catalog["version"] = CF_VERSION
             catalog["filename"] = cls.current_file
             catalog["styles"] = [style.to_json() for style in cls.custom_styles]
-            json.dump(catalog, json_file)
+            json.dump(catalog, json_file, ensure_ascii=False, indent=2)
 
     @classmethod
     def read_from_config(cls, filename="styles.json"):
         file = os.path.join(cls.config_folder, filename)
         if not os.path.isfile(file):
             return
-        with io.open(file, 'r') as json_file:
+        with io.open(file, 'r', encoding='utf-8') as json_file:
             catalog = json.load(json_file, object_pairs_hook=OrderedDict)
             catalog_migration = False
             
             if not isinstance(catalog, OrderedDict) or catalog.get("version", 0) != CF_VERSION:
                 #pre-migration TODO: create backup-file
-                bkt.helpers.message("Einmalige Migration des Katalogformats erforderlich. Diese wird nun gestartet.")
+                bkt.message("Einmalige Migration des Katalogformats erforderlich. Diese wird nun gestartet.")
 
                 try:
                     #migration from old list-format
@@ -293,9 +296,9 @@ class CustomFormatCatalog(object):
                     
                     #migration successful, save file to config later
                     catalog_migration = True
-                    bkt.helpers.message("Migration erfolgreich. Katalog wird nun geladen.")
+                    bkt.message("Migration erfolgreich. Katalog wird nun geladen.")
                 except:
-                    bkt.helpers.message("Migration fehlgeschlagen!")
+                    bkt.message("Migration fehlgeschlagen!")
                     logging.error("Customformats: Migration failed")
                     logging.error(traceback.format_exc())
                     return
@@ -504,7 +507,7 @@ class CustomFormatCatalog(object):
         # black image
         # settings = [0, None, None, "X"]
         # return cls.generate_image(size, *settings)
-        raise FileNotFoundError("image file not found")
+        raise OSError("image file not found")
 
 
     ### Helpers for image generation ###
@@ -557,7 +560,7 @@ class CustomFormatCatalog(object):
                 if bmp:
                     bmp.Dispose()
         else:
-            raise FileNotFoundError("thumbnail image not found")
+            raise OSError("thumbnail image not found")
         
         return filename
 
@@ -591,8 +594,8 @@ class CustomQuickEdit(object):
 
         try:
             CustomFormatCatalog.create_new_config(filename)
-        except FileExistsError:
-            bkt.helpers.message("Dateiname existiert bereits")
+        except OSError:
+            bkt.message("Dateiname existiert bereits")
 
 
     @staticmethod
@@ -635,15 +638,15 @@ class CustomQuickEdit(object):
     ### Gallery funcions ###
 
     @classmethod
-    def show_pickup_window(cls, shape):
-        from pickup_style import PickupWindow
-        wnd = PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormat.default_settings, shape=shape)
+    def show_pickup_window(cls, context, shape):
+        from .pickup_style import PickupWindow
+        wnd = PickupWindow.create_and_show_dialog(context, CustomFormatCatalog, CustomFormat.default_settings, shape=shape)
         return wnd.result
 
     @classmethod
-    def show_edit_window(cls, index):
-        from pickup_style import PickupWindow
-        wnd = PickupWindow.create_and_show_dialog(CustomFormatCatalog, CustomFormatCatalog.custom_styles[index].style_setting, index=index)
+    def show_edit_window(cls, context, index):
+        from .pickup_style import PickupWindow
+        wnd = PickupWindow.create_and_show_dialog(context, CustomFormatCatalog, CustomFormatCatalog.custom_styles[index].style_setting, index=index)
         return wnd.result
 
 
@@ -661,15 +664,15 @@ class CustomQuickEdit(object):
 
     @classmethod
     def apply_custom_style(cls, index, context):
-        shift = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
-        ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-        # alt   = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+        shift = bkt.get_key_state(bkt.KeyCodes.SHIFT)
+        ctrl  = bkt.get_key_state(bkt.KeyCodes.CTRL)
+        # alt   = bkt.get_key_state(bkt.KeyCodes.ALT)
 
         apply_style = True
         
         if ctrl:
             ### EDIT STYLE ###
-            result = cls.show_edit_window(index)
+            result = cls.show_edit_window(context, index)
             apply_style = result is not None
         
         if apply_style:
@@ -695,23 +698,19 @@ class CustomQuickEdit(object):
 
     @classmethod
     def temp_pickup(cls, shape):
-        import bkt.console
-        ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-
         cls.temp_custom_format = CustomFormat.from_shape(shape)
         cls.temp_settings_done = False
 
-        if ctrl:
+        if bkt.get_key_state(bkt.KeyCodes.CTRL):
+            import bkt.console
             # logging.debug(json.dumps(cls.temp_custom_format.to_json()))
             bkt.console.show_message("%r" % cls.temp_custom_format.to_json())
 
     @classmethod
     def temp_apply(cls, shapes):
-        ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-
         do_apply = True
-        if ctrl or not cls.temp_settings_done:
-            from pickup_style import PickupWindow
+        if bkt.get_key_state(bkt.KeyCodes.CTRL) or not cls.temp_settings_done:
+            from .pickup_style import PickupWindow
             wnd = PickupWindow.create_and_show_dialog(cls, cls.temp_custom_format.style_setting)
         
             if wnd.result:
@@ -726,7 +725,7 @@ class CustomQuickEdit(object):
 
     @staticmethod
     def show_caveats():
-        bkt.helpers.message("Aufgrund von PowerPoint-Bugs gibt es folgende Einschränkungen:\r\n- Textkontur kann gesetzt, aber nicht wieder entfernt werden\r\n- Farb-Verläufe werden nur für Hintergrund (nicht Linien) unterstützt\r\n- Farb-Verläufe (insb. Winkel) werden nicht immer richtig übertragen\r\n- Schatten werden nicht auf Gruppen angewendet\r\n- Abschluss-/Anschlusstyp bei Linien werden nicht gesetzt")
+        bkt.message("Aufgrund von PowerPoint-Bugs gibt es folgende Einschränkungen:\r\n- Textkontur kann gesetzt, aber nicht wieder entfernt werden\r\n- Farb-Verläufe werden nur für Hintergrund (nicht Linien) unterstützt\r\n- Farb-Verläufe (insb. Winkel) werden nicht immer richtig übertragen\r\n- Schatten werden nicht auf Gruppen angewendet\r\n- Abschluss-/Anschlusstyp bei Linien werden nicht gesetzt")
 
 
 class FormatLibGallery(bkt.ribbon.Gallery):
@@ -745,7 +744,7 @@ class FormatLibGallery(bkt.ribbon.Gallery):
             supertip="Zeigt Übersicht über alle Custom-Styles im aktuellen Katalog.",
             item_height=64, item_width=64,
             children=[
-                bkt.ribbon.Button(id=parent_id + "_pickup", label="Neuen Style aufnehmen", supertip="Nimmt Format vom gewählten Shape neu in die Gallerie auf.", image_mso="PickUpStyle", on_action=bkt.Callback(CustomQuickEdit.show_pickup_window, shape=True), get_enabled = bkt.apps.ppt_shapes_exactly1_selected,),
+                bkt.ribbon.Button(id=parent_id + "_pickup", label="Neuen Style aufnehmen", supertip="Nimmt Format vom gewählten Shape neu in die Gallerie auf.", image_mso="PickUpStyle", on_action=bkt.Callback(CustomQuickEdit.show_pickup_window, context=True, shape=True), get_enabled = bkt.apps.ppt_shapes_exactly1_selected,),
                 bkt.ribbon.Button(id=parent_id + "_help1", label="[STRG]+Klick für Bearbeiten und Löschen", supertip="Bei Klick auf ein Custom-Style mit gedrückter STRG-Taste öffnet sich ein Fenster zur Bearbeitung und Löschung dieses Styles.", enabled = False),
                 bkt.ribbon.Button(id=parent_id + "_help2", label="[SHIFT]+Klick für Anlage neues Shape", supertip="Bei Klick auf ein Custom-Style mit gedrückter SHIFT-Taste wird immer ein neues Shapes in gewähltem Style angelegt.", enabled = False),
                 bkt.ribbon.Button(id=parent_id + "_help3", label="Einschränkungen durch PowerPoint-Bugs", supertip="Liste von funktionalen Einschränkungen durch interne PowerPoint-Bugs anzeigen", image_mso="Risks", on_action=bkt.Callback(CustomQuickEdit.show_caveats)),
@@ -777,6 +776,7 @@ class FormatLibGallery(bkt.ribbon.Gallery):
 customformats_group = bkt.ribbon.Group(
     id="bkt_customformats_group",
     label='Styles',
+    supertip="Ermöglicht die Speicherung von eigenen Formatierungen/Styles in Katalogen zur späteren Wiederverwendung. Das Feature `ppt_customformats` muss installiert sein.",
     image_mso='SmartArtChangeColorsGallery',
     children = [
         FormatLibGallery(id="customformats_gallery", size="large"),

@@ -1,22 +1,32 @@
 # -*- coding: utf-8 -*-
+'''
+Created on 02.11.2017
 
-from __future__ import division #always force float-division, for int divison use //
+@author: fstallmann
+'''
 
-from helpers import GlobalLocPin
-import bkt.library.algorithms as algos
+from __future__ import absolute_import, division #always force float-division, for int divison use //
+
 import math
+
+import bkt.library.algorithms as algorithms
+
 
 class ShapeWrapper(object):
 
     def __init__(self, shape, locpin=None):
         self.shape = shape
-        self.locpin = locpin or GlobalLocPin
+        self.locpin = locpin or self._get_global_locpin()
         self.locpin_nodes = None
         self.bounding_nodes = None
 
     def __getattr__(self, name):
         # provides easy access to shape properties
         return getattr(self.shape, name)
+    
+    def _get_global_locpin(self):
+        from .helpers import GlobalLocPin
+        return GlobalLocPin
     
     @property
     def left(self):
@@ -298,7 +308,7 @@ class ShapeWrapper(object):
         else:
             delta = value - self.visual_width
             # delta_vector (delta-width, 0) um shape-rotation drehen
-            delta_vector = algos.rotate_point_by_shape_rotation(delta, 0, self.shape)
+            delta_vector = algorithms.rotate_point_by_shape_rotation(delta, 0, self.shape)
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
@@ -334,7 +344,7 @@ class ShapeWrapper(object):
         else:
             delta = value - self.visual_height
             # delta_vector (delta-width, 0) um shape-rotation drehen
-            delta_vector = algos.rotate_point_by_shape_rotation(0, delta, self.shape)
+            delta_vector = algorithms.rotate_point_by_shape_rotation(0, delta, self.shape)
             # vorzeichen beibehalten (entweder vergrößern oder verkleinern - nicht beides)
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
@@ -395,7 +405,7 @@ class ShapeWrapper(object):
     def get_bounding_nodes(self, force_update=False):
         ''' get and cache bounding points '''
         if force_update or not self.bounding_nodes:
-            self.bounding_nodes = algos.get_bounding_nodes(self.shape)
+            self.bounding_nodes = algorithms.get_bounding_nodes(self.shape)
         return self.bounding_nodes
     
     def get_locpin_nodes(self, force_update=False):
@@ -403,9 +413,9 @@ class ShapeWrapper(object):
         points = self.get_bounding_nodes(force_update) #left-top, left-bottom, right-bottom, right-top
         if force_update or not self.locpin_nodes:
             self.locpin_nodes = [
-                points[0], algos.mid_point([points[0], points[3]]), points[3],
-                algos.mid_point([points[0], points[1]]), algos.mid_point(points), algos.mid_point([points[3], points[2]]),
-                points[1], algos.mid_point([points[1], points[2]]), points[2],
+                points[0], algorithms.mid_point([points[0], points[3]]), points[3],
+                algorithms.mid_point([points[0], points[1]]), algorithms.mid_point(points), algorithms.mid_point([points[3], points[2]]),
+                points[1], algorithms.mid_point([points[1], points[2]]), points[2],
             ]
         return self.locpin_nodes
 

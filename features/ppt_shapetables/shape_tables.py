@@ -4,14 +4,16 @@ Created on 2017-08-16
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
+#for caching
+import time
+
 import bkt
 # import bkt.library.powerpoint as pplib
 
 from bkt.library.powerpoint import PositionGallery, pt_to_cm, LocPin, LocpinGallery
 from bkt.library.table import TableRecognition
-
-#for caching
-import time
 
 # pt_to_cm_factor = 2.54 / 72;
 # def pt_to_cm(pt):
@@ -72,11 +74,21 @@ class ShapeTables(object):
     ### ALIGN TABLE / do not consider resize-option ###
 
     def align_table(self, shapes):
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT):
+        if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             self.align_table_zero(shapes)
         else:
             tr = self._prepare_table(shapes)
-            tr.align(fit_cells=self.fit_cells, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
+            spac_rows = max(0,tr.min_spacing_rows(max_rows=2))
+            spac_cols = max(0,tr.min_spacing_cols(max_cols=2))
+            if self.equal_spacing:
+                spacing = (spac_rows+spac_cols)/2.0
+            else:
+                spacing = (spac_rows, spac_cols)
+            tr.align(spacing=spacing, fit_cells=self.fit_cells, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
+
+    def align_table_default(self, shapes):
+        tr = self._prepare_table(shapes)
+        tr.align(fit_cells=self.fit_cells, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
 
     def align_table_median(self, shapes):
         tr = self._prepare_table(shapes)
@@ -110,7 +122,7 @@ class ShapeTables(object):
 
 
     def get_resize_cells(self):
-        if bkt.library.system.get_key_state(bkt.library.system.key_code.ALT):
+        if bkt.get_key_state(bkt.KeyCodes.ALT):
             return not self.resize_cells
         else:
             return self.resize_cells
@@ -197,7 +209,7 @@ class ShapeTables(object):
         msg = u""
         msg += "Tabellengröße: Zeilen=%d, Spalten=%d\r\n" % tr.dimension
         msg += "Median-Abstand: %s cm" % round(pt_to_cm(tr.median_spacing()),2)
-        bkt.helpers.message(msg)
+        bkt.message(msg)
 
     def table_info_desc(self,context):
         try:
@@ -253,6 +265,7 @@ shape_tables = ShapeTables()
 tabellen_gruppe = bkt.ribbon.Group(
     id="bkt_shapetables_group",
     label='Tabelle aus Shapes',
+    supertip="Ermöglicht die tabellenförmige Anordnung von Shapes. Das Feature `ppt_shapetables` muss installiert sein.",
     image='align_table',
     children = [
         bkt.ribbon.SplitButton(
@@ -265,12 +278,12 @@ tabellen_gruppe = bkt.ribbon.Group(
                     show_label=True,
                     # size="large",
                     image='align_table',
-                    screentip="Tabelle ausrichten (Standardabstand)",
-                    supertip="Richtet die ausgewählten Shapes als Tabelle aus mit einem Standardabstand von 0,35cm (10pt)",
+                    screentip="Tabelle ausrichten (Auto)",
+                    supertip="Richtet die ausgewählten Shapes als Tabelle aus mit errechnetem Zeilen- und Spaltenabstand. Mit SHIFT-Taste wird Abstand=0 gesetzt.",
                     on_action=bkt.Callback(shape_tables.align_table, shapes=True, shapes_min=2),
                     # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                 ),
-                bkt.ribbon.Menu(label="Menü zum Ausrichten als Tabelle", item_size="large", children=[
+                bkt.ribbon.Menu(label="Menü zum Ausrichten als Tabelle", supertip="Shape-Tabelle mit verschiedenen Abstandsoptionen ausrichten", item_size="large", children=[
                     bkt.ribbon.Button(
                         id = 'align_table2',
                         label="Als Tabelle ausrichten (Standardabstand)",
@@ -278,7 +291,7 @@ tabellen_gruppe = bkt.ribbon.Group(
                         # show_label=True,
                         image='align_table',
                         supertip="Richtet die ausgewählten Shapes als Tabelle aus mit einem Standardabstand von 0,35cm (10pt)",
-                        on_action=bkt.Callback(shape_tables.align_table, shapes=True, shapes_min=2),
+                        on_action=bkt.Callback(shape_tables.align_table_default, shapes=True, shapes_min=2),
                         # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                     ),
                     bkt.ribbon.Button(
@@ -319,6 +332,7 @@ tabellen_gruppe = bkt.ribbon.Group(
         bkt.ribbon.Menu(
             image='shape_table_transpose',
             label="Tabelle anpassen",
+            supertip="Shape-Tabelle auf verschiedene Weise anpassen oder transponieren",
             item_size="large",
             get_enabled = bkt.apps.ppt_shapes_min2_selected,
             children=[
@@ -417,6 +431,7 @@ tabellen_gruppe = bkt.ribbon.Group(
             # description="Informationen über erkannte Tabelle anzeigen",
             # show_label=True,
             image='shape_table_info',
+            screentip="Tabelleninformation",
             supertip="Zeigt Informationen über die Tabelle an. Nützlich um vorab herauszufinden, ob eine Tabelle korrekt erkannt wird.",
             on_action=bkt.Callback(shape_tables.table_info, shapes=True, shapes_min=2),
             get_enabled = bkt.apps.ppt_shapes_min2_selected,
@@ -518,6 +533,7 @@ tabellen_gruppe = bkt.ribbon.Group(
         ),
         bkt.ribbon.Menu(
             label="Optionen",
+            supertip="Einstellungsmöglichkeiten beim Ausrichten der Shape-Tabellen",
             item_size="large",
             children=[
                 bkt.ribbon.MenuSeparator(title="Abstand einstellen durch:"),

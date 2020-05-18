@@ -4,11 +4,12 @@
 @author: fstallmann
 '''
 
+from __future__ import absolute_import
+
+import re #regex
 
 import bkt
 import bkt.library.powerpoint as pplib
-
-import re #regex
 
 
 class Statistics(object):
@@ -51,9 +52,9 @@ class Statistics(object):
     def get_numbers_from_textframe(cls, textframe):
         try:
             if textframe.TextRange.LanguageID == 1031: #DE
-                regex = '[^\-0-9,]'
+                regex = r'[^\-0-9,]'
             else: #EN, US, others
-                regex = '[^\-0-9.]'
+                regex = r'[^\-0-9.]'
             
             units = iter(textframe.TextRange.Words())
             for unit in units:
@@ -71,7 +72,7 @@ class Statistics(object):
         cls.do_refresh2 = True
         cls.do_refresh3 = True
         try:
-            context.addin.invalidate_ribbon()
+            context.python_addin.invalidate_ribbon()
         except:
             pass
 
@@ -79,6 +80,7 @@ class Statistics(object):
 statistik_gruppe = bkt.ribbon.Group(
     id="bkt_statistics_group",
     label='Statistik',
+    supertip="Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von zahlenlastigen Folien. Das Feature `ppt_statistics` muss installiert sein.",
     image_mso='RecordsTotals',
     children = [
         # bkt.ribbon.LabelControl(
@@ -99,6 +101,7 @@ statistik_gruppe = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     label="Neu laden",
                     show_label=False,
+                    supertip="Statistiken für aktuelle Auswahl neu berechnen",
                     image_mso='AccessRefreshAllLists',
                     on_action=bkt.Callback(Statistics.reload, context=True),
                     # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
@@ -120,6 +123,7 @@ statistik_gruppe = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     label="Neu laden",
                     show_label=False,
+                    supertip="Statistiken für aktuelle Auswahl neu berechnen",
                     image_mso='AccessRefreshAllLists',
                     on_action=bkt.Callback(Statistics.reload, context=True),
                     # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
@@ -141,6 +145,7 @@ statistik_gruppe = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     label="Neu laden",
                     show_label=False,
+                    supertip="Statistiken für aktuelle Auswahl neu berechnen",
                     image_mso='AccessRefreshAllLists',
                     on_action=bkt.Callback(Statistics.reload, context=True),
                     # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,

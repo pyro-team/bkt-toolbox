@@ -4,15 +4,17 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
-import bkt
-import bkt.library.excel.helpers as xllib
-import bkt.library.excel.constants as xlcon
+from __future__ import absolute_import
 
 import logging
 import os #for filelist
 from datetime import datetime #for filelist
 
 from System import DBNull, Array #for list of cond format
+
+import bkt
+import bkt.library.excel.helpers as xllib
+import bkt.library.excel.constants as xlcon
 
 class SheetsOps(object):
     very_hidden_sheets = set()
@@ -24,7 +26,7 @@ class SheetsOps(object):
             for sheet in selected_sheets:
                 sheet.Visible = visibility
         except:
-            bkt.helpers.message("Fehler beim Ausblenden. Es muss mind. ein sichtbares Blatt geben.")
+            bkt.message("Fehler beim Ausblenden. Es muss mind. ein sichtbares Blatt geben.")
 
     @classmethod
     def hide_sheets_veryhidden(cls, selected_sheets):
@@ -37,7 +39,7 @@ class SheetsOps(object):
             if sheet.Visible == xlcon.XlSheetVisibility["xlSheetHidden"]:
                 sheet.Visible = xlcon.XlSheetVisibility["xlSheetVisible"]
                 counter += 1
-        bkt.helpers.message("Es wurden " + str(counter) + " Blätter eingeblendet.")
+        bkt.message("Es wurden " + str(counter) + " Blätter eingeblendet.")
 
     @staticmethod
     def show_veryhidden_sheets(sheets):
@@ -46,7 +48,7 @@ class SheetsOps(object):
             if sheet.Visible == xlcon.XlSheetVisibility["xlSheetVeryHidden"]:
                 sheet.Visible = xlcon.XlSheetVisibility["xlSheetVisible"]
                 counter += 1
-        bkt.helpers.message("Es wurden " + str(counter) + " Blätter eingeblendet.")
+        bkt.message("Es wurden " + str(counter) + " Blätter eingeblendet.")
 
     @classmethod
     def toggle_hidden_sheets(cls, sheets, selected_sheets):
@@ -71,7 +73,7 @@ class SheetsOps(object):
                     hidden_sheet_set.add(sheet.Name)
             if len(hidden_sheet_set) == 0:
                 raise AssertionError("No hidden sheets found")
-                #bkt.helpers.message("Keine versteckten Blätter gefunden.")
+                #bkt.message("Keine versteckten Blätter gefunden.")
         else:
             for sheet in sheets:
                 if sheet.Name in hidden_sheet_set:
@@ -105,7 +107,7 @@ class SheetsOps(object):
     @staticmethod
     def rename_all_sheets(workbook, areas, application):
         if areas[0].Columns.Count != 2:
-            bkt.helpers.message("Es müssen genau 2 Spalten (Alter Name, Neuer Name) ausgewählt werden")
+            bkt.message("Es müssen genau 2 Spalten (Alter Name, Neuer Name) ausgewählt werden")
             return
         
         if not xllib.confirm_no_undo(): return
@@ -122,12 +124,12 @@ class SheetsOps(object):
                 err_counter += 1
         
         if err_counter > 0:
-            bkt.helpers.message("Fehler! " + str(err_counter) + " Blatt/Blätter konnte(n) nicht umbenannt werden.")
+            bkt.message("Fehler! " + str(err_counter) + " Blatt/Blätter konnte(n) nicht umbenannt werden.")
 
     @classmethod
     def sort_all_sheets(cls, workbook, areas, application, sheet):
         if areas[0].Columns.Count != 1 or areas[0].Cells.Count == 1:
-            bkt.helpers.message("Es muss genau 1 Spalte (mit Blattnamen in gewünschter Reihenfolge) ausgewählt werden")
+            bkt.message("Es muss genau 1 Spalte (mit Blattnamen in gewünschter Reihenfolge) ausgewählt werden")
             return
 
         if not xllib.confirm_no_undo(): return
@@ -164,12 +166,12 @@ class SheetsOps(object):
         sheet.Activate()
 
         if err_counter > 0:
-            bkt.helpers.message("Fehler! " + str(err_counter) + " Blatt/Blätter konnte(n) nicht umsortiert werden.")
+            bkt.message("Fehler! " + str(err_counter) + " Blatt/Blätter konnte(n) nicht umsortiert werden.")
     
     @staticmethod
     def create_sheets(workbook, areas, application):
         if areas[0].Columns.Count != 1 or areas[0].Cells.Count == 1:
-            bkt.helpers.message("Es muss genau 1 Spalte (mit anzulegenden Blattnamen) ausgewählt werden")
+            bkt.message("Es muss genau 1 Spalte (mit anzulegenden Blattnamen) ausgewählt werden")
             return
 
         if not xllib.confirm_no_undo(): return
@@ -186,7 +188,7 @@ class SheetsOps(object):
                 err_counter += 1
         
         if err_counter > 0:
-            bkt.helpers.message("Fehler! " + str(err_counter) + " Blatt/Blätter konnte(n) nicht angelegt werden.")
+            bkt.message("Fehler! " + str(err_counter) + " Blatt/Blätter konnte(n) nicht angelegt werden.")
 
     @staticmethod
     def _create_list_header(list_sheet, header, row=1):
@@ -430,9 +432,9 @@ class FileListOps(object):
             sheet.UsedRange.AutoFilter()
 
             if worker.CancellationPending:
-                sheet.Cells(1,1).Value = "ABBRUCH der Dateiliste nach " + str(total) + " Dateien für Ordner: " + os.path.normpath(folder)
+                sheet.Cells(1,1).Value = "ABBRUCH der Dateiliste nach {} Dateien erstellt {} für Ordner: {}".format(total, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), os.path.normpath(folder))
             else:
-                sheet.Cells(1,1).Value = "Dateiliste mit " + str(total) + " Dateien für Ordner: " + os.path.normpath(folder)
+                sheet.Cells(1,1).Value = "Dateiliste mit {} Dateien erstellt {} für Ordner: {}".format(total, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), os.path.normpath(folder))
         
         bkt.ui.execute_with_progress_bar(loop, context, indeterminate=True)
 
@@ -448,7 +450,7 @@ class FileListOps(object):
 
         application.StatusBar = "Erstelle Dateiliste für Ordner " + base_folder
         worker.ReportProgress(42, "{} - {}".format(cur_row-3, base_folder))
-        # bkt.helpers.message("Liste für Ordner: " + folder)
+        # bkt.message("Liste für Ordner: " + folder)
 
         # xllib.freeze_app()
         # TODO: add max-recursion see https://stackoverflow.com/questions/229186/os-walk-without-digging-into-directories-below
@@ -510,7 +512,7 @@ class FileListOps(object):
         # application.ActiveWindow.ScrollRow = max(1,cur_row-10) #scroll to last 10 rows
         # xllib.unfreeze_app()
 
-        # bkt.helpers.message("Unterordner: " + str(len(subfolders)))
+        # bkt.message("Unterordner: " + str(len(subfolders)))
 
         # if recursive and not worker.CancellationPending:
         #     for subs in subfolders:

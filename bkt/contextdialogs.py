@@ -1,20 +1,29 @@
 # -*- coding: utf-8 -*-
+'''
+Popup-Dialog for interactive PowerPoint shapes and double click functionality
+
+Created on 11.11.2019
+@author: rdebeerst
+'''
+
+from __future__ import absolute_import
 
 import logging
-import System
 import traceback
+import importlib #for loading context dialog modules
 
 # wpf basics
-from . import dotnet
-wpf = dotnet.import_wpf()
+from bkt import dotnet
+wpf = dotnet.import_wpf() #this is required to import System.Windows.Controls
+
+# for Primitives.Popup
+from System import Windows, Diagnostics # for Primitives.Popup
+from System.Windows import Controls # for Primitives.Popup
 
 # for getting coordinates for rotated shapes
 from bkt.library.algorithms import get_bounding_nodes
 
-# for Primitives.Popup
-from System.Windows import Controls
 
-import importlib
 
 
 BKT_CONTEXTDIALOG_TAGKEY = 'BKT_CONTEXTDIALOG'
@@ -29,12 +38,30 @@ class ContextDialog(object):
     '''
     
     
-    def __init__(self, id, module=None, window_class=None):
+    def __init__(self, id, module=None, window_class=None, dblclick_func=None):
         ''' constructor '''
         self.id = id
         self.module_name = module
         self.module = None
         self.window_class = window_class
+        self.dblclick_func = dblclick_func
+    
+    def trigger_doubleclick(self, shape, context):
+        ''' trigger double click action for given shape '''
+        logging.debug('ContextDialog.trigger_doubleclick')
+        try:
+            if self.dblclick_func:
+                self.dblclick_func(shape, context)
+            
+            elif self.module_name:
+                self.import_module()
+                return self.module.trigger_doubleclick(shape, context)
+        
+        except AttributeError:
+            logging.warning("ContextDialog.trigger_doubleclick: No double click action defined in module %s" % self.module_name)
+
+        except:
+            logging.error(traceback.format_exc())
     
     def show_dialog_at_shape_position(self, shape, context):
         ''' create window for the context dialog at show it at shape's position '''
@@ -47,7 +74,7 @@ class ContextDialog(object):
             # this is a popup window, popup doesnt need scaling factor
             left, top = DialogHelpers.get_dialog_positon_from_shape(active_window, shape, consider_scaling=False) 
             # set position and show dialog
-            dialog_window.PlacementRectangle = System.Windows.Rect(left, top, 1, 1)
+            dialog_window.PlacementRectangle = Windows.Rect(left, top, 1, 1)
             dialog_window.IsOpen = True
             # Popup is automatically a child window
             
@@ -60,7 +87,7 @@ class ContextDialog(object):
             left, top = DialogHelpers.get_dialog_positon_from_shape(active_window, shape, consider_scaling=False)
             dialog_window.SetDevicePosition(left, top)
             # make dialog a child window
-            # System.Windows.Interop.WindowInteropHelper(dialog_window).Owner = DialogHelpers.get_main_window_handle()
+            # Windows.Interop.WindowInteropHelper(dialog_window).Owner = DialogHelpers.get_main_window_handle()
             # show as non-blocking dialog
             dialog_window.Show()
             # put focus back on office window
@@ -126,7 +153,6 @@ class ContextDialog(object):
         if not self.module:
             logging.debug('ContextDialog.import_module importing %s' % self.module_name)
             #do an import equivalent to:  import <<module_name>>
-            #FIXME: use importlib.import_module
             self.module = importlib.import_module(self.module_name)
             # self.module = __import__(self.module_name, globals(), locals(), [], -1)
         
@@ -171,7 +197,7 @@ class ContextDialogs(object):
         logging.debug('ContextDialogs.unregister: id=%s' % id)
         try:
             del self.dialogs[id]
-        except IndexError:
+        except KeyError:
             pass
 
     def re_show_shape_dialogs(self):
@@ -246,15 +272,13 @@ class ContextDialogs(object):
             ### check shape tag and show suitable dialog
             logging.debug('ContextDialogs.show_shape_dialog_for_shape check tag')
             
-            if shape.Tags(BKT_CONTEXTDIALOG_TAGKEY) == '':
+            shape_tag = shape.Tags(BKT_CONTEXTDIALOG_TAGKEY)
+            if not shape_tag:
                 return
-            elif not shape.Tags(BKT_CONTEXTDIALOG_TAGKEY) in self.dialogs:
-                logging.warning('No dialog registerd for given key: %s' % shape.Tags(BKT_CONTEXTDIALOG_TAGKEY))
-                return
-            else:
-                ctx_dialog = self.dialogs.get(shape.Tags(BKT_CONTEXTDIALOG_TAGKEY)) or None
-            
-            if not ctx_dialog:
+            try:
+                ctx_dialog = self.dialogs[shape_tag]
+            except KeyError:
+                logging.warning('No dialog registered for given key: %s' % shape_tag)
                 return
             
             self.active_dialog = ctx_dialog.show_dialog_at_shape_position(shape, context)
@@ -280,9 +304,9 @@ class ContextDialogs(object):
             ### check shape tag and show suitable dialog
             logging.debug('ContextDialogs.show_master_shape_dialog check tag')
             
-            ctx_dialog = self.dialogs.get("MASTER") or None
-            
-            if not ctx_dialog:
+            try:
+                ctx_dialog = self.dialogs["MASTER"]
+            except KeyError:
                 return
             
             master_shape = ctx_dialog.get_master_shape(shapes)
@@ -314,6 +338,29 @@ class ContextDialogs(object):
             
         except:
             logging.error(traceback.format_exc())
+    
+    
+    def trigger_doubleclick_for_shape(self, shape, context):
+        ''' trigger double click for the given shape, depending on the shape's settings '''
+        logging.debug('ContextDialogs.trigger_doubleclick_for_shape')
+
+        try:
+            ### check shape tag and show suitable dialog
+            logging.debug('ContextDialogs.trigger_doubleclick_for_shape check tag')
+            
+            shape_tag = shape.Tags(BKT_CONTEXTDIALOG_TAGKEY)
+            if shape_tag == '':
+                return
+            try:
+                ctx_dialog = self.dialogs[shape_tag]
+            except KeyError:
+                logging.warning('No dialog registered for given key: %s' % shape_tag)
+                return
+            
+            ctx_dialog.trigger_doubleclick(shape, context)
+            
+        except:
+            logging.error(traceback.format_exc())
         
     
     def mouse_down(self, sender, e):
@@ -336,6 +383,14 @@ class ContextDialogs(object):
     #         if self.drag_started:
     #             logging.debug("ContextDialogs.mouse_move/dragging")
     #             self.close_active_dialog() #FIXME: if you drag a rectangle to select multiple shapes, afterwars popup immediatly closes
+
+    def mouse_double_click(self, sender, e):
+        logging.debug("ContextDialogs.mouse_double_click")
+        if self.context:
+            shape = DialogHelpers.coordinates_within_shape(e.X, e.Y, self.context)
+            if shape:
+                self.trigger_doubleclick_for_shape(shape, self.context)
+
 
     def mouse_drag_start(self, sender, e):
         logging.debug("ContextDialogs.mouse_drag_start")
@@ -444,7 +499,14 @@ class DialogHelpers(object):
             # return shape is not None
         except:
             return False
-
+    
+    @staticmethod
+    def coordinates_within_shape(x, y, context):
+        try:
+            active_window = context.app.ActiveWindow
+            return active_window.RangeFromPoint(x,y)
+        except:
+            return None
 
     # FIXME:
     # https://dzimchuk.net/best-way-to-get-dpi-value-in-wpf/
@@ -469,7 +531,7 @@ class DialogHelpers(object):
     def get_main_window_handle():
         ''' returns main window hwnd handle of current process '''
         try:
-            return System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle
+            return Diagnostics.Process.GetCurrentProcess().MainWindowHandle
         except:
             logging.error(traceback.format_exc())
     

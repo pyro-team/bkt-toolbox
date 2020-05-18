@@ -111,24 +111,24 @@ convert_units = {
 }
 
 convert_prefixes = {
-	"yotta":		"Y"			#1,00E+24
-	"zetta":		"Z"			#1,00E+21
-	"exa":			"E"			#1,00E+18
-	"peta":			"P"			#1,00E+15
-	"tera":			"T"			#1,00E+12
-	"giga":			"G"			#1,00E+09
-	"mega":			"M"			#1,00E+06
-	"kilo":			"k"			#1,00E+03
-	"hecto":		"h"			#1,00E+02
-	"dekao":		"da" 		#1,00E+01
-	"deci":			"d"			#1,00E-01
-	"centi":		"c"			#1,00E-02
-	"milli":		"m"			#1,00E-03
-	"micro":		"u"			#1,00E-06
-	"nano":			"n"			#1,00E-09
-	"pico":			"p"			#1,00E-12
-	"femto":		"f"			#1,00E-15
-	"atto":			"a"			#1,00E-18
-	"zepto":		"z"			#1,00E-21
-	"yocto":		"y"			#1,00E-24
+	"yotta":		"Y",			#1,00E+24
+	"zetta":		"Z",			#1,00E+21
+	"exa":			"E",			#1,00E+18
+	"peta":			"P",			#1,00E+15
+	"tera":			"T",			#1,00E+12
+	"giga":			"G",			#1,00E+09
+	"mega":			"M",			#1,00E+06
+	"kilo":			"k",			#1,00E+03
+	"hecto":		"h",			#1,00E+02
+	"dekao":		"da", 		#1,00E+01
+	"deci":			"d",			#1,00E-01
+	"centi":		"c",			#1,00E-02
+	"milli":		"m",			#1,00E-03
+	"micro":		"u",			#1,00E-06
+	"nano":			"n",			#1,00E-09
+	"pico":			"p",			#1,00E-12
+	"femto":		"f",			#1,00E-15
+	"atto":			"a",			#1,00E-18
+	"zepto":		"z",			#1,00E-21
+	"yocto":		"y",			#1,00E-24
 }

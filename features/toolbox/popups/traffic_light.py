@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+
 import logging
-import os.path
+import traceback
 
 import bkt
 import bkt.library.powerpoint as pplib
@@ -27,6 +29,8 @@ import bkt.library.powerpoint as pplib
 class Ampel(object):
     #BKT_CONTEXTDIALOG = 'BKT_CONTEXTDIALOG'
     BKT_DIALOG_AMPEL = 'BKT_DIALOG_AMPEL3'
+
+    color_states = ['red', 'yellow', 'green']
 
     @classmethod
     def create(cls, slide):
@@ -84,6 +88,12 @@ class Ampel(object):
             return "green"
 
 
+    @classmethod
+    def next_color(cls, shape):
+        current_color = cls.get_color(shape)
+        next_color_index = (cls.color_states.index(current_color)+1) % len(cls.color_states)
+        cls.set_color(shape, cls.color_states[next_color_index])
+
 
 
 
@@ -106,16 +116,16 @@ class Ampel(object):
 
 # class TrafficPopup(bkt.ui.WpfPopupAbstract):
 class TrafficPopup(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'traffic_light_dialog2.xaml')
+    # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'traffic_light_dialog2.xaml')
+    _xamlname = 'traffic_light_dialog2'
     '''
     class representing a popup-dialog for a traffic-light-shape
     '''
     
     def __init__(self, context=None):
         self.IsPopup = True
-        self._context = context
 
-        super(TrafficPopup, self).__init__()
+        super(TrafficPopup, self).__init__(context)
 
     # def __init__(self, context=None):
     #     filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'traffic_light_dialog.xaml')
@@ -129,7 +139,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
             shapes = list(iter(self._context.app.activewindow.selection.shaperange))
             for shape in shapes:
                 Ampel.set_color(shape, "red")
-            self._context.app.ActiveWindow.Activate()
+            # self._context.app.ActiveWindow.Activate()
         except:
             logging.error(traceback.format_exc())
 
@@ -138,7 +148,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
             shapes = list(iter(self._context.app.activewindow.selection.shaperange))
             for shape in shapes:
                 Ampel.set_color(shape, "yellow")
-            self._context.app.ActiveWindow.Activate()
+            # self._context.app.ActiveWindow.Activate()
         except:
             logging.error(traceback.format_exc())
 
@@ -147,7 +157,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
             shapes = list(iter(self._context.app.activewindow.selection.shaperange))
             for shape in shapes:
                 Ampel.set_color(shape, "green")
-            self._context.app.ActiveWindow.Activate()
+            # self._context.app.ActiveWindow.Activate()
         except:
             logging.error(traceback.format_exc())
 
@@ -156,11 +166,16 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
             shapes = list(iter(self._context.app.activewindow.selection.shaperange))
             for shape in shapes:
                 Ampel.set_color(shape, "white")
-            self._context.app.ActiveWindow.Activate()
+            # self._context.app.ActiveWindow.Activate()
         except:
             logging.error(traceback.format_exc())
 
 
+#initialization function called by contextdialogs.py
+create_window = TrafficPopup
 
-def create_window(context):
-    return TrafficPopup(context)
+def trigger_doubleclick(shape, context):
+    try:
+        Ampel.next_color(shape)
+    except:
+        logging.error(traceback.format_exc())

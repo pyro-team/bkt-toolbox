@@ -1,17 +1,22 @@
 # -*- coding: utf-8 -*-
+'''
+Provider of app-specific ribbon UIs
+
+Created on 11.11.2019
+@author: rdebeerst
+'''
+
+from __future__ import absolute_import
 
 import logging
 import traceback
 
 from collections import OrderedDict, defaultdict
-from contextdialogs import ContextDialogs
 
-import bkt.helpers as _h
-import bkt.xml as mod_xml
-import bkt.annotation as mod_annotation
-import bkt.factory as mod_factory
-import bkt.ribbon as mod_ribbon
-import bkt.apps as mod_apps
+import bkt.helpers as _h #used to access config and resources
+
+import bkt.xml as mod_xml #creating customui xml
+import bkt.ribbon as mod_ribbon #ribbon controls
 
 import bkt.taskpane
 import bkt.ui #bkt.ui is not required here, but if it is not loaded anywhere, its not available in feature folders. This happended to me when I remove dev module from config.
@@ -176,9 +181,9 @@ class AppUI(object):
     def get_customui_control(self, ribbon_id=None):
         ribbon_id = ribbon_id or self.default_custom_ribbon_id
         
-        if ribbon_id in self.base_customui_controls:
+        try:
             return self.base_customui_controls[ribbon_id]
-        else:
+        except KeyError:
             customui_control = self.create_customui_control(ribbon_id)
             self.base_customui_controls[ribbon_id] = customui_control
             return customui_control
@@ -231,13 +236,20 @@ class AppUI(object):
             element.children = [self.create_control(c, ribbon_id=ribbon_id) for c in element.children ]
             return element
         
-        elif isinstance(element, mod_annotation.ContainerUsage):
-            logging.debug("create_control for ContainerUsage: %s" % element.container)
-            return mod_factory.ControlFactory(element.container, ribbon_info=None).create_control()
+        elif bkt.config.enable_legacy_syntax or False:
+            from bkt.annotation import ContainerUsage #@deprecated
+            from bkt.factory import ControlFactory #@deprecated
+            
+            if isinstance(element, ContainerUsage):
+                logging.debug("create_control for ContainerUsage: %s" % element.container)
+                return ControlFactory(element.container, ribbon_info=None).create_control()
+            
+            else:
+                logging.warning("FeatureContainer used where instance of ContainerUsage was expected: %s" % element)
+                return ControlFactory(element, ribbon_info=None).create_control()
         
         else:
-            logging.warning("FeatureContainer used where instance of ContainerUsage was expected: %s" % element)
-            return mod_factory.ControlFactory(element, ribbon_info=None).create_control()
+            logging.warning("create_control for element {} skipped".format(element))
     
     
     
@@ -279,7 +291,7 @@ class AppUI(object):
                             for tab in tablist
                         ]
                     )
-                    for id_mso, tablist in self.custom_ribbon_uis[ribbon_id].contextual_tabs.items()
+                    for id_mso, tablist in self.custom_ribbon_uis[ribbon_id].contextual_tabs.iteritems()
                 ]
             )]
         
@@ -309,7 +321,7 @@ class AppUI(object):
         if len(self.custom_ribbon_uis[ribbon_id].tabs) > 0:
             tabs = [
                 mod_ribbon.Tabs(
-                    children = [self.create_control(tab, ribbon_id)  for tab_id, tab in self.custom_ribbon_uis[ribbon_id].tabs.items()]
+                    children = [self.create_control(tab, ribbon_id)  for _, tab in self.custom_ribbon_uis[ribbon_id].tabs.iteritems()]
                 )
             ]
 
@@ -348,7 +360,7 @@ class AppUI(object):
                 ]
             )
             image_resources = {
-                image_name: mod_apps.Resources.images.locate(image_name)
+                image_name: _h.Resources.images.locate(image_name)
                 for image_name in stack_panel.collect_image_resources()
             }
             logging.debug('image resources: %s' % image_resources)
@@ -370,6 +382,8 @@ class AppUIPowerPoint(AppUI):
     '''
     def __init__(self, ribbon_ids=[], short_ids=[]):
         super(AppUIPowerPoint, self).__init__(ribbon_ids=ribbon_ids, short_ids=short_ids)
+        
+        from bkt.contextdialogs import ContextDialogs
         
         self.use_contextdialogs = not _h.config.ppt_use_contextdialogs is False
         self.context_dialogs = ContextDialogs()
@@ -395,7 +409,7 @@ class AppUIs(object):
         'Microsoft Excel':      ['Microsoft.Excel.Workbook'],
         'Microsoft Visio':      ['Microsoft.Visio.Drawing'],
         'Microsoft Word':       ['Microsoft.Word.Document'],
-        'Microsoft Outlook': [
+        'Outlook':              [
             'Microsoft.Outlook.Explorer',
             'Microsoft.OMS.MMS.Compose',
             'Microsoft.OMS.MMS.Read',
@@ -429,12 +443,13 @@ class AppUIs(object):
     # @classmethod
     # def PowerPoint(cls):
     #     return cls.get_app_ui("Microsoft PowerPoint")
-    
+
+
     @classmethod
     def get_app_ui(cls, app_name):
-        if app_name in cls.registry:
+        try:
             return cls.registry[app_name]
-        else:
+        except KeyError:
             instance = cls.create_app_ui(app_name)
             cls.registry[app_name] = instance
             return instance
@@ -446,13 +461,13 @@ class AppUIs(object):
         # get AppUI-subclass for app name
         app_ui_class = cls.app_ui_classes.get(app_name, AppUI)
         # create instance
-        return app_ui_class(ribbon_ids = cls.ribbon_ids.get(app_name, 'none'))
+        return app_ui_class(ribbon_ids = cls.ribbon_ids.get(app_name, ["Default"]))
 
         
 
 
 excel        = AppUIs.get_app_ui('Microsoft Excel')
-outlook      = AppUIs.get_app_ui('Microsoft Outlook')
+outlook      = AppUIs.get_app_ui('Outlook') #NOTE: Its not Microsoft Outlook!
 powerpoint   = AppUIs.get_app_ui('Microsoft PowerPoint')
 visio        = AppUIs.get_app_ui('Microsoft Visio')
 word         = AppUIs.get_app_ui('Microsoft Word')

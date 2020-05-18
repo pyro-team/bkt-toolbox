@@ -4,12 +4,15 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
+# import System.Convert as Converter #required for convert to double
+# import System.DateTime as DateTime #required for parse as date and time
+from System import DateTime, Array
+
 import bkt
 import bkt.library.excel.helpers as xllib
 import bkt.library.excel.constants as xlcon
-
-# import System.Convert as Converter #required for convert to double
-import System.DateTime as DateTime #required for parse as date and time
 
 import bkt.dotnet as dotnet
 Forms = dotnet.import_forms() #required to copy text to clipboard
@@ -23,6 +26,17 @@ class CellsOps(object):
     last_append = "...!?"
     last_slice_pos = "2:"
     last_slice_text = "/"
+
+    #regex match count
+    last_regex_match_pattern = r"([A-Z])\w+"
+
+    #regex split
+    last_regex_split_pattern = r"[;,\. ]+"
+    last_regex_split_mode = 0
+
+    #regex replace
+    last_regex_sub_pattern = r"\sand\s"
+    last_regex_sub_repl = r" & "
 
     @staticmethod
     def _set_hidden_name(key, sheet, rng):
@@ -152,7 +166,7 @@ class CellsOps(object):
         try:
             s = _get_slicer(form_return["text"])
         except:
-            bkt.helpers.message("Ungültige Eingabe!")
+            bkt.message("Ungültige Eingabe!")
             return
 
         for cell in cells:
@@ -279,15 +293,286 @@ class CellsOps(object):
                 #bkt.helpers.exception_as_message(str(cell.AddressLocal()))
 
         if err_counter > 0:
-            bkt.helpers.message("Fehler! Formel war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
+            bkt.message("Fehler! Formel war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
+
+
+    @classmethod
+    def regex_match_count(cls, cells, application):
+        import re
+        from itertools import chain
+        
+        preview_cell_value = application.ActiveCell.Text
+
+        def _get_flags():
+            flags=0
+            if ignorecase.Checked:
+                flags = re.IGNORECASE
+            return flags
+
+        def _do_regex(regex, string):
+            if regex.groups > 0:
+                return sum(res is not None for res in chain.from_iterable(m.groups() for m in regex.finditer(string)))
+            else:
+                # return len(list(m.group() for m in regex.finditer(string)))
+                return len(list(regex.finditer(string)))
+
+        def _preview(sender, e):
+            try:
+                regex = re.compile(text.Text, _get_flags())
+                txt_preview.Text = str(_do_regex(regex, preview_cell_value))
+            except Exception as e:
+                txt_preview.Text = "FEHLER: " + str(e)
+
+        user_form = bkt.ui.UserInputBox("Hier kann ein regulärer Ausdruck in allen markierten Zellen gesucht und die Anzahl der Funde gezählt werden. In der Auswahlbox finden Sie Beispiele für mögliche Eingaben.", "RegEx anwenden")
+        text = user_form._add_combobox("regex", cls.last_regex_match_pattern, [r"[;,\. ]+", r"([A-Z])\w+", r"([+-]?[\d\.]+,*[0-9]*)", r"[\w\.-]+@[\w\.-]+\.\w{2,4}"])
+        text.TextChanged += _preview
+
+        ignorecase = user_form._add_checkbox("ignorecase", "Groß-/Kleinschreibung ignorieren")
+        ignorecase.CheckedChanged += _preview
+        
+        user_form._add_label("Vorschau für aktive Zelle:")
+        txt_preview = user_form._add_textbox("preview")
+        txt_preview.ReadOnly = True
+        _preview(None, None)
+
+        form_return = user_form.show()
+        if len(form_return) == 0:
+            return
+        
+        try:
+            regex = re.compile(form_return["regex"], _get_flags())
+        except Exception as e:
+            bkt.message("Fehler! RegEx kann nicht kompiliert werden: "+str(e))
+            return
+
+        if not xllib.confirm_no_undo(): return
+
+        err_counter = 0
+        cls.last_regex_match_pattern = form_return["regex"]
+
+        for cell in cells:
+            if cell.Value2 is None:
+                continue
+
+            try:
+                cell.Value = _do_regex(regex, cell.Text)
+            except:
+                err_counter += 1
+                #bkt.helpers.exception_as_message(str(cell.AddressLocal()))
+
+        if err_counter > 0:
+            bkt.message("Fehler! RegEx war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
+
+    @classmethod
+    def regex_split_to_columns(cls, cells, application):
+        import re
+        from itertools import chain
+        
+        preview_cell_value = application.ActiveCell.Text
+
+        def _get_flags():
+            flags=0
+            if ignorecase.Checked:
+                flags = re.IGNORECASE
+            return flags
+
+        def _get_mode():
+            for radio in mode_radios:
+                if radio.Checked:
+                    return radio.Text
+
+        def _do_regex(regex, string, join=None):
+            current_mode = _get_mode()
+            if current_mode.startswith("Split"):
+                regex_result = regex.split(string)
+            else:
+                if regex.groups > 0:
+                    regex_result = list(chain.from_iterable(m.groups("") for m in regex.finditer(string)))
+                else:
+                    regex_result = list(m.group() for m in regex.finditer(string))
+            
+            if join is None:
+                return regex_result
+            else:
+                return join.join(res or "" for res in regex_result)
+
+        def _preview(sender, e):
+            try:
+                regex = re.compile(text.Text, _get_flags())
+                txt_preview.Text = _do_regex(regex, preview_cell_value, "\t")
+            except Exception as e:
+                txt_preview.Text = "FEHLER: " + str(e)
+
+        user_form = bkt.ui.UserInputBox("Hier kann ein regulärer Ausdruck auf alle markierten Zellen angewendet werden. In der Auswahlbox finden Sie Beispiele für mögliche Eingaben.", "RegEx anwenden")
+        text = user_form._add_combobox("regex", cls.last_regex_split_pattern, [r"[;,\. ]+", r"([A-Z])\w+", r"([+-]?[\d\.]+,*[0-9]*)", r"[\w\.-]+@[\w\.-]+\.\w{2,4}"])
+        text.TextChanged += _preview
+
+        ignorecase = user_form._add_checkbox("ignorecase", "Groß-/Kleinschreibung ignorieren")
+        ignorecase.CheckedChanged += _preview
+
+        radio_mode_values = ["Find: Aufteilung je RegEx Übereinstimmung", "Split: RegEx definiert Trennzeichen"]
+        _, mode_radios = user_form._add_radio_buttons("mode", "Modus", radio_mode_values, cls.last_regex_split_mode)
+        for radio in mode_radios:
+            radio.CheckedChanged += _preview
+        
+        user_form._add_label("Vorschau für aktive Zelle (Gruppen mit Tabs getrennt):")
+        txt_preview = user_form._add_textbox("preview")
+        txt_preview.ReadOnly = True
+        _preview(None, None)
+
+        form_return = user_form.show()
+        if len(form_return) == 0:
+            return
+        
+        try:
+            regex = re.compile(form_return["regex"], _get_flags())
+        except Exception as e:
+            bkt.message("Fehler! RegEx kann nicht kompiliert werden: "+str(e))
+            return
+
+        if not xllib.confirm_no_undo(): return
+
+        err_counter = 0
+        cls.last_regex_split_pattern = form_return["regex"]
+        cls.last_regex_split_mode = radio_mode_values.index(form_return["mode"])
+
+        for cell in cells:
+            if cell.Value2 is None:
+                continue
+
+            try:
+                values_split = _do_regex(regex, cell.Text)
+                values = Array.CreateInstance(object, 1, len(values_split))
+                for i,col in enumerate(values_split):
+                    values[0,i] = col or ""
+                new_area = xllib.resize_areas([cell], cols=len(values_split))[0]
+                new_area.Value = values
+            except:
+                err_counter += 1
+                # bkt.helpers.exception_as_message(str(cell.AddressLocal()))
+
+        if err_counter > 0:
+            bkt.message("Fehler! RegEx war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
+
+    @classmethod
+    def regex_replace(cls, cells, application):
+        import re
+        
+        preview_cell_value = application.ActiveCell.Text
+
+        def _get_flags():
+            flags=0
+            if ignorecase.Checked:
+                flags = re.IGNORECASE
+            return flags
+
+        def _preview(sender, e):
+            try:
+                txt_preview.Text = re.sub(pattern.Text, repl.Text, preview_cell_value, flags=_get_flags())
+            except Exception as e:
+                txt_preview.Text = "FEHLER: " + str(e)
+
+        user_form = bkt.ui.UserInputBox("Hier kann ein regulärer Ausdruck in allen markierten Zellen gesucht und ersetzt werden. In der Auswahlbox finden Sie Beispiele für mögliche Eingaben.", "RegEx anwenden")
+        pattern = user_form._add_combobox("pattern", cls.last_regex_sub_pattern, [r"\sand\s", r" {2,}", r"([A-Z]+)/([a-z]+)"])
+        pattern.TextChanged += _preview
+
+        repl = user_form._add_combobox("repl", cls.last_regex_sub_repl, [r" & ", r" ", r"\2/\1"])
+        repl.TextChanged += _preview
+
+        ignorecase = user_form._add_checkbox("ignorecase", "Groß-/Kleinschreibung ignorieren")
+        ignorecase.CheckedChanged += _preview
+        
+        user_form._add_label("Vorschau für aktive Zelle:")
+        txt_preview = user_form._add_textbox("preview")
+        txt_preview.ReadOnly = True
+        _preview(None, None)
+
+        form_return = user_form.show()
+        if len(form_return) == 0:
+            return
+        
+        try:
+            regex_pattern = re.compile(form_return["pattern"], _get_flags())
+        except Exception as e:
+            bkt.message("Fehler! RegEx kann nicht kompiliert werden: "+str(e))
+            return
+
+        if not xllib.confirm_no_undo(): return
+
+        err_counter = 0
+        cls.last_regex_sub_pattern = form_return["pattern"]
+        cls.last_regex_sub_repl = form_return["repl"]
+
+        for cell in cells:
+            if cell.Value2 is None:
+                continue
+
+            try:
+                cell.Value = regex_pattern.sub(form_return["repl"], cell.Text)
+            except:
+                err_counter += 1
+                #bkt.helpers.exception_as_message(str(cell.AddressLocal()))
+
+        if err_counter > 0:
+            bkt.message("Fehler! RegEx war auf " + str(err_counter) + " Zelle(n) nicht anwendbar.")
+
 
     @staticmethod
-    def merge_cells(cells, join="\r\n"):
+    def merge_cells(selection, cells, join="\r\n"):
         if not xllib.confirm_no_undo(): return
-        target_cell = next(cells)
+        target_content = join.join([cell.Text for cell in cells])
+        selection.ClearContents()
+        selection.Cells[1].Value = target_content
+
+        # target_cell = next(cells)
+        # for cell in cells:
+        #     target_cell.Value = target_cell.Value() + join + cell.Value()
+        #     cell.Value = None
+
+    @staticmethod
+    def merge_area_rows(areas, join="\r\n"):
+        if not xllib.confirm_no_undo(): return
+        for area in areas:
+            values = Array.CreateInstance(object, 1, area.columns.count)
+            for i,col in enumerate(area.columns):
+                values[0,i] = join.join([cell.Text for cell in col.rows])
+            area.ClearContents()
+            area.Rows[1].Value = values
+
+    @staticmethod
+    def merge_area_cols(areas, join=", "):
+        if not xllib.confirm_no_undo(): return
+        for area in areas:
+            values = Array.CreateInstance(object, area.rows.count, 1)
+            for i,row in enumerate(area.rows):
+                values[i,0] = join.join([cell.Text for cell in row.columns])
+            area.ClearContents()
+            area.Columns[1].Value = values
+
+    @staticmethod
+    def split_to_cols(cells, sep=","):
+        if not xllib.confirm_no_undo(): return
         for cell in cells:
-            target_cell.Value = target_cell.Value() + join + cell.Value()
-            cell.Value = None
+            values_split = cell.Text.split(sep)
+            values = Array.CreateInstance(object, 1, len(values_split))
+            for i,col in enumerate(values_split):
+                values[0,i] = col.strip()
+            new_area = xllib.resize_areas([cell], cols=len(values_split))[0]
+            new_area.Value = values
+
+    @staticmethod
+    def split_to_rows(cells, sep=None):
+        if not xllib.confirm_no_undo(): return
+        for cell in cells:
+            if sep is None:
+                values_split = cell.Text.splitlines()
+            else:
+                values_split = cell.Text.split(sep)
+            values = Array.CreateInstance(object, len(values_split), 1)
+            for i,row in enumerate(values_split):
+                values[i,0] = row.strip()
+            new_area = xllib.resize_areas([cell], rows=len(values_split))[0]
+            new_area.Value = values
 
 
     @staticmethod
@@ -379,14 +664,14 @@ class CellsOps(object):
         if not xllib.confirm_no_undo(): return
         for cell in cells:
             if cell.HasFormula:
-                cell.Formula = Application.ConvertFormula(cell.Formula, 1, 1, 1) #xlA1, xlA1, xlAbsolute
+                cell.Formula = application.ConvertFormula(cell.Formula, 1, 1, 1) #xlA1, xlA1, xlAbsolute
 
     @staticmethod
     def formula_to_relative(cells, application):
         if not xllib.confirm_no_undo(): return
         for cell in cells:
             if cell.HasFormula:
-                cell.Formula = Application.ConvertFormula(cell.Formula, 1, 1, 4) #xlA1, xlA1, xlRelative
+                cell.Formula = application.ConvertFormula(cell.Formula, 1, 1, 4) #xlA1, xlA1, xlRelative
 
     @staticmethod
     def prohibit_duplicates(areas, application):
@@ -410,8 +695,8 @@ class CellsOps(object):
             value = value.replace('.', application.International(xlcon.XlApplicationInternational["xlDecimalSeparator"]))
             Forms.Clipboard.SetText(value)
         except:
-            bkt.helpers.message('Fehler beim Kopieren!')
-        #bkt.helpers.message('Kopiert: ' + value)
+            bkt.message('Fehler beim Kopieren!')
+        #bkt.message('Kopiert: ' + value)
 
     @staticmethod
     def enabled_subtotal(application, selection):
@@ -514,7 +799,7 @@ class CellsOps(object):
                 selection.EntireColumn.Hidden = True
             
             else:
-                bkt.helpers.message("Keine ausgeblendeten Spalten im genutzten Bereich gefunden.")
+                bkt.message("Keine ausgeblendeten Spalten im genutzten Bereich gefunden.")
 
 
     @classmethod
@@ -549,7 +834,7 @@ class CellsOps(object):
                 selection.EntireRow.Hidden = True
             
             else:
-                bkt.helpers.message("Keine ausgeblendeten Zeilen im genutzten Bereich gefunden.")
+                bkt.message("Keine ausgeblendeten Zeilen im genutzten Bereich gefunden.")
 
     @staticmethod
     def show_all_cells(sheet):
@@ -611,7 +896,7 @@ class CellsOps(object):
             cell.PasteSpecial(pasteType, SkipBlanks=True)
             
         except:
-            bkt.helpers.message("Sorry, etwas ist schiefgelaufen!?")
+            bkt.message("Sorry, etwas ist schiefgelaufen!?")
 
         temporary_sheet.Delete()
         xllib.unfreeze_app()
@@ -717,6 +1002,37 @@ zellen_inhalt_gruppe = bkt.ribbon.Group(
             supertip="Eine Formel auf alle ausgwählten Zellen anwenden.",
             on_action=bkt.Callback(CellsOps.apply_formula, cells=True, application=True),
             get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+        ),
+        bkt.ribbon.Menu(
+            id = 'apply_regex',
+            label="RegEx anwenden…",
+            show_label=True,
+            size='large',
+            image_mso='ApplyFilter',
+            supertip="Einen regulären Ausdruck auf alle ausgwählten Zellen anwenden.",
+            children=[
+                bkt.ribbon.Button(
+                    id = 'regex_match',
+                    label="Mit RegEx zählen/filtern",
+                    supertip="Die Anzahl der Ergebnisse/Gruppen eines regulären Ausdrucks für ausgewählte Zellen in jeweilige Zelle schreiben.",
+                    on_action=bkt.Callback(CellsOps.regex_match_count, cells=True, application=True),
+                    get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                ),
+                bkt.ribbon.Button(
+                    id = 'regex_split',
+                    label="Mit RegEx in Spalten aufteilen",
+                    supertip="Alle Ergebnisse/Gruppen eines regulären Ausdrucks für ausgewählte Zellen in Spalten aufteilen.",
+                    on_action=bkt.Callback(CellsOps.regex_split_to_columns, cells=True, application=True),
+                    get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                ),
+                bkt.ribbon.Button(
+                    id = 'regex_replace',
+                    label="Mit RegEx suchen und ersetzen",
+                    supertip="Mit einem regulären Ausdruck in ausgewählten Zellen suchen und ersetzen.",
+                    on_action=bkt.Callback(CellsOps.regex_replace, cells=True, application=True),
+                    get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                ),
+            ]
         ),
         bkt.ribbon.Menu(
             label="Textwerkzeuge",
@@ -940,11 +1256,48 @@ zellen_inhalt_gruppe = bkt.ribbon.Group(
                     bkt.ribbon.MenuSeparator(),
                     bkt.ribbon.Button(
                         id = 'cells_merge',
-                        label="Zell-Inhalte zusammenführen",
+                        label="Alle Zell-Inhalte zusammenführen",
                         show_label=True,
                         # image_mso='FillUp',
                         supertip="Fügt alle Zellen in aktive Zelle getrennt mit Zeilenumbruch ein",
-                        on_action=bkt.Callback(CellsOps.merge_cells, cells=True),
+                        on_action=bkt.Callback(CellsOps.merge_cells, selection=True, cells=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'cells_merge_cols',
+                        label="Spaltenweise zusammenführen mit Komma",
+                        show_label=True,
+                        # image_mso='FillUp',
+                        supertip="Fügt alle Spalten (je Selektionsbereich) in die erste Spalte getrennt mit Kommas ein",
+                        on_action=bkt.Callback(CellsOps.merge_area_cols, areas=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'cells_merge_rows',
+                        label="Zeilenweise zusammenführen mit Umbruch",
+                        show_label=True,
+                        # image_mso='FillUp',
+                        supertip="Fügt alle Zeilen (je Selektionsbereich) in erste Zeile getrennt mit Zeilenumbruch ein",
+                        on_action=bkt.Callback(CellsOps.merge_area_rows, areas=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.MenuSeparator(),
+                    bkt.ribbon.Button(
+                        id = 'cells_split_cols',
+                        label="Komma-getrennt in Spalten trennen",
+                        show_label=True,
+                        # image_mso='FillUp',
+                        supertip="Zelleninhalte in Spalten für jedes Komma trennen",
+                        on_action=bkt.Callback(CellsOps.split_to_cols, cells=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'cells_split_rows',
+                        label="Zeilenumbrüche in Zeilen trennen",
+                        show_label=True,
+                        # image_mso='FillUp',
+                        supertip="Zelleninhalte in Zeilen für jeden Zeilenumbruch trennen",
+                        on_action=bkt.Callback(CellsOps.split_to_rows, cells=True),
                         get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                     ),
                 ])

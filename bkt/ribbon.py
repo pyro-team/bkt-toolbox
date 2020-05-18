@@ -1,25 +1,31 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 17.11.2014
+Standard ribbon controls and bkt-specific ribbon controls
 
+Created on 17.11.2014
 @author: cschmitt
 '''
 
-import bkt.dotnet
-import bkt.library.system
+from __future__ import absolute_import
+
+import logging
+import uuid #for getting random id
+
+from itertools import count #NOTE: DEPRECATED: this is required for setting target_order which is only used by legacy annotations syntax
+
+import bkt.helpers as _h #for snake-to-camelcase
+import bkt.library.system as lib_sys #for getting key-states in spinner
 
 from bkt.callbacks import CallbackTypes, CallbackType, Callback
 from bkt.xml import RibbonXMLFactory, linq
 
-#FIXME: Abhängigkeit zu annotation nicht gewünscht, siehe RibbonControl-Klasse
-from .annotation import AbstractAnnotationObject
+# Abhängigkeit zu annotation nicht gewünscht, siehe RibbonControl-Klasse
+# from .annotation import AbstractAnnotationObject
 
-Drawing = bkt.dotnet.import_drawing()
+from bkt import dotnet
+Drawing = dotnet.import_drawing()
 Bitmap = Drawing.Bitmap
 
-import uuid
-import sys, inspect
-import logging
 
 
 class ArgAccessor(object):
@@ -41,7 +47,8 @@ class ArgAccessor(object):
 #       Aktuell ist diese Abhängigkeit notwendig, damit RibbonControl-Instanzen in Klassenattributen bei der Control-Erstellung einer
 #       FeatureContainer-Klasse berücksichtigt werden.
 #       Sauberer wäre, die Logik vom AbstractAnnotationObject von außerhalb zu injezieren; diese Logik wird hier nicht weiter verwendet.
-class RibbonControl(AbstractAnnotationObject):
+# class RibbonControl(AbstractAnnotationObject):
+class RibbonControl(object):
     ''' Base class to represent any element from MSCustomUI.
         Holds attributes of the xml-element and callbacks associated to the element.
         Attributes and callbacks can be accessed in dict-style (i.e. button['label']).
@@ -54,10 +61,14 @@ class RibbonControl(AbstractAnnotationObject):
     _id_attribute_key = "id"
     _auto_id_counter = 0
     _predefined_ids = set(["id_mso", "idMso", "id_q", "idQ"])
+
+    #NOTE: DEPRECATED: this counter is only used to set target_order for legacy annotations syntax
+    _order_counter = count()
     
     #def __init__(self, node_type, xml_name, id_tag=None, attributes=None, **kwargs):
     def __init__(self, xml_name, id_tag=None, attributes={}, **kwargs):
-        AbstractAnnotationObject.__init__(self);
+        # AbstractAnnotationObject.__init__(self)
+        self.target_order = next(RibbonControl._order_counter)
         
         #self.node_type = node_type
         self.xml_name = xml_name
@@ -277,7 +288,7 @@ class RibbonControl(AbstractAnnotationObject):
             objects x to x.xml() or str(x)
         '''
         
-        return {convert_key(k):convert_value(v) for k, v in d.items()}
+        return {key:value for key, value in self._attributes.iteritems() if value != None}
         
         
         
@@ -289,7 +300,7 @@ class RibbonControl(AbstractAnnotationObject):
         '''
         f = RibbonXMLFactory()
         #print('RibbonControl._attributes: ' + str(self._attributes))
-        node = f.node(self.xml_name, **convert_dict_to_ribbon_xml_style({key:value for key, value in self._attributes.iteritems() if value != None}))
+        node = f.node(self.xml_name, **convert_dict_to_ribbon_xml_style(self.get_attributes_xml_dict()))
         for cb in self._callbacks.values():
             if not cb.callback_type.custom:
                 node.SetAttributeValue(cb.callback_type.xml_name, cb.callback_type.dotnet_name)
@@ -706,8 +717,8 @@ class RoundingSpinnerBox(SpinnerBox):
     def _dec(self, context, **kwargs):
         ''' decrement-callback using the on_change/get_text-callback from the editbox '''
         value = self._get(context)
-        ctrl_pressed = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-        shift_pressed = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
+        ctrl_pressed = lib_sys.get_key_state(lib_sys.KeyCodes.CTRL)
+        shift_pressed = lib_sys.get_key_state(lib_sys.KeyCodes.SHIFT)
         step = self.big_step if not ctrl_pressed else self.small_step
         step = step if not shift_pressed else self.huge_step
         context.invoke_callback(self.txt_box._callbacks['on_change'], value=value-step)
@@ -715,16 +726,16 @@ class RoundingSpinnerBox(SpinnerBox):
     def _inc(self, context, **kwargs):
         ''' increment-callback using the on_change/get_text-callback from the editbox '''
         value = self._get(context)
-        ctrl_pressed = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-        shift_pressed = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
+        ctrl_pressed = lib_sys.get_key_state(lib_sys.KeyCodes.CTRL)
+        shift_pressed = lib_sys.get_key_state(lib_sys.KeyCodes.SHIFT)
         step = self.big_step if not ctrl_pressed else self.small_step
         step = step if not shift_pressed else self.huge_step
         context.invoke_callback(self.txt_box._callbacks['on_change'], value=value+step)
 
     def _res(self, context, **kwargs):
         ''' reset-callback using the on_change/get_text-callback from the editbox '''
-        # ctrl_pressed = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-        shift_pressed = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
+        # ctrl_pressed = lib_sys.get_key_state(lib_sys.KeyCodes.CTRL)
+        shift_pressed = lib_sys.get_key_state(lib_sys.KeyCodes.SHIFT)
         value = self.big_step if shift_pressed else self.reset_value
         context.invoke_callback(self.txt_box._callbacks['on_change'], value=value)
 
@@ -772,22 +783,23 @@ class RoundingSpinnerBox(SpinnerBox):
 
 
     ####  functions to convert pt to cm values
-    pt_to_cm_factor = 2.54 / 72;
+    pt_to_cm_factor = 2.54 / 72
 
     def convert_pt_to_cm_A(self, pt):
         ''' convert pt-value to cm-value, round to 4 digits '''
         round_at = self.round_at if self.round_at != None else 4
-        return round(float(pt) * self.pt_to_cm_factor, round_at);
+        return round(float(pt) * self.pt_to_cm_factor, round_at)
 
     def convert_pt_to_cm_B(self, cm):
         ''' convert cm-value to pt-value '''
-        return float(cm) / self.pt_to_cm_factor;
+        return float(cm) / self.pt_to_cm_factor
    
     
 
 
 class ColorGallery(Gallery):
     item_size = 14
+    color_helper = None
     
     def __init__(self, color_helper=None, **user_kwargs):
         # default attributes
@@ -816,16 +828,18 @@ class ColorGallery(Gallery):
         super(ColorGallery, self).__init__(**kwargs)
         
         # reset gallery_colors, later initialized by get_item_image
-        self.gallery_colors = [[0,0,0] for k in range(80)]
+        self.gallery_colors = [[0,0,0] for _ in range(80)]
         self.theme_colors = [None]*60
         
         #allow to pass color helper to make this element also available for other office apps than powerpoint
         #powerpoint color helper is fallback for backwards compatibility
         if color_helper:
             self.color_helper = color_helper
+        elif ColorGallery.color_helper:
+            self.color_helper = ColorGallery.color_helper
         else:
             import bkt.library.powerpoint as pplib
-            self.color_helper = pplib.ColorHelper #4 functions required: get_theme_color, get_theme_index, get_recent_color, get_recent_colors_count
+            ColorGallery.color_helper = self.color_helper = pplib.ColorHelper #4 functions required: get_theme_color, get_theme_index, get_recent_color, get_recent_colors_count
     
 
     def on_action_indexed(self, selected_item, index, context, **kwargs):
@@ -855,6 +869,8 @@ class ColorGallery(Gallery):
                 return None
 
     def get_item_count(self, context):
+        # we use this callback to reset the cache which is important if design or presentation is changed
+        self.theme_colors = [None]*60 #reset theme colors cache
         return 70 + self.recent_count(context)
     
     def cb_get_selected_item_index(self, context, **kwargs):
@@ -1205,56 +1221,61 @@ mso = MSOFactoryAccess()
 
 
 
+# ===============================
+# = escaping labels, tites, etc =
+# ===============================
+
+
+def escape_field(value, field=None):
+    if field in ("label", "screentip"):
+        return value.replace("&", "&&")
+
+    #e.g. supertip, tag, description do not need escaping
+    return value
+
+
+
+
 # =======================================
 # = dictionary and key/value conversion =
 # =======================================
 
 
-def convert_value_to_string(v):
+
+def convert_value_to_string(v, key=None):
     if v is True:
         return 'true'
     elif v is False:
         return 'false'
     elif isinstance(v, (str, unicode)):
-        return v
+        return escape_field(v, key)
     else:
         try:
             return v.xml()
         except:
             return str(v)
-    
-def convert_key_to_lower_camelcase(key):
-    if not '_' in key:
-        return key
-    parts = key.split('_')
-    parts_new = []
-    for i, part in enumerate(parts):
-        if len(part) > 1:
-            if i > 0:
-                p = part[0].upper() + part[1:]
-            else:            
-                p = part[0].lower() + part[1:]
-        else:
-            if i > 0:
-                p = part.upper()
-            else:            
-                p = part.lower()
+
+# def convert_key_to_lower_camelcase(key):
+    # if not '_' in key:
+    #     return key
+    # parts = key.split('_')
+    # parts_new = []
+    # for i, part in enumerate(parts):
+    #     if len(part) > 1:
+    #         if i > 0:
+    #             p = part[0].upper() + part[1:]
+    #         else:            
+    #             p = part[0].lower() + part[1:]
+    #     else:
+    #         if i > 0:
+    #             p = part.upper()
+    #         else:            
+    #             p = part.lower()
             
-        parts_new.append(p)
-    return ''.join(parts_new)
+    #     parts_new.append(p)
+    # return ''.join(parts_new)
 
 def convert_dict_to_ribbon_xml_style(d):
-    return {convert_key_to_lower_camelcase(k):convert_value_to_string(v) for k, v in d.items()}
+    return {_h.snake_to_lower_camelcase(k):convert_value_to_string(v, k) for k, v in d.iteritems()}
 
-
-
-
-
-
-# ====================================
-# = Access to Ribbon Control classes =
-# ====================================
-
-clsmembers = inspect.getmembers(sys.modules[__name__], inspect.isclass)
-RIBBON_CONTROL_CLASSES = {member[1]._python_name:member[1] for member in clsmembers if issubclass(member[1], RibbonControl) and hasattr(member[1], '_python_name')}
 

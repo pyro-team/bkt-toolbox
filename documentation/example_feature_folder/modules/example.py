@@ -5,7 +5,7 @@ import bkt
 class Example(object):
     @staticmethod
     def show_message():
-        bkt.helpers.message("Example button was pressed!")
+        bkt.message("Example button was pressed!")
 
 
 

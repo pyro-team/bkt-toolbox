@@ -4,14 +4,16 @@
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
+import math
+# import logging
 
 import bkt
 import bkt.library.algorithms as algorithms
-import math
 
 from bkt.library.powerpoint import cm_to_pt
 
-# import logging
 
 
 # Initialisierung
@@ -244,8 +246,10 @@ class CircularArrangement(object):
 
 
 group_circlify = bkt.ribbon.Group(
+    id="bkt_circlify_group",
     label=u"Kreisanordnung",
     image="circlify",
+    supertip="Ermöglicht die kreisförmige Anordnung von Shapes. Das Feature `ppt_circlify` muss installiert sein.",
     children=[
         bkt.ribbon.SplitButton(
             id="circlify_splitbutton",
@@ -262,6 +266,7 @@ group_circlify = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.Menu(
                     label="Kreisanordnung Optionen",
+                    supertip="Einstellungen zur kreisförmigen Ausrichtung von Shapes",
                     item_size="large",
                     children=[
                         bkt.ribbon.MenuSeparator(title="Optionen:"),

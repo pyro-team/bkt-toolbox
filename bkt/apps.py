@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 11.07.2014
+Handling of app-specific events, pre-defined callbacks and resources
 
+Created on 11.07.2014
 @authors: cschmitt, rdebeerst
 '''
 
+from __future__ import absolute_import
+
 import traceback
+import logging
 
-import shelve #for resources cache
-import os.path #for resources cache
+import time #for cache invalidation and event throttling
 
-import bkt.helpers as _h
 from bkt.context import InappropriateContextError
 from bkt.callbacks import Callback, CallbackTypes
+from bkt.library.comrelease import AutoReleasingComObject
 
-import logging
-import time
 
-from System.Runtime.InteropServices.Marshal import ReleaseComObject
 
 
 class AppEventType(object):
@@ -210,6 +210,7 @@ class AppCallbacksBase(AppCallbacks):
 
         for i, arg in enumerate(args):
             kwargs[callback.callback_type.pos_args[i]] = arg
+        return_value = None
         
         if callback.invocation_context is not None:
             try:
@@ -227,6 +228,9 @@ class AppCallbacksBase(AppCallbacks):
         logging.debug("AppCallbacksBase.invoke_callback: run callback method\nkwargs=%s" % kwargs)
         return_value = callback.method(**kwargs)
         self.undo_end(callback)
+        
+        # release com objects
+        context.release_com_references()
         
         if do_cache:
             self.cache[cache_key] = return_value
@@ -283,7 +287,6 @@ class AppCallbacksExcel(AppCallbacksBase):
     
     def unbind_app_events(self):
         from System.Runtime.InteropServices.Marshal import ReleaseComObject
-        #import bkt.ui
         #bkt.console.show_message("%s.on_destroy()" % type(self).__name__)
 
         if self.context:
@@ -606,9 +609,9 @@ class AppCallbacksFactory(object):
     
     @classmethod
     def get_app_callbacks(cls, app_name):
-        if app_name in cls.registry:
+        try:
             return cls.registry[app_name]
-        else:
+        except KeyError:
             instance = cls.create_app_callbacks(app_name)
             cls.registry[app_name] = instance
             return instance
@@ -622,56 +625,6 @@ class AppCallbacksFactory(object):
         # create instance
         return app_callbacks_class(*args, **kwargs)
 
-        
-
-
-
-
-
-
-
-class Resources(object):
-    ''' Encapsulated path resolution for file resources (such as images) '''
-    root_folders = []
-    images = None
-    
-    def __init__(self, category, suffix):
-        self.category = category
-        self.suffix = suffix
-
-        cache_file = os.path.join( _h.get_cache_folder(), "resources.%s.cache"%category )
-        
-        try:
-            self._cache = shelve.open(cache_file, protocol=2)
-        except:
-            logging.error("Loading resource cache failed")
-            logging.debug(traceback.format_exc())
-            
-    def locate(self, name):
-        try:
-            return self._cache[name]
-        except KeyError:
-            logging.info("Locate resource: %s"%name)
-            for root_folder in self.root_folders:
-                path = os.path.join(root_folder, self.category, name + '.' + self.suffix)
-                if os.path.exists(path):
-                    self._cache[name] = path
-                    self._cache.sync() #sync after each change as .close() is never called
-                    return path
-            return None
-        except:
-            logging.error("Unknown error reading from resource cache")
-            logging.debug(traceback.format_exc())
-            return None
-    
-    @staticmethod
-    def bootstrap():
-        package_dir = os.path.dirname(__file__)
-        Resources.root_folders = [ os.path.normpath(os.path.join(package_dir,'..','resources')) ]
-        Resources.images = Resources("images", "png")
-    
-Resources.bootstrap()
-
 
 
 
@@ -679,53 +632,53 @@ Resources.bootstrap()
 # = Predefined callbacks =
 # ========================
 
-def get_enabled_ppt_shapes_or_text_selected(selection):
-    # print "callback get_enabled_ppt_shapes_or_text_selected"
-    return (selection.Type == 2 or selection.Type == 3)
+# def get_enabled_ppt_shapes_or_text_selected(selection):
+#     # print "callback get_enabled_ppt_shapes_or_text_selected"
+#     return (selection.Type == 2 or selection.Type == 3)
 
-def get_enabled_ppt_selection_contains_textframe(selection):
-    # print "callback get_enabled_ppt_selection_contains_textframe"
-    try:
-        if not selection.Type in [2,3]:
-            #neither text nor shapes selected
-            return False
-        elif selection.HasChildShapeRange:
-            #selection within a group
-            if selection.ChildShapeRange.HasTextFrame == 0:
-                #none of the shapes has a TextFrame (otherwise HasTextFrame is -1 or -2)
-                #note: a group cannot contain a table or "subgroups", no need to check for this
-                return False
-            else:
-                return True
-        elif selection.ShapeRange.HasTextFrame in [-2, -1] or selection.ShapeRange.HasTable in [-2, -1]:
-            #at least one shape has a textframe (otherwise HasTextFrame is 0) or at least one table is selected (otherwise HasTable is 0)
-            return True
-        else:
-            #shape selection may contain a group or SmartArt
-            # (SmartArts are very strange objects, HasSmartArt is only impemented for single selection, GroupItems of SmartArt can be iterated but GroupItems.Range is invalid request)
-            for shape in selection.ShapeRange:
-                if shape.Type == 24: #msoSmartArt
-                    return True
-                if shape.Type == 6: #msoGroup
-                    if shape.GroupItems.Range(None).HasTextFrame in [-2, -1]: #Range(None) return a ShapeRange object with all shapes in the group
-                        return True
-            return False #no TextFrames found
-    except:
-        #Any failure (e.g. ShapeRange fails when notes field is entered)
-        return False
+# def get_enabled_ppt_selection_contains_textframe(selection):
+#     # print "callback get_enabled_ppt_selection_contains_textframe"
+#     try:
+#         if not selection.Type in [2,3]:
+#             #neither text nor shapes selected
+#             return False
+#         elif selection.HasChildShapeRange:
+#             #selection within a group
+#             if selection.ChildShapeRange.HasTextFrame == 0:
+#                 #none of the shapes has a TextFrame (otherwise HasTextFrame is -1 or -2)
+#                 #note: a group cannot contain a table or "subgroups", no need to check for this
+#                 return False
+#             else:
+#                 return True
+#         elif selection.ShapeRange.HasTextFrame in [-2, -1] or selection.ShapeRange.HasTable in [-2, -1]:
+#             #at least one shape has a textframe (otherwise HasTextFrame is 0) or at least one table is selected (otherwise HasTable is 0)
+#             return True
+#         else:
+#             #shape selection may contain a group or SmartArt
+#             # (SmartArts are very strange objects, HasSmartArt is only impemented for single selection, GroupItems of SmartArt can be iterated but GroupItems.Range is invalid request)
+#             for shape in selection.ShapeRange:
+#                 if shape.Type == 24: #msoSmartArt
+#                     return True
+#                 if shape.Type == 6: #msoGroup
+#                     if shape.GroupItems.Range(None).HasTextFrame in [-2, -1]: #Range(None) return a ShapeRange object with all shapes in the group
+#                         return True
+#             return False #no TextFrames found
+#     except:
+#         #Any failure (e.g. ShapeRange fails when notes field is entered)
+#         return False
 
-def get_enabled_ppt_shapes_min2_selected(selection):
-    # print "callback get_enabled_ppt_shapes_min2_selected"
-    try:
-        if selection.Type != 2 and selection.Type != 3:
-            return False
+# def get_enabled_ppt_shapes_min2_selected(selection):
+#     # print "callback get_enabled_ppt_shapes_min2_selected"
+#     try:
+#         if selection.Type != 2 and selection.Type != 3:
+#             return False
 
-        if selection.HasChildShapeRange:
-            return selection.ChildShapeRange.Count >= 2
-        else:
-            return selection.ShapeRange.Count >= 2
-    except:
-        return False
+#         if selection.HasChildShapeRange:
+#             return selection.ChildShapeRange.Count >= 2
+#         else:
+#             return selection.ShapeRange.Count >= 2
+#     except:
+#         return False
 
 
 # ppt_shapes_or_text_selected      = Callback(get_enabled_ppt_shapes_or_text_selected)

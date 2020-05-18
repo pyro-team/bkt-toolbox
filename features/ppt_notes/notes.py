@@ -5,6 +5,8 @@ Created on 29.03.2017
 @author: tweuffel
 '''
 
+from __future__ import absolute_import
+
 import bkt
 
 TOOLBOX_NOTE = "TOOLBOX-NOTE"
@@ -18,7 +20,8 @@ class EditModeShapes(object):
     @classmethod
     def addNote(cls, slide, context):
         from datetime import datetime
-        from System import Environment
+        # from System import Environment #used for Environment.UserName
+        from getpass import getuser
 
         # Positionsanpassung ermitteln (unter existierenden Shape)
         yPosition = 0
@@ -56,7 +59,7 @@ class EditModeShapes(object):
         shp.TextFrame.MarginRight  = 5
         # Text
         dt = datetime.now()
-        new_text = dt.strftime("%d.%m.%y %H:%M") + " (" + Environment.UserName + "): EDIT"
+        new_text = dt.strftime("%d.%m.%y %H:%M") + " (" + getuser() + "): EDIT"
         shp.TextFrame.TextRange.Text = new_text
         shp.Select() #first select shape, then text in shape. otherwise test is not selected in some cases.
         shp.TextFrame.TextRange.Characters(len(new_text)-3, 4).Select()
@@ -140,37 +143,45 @@ class EditModeShapes(object):
 
 
 notes_gruppe = bkt.ribbon.Group(
+    id="bkt_notes_group",
     label='Notes',
+    supertip="Ermöglicht das Einfügen von Bearbeitungsnotizen auf Folien. Das Feature `ppt_notes` muss installiert sein.",
     image='noteAdd',
     children = [
         bkt.ribbon.Button(
             label='Notizen (+)', screentip='Notiz hinzufügen',
+            supertip="Fügt eine Bearbeitungsnotiz oben rechts auf der Folie ein inkl. Autor und Datum.",
             image='noteAdd',
             on_action=bkt.Callback(EditModeShapes.addNote)
         ),
         bkt.ribbon.Button(
             label='Notizen (I/O)', screentip='Notizen auf Folie ein-/ausblenden',
+            supertip="Alle Notizen der aktuellen Folie temporär ausblenden und wieder einblenden.",
             image='noteToggle',
             on_action=bkt.Callback(EditModeShapes.toogleNotesOnSlide)
         ),
         bkt.ribbon.Button(
             label='Notizen (-)', screentip='Notizen auf Folie löschen',
+            supertip="Alle Notizen der aktuellen Folie entfernen.",
             image='noteRemove',
             on_action=bkt.Callback(EditModeShapes.removeNotesOnSlide)
         ),
         bkt.ribbon.Button(
             label='Alle Notizen (I/O)', screentip='Alle Notizen ein-/ausblenden',
+            supertip="Alle Notizen auf allen Folien temporär ausblenden und wieder einblenden.",
             image='noteToggleAll',
             on_action=bkt.Callback(EditModeShapes.toggleNotesOnAllSlides)
         ),
         bkt.ribbon.Button(
             label='Alle Notizen (-)', screentip='Alle Notizen löschen',
+            supertip="Alle Notizen auf allen Folien entfernen.",
             image='noteRemoveAll',
             on_action=bkt.Callback(EditModeShapes.removeNotesOnAllSlides)
         ),
         bkt.ribbon.ColorGallery(
             id = 'notes_color',
             label=u'Farbe ändern',
+            supertip="Hintergrundfarbe für neue Bearbeitungsnotizen ändern.",
             on_rgb_color_change = bkt.Callback(EditModeShapes.set_color_rgb),
             on_theme_color_change = bkt.Callback(EditModeShapes.set_color_theme),
             get_selected_color = bkt.Callback(EditModeShapes.get_color),
@@ -178,6 +189,7 @@ notes_gruppe = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     id="notes_color_default",
                     label="Standardfarbe",
+                    supertip="Hintergrundfarbe für Bearbeitungsnotizen auf Standard zurücksetzen.",
                     on_action=bkt.Callback(EditModeShapes.set_color_default),
                     image_mso="ColorTeal",
                 )

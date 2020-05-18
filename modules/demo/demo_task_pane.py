@@ -2,7 +2,6 @@
 
 import bkt
 import bkt.taskpane
-import bkt.helpers
 #import logging
 
 
@@ -13,44 +12,44 @@ import bkt.helpers
 
 
 action_callback = bkt.Callback(
-    lambda current_control: bkt.helpers.message('control clicked: id=%s' % (current_control.id)),
+    lambda current_control: bkt.message('control clicked: id=%s' % (current_control.id)),
     current_control=True)
 
 action_callback_header = bkt.Callback(
-    lambda current_control: bkt.helpers.message('control clicked: header=%s id=%s' % (current_control['header'], current_control.id)),
+    lambda current_control: bkt.message('control clicked: header=%s id=%s' % (current_control['header'], current_control.id)),
     current_control=True)
 
 action_indexed_callback_header = bkt.Callback(
-    lambda selected_item, index, current_control: bkt.helpers.message('control clicked: header=%s,\nid=%s\n\nindex=%s, selected_item_id=%s' % (current_control['header'], current_control.id, index, selected_item)),
+    lambda selected_item, index, current_control: bkt.message('control clicked: header=%s,\nid=%s\n\nindex=%s, selected_item_id=%s' % (current_control['header'], current_control.id, index, selected_item)),
     current_control=True)
 
 toggle_callback = bkt.Callback(
-    lambda pressed, current_control: bkt.helpers.message('toggle-button clicked: id=%s\n\npressed-state after click=%s' % (current_control.id, pressed)),
+    lambda pressed, current_control: bkt.message('toggle-button clicked: id=%s\n\npressed-state after click=%s' % (current_control.id, pressed)),
     current_control=True)
 
 toggle_callback_header = bkt.Callback(
-    lambda pressed, current_control: bkt.helpers.message('toggle-button clicked: header=%s, id=%s\n\npressed/checked-state after click=%s' % (current_control['header'], current_control.id, pressed)),
+    lambda pressed, current_control: bkt.message('toggle-button clicked: header=%s, id=%s\n\npressed/checked-state after click=%s' % (current_control['header'], current_control.id, pressed)),
     current_control=True)
 
 change_callback = bkt.Callback(
-    lambda value, current_control: bkt.helpers.message('text changed: id=%s\n\nnew text=%s' % (current_control.id, value)),
+    lambda value, current_control: bkt.message('text changed: id=%s\n\nnew text=%s' % (current_control.id, value)),
     current_control=True)
 change_callback_header = bkt.Callback(
-    lambda value, current_control: bkt.helpers.message('text changed: header=%s, id=%s\n\nnew text=%s' % (current_control['header'], current_control.id, value)),
+    lambda value, current_control: bkt.message('text changed: header=%s, id=%s\n\nnew text=%s' % (current_control['header'], current_control.id, value)),
     current_control=True)
 value_change_callback_header = bkt.Callback(
-    lambda value, current_control, old_value, new_value: bkt.helpers.message('value changed: header=%s, id=%s\n\nold value=%s, new value=%s, current value=%s' % (current_control['header'], current_control.id, old_value, new_value, value)),
+    lambda value, current_control, old_value, new_value: bkt.message('value changed: header=%s, id=%s\n\nold value=%s, new value=%s, current value=%s' % (current_control['header'], current_control.id, old_value, new_value, value)),
     current_control=True)
 
 
 rgb_color_change_callback = bkt.Callback(
-    lambda color, current_control: bkt.helpers.message('color changed: id=%s\n\nnew color rgb=%s' % (current_control.id, color)),
+    lambda color, current_control: bkt.message('color changed: id=%s\n\nnew color rgb=%s' % (current_control.id, color)),
     current_control=True
 )
 
 
 wpf_callback = bkt.Callback(
-    lambda current_control: bkt.helpers.message('control event: id=%s' % (current_control.id)),
+    lambda current_control: bkt.message('control event: id=%s' % (current_control.id)),
     current_control=True)
 
 

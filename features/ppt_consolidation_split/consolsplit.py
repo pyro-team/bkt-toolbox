@@ -4,31 +4,44 @@ Created on 2017-11-09
 @author: Florian Stallmann
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
+from __future__ import absolute_import
 
 import logging
 import os
+
 from string import maketrans
 from System import Array #SlideRange
 
+import bkt
+import bkt.library.powerpoint as pplib
+
+from bkt import dotnet
+Forms = dotnet.import_forms()
+
 class ConsolSplit(object):
-    trans_table = maketrans('\t\n\r\f\v', '     ')
+    trans_table = maketrans('\t\n\r\f\v', '     ') #\t\n\r\x0b\x0c
 
     @classmethod
     def consolidate_ppt_slides(cls, application, presentation):
-        fileDialog = application.FileDialog(3) #msoFileDialogFilePicker
-        fileDialog.Filters.Add("PowerPoint", "*.ppt; *.pptx; *.pptm", 1)
-        fileDialog.Filters.Add("Alle Dateien", "*.*", 2)
+        fileDialog = Forms.OpenFileDialog()
+        fileDialog.Filter = "PowerPoint (*.pptx;*.pptm;*.ppt)|*.pptx;*.pptm;*.ppt|Alle Dateien (*.*)|*.*"
         if presentation.Path:
-            fileDialog.InitialFileName = presentation.Path + '\\'
-        fileDialog.title = "PowerPoint-Dateien auswählen"
-        fileDialog.AllowMultiSelect = True
+            fileDialog.InitialDirectory = presentation.Path + '\\'
+        fileDialog.Title = "PowerPoint-Dateien auswählen"
+        fileDialog.Multiselect = True
 
-        if fileDialog.Show() == 0: #msoFalse
+        # fileDialog = application.FileDialog(3) #msoFileDialogFilePicker
+        # fileDialog.Filters.Add("PowerPoint", "*.ppt; *.pptx; *.pptm", 1)
+        # fileDialog.Filters.Add("Alle Dateien", "*.*", 2)
+        # if presentation.Path:
+        #     fileDialog.InitialFileName = presentation.Path + '\\'
+        # fileDialog.title = "PowerPoint-Dateien auswählen"
+        # fileDialog.AllowMultiSelect = True
+
+        if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
             return
 
-        for file in list(iter(fileDialog.SelectedItems)):
+        for file in fileDialog.FileNames:
             if file == presentation.FullName:
                 continue
             try:
@@ -39,15 +52,24 @@ class ConsolSplit(object):
 
     @classmethod
     def export_slide(cls, application, slides, full_name):
+        from System import Array
+
         slides[0].Parent.SaveCopyAs(full_name)
         newPres = application.Presentations.Open(full_name, False, False, False) #readonly, untitled, withwindow
 
-        slideIds = [slide.SlideIndex for slide in slides]
-        removeIds = list(set(range(1,newPres.Slides.Count+1)) - set(slideIds))
-        removeIds.sort()
-        removeIds.reverse()
-        for slideId in removeIds:
-            newPres.Slides(slideId).Delete()
+        #remove slides (new method with array)
+        slideIndices = [slide.SlideIndex for slide in slides]
+        removeIndices = list(set(range(1,newPres.Slides.Count+1)) - set(slideIndices))
+        if len(removeIndices) > 0:
+            newPres.Slides.Range(Array[int](removeIndices)).Delete()
+
+        #old method remove slide by slide
+        # slideIds = [slide.SlideIndex for slide in slides]
+        # removeIds = list(set(range(1,newPres.Slides.Count+1)) - set(slideIds))
+        # removeIds.sort()
+        # removeIds.reverse()
+        # for slideId in removeIds:
+        #     newPres.Slides(slideId).Delete()
 
         #remove all sections
         sections = newPres.SectionProperties
@@ -59,31 +81,36 @@ class ConsolSplit(object):
     
     @classmethod
     def _get_safe_filename(cls, title):
-        title = title.encode('ascii', 'ignore') #remove unicode characters
-        title = title.translate(cls.trans_table, '\/:*?"<>|') #replace special whitespace chacaters with space, also delete not allowed characters
-        title = title[:32] #max 32 characters of title
+        # title = title.encode('ascii', 'ignore') #remove unicode characters -> this also removes umlauts
+        title = title.translate(cls.trans_table, r'\/:*?"<>|') #replace special whitespace chacaters with space, also delete not allowed characters
+        title = title[:64] #max 64 characters of title
         title = title.strip() #remove whitespaces at beginning and end
         return title
     
     @classmethod
     def split_slides_to_ppt(cls, context, slides):
         # if not presentation.Path:
-        #     bkt.helpers.message("Bitte erst Datei speichern.")
+        #     bkt.message.warning("Bitte erst Datei speichern.")
         #     return
 
         application = context.app
         presentation = context.presentation
 
         # save_pattern = "[slidenumber]_[slidetitle]"
-        
-        fileDialog = application.FileDialog(4) #msoFileDialogFolderPicker
-        if presentation.Path:
-            fileDialog.InitialFileName = presentation.Path + '\\'
-        fileDialog.title = "Ordner zum Speichern auswählen"
 
-        if fileDialog.Show() == 0: #msoFalse
+        fileDialog = Forms.FolderBrowserDialog()
+        if presentation.Path:
+            fileDialog.SelectedPath = presentation.Path + '\\'
+        fileDialog.Description = "Ordner zum Speichern auswählen"
+        
+        # fileDialog = application.FileDialog(4) #msoFileDialogFolderPicker
+        # if presentation.Path:
+        #     fileDialog.InitialFileName = presentation.Path + '\\'
+        # fileDialog.title = "Ordner zum Speichern auswählen"
+
+        if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
             return
-        folder = fileDialog.SelectedItems(1)
+        folder = fileDialog.SelectedPath
         if not os.path.isdir(folder):
             return
 
@@ -118,11 +145,11 @@ class ConsolSplit(object):
 
             worker.ReportProgress(100)
             if worker.CancellationPending:
-                bkt.helpers.message("Export durch Nutzer abgebrochen")
+                bkt.message.warning("Export durch Nutzer abgebrochen", "BKT: Export")
             elif error:
-                bkt.helpers.message("Export mit Fehlern abgeschlossen")
+                bkt.message.warning("Export mit Fehlern abgeschlossen", "BKT: Export")
             else:
-                bkt.helpers.message("Export erfolgreich abgeschlossen")
+                bkt.message("Export erfolgreich abgeschlossen", "BKT: Export")
             os.startfile(folder)
 
         bkt.ui.execute_with_progress_bar(loop, context, modal=False) #modal=False important so main thread can handle app events and all presentations close properly
@@ -130,7 +157,7 @@ class ConsolSplit(object):
     @classmethod
     def split_sections_to_ppt(cls, context, slides):
         # if not presentation.Path:
-        #     bkt.helpers.message("Bitte erst Datei speichern.")
+        #     bkt.message.warning("Bitte erst Datei speichern.")
         #     return
 
         application = context.app
@@ -138,19 +165,24 @@ class ConsolSplit(object):
 
         sections = presentation.SectionProperties
         if sections.count < 2:
-            bkt.helpers.message("Präsentation hat weniger als 2 Abschnitte!")
+            bkt.message.warning("Präsentation hat weniger als 2 Abschnitte!", "BKT: Export")
             return
 
         # save_pattern = "[sectionnumber]_[sectiontitle]"
-        
-        fileDialog = application.FileDialog(4) #msoFileDialogFolderPicker
-        if presentation.Path:
-            fileDialog.InitialFileName = presentation.Path + '\\'
-        fileDialog.title = "Ordner zum Speichern auswählen"
 
-        if fileDialog.Show() == 0: #msoFalse
+        fileDialog = Forms.FolderBrowserDialog()
+        if presentation.Path:
+            fileDialog.SelectedPath = presentation.Path + '\\'
+        fileDialog.Description = "Ordner zum Speichern auswählen"
+        
+        # fileDialog = application.FileDialog(4) #msoFileDialogFolderPicker
+        # if presentation.Path:
+        #     fileDialog.InitialFileName = presentation.Path + '\\'
+        # fileDialog.title = "Ordner zum Speichern auswählen"
+
+        if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
             return
-        folder = fileDialog.SelectedItems(1)
+        folder = fileDialog.SelectedPath
         if not os.path.isdir(folder):
             return
 
@@ -191,11 +223,11 @@ class ConsolSplit(object):
 
             worker.ReportProgress(100)
             if worker.CancellationPending:
-                bkt.helpers.message("Export durch Nutzer abgebrochen")
+                bkt.message.warning("Export durch Nutzer abgebrochen", "BKT: Export")
             elif error:
-                bkt.helpers.message("Export mit Fehlern abgeschlossen")
+                bkt.message.warning("Export mit Fehlern abgeschlossen", "BKT: Export")
             else:
-                bkt.helpers.message("Export erfolgreich abgeschlossen")
+                bkt.message("Export erfolgreich abgeschlossen", "BKT: Export")
             os.startfile(folder)
 
         bkt.ui.execute_with_progress_bar(loop, context, modal=False) #modal=False important so main thread can handle app events and all presentations close properly
@@ -240,14 +272,19 @@ class FolderToSlides(object):
 
     @classmethod
     def folder_to_slides(cls, context):
-        fileDialog = context.app.FileDialog(4) #msoFileDialogFolderPicker
+        fileDialog = Forms.FolderBrowserDialog()
         if context.presentation.Path:
-            fileDialog.InitialFileName = context.presentation.Path + '\\'
-        fileDialog.title = "Ordner mit Bildern auswählen"
+            fileDialog.SelectedPath = context.presentation.Path + '\\'
+        fileDialog.Description = "Ordner mit Bildern auswählen"
 
-        if fileDialog.Show() == 0: #msoFalse
+        # fileDialog = context.app.FileDialog(4) #msoFileDialogFolderPicker
+        # if context.presentation.Path:
+        #     fileDialog.InitialFileName = context.presentation.Path + '\\'
+        # fileDialog.title = "Ordner mit Bildern auswählen"
+
+        if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
             return
-        folder = fileDialog.SelectedItems(1)
+        folder = fileDialog.SelectedPath
         if not os.path.isdir(folder):
             return
         
@@ -263,16 +300,24 @@ class FolderToSlides(object):
 
     @classmethod
     def pictures_to_slides(cls, context):
-        fileDialog = context.app.FileDialog(3) #msoFileDialogFilePicker
-        fileDialog.Filters.Add("Bilder", "; ".join(["*"+f for f in cls.filetypes]), 1)
-        fileDialog.Filters.Add("SVG", "*.svg", 2)
-        fileDialog.Filters.Add("Alle Dateien", "*.*", 3)
+        fileDialog = Forms.OpenFileDialog()
+        _picfilestypes = "; ".join(["*"+f for f in cls.filetypes])
+        fileDialog.Filter = "Bilder ("+_picfilestypes+")|"+_picfilestypes+"|SVG (*.svg)|*.svg|Alle Dateien (*.*)|*.*"
         if context.presentation.Path:
-            fileDialog.InitialFileName = context.presentation.Path + '\\'
-        fileDialog.title = "Bild-Dateien auswählen"
-        fileDialog.AllowMultiSelect = True
+            fileDialog.InitialDirectory = context.presentation.Path + '\\'
+        fileDialog.Title = "Bild-Dateien auswählen"
+        fileDialog.Multiselect = True
 
-        if fileDialog.Show() == 0: #msoFalse
+        # fileDialog = context.app.FileDialog(3) #msoFileDialogFilePicker
+        # fileDialog.Filters.Add("Bilder", , 1)
+        # fileDialog.Filters.Add("SVG", "*.svg", 2)
+        # fileDialog.Filters.Add("Alle Dateien", "*.*", 3)
+        # if context.presentation.Path:
+        #     fileDialog.InitialFileName = context.presentation.Path + '\\'
+        # fileDialog.Title = "Bild-Dateien auswählen"
+        # fileDialog.AllowMultiSelect = True
+
+        if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
             return
 
         def get_root(path):
@@ -280,12 +325,12 @@ class FolderToSlides(object):
             root,_ = os.path.splitext(file)
             return root
 
-        all_files = [(get_root(file), file) for file in fileDialog.SelectedItems]
+        all_files = [(get_root(file), file) for file in fileDialog.FileNames]
         cls._files_to_slides(context, all_files)
 
 
 # consolsplit_gruppe = bkt.ribbon.Group(
-#     label='Konsolidieren && Teilen',
+#     label='Konsolidieren & Teilen',
 #     image_mso='ThemeBrowseForThemes',
 #     children = [
 #         bkt.ribbon.Button(
@@ -346,10 +391,11 @@ bkt.powerpoint.add_backstage_control(
         columnWidthPercent="50",
         children=[
             bkt.ribbon.FirstColumn(children=[
-                bkt.ribbon.Group(label="Folien aus Dateien anfügen", children=[
+                bkt.ribbon.Group(id="bkt_consolsplit_consolidate_group", label="Folien aus Dateien anfügen", children=[
                     bkt.ribbon.PrimaryItem(children=[
                         bkt.ribbon.Button(
                             label="Folien aus Dateien anfügen",
+                            supertip="Alle Folien aus mehreren PowerPoint-Dateien an diese Präsentation anfügen",
                             image_mso='ThemeBrowseForThemes',
                             on_action=bkt.Callback(ConsolSplit.consolidate_ppt_slides, application=True, presentation=True),
                             is_definitive=True,
@@ -360,10 +406,11 @@ bkt.powerpoint.add_backstage_control(
                         bkt.ribbon.Label(label="Dieser Vorgang kann bei großen Dateien und vielen Folien einige Zeit in Anspruch nehmen!"),
                     ]),
                 ]),
-                bkt.ribbon.Group(label="Folien aus Bildern erstellen", children=[
+                bkt.ribbon.Group(id="bkt_consolsplit_pic2slides_group", label="Folien aus Bildern erstellen", children=[
                     bkt.ribbon.PrimaryItem(children=[
                         bkt.ribbon.Menu(
                             label="Folien aus Bildern erstellen",
+                            supertip="Mehrere Bild-Dateien (jpg, png, emf) auf jeweils eine Folie einfügen",
                             image_mso='PhotoGalleryProperties',
                             children=[
                                 bkt.ribbon.MenuGroup(
@@ -393,10 +440,11 @@ bkt.powerpoint.add_backstage_control(
                         bkt.ribbon.Label(label="Die ausgewählte Folie wird für jede Bild-Datei dupliziert und der Dateiname als Titel gesetzt."),
                     ]),
                 ]),
-                bkt.ribbon.Group(label="Folien einzeln speichern", children=[
+                bkt.ribbon.Group(id="bkt_consolsplit_split_group", label="Folien einzeln speichern", children=[
                     bkt.ribbon.PrimaryItem(children=[
                         bkt.ribbon.Menu(
                             label="Folien einzeln speichern",
+                            supertip="Alle Folien in einzelne PowerPoint-Dateien im gewählten Ordner speichern",
                             image_mso='ThemeSaveCurrent',
                             children=[
                                 bkt.ribbon.MenuGroup(

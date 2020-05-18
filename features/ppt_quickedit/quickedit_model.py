@@ -4,14 +4,16 @@ Created on 2018-01-10
 @author: Florian Stallmann
 '''
 
-import bkt
-import bkt.library.powerpoint as pplib
+from __future__ import absolute_import
 
 import os.path
 import io
 import json
 
 import logging
+
+import bkt
+import bkt.library.powerpoint as pplib
 
 D = bkt.dotnet.import_drawing()
 
@@ -395,7 +397,7 @@ class QuickEdit(object):
         QECatalog("default3.json", "Katalog 3", False)
     ]
 
-    config_folder = os.path.join(bkt.helpers.get_fav_folder(), "quickedit")
+    config_folder = bkt.helpers.get_fav_folder("quickedit")
     current_file = "default.json"
 
     @classmethod
@@ -422,8 +424,8 @@ class QuickEdit(object):
             os.rename(file, backup_file)
 
         values = [v.to_json() for v in cls._userdefined if v.is_defined]
-        with io.open(file, 'w') as json_file:
-            json.dump(values, json_file)
+        with io.open(file, 'w', encoding='utf-8') as json_file:
+            json.dump(values, json_file, ensure_ascii=False)
 
     @classmethod
     def read_from_config(cls, filename="default.json"):
@@ -442,7 +444,7 @@ class QuickEdit(object):
             return
 
         #load file if exists
-        with io.open(file, 'r') as json_file:
+        with io.open(file, 'r', encoding='utf-8') as json_file:
             values = json.load(json_file)
         for i,v in enumerate(values):
             cls._userdefined[i].from_json(v)
@@ -503,7 +505,7 @@ class QuickEdit(object):
 
     @classmethod
     def pickup_color(cls, context, selected_color=None):
-        shift = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
+        shift = bkt.get_key_state(bkt.KeyCodes.SHIFT)
         selection = context.app.ActiveWindow.Selection
 
         color_from_selection = cls._get_color_from_selection(selection)
@@ -580,8 +582,8 @@ class QuickEdit(object):
     def reset_own_colors(cls):
         default = [192, 255, 49407, 65535, 5296274, 5287936, 15773696, 12611584, 6299648, 10498160]
         for i, color in enumerate(default):
-            # cls._usercolors[i] = default[i]
-            cls._userdefined[i].set_userdefined_rgb(default[i])
+            # cls._usercolors[i] = color
+            cls._userdefined[i].set_userdefined_rgb(color)
         cls.save_to_config()
 
 
@@ -681,9 +683,9 @@ class QuickEdit(object):
 
     @classmethod
     def action(cls, qebutton, context, pressed=False):
-        shift = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
-        ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-        alt   = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+        shift = bkt.get_key_state(bkt.KeyCodes.SHIFT)
+        ctrl  = bkt.get_key_state(bkt.KeyCodes.CTRL)
+        alt   = bkt.get_key_state(bkt.KeyCodes.ALT)
         # color_index = cls._get_index(current_control)
         
         selection = context.app.ActiveWindow.Selection
@@ -777,9 +779,9 @@ class QuickEdit(object):
 
     @classmethod
     def action_no_fill(cls, context):
-        shift = bkt.library.system.get_key_state(bkt.library.system.key_code.SHIFT)
-        ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
-        alt   = bkt.library.system.get_key_state(bkt.library.system.key_code.ALT)
+        shift = bkt.get_key_state(bkt.KeyCodes.SHIFT)
+        ctrl  = bkt.get_key_state(bkt.KeyCodes.CTRL)
+        alt   = bkt.get_key_state(bkt.KeyCodes.ALT)
         
         selection = context.app.ActiveWindow.Selection
 
@@ -820,7 +822,7 @@ class QuickEdit(object):
                             textframe.TextRange.Font.Line.Visible = 0
                         except:
                             continue
-                bkt.helpers.message("Sorry, aber Microsoft hat die Funktion zur Deaktivierung der Textkontur nicht in die Schnittstelle implementiert.")
+                bkt.message("Sorry, aber Microsoft hat die Funktion zur Deaktivierung der Textkontur nicht in die Schnittstelle implementiert.")
             elif alt:
                 try:
                     if selection.TextRange2.Count == 0:
@@ -854,7 +856,7 @@ class QuickEdit(object):
 
     @classmethod
     def action_transparency(cls, context, delta):
-        ctrl  = bkt.library.system.get_key_state(bkt.library.system.key_code.CTRL)
+        ctrl  = bkt.get_key_state(bkt.KeyCodes.CTRL)
 
         selection = context.app.ActiveWindow.Selection
 
@@ -874,13 +876,13 @@ class QuickEdit(object):
 
     @staticmethod
     def show_help():
-        helpfile = os.path.join(os.path.dirname(os.path.realpath(__file__)), "resources", "QuickEdit Help.pdf")
+        helpfile = bkt.helpers.file_base_path_join(__file__, "resources", "QuickEdit Help.pdf")
         try:
             from os import startfile
-            os.startfile(helpfile)
+            startfile(helpfile)
         except:
             logging.error("QuickEdit: Error opening the help file.")
-            bkt.helpers.message("Fehler beim Öffnen der PDF-Hilfedatei. Bitte Datei manuell öffnen: {}".format(helpfile))
+            bkt.message("Fehler beim Öffnen der PDF-Hilfedatei. Bitte Datei manuell öffnen: {}".format(helpfile))
 
 #         help_msg = '''
 # 1. Reihe: Farben des Design-Farbschemas der aktuellen Folie.
@@ -908,7 +910,7 @@ class QuickEdit(object):
 # Hinweis für Mac-Nutzer: Je nach Einstellung fängt Parallels einige Tastenkombinationen ab.
 # Hinweis für Experten: Die 2. Reihe weist ausschließlich RGB-Werte zu und nicht Farben des Farbschemas.
 # '''
-#         # bkt.helpers.message(help_msg)
+#         # bkt.message(help_msg)
 #         import bkt.console
 #         bkt.console.show_message(bkt.ui.endings_to_windows(help_msg))
 

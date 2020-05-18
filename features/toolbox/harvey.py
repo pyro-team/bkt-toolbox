@@ -5,13 +5,10 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
+from __future__ import absolute_import
+
 import bkt
 import bkt.library.powerpoint as powerpoint
-import bkt.library.system as libsystem
-
-import os.path
-
-# import System
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
@@ -38,12 +35,13 @@ class HarveyBalls(object):
             shape.Tags.Add(self.BKT_HARVEY_DENOM_TAG, denominator)
     
     def create_harvey_ball(self, context, slide, fill=0.25):
-        shapeCount = slide.shapes.count
+        # shapeCount = slide.shapes.count
 
         circ = slide.shapes.addshape( powerpoint.MsoAutoShapeType['msoShapeOval'] , 100, 100, 30,30)
         # circ.line.weight = type(self)._line_weight
         # circ.line.ForeColor.RGB = type(self)._line_color
         # circ.fill.ForeColor.RGB = type(self)._fill_color
+        circ.line.visible = -1 #msoTrue, important if default shape style does not have line
         circ.line.forecolor.ObjectThemeColor = 13 #msoThemeColorText1
         circ.fill.forecolor.ObjectThemeColor = 14 #msoThemeColorBackground1
         circ.LockAspectRatio = -1 #msoTrue
@@ -52,6 +50,7 @@ class HarveyBalls(object):
         # pie.line.weight = type(self)._line_weight
         # pie.line.ForeColor.RGB = type(self)._line_color
         # pie.fill.ForeColor.RGB = type(self)._line_color
+        pie.line.visible = -1 #msoTrue, important if default shape style does not have line
         pie.line.forecolor.ObjectThemeColor = 13 #msoThemeColorText1
         pie.fill.forecolor.ObjectThemeColor = 13 #msoThemeColorText1
         pie.LockAspectRatio = -1 #msoTrue
@@ -94,7 +93,7 @@ class HarveyBalls(object):
             self.set_harvey(shape, num, max_num)
 
     def set_harvey(self, shape, num, max_num):
-        pie, circ = self.get_pie_circ(shape)
+        pie, _ = self.get_pie_circ(shape)
         if num == 0:
             pie.visible = 0
         else:
@@ -112,7 +111,7 @@ class HarveyBalls(object):
     
     def get_harvey_percent(self, shapes):
         shape = shapes[0]
-        pie, circ = self.get_pie_circ(shape)
+        pie, _ = self.get_pie_circ(shape)
         if pie == None:
             return None
         #return pie.adjustments.item[2]
@@ -127,24 +126,24 @@ class HarveyBalls(object):
         
 
     def harvey_percent_inc(self, shapes):
-        if libsystem.get_key_state(libsystem.key_code.CTRL):
+        if bkt.get_key_state(bkt.KeyCodes.CTRL):
             step = 1
-        elif libsystem.get_key_state(libsystem.key_code.SHIFT):
+        elif bkt.get_key_state(bkt.KeyCodes.SHIFT):
             step = 25
         else:
             step = 5
-        # step = 1 if libsystem.get_key_state(libsystem.key_code.CTRL) else 5
+        # step = 1 if bkt.get_key_state(bkt.KeyCodes.CTRL) else 5
         value = round(self.get_harvey_percent(shapes),3) + step
         self.harvey_percent_setter(shapes, value)
 
     def harvey_percent_dec(self, shapes):
-        if libsystem.get_key_state(libsystem.key_code.CTRL):
+        if bkt.get_key_state(bkt.KeyCodes.CTRL):
             step = 1
-        elif libsystem.get_key_state(libsystem.key_code.SHIFT):
+        elif bkt.get_key_state(bkt.KeyCodes.SHIFT):
             step = 25
         else:
             step = 5
-        # step = 1 if libsystem.get_key_state(libsystem.key_code.CTRL) else 5
+        # step = 1 if bkt.get_key_state(bkt.KeyCodes.CTRL) else 5
         value = round(self.get_harvey_percent(shapes),3) - step
         self.harvey_percent_setter(shapes, value)
     
@@ -201,7 +200,7 @@ class HarveyBalls(object):
         circ.Line.ForeColor.Brightness = brightness
     
     def get_selected_color(self, shapes):
-        pie,circ = self.get_pie_circ(shapes[0])
+        _,circ = self.get_pie_circ(shapes[0])
         if circ != None:
             return [circ.Line.ForeColor.ObjectThemeColor, circ.Line.ForeColor.Brightness, circ.Line.ForeColor.RGB]
         else:
@@ -222,6 +221,7 @@ class HarveyBalls(object):
         if pie == None:
             return
         circ.Fill.Visible = -1
+        circ.Fill.Transparency = 0
         circ.Fill.ForeColor.rgb  = color
     
     def background_gallery_theme_color_change(self, shapes, color_index, brightness):
@@ -234,20 +234,22 @@ class HarveyBalls(object):
         if pie == None:
             return
         circ.Fill.Visible = -1
+        circ.Fill.Transparency = 0
         circ.Fill.ForeColor.ObjectThemeColor  = color_index
         circ.Fill.ForeColor.Brightness  = brightness
     
     def get_selected_background(self, shapes):
-        pie,circ = self.get_pie_circ(shapes[0])
-        if circ != None and circ.Fill.Visible:
+        _,circ = self.get_pie_circ(shapes[0])
+        if circ != None and circ.Fill.Visible and circ.Fill.Transparency == 0:
             return [circ.Fill.ForeColor.ObjectThemeColor, circ.Fill.ForeColor.Brightness, circ.Fill.ForeColor.RGB]
         else:
             return None
     
     def harvey_background_off(self, shapes):
         for shape in shapes:
-            pie, circ = self.get_pie_circ(shape)
-            circ.Fill.Visible = 0
+            _, circ = self.get_pie_circ(shape)
+            # circ.Fill.Visible = 0
+            circ.Fill.Transparency = 1 #transparency=1 is preferred as background is still selectable then
     
     # def toggle_harvey_background(self, shapes, pressed):
     #     for shape in shapes:
@@ -293,7 +295,7 @@ class HarveyBalls(object):
         if powerpoint.TagHelper.has_tag(shape, self.BKT_HARVEY_DIALOG_TAG):
             return True
         # "old" method via shape types
-        pie, circ = self.get_pie_circ(shape)
+        pie, _ = self.get_pie_circ(shape)
         return pie != None
 
     def get_pie_circ(self, shape):
@@ -351,7 +353,7 @@ class HarveyBalls(object):
         img = Drawing.Bitmap(size, size)
         if percent < 0 or percent > 1:
             color = Drawing.ColorTranslator.FromHtml('#ffffff00')
-            img.SetPixel(0, 0, color);
+            img.SetPixel(0, 0, color)
             return img
         color = Drawing.ColorTranslator.FromOle(0)
         g = Drawing.Graphics.FromImage(img)
@@ -397,6 +399,7 @@ def harvey_background_gallery(**kwargs):
         children=[
             bkt.ribbon.Button(
                 label='Hintergrund aus',
+                supertip="Harvey-Ball Hintergrund auf transparent setzen",
                 #get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.6, 64)),
                 image='harvey ball background',
                 on_action=bkt.Callback(harvey_balls.harvey_background_off),
@@ -484,6 +487,7 @@ harvey_ball_group = bkt.ribbon.Group(
             id='harvey_ball_style_classic',
             size='large',
             label='Style klassisch',
+            supertip="Harvey-Ball im klassischen Style ohne zusätzlichem Rand darstellen.",
             image='harvey ball classic',
             on_action=bkt.Callback(harvey_balls.harvey_change_style_classic, shapes=True),
         ),
@@ -492,6 +496,7 @@ harvey_ball_group = bkt.ribbon.Group(
             id='harvey_ball_style_modern',
             size='large',
             label='Style modern',
+            supertip="Harvey-Ball im modernen Style mit weißem Rand darstellen.",
             image='harvey ball modern',
             on_action=bkt.Callback(harvey_balls.harvey_change_style_modern, shapes=True),
         ),
@@ -517,6 +522,8 @@ harvey_ball_group = bkt.ribbon.Group(
             id='harvey_ball_0',
             size='large',
             label='0%',
+            screentip="Harvey-Ball auf 0%",
+            supertip="Setzt alle gewählten Harvey-Balls auf 0%",
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0, 64)),
             on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 0, 1)),
         ),
@@ -524,6 +531,8 @@ harvey_ball_group = bkt.ribbon.Group(
             id='harvey_ball_25',
             size='large',
             label='25%',
+            screentip="Harvey-Ball auf 25%",
+            supertip="Setzt alle gewählten Harvey-Balls auf 25%",
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.25, 64)),
             on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 1, 4)),
         ),
@@ -531,6 +540,8 @@ harvey_ball_group = bkt.ribbon.Group(
             id='harvey_ball_33',
             size='large',
             label='33%',
+            screentip="Harvey-Ball auf 33%",
+            supertip="Setzt alle gewählten Harvey-Balls auf 33%",
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.333, 64)),
             on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 1, 3)),
         ),
@@ -538,6 +549,8 @@ harvey_ball_group = bkt.ribbon.Group(
             id='harvey_ball_50',
             size='large',
             label='50%',
+            screentip="Harvey-Ball auf 50%",
+            supertip="Setzt alle gewählten Harvey-Balls auf 50%",
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.5, 64)),
             on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 2, 4)),
         ),
@@ -545,6 +558,8 @@ harvey_ball_group = bkt.ribbon.Group(
             id='harvey_ball_66',
             size='large',
             label='66%',
+            screentip="Harvey-Ball auf 66%",
+            supertip="Setzt alle gewählten Harvey-Balls auf 66%",
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.667, 64)),
             on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 2, 3)),
         ),
@@ -552,6 +567,8 @@ harvey_ball_group = bkt.ribbon.Group(
             id='harvey_ball_75',
             size='large',
             label='75%',
+            screentip="Harvey-Ball auf 75%",
+            supertip="Setzt alle gewählten Harvey-Balls auf 75%",
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.75, 64)),
             on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 3, 4)),
         ),
@@ -559,6 +576,8 @@ harvey_ball_group = bkt.ribbon.Group(
             id='harvey_ball_100',
             size='large',
             label='100%',
+            screentip="Harvey-Ball auf 100%",
+            supertip="Setzt alle gewählten Harvey-Balls auf 100%",
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(1, 64)),
             on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 1, 1)),
         ),
@@ -573,49 +592,4 @@ harvey_ball_tab = bkt.ribbon.Tab(
         # Harvey Balls
         harvey_ball_group
     ]
-)
-
-
-
-class HarveyPopup(bkt.ui.WpfWindowAbstract):
-    _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'popups', 'harvey.xaml')
-    '''
-    class representing a popup-dialog for a linked shape
-    '''
-    
-    def __init__(self, context=None):
-        self.IsPopup = True
-        self._context = context
-
-        super(HarveyPopup, self).__init__()
-
-    def btntab(self, sender, event):
-        try:
-            self._context.ribbon.ActivateTab('bkt_context_tab_harvey')
-        except:
-            bkt.helpers.message("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
-
-    def btnplus(self, sender, event):
-        try:
-            harvey_balls.harvey_percent_setter_popup(list(iter(self._context.selection.ShapeRange)))
-            self._context.ribbon.Invalidate()
-        except:
-            bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
-            # bkt.helpers.exception_as_message()
-
-    def btnminus(self, sender, event):
-        try:
-            harvey_balls.harvey_percent_setter_popup(list(iter(self._context.selection.ShapeRange)), inc=False)
-            self._context.ribbon.Invalidate()
-        except:
-            bkt.helpers.message("Funktion aus unbekannten Gründen fehlgeschlagen.")
-            # bkt.helpers.exception_as_message()
-
-# register dialog
-bkt.powerpoint.context_dialogs.register_dialog(
-    bkt.contextdialogs.ContextDialog(
-        id=HarveyBalls.BKT_HARVEY_DIALOG_TAG,
-        module=None,
-        window_class=HarveyPopup
-    )
 )

@@ -1,8 +1,20 @@
 # -*- coding: utf-8 -*-
+'''
+Resolve app-specific parameters and resolve arguments of callbacks
 
-import bkt.helpers
-import logging
-import time
+Created on 11.11.2019
+@author: rdebeerst
+'''
+
+from __future__ import absolute_import
+
+# import logging
+import time #required for cache
+
+from System.Runtime.InteropServices import Marshal
+
+import bkt.helpers as _h #for providing config and settings
+from bkt.library.comrelease import AutoReleasingComObject
 
 
 class InappropriateContextError(Exception):
@@ -10,6 +22,7 @@ class InappropriateContextError(Exception):
 
 
 class AppContext(object):
+    app_name = 'Uknown'
     
     @classmethod
     def create_app_context(cls, app_name, *args, **kwargs):
@@ -44,6 +57,13 @@ class AppContext(object):
         self.cache_timeout = 0.5
         self.cache_last_refresh = 0
         
+        # references with auto-release-effect
+        self.app = AutoReleasingComObject(dotnet_context.app, release_self=False)
+    
+    
+    def release_com_references(self):
+        self.app.dispose()
+    
     
     def refresh_cache(self, force=False):
         #global cache timeout will prevent that manual invalidates are not working properly
@@ -60,7 +80,7 @@ class AppContext(object):
         if self._config:
             return self._config
         else:
-            return bkt.helpers.config
+            return _h.config
     
     @property
     def settings(self):
@@ -68,15 +88,15 @@ class AppContext(object):
         if self._settings:
             return self._settings
         else:
-            return bkt.helpers.settings
+            return _h.settings
     
     # ===========================================
     # = convenience properties for .Net-Context =
     # ===========================================
     
-    @property
-    def app(self):
-        return self.dotnet_context.app
+    # @property
+    # def app(self):
+    #     return self.dotnet_context.app
     
     @property
     def addin(self):
@@ -175,7 +195,9 @@ class AppContext(object):
         # resolve generic arguments
         kwargs.update(self.resolve_generic_arguments(callback.invocation_context))
         # application-specific arguments should be resolved by invoke_callback
-        return self.app_callbacks.invoke_callback(self, callback, *args, **kwargs)
+        return_value = self.app_callbacks.invoke_callback(self, callback, *args, **kwargs)
+        self.release_com_references()
+        return return_value
     
     
     
@@ -214,9 +236,8 @@ class AppContextPowerPoint(AppContext):
     @property
     def shapes(self):
         ''' gives list-access to app.ActiveWindow.Selection.ShapeRange / ChildShapeRange '''
-        selection = self.app.ActiveWindow.Selection
-        
         # ShapeRange accessible if shape or text selected
+        selection = self.selection
         if selection.Type != 2 and selection.Type != 3:
             return []
         
@@ -225,6 +246,7 @@ class AppContextPowerPoint(AppContext):
             shapes = list(iter(selection.ChildShapeRange))
         else:
             shapes = list(iter(selection.ShapeRange))
+        
         
         return shapes
 

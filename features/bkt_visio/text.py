@@ -5,10 +5,12 @@ Created on 14.03.2018
 @author: fstallmann
 '''
 
-import bkt
+from __future__ import absolute_import
+
 # import math
 # import logging
 
+import bkt
 # from bkt.library import visio
 
 

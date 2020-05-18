@@ -2,6 +2,8 @@
 
 # https://docs.microsoft.com/de-de/windows/uwp/design/style/segoe-ui-symbol-font
 
+from __future__ import absolute_import
+
 import bkt
 from bkt.library.powerpoint import PPTSymbolsGallery
 
@@ -281,6 +283,21 @@ symbols_emoji = [
     ("Segoe UI Emoji", u"🙎", "PERSON WITH POUTING FACE", "Segoe UI Emoji"),
     ("Segoe UI Emoji", u"🙏", "PERSON WITH FOLDED HANDS", "Segoe UI Emoji"),
 ]
+
+def update_search_index(search_engine):
+    search_writer = search_engine.writer()
+
+    for font, code, label, _ in symbols_symbol+symbols_emoji:
+        search_writer.add_document(
+            module="segoeui",
+            fontlabel=font,
+            fontname=font,
+            unicode=code,
+            label=label,
+            keywords=label.lower().split()
+        )
+
+    search_writer.commit()
 
 
 # define the menu parts
