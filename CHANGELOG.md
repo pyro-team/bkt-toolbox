@@ -1,4 +1,4 @@
-# Unreleased
+# Release 2020-05-17 (2.7.0)
 
   * Added option to link shapes by its shape names
   * Added function to merge rows or columns in excel
@@ -28,6 +28,7 @@
   * Fixed local documents folder is now correctly identified if moved by user or OneDrive
   * Support for legacy annotations syntax is disabled by default
   * Updated to IronPython 2.7.10
+  * Updated and fixed the unit tests (still more tests to add)
   * Excel: Tool to apply (count, split, replace) cells by regular expression (regex)
 
 
