@@ -163,7 +163,7 @@ class ShapeAdjustments(object):
             try:
                 ref, minimum, maximum = cls.get_ref_min_max(shape, num)
                 pt_value = cm_to_pt(value)
-                logging.debug('shape adjustment pt value=%s' % pt_value)
+                logging.debug('shape adjustment pt value=%s', pt_value)
                 if minimum != None:
                     pt_value = max(minimum, pt_value)
                 if maximum != None:
