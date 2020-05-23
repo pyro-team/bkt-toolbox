@@ -84,7 +84,8 @@ class AutoReleasingComObject(object):
 
     def __dir__(self):
         #this is essential for interactive python console
-        return dir(self._comobj)
+        # return dir(self._comobj)
+        return sorted(set( dir(type(self)) + self.__dict__.keys() + dir(self._comobj) ))
     
     
     
@@ -95,7 +96,7 @@ class AutoReleasingComObject(object):
         Only allow to write attributes starting with _
         All other attributes are written to wrapped ComObject
         '''
-        if attr[0] == "_":
+        if attr.startswith("_"):
             super(AutoReleasingComObject, self).__setattr__(attr, value)
         else:
             setattr(self._comobj, attr, value)
