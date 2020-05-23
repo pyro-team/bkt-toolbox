@@ -266,10 +266,12 @@ class BKTSettings(BKTShelf):
     ''' App-specific settings are stored as shelve object that supports various python data formats '''
 
     def __init__(self):
+        self._filename = None
         shelve.Shelf.__init__(self, shelve._ClosedDict(), protocol=2)
     
     def open(self, filename):
         import anydbm
+        self._filename = filename
         try:
             self.dict = anydbm.open(get_settings_folder(filename), 'c')
         except:
