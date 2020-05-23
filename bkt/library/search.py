@@ -145,7 +145,7 @@ class SearchWriter(object):
 
             #do not create duplicates
             if doc_hash in self._engine._docs:
-                logging.debug("SEARCH: duplicate doc hash "+str(doc_hash))
+                logging.debug("SEARCH: duplicate doc hash %s", doc_hash)
                 continue
 
             #split comma-seperated values in list
@@ -156,7 +156,7 @@ class SearchWriter(object):
                 keywords = doc.keywords
             
             self._engine._docs[doc_hash] = doc
-            logging.debug("SEARCH: commit document {} for keywords: {}".format(doc_hash, keywords))
+            logging.debug("SEARCH: commit document %s for keywords: %s", doc_hash, keywords)
             for keyword in keywords:
                 keyword = keyword.lower()
                 self._engine._keywords.add(keyword)
@@ -178,7 +178,7 @@ class SearchSearcher(object):
             join_and=True > multiple keywords are connected with AND
             join_and=False > multiple keywords are connected with OR
         '''
-        logging.debug("SEARCH: for "+query)
+        logging.debug("SEARCH: for %s", query)
 
         #add to search history
         self._engine.add_to_recent(query)
@@ -260,7 +260,7 @@ class SearchSearcher(object):
             join_and=True > multiple keywords are connected with AND
             join_and=False > multiple keywords are connected with OR
         '''
-        logging.debug("SEARCH EXACT: for "+query)
+        logging.debug("SEARCH EXACT: for %s", query)
 
         #add to search history
         self._engine.add_to_recent(query)

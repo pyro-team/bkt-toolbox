@@ -124,7 +124,7 @@ class RibbonControl(object):
                     self._attributes[self._id_attribute_key] = self.create_persisting_id()
                 # elif isinstance(self, Tab):
                 else:
-                    logging.debug("Predefined ID found: %s (%s)" % (pre_id, self._attributes[pre_id]))
+                    logging.debug("Predefined ID found: %s (%s)", pre_id, self._attributes[pre_id])
                     # enable callbacks for idMso tab (e.g. powerpoint contextual tabs)
                     self._id_attribute_key = pre_id
             

@@ -58,7 +58,7 @@ class ContextDialog(object):
                 return self.module.trigger_doubleclick(shape, context)
         
         except AttributeError:
-            logging.warning("ContextDialog.trigger_doubleclick: No double click action defined in module %s" % self.module_name)
+            logging.warning("ContextDialog.trigger_doubleclick: No double click action defined in module %s", self.module_name)
 
         except:
             logging.error(traceback.format_exc())
@@ -151,7 +151,7 @@ class ContextDialog(object):
         will not reload if module was already loaded
         '''
         if not self.module:
-            logging.debug('ContextDialog.import_module importing %s' % self.module_name)
+            logging.debug('ContextDialog.import_module importing %s', self.module_name)
             #do an import equivalent to:  import <<module_name>>
             self.module = importlib.import_module(self.module_name)
             # self.module = __import__(self.module_name, globals(), locals(), [], -1)
@@ -184,17 +184,17 @@ class ContextDialogs(object):
         
     def register(self, id, module):
         ''' register a context dialog '''
-        logging.debug('ContextDialogs.register: id=%s' % id)
+        logging.debug('ContextDialogs.register: id=%s', id)
         self.dialogs[id] = ContextDialog(id,module)
     
     def register_dialog(self, context_dialog):
         ''' register a context dialog from context-dialog-object '''
-        logging.debug('ContextDialogs.register_dialog: id=%s' % context_dialog.id)
+        logging.debug('ContextDialogs.register_dialog: id=%s', context_dialog.id)
         self.dialogs[context_dialog.id] = context_dialog
     
     def unregister(self, id):
         ''' unregister a context dialog '''
-        logging.debug('ContextDialogs.unregister: id=%s' % id)
+        logging.debug('ContextDialogs.unregister: id=%s', id)
         try:
             del self.dialogs[id]
         except KeyError:
@@ -278,7 +278,7 @@ class ContextDialogs(object):
             try:
                 ctx_dialog = self.dialogs[shape_tag]
             except KeyError:
-                logging.warning('No dialog registered for given key: %s' % shape_tag)
+                logging.warning('No dialog registered for given key: %s', shape_tag)
                 return
             
             self.active_dialog = ctx_dialog.show_dialog_at_shape_position(shape, context)
@@ -354,7 +354,7 @@ class ContextDialogs(object):
             try:
                 ctx_dialog = self.dialogs[shape_tag]
             except KeyError:
-                logging.warning('No dialog registered for given key: %s' % shape_tag)
+                logging.warning('No dialog registered for given key: %s', shape_tag)
                 return
             
             ctx_dialog.trigger_doubleclick(shape, context)

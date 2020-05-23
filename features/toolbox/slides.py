@@ -469,6 +469,33 @@ class SlideMenu(object):
                 pass
 
 
+class SlideShow(object):
+    @classmethod
+    def windowed_slideshow(cls, context):
+        cls._slideshow(context, 2) #ppShowTypeWindow
+
+    @classmethod
+    def fullscreen_slideshow(cls, context):
+        cls._slideshow(context, 1) #ppShowTypeSpeaker
+
+    @classmethod
+    def _slideshow(cls, context, show_type):
+        #get slide (as later activewindow is not present anymore)
+        slide = context.slide
+        #use with-notation to avoid comrelease error
+        with context.presentation.SlideShowSettings as sld_settings:
+            #save current setting
+            prev = sld_settings.ShowType
+            #define type (windowed or fullscreen)
+            sld_settings.ShowType = show_type
+            #run slideshow
+            sld_window = sld_settings.Run()
+            #go to selected slide
+            if slide:
+                sld_window.View.GoToSlide(slide.SlideIndex)
+            #restore setting
+            sld_window.Presentation.SlideShowSettings.ShowType = prev
+
 
 
 
@@ -628,6 +655,21 @@ slides_group = bkt.ribbon.Group(
                     bkt.mso.control.ViewDisplayInPureBlackAndWhite(show_label=True),
                 ]),
                 bkt.mso.control.GuidesShowHide(show_label=True),
+                bkt.ribbon.MenuSeparator(title="Bildschirmpräsentation"),
+                bkt.ribbon.Button(
+                    id="slide_windowed_slideshow",
+                    image_mso="SlideShowInAWindow",
+                    label="Im Fenster starten",
+                    supertip="Startet eine Bilschirmpräsentation im Fenster beginnend mit der aktuellen Folie.",
+                    on_action=bkt.Callback(SlideShow.windowed_slideshow),
+                ),
+                bkt.ribbon.Button(
+                    id="slide_fullscreen_slideshow",
+                    image_mso="SlideShowFromCurrent",
+                    label="Im Vollbild starten",
+                    supertip="Startet eine Bilschirmpräsentation im Vollbild beginnend mit der aktuellen Folie.",
+                    on_action=bkt.Callback(SlideShow.fullscreen_slideshow),
+                ),
             ]
         )
     ]
