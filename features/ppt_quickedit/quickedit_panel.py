@@ -133,11 +133,16 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         self._colors_own = value
     
     @notify_property
+    def current_orientation(self):
+        return "%s/4" % (self._orientation_mode+1)
+    
+    @notify_property
     def orientation_mode(self):
         return self._orientation_mode
     @orientation_mode.setter
     def orientation_mode(self, value):
         self._orientation_mode = value
+        self.OnPropertyChanged("current_orientation")
         self.OnPropertyChanged("outer_orientation")
         self.OnPropertyChanged("inner_orientation")
     
