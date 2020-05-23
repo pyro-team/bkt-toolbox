@@ -228,10 +228,10 @@ class AppUI(object):
             element_id = element.id
             if element_id in self.custom_ribbon_uis[ribbon_id].lazy_replacements:
                 element = self.custom_ribbon_uis[ribbon_id].lazy_replacements[element_id]
-                logging.debug("create_control: element with id %s replaced by element with id %s", element_id, element.id)
+                logging.debug("create_control: element with id {} replaced by element with id {}".format(element_id, element.id))
             if element_id in self.custom_ribbon_uis[ribbon_id].lazy_extensions:
                 element.children.extend( self.custom_ribbon_uis[ribbon_id].lazy_extensions[element_id] )
-                logging.debug("create_control: element with id %s extended", element_id)
+                logging.debug("create_control: element with id {} extended".format(element_id))
             
             element.children = [self.create_control(c, ribbon_id=ribbon_id) for c in element.children ]
             return element
@@ -241,15 +241,15 @@ class AppUI(object):
             from bkt.factory import ControlFactory #@deprecated
             
             if isinstance(element, ContainerUsage):
-                logging.debug("create_control for ContainerUsage: %s", element.container)
+                logging.debug("create_control for ContainerUsage: %s" % element.container)
                 return ControlFactory(element.container, ribbon_info=None).create_control()
             
             else:
-                logging.warning("FeatureContainer used where instance of ContainerUsage was expected: %s", element)
+                logging.warning("FeatureContainer used where instance of ContainerUsage was expected: %s" % element)
                 return ControlFactory(element, ribbon_info=None).create_control()
         
         else:
-            logging.warning("create_control for element %s skipped", element)
+            logging.warning("create_control for element {} skipped".format(element))
     
     
     
@@ -363,7 +363,7 @@ class AppUI(object):
                 image_name: _h.Resources.images.locate(image_name)
                 for image_name in stack_panel.collect_image_resources()
             }
-            logging.debug('image resources: %s', image_resources)
+            logging.debug('image resources: %s' % image_resources)
             taskpane_control = bkt.taskpane.BaseScrollViewer(
                 image_resources = image_resources,
                 children = [stack_panel]

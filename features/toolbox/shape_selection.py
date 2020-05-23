@@ -238,7 +238,7 @@ class SlidesMore(object):
 
         tmpfile = os.path.join(tempfile.gettempdir(), "bkt-slidecopy.png")
         slide.export(tmpfile, "PNG", 2000)
-        logging.debug("high quality slide export at: %s", tmpfile)
+        # logging.debug("high quality slide export at: %s"%tmpfile)
 
         if not os.path.exists(tmpfile):
             bkt.message.error("Folien-Export in hoher Qualität ist fehlgeschlagen!")

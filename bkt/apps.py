@@ -31,7 +31,7 @@ class AppEventType(object):
         self.event_name = attr
 
     def register(self, method):
-        logging.debug("Method registered for event: %r", self.event_name)
+        logging.debug("Method registered for event: %r" % self.event_name)
 
         if isinstance(method, Callback) and method.callback_type is None:
             method.callback_type = CallbackTypes.bkt_event
@@ -40,7 +40,7 @@ class AppEventType(object):
         return self
 
     def unregister(self, method):
-        logging.debug("Method unregistered for event: %r", self.event_name)
+        logging.debug("Method unregistered for event: %r" % self.event_name)
         self.registered_methods.remove(method)
         return self
     
@@ -155,7 +155,7 @@ class AppCallbacksBase(AppCallbacks):
     # ==========
 
     def fire_event(self, event, **kwargs):
-        logging.debug("Event triggered: %r", event)
+        logging.debug("Event triggered: %r" % event)
         for method in event:
             try:
                 if isinstance(method, Callback):
@@ -201,12 +201,12 @@ class AppCallbacksBase(AppCallbacks):
             cache_key = str(callback.method) #TESTME: is method string representation sufficient as key? add callback type?
             do_cache = True
             try:
-                logging.debug("trying cache for %r", cache_key)
+                logging.debug("trying cache for %r" % cache_key)
                 return self.cache[cache_key]
                 # if time.time() - self.cache[cache_key][1] < self.cache_timeout:
                 #     return self.cache[cache_key][0]
             except KeyError:
-                logging.debug("no cache for %r", cache_key)
+                logging.debug("no cache for %r" % cache_key)
 
         for i, arg in enumerate(args):
             kwargs[callback.callback_type.pos_args[i]] = arg
@@ -225,7 +225,7 @@ class AppCallbacksBase(AppCallbacks):
                 return
         
         self.undo_start(callback)
-        logging.debug("AppCallbacksBase.invoke_callback: run callback method\nkwargs=%s", kwargs)
+        logging.debug("AppCallbacksBase.invoke_callback: run callback method\nkwargs=%s" % kwargs)
         return_value = callback.method(**kwargs)
         self.undo_end(callback)
         

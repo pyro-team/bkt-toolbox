@@ -12,7 +12,6 @@ from time import time
 
 from System.Collections.ObjectModel import ObservableCollection
 from System.Windows.Controls import Orientation
-from System.Windows.Media import Colors, SolidColorBrush
 from System.Windows import Visibility
 
 import bkt.ui
@@ -51,7 +50,6 @@ from .quickedit_model import QuickEdit, QEColorButton, QEColorButtons, QECatalog
 
 VIEWSTATE_RECENT_HIDDEN = 1
 DOCKING_SLIDE_LEFT = 2
-DARK_THEME = 4
 
 class ViewModel(bkt.ui.ViewModelSingleton):
     def __init__(self, orientation_mode, window_left, window_top, viewstate):
@@ -63,9 +61,6 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         self._viewstate = viewstate
 
         self._editmode  = False
-
-        self._brush_dark = SolidColorBrush(Colors.DimGray)
-        self._brush_light = SolidColorBrush(Colors.WhiteSmoke)
         
         self._catalogs = ObservableCollection[QECatalog]()
         for cat in QuickEdit._catalogs:
@@ -161,20 +156,6 @@ class ViewModel(bkt.ui.ViewModelSingleton):
             return Visibility.Visible
         else:
             return Visibility.Collapsed
-    
-    @notify_property
-    def color_background(self):
-        if self.dark_theme:
-            return self._brush_dark
-        else:
-            return self._brush_light
-    
-    @notify_property
-    def color_foreground(self):
-        if self.dark_theme:
-            return self._brush_light
-        else:
-            return self._brush_dark
 
     @notify_property
     def recent_visible(self):
@@ -198,18 +179,6 @@ class ViewModel(bkt.ui.ViewModelSingleton):
             self._viewstate = self._viewstate ^ DOCKING_SLIDE_LEFT
         # self.OnPropertyChanged("window_left")
         # self.OnPropertyChanged("window_top")
-
-    @notify_property
-    def dark_theme(self):
-        return self._viewstate & DARK_THEME == DARK_THEME
-    @dark_theme.setter
-    def dark_theme(self, value):
-        if value:
-            self._viewstate = self._viewstate | DARK_THEME
-        else:
-            self._viewstate = self._viewstate ^ DARK_THEME
-        self.OnPropertyChanged("color_background")
-        self.OnPropertyChanged("color_foreground")
 
     @notify_property
     def window_left(self):

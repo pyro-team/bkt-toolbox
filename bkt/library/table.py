@@ -8,7 +8,7 @@ Created on 11.09.2013
 from __future__ import absolute_import, division #always force float-division, for int divison use //
 
 import math
-# import logging
+import logging
 
 from .algorithms import mean, median
 
@@ -192,7 +192,7 @@ class TableRecognition(object):
                     continue
                 index = get_index(cell)
                 if line_new[index] is not None:
-                    # logging.debug("cell index %d is duplicated in line %d\r\nedges: %r" % (index,i,edges))
+                    logging.debug("cell index %d is duplicated in line %d\r\nedges: %r" % (index,i,edges))
                     line_new = list(line)
                     while len(line_new) < num_cols:
                         line_new.append(None)

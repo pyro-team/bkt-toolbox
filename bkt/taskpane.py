@@ -303,7 +303,7 @@ class BaseScrollViewer(TaskPaneControl):
         
         # add image resources
         for image_name, image_path in self.image_resources.items():
-            logging.debug('image resource %s=%s', image_name, image_path)
+            logging.debug('image resource %s=%s' % (image_name, image_path))
             resources_node.root.Add(
                 XmlPart('<BitmapImage x:Key="%s" UriSource="%s"/>' % (image_name, image_path)).wpf_xml()
             )

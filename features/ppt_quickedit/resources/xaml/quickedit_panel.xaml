@@ -26,7 +26,6 @@
         <Style x:Key="colorBtn" TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}">
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Focusable" Value="False" />
-            <Setter Property="HorizontalAlignment" Value="Center" />
             <Setter Property="ContentTemplate">
                 <Setter.Value>
                     <DataTemplate>
@@ -37,13 +36,12 @@
         </Style>
     </Window.Resources>
 
-    <Border BorderThickness="1" BorderBrush="Silver" Background="{Binding color_background}" UseLayoutRounding="True">
-    <DockPanel x:Name="DataPanel">
+    <Border BorderThickness="0.5" BorderBrush="RoyalBlue">
+    <DockPanel x:Name="DataPanel" Margin="0" Background="WhiteSmoke">
         <DockPanel x:Name="TitleBar" DockPanel.Dock="Top">
             <DockPanel.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Layout wechseln" Click="change_orientation" />
-                    <MenuItem Header="Dunkles Theme" IsCheckable="True" IsChecked="{Binding dark_theme}" />
                     <Separator />
                     <MenuItem Header="Zuletzt verwendete Farben anzeigen" IsCheckable="True" IsChecked="{Binding recent_visible}" />
                     <MenuItem Header="Beim Start automatisch anzeigen" IsCheckable="True" IsChecked="{Binding auto_start}" />
@@ -73,36 +71,36 @@
             </DockPanel.ContextMenu>
             <!-- <Button FontSize="8" FontFamily="Marlett" BorderThickness="0" Focusable="False" Background="Transparent" Foreground="DimGray"
                     Click="change_orientation" DockPanel.Dock="Left" Height="7" Width="7" Padding="0" Content="v"> -->
-            <Button BorderThickness="0" Focusable="False" Background="Transparent" VerticalAlignment="Top"
+            <Button BorderThickness="0" Focusable="False" Background="Transparent"
                     Click="change_orientation" DockPanel.Dock="Left" Height="7" Width="7" Padding="0">
                 <Button.Content>
                     <Viewbox Width="7" Height="7">
                         <Canvas Width="24" Height="24">
-                            <Path Data="M6,13H18V11H6M3,6V8H21V6M10,18H14V16H10V18Z" Fill="{Binding color_foreground}" />
+                            <Path Data="M6,13H18V11H6M3,6V8H21V6M10,18H14V16H10V18Z" Fill="DimGray" />
                         </Canvas>
                     </Viewbox>
                 </Button.Content>
             </Button>
             <!-- <Button FontSize="7" FontFamily="Marlett" BorderThickness="0" Background="Transparent" Foreground="DimGray"
                     Click="cancel" DockPanel.Dock="Right" Height="7" Width="7" Padding="0" Content="r" /> -->
-            <Button BorderThickness="0" Background="Transparent" VerticalAlignment="Top"
+            <Button BorderThickness="0" Background="Transparent"
                     Click="cancel" DockPanel.Dock="Right" Height="7" Width="7" Padding="0">
                 <Viewbox Width="7" Height="7">
                     <Canvas Width="24" Height="24">
-                        <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Fill="{Binding color_foreground}" />
+                        <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Fill="DimGray" />
                     </Canvas>
                 </Viewbox>
             </Button>
 
-            <TextBlock HorizontalAlignment="Center" FontSize="8" Foreground="{Binding color_foreground}">QE</TextBlock>
+            <TextBlock HorizontalAlignment="Center" Margin="0" FontSize="8">QE</TextBlock>
         </DockPanel>
 
         <!-- <ContentControl Content="{Binding CurrentPage}" /> -->
 
         <!-- <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"> -->
-        <StackPanel Orientation="{Binding outer_orientation}" Margin="1">
-            <StackPanel Margin="1" Orientation="{Binding inner_orientation}" HorizontalAlignment="Center">
-                <Button HorizontalAlignment="Center" Click="ColorNone" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" ToolTip="Keine Farbe / Transparenz" Focusable="False" MouseWheel="ColorNone_Wheel">
+        <WrapPanel Orientation="{Binding outer_orientation}" Margin="2">
+            <WrapPanel Margin="2" Orientation="{Binding inner_orientation}">
+                <Button Click="ColorNone" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" ToolTip="Keine Farbe / Transparenz" Focusable="False" MouseWheel="ColorNone_Wheel">
                     <!-- <Rectangle Fill="White" Width="12" Height="12" Margin="2" SnapsToDevicePixels="True" Stroke="Black" StrokeThickness="0.5" StrokeDashArray="2.5 2.5" /> -->
                     <!-- <Image Source="{Binding image_nocolor}" Width="12" Height="12" /> -->
                     <Viewbox Width="14" Height="14" Margin="1">
@@ -115,7 +113,7 @@
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <!-- <WrapPanel Orientation="Horizontal" /> -->
-                            <StackPanel Orientation="{Binding inner_orientation}" HorizontalAlignment="Center" />
+                            <WrapPanel Orientation="{Binding inner_orientation}" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
@@ -124,12 +122,12 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </StackPanel>
+            </WrapPanel>
             
             <!-- <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" /> -->
 
-            <StackPanel Margin="1" Orientation="{Binding inner_orientation}" Visibility="{Binding recent_visibility}" HorizontalAlignment="Center">
-                <Button HorizontalAlignment="Center" Click="PickupRecent" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" ToolTip="Farbe aufnehmen" Focusable="False">
+            <WrapPanel Margin="2" Orientation="{Binding inner_orientation}" Visibility="{Binding recent_visibility}">
+                <Button Click="PickupRecent" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" ToolTip="Farbe aufnehmen" Focusable="False">
                     <!-- <Rectangle Fill="White" Width="12" Height="12" Margin="2" SnapsToDevicePixels="True" Stroke="Black" StrokeThickness="0.5" StrokeDashArray="2.5 2.5" /> -->
                     <!-- <Image Source="{Binding image_pickup}" Width="12" Height="12" /> -->
                     <Viewbox Width="14" Height="14" Margin="1">
@@ -142,7 +140,7 @@
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <!-- <WrapPanel Orientation="Horizontal" /> -->
-                            <StackPanel Orientation="{Binding inner_orientation}" HorizontalAlignment="Center" />
+                            <WrapPanel Orientation="{Binding inner_orientation}" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
@@ -151,12 +149,12 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </StackPanel>
+            </WrapPanel>
 
             <!-- <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" /> -->
             
-            <StackPanel Margin="1" Orientation="{Binding inner_orientation}" HorizontalAlignment="Center">
-                <ToggleButton HorizontalAlignment="Center" IsChecked="{Binding editmode}" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}" ToolTip="Farben ändern an/aus" Focusable="False" MouseWheel="Catalog_Wheel">
+            <WrapPanel Margin="2" Orientation="{Binding inner_orientation}">
+                <ToggleButton IsChecked="{Binding editmode}" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}" ToolTip="Farben ändern an/aus" Focusable="False" MouseWheel="Catalog_Wheel">
                     <!-- <Rectangle Fill="White" Width="12" Height="12" Margin="2" SnapsToDevicePixels="True" Stroke="Black" StrokeThickness="0.5" StrokeDashArray="2.5 2.5" /> -->
                     <!-- <Image Source="{Binding image_edit}" Width="12" Height="12" /> -->
                     <Viewbox Width="14" Height="14" Margin="1">
@@ -176,7 +174,7 @@
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <!-- <WrapPanel Orientation="Horizontal" /> -->
-                            <StackPanel Orientation="{Binding inner_orientation}" HorizontalAlignment="Center" />
+                            <WrapPanel Orientation="{Binding inner_orientation}" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
@@ -185,8 +183,8 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </StackPanel>
-        </StackPanel>
+            </WrapPanel>
+        </WrapPanel>
         <!-- </ScrollViewer> -->
 
             <!-- <WrapPanel x:Name="DataPanel" Orientation="Horizontal" Margin="5">

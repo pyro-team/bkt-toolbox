@@ -42,7 +42,7 @@ class AutoReleasingComObject(object):
         self._comobj = comobj
         self._release_self = release_self
         self._accessed_com_attributes = []
-        logging.debug("Com-Release: created %s", self)
+        logging.debug("Com-Release: created %s" % (self))
     
     
     # Magic methods: https://rszalski.github.io/magicmethods/
@@ -76,11 +76,7 @@ class AutoReleasingComObject(object):
     # def __str__(self): #__str__ not required as __repr__ returns a string
     
     def __repr__(self):
-        try:
-            return "<AutoReleasingComObject for %s>" % (self._comobj)
-        except SystemError:
-            #in rare situations the com object is already released and logging calls __repr__ which throws SystemError
-            return "<AutoReleasingComObject for <DISPOSED COM OBJECT>>"
+        return "<AutoReleasingComObject for %s>" % (self._comobj)
 
     def __dir__(self):
         #this is essential for interactive python console
@@ -118,7 +114,7 @@ class AutoReleasingComObject(object):
             return self
         
         value = getattr(self._comobj, attr)
-        logging.debug("Com-Release: access to attribute %s", attr)
+        logging.debug("Com-Release: access to attribute %s" % (attr))
         
         if type(value).__name__ != 'DispCallable':
             # attribute did not return a function
@@ -229,12 +225,12 @@ class AutoReleasingComObject(object):
         if type(com_obj).__name__ == '__ComObject':
             if self._is_comobj:
                 auto_release_com_obj = AutoReleasingComObject(com_obj, release_self=True)
-                logging.debug("Com-Release: created com-object %s", com_obj)
+                logging.debug("Com-Release: created com-object %s" % (com_obj))
             else:
                 # self is no com-Object, but the attribute is. 
                 # Hence, attribute is not generated here and should not be disposed.
                 # therefore: release_self=False
-                logging.debug("Com-Release: accessed existing com-object %s", com_obj)
+                logging.debug("Com-Release: accessed existing com-object %s" % (com_obj))
                 auto_release_com_obj = AutoReleasingComObject(com_obj, release_self=False)
             self._accessed_com_attributes.append(auto_release_com_obj)
             
@@ -256,14 +252,14 @@ class AutoReleasingComObject(object):
         Therefore, all ComObjects accessed in the object-tree are released by a single dispose-call.
         '''
         # release ComObjects generated further down the object-tree
-        logging.debug("Com-Release: dispose on %s", self)
+        logging.debug("Com-Release: dispose on %s" % (self))
         for auto_release_com_obj in self._accessed_com_attributes:
             auto_release_com_obj.dispose()
         self._accessed_com_attributes = []
         
         # release wrapped ComObject
         if self._release_self:
-            logging.debug("Com-Release: releasing %s", self)
+            logging.debug("Com-Release: releasing %s" % (self._comobj))
             Marshal.ReleaseComObject(self._comobj)
     
     
