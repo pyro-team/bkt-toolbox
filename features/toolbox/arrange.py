@@ -3011,7 +3011,7 @@ class EdgeAutoFixer(object):
             child_shapes.remove(master_shape)
             
             for shape in child_shapes:
-                # logging.debug("Autofix1: {} x {}".format(master_shape.name, shape.name))
+                # logging.debug("Autofix1: %s x %s", master_shape.name, shape.name)
 
                 #save values before moving shape
                 # visual_x1, visual_y1 = shape.visual_x1, shape.visual_y1

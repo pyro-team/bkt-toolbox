@@ -10,8 +10,6 @@ from __future__ import absolute_import
 import json
 import uuid
 
-#import traceback
-
 import bkt
 import bkt.library.powerpoint as pplib
 

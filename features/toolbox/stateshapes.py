@@ -34,8 +34,8 @@ class StateShape(object):
             try:
                 shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
                 cls.switch_state(shape, pos=0)
-            except Exception as e:
-                logging.error("Error converting to state stape: %s" % str(e))
+            except:
+                logging.exception("Error converting to state stape")
                 continue
 
     @classmethod
@@ -83,8 +83,8 @@ class StateShape(object):
         for shape in shapes:
             try:
                 cls.switch_state(shape, pos=0)
-            except Exception as e:
-                logging.error("Statehape error resetting state: %s" % str(e))
+            except:
+                logging.exception("Statehape error resetting state")
                 continue
 
     @classmethod
@@ -92,8 +92,8 @@ class StateShape(object):
         for shape in shapes:
             try:
                 cls.switch_state(shape, delta=1)
-            except Exception as e:
-                logging.error("Statehape error switching to next state: %s" % str(e))
+            except:
+                logging.exception("Statehape error switching to next state")
                 continue
 
     @classmethod
@@ -101,8 +101,8 @@ class StateShape(object):
         for shape in shapes:
             try:
                 cls.switch_state(shape, delta=-1)
-            except Exception as e:
-                logging.error("Statehape error switching to previous state: %s" % str(e))
+            except:
+                logging.exception("Statehape error switching to previous state")
                 continue
 
     @classmethod
@@ -111,8 +111,8 @@ class StateShape(object):
         for shape in shapes:
             try:
                 cls.switch_state(shape, pos=value)
-            except Exception as e:
-                logging.error("Statehape error setting state: %s" % str(e))
+            except:
+                logging.exception("Statehape error setting state")
                 continue
 
     # @classmethod

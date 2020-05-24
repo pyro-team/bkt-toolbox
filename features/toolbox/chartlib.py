@@ -11,7 +11,6 @@ import os #for os.path, listdir and makedirs
 import time
 
 import logging
-import traceback
 
 from threading import Thread #used for non-blocking gallery thumbnails refresh
 from contextlib import contextmanager #used for opening and closing presentations
@@ -228,7 +227,7 @@ class ChartLib(object):
         else:
             # create menu with sections for each directory
             folders = [ folder if type(folder) == dict else  {'folder':folder, 'title':os.path.basename(folder)}   for folder in self.library_folders]
-            logging.debug("ChartLib root menu with folders: %s" % folders)
+            logging.debug("ChartLib root menu with folders: %s", folders)
             
             children = [ self.get_folder_menu(folder['folder'], label=folder['title']) for folder in folders]
             # make list flat 
@@ -267,7 +266,7 @@ class ChartLib(object):
             )
         ]
         
-        logging.debug("ChartLib root menu: %s" % menu.xml())
+        logging.debug("ChartLib root menu: %s", menu.xml())
         return menu
     
     def get_root_menu_xml(self):
@@ -281,7 +280,7 @@ class ChartLib(object):
             folder_menu = self.get_folder_menu(folder, id=None)
             self.cached_presentation_menus[folder] = folder_menu
         # else:
-        #     logging.debug('get_folder_menu_callback: reuse menu for %s' % folder)
+        #     logging.debug('get_folder_menu_callback: reuse menu for %s', folder)
         return self.cached_presentation_menus[folder]
     
     def get_folder_menu(self, folder, **kwargs):
@@ -295,17 +294,17 @@ class ChartLib(object):
             for filename in os.listdir(folder):
                 if filename.endswith(".pptx") and not filename.startswith("~$"):
                     files.append(filename)
-            logging.debug('get_folder_menu files: %s' % files)
+            logging.debug('get_folder_menu files: %s', files)
         
             # find subfolders
             for filename in os.listdir(folder):
                 if os.path.isdir(os.path.join(folder, filename)):
                     if not filename.endswith(THUMBNAIL_POSTFIX):
                         subfolders.append(filename)
-            logging.debug('get_folder_menu folders: %s' % subfolders)
+            logging.debug('get_folder_menu folders: %s', subfolders)
             
         else:
-            logging.warning("Chartlib. No such directory: %s" % folder)
+            logging.warning("Chartlib. No such directory: %s", folder)
         
         # FIXME: no folders which belong to files
         
@@ -363,8 +362,7 @@ class ChartLib(object):
                     current += 1.0
                 worker.ReportProgress(100, "Cache löschen")
             except:
-                logging.error("Error on refreshing chartlib libraries")
-                logging.debug(traceback.format_exc())
+                logging.exception("Error on refreshing chartlib libraries")
             finally:
                 self.reset_cashes()
         
@@ -474,7 +472,7 @@ class ChartLib(object):
                 # presentation.Close()
                 self.cached_presentation_menus[filename] = menu
         # else:
-        #     logging.debug('get_chartlib_menu_from_presentation: reuse menu for %s' % filename)
+        #     logging.debug('get_chartlib_menu_from_presentation: reuse menu for %s', filename)
         return self.cached_presentation_menus[filename]
     
     def get_chartlib_menu_from_presentation(self, presentation):
@@ -815,18 +813,16 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                 try:
                     self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation, closing_gallery_workaround=closing_gallery_workaround)
                 except:
-                    logging.error('error initializing gallery')
-                    logging.debug(traceback.format_exc())
+                    logging.exception('error initializing gallery')
         
         # try:
         #     presentation = Charlib.open_presentation_file(context, self.filename)
         #     # presentation = context.app.Presentations.Open(self.filename, True, False, True) #filename, readonly, untitled, withwindow
         #     self.init_gallery_items_from_presentation(presentation, force_thumbnail_generation=force_thumbnail_generation)
         # except:
-        #     logging.error('error initializing gallery')
-        #     logging.debug(traceback.format_exc())
+        #     logging.exception('error initializing gallery')
         # finally:
-        #     # logging.debug('closing presentation: %s' % self.filename)
+        #     # logging.debug('closing presentation: %s', self.filename)
         #     presentation.Saved = True
         #     presentation.Close()
         
@@ -865,7 +861,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
             if presentation.slides.item(idx).Shapes.Title.Textframe.TextRange.text != "" else "slide" + str(idx)
             for idx in self.slide_indices
         ]
-        # logging.debug("labels %s" % self.labels)
+        # logging.debug("labels %s", self.labels)
 
         # init items
         self.item_count = len(self.labels)
@@ -934,7 +930,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                         logging.debug("Creation of thumbnail image via export")
                         slide.Export(image_filename, 'PNG', 600) 
                 except:
-                    logging.warning('Creation of thumbnail image failed: %s' % image_filename)
+                    logging.warning('Creation of thumbnail image failed: %s', image_filename)
         if closing_gallery_workaround:
             Forms.Clipboard.Clear()
     
@@ -970,7 +966,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                     # ppShapeFormatGIF = 0, ppShapeFormatJPG = 1, ppShapeFormatPNG = 2, ppShapeFormatBMP = 3, ppShapeFormatWMF = 4, ppShapeFormatEMF = 5;
                     shape_range.Export(image_filename, 2)
                 except:
-                    logging.warning('Creation of thumbnail image failed: %s' % image_filename)
+                    logging.warning('Creation of thumbnail image failed: %s', image_filename)
                 
                 # resize thumbnail image to square
                 if os.path.exists(image_filename):
@@ -1009,8 +1005,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                         os.rename(cropped_image_filename, image_filename)
                         
                     except:
-                        logging.error('Creation of croped thumbnail image failed: %s' % image_filename)
-                        logging.debug(traceback.format_exc())
+                        logging.exception('Creation of croped thumbnail image failed: %s', image_filename)
                     finally:
                         if image:
                             image.Dispose()
@@ -1020,9 +1015,9 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     
     def get_chartlib_item_image(self, index):
         ''' load item image from corresponding image-file and return Bitmap-object '''
-        #logging.debug('get_chartlib_item_image %s -- %s' % (filename, index))
+        #logging.debug('get_chartlib_item_image %s -- %s', filename, index)
         image_filename = self.get_image_filename(index+1)
-        #logging.debug('get_chartlib_item_image %s' % (image_filename))
+        #logging.debug('get_chartlib_item_image %s', image_filename)
         if os.path.exists(image_filename):
             # return empty from file
             #return Bitmap.FromFile(image_filename)

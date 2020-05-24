@@ -684,8 +684,8 @@ class ShapesMore(object):
     def _text_to_shape(shape):
         try:
             return pplib.convert_text_into_shape(shape)
-        except Exception as e:
-            logging.error("Text to shape failed with error {}".format(e))
+        except:
+            logging.exception("Text to shape failed")
     
     @classmethod
     def texts_to_shapes(cls, shapes):
@@ -1191,7 +1191,7 @@ class ShapeFormats(object):
             setattr(shp_object, "visible", -1)
             setattr(shp_object, attribute, value)
         except:
-            logging.debug("Setting {} attribute {} to value {} failed!".format(shp_object, attribute, value))
+            logging.debug("Setting %s attribute %s to value %s failed!", shp_object, attribute, value)
     @classmethod
     def _attr_getter(cls, shape, shp_object, attribute):
         try:
@@ -1201,7 +1201,7 @@ class ShapeFormats(object):
                 value = value*100
             return value
         except:
-            logging.debug("Getting {} attribute {} failed!".format(shp_object, attribute))
+            logging.debug("Getting %s attribute %s failed!", shp_object, attribute)
             return 0
 
     ### Fill properties ###

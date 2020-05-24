@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 
 import logging
-import traceback
 
 import bkt
 import bkt.library.powerpoint as pplib
@@ -141,7 +140,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
                 Ampel.set_color(shape, "red")
             # self._context.app.ActiveWindow.Activate()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("traffic light exception")
 
     def btnyellow(self, sender, event):
         try:
@@ -150,7 +149,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
                 Ampel.set_color(shape, "yellow")
             # self._context.app.ActiveWindow.Activate()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("traffic light exception")
 
     def btngreen(self, sender, event):
         try:
@@ -159,7 +158,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
                 Ampel.set_color(shape, "green")
             # self._context.app.ActiveWindow.Activate()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("traffic light exception")
 
     def btnwhite(self, sender, event):
         try:
@@ -168,7 +167,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
                 Ampel.set_color(shape, "white")
             # self._context.app.ActiveWindow.Activate()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("traffic light exception")
 
 
 #initialization function called by contextdialogs.py
@@ -178,4 +177,4 @@ def trigger_doubleclick(shape, context):
     try:
         Ampel.next_color(shape)
     except:
-        logging.error(traceback.format_exc())
+        logging.exception("traffic light exception")

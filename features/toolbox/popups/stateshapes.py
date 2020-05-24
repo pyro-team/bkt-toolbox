@@ -31,16 +31,16 @@ class StateShapePopup(bkt.ui.WpfWindowAbstract):
             #always use ShapeRange, never ChildShapeRange
             shapes = list(iter(self._context.selection.ShapeRange))
             StateShape.previous_state(shapes)
-        except Exception as e:
-            logging.error("Error in StateShape popup: %s" % str(e))
+        except:
+            logging.exception("Error in StateShape popup: %s")
 
     def btnnext(self, sender, event):
         try:
             #always use ShapeRange, never ChildShapeRange
             shapes = list(iter(self._context.selection.ShapeRange))
             StateShape.next_state(shapes)
-        except Exception as e:
-            logging.error("Error in StateShape popup: %s" % str(e))
+        except:
+            logging.exception("Error in StateShape popup: %s")
 
 
 #initialization function called by contextdialogs.py
@@ -49,5 +49,5 @@ create_window = StateShapePopup
 def trigger_doubleclick(shape, context):
     try:
         StateShape.next_state([shape])
-    except Exception as e:
-        logging.error("Error in StateShape popup: %s" % str(e))
+    except:
+        logging.exception("Error in StateShape popup: %s")
