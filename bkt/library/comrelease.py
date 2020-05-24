@@ -19,6 +19,11 @@ def autorelease(comobj):
     Marshal.ReleaseComObject(comobj)
 
 
+#separte logger for comrelease to avoid spamming of log file
+logger = logging.getLogger().getChild("comrelease")
+logger.setLevel(logging.INFO) #comment out this line for comrelease debugging
+#FIXME: log comrelease in separate file?
+
 
 class AutoReleasingComObject(object):
     '''
@@ -42,7 +47,7 @@ class AutoReleasingComObject(object):
         self._comobj = comobj
         self._release_self = release_self
         self._accessed_com_attributes = []
-        logging.debug("Com-Release: created %s", self)
+        logger.debug("Com-Release: created %s", self)
     
     
     # Magic methods: https://rszalski.github.io/magicmethods/
@@ -119,7 +124,7 @@ class AutoReleasingComObject(object):
             return self
         
         value = getattr(self._comobj, attr)
-        logging.debug("Com-Release: access to attribute %s", attr)
+        logger.debug("Com-Release: access to attribute %s", attr)
         
         if type(value).__name__ != 'DispCallable':
             # attribute did not return a function
@@ -230,12 +235,12 @@ class AutoReleasingComObject(object):
         if type(com_obj).__name__ == '__ComObject':
             if self._is_comobj:
                 auto_release_com_obj = AutoReleasingComObject(com_obj, release_self=True)
-                logging.debug("Com-Release: created com-object %s", com_obj)
+                logger.debug("Com-Release: created com-object %s", com_obj)
             else:
                 # self is no com-Object, but the attribute is. 
                 # Hence, attribute is not generated here and should not be disposed.
                 # therefore: release_self=False
-                logging.debug("Com-Release: accessed existing com-object %s", com_obj)
+                logger.debug("Com-Release: accessed existing com-object %s", com_obj)
                 auto_release_com_obj = AutoReleasingComObject(com_obj, release_self=False)
             self._accessed_com_attributes.append(auto_release_com_obj)
             
@@ -257,14 +262,14 @@ class AutoReleasingComObject(object):
         Therefore, all ComObjects accessed in the object-tree are released by a single dispose-call.
         '''
         # release ComObjects generated further down the object-tree
-        logging.debug("Com-Release: dispose on %s", self)
+        logger.debug("Com-Release: dispose on %s", self)
         for auto_release_com_obj in self._accessed_com_attributes:
             auto_release_com_obj.dispose()
         self._accessed_com_attributes = []
         
         # release wrapped ComObject
         if self._release_self:
-            logging.debug("Com-Release: releasing %s", self)
+            logger.debug("Com-Release: releasing %s", self)
             Marshal.ReleaseComObject(self._comobj)
     
     
