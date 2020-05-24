@@ -7,7 +7,6 @@ Created on 2018-05-29
 from __future__ import absolute_import
 
 import logging
-import traceback
 
 import os
 import io
@@ -299,8 +298,7 @@ class CustomFormatCatalog(object):
                     bkt.message("Migration erfolgreich. Katalog wird nun geladen.")
                 except:
                     bkt.message("Migration fehlgeschlagen!")
-                    logging.error("Customformats: Migration failed")
-                    logging.error(traceback.format_exc())
+                    logging.exception("Customformats: Migration failed")
                     return
             
             if catalog.get("filename", "") != filename:
@@ -552,8 +550,7 @@ class CustomFormatCatalog(object):
                 bmp.Save(filename)
                 bmp.Dispose()
             except:
-                logging.error('Creation of croped thumbnail image failed: %s' % filename)
-                logging.debug(traceback.format_exc())
+                logging.exception('Creation of croped thumbnail image failed: %s', filename)
             finally:
                 if image:
                     image.Dispose()

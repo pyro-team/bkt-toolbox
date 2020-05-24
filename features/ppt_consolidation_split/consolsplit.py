@@ -139,8 +139,8 @@ class ConsolSplit(object):
                 slides_current += 1.0
                 try:
                     cls.export_slide(application, [slide], _get_name(slide))
-                except Exception as e:
-                    logging.error("split_slides_to_ppt error %r" % e)
+                except:
+                    logging.exception("split_slides_to_ppt error")
                     error = True
 
             worker.ReportProgress(100)
@@ -216,8 +216,8 @@ class ConsolSplit(object):
                     count = sections.SlidesCount(i+1)
                     slides = list(iter( presentation.Slides.Range( Array[int](range(start, start+count)) ) ))
                     cls.export_slide(application, slides, _get_name(i+1))
-                except Exception as e:
-                    logging.error("split_sections_to_ppt error %r" % e)
+                except:
+                    logging.error("split_sections_to_ppt error")
                     error = True
                     continue
 

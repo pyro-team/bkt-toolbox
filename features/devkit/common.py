@@ -225,7 +225,7 @@ class AllControls(object):
         if any(isinstance(control, t) for t in self.types_haslabel):
             new_submenu = self._getattr(control, 'label', 'screentip')
             if not new_submenu:
-                logging.warning("missing label for id "+self._getattr(control, 'id'))
+                logging.warning("missing label for id %s", self._getattr(control, 'id'))
             else:
                 submenu = submenu + [new_submenu]
             

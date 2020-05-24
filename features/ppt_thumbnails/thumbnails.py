@@ -9,7 +9,6 @@ from __future__ import absolute_import
 import os #required for relative paths and tempfile removal
 import tempfile
 import logging
-import traceback
 
 from contextlib import contextmanager
 from System import Array #required to create ShapeRanges
@@ -70,7 +69,7 @@ class Thumbnailer(object):
 
     @classmethod
     def _get_presentation(cls, application, path, silent=True):
-        logging.debug("Thumbnails: get presentation for path {}".format(path))
+        logging.debug("Thumbnails: get presentation for path %s", path)
         if path == "CURRENT" or path == application.ActivePresentation.FullName:
             pres = application.ActivePresentation
             close_afterwards = False
@@ -79,7 +78,7 @@ class Thumbnailer(object):
             #convert relative to absolute paths
             if not os.path.isabs(path):
                 path = os.path.normpath(os.path.join(application.ActivePresentation.Path, path))
-                logging.debug("Thumbnails: relative path converted to {}".format(path))
+                logging.debug("Thumbnails: relative path converted to %s", path)
             try:
                 #app.presentations can be used using a full path, but it fails if the path contains special characters, so fallback to filename
                 try:
@@ -135,10 +134,10 @@ class Thumbnailer(object):
             yield tmpfile
 
         except EnvironmentError:
-            logging.debug(traceback.format_exc())
+            logging.exception("slide id not found")
             raise IndexError("slide id not found")
         except IndexError:
-            logging.debug(traceback.format_exc())
+            logging.exception("shape id not found")
             raise IndexError("shape id not found")
         
         finally:
@@ -207,6 +206,7 @@ class Thumbnailer(object):
                 except Exception as e:
                     # bkt.helpers.exception_as_message()
                     bkt.message.error("Fehler! Referenz nicht gefunden.\n\n{}".format(e), "BKT: Thumbnails")
+                    logging.exception("Thumbnails: Error finding slide reference!")
                     continue
                 #Paste
                 # shape = cur_slide.Shapes.PasteSpecial(Datatype=data_type)
@@ -219,7 +219,7 @@ class Thumbnailer(object):
             except Exception as e:
                 #bkt.helpers.exception_as_message()
                 bkt.message.error("Fehler! Thumbnail konnte nicht im gewählten Format eingefügt werden.\n\n{}".format(e), "BKT: Thumbnails")
-                logging.error(traceback.format_exc())
+                logging.exception("Thumbnails: Error pasting slide!")
         
         # select pasted shapes
         if pasted_shapes > 0:
@@ -345,8 +345,7 @@ class Thumbnailer(object):
                 cls.replace_file_ref(shape, application)
         except Exception as e:
             bkt.message.error("Fehler! Thumbnail konnte nicht aktualisiert werden.\n\n{}".format(e), "BKT: Thumbnails")
-            logging.error("Thumbnails: Error updating thumbnail!")
-            logging.error(traceback.format_exc())
+            logging.exception("Thumbnails: Error updating thumbnail!")
 
     @classmethod
     def _shape_refresh(cls, shape, application):
@@ -437,7 +436,7 @@ class Thumbnailer(object):
                 path,slideid = shp.LinkFormat.SourceFullName.split("!")
                 data = ([slideid], path)
             except:
-                logging.error(traceback.format_exc())
+                logging.exception("Thumbnails: Invalid clipboard data!")
                 raise ValueError("Invalid clipboard format")
             finally:
                 if shp:
@@ -806,14 +805,14 @@ class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
                 Thumbnailer.shapes_refresh(shapes, self._context.app)
         except:
             bkt.message.error("Thumbnail-Aktualisierung aus unbekannten Gründen fehlgeschlagen.", "BKT: Thumbnails")
-            logging.error(traceback.format_exc())
+            logging.exception("Thumbnails: Error in popup!")
 
     def btngoto(self, sender, event):
         try:
             Thumbnailer.goto_ref(self._context.shape, self._context.app)
         except:
             bkt.message.error("Fehler beim Öffnen der Folienreferenz.", "BKT: Thumbnails")
-            logging.error(traceback.format_exc())
+            logging.exception("Thumbnails: Error in popup!")
 
 
 # register dialog

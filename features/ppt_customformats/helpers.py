@@ -26,8 +26,8 @@ def textframe_group_check(func):
             else:
                 logging.debug("customformats: found non-group")
                 func(cls, textframe_obj, *args, **kwargs)
-        except Exception as e:
-            logging.debug("customformats: group check failed " + str(e))
+        except:
+            logging.exception("customformats: group check failed")
             func(cls, textframe_obj, *args, **kwargs)
     return wrapper
 
@@ -38,7 +38,7 @@ class ShapeFormats(object):
 
     @classmethod
     def mult_setattr(cls, obj, name, value):
-        logging.debug("mult_setattr: setting {} = {}".format(name, value))
+        logging.debug("mult_setattr: setting %s = %s", name, value)
         attrs = name.split(".")
         for name in attrs[:-1]:
             try:
@@ -267,7 +267,7 @@ class ShapeFormats(object):
                     
                     stop_object = fill_object.GradientStops[i+1]
                     for k, v in value[i].items():
-                        # logging.debug("Setting {} = {}".format(k, v))
+                        # logging.debug("Setting %s = %s", k, v)
                         cls.mult_setattr(stop_object, k, v)
             else:
                 cls.mult_setattr(fill_object, key, value)
