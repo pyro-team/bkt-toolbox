@@ -170,12 +170,12 @@ class BKTUpdates(object):
             try:
                 is_update, latest_version = cls._check_latest_version()
                 if is_update:
-                    logging.info("BKT Autoupdate: new version found: "+latest_version.version_string)
+                    logging.info("BKT Autoupdate: new version found: %s", latest_version.version_string)
                     cls._update_notification(latest_version)
                 else:
-                    logging.info("BKT Autoupdate: version is up-to-date: "+latest_version.version_string)
-            except Exception as e:
-                logging.error("BKT Autoupdate Error: {}".format(e))
+                    logging.info("BKT Autoupdate: version is up-to-date: %s", latest_version.version_string)
+            except:
+                logging.exception("BKT Autoupdate Error")
 
         t = Thread(target=threaded_update)
         t.start()
