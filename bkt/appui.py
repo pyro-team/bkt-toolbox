@@ -9,7 +9,6 @@ Created on 11.11.2019
 from __future__ import absolute_import
 
 import logging
-import traceback
 
 from collections import OrderedDict, defaultdict
 
@@ -56,7 +55,7 @@ class CustomRibbonUI(object):
                 raise ValueError('duplicate tab id %r' % tab_id)
         else:
             self.tabs[tab_id] = tab
-            #logging.debug('added tab with id %r' % tab_id)
+            #logging.debug('added tab with id %r', tab_id)
 
         return tab_id
 

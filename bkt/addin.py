@@ -33,7 +33,7 @@ Bitmap = bkt.dotnet.import_drawing().Bitmap
 # ======================
 
 #FIXME: gleiche Log-Datei wie im .Net-Addin verwenden. Verwendung von bkt-debug.log führt noch zu Fehlern (Verlust von log-Text), da die Logger nicht Zeilenweise schreiben. Alternativ logging über C#-Addin-Klasse durchführen
-if bkt.config.log_write_file:
+if _h.config.log_write_file:
     log_level = getattr(logging, bkt.config.log_level or 'WARNING', logging.WARNING)
 
     logfile = _h.bkt_base_path_join("bkt-debug-py.log")
@@ -76,10 +76,10 @@ class CallbackManager(object):
         controls = set()
         for callback in control.collect_callbacks():
             cb_key = (callback.callback_type, callback.control.id, callback.control.id_tag)
-            #logging.debug('callback key (cb_key): ' + str(cb_key))
-            #logging.debug('defined callback: control %s / callback-type %s' % (callback.control, callback.callback_type))
+            #logging.debug('callback key (cb_key): %s', cb_key)
+            #logging.debug('defined callback: control %s / callback-type %s', callback.control, callback.callback_type)
             self.callback_resolution[cb_key] = callback
-            #logging.debug('method: ' + str(callback))
+            #logging.debug('method: %s', callback)
             
             if not callback.control in controls:
                 controls.add(callback.control)
@@ -121,8 +121,8 @@ def add_callbacks(cls):
             try:
                 return self._callback(callback, control, *args)
             except:
+                logging.exception("error on callback. callback=%s, control.id=%s", callback, control.id)
                 traceback.print_exc()
-                logging.warning("error on callback. callback=" + str(callback) + ", control.id=" + str(control.id))
                 try:
                     if bkt.config.show_exception:
                         # show exception only, if multiple errors do not occur within a second
@@ -185,7 +185,7 @@ class AddIn(object):
         if control.default_callback is None or control.default_callback_control is None:
             return True
         
-        #logging.debug('fallback_get_enabled: called for control id=%s' % (control.id))
+        #logging.debug('fallback_get_enabled: called for control id=%s', control.id)
         
         cb_control = control.default_callback_control
         cb_key = (cb_control.default_callback, cb_control.id, cb_control.id_tag)
@@ -210,7 +210,6 @@ class AddIn(object):
     
     def _callback(self, callback_type, control, *args, **kwargs):
         logging.debug("invoke callback for control. callback=%s, control.id=%s", callback_type, control.id)
-        #logging.debug("invoke callback for control. callback=" + str(callback_type) + ", control=" + str(control))
         my_control, callback = self.callback_manager.resolve_callback(callback_type, control)
         return_value = None
         
@@ -227,17 +226,16 @@ class AddIn(object):
                 logging.debug("could not process callback. no callback of type %s for control %s. trying fallback", callback_type, control)
             else:
                 logging.warning("could not process callback. no callback of type %s for control %s. trying fallback", callback_type, control)
-            #logging.warning("could not process callback. no callback of type %s for control %s. trying fallback" %  (callback_type, control))
             fallback = self.fallback_map.get(callback_type)
             
             if fallback is None:
-                #logging.debug("callback_type %s unresolved for id %s (no callback registered for control id)" % (callback_type, control.id))
+                #logging.debug("callback_type %s unresolved for id %s (no callback registered for control id)", callback_type, control.id)
                 return
             
             #logging.debug("trying fallback")
             return fallback(my_control)
         
-        #logging.debug("invoking callback: %s --- args=%s --- kwargs=%s" % (callback, args, kwargs))
+        #logging.debug("invoking callback: %s --- args=%s --- kwargs=%s", callback, args, kwargs)
         try:
             self.context.current_control = my_control
             self.context.customui_control = control
@@ -262,8 +260,8 @@ class AddIn(object):
                 logging.debug("get_content returned:\n%s", return_value)
             
         except:
-            logging.error("invoke callback failed for\ncallback-type=%s\ncallback=%s", callback_type, callback)
-            logging.debug(traceback.format_exc())
+            logging.exception("invoke callback failed for\ncallback-type=%s\ncallback=%s", callback_type, callback)
+            traceback.print_exc()
             try:
                 if bkt.config.show_exception:
                     # show exception only, if multiple errors do not occur within a second
@@ -296,7 +294,7 @@ class AddIn(object):
     
     def task_pane(self, sender, eventargs):
         logging.debug("---------- event: %s ---------- type / name: %s / %s ----------", eventargs.RoutedEvent, type(eventargs.Source), eventargs.Source.Name)
-        #logging.debug("task pane invoked callback. event-type=%s, sender name/type=%s/%s" % (eventargs.RoutedEvent, eventargs.Source.Name, eventargs.Source))
+        # logging.debug("task pane invoked callback. event-type=%s, sender name/type=%s/%s" % (eventargs.RoutedEvent, eventargs.Source.Name, eventargs.Source))
         # logging.debug("routed event details: type=%s" % type(eventargs.RoutedEvent))
         # logging.debug("routed event details: name=%s" % eventargs.RoutedEvent.Name)
         # logging.debug("routed event details: handler-type=%s" % eventargs.RoutedEvent.HandlerType)
@@ -314,7 +312,7 @@ class AddIn(object):
             # 2) reroute by EventType
             # FIXME: define routings in taskpane.py
             # TODO: invalidation und Nutzung get_pressed, get_enabled, get_text, ...
-            logging.debug("Start RoutedEvents-mapping: RoutedEvent-Name=%s, Source-Type=%s", str(eventargs.RoutedEvent.Name), str(eventargs.Source.GetType()))
+            logging.debug("Start RoutedEvents-mapping: RoutedEvent-Name=%s, Source-Type=%s", eventargs.RoutedEvent.Name, eventargs.Source.GetType())
             
             if str(eventargs.RoutedEvent.Name)=='LostFocus':
                 if str(eventargs.Source.GetType()) in ['Fluent.TextBox', 'Fluent.Spinner']:
@@ -407,8 +405,7 @@ class AddIn(object):
             logging.debug("----------")
         
         except:
-            logging.debug(traceback.format_exc())
-            traceback.print_exc()
+            logging.exception("taskpane exception")
             try:
                 if bkt.config.show_exception:
                     # show exception only, if multiple errors do not occur within a second
@@ -436,7 +433,7 @@ class AddIn(object):
             logging.debug("----------")
         
         except:
-            traceback.print_exc()
+            logging.exception("taskpane exception")
             try:
                 if bkt.config.show_exception:
                     # show exception only, if multiple errors do not occur within a second
@@ -562,11 +559,10 @@ class AddIn(object):
                     importlib.import_module(module)
                     # __import__(module)
                 except:
-                    logging.critical('failed to load %s', module)
-                    logging.debug(traceback.format_exc())
-                    bkt.message.error('failed to load %s', module)
+                    logging.exception('failed to load %s', module)
+                    bkt.message.error('failed to load %s' % module)
                     if bkt.config.show_exception:
-                        _h.exception_as_message('failed to load %s', module)
+                        _h.exception_as_message('failed to load %s' % module)
         
 
         CACHE_VERSION = "20191213"
@@ -610,11 +606,10 @@ class AddIn(object):
                         module.BktFeature.contructor()
                     
                 except:
-                    logging.critical('failed to load feature %s from cache', module_name)
-                    logging.debug(traceback.format_exc())
-                    bkt.message.error('failed to load feature %s from cache', module_name)
+                    logging.exception('failed to load feature %s from cache', module_name)
+                    bkt.message.error('failed to load feature %s from cache' % module_name)
                     if bkt.config.show_exception:
-                        _h.exception_as_message('failed to load feature %s from cache', module_name)
+                        _h.exception_as_message('failed to load feature %s from cache' % module_name)
                     #TODO: remove cache on error?
 
             for module_name, folder in import_cache['inits.legacy']:
@@ -623,11 +618,10 @@ class AddIn(object):
                     # imp.load_source(module_name, os.path.join(folder, "__init__.py"))
                     importlib.import_module(module_name)
                 except:
-                    logging.critical('failed to load legacy feature %s from cache', module_name)
-                    logging.debug(traceback.format_exc())
-                    bkt.message.error('failed to load legacy feature %s from cache', module_name)
+                    logging.exception('failed to load legacy feature %s from cache', module_name)
+                    bkt.message.error('failed to load legacy feature %s from cache' % module_name)
                     if bkt.config.show_exception:
-                        _h.exception_as_message('failed to load legacy feature %s from cache', module_name)
+                        _h.exception_as_message('failed to load legacy feature %s from cache' % module_name)
                     #TODO: remove cache on error?
         
         # load and renew cache:
@@ -707,11 +701,10 @@ class AddIn(object):
                             #add conflicting modules
                             _known_conflicts.extend(conflicts)
                     except:
-                        logging.critical('failed to load feature-folder %s', folder)
-                        logging.debug(traceback.format_exc())
-                        bkt.message.error('failed to load feature-folder %s', folder)
+                        logging.exception('failed to load feature-folder %s', folder)
+                        bkt.message.error('failed to load feature-folder %s' % folder)
                         if bkt.config.show_exception:
-                            _h.exception_as_message('failed to load feature-folder %s', folder)
+                            _h.exception_as_message('failed to load feature-folder %s' % folder)
                         #TODO: Offer user to remove feature folder from config on error
 
                 # backwards compatibility: load module from init.py
@@ -726,11 +719,10 @@ class AddIn(object):
                         _c_sys_paths.add(base_folder)
                         _c_legacy_inits.append((module_name, folder))
                     except:
-                        logging.critical('failed to load legacy feature-folder %s', folder)
-                        logging.debug(traceback.format_exc())
-                        bkt.message.error('failed to load legacy feature-folder %s', folder)
+                        logging.exception('failed to load legacy feature-folder %s', folder)
+                        bkt.message.error('failed to load legacy feature-folder %s' % folder)
                         if bkt.config.show_exception:
-                            _h.exception_as_message('failed to load legacy feature-folder %s', folder)
+                            _h.exception_as_message('failed to load legacy feature-folder %s' % folder)
                         #TODO: Offer user to remove feature folder from config on error
                 
                 # feature folder without python init file
@@ -770,8 +762,7 @@ class AddIn(object):
             self.context.app_ui = self.app_ui
             
         except:
-            logging.critical("initialize app-classes failed")
-            logging.debug(traceback.format_exc())
+            logging.exception("initialize app-classes failed")
             bkt.message.error("initialize app-classes failed")
         
         
@@ -782,8 +773,7 @@ class AddIn(object):
             logging.debug('bind application events')
             self.app_callbacks.bind_app_events()
         except:
-            logging.critical("binding of callbacks to application events failed")
-            logging.debug(traceback.format_exc())
+            logging.exception("binding of callbacks to application events failed")
             bkt.message.error("binding of callbacks to application events failed")
         
         
@@ -818,8 +808,7 @@ class AddIn(object):
                 # init taskpane-callbacks
                 self.callback_manager.init_callbacks_from_control(self.app_ui.get_taskpane_control())
             except:
-                logging.critical("initialization of ui-callbacks failed")
-                logging.debug(traceback.format_exc())
+                logging.exception("initialization of ui-callbacks failed")
                 bkt.message.error("initialization of ui-callbacks failed")
             
             
@@ -828,9 +817,7 @@ class AddIn(object):
             return custom_ui
             
         except:
-            #traceback.print_exc()
-            logging.critical('get_custom_ui failed!')
-            logging.debug(traceback.format_exc())
+            logging.exception('get_custom_ui failed!')
             bkt.message.error(traceback.format_exc())
             #_h.exception_as_message()
     
@@ -845,8 +832,7 @@ class AddIn(object):
                 logging.debug(self.app_ui.get_taskpane_ui())
                 return self.app_ui.get_taskpane_ui()
         except:
-            logging.critical('get_custom_taskpane_ui failed!')
-            logging.debug(traceback.format_exc())
+            logging.exception('get_custom_taskpane_ui failed!')
             bkt.message.error(traceback.format_exc())
             #_h.exception_as_message()
 

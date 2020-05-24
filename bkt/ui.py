@@ -9,7 +9,6 @@ Created on 23.01.2014
 from __future__ import absolute_import
 
 import logging
-# import traceback
 import os.path
 
 from bkt import dotnet
@@ -59,7 +58,7 @@ class WpfWindowAbstract(bkt_addin.BktWindow):
     #     try:
     #         return System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle
     #     except:
-    #         #logging.error(traceback.format_exc())
+    #         #logging.exception("error getting window handle")
     #         return 0
     
     @classmethod
@@ -461,8 +460,7 @@ class WpfProgressBar(WpfWindowAbstract):
             if e.UserState and len(e.UserState.ToString()) > 0:
                 self.progress_text.Text = e.UserState.ToString()
         except:
-            logging.error("Error updating progress bar")
-            # logging.debug(traceback.format_exc())
+            logging.exception("Error updating progress bar")
 
     def bw_RunWorkerCompleted(self, sender, e):
         self.Close()

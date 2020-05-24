@@ -9,7 +9,6 @@ Created on 11.11.2019
 from __future__ import absolute_import
 
 import logging
-import traceback
 import importlib #for loading context dialog modules
 
 # wpf basics
@@ -61,7 +60,7 @@ class ContextDialog(object):
             logging.warning("ContextDialog.trigger_doubleclick: No double click action defined in module %s", self.module_name)
 
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog double click")
     
     def show_dialog_at_shape_position(self, shape, context):
         ''' create window for the context dialog at show it at shape's position '''
@@ -107,7 +106,7 @@ class ContextDialog(object):
                 return self.module.create_window(context)
             
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog window creation")
     
     # def show(self, parent_window_handle, left, top, context):
     #     ''' show the context dialog from the corresponding module '''
@@ -120,7 +119,7 @@ class ContextDialog(object):
     #             return self.module.show(parent_window_handle, left, top, context)
     #
     #     except:
-    #         logging.error(traceback.format_exc())
+    #         logging.exception("error in contextdialogs")
     #
     # def show_window(self, parent_window_handle, left, top, context):
     #     ''' show the context dialog using the corresponding window-class '''
@@ -209,7 +208,7 @@ class ContextDialogs(object):
                 return #if context not defined or dialog already visible, skip re-show
             self.show_shape_dialog_for_selection(self.context.selection, self.context)
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog reshow shape dialog")
 
 
     def show_shape_dialog_for_selection(self, selection, context):
@@ -239,7 +238,7 @@ class ContextDialogs(object):
             else:
                 self.close_active_dialog()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog show shape dialog")
     
     
     def hide_on_window_deactivate(self):
@@ -247,7 +246,7 @@ class ContextDialogs(object):
         try:
             self.close_active_dialog()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog close active dialog")
     
     
     def show_shape_dialog_for_shapes(self, shapes, context):
@@ -266,7 +265,7 @@ class ContextDialogs(object):
             ### close active dialog
             self.close_active_dialog()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog close active dialog")
 
         try:
             ### check shape tag and show suitable dialog
@@ -288,7 +287,7 @@ class ContextDialogs(object):
             DialogHelpers.hook_events(self)
             
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog show shape dialog")
     
     def show_master_shape_dialog(self, shapes, context):
         ''' create and show a context dialog for the given shape, depending on the shape's settings '''
@@ -298,7 +297,7 @@ class ContextDialogs(object):
             ### close active dialog
             self.close_active_dialog()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog close active dialog")
             
         try:
             ### check shape tag and show suitable dialog
@@ -320,7 +319,7 @@ class ContextDialogs(object):
             DialogHelpers.hook_events(self)
             
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog show master shape dialog")
     
     def close_active_dialog(self):
         ''' close the latest active dialog if it still exists '''
@@ -337,7 +336,7 @@ class ContextDialogs(object):
                     DialogHelpers.unhook_events(self)
             
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog close active dialog")
     
     
     def trigger_doubleclick_for_shape(self, shape, context):
@@ -360,7 +359,7 @@ class ContextDialogs(object):
             ctx_dialog.trigger_doubleclick(shape, context)
             
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog double click")
         
     
     def mouse_down(self, sender, e):
@@ -468,7 +467,7 @@ class DialogHelpers(object):
 
             return left, top
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog get position")
     
     
     @staticmethod
@@ -477,7 +476,7 @@ class DialogHelpers(object):
         try:
             return shape.parent.parent.Windows.item(1)
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog get window")
     
     @staticmethod
     def coordinates_within_slideview_window(x, y, context):
@@ -523,7 +522,7 @@ class DialogHelpers(object):
             dpi = hkcu.OpenSubKey("Control Panel").OpenSubKey("Desktop").OpenSubKey("WindowMetrics").GetValue("AppliedDPI")
             return dpi/96.
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog get dpi")
             return 1.
 
             
@@ -533,7 +532,7 @@ class DialogHelpers(object):
         try:
             return Diagnostics.Process.GetCurrentProcess().MainWindowHandle
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog get handle")
     
     
 

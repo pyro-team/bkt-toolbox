@@ -8,7 +8,6 @@ Created on 11.07.2014
 
 from __future__ import absolute_import
 
-import traceback
 import logging
 
 import time #for cache invalidation and event throttling
@@ -45,7 +44,7 @@ class AppEventType(object):
         return self
     
     # def fire(self):
-    #     logging.debug("Fired event: %r" % self.event_name)
+    #     logging.debug("Fired event: %r", self.event_name)
     #     for method in self.registered_methods:
     #         method()
 
@@ -163,8 +162,7 @@ class AppCallbacksBase(AppCallbacks):
                 else:
                     method(**kwargs)
             except:
-                logging.error("Error triggering event method")
-                logging.error(traceback.format_exc())
+                logging.exception("Error triggering event method")
 
 
 
@@ -217,7 +215,8 @@ class AppCallbacksBase(AppCallbacks):
                 ctx_args = context.resolve_arguments(callback.invocation_context)
                 kwargs.update(ctx_args)
             except InappropriateContextError:
-                #traceback.print_exc()
+                # import traceback
+                # traceback.print_exc()
                 logging.debug("InappropriateContextError")
                 #TESTME: also cache InappropriateContextError, so return value "None"
                 if do_cache:
@@ -419,7 +418,7 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
         try:
             self.app_ui.context_dialogs.close_active_dialog()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error closing acive contextdialog")
 
         super(AppCallbacksPowerPoint, self).invalidate()
 
@@ -539,13 +538,13 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
         try:
             self.invalidate()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error invalidating")
 
         try:
             if self.app_ui.use_contextdialogs:
                 self.app_ui.context_dialogs.show_shape_dialog_for_selection(selection, self.context)
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error showing shape dialog")
         
         # # 0 = ppSelectionNone
         # # 1 = ppSelectionSlide
@@ -555,7 +554,7 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
         #     # selection in text, event raised a lot during keyboard input
         #     # restrict to a few invalidations per second
         #     #logging.debug("text selection")
-        #     #logging.debug("last_time_window_selection_changed_in_text " + str(self.last_time_window_selection_changed_in_text))
+        #     #logging.debug("last_time_window_selection_changed_in_text %s", self.last_time_window_selection_changed_in_text)
         #     if time.time() - self.last_time_window_selection_changed_in_text > 0.5:
         #         self.invalidate()
         #         self.last_time_window_selection_changed_in_text = time.time()
@@ -566,12 +565,12 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
         #     try:
         #         self.invalidate()
         #     except:
-        #         logging.error(traceback.format_exc())
+        #         logging.exception("error invalidating")
             
         #     try:
         #         self.app_ui.context_dialogs.show_shape_dialog_for_selection(selection, self.context)
         #     except:
-        #         logging.error(traceback.format_exc())
+        #         logging.exception("error invalidating")
     
     def after_presentation_open(self, pres):
         logging.debug("app event after_presentation_open")

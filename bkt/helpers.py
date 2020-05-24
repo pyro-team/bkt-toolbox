@@ -242,7 +242,7 @@ class BKTShelf(shelve.DbfilenameShelf):
                 return self[key]
             return default
         except EOFError:
-            logging.error("EOF-Error in shelf file {} for getting key {}. Reset to default value: {}".format(self._filename, key, default))
+            logging.error("EOF-Error in shelf file %s for getting key %s. Reset to default value: %s", self._filename, key, default)
             if config.show_exception and not key.startswith("bkt.console."):
                 #if key starts with bkt.console its not possible to show exception in console as error happended during console initialization
                 exception_as_message("Shelf file {} corrupt for key {}. Trying to repair now.".format(self._filename, key))
@@ -271,12 +271,11 @@ class BKTSettings(BKTShelf):
     
     def open(self, filename):
         import anydbm
-        self._filename = filename
+        self._filename = get_settings_folder(filename)
         try:
-            self.dict = anydbm.open(get_settings_folder(filename), 'c')
+            self.dict = anydbm.open(self._filename, 'c')
         except:
-            logging.error("error reading bkt settings")
-            # logging.debug(traceback.format_exc())
+            logging.exception("error reading bkt settings")
             exception_as_message()
             self.dict = dict() #fallback to empty dict
 
@@ -341,14 +340,13 @@ class Resources(object):
         try:
             self._cache = caches.get("resources.%s"%category)
         except:
-            logging.error("Loading resource cache failed")
-            logging.debug(traceback.format_exc())
+            logging.exception("Loading resource cache failed")
             
     def locate(self, name):
         try:
             return self._cache[name]
         except KeyError:
-            logging.info("Locate {} resource: {}.{}".format(self.category, name, self.suffix))
+            logging.info("Locate %s resource: %s.%s", self.category, name, self.suffix)
             for root_folder in self.root_folders:
                 path = os.path.join(root_folder, self.category, name + '.' + self.suffix)
                 if os.path.exists(path):
@@ -357,8 +355,7 @@ class Resources(object):
                     return path
             return None
         except:
-            logging.error("Unknown error reading from resource cache")
-            logging.debug(traceback.format_exc())
+            logging.exception("Unknown error reading from resource cache")
             return None
     
     @staticmethod
