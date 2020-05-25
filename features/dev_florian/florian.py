@@ -4,16 +4,15 @@ Created on 2017-07-24
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
+import logging
+
 import bkt
 import bkt.library.powerpoint as pplib
 import bkt.library.algorithms as algos
 
-import logging
-
-# import clr
-# clr.AddReference('System.Windows.Forms')
-# import System.Windows.Forms as F
-
+import bkt.dotnet
 F = bkt.dotnet.import_forms()
 D = bkt.dotnet.import_drawing()
 
@@ -22,18 +21,7 @@ D = bkt.dotnet.import_drawing()
 # german = gettext.translation('iso3166', pycountry.LOCALES_DIR, languages=['de'])
 # german.install()
 
-import os
-from collections import OrderedDict
-
-# import quickedit
-import wpftest
-
-
-import ctypes
-
-# import clr
-# clr.AddReference("BKT")
-# import BKT
+from . import wpftest
 
 
 
@@ -57,7 +45,7 @@ class ColorSelectorWindow(object):
         testbtn.Text = "OK"
         testbtn.Width = 20
         testbtn.Height = 20
-        testbtn.BackColor = F.Color.LightGreen
+        testbtn.BackColor = D.Color.LightGreen
         testbtn.Click += self.testbtn
 
         buttonsPanel = F.FlowLayoutPanel()
@@ -93,12 +81,9 @@ class ColorSelectorWindow(object):
         else:
             self.show()
 
-    @staticmethod
-    def colorwindow(application):
-        ColorSelectorWindow(application).switchWindow()
 
+class WindowTests(object):
 
-class TestsFST(object):
     @staticmethod
     def open_color_dialog(shape):
         cd = F.ColorDialog()
@@ -108,6 +93,13 @@ class TestsFST(object):
             color = D.ColorTranslator.ToOle(cd.Color)
             shape.Fill.ForeColor.RGB = color
             # bkt.message("Farbe: %r" % color)
+
+    @staticmethod
+    def colorwindow(application):
+        ColorSelectorWindow(application).switchWindow()
+
+
+class FormattingTestFunctions(object):
 
     @staticmethod
     def export_as_png(presentation, slides):
@@ -138,20 +130,6 @@ class TestsFST(object):
             if cell_in_row_selected:
                 index = (index+1) % len(colors)
     
-    @staticmethod
-    def hook_events():
-        import mousehook
-        mousehook.mouse_msg_loop()
-        # HC_ACTION = 0
-        # WH_MOUSE_LL = 14
-        # WM_LBUTTONDOWN = 0x0201
-
-        # def my_callback(nCode, wParam, lParam):
-        #     if nCode == HC_ACTION and wParam == WM_LBUTTONDOWN:
-        #         print("hier i am mouse")
-        #     return ctypes.windll.user32.CallNextHookEx(None, nCode, wParam, lParam)
-        
-        # hook = ctypes.windll.user32.SetWindowsHookExW(WH_MOUSE_LL, my_callback, None, 0)
 
     current_control = None
     customui_control = None
@@ -168,7 +146,6 @@ class TestsFST(object):
             print("test2: %s" % context.app.Caller)
         except:
             pass
-    
 
 
 class CustomFontStyles(object):
@@ -215,7 +192,32 @@ bkt.AppEvents.bkt_unload += bkt.Callback(AppEventTester.unload)
 
 
 testfenster_gruppe = bkt.ribbon.Group(
-    label='Tests FST',
+    label='Colordialog Tests',
+    image_mso='HappyFace',
+    children = [
+        bkt.ribbon.Button(
+            id = 'colorwindow',
+            label="Fenster mit Farbauswahl",
+            show_label=True,
+            image_mso='HappyFace',
+            on_action=bkt.Callback(WindowTests.colorwindow, application=True),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            size="large",
+        ),
+        bkt.ribbon.Button(
+            id = 'color_dialog',
+            label="Windows Farbdialog",
+            show_label=True,
+            image_mso='HappyFace',
+            on_action=bkt.Callback(WindowTests.open_color_dialog, shape=True),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            size="large",
+        ),
+    ]
+)
+
+testformatting_gruppe = bkt.ribbon.Group(
+    label='Formatting Tests',
     image_mso='HappyFace',
     children = [
         bkt.ribbon.Button(
@@ -223,56 +225,28 @@ testfenster_gruppe = bkt.ribbon.Group(
             label="Folie als PNG speichern",
             show_label=True,
             image_mso='HappyFace',
-            supertip="XXX",
-            on_action=bkt.Callback(TestsFST.export_as_png),
-            # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            on_action=bkt.Callback(FormattingTestFunctions.export_as_png),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
             size="large",
-        ),
-        bkt.ribbon.Separator(),
-        bkt.ribbon.Button(
-            id = 'colorwindow',
-            label="Fenster mit Farbauswahl",
-            show_label=True,
-            image_mso='HappyFace',
-            supertip="XXX",
-            on_action=bkt.Callback(ColorSelectorWindow.colorwindow, application=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
-        ),
-        bkt.ribbon.Button(
-            id = 'color_dialog',
-            label="Windows Farbdialog",
-            show_label=True,
-            image_mso='HappyFace',
-            supertip="XXX",
-            on_action=bkt.Callback(TestsFST.open_color_dialog, shape=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
-        ),
-        bkt.ribbon.Button(
-            id = 'table_formatter',
-            label="Tabelle formatieren",
-            show_label=True,
-            image_mso='HappyFace',
-            supertip="XXX",
-            on_action=bkt.Callback(TestsFST.table_formatter),
-            # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
-        ),
-        bkt.ribbon.Button(
-            id = 'hook_mouse',
-            label="Maushook",
-            show_label=True,
-            image_mso='HappyFace',
-            supertip="XXX",
-            on_action=bkt.Callback(TestsFST.hook_events),
-            # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
         ),
         bkt.ribbon.Button(
             id = 'buttonpos',
             label="Control pos",
             show_label=True,
             image_mso='HappyFace',
-            supertip="XXX",
-            on_action=bkt.Callback(TestsFST.control_position),
-            # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            on_action=bkt.Callback(FormattingTestFunctions.control_position),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            size="large",
+        ),
+        bkt.ribbon.Separator(),
+        bkt.ribbon.Button(
+            id = 'table_formatter',
+            label="Tabelle formatieren",
+            show_label=True,
+            image_mso='HappyFace',
+            on_action=bkt.Callback(FormattingTestFunctions.table_formatter),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            size="large",
         ),
         bkt.ribbon.ToggleButton(
             id = 'custom_bold',
@@ -282,9 +256,11 @@ testfenster_gruppe = bkt.ribbon.Group(
             get_pressed=bkt.Callback(CustomFontStyles.get_pressed),
             on_toggle_action=bkt.Callback(CustomFontStyles.on_toggle_action),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+            size="large",
         ),
     ]
 )
+
 
 def get_content_symbols_test():
     return bkt.ribbon.Menu(
@@ -300,7 +276,6 @@ def get_content_symbols_test():
             ),
         ],
     )
-
 
 ampersand_gruppe = bkt.ribbon.Group(
     label='Sonderzeichen',
@@ -337,10 +312,16 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
     children = [
         ampersand_gruppe,
         testfenster_gruppe,
+        testformatting_gruppe,
         wpftest.xamltest_gruppe,
-        # quickedit.color_selector_gruppe,
     ]
 ))
+
+
+
+##############################
+### Backstage area testing ###
+##############################
 
 bkt.powerpoint.add_backstage_control(
     bkt.ribbon.Tab(
