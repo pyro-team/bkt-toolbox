@@ -92,41 +92,95 @@ namespace BKT
             _helper.Owner = new IntPtr(windowID);
         }
 
-        public void SetDevicePosition(int deviceLeft, int deviceTop)
+        public void SetDevicePosition(double? deviceLeft=null, double? deviceTop=null, double? deviceRight=null, double? deviceBottom=null)
         {
             DebugMessage("BKT Window: Setting device position");
             try {
                 var source = HwndSource.FromHwnd(_helper.EnsureHandle());
                 // var source = PresentationSource.FromVisual(this);
-                var ptLogicalUnits = source.CompositionTarget.TransformFromDevice.Transform(new Point(deviceLeft, deviceTop));
-                this.Left = ptLogicalUnits.X;
-                this.Top  = ptLogicalUnits.Y;
+                double x = 0;
+                double y = 0;
+                if (deviceLeft != null) {
+                    x = (double)deviceLeft;
+                } else if (deviceRight != null) {
+                    x = (double)deviceRight;
+                }
+                if (deviceTop != null) {
+                    y = (double)deviceTop;
+                } else if (deviceBottom != null) {
+                    y = (double)deviceBottom;
+                }
+
+                double VsTop = SystemParameters.VirtualScreenTop;
+                double VsLeft = SystemParameters.VirtualScreenLeft;
+                double VsRight = VsLeft + SystemParameters.VirtualScreenWidth;
+                double VsBottom = VsTop + SystemParameters.VirtualScreenHeight;
+
+                var ptLogicalUnits = source.CompositionTarget.TransformFromDevice.Transform(new Point(x, y));
+                if (deviceLeft != null) {
+                    this.Left = Math.Min(Math.Max(ptLogicalUnits.X, VsLeft), VsRight - this.Width);
+                } else if (deviceRight != null) {
+                    this.Left = Math.Min(Math.Max(ptLogicalUnits.X - this.Width, VsLeft), VsRight - this.Width);
+                }
+                if (deviceTop != null) {
+                    this.Top  = Math.Min(Math.Max(ptLogicalUnits.Y, VsTop), VsBottom - this.Height);
+                } else if (deviceBottom != null) {
+                    this.Top  = Math.Min(Math.Max(ptLogicalUnits.Y - this.Height, VsTop), VsBottom - this.Height);
+                }
             } catch (Exception e) {
                 DebugMessage(e.ToString());
+            }
+        }
+
+        public void SetDeviceSize(double? deviceWidth=null, double? deviceHeight=null)
+        {
+            DebugMessage("BKT Window: Setting device size");
+            try {
+                var source = HwndSource.FromHwnd(_helper.EnsureHandle());
+                var transform = source.CompositionTarget.TransformFromDevice;
+                if (deviceWidth != null) {
+                    this.Width = Math.Min(SystemParameters.VirtualScreenWidth, transform.M11 * (double)deviceWidth);
+                }
+                if (deviceHeight != null) {
+                    this.Height = Math.Min(SystemParameters.VirtualScreenHeight, transform.M22 * (double)deviceHeight);
+                }
+            } catch (Exception e) {
+                DebugMessage(e.ToString());
+            }
+        }
+
+        public Rect GetDeviceRect()
+        {
+            DebugMessage("BKT Window: Getting device rect");
+            try {
+                var source = HwndSource.FromHwnd(_helper.EnsureHandle());
+                var ltPhysicalUnits = source.CompositionTarget.TransformToDevice.Transform(new Point(this.Left, this.Top));
+                var brPhysicalUnits = source.CompositionTarget.TransformToDevice.Transform(new Point(this.Left+this.Width, this.Top+this.Height));
+                return new Rect(ltPhysicalUnits, brPhysicalUnits);
+            } catch (Exception e) {
+                DebugMessage(e.ToString());
+                return new Rect(0,0,0,0);
             }
         }
 
         public void ShiftWindowOntoScreen()
         {
             DebugMessage("BKT Window: Shift window back onto screen");
-            if (this.Top < SystemParameters.VirtualScreenTop)
-            {
-                this.Top = SystemParameters.VirtualScreenTop;
+            double VsTop = SystemParameters.VirtualScreenTop;
+            double VsLeft = SystemParameters.VirtualScreenLeft;
+            double VsRight = VsLeft + SystemParameters.VirtualScreenWidth;
+            double VsBottom = VsTop + SystemParameters.VirtualScreenHeight;
+
+            if (this.Top < VsTop) {
+                this.Top = VsTop;
+            } else if (this.Top + this.Height > VsBottom) {
+                this.Top = VsBottom - this.Height;
             }
 
-            if (this.Left < SystemParameters.VirtualScreenLeft)
-            {
-                this.Left = SystemParameters.VirtualScreenLeft;
-            }
-
-            if (this.Left + this.Width > SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth)
-            {
-                this.Left = SystemParameters.VirtualScreenWidth + SystemParameters.VirtualScreenLeft - this.Width;
-            }
-
-            if (this.Top + this.Height > SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight)
-            {
-                this.Top = SystemParameters.VirtualScreenHeight + SystemParameters.VirtualScreenTop - this.Height;
+            if (this.Left < VsLeft) {
+                this.Left = VsLeft;
+            } else if (this.Left + this.Width > VsRight) {
+                this.Left = VsRight - this.Width;
             }
         }
 
