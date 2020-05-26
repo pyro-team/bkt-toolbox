@@ -812,7 +812,7 @@ class BulletStyle(object):
             try:
                 # produces error if no text is selected
                 return getter_method(selection.TextRange2.Paragraphs(1,1).ParagraphFormat)
-            except:
+            except ValueError: #ValueError: Der Index in der angegebenen Sammlung ist außerhalb des zulässigen Bereichs.
                 return getter_method(selection.TextRange2.ParagraphFormat)
         
         else:

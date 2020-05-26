@@ -217,7 +217,7 @@ class ConsolSplit(object):
                     slides = list(iter( presentation.Slides.Range( Array[int](range(start, start+count)) ) ))
                     cls.export_slide(application, slides, _get_name(i+1))
                 except:
-                    logging.error("split_sections_to_ppt error")
+                    logging.exception("split_sections_to_ppt error")
                     error = True
                     continue
 

@@ -161,26 +161,26 @@ class CustomFormat(object):
         try:
             if self.is_format("Type") or shape_is_new:
                 ShapeFormats._set_type(shape, self.get_format("Type"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting shape type with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting shape type")
 
         try:
             if self.is_format("Fill"):
                 ShapeFormats._set_fill(shape.fill, self.get_format("Fill"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting fill with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting fill")
 
         try:
             if self.is_format("Line"):
                 ShapeFormats._set_line(shape.line, self.get_format("Line"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting line with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting line")
 
         try:
             if self.is_format("TextFrame"):
                 ShapeFormats._set_textframe(shape.textframe2, self.get_format("TextFrame"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting textframe with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting textframe")
 
         try:
             # order is important here. shadow must be last as setting glow, reflection or softedge will re-enable shadow
@@ -192,32 +192,32 @@ class CustomFormat(object):
                 ShapeFormats._set_softedge(shape.softedge, self.get_format("SoftEdge"))
             if self.is_format("Shadow"):
                 ShapeFormats._set_shadow(shape.shadow, self.get_format("Shadow"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting effects with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting effects")
 
         try:
             if self.is_format("Size") or shape_is_new:
                 ShapeFormats._set_size(shape, self.get_format("Size"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting shape size with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting shape size")
 
         try:
             if self.is_format("Position") or shape_is_new:
                 ShapeFormats._set_position(shape, self.get_format("Position"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting shape position with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting shape position")
 
         try:
             if self.is_format("ParagraphFormat"):
                 ShapeFormats._set_indentlevels(shape.TextFrame2, "paragraph", self.get_format("ParagraphFormat"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting paragraph format with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting paragraph format")
 
         try:
             if self.is_format("Font"):
                 ShapeFormats._set_indentlevels(shape.TextFrame2, "font", self.get_format("Font"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting font with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting font")
 
 
 class CustomFormatCatalog(object):
@@ -338,7 +338,7 @@ class CustomFormatCatalog(object):
                 try:
                     fill_obj["GradientStops"] = convert_stop(fill_obj["GradientStops"])
                 except:
-                    logging.error("Customformats: Error converting a gradient stop from 20190814")
+                    logging.exception("Customformats: Error converting a gradient stop from 20190814")
 
         for style in catalog["styles"]:
 
@@ -371,7 +371,7 @@ class CustomFormatCatalog(object):
                             elif style["formats"]["ParagraphFormat"][i]['Bullet.Type'] == 2: #ppBulletNumbered
                                 del style["formats"]["ParagraphFormat"][i]['Bullet.Character']
                     except:
-                        logging.error("Customformats: Error converting a style from 20190613")
+                        logging.exception("Customformats: Error converting a style from 20190613")
             # cls.custom_styles.append(CustomFormat.from_json(style))
         catalog["version"] = "20190814"
         return catalog

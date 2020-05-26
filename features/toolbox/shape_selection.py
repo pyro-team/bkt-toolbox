@@ -195,6 +195,7 @@ class SlidesMore(object):
         try:
             slide.Shapes.PasteSpecial(Link=True)
         except:
+            logging.exception("error pasting as link")
             bkt.message.error("Das Element in der Zwischenablage unterstützt diesen Einfügetyp nicht.")
     
     @staticmethod

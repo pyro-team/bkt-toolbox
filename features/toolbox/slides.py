@@ -7,6 +7,7 @@ Created on 06.07.2016
 
 from __future__ import absolute_import
 
+import logging
 import os.path
 
 from contextlib import contextmanager
@@ -303,39 +304,46 @@ class SlideMenu(object):
     @classmethod
     def remove_all(cls, context):
         try:
+            logging.debug("Slide clean-up: slide notes")
             cls.remove_slide_notes(context)
         except:
-            pass
+            logging.exception("error in slide clean-up")
         
         try:
+            logging.debug("Slide clean-up: hidden slides")
             cls.remove_hidden_slides(context)
         except:
-            pass
+            logging.exception("error in slide clean-up")
         
         try:
+            logging.debug("Slide clean-up: transitions")
             cls.remove_transitions(context)
         except:
-            pass
+            logging.exception("error in slide clean-up")
         
         try:
+            logging.debug("Slide clean-up: animations")
             cls.remove_animations(context)
         except:
-            pass
+            logging.exception("error in slide clean-up")
         
         try:
+            logging.debug("Slide clean-up: slide comments")
             cls.remove_slide_comments(context)
         except:
-            pass
+            logging.exception("error in slide clean-up")
         
         try:
+            logging.debug("Slide clean-up: double spaces")
             cls.remove_doublespaces(context)
         except:
-            pass
+            logging.exception("error in slide clean-up")
         
         try:
+            logging.debug("Slide clean-up: empty placeholder")
             cls.remove_empty_placeholders(context)
         except:
-            pass
+            logging.exception("error in slide clean-up")
         
     @classmethod
     def _iterate_all_shapes(cls, context, groupitems=False):
@@ -376,7 +384,7 @@ class SlideMenu(object):
                     if shape.PlaceholderFormat.type == 2: 
                         # ppt.PpPlaceholderType.ppPlaceholderBody.value__
                         shape.TextFrame.TextRange.Text = ""
-                except:
+                except EnvironmentError:
                     # EnvironmentError: System.Runtime.InteropServices.COMException (0x80048240): PlaceholderFormat.Type : Invalid request.  Shape is not a placeholder.
                     pass
 
@@ -423,7 +431,8 @@ class SlideMenu(object):
                 try:
                     cl.Delete()
                     deleted_layouts += 1
-                except: #deletion fails if layout in use
+                except EnvironmentError: #deletion fails if layout in use
+                    #EnvironmentError: System.Runtime.InteropServices.COMException (0x80048240): Slide (unknown member) : Invalid request.  Can't delete master.
                     continue
             if design.SlideMaster.CustomLayouts.Count == 0:
                 unused_designs.append(design)
@@ -435,7 +444,7 @@ class SlideMenu(object):
                     try:
                         design.Delete()
                     except:
-                        continue
+                        logging.exception("error deleting design")
             bkt.message("Leere Folienmaster wurden gelöscht!")
         else:
             bkt.message("Es wurden {} Folienlayouts gelöscht!".format(deleted_layouts))
@@ -444,19 +453,22 @@ class SlideMenu(object):
     def remove_unused_designs(cls, context):
         deleted_designs = 0
         designs = context.presentation.designs
+        #list incides of all designs
         unused_designs = range(1,designs.count+1)
         for slide in context.presentation.slides:
             try:
+                #remove indices of used designs
                 unused_designs.remove(slide.design.index)
-            except ValueError:
+            except ValueError: #index already removed
                 pass
         
+        #remove all remaining indices
         for i in reversed(unused_designs):
             try:
                 designs[i].delete()
                 deleted_designs += 1
             except:
-                continue
+                logging.exception("error deleting design")
         
         bkt.message("Es wurden {} Folienmaster gelöscht!".format(deleted_designs))
 
@@ -466,7 +478,7 @@ class SlideMenu(object):
             try:
                 shape.LinkFormat.BreakLink()
             except:
-                pass
+                logging.exception("error breaking link")
 
 
 class SlideShow(object):

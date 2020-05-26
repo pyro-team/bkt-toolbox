@@ -7,6 +7,7 @@ Created on 18.05.2016
 
 from __future__ import absolute_import
 
+import logging
 import json
 import uuid
 
@@ -230,7 +231,9 @@ class ToolboxAgenda(object):
                 context.ribbon.ActivateTab('bkt_context_tab_agenda')
         
         except:
-            bkt.helpers.exception_as_message()
+            logging.exception("Agenda: agenda textbox creation failed")
+            bkt.message.error("Fehler beim Anlegen der Agenda-Textbox", title="Toolbox: Agenda")
+            # bkt.helpers.exception_as_message()
     
     
     @classmethod
@@ -744,7 +747,9 @@ class ToolboxAgenda(object):
             cls.set_tags_for_slide(slide, selected_paragraph_index)
             
         except:
-            bkt.helpers.exception_as_message()
+            logging.exception("Agenda: agenda update failed")
+            bkt.message.error("Fehler beim Aktualisieren der Agenda", title="Toolbox: Agenda")
+            # bkt.helpers.exception_as_message()
 
 
     @classmethod
@@ -783,7 +788,9 @@ class ToolboxAgenda(object):
             else:
                 sections.AddBeforeSlide(slide.SlideIndex, section_title)
         except:
-            bkt.helpers.exception_as_message()
+            logging.exception("Agenda: agenda sections update failed")
+            bkt.message.error("Fehler beim Aktualisieren der Agenda-Abschnitte", title="Toolbox: Agenda")
+            # bkt.helpers.exception_as_message()
 
 
     @classmethod
@@ -798,7 +805,9 @@ class ToolboxAgenda(object):
             if sections.Count > 0 and sections.FirstSlide(slide.SectionIndex) == slide.SlideIndex:
                 sections.Delete(slide.SectionIndex, False)
         except:
-            bkt.helpers.exception_as_message()
+            logging.exception("Agenda: agenda sections delete failed")
+            bkt.message.error("Fehler beim Löschen der Agenda-Abschnitte", title="Toolbox: Agenda")
+            # bkt.helpers.exception_as_message()
         
     
 
@@ -831,7 +840,9 @@ class ToolboxAgenda(object):
                 paragraph.ActionSettings(1).Hyperlink.SubAddress = "{},{},{}".format(ref_slide.SlideId,ref_slide.SlideIndex,ref_slide.Name)
         
         except:
-            bkt.helpers.exception_as_message()
+            logging.exception("Agenda: agenda hyperlink update failed")
+            bkt.message.error("Fehler beim Aktualisieren der Agenda-Hyperlinks", title="Toolbox: Agenda")
+            # bkt.helpers.exception_as_message()
 
 
 
@@ -1066,7 +1077,9 @@ class ToolboxAgenda(object):
                 if item.slide:
                     item.slide.Delete()
         except:
-            bkt.helpers.exception_as_message()
+            logging.exception("Agenda: agenda deletion failed")
+            bkt.message.error("Fehler beim Löschen der Agenda", title="Toolbox: Agenda")
+            # bkt.helpers.exception_as_message()
     
     
     @classmethod

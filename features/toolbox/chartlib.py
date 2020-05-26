@@ -433,7 +433,9 @@ class ChartLib(object):
 
             pres.Save()
         except:
-            bkt.helpers.exception_as_message()
+            logging.exception("error adding chart to library")
+            bkt.message.error("Fehler beim Hinzufügen zu Favoriten")
+            # bkt.helpers.exception_as_message()
         finally:
             pres.Saved = True
             pres.Close()
@@ -930,7 +932,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                         logging.debug("Creation of thumbnail image via export")
                         slide.Export(image_filename, 'PNG', 600) 
                 except:
-                    logging.warning('Creation of thumbnail image failed: %s', image_filename)
+                    logging.exception('Creation of thumbnail image failed: %s', image_filename)
         if closing_gallery_workaround:
             Forms.Clipboard.Clear()
     
@@ -966,7 +968,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                     # ppShapeFormatGIF = 0, ppShapeFormatJPG = 1, ppShapeFormatPNG = 2, ppShapeFormatBMP = 3, ppShapeFormatWMF = 4, ppShapeFormatEMF = 5;
                     shape_range.Export(image_filename, 2)
                 except:
-                    logging.warning('Creation of thumbnail image failed: %s', image_filename)
+                    logging.exception('Creation of thumbnail image failed: %s', image_filename)
                 
                 # resize thumbnail image to square
                 if os.path.exists(image_filename):

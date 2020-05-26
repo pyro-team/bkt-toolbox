@@ -227,7 +227,7 @@ class ShapeAdjustments(object):
                 try:
                     cls.set_adjustment(shape, i, cls.get_adjustment(master, i))
                 except:
-                    pass
+                    logging.exception("error equalizing shape adjustments")
                 # if i <= shape.adjustments.count:
                 #     shape.adjustments.item[i] = master.adjustments.item[i]
 
