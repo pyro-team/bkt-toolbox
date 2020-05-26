@@ -23,7 +23,7 @@ from .chartlib import chartlib_button
 class SendOrSaveSlides(object):
     @classmethod
     def _slide_range_identifier(cls, slides):
-        indices = [slide.SlideIndex for slide in slides]
+        indices = [slide.SlideNumber for slide in slides]
         indices.sort()
         ind_str = str(indices[0])
         last_index = indices[0]
@@ -61,7 +61,7 @@ class SendOrSaveSlides(object):
         # Foliennummern
         if slides is not None:
             if len(slides) == 1:
-                fileName = fileName + "_Folie_" + str(slides[0].SlideIndex)
+                fileName = fileName + "_Folie_" + str(slides[0].SlideNumber)
             else:
                 fileName = fileName + "_Folien_" + cls._slide_range_identifier(slides)
 
@@ -261,7 +261,7 @@ class SlideMenu(object):
             shp.TextFrame.TextRange.Font.Bold = -1 # msoTrue
             shp.TextFrame.TextRange.Font.Color = 192 + 0 * 256 + 0 * 256**2
             shp.TextFrame.TextRange.ParagraphFormat.Alignment = 3 #ppAlignRight
-            shp.TextFrame.TextRange.text = sld.SlideIndex
+            shp.TextFrame.TextRange.text = sld.SlideNumber #SlideIndex always starts with 1, but in PageSetup beginning can be changed so using SlideNumber
             shp.TextFrame.MarginBottom = 0
             shp.TextFrame.MarginTop = 0
             shp.TextFrame.MarginRight = 0

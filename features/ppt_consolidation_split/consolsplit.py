@@ -124,7 +124,7 @@ class ConsolSplit(object):
             except:
                 title = "UNKNOWN"
             
-            filename = save_pattern.replace("[slidenumber]", str(slide.SlideIndex)).replace("[slidetitle]", title)
+            filename = save_pattern.replace("[slidenumber]", str(slide.SlideNumber)).replace("[slidetitle]", title)
             return os.path.join(folder, filename + ".pptx") #FIXME: file ending according to current presentation
 
         def loop(worker):
