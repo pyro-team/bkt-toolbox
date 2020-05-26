@@ -365,3 +365,89 @@ class Resources(object):
         Resources.xaml = Resources("xaml", "xaml")
 
 Resources.bootstrap()
+
+
+
+
+# ===========================
+# = Bitwise boolean storage =
+# ===========================
+
+
+class BitwiseValueAccessor(object):
+    '''
+    Provides an easy way to access boolean options stored as single integer value using bitwise operators.
+    The integer bitvalue can be retrieved via get_bitvalue(). Attribute and item notation are supported.
+    All options can be retrieved with as_dict() function. New options can be added with add_option(name, value).
+    '''
+    def __init__(self, bitvalue=0, attributes=[], settings_key=None):
+        if settings_key:
+            self.__bitvalue = settings.get(settings_key, 0)
+        else:
+            self.__bitvalue = bitvalue
+        self._settings_key = settings_key
+        self._attributes = attributes
+        self._attr_dict = {k: 2**i for i, k in enumerate(attributes)}
+    
+    @property
+    def _bitvalue(self):
+        return self.__bitvalue
+    @_bitvalue.setter
+    def _bitvalue(self, value):
+        self.__bitvalue = value
+        if self._settings_key:
+            settings[self._settings_key] = value
+
+    def __repr__(self):
+        return "<BitwiseValueAccessor bitvalue=%d attributes=%r>" % (self._bitvalue, self._attributes)
+    
+    def __getattr__(self, attr):
+        try:
+            return self.__getitem__(attr)
+        except KeyError:
+            raise AttributeError(attr)
+
+    def __setattr__(self, attr, value):
+        if attr.startswith("_"):
+            super(BitwiseValueAccessor, self).__setattr__(attr, value)
+        else:
+            try:
+                self.__setitem__(attr, value)
+            except KeyError:
+                raise AttributeError(attr)
+    
+    def __getitem__(self, key):
+        option = self._attr_dict[key]
+        return self._bitvalue & option == option
+
+    def __setitem__(self, key, value):
+        option = self._attr_dict[key]
+        if value:
+            self._bitvalue = self._bitvalue | option
+        else:
+            self._bitvalue = self._bitvalue ^ option
+
+    def __dir__(self):
+        return sorted(set( dir(type(self)) + self.__dict__.keys() + self._attributes ))
+    
+    def __contains__(self, value):
+        return value in self._attributes
+
+    def __len__(self):
+        return len(self._attributes)
+    
+    def __iter__(self):
+        for k in self._attributes:
+            yield k, getattr(self, k)
+
+    def get_bitvalue(self):
+        return self._bitvalue
+
+    def as_dict(self):
+        return {k: getattr(self, k) for k in self._attributes}
+    
+    def add_option(self, name, value=False):
+        self._attributes.append(name)
+        self._attr_dict[name] = 2**(len(self._attributes)-1)
+        if value:
+            self.__setitem__(name, value)
