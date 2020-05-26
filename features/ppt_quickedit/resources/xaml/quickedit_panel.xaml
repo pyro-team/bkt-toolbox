@@ -50,10 +50,10 @@
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Dunkles Theme" IsCheckable="True" IsChecked="{Binding dark_theme}" />
+                    <MenuItem Header="An Folie andocken" IsCheckable="True" IsChecked="{Binding docking_to_slide}" Click="determine_docking" /> <!--FUNKTIONIERT NOCH NICHT ZUVERLÄSSIG-->
                     <Separator />
                     <MenuItem Header="Zuletzt verwendete Farben anzeigen" IsCheckable="True" IsChecked="{Binding recent_visible}" />
-                    <MenuItem Header="Beim Start automatisch anzeigen" IsCheckable="True" IsChecked="{Binding auto_start}" />
-                    <!-- <MenuItem Header="Links von Folie andocken" IsCheckable="True" IsChecked="{Binding docking_left}" Click="update_docking" /> //FUNKTIONIERT NOCH NICHT ZUVERLÄSSIG -->
+                    <MenuItem Header="Beim Start automatisch anzeigen" IsCheckable="True" IsChecked="{Binding auto_start, Mode=TwoWay}" />
                     <Separator />
                     <MenuItem Header="Alle Farben neu laden" Click="ForceReload" />
                     <MenuItem Header="Eigene Farben zurücksetzen" Click="ResetOwnColors" />
