@@ -185,10 +185,19 @@ class AppEventTester(object):
     def unload():
         logging.debug("bkt unload")
 
+    @staticmethod
+    def sld_begin(**kwargs):
+        logging.debug("sld_begin: %r"%kwargs)
+    @staticmethod
+    def sld_end(**kwargs):
+        logging.debug("sld_end: %r"%kwargs)
+
 
 bkt.AppEvents.bkt_load += bkt.Callback(AppEventTester.load)
 bkt.AppEvents.bkt_unload += bkt.Callback(AppEventTester.unload)
 
+bkt.AppEvents.slideshow_begin += bkt.Callback(AppEventTester.sld_begin)
+bkt.AppEvents.slideshow_end += bkt.Callback(AppEventTester.sld_end)
 
 
 testfenster_gruppe = bkt.ribbon.Group(
