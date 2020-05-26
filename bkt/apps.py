@@ -102,6 +102,8 @@ AppEvents.after_shapesize_changed  = AppEventType(office=True) #keyword args: -
 AppEvents.after_new_presentation   = AppEventType(office=True) #keyword args: presentation
 AppEvents.after_presentation_open  = AppEventType(office=True) #keyword args: presentation
 AppEvents.presentation_close       = AppEventType(office=True) #keyword args: presentation
+AppEvents.slideshow_begin       = AppEventType(office=True) #keyword args: window
+AppEvents.slideshow_end         = AppEventType(office=True) #keyword args: presentation
 
 
 
@@ -468,6 +470,8 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
         app.AfterNewPresentation   += self.after_new_presentation
         app.PresentationCloseFinal += self.presentation_close
         
+        app.SlideShowBegin += self.slideshow_begin
+        app.SlideShowEnd   += self.slideshow_end
         #print 'PPT events registered'
         
         
@@ -489,6 +493,9 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
             app.AfterPresentationOpen  -= self.after_presentation_open
             app.AfterNewPresentation   -= self.after_new_presentation
             app.PresentationCloseFinal -= self.presentation_close
+        
+            app.SlideShowBegin -= self.slideshow_begin
+            app.SlideShowEnd   -= self.slideshow_end
             # NOTE: ReleaseComObject is necessary for Excel, but in Powerpoint it seems to lead to crashes after Powerpoint is closed
             # ReleaseComObject(app)
 
@@ -583,6 +590,14 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
     def presentation_close(self, pres):
         logging.debug("app event presentation_close")
         self.fire_event(self.events.presentation_close, presentation=pres)
+    
+    def slideshow_begin(self, wnd):
+        logging.debug("app event slideshow_begin")
+        self.fire_event(self.events.slideshow_begin, window=wnd)
+    
+    def slideshow_end(self, pres):
+        logging.debug("app event slideshow_end")
+        self.fire_event(self.events.slideshow_end, presentation=pres)
 
 
 
