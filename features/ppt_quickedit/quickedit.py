@@ -15,10 +15,26 @@ import bkt.library.powerpoint as pplib
 class QuickEditPanelManager(object):
     panel_windows = {}
 
-    @classmethod
-    def _create_panel(cls, context):
+    @staticmethod
+    def _create_panel(context):
         from .quickedit_panel import QuickEditPanel
         return QuickEditPanel(context)
+    
+    @staticmethod
+    def show_help():
+        from .quickedit_model import QuickEdit
+        QuickEdit.show_help()
+    
+    @staticmethod
+    def autostart_pressed():
+        return bkt.settings.get("quickedit.restore_panel", False)
+    
+    @classmethod
+    def autostart_toggle(cls, pressed):
+        bkt.settings["quickedit.restore_panel"] = pressed
+        if cls.panel_windows:
+            panel = cls.panel_windows.itervalues().next()
+            panel._vm.OnPropertyChanged("auto_start")
 
     @classmethod
     def get_panel_for_active_window(cls, context):
@@ -84,8 +100,8 @@ class QuickEditPanelManager(object):
         except:
             pass
     
-    @classmethod
-    def _is_windowed_presentation(cls, context, presentation):
+    @staticmethod
+    def _is_windowed_presentation(context, presentation):
         try:
             #only show if at least one window exists
             return presentation.Windows.Count > 0
@@ -124,12 +140,54 @@ color_selector_gruppe = bkt.ribbon.Group(
     supertip="Aktiviert eine kleine freischwebende Mini-Toolbar mit einer interaktiven Farbauswahl. Das Feature `ppt_quickedit` muss installiert sein.",
     image_mso='SmartArtChangeColorsGallery',
     children = [
-        bkt.ribbon.Button(
-            image="qe_icon",
-            label="QuickEdit Panel",
-            supertip="Blendet das QuickEdit Panel mit der interaktiven Farbauswahl ein.",
+        bkt.ribbon.SplitButton(
+            id="quickedit_splitbutton",
             size="large",
-            on_action=bkt.Callback(QuickEditPanelManager.show_panel_for_active_window, context=True)
+            children=[
+                bkt.ribbon.Button(
+                    id="quickedit_button",
+                    image="qe_icon",
+                    label="QuickEdit Panel",
+                    supertip="Blendet das QuickEdit Panel mit der interaktiven Farbauswahl ein.",
+                    on_action=bkt.Callback(QuickEditPanelManager.show_panel_for_active_window, context=True)
+                ),
+                bkt.ribbon.Menu(
+                    label="QuickEdit Panel Menü",
+                    children=[
+                        bkt.ribbon.Button(
+                            id="quickedit_button2",
+                            image="qe_icon",
+                            label="Für dieses Fenster anzeigen",
+                            supertip="Blendet das QuickEdit Panel mit der interaktiven Farbauswahl ein.",
+                            on_action=bkt.Callback(QuickEditPanelManager.show_panel_for_active_window, context=True)
+                        ),
+                        bkt.ribbon.Button(
+                            label="Für dieses Fenster schließen",
+                            supertip="Schließt das QuickEdit Panel für das aktuelle PowerPoint-Fenster.",
+                            on_action=bkt.Callback(QuickEditPanelManager.close_panel_for_active_window, context=True, presentation=True)
+                        ),
+                        bkt.ribbon.Button(
+                            label="Alle schließen",
+                            supertip="Schließt alle QuickEdit Panels für alle PowerPoint-Fenster.",
+                            on_action=bkt.Callback(QuickEditPanelManager.close_all_panels)
+                        ),
+                        bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.Button(
+                            label="Hilfe anzeigen",
+                            image_mso="Help",
+                            supertip="Öffnet die Hilfedatei.",
+                            on_action=bkt.Callback(QuickEditPanelManager.show_help)
+                        ),
+                        bkt.ribbon.MenuSeparator(title="Optionen"),
+                        bkt.ribbon.ToggleButton(
+                            label="Autostart ein/aus",
+                            supertip="Anzeige des QuickEdit Panels bei PowerPoint-Start ein- und ausschalten.",
+                            get_pressed=bkt.Callback(QuickEditPanelManager.autostart_pressed),
+                            on_toggle_action=bkt.Callback(QuickEditPanelManager.autostart_toggle),
+                        ),
+                    ]
+                )
+            ]
         ),
     ]
 )
