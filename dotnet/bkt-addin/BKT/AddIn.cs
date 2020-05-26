@@ -1195,8 +1195,13 @@ namespace BKT
                 }
                 else if (host == HostApplication.PowerPoint)
                 {
-                    int windowID = ((PowerPoint.DocumentWindow)window).HWND;
-                    return windowID;
+                    try {
+                        int windowID = ((PowerPoint.DocumentWindow)window).HWND;
+                        return windowID;
+                    } catch (InvalidCastException) {
+                        int windowID = ((PowerPoint.SlideShowWindow)window).HWND;
+                        return windowID;
+                    }
                 }
                 else if (host == HostApplication.Word)
                 {
@@ -1213,8 +1218,9 @@ namespace BKT
                     return 0;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                DebugMessage(e.ToString());
                 return 0;
             }
 #endif
