@@ -9,6 +9,7 @@ from __future__ import absolute_import
 
 import json # required for tags
 from collections import namedtuple # required for color class
+from contextlib import contextmanager # for locale helper
 
 import System.Array # to create int/str-Arrays
 
@@ -304,11 +305,11 @@ MsoThemeColorIndex = {
 }
 
 
-'''
-Helper class to storage the "loc pin" of shapes for various powerpoint operations.
-The "loc pin" is the pin location within the shapes that should be fixed when using shape operations (e.g. changing the size).
-'''
 class LocPin(object):
+    '''
+    Helper class to storage the "loc pin" of shapes for various powerpoint operations.
+    The "loc pin" is the pin location within the shapes that should be fixed when using shape operations (e.g. changing the size).
+    '''
     def __init__(self, initial_pin=0, settings_key=None):
         # fix_height = 1 #1=top, 2=middle, 3=bottom
         # fix_width  = 1 #1=left, 2=middle, 3=right
@@ -650,6 +651,9 @@ def convert_text_into_shape(shape):
 # ====================
 
 class TagHelper(object):
+    '''
+    Helper to check if shape has a tag, get all tag values as dict or set tags from dict.
+    '''
     @staticmethod
     def get_dict_from_tags(obj_tags):
         '''
@@ -878,6 +882,9 @@ class ColorHelper(object):
 # =========================================
 
 class BKTTag(object):
+    '''
+    Use shape tags using with-statement and item-notation. Tag values are stored as json data.
+    '''
     TAG_NAME = "BKT"
 
     def __init__(self, tags):
@@ -998,13 +1005,13 @@ class ContentArea(object):
 # = Iterator for "subshapes" & textframes =
 # =========================================
 
-'''
-Iterate through shapes of different types and return every shapes "subhsapes", e.g. group shapes or table cells
-arg 'from_selection': If shapes are not from a selection (e.g. iterate all shapes of a slide), set this to False to disable selected table cells detection,
-                      otherwise not all table cells are iterated at least in the rare case that a table is the only shape on a slide.
-'''
-
 class SubShapeIterator(object):
+    '''
+    Iterate through shapes of different types and return every shapes "subhsapes", e.g. group shapes or table cells
+    arg 'from_selection': If shapes are not from a selection (e.g. iterate all shapes of a slide), set this to False to disable selected table cells detection,
+                        otherwise not all table cells are iterated at least in the rare case that a table is the only shape on a slide.
+    '''
+
     def __init__(self, shapes, from_selection=True):
         #Ensure list
         if type(shapes) != list:
@@ -1077,14 +1084,14 @@ class SubShapeIterator(object):
 
 
 def iterate_shape_subshapes(shapes, from_selection=True, filter_method=lambda shp: True, getter_method=lambda shp: shp):
+    ''' Function to create sub shape iterator '''
     return SubShapeIterator(shapes, from_selection)
 
 
-'''
-Iterate through shapes of different types and return every shapes textframe
-'''
-
 class TextframeIterator(SubShapeIterator):
+    '''
+    Iterate through shapes of different types and return every shapes textframe
+    '''
     
     def _iter_group(self, shape):
         for shp in shape.GroupItems:
@@ -1112,6 +1119,7 @@ class TextframeIterator(SubShapeIterator):
 
 
 def iterate_shape_textframes(shapes, from_selection=True):
+    ''' Function to create textframe iterator '''
     return TextframeIterator(shapes, from_selection)
 
 
@@ -1121,6 +1129,9 @@ def iterate_shape_textframes(shapes, from_selection=True):
 # ===============================
 
 class BoundingFrame(object):
+    '''
+    Helper class to simulate a rectangle and create a bounding frame from shape list.
+    '''
     def __init__(self, slide=None, contentarea=False):
         self.left=0
         self.top=0
