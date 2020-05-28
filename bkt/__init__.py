@@ -30,6 +30,12 @@ __release__ = "BKT r20-05-17"
 # del platform
 
 
+# set locale
+import locale
+locale.setlocale(locale.LC_ALL, '') #auto detect locale
+#NOTE: better to set to office UI language? mapping from office lang id to locale string required...
+#context.app.LanguageSettings.LanguageID(2) #MsoAppLanguageID=msoLanguageIDUI
+
 
 # make the followig classes and decorators accessible 
 # via bkt.xxx after 'import bkt'
