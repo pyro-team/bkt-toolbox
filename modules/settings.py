@@ -70,7 +70,7 @@ class BKTReload(object):
         try:
             context.python_addin.invalidate_ribbon()
         except:
-            pass
+            logging.exception("error invalidating ribbon")
 
 
 class BKTUpdatesConfig(object):

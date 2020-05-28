@@ -686,7 +686,7 @@ class ToolboxAgenda(object):
                         textbox.Textframe.TextRange.paragraphs(idx).Delete()
                 
                 # paragraphs hidden before current
-                hidden_before_current = sum([1 for hide in hide_paragraph[0:selected_paragraph_index-1] if hide ])
+                hidden_before_current = sum(1 for hide in hide_paragraph[0:selected_paragraph_index-1] if hide)
                 selected_paragraph_index = selected_paragraph_index - hidden_before_current
             
             # currently selected paragraph
