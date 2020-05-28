@@ -750,11 +750,19 @@ class NumberedShapes(object):
     position = "top-left"       # top-left, top-right
     position_offset = True      # True, False
     
-    label_1 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]
-    label_a = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-    label_A = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-    label_I = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI']
+    # label_1 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]
+    # label_a = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+    # label_A = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+    # label_I = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI']
     
+    _count_formatter = None
+    @classmethod
+    def get_count_formatter(cls):
+        if not cls._count_formatter:
+            from formatter import AbstractFormatter, DumbWriter
+            cls._count_formatter = AbstractFormatter(DumbWriter())
+        return cls._count_formatter
+
     
     @classmethod
     def create_numbers_for_shapes(cls, slide, shapes, **kwargs):
@@ -770,14 +778,12 @@ class NumberedShapes(object):
         # default settings are overwritten by key-word-arguments
         settings.update(kwargs)
         
-        number = 1
-        num_shapes = []
-        for shape in shapes:
-            num_shape = cls.create_number_shape(slide, shape, number, **settings)
-            num_shapes.append(num_shape)
-            number += 1
+        len_shapes = 0
+        for number, shape in enumerate(shapes, start=1):
+            cls.create_number_shape(slide, shape, number, **settings)
+            len_shapes = number
         
-        bkt.library.powerpoint.last_n_shapes_on_slide(slide, len(num_shapes)).select()
+        pplib.last_n_shapes_on_slide(slide, len_shapes).select()
         
         
     
@@ -823,7 +829,8 @@ class NumberedShapes(object):
                 numshape.top -= numshape.height/2
         
         # format shape and text
-        numshape.TextFrame.TextRange.text = getattr(cls, 'label_' + label)[(number-1)%26] #at number 26 start from beginning to avoid IndexError
+        # numshape.TextFrame.TextRange.text = getattr(cls, 'label_' + label)[(number-1)%26] #at number 26 start from beginning to avoid IndexError
+        numshape.TextFrame.TextRange.text = cls.get_count_formatter().format_counter(label, number)
         numshape.TextFrame.TextRange.font.size = 12
         numshape.TextFrame.TextRange.ParagraphFormat.Alignment = pplib.PowerPoint.PpParagraphAlignment.ppAlignCenter.value__
         numshape.TextFrame.TextRange.ParagraphFormat.Bullet.Type = 0
@@ -843,7 +850,7 @@ class NumberedShapes(object):
 class NumberShapesGallery(bkt.ribbon.Gallery):
     
     # item-settings for gallery
-    items = [ dict(label=l, style=s, shape_type=t) for l in ['1', 'a', 'A', 'I'] for t in ['circle', 'square'] for s in ['dark', 'light']  ]
+    items = [ dict(label=l, style=s, shape_type=t) for l in ['1', 'a', 'A', 'i', 'I'] for t in ['circle', 'square'] for s in ['dark', 'light']  ]
     columns = 4
     
     position = "top-left"
@@ -934,7 +941,8 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         # draw string
         g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAliasGridFit
         # g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
-        g.DrawString(str(getattr(NumberedShapes, 'label_' + item['label'])[index%int(self.columns)]),
+        # g.DrawString(str(getattr(NumberedShapes, 'label_' + item['label'])[index%int(self.columns)]),
+        g.DrawString(NumberedShapes.get_count_formatter().format_counter(item['label'], index%int(self.columns)+1),
                      Drawing.Font("Arial", 32, Drawing.FontStyle.Bold, Drawing.GraphicsUnit.Pixel), text_brush, 
                      # Drawing.Font("Arial", 7, Drawing.FontStyle.Bold), text_brush, 
                      Drawing.RectangleF(1, 2, size, size-1), 
