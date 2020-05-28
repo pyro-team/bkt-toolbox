@@ -43,6 +43,7 @@ class HarveyBalls(object):
         # circ.fill.ForeColor.RGB = type(self)._fill_color
         circ.line.visible = -1 #msoTrue, important if default shape style does not have line
         circ.line.forecolor.ObjectThemeColor = 13 #msoThemeColorText1
+        circ.fill.visible = -1 #msoTrue, important if default shape style does not have fill
         circ.fill.forecolor.ObjectThemeColor = 14 #msoThemeColorBackground1
         circ.LockAspectRatio = -1 #msoTrue
 
@@ -52,6 +53,7 @@ class HarveyBalls(object):
         # pie.fill.ForeColor.RGB = type(self)._line_color
         pie.line.visible = -1 #msoTrue, important if default shape style does not have line
         pie.line.forecolor.ObjectThemeColor = 13 #msoThemeColorText1
+        pie.fill.visible = -1 #msoTrue, important if default shape style does not have fill
         pie.fill.forecolor.ObjectThemeColor = 13 #msoThemeColorText1
         pie.LockAspectRatio = -1 #msoTrue
 
