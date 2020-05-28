@@ -1192,8 +1192,9 @@ class GroupManager(object):
 
         self._name = group.name
         self._tags = TagHelper.get_dict_from_tags(group.tags)
-        self._rotation = group.rotation
-        self._zorder   = group.ZOrderPosition
+        self._rotation      = group.rotation
+        self._zorder        = group.ZOrderPosition
+        self._aspectratio   = group.LockAspectRatio
 
         self._attr = {n:getattr(group, n) for n in additional_attrs}
 
@@ -1299,6 +1300,8 @@ class GroupManager(object):
             setattr(self._group, k, v)
         #restore zorder
         set_shape_zorder(self._group, value=self._zorder)
+        #restore lock aspect ration
+        self._group.LockAspectRatio = self._aspectratio
         #call post_regroup to reset rotation
         if self._ungroup_prepared:
             self.post_regroup()
