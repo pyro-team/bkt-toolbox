@@ -575,7 +575,7 @@ class QuickEdit(object):
             # bkt.helpers.exception_as_message()
 
     @classmethod
-    def update_colors(cls, context):
+    def update_colors(cls, context, slide_range=None):
         QEColorButtons.update_colors(context)
 
     @classmethod

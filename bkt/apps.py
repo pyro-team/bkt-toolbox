@@ -97,7 +97,7 @@ AppEvents.window_deactivate = AppEventType(office=True) #keyword args: ppt: pres
 AppEvents.selection_changed = AppEventType(office=True) #keyword args: - #NOTE: sheet selection in excel, window selection in ppt, selection or cell in visio
 
 #PPT-specific events
-AppEvents.slide_selection_changed  = AppEventType(office=True) #keyword args: -
+AppEvents.slide_selection_changed  = AppEventType(office=True) #keyword args: slide_range
 AppEvents.after_shapesize_changed  = AppEventType(office=True) #keyword args: -
 AppEvents.after_new_presentation   = AppEventType(office=True) #keyword args: presentation
 AppEvents.after_presentation_open  = AppEventType(office=True) #keyword args: presentation
@@ -512,7 +512,7 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
     def slide_selection_changed(self, sld_range):
         logging.debug("app event slide_selection_changed")
 
-        self.fire_event(self.events.slide_selection_changed)
+        self.fire_event(self.events.slide_selection_changed, slide_range=sld_range)
         self.invalidate()
     
     def window_activate(self, pres, wnd):
