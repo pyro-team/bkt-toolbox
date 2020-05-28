@@ -916,6 +916,7 @@ class BulletStyle(object):
 class TextShapes(object):
     sticker_alignment = bkt.settings.get("toolbox.sticker_alignment", "right")
     sticker_fontsize = bkt.settings.get("toolbox.sticker_fontsize", 14)
+    sticker_custom = bkt.settings.get("toolbox.sticker_custom", None)
 
     @classmethod
     def settings_setter(cls, name, value):
@@ -925,9 +926,9 @@ class TextShapes(object):
     @staticmethod
     def textbox_insert(context, pressed):
         if bkt.get_key_state(bkt.KeyCodes.SHIFT):
-            TextShapes.addUnderlinedTextbox(context.app.ActiveWindow.Selection.SlideRange[1], context.app.ActivePresentation)
+            TextShapes.addUnderlinedTextbox(context.slide, context.presentation)
         elif bkt.get_key_state(bkt.KeyCodes.CTRL):
-            TextShapes.addSticker(context.app.ActiveWindow.Selection.SlideRange[1], context.app.ActivePresentation)
+            TextShapes.addSticker(context.slide, context.presentation)
         else:
             # NOTE: idMso is different on some machines, see: https://answers.microsoft.com/en-us/msoffice/forum/msoffice_powerpoint-msoffice_custom-mso_2007/powerpoint-2007-textboxinsert-vs/52f12b52-7e1c-4d7c-86a7-bded312437b0
             try:
@@ -990,7 +991,7 @@ class TextShapes(object):
     
     
     @classmethod
-    def addSticker(cls, slide, presentation, sticker_text="DRAFT"):
+    def addSticker(cls, slide, presentation, sticker_text="DRAFT", select_text=True):
         # Textbox erstellen, damit Standardformatierung der Textbox genommen wird
         shp = slide.shapes.AddTextbox( 1 #msoTextOrientationHorizontal
             , 0, 60, 100, 20)
@@ -1056,9 +1057,41 @@ class TextShapes(object):
             connector1.Line.ForeColor.RGB = color.RGB
             connector2.Line.ForeColor.RGB = color.RGB
 
-        # Text auswählen
-        shp.TextFrame2.TextRange.Select()
+        if select_text:
+            # Text auswählen
+            shp.Select()
+            shp.TextFrame2.TextRange.Select()
     
+    
+    @classmethod
+    def add_sticker_to_slides(cls, slides, presentation, sticker_text="DRAFT"):
+        select_text = len(slides) == 1
+        for slide in slides:
+            cls.addSticker(slide, presentation, sticker_text, select_text)
+    
+    @classmethod
+    def own_sticker_enabled(cls):
+        return cls.sticker_custom is not None
+    
+    @classmethod
+    def own_sticker_label(cls):
+        if cls.sticker_custom:
+            return cls.sticker_custom + "-Sticker"
+        else:
+            return "Noch nicht definiert"
+    
+    @classmethod
+    def own_sticker_insert(cls, slides, presentation):
+        if cls.sticker_custom and not bkt.get_key_state(bkt.KeyCodes.SHIFT):
+            cls.add_sticker_to_slides(slides, presentation, cls.sticker_custom)
+        else:
+            cls.own_sticker_edit()
+    
+    @classmethod
+    def own_sticker_edit(cls):
+        res = bkt.ui.show_user_input("Selbst definierten Sticker-Text eingeben:", "Sticker bearbeiten", cls.sticker_custom)
+        cls.sticker_custom = bkt.settings["toolbox.sticker_custom"] = res
+
 
 class TextOnShape(object):
 
@@ -1298,7 +1331,7 @@ text_menu = bkt.ribbon.Menu(
                     image = "Sticker",
                     screentip="Sticker einfügen",
                     supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide ein.",
-                    on_action=bkt.Callback(TextShapes.addSticker, slide=True, presentation=True)
+                    on_action=bkt.Callback(TextShapes.add_sticker_to_slides, slides=True, presentation=True)
                 ),
                 bkt.ribbon.Menu(label="Sticker Menü", supertip="Verschiedene Sticker einfügen", children=[
                     bkt.ribbon.Button(
@@ -1307,35 +1340,51 @@ text_menu = bkt.ribbon.Menu(
                         image = "Sticker",
                         screentip="DRAFT-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text DRAFT ein.",
-                        on_action=bkt.Callback(TextShapes.addSticker, slide=True, presentation=True)
+                        on_action=bkt.Callback(TextShapes.add_sticker_to_slides, slides=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_backup",
                         label = u"BACKUP-Sticker",
                         screentip="BACKUP-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text BACKUP ein.",
-                        on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "BACKUP"), slide=True, presentation=True)
+                        on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "BACKUP"), slides=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_discussion",
                         label = u"FOR DISCUSSION-Sticker",
                         screentip="FOR DISCUSSION-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text FOR DISCUSSION ein.",
-                        on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "FOR DISCUSSION"), slide=True, presentation=True)
+                        on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "FOR DISCUSSION"), slides=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_illustrative",
                         label = u"ILLUSTRATIVE-Sticker",
                         screentip="ILLUSTRATIVE-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text ILLUSTRATIVE ein.",
-                        on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "ILLUSTRATIVE"), slide=True, presentation=True)
+                        on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "ILLUSTRATIVE"), slides=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_confidential",
                         label = u"CONFIDENTIAL-Sticker",
                         screentip="CONFIDENTIAL-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text CONFIDENTIAL ein.",
-                        on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "CONFIDENTIAL"), slide=True, presentation=True)
+                        on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "CONFIDENTIAL"), slides=True, presentation=True)
+                    ),
+                    bkt.ribbon.MenuSeparator(),
+                    bkt.ribbon.Button(
+                        id="sticker_own",
+                        get_label=bkt.Callback(TextShapes.own_sticker_label),
+                        screentip="Selbst definierten Sticker einfügen",
+                        supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit selbst definiertem ein.",
+                        on_action=bkt.Callback(TextShapes.own_sticker_insert, slides=True, presentation=True),
+                        get_enabled=bkt.Callback(TextShapes.own_sticker_enabled)
+                    ),
+                    bkt.ribbon.Button(
+                        id="sticker_own_edit",
+                        label = u"Sticker-Text ändern",
+                        screentip="Selbst definierten Sticker bearbeiten",
+                        supertip="Ändere des Text des selbst definierten Stickers.",
+                        on_action=bkt.Callback(TextShapes.own_sticker_edit)
                     ),
                     bkt.ribbon.MenuSeparator(),
                     bkt.ribbon.Menu(
