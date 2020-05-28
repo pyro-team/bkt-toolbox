@@ -342,6 +342,52 @@ class LikertScale(bkt.ribbon.Gallery):
 
 
 
+class CheckBox(object):
+    size = 20
+
+    @classmethod
+    def insert_checkbox(cls, slide):
+        cls._insert_single_box(slide)
+        cls._insert_single_box(slide, u'\x6c')
+        cls._insert_single_box(slide, u'\x6e')
+        cls._insert_single_box(slide, u'\xfb')
+        cls._insert_single_box(slide, u'\xfc', True)
+        grp = pplib.last_n_shapes_on_slide(slide, 5).group()
+        grp.LockAspectRatio = -1
+        grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, StateShape.BKT_DIALOG_TAG)
+        grp.select()
+    
+    @classmethod
+    def _insert_single_box(cls, slide, char=None, visible=False):
+        s = slide.Shapes.AddShape( 1, 100, 100, cls.size, cls.size )
+        s.Line.Visible = -1
+        s.Line.ForeColor.ObjectThemeColor = 13 #msoThemeColorText1
+        s.Fill.ForeColor.ObjectThemeColor = 14 #msoThemeColorBackground1
+        s.Fill.Visible = -1
+        s.LockAspectRatio = -1
+
+        textframe = s.TextFrame2
+        textframe.AutoSize     = 0
+        textframe.MarginBottom = 0
+        textframe.MarginLeft   = 0
+        textframe.MarginRight  = 0
+        textframe.MarginTop    = 0
+        textframe.HorizontalAnchor = 2
+        textframe.VerticalAnchor   = 3
+
+        textrange = textframe.TextRange
+        textrange.Font.Bold   = 0
+        textrange.Font.Italic = 0
+        textrange.Font.Size   = cls.size-2
+        textrange.Font.Fill.ForeColor.ObjectThemeColor = 13 #msoThemeColorText1
+
+        if char:
+            textrange.InsertSymbol("Wingdings", ord(char)) #symbol: FontName, CharNumber (decimal)
+        s.Visible = visible
+        return s
+
+
+
 likert_button = LikertScale(id="likert_insert")
 
 

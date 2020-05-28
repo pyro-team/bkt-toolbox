@@ -1794,6 +1794,13 @@ shapes_group = bkt.ribbon.Group(
                     on_action=bkt.Callback(ShapeDialogs.create_traffic_light)
                 ),
                 stateshapes.likert_button,
+                bkt.ribbon.Button(
+                    label="Checkbox",
+                    image_mso="FormControlCheckBox",
+                    screentip='Checkbox erstellen',
+                    supertip="Füge ein Checkbox-Symbol ein, welches interaktiv geändert werden kann.",
+                    on_action=bkt.Callback(stateshapes.CheckBox.insert_checkbox)
+                ),
                 bkt.ribbon.MenuSeparator(title="Verbindungsflächen"),
                 bkt.ribbon.Button(
                     id = 'connector_h',
