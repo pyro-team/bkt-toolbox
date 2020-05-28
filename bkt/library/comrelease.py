@@ -19,6 +19,14 @@ def autorelease(comobj):
     Marshal.ReleaseComObject(comobj)
 
 
+def is_com_obj(comobj):
+    # return type(comobj).__name__ == '__ComObject'
+    try:
+        return Marshal.IsComObject(comobj)
+    except:
+        return False
+
+
 #separte logger for comrelease to avoid spamming of log file
 logger = logging.getLogger().getChild("comrelease")
 logger.setLevel(logging.INFO) #comment out this line for comrelease debugging
@@ -43,7 +51,7 @@ class AutoReleasingComObject(object):
         #     #raise AttributeError("AutoReleasingComObject expects to wrap a ComObject.")
         #     self._is_comobj = False
         #     pass
-        self._is_comobj = (type(comobj).__name__ == '__ComObject')
+        self._is_comobj = is_com_obj(comobj)
         self._comobj = comobj
         self._release_self = release_self
         self._accessed_com_attributes = []
@@ -232,7 +240,7 @@ class AutoReleasingComObject(object):
         creates an AutoReleasingComObject-instance if com_obj is a ComObject,
         or returns the given value
         '''
-        if type(com_obj).__name__ == '__ComObject':
+        if is_com_obj(com_obj):
             if self._is_comobj:
                 auto_release_com_obj = AutoReleasingComObject(com_obj, release_self=True)
                 logger.debug("Com-Release: created com-object %s", com_obj)
