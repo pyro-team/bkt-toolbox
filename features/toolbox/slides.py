@@ -77,11 +77,14 @@ class SendOrSaveSlides(object):
     def _delete_unselected_slides(cls, slides, newPres):
         from System import Array
 
-        # Folien rueckwaerts durchgehen und schauen, ob Index in Range dabei ist
+        # get slide indicies of slides to keep
         slideIndices = [slide.SlideIndex for slide in slides]
+        # list of all indices - the one to keep = all indices to remove
         removeIndices = list(set(range(1,newPres.Slides.Count+1)) - set(slideIndices))
+        # if there are any slides to remove, delete all at once
         if len(removeIndices) > 0:
             newPres.Slides.Range(Array[int](removeIndices)).Delete()
+        # Folien rueckwaerts durchgehen und schauen, ob Index in Range dabei ist
         # removeIndices.sort()
         # removeIndices.reverse()
         # for slideId in removeIndices:
@@ -98,10 +101,11 @@ class SendOrSaveSlides(object):
             presentation = application.ActiveWindow.Presentation
             # Richtige Dateiendung prüfen und temporären Pfad erstellen
             pres_ext = os.path.splitext(presentation.Name)[1]
-            if pres_ext == '':
-                pres_ext == '.pptx'
+            if not pres_ext:
+                pres_ext = '.pptx'
             filename = os.path.splitext(filename)[0] + pres_ext
             temporary_ppt_file = os.path.join(tempfile.gettempdir(), filename)
+            logging.debug("save temporary copy to: %s", temporary_ppt_file)
             # Temporäre Kopie erstellen und öffnen
             presentation.SaveCopyAs(temporary_ppt_file)
             newPres = application.Presentations.Open(temporary_ppt_file, False, False, False) #readonly, untitled, withwindow
