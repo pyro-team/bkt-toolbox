@@ -13,18 +13,13 @@ import bkt.library.powerpoint as pplib
 # import fontawesome
 
 
-# pt_to_cm_factor = 2.54 / 72;
-# def pt_to_cm(pt):
-#     return float(pt) * pt_to_cm_factor;
-# def cm_to_pt(cm):
-#     return float(cm) / pt_to_cm_factor;
 
 class TextPlaceholder(object):
     recent_placeholder = bkt.settings.get("toolbox.recent_placeholder", "…")
     #labels for counter, but max 0..25
-    label_a = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-    label_A = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-    label_I = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI']
+    # label_a = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+    # label_A = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+    # label_I = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI']
 
     @staticmethod
     def set_text_for_shape(textframe, text=None): #None=delete text
@@ -45,37 +40,59 @@ class TextPlaceholder(object):
             cls.set_text_for_shape(textframe, None)
 
     @classmethod
-    def text_replace(cls, shapes):
-        input_text = bkt.ui.show_user_input("Text eingeben, der auf alle Shapes angewendet werden soll (Platzhalter [text] kann für bestehenden Text und [counter], [counter-a], [counter-A], [counter-I] zur Nummerierung verwendet werden):", "Text ersetzen", cls.recent_placeholder, True)
+    def text_replace(cls, shapes, presentation):
+        from string import Template
+        from formatter import AbstractFormatter, DumbWriter
 
-        # user_form = bkt.ui.UserInputBox("Text eingeben, der auf alle Shapes angewendet werden soll (Platzhalter [counter] kann zur Nummerierung verwendet werden):", "Text ersetzen")
-        # user_form._add_textbox("new_text", "…", True)
-        # user_form._add_checkbox("keep_text", "Text anhängen/ Vorhandenen Text erhalten")
-        # form_return = user_form.show()
-        # if len(form_return) == 0:
+        input_text = bkt.ui.show_user_input('''Text eingeben, der auf alle Shapes angewendet werden soll. Es stehen folgende Platzhalter zur Verfügung:
+
+${text}:\t\tSetzt bestehenden Shape-Text ein
+$text_len:\tAnzahl Zeichen im bestehenden Text
+$counter:\tNummerierung (Fortsetzung wenn erstes Shape eine Zahl enthält)
+$counter_a/A:\tNummerierung mit Klein- bzw. Großbuchstaben
+$counter_i/I:\tNummerierung mit römischen Ziffern (bspw. xi bzw. XI)''', "Text ersetzen", cls.recent_placeholder, True)
+
         if input_text is None:
             return
         cls.recent_placeholder = bkt.settings["toolbox.recent_placeholder"] = input_text
 
-        placeholder_count = input_text.count("[text]")
-        counter = 1
-        for textframe in pplib.iterate_shape_textframes(shapes):
-            new_text = input_text.replace("[counter]", str(counter))
-            new_text = new_text.replace("[counter-a]", cls.label_a[counter-1%26])
-            new_text = new_text.replace("[counter-A]", cls.label_A[counter-1%26])
-            new_text = new_text.replace("[counter-I]", cls.label_I[counter-1%26])
+        #get very first textframe to define language and counter start
+        first_textframe = next(iter(pplib.iterate_shape_textframes(shapes)))
+
+        #if first shape has a number, use it as counter start
+        try:
+            count_start = int(first_textframe.TextRange.Text)-1
+        except (ValueError, TypeError):
+            count_start = 0
+
+        template = Template(input_text)
+        count_formatter = AbstractFormatter(DumbWriter())
+
+        for i,textframe in enumerate(pplib.iterate_shape_textframes(shapes), start=1):
+            placeholders = {
+                "counter":   count_formatter.format_counter('1', i+count_start),
+                "counter_a": count_formatter.format_counter('a', i),
+                "counter_A": count_formatter.format_counter('A', i),
+                "counter_i": count_formatter.format_counter('i', i),
+                "counter_I": count_formatter.format_counter('I', i),
+
+                "text":      "[$text]",
+                "text_len":  len(textframe.TextRange.Text),
+            }
+
+            # run template engine
+            new_text = template.safe_substitute(placeholders)
             
+            # check if $text placeholder was present
+            placeholder_count = new_text.count("[$text]")
             if placeholder_count > 1:
                 #replace placeholder with text, might loose existing formatting
-                new_text = new_text.replace("[text]", textframe.TextRange.Text)
+                new_text = new_text.replace("[$text]", textframe.TextRange.Text)
             elif placeholder_count == 1:
                 #only one occurence of text-placeholder, make use of InsertBefore/After to keep formatting
-                new_text = new_text.split("[text]", 1)
+                new_text = new_text.split("[$text]", 1)
             
             cls.set_text_for_shape(textframe, new_text)
-            
-            # TextPlaceholder.set_text_for_shape(textframe, new_text, form_return["keep_text"])
-            counter += 1
 
     @classmethod
     def text_tbd(cls, shapes):
@@ -84,10 +101,8 @@ class TextPlaceholder(object):
 
     @classmethod
     def text_counter(cls, shapes):
-        counter = 1
-        for textframe in pplib.iterate_shape_textframes(shapes):
+        for counter,textframe in enumerate(pplib.iterate_shape_textframes(shapes), start=1):
             cls.set_text_for_shape(textframe, str(counter))
-            counter += 1
 
     @classmethod
     def text_lorem(cls, shapes):
@@ -1553,7 +1568,7 @@ text_menu = bkt.ribbon.Menu(
                     label="Shape-Texte ersetzen…",
                     image_mso='ReplaceDialog',
                     supertip="Text aller gewählten Shapes mit im Dialogfeld eingegebenen Text ersetzen.",
-                    on_action=bkt.Callback(TextPlaceholder.text_replace, shapes=True),
+                    on_action=bkt.Callback(TextPlaceholder.text_replace, shapes=True, presentation=True),
                     get_enabled=bkt.apps.ppt_shapes_or_text_selected,
                 ),
                 bkt.ribbon.Menu(label="Shape-Texte ersetzen Menü", supertip="Text mit vordefinierten Standard-Platzhaltern ersetzen", children=[
@@ -1588,7 +1603,7 @@ text_menu = bkt.ribbon.Menu(
                         image_mso='ReplaceDialog',
                         screentip="Text mit eigener Eingabe ersetzen",
                         supertip="Text aller gewählten Shapes mit im Dialogfeld eingegebenen Text ersetzen.",
-                        on_action=bkt.Callback(TextPlaceholder.text_replace, shapes=True),
+                        on_action=bkt.Callback(TextPlaceholder.text_replace, shapes=True, presentation=True),
                         get_enabled=bkt.apps.ppt_shapes_or_text_selected,
                     ),
                 ])
