@@ -226,6 +226,7 @@ class StateShape(object):
 class LikertScale(bkt.ribbon.Gallery):
     spacing = 5
     size = 20
+    #for gallery only:
     color_line = 0
     color_filled = 14540253
     color_empty = 16777215
@@ -309,12 +310,17 @@ class LikertScale(bkt.ribbon.Gallery):
         for i in range(total):
             left += cls.size + cls.spacing
             s = slide.Shapes.AddShape( shape_type, left, 100, cls.size, cls.size )
-            s.Line.Weight = 0.75
-            s.Line.ForeColor.RGB = cls.color_line
+            # s.Line.Weight = 0.75
+            # s.Line.ForeColor.RGB = cls.color_line
+            s.Line.Visible = -1
+            s.Line.ForeColor.ObjectThemeColor = 13 #msoThemeColorText1
+            s.Fill.Visible = -1
             if i < state:
-                s.Fill.ForeColor.RGB = cls.color_filled
+                # s.Fill.ForeColor.RGB = cls.color_filled
+                s.Fill.ForeColor.ObjectThemeColor = 16 #msoThemeColorBackground2
             else:
-                s.Fill.ForeColor.RGB = cls.color_empty
+                # s.Fill.ForeColor.RGB = cls.color_empty
+                s.Fill.ForeColor.ObjectThemeColor = 14 #msoThemeColorBackground1
 
         # grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total))).group()
         grp = pplib.last_n_shapes_on_slide(slide, total).group()
@@ -330,6 +336,7 @@ class LikertScale(bkt.ribbon.Gallery):
         slide.Shapes.Range(shapecount+1).visible = -1 #make first visible
         # grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total+1))).group()
         grp = pplib.last_n_shapes_on_slide(slide, total+1).group()
+        grp.LockAspectRatio = -1
         grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, StateShape.BKT_DIALOG_TAG)
         grp.select()
 
