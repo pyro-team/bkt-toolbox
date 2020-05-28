@@ -130,19 +130,19 @@ class Statistics(object):
     @classmethod
     def copy_no(cls):
         if cls._res1:
-            Forms.Clipboard.SetText(locale.format("%d",cls._res1))
+            Forms.Clipboard.SetText(locale.str(cls._res1))
             bkt.message("Anzahl Shapes in Zwischenablage kopiert")
         
     @classmethod
     def copy_num_no(cls):
         if cls._res2:
-            Forms.Clipboard.SetText(locale.format("%d",cls._res2))
+            Forms.Clipboard.SetText(locale.str(cls._res2))
             bkt.message("Anzahl Zahlen in Zwischenablage kopiert")
         
     @classmethod
     def copy_sum(cls):
         if cls._res3:
-            Forms.Clipboard.SetText(locale.format("%f",cls._res3))
+            Forms.Clipboard.SetText(locale.str(cls._res3))
             bkt.message("Summe in Zwischenablage kopiert")
 
     @classmethod
