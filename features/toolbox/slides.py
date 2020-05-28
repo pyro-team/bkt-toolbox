@@ -151,7 +151,7 @@ class SendOrSaveSlides(object):
             newPres.NewWindow()
 
     @classmethod
-    def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False, remove_designs=False):
+    def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False, remove_designs=False, remove_hidden=False):
         from bkt import dotnet
         Outlook = dotnet.import_outlook()
 
@@ -196,6 +196,12 @@ class SendOrSaveSlides(object):
                             design.Delete()
                         except:
                             continue
+                newPres.Save()
+            
+            if remove_hidden:
+                for slide in list(iter(newPres.Slides)):
+                    if slide.SlideShowTransition.Hidden == -1:
+                        slide.Delete()
                 newPres.Save()
 
             if fileformat != "pdf":

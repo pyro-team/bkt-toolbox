@@ -22,6 +22,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         self._remove_author = False
         self._remove_sections = True
         self._remove_designs = True
+        self._remove_hidden = False
         self.update_filename()
 
     @notify_property
@@ -89,6 +90,13 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         self._remove_sections = value
 
     @notify_property
+    def remove_hidden(self):
+        return self._remove_hidden
+    @remove_hidden.setter
+    def remove_hidden(self, value):
+        self._remove_hidden = value
+
+    @notify_property
     def rm_se_enabled(self):
         return self._fileformat != "pdf"
 
@@ -128,4 +136,4 @@ class SendWindow(bkt.ui.WpfWindowAbstract):
     def send_slides(self, sender, event):
         self.Close()
         slides = None if self._vm._slides == "all" else self._context.slides
-        self._model.send_slides(self._context.app, slides, self._vm._filename, self._vm._fileformat, self._vm._remove_sections, self._vm._remove_author, self._vm._remove_designs)
+        self._model.send_slides(self._context.app, slides, self._vm._filename, self._vm._fileformat, self._vm._remove_sections, self._vm._remove_author, self._vm._remove_designs, self._vm._remove_hidden)
