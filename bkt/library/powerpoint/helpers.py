@@ -1354,3 +1354,40 @@ class GroupManager(object):
         return self
 
 
+
+# =================
+# = Locale helper =
+# =================
+
+language_id_to_locale = {
+    1031: 'de_DE', #"Deutsch",
+    3079: 'de_AT', #"Deutsch (Österreich)",
+    1040: 'it', #"Italienisch",
+    1036: 'fr', #"Französisch",
+    3082: 'es', #"Spanisch",
+    1049: 'ru', #"Russisch",
+    1029: 'cz', #"Tschechisch",
+    1030: 'dk', #"Dänisch",
+    1043: 'nl', #"Holländisch",
+    1045: 'pl', #"Polnisch",
+    2070: 'pt', #"Portugisisch",
+    1053: 'se', #"Schwedisch",
+    1055: 'tr', #"Türkisch",
+    1033: 'en_US', #"US English",
+    2057: 'en_UK', #"UK English",
+}
+
+@contextmanager
+def override_locale(language_id):
+    '''
+    Temporarily change the python locale based on msoLanguageId
+    '''
+    import locale
+    category = locale.LC_ALL
+    locale_string = language_id_to_locale.get(language_id, 'en')
+    prev_locale_string = locale.getlocale(category)[0]
+    locale.setlocale(category, locale_string)
+    yield
+    locale.setlocale(category, prev_locale_string)
+
+
