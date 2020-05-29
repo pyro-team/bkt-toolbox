@@ -280,9 +280,9 @@ class AppContextPowerPoint(AppContext):
     @property
     def presentation(self):
         try:
-            return self.app.ActiveWindow.Presentation
+            # return self.app.ActiveWindow.Presentation #fails, if ActiveWindow is not available (e.g. in slideshow mode), so better to use ActivePresentation
+            return self.app.ActivePresentation
         except:
-            # fails, if ActiveWindow is not available
             self.fail()
     
     
