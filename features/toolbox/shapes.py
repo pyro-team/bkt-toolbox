@@ -9,6 +9,8 @@ from __future__ import absolute_import
 
 import logging
 
+from System import Array
+
 import bkt
 import bkt.library.powerpoint as pplib
 pt_to_cm = pplib.pt_to_cm
@@ -792,20 +794,36 @@ class NumberedShapes(object):
         
         if shape_type == 'square':
             numshape = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeRectangle'] , shape.left, shape.top, 14, 14)
+        elif shape_type == 'diamond':
+            numshape = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeDiamond'] , shape.left, shape.top, 14, 14)
         else: #circle
             numshape = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeOval'] , shape.left, shape.top, 14, 14)
         
+        numshape.LockAspectRatio = -1
+
         if style == "dark":
-            numshape.line.visible = False
-            numshape.fill.ForeColor.RGB = 0
-            numshape.TextFrame.TextRange.Font.Color.rgb = 255 + 255 * 256 + 255 * 256**2
+            col_background = 13 #msoThemeColorText1
+            col_foreground = 14 #msoThemeColorBackground1
+        else:
+            col_background = 14 #msoThemeColorBackground1
+            col_foreground = 13 #msoThemeColorText1
+
+        numshape.Line.Visible = -1
+        numshape.Line.ForeColor.ObjectThemeColor = col_foreground
+        numshape.Fill.Visible = -1
+        numshape.Fill.ForeColor.ObjectThemeColor = col_background
+
+        # if style == "dark":
+        #     numshape.line.visible = False
+        #     numshape.fill.ForeColor.RGB = 0
+        #     numshape.TextFrame.TextRange.Font.Color.rgb = 255 + 255 * 256 + 255 * 256**2
             
-        else: # light
-            numshape.line.style = 1
-            numshape.line.weight = 1
-            numshape.line.ForeColor.RGB = 0
-            numshape.fill.ForeColor.RGB = 255 + 255 * 256 + 255 * 256**2
-            numshape.TextFrame.TextRange.Font.Color.rgb = 0
+        # else: # light
+        #     numshape.line.style = 1
+        #     numshape.line.weight = 1
+        #     numshape.line.ForeColor.RGB = 0
+        #     numshape.fill.ForeColor.RGB = 255 + 255 * 256 + 255 * 256**2
+        #     numshape.TextFrame.TextRange.Font.Color.rgb = 0
         
         # positions corrections for rounded rectangles and pentagon/chevron-shapes
         pos_correction_l = 0
@@ -830,18 +848,20 @@ class NumberedShapes(object):
         
         # format shape and text
         # numshape.TextFrame.TextRange.text = getattr(cls, 'label_' + label)[(number-1)%26] #at number 26 start from beginning to avoid IndexError
-        numshape.TextFrame.TextRange.text = cls.get_count_formatter().format_counter(label, number)
-        numshape.TextFrame.TextRange.font.size = 12
-        numshape.TextFrame.TextRange.ParagraphFormat.Alignment = pplib.PowerPoint.PpParagraphAlignment.ppAlignCenter.value__
-        numshape.TextFrame.TextRange.ParagraphFormat.Bullet.Type = 0
-        numshape.TextFrame.AutoSize = 0
-        numshape.TextFrame.WordWrap = False
-        numshape.TextFrame.MarginTop = 0
-        numshape.TextFrame.MarginLeft = 0
-        numshape.TextFrame.MarginRight = 0
-        numshape.TextFrame.MarginBottom = 0
-        #numshape.TextFrame.HorizontalAnchor = office.MsoHorizontalAnchor.msoAnchorCenter.value__
-        numshape.TextFrame.VerticalAnchor = office.MsoVerticalAnchor.msoAnchorMiddle.value__
+        textframe = numshape.TextFrame2
+        textframe.TextRange.Text = cls.get_count_formatter().format_counter(label, number)
+        textframe.TextRange.Font.Size = 12
+        textframe.TextRange.Font.Fill.ForeColor.ObjectThemeColor = col_foreground
+        textframe.TextRange.ParagraphFormat.Alignment = pplib.PowerPoint.PpParagraphAlignment.ppAlignCenter.value__
+        textframe.TextRange.ParagraphFormat.Bullet.Type = 0
+        textframe.AutoSize = 0
+        textframe.WordWrap = False
+        textframe.MarginTop = 0
+        textframe.MarginLeft = 0
+        textframe.MarginRight = 0
+        textframe.MarginBottom = 0
+        #textframe.HorizontalAnchor = office.MsoHorizontalAnchor.msoAnchorCenter.value__
+        textframe.VerticalAnchor = office.MsoVerticalAnchor.msoAnchorMiddle.value__
         
         return numshape
     
@@ -850,17 +870,17 @@ class NumberedShapes(object):
 class NumberShapesGallery(bkt.ribbon.Gallery):
     
     # item-settings for gallery
-    items = [ dict(label=l, style=s, shape_type=t) for l in ['1', 'a', 'A', 'i', 'I'] for t in ['circle', 'square'] for s in ['dark', 'light']  ]
-    columns = 4
+    items = [ dict(label=l, style=s, shape_type=t) for l in ['1', 'a', 'A', 'i', 'I'] for t in ['circle', 'square', 'diamond'] for s in ['dark', 'light'] ]
+    item_cols = 6
     
     position = "top-left"
     position_offset = True
     
     def __init__(self, **kwargs):
         parent_id = kwargs.get('id') or ""
-        super(NumberShapesGallery, self).__init__(
+        my_kwargs = dict(
             label = 'Nummerierung',
-            columns = 4,
+            columns = self.item_cols,
             screentip="Nummerierungs-Shapes einfügen",
             supertip="Fügt für jedes markierte Shape ein Nummerierungs-Shape ein. Nummerierung und Styling entsprechend der Auswahl. Markierte Shapes werden entsprechend der Selektions-Reihenfolge durchnummeriert.",
             get_image=bkt.Callback(lambda: self.get_item_image(0) ),
@@ -875,8 +895,10 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
                 bkt.ribbon.Button(id=parent_id + "_pos-offset", label="Versetzt positionieren", screentip="Nummerierungs-Shapes versetzt positionieren", on_action=bkt.Callback(self.toggle_pos_offset), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-offset')),
                     supertip="Standardmäßig werden Nummerierungs-Shapes genau am Rand des zugehörigen Shapes ausgerichtet.\n\nIst \"Versetzt positionieren\" aktiviert, werden die Nummerierungs-Shapes etwas weiter außerhalb des zugehörigen Shapes plaziert, so dass der Mittelpunkt des Nummerierungs-Shapes auf der Ecke liegt.")
             ],
-            **kwargs
         )
+        my_kwargs.update(kwargs)
+
+        super(NumberShapesGallery, self).__init__(**my_kwargs)
     
     
     def on_action_indexed(self, selected_item, index, slide, shapes):
@@ -907,31 +929,52 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         size = 48
         img = Drawing.Bitmap(size, size)
         g = Drawing.Graphics.FromImage(img)
-        # color_black = Drawing.ColorTranslator.FromOle(0)
-        color_black = Drawing.Color.Black
         
         #Draw smooth rectangle/ellipse
         g.SmoothingMode = Drawing.Drawing2D.SmoothingMode.AntiAlias
-        
-        if item['style'] == 'dark':
-            # create black circle/rectangle
-            brush = Drawing.SolidBrush(color_black)
+
+        if item['style'] == "dark":
+            pen_border = Drawing.Pen(Drawing.Color.White,2)
+            brush_fill = Drawing.Brushes.Black
             text_brush = Drawing.Brushes.White
-
-            if item['shape_type'] == 'circle':
-                g.FillEllipse(brush, 2,2, size-5, size-5)
-            else: #square
-                g.FillRectangle(brush, Drawing.Rectangle(2,2, size-5, size-5))
-
-        else: # light
-            # create white circle/rectangle
+        else:
+            pen_border = Drawing.Pen(Drawing.Color.Black,2)
+            brush_fill = Drawing.Brushes.White
             text_brush = Drawing.Brushes.Black
-            pen = Drawing.Pen(color_black,2)
 
-            if item['shape_type'] == 'circle':
-                g.DrawEllipse(pen, 2,1, size-4, size-4)
-            else: #square
-                g.DrawRectangle(pen, Drawing.Rectangle(2,2, size-4, size-4))
+        if item['shape_type'] == 'circle':
+            g.FillEllipse(brush_fill, 2, 2, size-4, size-4) #left, top, width, height
+            g.DrawEllipse(pen_border, 2, 2, size-4, size-4) #left, top, width, height
+        elif item['shape_type'] == 'diamond':
+            diamond_points = [(0,1),(1,2),(2,1),(1,0)]
+            size_factor = size/2
+            points = Array[Drawing.Point]([Drawing.Point(l*size_factor,t*size_factor) for t,l in diamond_points])
+            g.FillPolygon(brush_fill, points)
+            g.DrawPolygon(pen_border, points)
+        else: #fallback shape=1 rectangle
+            g.FillRectangle(brush_fill, 2, 2, size-4, size-4) #left, top, width, height
+            g.DrawRectangle(pen_border, 2, 2, size-4, size-4) #left, top, width, height
+        
+        # color_black = Drawing.Color.Black
+        # if item['style'] == 'dark':
+        #     # create black circle/rectangle
+        #     brush = Drawing.SolidBrush(color_black)
+        #     text_brush = Drawing.Brushes.White
+
+        #     if item['shape_type'] == 'circle':
+        #         g.FillEllipse(brush, 2,2, size-5, size-5)
+        #     else: #square
+        #         g.FillRectangle(brush, Drawing.Rectangle(2,2, size-5, size-5))
+
+        # else: # light
+        #     # create white circle/rectangle
+        #     text_brush = Drawing.Brushes.Black
+        #     pen = Drawing.Pen(color_black,2)
+
+        #     if item['shape_type'] == 'circle':
+        #         g.DrawEllipse(pen, 2,1, size-4, size-4)
+        #     else: #square
+        #         g.DrawRectangle(pen, Drawing.Rectangle(2,2, size-4, size-4))
 
         # set string format
         strFormat = Drawing.StringFormat()
@@ -942,7 +985,7 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAliasGridFit
         # g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
         # g.DrawString(str(getattr(NumberedShapes, 'label_' + item['label'])[index%int(self.columns)]),
-        g.DrawString(NumberedShapes.get_count_formatter().format_counter(item['label'], index%int(self.columns)+1),
+        g.DrawString(NumberedShapes.get_count_formatter().format_counter(item['label'], index%int(self.item_cols)+1),
                      Drawing.Font("Arial", 32, Drawing.FontStyle.Bold, Drawing.GraphicsUnit.Pixel), text_brush, 
                      # Drawing.Font("Arial", 7, Drawing.FontStyle.Bold), text_brush, 
                      Drawing.RectangleF(1, 2, size, size-1), 
