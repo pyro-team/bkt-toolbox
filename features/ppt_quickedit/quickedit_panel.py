@@ -303,7 +303,7 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
 
     def determine_docking(self, sender=None, event=None):
         try:
-            window = self._context.app.ActiveWindow
+            window = self._context.app.ActiveWindow #exception: no active window when in slideshow mode
             if window.WindowState == 3 and window.ViewType == 9: #docking only if ppWindowMaximized and ppViewNormal
                 window.Panes(2).Activate() #active ppViewSlide pane
                 #remove current setting to trigger determine edge
@@ -312,6 +312,7 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
             else:
                 bkt.message("Docking funktioniert nur bei maximiertem Fenster und bei normaler Folienansicht!")
         except:
+            #EnvironmentError: System.Runtime.InteropServices.COMException (0x80048240): Application.ActiveWindow : Invalid request.  There is no currently active document window.
             logging.exception("QUICKEDIT DOCKINGERROR")
 
 
@@ -320,7 +321,7 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
             if not self._vm.docking_to_slide:
                 return
             if not window:
-                window = self._context.app.ActiveWindow
+                window = self._context.app.ActiveWindow #exception: no active window when in slideshow mode
             if window.WindowState == 3 and window.ViewType == 9 and window.ActivePane.ViewType == 1: #ppWindowMaximized and ppViewNormal and ppViewSlide
                 slidem = window.View.Slide.Master
                 left, top = window.PointsToScreenPixelsX(0), window.PointsToScreenPixelsY(0)
@@ -368,6 +369,7 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
 
         except:
             #PointsToScreenPixelsX illegal value if ActivePane != 1 (e.g. slide thumbnails selected)
+            #EnvironmentError: System.Runtime.InteropServices.COMException (0x80048240): Application.ActiveWindow : Invalid request.  There is no currently active document window.
             logging.exception("QUICKEDIT DOCKINGERROR")
     
     def change_orientation(self, sender, event):
