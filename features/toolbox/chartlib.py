@@ -32,6 +32,7 @@ Forms = dotnet.import_forms() #required for clipboard functions
 @contextmanager
 def open_presentation_without_window(context, filename):
     ''' opens and returns presentation file '''
+    logging.debug("open_presentation_without_window: %s", filename)
     try:
         presentation = context.app.Presentations.Open(filename, True, False, False) #readonly, untitled, withwindow
         yield presentation
@@ -394,6 +395,9 @@ class ChartLib(object):
     #         bkt.config.set_smart("shape_library_folders", folders)
 
     def add_chart_to_lib(self, context):
+        if self.copy_shapes_setting and len(context.shapes) == 0:
+            return bkt.message("Keine Shapes ausgewählt!")
+
         #Open default file
         #FIXME: read list of files in fav folder and ask user to select file
         file = os.path.join(self.fav_folder, "Favorites.pptx")
@@ -589,14 +593,15 @@ class ChartLib(object):
     def copy_slide(cls, context, filename, slide_index):
         ''' Copy slide from chart lib '''
         # open presentation
+        active_window = context.app.ActiveWindow
         # template_presentation = cls.open_presentation_file(context, filename)
         with open_presentation_without_window(context, filename) as template_presentation:
             # copy slide
             template_presentation.slides.item(int(slide_index)).copy()
             # paste slide
-            position = context.app.activeWindow.View.Slide.SlideIndex
-            # context.app.activeWindow.presentation.slides.paste(position+1)
-            cls._save_paste(context.app.activeWindow.presentation.slides, position+1)
+            position = active_window.View.Slide.SlideIndex
+            # active_window.presentation.slides.paste(position+1)
+            cls._save_paste(active_window.presentation.slides, position+1)
             # template_presentation.Close()
     
     @classmethod
@@ -851,18 +856,32 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     
         # init labels
         control_chars = dict.fromkeys(range(32))
-        item_count = presentation.Slides.Count
-        self.slide_indices = [
-            idx
-            for idx in range(1, 1+item_count)
-            if presentation.slides.item(idx).shapes.hastitle != False
-        ]
-        self.labels = [
-            # presentation.slides.item(idx).Shapes.Title.Textframe.TextRange.text[:40].translate(control_chars) 
-            presentation.slides.item(idx).Shapes.Title.Textframe.TextRange.text.translate(control_chars) 
-            if presentation.slides.item(idx).Shapes.Title.Textframe.TextRange.text != "" else "slide" + str(idx)
-            for idx in self.slide_indices
-        ]
+        self.slide_indices = []
+        self.labels = []
+        for slide in presentation.slides:
+            if slide.shapes.hastitle:
+                self.slide_indices.append(slide.SlideIndex)
+
+                label = slide.Shapes.Title.Textframe.TextRange.text
+                if not label:
+                    label = "slide %s" % slide.SlideIndex
+                else:
+                    label = label.translate(control_chars)
+                self.labels.append(label)
+
+        # pres_slides = presentation.Slides
+        # item_count = pres_slides.Count
+        # self.slide_indices = [
+        #     idx
+        #     for idx in range(1, 1+item_count)
+        #     if pres_slides.item(idx).shapes.hastitle != False
+        # ]
+        # self.labels = [
+        #     # pres_slides.item(idx).Shapes.Title.Textframe.TextRange.text[:40].translate(control_chars) 
+        #     pres_slides.item(idx).Shapes.Title.Textframe.TextRange.text.translate(control_chars) 
+        #     if pres_slides.item(idx).Shapes.Title.Textframe.TextRange.text != "" else "slide" + str(idx)
+        #     for idx in self.slide_indices
+        # ]
         # logging.debug("labels %s", self.labels)
 
         # init items
@@ -1025,7 +1044,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
             #return Bitmap.FromFile(image_filename)
             
             #version that should not lock the file, which prevents updating of thumbnails:
-            with Bitmap.FromFile(image_filename) as img:
+            with Bitmap(image_filename) as img:
                 new_img = Bitmap(img)
                 img.Dispose()
                 return new_img
