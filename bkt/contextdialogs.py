@@ -485,11 +485,15 @@ class DialogHelpers(object):
             #FIXME: would be better to check actual slide view window instead of slide, because this doesnt work with zoomed in slides
             active_window = context.app.ActiveWindow
 
+            # quick check of viewtype and activepane before checking actual coordinates
+            if active_window.ViewType != 9 or active_window.ActivePane.ViewType != 1: #ppViewNormal and ppViewSlide
+                return False
+
             ### METHOD 1: calculate coordinates of slide and compare
             page_setup = context.app.ActivePresentation.PageSetup
             l,t = active_window.PointsToScreenPixelsX(0), active_window.PointsToScreenPixelsY(0)
-            w,h = active_window.PointsToScreenPixelsX(page_setup.SlideWidth), active_window.PointsToScreenPixelsY(page_setup.SlideHeight)
-            return x>l and y>t and x<l+w and y<t+h
+            r,b = active_window.PointsToScreenPixelsX(page_setup.SlideWidth), active_window.PointsToScreenPixelsY(page_setup.SlideHeight)
+            return x>l and y>t and x<r and y<b
 
             ### METHOD 2: try to find a shape under cursor
             #FIXME: shape selection frame is actually bigger than shape
@@ -497,6 +501,7 @@ class DialogHelpers(object):
             # shape = active_window.RangeFromPoint(x,y)
             # return shape is not None
         except:
+            logging.exception("error determining if coordinates are in slideview")
             return False
     
     @staticmethod
