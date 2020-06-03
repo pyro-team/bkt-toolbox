@@ -21,37 +21,6 @@ from functools import wraps
 BKT_BASE = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
 
 
-# ==================
-# = Error messages =
-# ==================
-
-def message(*args, **kwargs):
-    #only for backwards compatibility
-    from bkt import message
-    return message(*args, **kwargs)
-
-
-def log(s):
-    import bkt.console
-    logging.warning(s)
-    bkt.console.show_message(s)
-
-def exception_as_message(additional_message=None):
-    from cStringIO import StringIO
-    import traceback
-
-    import bkt.console
-    import bkt.ui
-
-    fd = StringIO()
-    if additional_message:
-        print(additional_message,file=fd)
-    traceback.print_exc(file=fd)
-    traceback.print_exc()
-
-    bkt.console.show_message(bkt.ui.endings_to_windows(fd.getvalue()))
-
-
 
 # ==============================
 # = Typical programming helpers =
@@ -86,6 +55,63 @@ def snake_to_upper_camelcase(string):
     else:
         return string[0].upper() + string[1:]
 
+
+def endings_to_windows(text, prepend="", prepend_first=""):
+    ''' ensures that all line endings are using windows CRLF format '''
+    def _iter():
+        first = True
+        for line in text.splitlines():
+            if first:
+                line = prepend_first + line
+                first = False
+            else:
+                line = prepend + line
+            yield line
+    
+    res = '\r\n'.join(_iter())
+    #terminal line ending is removed by splitlines
+    if text.endswith(("\r", "\n", "\r\n")):
+        res += "\r\n"
+    return res
+
+def endings_to_unix(text):
+    ''' ensures that all line endings are using unix LF format '''
+    res = '\n'.join(text.splitlines())
+    #terminal line ending is removed by splitlines
+    if text.endswith(("\r", "\n", "\r\n")):
+        res += "\n"
+    return res
+
+
+# ==================
+# = Error messages =
+# ==================
+
+def message(*args, **kwargs):
+    #only for backwards compatibility
+    from bkt import message
+    return message(*args, **kwargs)
+
+
+def log(s):
+    import bkt.console
+    logging.warning(s)
+    bkt.console.show_message(s)
+
+def exception_as_message(additional_message=None):
+    from cStringIO import StringIO
+    import traceback
+
+    import bkt.console
+    import bkt.ui
+
+    fd = StringIO()
+    if additional_message:
+        print(additional_message,file=fd)
+    traceback.print_exc(file=fd)
+    traceback.print_exc()
+
+    bkt.console.show_message(endings_to_windows(fd.getvalue()))
 
 
 # ==============================

@@ -110,7 +110,7 @@ $counter_i/I:\tNummerierung mit römischen Ziffern (bspw. xi bzw. XI)''', "Text 
 At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
 At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.'''
-        lorem_text = bkt.ui.endings_to_windows(lorem_text)
+        lorem_text = bkt.helpers.endings_to_windows(lorem_text)
 
         for textframe in pplib.iterate_shape_textframes(shapes):
             cls.set_text_for_shape(textframe, lorem_text)

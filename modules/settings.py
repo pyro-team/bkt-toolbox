@@ -323,7 +323,7 @@ Temp-Dir:               {}
         bkt.helpers.get_fav_folder(),
         tempfile.gettempdir()
         )
-        bkt.console.show_message(bkt.ui.endings_to_windows(debug_info))
+        bkt.console.show_message(bkt.helpers.endings_to_windows(debug_info))
         
     @classmethod
     def open_folder(cls, path=None):

@@ -22,9 +22,9 @@ from bkt.helpers import Resources
 
 
 
-# =======================
-# = UI MODEL AND WINDOW =
-# =======================
+# ================================
+# = ABSTRACT UI MODEL AND WINDOW =
+# ================================
 
 
 class Singleton(type):
@@ -122,6 +122,11 @@ class WpfPopupAbstract(System.Windows.Controls.Primitives.Popup):
 
 
 
+# ====================
+# = HELPER FUNCTIONS =
+# ====================
+
+
 def convert_bitmap_to_bitmapsource(bitmap):
     return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
         bitmap.GetHbitmap(),
@@ -137,32 +142,9 @@ def load_bitmapimage(image_name):
         return System.Windows.Media.Imaging.BitmapImage(System.Uri(path))
 
 
-def endings_to_windows(text, prepend="", prepend_first=""):
-    def _iter():
-        first = True
-        for line in text.split('\n'):
-            if not line.endswith('\r'):
-                line = line + '\r'
-            if first:
-                line = prepend_first + line
-                first = False
-            else:
-                line = prepend + line
-            yield line
-    
-    return '\n'.join(_iter())
-
-def endings_to_unix(text):
-    def _iter():
-        for line in text.split('\n'):
-            if line.endswith('\r'):
-                yield line[:-1]
-            else:
-                yield line
-    
-    return '\n'.join(_iter())
-
-
+# ==================================
+# = LEGACY WINFORMS USER INPUT BOX =
+# ==================================
 
 F = None
 D = None
@@ -388,6 +370,10 @@ class UserInputBox(object):
 
 
 
+# ==========================
+# = NEW WPF USER INPUT BOX =
+# ==========================
+
 class WpfUserInput(WpfWindowAbstract):
     # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui_inputbox.xaml')
     _xamlname = 'ui_inputbox'
@@ -424,6 +410,11 @@ def show_user_input(text, title, default=None, multiline=False):
     # value = form.show()
     # return None if "input" not in value else value["input"]
 
+
+
+# ===================================================
+# = WPF PROGRESSBAR WITH THREADING/BACKGROUNDWORKER =
+# ===================================================
 
 class WpfProgressBar(WpfWindowAbstract):
     # _filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui_progressbar.xaml')

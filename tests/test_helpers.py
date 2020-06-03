@@ -28,6 +28,19 @@ class StringConversions(unittest.TestCase):
         self.assertEqual(helpers.snake_to_upper_camelcase("this"), "This")
         self.assertEqual(helpers.snake_to_upper_camelcase("CHANGE_THIS"), "ChangeThis")
 
+    def test_endings_to_windows(self):
+        self.assertEqual(helpers.endings_to_windows("\nthis\nis\n\nsimple\n\n"), "\r\nthis\r\nis\r\n\r\nsimple\r\n\r\n")
+        self.assertEqual(helpers.endings_to_windows("\rthis\ris\r\rsimple\r\r"), "\r\nthis\r\nis\r\n\r\nsimple\r\n\r\n")
+        self.assertEqual(helpers.endings_to_windows("\r\nthis\r\nis\r\nsimple\r\n\r\n"), "\r\nthis\r\nis\r\nsimple\r\n\r\n")
+        self.assertEqual(helpers.endings_to_windows("this\nis\nsimple", "B", "A"), "Athis\r\nBis\r\nBsimple")
+
+    def test_endings_to_unix(self):
+        self.assertEqual(helpers.endings_to_unix("\r\nthis\r\nis\r\n\r\nsimple\r\n\r\n"), "\nthis\nis\n\nsimple\n\n")
+        self.assertEqual(helpers.endings_to_unix("\rthis\ris\r\rsimple\r\r"), "\nthis\nis\n\nsimple\n\n")
+        self.assertEqual(helpers.endings_to_unix("\nthis\nis\nsimple\n\n"), "\nthis\nis\nsimple\n\n")
+
+
+
 class CacheTest(unittest.TestCase):
     def setUp(self):
         self.cache = helpers.caches.get("unittests")

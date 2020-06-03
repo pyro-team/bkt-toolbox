@@ -125,7 +125,7 @@ class TestVisio(object):
     EndY: {}
     1D: {}
     '''.format(shape.x, shape._x, shape.pinx, shape.y, shape._y, shape.piny, shape.beginx, shape.beginy, shape.endx, shape.endy, shape.shape.OneD)
-        bkt.console.show_message(bkt.ui.endings_to_windows(msg))
+        bkt.console.show_message(bkt.helpers.endings_to_windows(msg))
 
 
 class Adjustments(object):

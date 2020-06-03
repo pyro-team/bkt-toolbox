@@ -271,7 +271,7 @@ class ShapeAdjustments(object):
                 bktlib = dict(ref="", min="", max="")
             infomsg += "│ {:<2} {:8.4} │ {:10} {:>6} {:>6} │\n".format(i, shape.adjustments.item[i], bktlib["ref"], bktlib["min"], bktlib["max"])
 
-        bkt.console.show_message(bkt.ui.endings_to_windows(infomsg))
+        bkt.console.show_message(bkt.helpers.endings_to_windows(infomsg))
 
 
 
