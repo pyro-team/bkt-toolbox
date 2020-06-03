@@ -55,6 +55,7 @@ class AutoReleasingComObject(object):
         self._comobj = comobj
         self._release_self = release_self
         self._accessed_com_attributes = []
+        self._within_context = False
         logger.debug("Com-Release: created %s", self)
     
     
@@ -128,7 +129,7 @@ class AutoReleasingComObject(object):
         '''
         
         # FIXME: hack to allow: .item[1]=xxx
-        if attr == 'Item' or attr == 'item':
+        if attr.lower() == "item":
             return self
         
         value = getattr(self._comobj, attr)
@@ -219,6 +220,8 @@ class AutoReleasingComObject(object):
         '''
         Allow usage as context-manager (with-statement).
         '''
+        logger.info("Com-Release: entering context for %s", self)
+        self._within_context = True
         return self
     
     
@@ -229,6 +232,8 @@ class AutoReleasingComObject(object):
         By default, the wrapped ComObject in the AutoReleasingComObject-instance is also released.
         This is configurable by the release_self-parameter.
         '''
+        logger.info("Com-Release: exiting context for %s", self)
+        self._within_context = False
         self.dispose()
     
     
@@ -269,6 +274,10 @@ class AutoReleasingComObject(object):
         Dispose will go down this AutoReleasingComObject-tree and call dispose on these instances as well.
         Therefore, all ComObjects accessed in the object-tree are released by a single dispose-call.
         '''
+        if self._within_context:
+            logger.debug("Com-Release: dispose aborted on %s", self)
+            return
+        
         # release ComObjects generated further down the object-tree
         logger.debug("Com-Release: dispose on %s", self)
         for auto_release_com_obj in self._accessed_com_attributes:
