@@ -232,7 +232,8 @@ class AppCallbacksBase(AppCallbacks):
         self.undo_end(callback)
         
         # release com objects
-        context.release_com_references()
+        # logging.debug("AppCallbacksBase.invoke_callback: request release com references from callback %s", callback.method)
+        # context.release_com_references()
         
         if do_cache:
             self.cache[cache_key] = return_value

@@ -521,6 +521,8 @@ class AddIn(object):
                 # reset caches to ensure proper invalidate
                 self.app_callbacks.refresh_cache(True)
                 self.context.refresh_cache(True)
+                # release com object before invalidate
+                self.context.release_com_references()
                 # print('invalidating ribbon')
                 self.app_callbacks.fire_event(self.events.bkt_invalidate)
                 self.context.ribbon.Invalidate()

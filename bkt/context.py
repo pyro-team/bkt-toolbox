@@ -198,7 +198,9 @@ class AppContext(object):
         kwargs.update(self.resolve_generic_arguments(callback.invocation_context))
         # application-specific arguments should be resolved by invoke_callback
         return_value = self.app_callbacks.invoke_callback(self, callback, *args, **kwargs)
-        self.release_com_references()
+        # release com objects
+        # logging.debug("Context.invoke_callback: request com release after callback %s", callback.method)
+        # self.release_com_references()
         return return_value
     
     
