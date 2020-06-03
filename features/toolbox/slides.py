@@ -516,7 +516,7 @@ class SlideShow(object):
             if slide:
                 sld_window.View.GoToSlide(slide.SlideIndex)
             #restore setting
-            sld_window.Presentation.SlideShowSettings.ShowType = prev
+            sld_settings.ShowType = prev
 
 
 

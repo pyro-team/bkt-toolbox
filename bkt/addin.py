@@ -512,6 +512,7 @@ class AddIn(object):
 
 
     def invalidate_ribbon(self):
+        logging.debug('Addin.invalidate_ribbon')
         if self.context:
             # can be false after dev-button did an addin-reconnect
             if self.context.ribbon:
@@ -523,9 +524,11 @@ class AddIn(object):
                 # print('invalidating ribbon')
                 self.app_callbacks.fire_event(self.events.bkt_invalidate)
                 self.context.ribbon.Invalidate()
+
                 # reset caches for immediate interaction after invalidate
-                self.app_callbacks.refresh_cache(True)
-                self.context.refresh_cache(True)
+                # -> 20200603 commented this out as it doesnt make sense, all callbacks are processed after this (also in async mode)
+                # self.app_callbacks.refresh_cache(True)
+                # self.context.refresh_cache(True)
             
     def on_destroy(self):
         self.app_callbacks.fire_event(self.events.bkt_unload)
@@ -791,7 +794,8 @@ class AddIn(object):
         path = _h.Resources.images.locate(image_name)  #@UndefinedVariable
         if path is None:
             return
-        return Bitmap.FromFile(path)
+        # return Bitmap.FromFile(path) #this return an Image and C#-Addin does type cast to Bitmap, better to use Bitmap(path) instead
+        return Bitmap(path)
             
     def get_custom_ui(self, ribbon_id):
         try:

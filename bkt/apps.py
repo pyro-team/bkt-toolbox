@@ -180,6 +180,7 @@ class AppCallbacksBase(AppCallbacks):
     def refresh_cache(self, force=False):
         #global cache timeout will prevent that manual invalidates are not working properly
         if force or time.time() - self.cache_last_refresh > self.cache_timeout:
+            logging.debug("AppCallbacksBase.refresh_cache, force=%s", force)
             self.cache = {}
             self.cache_last_refresh = time.time()
             return True
@@ -198,7 +199,7 @@ class AppCallbacksBase(AppCallbacks):
         if callback.callback_type.cacheable and callback.invocation_context.cache and not self.refresh_cache():
             # cache_key = repr([callback.method.__name__] + kwargs.keys()) #TESTME: add invocation context to key?
             # cache_key = callback.method.__name__ #only method name not sufficient if same name is used in different classes
-            cache_key = str(callback.method) #TESTME: is method string representation sufficient as key? add callback type?
+            cache_key = hash(callback.method) #TESTME: is method string representation sufficient as key? add callback type?
             do_cache = True
             try:
                 logging.debug("trying cache for %r", cache_key)
@@ -226,7 +227,7 @@ class AppCallbacksBase(AppCallbacks):
                 return
         
         self.undo_start(callback)
-        logging.debug("AppCallbacksBase.invoke_callback: run callback method\nkwargs=%s", kwargs)
+        logging.debug("AppCallbacksBase.invoke_callback: run callback method=%s\nkwargs=%s", callback.method, kwargs)
         return_value = callback.method(**kwargs)
         self.undo_end(callback)
         

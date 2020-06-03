@@ -8,10 +8,10 @@ Created on 11.11.2019
 
 from __future__ import absolute_import
 
-# import logging
+import logging
 import time #required for cache
 
-from System.Runtime.InteropServices import Marshal
+# from System.Runtime.InteropServices import Marshal
 
 import bkt.helpers as _h #for providing config and settings
 from bkt.library.comrelease import AutoReleasingComObject
@@ -62,12 +62,14 @@ class AppContext(object):
     
     
     def release_com_references(self):
+        logging.debug("Context.release_com_references")
         self.app.dispose()
     
     
     def refresh_cache(self, force=False):
         #global cache timeout will prevent that manual invalidates are not working properly
         if force or time.time() - self.cache_last_refresh > self.cache_timeout:
+            logging.debug("Context.refresh_cache, force=%s", force)
             self.cache = {}
             self.cache_last_refresh = time.time()
             return True

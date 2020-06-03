@@ -9,6 +9,7 @@ Created on 13.11.2014
 from __future__ import absolute_import
 
 import logging
+from functools import wraps
 
 import bkt.helpers as _h
 
@@ -277,6 +278,7 @@ def WpfActionCallback(function):
     invalidate and begin/end undo is automatically handled as for other callbacks. The window 
     needs to have a _context attribute.
     '''
+    @wraps(function)
     def wrapper(self,*args,**kwargs):
         if hasattr(self, "_context") and self._context is not None:
             # print "Doing something with self.var1==%s" % self.var1
