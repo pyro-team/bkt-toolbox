@@ -112,16 +112,24 @@ class Swap(object):
 
     @classmethod
     def replace_keep_size(cls, shapes):
-        shapes = pplib.wrap_shapes(shapes[:2], cls.locpin)
-        new, ref = shapes
-        new.rotation = ref.rotation
-        new.width    = ref.width
-        if new.LockAspectRatio == 0 or new.height > ref.height:
-            new.height   = ref.height
-        new.top      = ref.top
-        new.left     = ref.left
-        pplib.set_shape_zorder(new, value=ref.ZOrderPosition)
-        ref.Delete()
+        shapes = pplib.wrap_shapes(shapes, cls.locpin)
+        master = shapes.pop(0) #first selected is master shape
+        first = True
+        for ref in shapes:
+            if first:
+                new = master
+                first = False
+            else:
+                new = master.Duplicate()
+            new.rotation = ref.rotation
+            new.width    = ref.width
+            if new.LockAspectRatio == 0 or new.height > ref.height:
+                new.height   = ref.height
+            new.top      = ref.top
+            new.left     = ref.left
+            pplib.set_shape_zorder(new, value=ref.ZOrderPosition)
+            ref.Delete()
+            new.Select(False)
 
 
 
@@ -210,8 +218,8 @@ swap_button = bkt.ribbon.SplitButton(
                 show_label=True,
                 #size='large',
                 image='replace_keep_size',
-                supertip="Zuletzt gewähltes Shape mit zuerst gewähltem Shape ersetzen und dabei die Größe vom Original-Shape erhalten.",
-                on_action=bkt.Callback(Swap.replace_keep_size, shapes=True, shapes_min=2, shapes_max=2),
+                supertip="Zuerst gewähltes Shape ersetzt alle anderen gewählten Shapes, wobei jeweils die Position und Größe der ersetzten Shapes erhalten bleibt.",
+                on_action=bkt.Callback(Swap.replace_keep_size, shapes=True, shapes_min=2),
                 get_enabled = bkt.get_enabled_auto,
             ),
         ])
