@@ -197,12 +197,13 @@ class AppCallbacksBase(AppCallbacks):
         do_cache = False
         # if callback.callback_type in self.cache_cb_types and not self.refresh_cache():
         if callback.callback_type.cacheable and callback.invocation_context.cache and not self.refresh_cache():
+            logging.debug("trying cache for callback %s", callback.method)
             # cache_key = repr([callback.method.__name__] + kwargs.keys()) #TESTME: add invocation context to key?
             # cache_key = callback.method.__name__ #only method name not sufficient if same name is used in different classes
             cache_key = hash(callback.method) #TESTME: is method string representation sufficient as key? add callback type?
             do_cache = True
             try:
-                logging.debug("trying cache for %r", cache_key)
+                logging.debug("cache key is %r", cache_key)
                 return self.cache[cache_key]
                 # if time.time() - self.cache[cache_key][1] < self.cache_timeout:
                 #     return self.cache[cache_key][0]
@@ -238,6 +239,8 @@ class AppCallbacksBase(AppCallbacks):
         if do_cache:
             self.cache[cache_key] = return_value
             # self.cache[cache_key] = (return_value, time.time())
+
+        logging.debug("AppCallbacksBase.invoke_callback: finished")
         
         return return_value
     
