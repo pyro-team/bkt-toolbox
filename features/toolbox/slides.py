@@ -14,6 +14,7 @@ from contextlib import contextmanager
 
 import bkt
 import bkt.ui
+import bkt.library.powerpoint as pplib
 
 # for ui composition
 from . import agenda
@@ -407,11 +408,14 @@ class SlideMenu(object):
 
     @classmethod
     def remove_doublespaces(cls, context):
-        for shape in cls._iterate_all_shapes(context, groupitems=True):
-            if shape.HasTextFrame == -1:
+        slides = context.app.ActivePresentation.Slides
+        for slide in slides:
+            for textframe in pplib.iterate_shape_textframes(slide.shapes):
+        # for shape in cls._iterate_all_shapes(context, groupitems=True):
+        #     if shape.HasTextFrame == -1:
                 found = True
                 while found is not None:
-                    found = shape.TextFrame.TextRange.Replace("  ", " ")
+                    found = textframe.TextRange.Replace("  ", " ")
     
     @classmethod
     def remove_empty_placeholders(cls, context):
