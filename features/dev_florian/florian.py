@@ -121,7 +121,7 @@ class FormattingTestFunctions(object):
             shape_range.Export(path, 2) #2=ppShapeFormatPNG
 
             #make square
-            glib.make_thumbnail(path, 100, 100, path2)
+            glib.make_thumbnail(path, 32, 32, path2)
 
     @staticmethod
     def table_formatter(shape):
