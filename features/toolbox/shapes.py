@@ -737,9 +737,9 @@ class ShapeDialogs(object):
         Pentagon.create_headered_chevron(slide)
     
     @staticmethod
-    def create_traffic_light(slide):
+    def create_traffic_light(slide, style):
         from .popups.traffic_light import Ampel
-        Ampel.create(slide)
+        Ampel.create(slide, style)
 
 
 
@@ -883,7 +883,7 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
             columns = self.item_cols,
             screentip="Nummerierungs-Shapes einfügen",
             supertip="Fügt für jedes markierte Shape ein Nummerierungs-Shape ein. Nummerierung und Styling entsprechend der Auswahl. Markierte Shapes werden entsprechend der Selektions-Reihenfolge durchnummeriert.",
-            get_image=bkt.Callback(lambda: self.get_item_image(0) ),
+            get_image=bkt.Callback(lambda: self.get_item_image(0)),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
             item_width=24,
             item_height=24,
@@ -1837,12 +1837,35 @@ shapes_group = bkt.ribbon.Group(
                     on_action=bkt.Callback(ShapeDialogs.create_headered_chevron)
                 ),
                 harvey.harvey_create_button,
-                bkt.ribbon.Button(
+                bkt.ribbon.Menu(
+                    id="traffic_light_menu",
                     label="Ampel",
                     image="traffic_light",
                     screentip='Status-Ampel erstellen',
-                    supertip="Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden.",
-                    on_action=bkt.Callback(ShapeDialogs.create_traffic_light)
+                    children=[
+                        bkt.ribbon.Button(
+                            id="traffic_light",
+                            label="Ampel vertikal",
+                            image="traffic_light",
+                            screentip='Status-Ampel vertikal erstellen',
+                            supertip="Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden.",
+                            on_action=bkt.Callback(lambda slide: ShapeDialogs.create_traffic_light(slide, "vertical"), slide=True)
+                        ),
+                        bkt.ribbon.Button(
+                            label="Ampel horizontal",
+                            image="traffic_light2",
+                            screentip='Status-Ampel horizontal erstellen',
+                            supertip="Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden.",
+                            on_action=bkt.Callback(lambda slide: ShapeDialogs.create_traffic_light(slide, "horizontal"), slide=True)
+                        ),
+                        bkt.ribbon.Button(
+                            label="Ampel Punkt",
+                            image="traffic_light3",
+                            screentip='Status-Ampel einfach erstellen',
+                            supertip="Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden.",
+                            on_action=bkt.Callback(lambda slide: ShapeDialogs.create_traffic_light(slide, "simple"), slide=True)
+                        ),
+                    ]
                 ),
                 stateshapes.likert_button,
                 stateshapes.checkbox_button,
