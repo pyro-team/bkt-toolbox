@@ -330,7 +330,7 @@ class LikertScale(bkt.ribbon.Gallery):
 
 class CheckBox(bkt.ribbon.Gallery):
     #settings in powerpoint
-    size = 20
+    size = 16
 
     #settings for gallery
     shape_types = {1:"Quadratisch", 9:"Kreisförmig"} #rectangle, oval
@@ -410,12 +410,17 @@ class CheckBox(bkt.ribbon.Gallery):
         textrange = textframe.TextRange
         textrange.ParagraphFormat.Bullet.Visible = False
         textrange.ParagraphFormat.Alignment = 2 #ppAlignCenter
+        textrange.ParagraphFormat.SpaceBefore = 0
+        textrange.ParagraphFormat.SpaceAfter  = 0
+        textrange.ParagraphFormat.SpaceWithin = 1
+        textrange.ParagraphFormat.BaselineAlignment = 4 #default is 5=TextBottom, but 4=TextTop looks more centered
         textrange.Font.Bold   = 0
         textrange.Font.Italic = 0
-        textrange.Font.Size   = self.size*0.8
+        textrange.Font.Size   = self.size
         textrange.Font.Fill.ForeColor.ObjectThemeColor = col_foreground
 
         if font_char:
+            textrange.Font.Name = font_char[0]
             textrange.InsertSymbol(font_char[0], ord(font_char[1]), -1) #symbol: FontName, CharNumber (decimal), Unicode=True
         # s.Visible = visible
         return s
