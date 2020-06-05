@@ -9,6 +9,7 @@ from __future__ import absolute_import
 
 import bkt
 import bkt.library.powerpoint as powerpoint
+import bkt.library.graphics as glib
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
@@ -352,11 +353,10 @@ class HarveyBalls(object):
         return self.get_harvey_image(self.harvey_buttons[index][0]*1. / self.harvey_buttons[index][1] )
 
     def get_harvey_image(self, percent, size=32):
-        img = Drawing.Bitmap(size, size)
         if percent < 0 or percent > 1:
-            color = Drawing.ColorTranslator.FromHtml('#ffffff00')
-            img.SetPixel(0, 0, color)
-            return img
+            return glib.empty_image(size, size)
+
+        img = Drawing.Bitmap(size, size)
         color = Drawing.ColorTranslator.FromOle(0)
         g = Drawing.Graphics.FromImage(img)
         

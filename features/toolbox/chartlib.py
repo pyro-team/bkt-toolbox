@@ -19,13 +19,11 @@ from System import Array
 
 import bkt
 import bkt.library.powerpoint as pplib
+import bkt.library.graphics as glib
 
 from bkt import dotnet
 
-Drawing = dotnet.import_drawing() #required for image resizing
-Bitmap = Drawing.Bitmap
-ColorTranslator = Drawing.ColorTranslator
-
+Drawing = dotnet.import_drawing() #required for getting png format from clipboard
 Forms = dotnet.import_forms() #required for clipboard functions
 
 
@@ -803,6 +801,8 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         '''Forces Gallery to re-initialize and generate thumbnail-images'''
         # reset gallery in a separate thread so core thread is still able to handle the app-events (i.e. presentation open/close).
         # otherwise when this function is called in a loop, some presentations remain open and block ppt process from being quit.
+        #NOTE: Use of with-statement is very important so comrelease does not release any com objects while stuff is going on in separate thread!
+        # with context.app:
         t = Thread(target=self.init_gallery_items, args=(context, True))
         t.start()
         t.join()
@@ -992,46 +992,24 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                 # resize thumbnail image to square
                 if os.path.exists(image_filename):
                     try:
-                        # init croped image
-                        width = 100
-                        height = 100
-                        image = Bitmap(image_filename)
-                        bmp = Bitmap(width, height)
-                        graph = Drawing.Graphics.FromImage(bmp)
-                        #set background color of thumbnails
-                        background_color = Drawing.ColorTranslator.FromOle(slide.Background.Fill.ForeColor.RGB)
-                        if background_color != pplib.PowerPoint.XlRgbColor.rgbWhite.value__:
-                            graph.Clear(background_color)
-                        # compute scale
-                        scale = min(float(width) / image.Width, float(height) / image.Height)
-                        scaleWidth = int(image.Width * scale)
-                        scaleHeight = int(image.Height * scale)
-                        # set quality
-                        graph.InterpolationMode  = Drawing.Drawing2D.InterpolationMode.High
-                        graph.CompositingQuality = Drawing.Drawing2D.CompositingQuality.HighQuality
-                        graph.SmoothingMode      = Drawing.Drawing2D.SmoothingMode.AntiAlias
-                        # redraw and save
-                        # logging.debug('crop image from %sx%s to %sx%s. rect %s.%s-%sx%s' % (image.Width, image.Height, width, height, int((width - scaleWidth)/2), int((height - scaleHeight)/2), scaleWidth, scaleHeight))
-                        graph.DrawImage(image, Drawing.Rectangle(int((width - scaleWidth)/2), int((height - scaleHeight)/2), scaleWidth, scaleHeight))
+                        transparent = slide.Background.Fill.Transparency == 1.0
+                        if not transparent:
+                            background_color = slide.Background.Fill.ForeColor.RGB
+                        else:
+                            background_color = None
+
                         cropped_image_filename = self.get_image_filename(slide.SlideIndex, postfix="-cropped")
-                        bmp.Save(cropped_image_filename)
-                        # close files
-                        image.Dispose()
-                        bmp.Dispose()
-                        # move files
                         original_image_filename = self.get_image_filename(slide.SlideIndex, postfix="-original")
+
+                        glib.make_thumbnail(image_filename, 100, 100, cropped_image_filename, background_color)
+
+                        # move files
                         if os.path.exists(original_image_filename):
                             os.remove(original_image_filename)
                         os.rename(image_filename, original_image_filename)
                         os.rename(cropped_image_filename, image_filename)
-                        
                     except:
                         logging.exception('Creation of croped thumbnail image failed: %s', image_filename)
-                    finally:
-                        if image:
-                            image.Dispose()
-                        if bmp:
-                            bmp.Dispose()
     
     
     def get_chartlib_item_image(self, index):
@@ -1044,16 +1022,10 @@ class ChartLibGallery(bkt.ribbon.Gallery):
             #return Bitmap.FromFile(image_filename)
             
             #version that should not lock the file, which prevents updating of thumbnails:
-            with Bitmap(image_filename) as img:
-                new_img = Bitmap(img)
-                img.Dispose()
-                return new_img
+            return glib.open_bitmap_nonblocking(image_filename)
         else:
             # return empty white image
-            img = Bitmap(50, 50)
-            color = ColorTranslator.FromHtml('#ffffff00')
-            img.SetPixel(0, 0, color)
-            return img
+            return glib.empty_image(50,50)
 
 
 

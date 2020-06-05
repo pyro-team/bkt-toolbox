@@ -103,7 +103,9 @@ class FormattingTestFunctions(object):
 
     @staticmethod
     def export_as_png(presentation, slides):
-        import System
+        from System import Array
+        import bkt.library.graphics as glib
+
         for slide in slides:
             shape_indices = []
             shape_index = 1
@@ -113,9 +115,13 @@ class FormattingTestFunctions(object):
                     shape_indices.append(shape_index)
                 shape_index+=1
             # select shapes
-            shape_range = slide.shapes.Range(System.Array[int](shape_indices))
+            shape_range = slide.shapes.Range(Array[int](shape_indices))
             path = presentation.Path + "\\" + str(slide.SlideIndex) + ".png"
+            path2 = presentation.Path + "\\" + str(slide.SlideIndex) + "-sq.png"
             shape_range.Export(path, 2) #2=ppShapeFormatPNG
+
+            #make square
+            glib.make_thumbnail(path, 100, 100, path2)
 
     @staticmethod
     def table_formatter(shape):

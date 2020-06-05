@@ -17,9 +17,7 @@ from collections import OrderedDict
 
 import bkt
 import bkt.library.powerpoint as pplib
-
-import bkt.dotnet
-D = bkt.dotnet.import_drawing()
+import bkt.library.graphics as glib
 
 from .helpers import ShapeFormats #local helper functions
 
@@ -497,10 +495,7 @@ class CustomFormatCatalog(object):
 
         if os.path.exists(file):
             #version that should not lock the file, which prevents updating of thumbnails:
-            with D.Bitmap.FromFile(file) as img:
-                thumbnail = D.Bitmap(img)
-                img.Dispose()
-            return thumbnail
+            return glib.open_bitmap_nonblocking(file)
         
         # black image
         # settings = [0, None, None, "X"]
@@ -527,35 +522,9 @@ class CustomFormatCatalog(object):
         # resize thumbnail image to square
         if os.path.exists(filename):
             try:
-                # init croped image
-                width = size
-                height = size
-                image = D.Bitmap(filename)
-                bmp = D.Bitmap(width, height)
-                graph = D.Graphics.FromImage(bmp)
-                # compute scale
-                scale = min(float(width) / image.Width, float(height) / image.Height)
-                scaleWidth = int(image.Width * scale)
-                scaleHeight = int(image.Height * scale)
-                # set quality
-                graph.InterpolationMode  = D.Drawing2D.InterpolationMode.High
-                graph.CompositingQuality = D.Drawing2D.CompositingQuality.HighQuality
-                graph.SmoothingMode      = D.Drawing2D.SmoothingMode.AntiAlias
-                # redraw and save
-                # logging.debug('crop image from %sx%s to %sx%s. rect %s.%s-%sx%s' % (image.Width, image.Height, width, height, int((width - scaleWidth)/2), int((height - scaleHeight)/2), scaleWidth, scaleHeight))
-                graph.DrawImage(image, D.Rectangle(int((width - scaleWidth)/2), int((height - scaleHeight)/2), scaleWidth, scaleHeight))
-
-                # close and save files
-                image.Dispose()
-                bmp.Save(filename)
-                bmp.Dispose()
+                glib.make_thumbnail(filename, size, size, filename)
             except:
                 logging.exception('Creation of croped thumbnail image failed: %s', filename)
-            finally:
-                if image:
-                    image.Dispose()
-                if bmp:
-                    bmp.Dispose()
         else:
             raise OSError("thumbnail image not found")
         
