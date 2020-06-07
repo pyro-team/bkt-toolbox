@@ -534,6 +534,8 @@ def replicate_shape(shape, force_textbox=False):
             1, #msoTextOrientationHorizontal
             shape.Left, shape.Top, shape.Width, shape.Height)
         new_shape.AutoShapeType = shape.AutoShapeType
+    elif shape.Type != MsoShapeType["msoAutoShape"]:
+        raise ValueError("replication only possible with autoshapes and textboxes")
     else:
         new_shape = slide.shapes.AddShape(
             shape.AutoShapeType,
