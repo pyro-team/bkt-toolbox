@@ -518,6 +518,15 @@ class SlideMenu(object):
             if visibility is None:
                 visibility = 0 if s.visible else -1
             s.visible = visibility
+    
+    @staticmethod
+    def open_in_explorer(context):
+        from os import startfile
+        path = context.presentation.path
+        if not path:
+            return bkt.message.error("Präsentation ist nicht gespeichert!")
+        if os.path.isdir(path):
+            startfile(path)
 
 
 class SlideShow(object):
@@ -712,6 +721,12 @@ slides_group = bkt.ribbon.Group(
                     image_mso='SlideHide',
                     supertip="Alle Shapes im Folienmaster ein- und ausblenden, um ungestört und vertraulich an Folien arbeiten zu können.",
                     on_action=bkt.Callback(SlideMenu.toggle_hide_master_shapes)
+                ),
+                bkt.ribbon.Button(
+                    label="Im Explorer öffnen",
+                    image_mso='OpenFolder',
+                    supertip="Ordner der aktuellen Präsentation im Explorer öffnen.",
+                    on_action=bkt.Callback(SlideMenu.open_in_explorer)
                 ),
                 bkt.ribbon.MenuSeparator(title="Bildschirmpräsentation"),
                 bkt.ribbon.Button(
