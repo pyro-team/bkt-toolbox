@@ -493,6 +493,31 @@ class SlideMenu(object):
                 shape.LinkFormat.BreakLink()
             except:
                 logging.exception("error breaking link")
+    
+    @staticmethod
+    def _iter_all_layouts(context):
+        for design in context.presentation.designs:
+            if design.HasTitleMaster:
+                yield design.TitleMaster
+            yield design.SlideMaster
+            for layout in design.SlideMaster.CustomLayouts:
+                yield layout
+    
+    @classmethod
+    def _iter_master_shapes(cls, context):
+        for layout in cls._iter_all_layouts(context):
+            for shape in layout.Shapes:
+                if pplib.TagHelper.has_tag(shape, "THINKCELLSHAPEDONOTDELETE"):
+                    continue
+                yield shape
+    
+    @classmethod
+    def toggle_hide_master_shapes(cls, context):
+        visibility = None
+        for s in cls._iter_master_shapes(context):
+            if visibility is None:
+                visibility = 0 if s.visible else -1
+            s.visible = visibility
 
 
 class SlideShow(object):
@@ -680,7 +705,14 @@ slides_group = bkt.ribbon.Group(
                     bkt.mso.control.ViewDisplayInGrayscale(show_label=True),
                     bkt.mso.control.ViewDisplayInPureBlackAndWhite(show_label=True),
                 ]),
+                bkt.ribbon.MenuSeparator(),
                 bkt.mso.control.GuidesShowHide(show_label=True),
+                bkt.ribbon.Button(
+                    label="Master-Shapes ein-/ausblenden",
+                    image_mso='SlideHide',
+                    supertip="Alle Shapes im Folienmaster ein- und ausblenden, um ungestört und vertraulich an Folien arbeiten zu können.",
+                    on_action=bkt.Callback(SlideMenu.toggle_hide_master_shapes)
+                ),
                 bkt.ribbon.MenuSeparator(title="Bildschirmpräsentation"),
                 bkt.ribbon.Button(
                     id="slide_windowed_slideshow",
