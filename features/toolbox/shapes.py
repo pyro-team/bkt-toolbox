@@ -670,17 +670,73 @@ class ShapeConnectors(object):
 class ShapesMore(object):
 
     @staticmethod
-    def hide_shapes(shapes):
-        for shape in shapes:
-            shape.visible = False
-
-    @staticmethod
-    def show_shapes(slide):
-        slide.Application.ActiveWindow.Selection.Unselect()
+    def show_invisible_shapes(context):
+        toggle_shapes = list()
+        slide = context.slide
+        context.selection.Unselect()
         for shape in slide.shapes:
             if not shape.visible and not pplib.TagHelper.has_tag(shape, "THINKCELLSHAPEDONOTDELETE"):
                 shape.visible = True
                 shape.Select(replace=False)
+                toggle_shapes.append(shape.id)
+        return toggle_shapes
+
+    @staticmethod
+    def _hide_selected_shapes(context, shapes):
+        toggle_shapes = list()
+        for shape in shapes:
+            shape.visible = False
+            toggle_shapes.append(shape.id)
+        return toggle_shapes
+    
+    @staticmethod
+    def _hide_saved_shapes(context, shape_ids):
+        toggle_shapes = list()
+        slide = context.slide
+        for shape in slide.shapes:
+            if shape.id in shape_ids:
+                shape.visible = False
+                toggle_shapes.append(shape.id)
+        return toggle_shapes
+
+    @classmethod
+    def toggle_shapes_visibility(cls, context):
+        with pplib.BKTTag(context.slide.Tags) as tags:
+
+            sel_shapes = context.shapes
+            if not sel_shapes:
+                shapes_shown = cls.show_invisible_shapes(context)
+                if shapes_shown:
+                    tags["toggle_shape_visibility"] = shapes_shown
+                else:
+                    try:
+                        shape_ids = tags["toggle_shape_visibility"]
+                        cls._hide_saved_shapes(context, shape_ids)
+                        del tags["toggle_shape_visibility"]
+                    except KeyError:
+                        pass
+                    #   error message?
+            
+            else:
+                cls._hide_selected_shapes(context, sel_shapes)
+                try:
+                    del tags["toggle_shape_visibility"]
+                except KeyError:
+                    pass
+
+
+    # @staticmethod
+    # def hide_shapes(shapes):
+    #     for shape in shapes:
+    #         shape.visible = False
+
+    # @staticmethod
+    # def show_shapes(slide):
+    #     slide.Application.ActiveWindow.Selection.Unselect()
+    #     for shape in slide.shapes:
+    #         if not shape.visible and not pplib.TagHelper.has_tag(shape, "THINKCELLSHAPEDONOTDELETE"):
+    #             shape.visible = True
+    #             shape.Select(replace=False)
     
     @staticmethod
     def _text_to_shape(shape):
@@ -1950,18 +2006,27 @@ shapes_group = bkt.ribbon.Group(
                 bkt.mso.control.InsertNewComment,
                 bkt.ribbon.MenuSeparator(title="Ein-/Ausblenden"),
                 bkt.ribbon.Button(
-                    id = 'hide_shape',
-                    label = u"Shapes verstecken",
+                    id = 'toggle_shapes_visibility',
+                    label = u"Shapes vertecken/einblenden",
                     image_mso="ShapesSubtract",
-                    supertip="Verstecke alle markierten Shapes (visible=False).",
-                    on_action=bkt.Callback(ShapesMore.hide_shapes),
-                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                    supertip="Wenn Shapes ausgewählt sind, verstecke alle markierten Shapes (visible=False), anderen falls mache Shapes wieder sichtbar (visible=True). Gibt es keine unsichtbaren Shapes, werden die zuletzt versteckten Shapes erneut versteckt.",
+                    on_action=bkt.Callback(ShapesMore.toggle_shapes_visibility),
+                    # get_enabled = bkt.apps.ppt_shapes_or_text_selected,
                 ),
+                # bkt.ribbon.Button(
+                #     id = 'hide_shape',
+                #     label = u"Shapes verstecken",
+                #     image_mso="ShapesSubtract",
+                #     supertip="Verstecke alle markierten Shapes (visible=False).",
+                #     on_action=bkt.Callback(ShapesMore.hide_shapes),
+                #     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                # ),
                 bkt.ribbon.Button(
                     id = 'show_shapes',
-                    label = u"Versteckte Shapes einblenden",
+                    label = u"Alle versteckten Shapes einblenden",
+                    image_mso="VisibilityVisible",
                     supertip="Mache alle versteckten Shapes (visible=False) wieder sichtbar.",
-                    on_action=bkt.Callback(ShapesMore.show_shapes)
+                    on_action=bkt.Callback(ShapesMore.show_invisible_shapes)
                 ),
 
             ]
