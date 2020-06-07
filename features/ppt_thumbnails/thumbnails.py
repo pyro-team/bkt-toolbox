@@ -360,11 +360,15 @@ class Thumbnailer(object):
             with ThumbnailerTags(new_shp.Tags) as tags_new:
                 tags_new.set_thumbnail(**tags_old.data)
 
-        #handle thumbnail in group
+        #handle thumbnail in group and in placeholders
         group = None
         if pplib.shape_is_group_child(shape):
             group = pplib.GroupManager(shape.ParentGroup)
             group.ungroup()
+
+        elif shape.Type == pplib.MsoShapeType["msoPlaceholder"]:
+            logging.warning("Thumbnails: Update of placeholder not possible!")
+            #FIXME: any way to update within placeholder?
 
         new_shp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_THUMBNAIL)
 
@@ -382,6 +386,8 @@ class Thumbnailer(object):
         shape.PickUp()
         new_shp.Apply()
 
+        shape_name = shape.Name
+
         #handle thumbnail in group (part 2)
         if group:
             group.select()
@@ -391,6 +397,7 @@ class Thumbnailer(object):
             new_shp.Select()
         else:
             shape.Delete()
+            new_shp.Name = shape_name
             new_shp.Select()
 
         return new_shp
