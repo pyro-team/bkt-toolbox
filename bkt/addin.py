@@ -533,10 +533,12 @@ class AddIn(object):
                 # self.context.refresh_cache(True)
             
     def on_destroy(self):
+        logging.debug('on_destroy')
         self.app_callbacks.fire_event(self.events.bkt_unload)
         _h.settings.close() #save settings to database
         _h.caches.close() #save caches to disk
         self.reset()
+        logging.info('\n========================================\n===== AddIn successfully destroyed =====\n========================================')
     
     def on_create(self, dotnet_context):
         logging.debug('on_create')
