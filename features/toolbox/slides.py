@@ -553,6 +553,7 @@ class SlideShow(object):
             #go to selected slide
             if slide:
                 sld_window.View.GoToSlide(slide.SlideIndex)
+                sld_window.view.LaserPointerEnabled = True
             #restore setting
             sld_settings.ShowType = prev
 
@@ -733,14 +734,14 @@ slides_group = bkt.ribbon.Group(
                     id="slide_windowed_slideshow",
                     image_mso="SlideShowInAWindow",
                     label="Im Fenster starten",
-                    supertip="Startet eine Bilschirmpräsentation im Fenster beginnend mit der aktuellen Folie.",
+                    supertip="Startet eine Bilschirmpräsentation im Fenster beginnend mit der aktuellen Folie und aktiviertem Laserpointer.",
                     on_action=bkt.Callback(SlideShow.windowed_slideshow),
                 ),
                 bkt.ribbon.Button(
                     id="slide_fullscreen_slideshow",
                     image_mso="SlideShowFromCurrent",
                     label="Im Vollbild starten",
-                    supertip="Startet eine Bilschirmpräsentation im Vollbild beginnend mit der aktuellen Folie.",
+                    supertip="Startet eine Bilschirmpräsentation im Vollbild beginnend mit der aktuellen Folie und aktiviertem Laserpointer.",
                     on_action=bkt.Callback(SlideShow.fullscreen_slideshow),
                 ),
             ]
