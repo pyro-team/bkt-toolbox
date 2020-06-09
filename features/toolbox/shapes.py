@@ -667,6 +667,9 @@ class ShapeConnectors(object):
         # shpConnector.Select()
 
 
+class VisibilityToggleTags(pplib.BKTTag):
+    TAG_NAME = "BKT_VISIBILITY_TOGGLE"
+
 class ShapesMore(object):
 
     @staticmethod
@@ -701,26 +704,25 @@ class ShapesMore(object):
 
     @classmethod
     def toggle_shapes_visibility(cls, context):
-        with pplib.BKTTag(context.slide.Tags) as tags:
+        with VisibilityToggleTags(context.slide.Tags) as tags:
 
             sel_shapes = context.shapes
             if not sel_shapes:
                 shapes_shown = cls.show_invisible_shapes(context)
                 if shapes_shown:
-                    tags["toggle_shape_visibility"] = shapes_shown
+                    tags["shape_ids"] = shapes_shown
                 else:
                     try:
-                        shape_ids = tags["toggle_shape_visibility"]
+                        shape_ids = tags["shape_ids"]
                         cls._hide_saved_shapes(context, shape_ids)
-                        del tags["toggle_shape_visibility"]
+                        del tags["shape_ids"]
                     except KeyError:
-                        pass
-                    #   error message?
+                        bkt.message.warning("Es sind keine Shapes zum Verstecken ausgewählt, es wurden keine vormals versteckten Shapes gefunden, und es gibt keine versteckten Shapes!")
             
             else:
                 cls._hide_selected_shapes(context, sel_shapes)
                 try:
-                    del tags["toggle_shape_visibility"]
+                    del tags["shape_ids"]
                 except KeyError:
                     pass
 
