@@ -918,6 +918,9 @@ class BKTTag(object):
     def remove(self):
         self.data = {}
 
+    def get(self, arg, default=None):
+        self.data.get(arg, default)
+
     def __enter__(self):
         self.load()
         return self
@@ -1156,6 +1159,10 @@ class BoundingFrame(object):
         bf.width = width
         bf.height = height
         return bf
+
+    @classmethod
+    def from_shape(cls, shape):
+        return cls.from_rect(shape.left, shape.top, shape.width, shape.height)
 
     @classmethod
     def from_shapes(cls, shapes):

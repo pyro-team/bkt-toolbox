@@ -1587,27 +1587,37 @@ class ArrangeAdvanced(object):
     ### detect master shape ###
 
     def get_master_from_shapes(self, shapes):
-        def _test_ref_or_use_fallback(ref):
+        def _test_ref(ref):
             try:
                 ref.left #test if ref still exists
-                return ref
+                return True
             except:
-                bkt.message.warning("Fehler: Referenz wurde nicht gefunden. Fallback zu Ausrichtung am Mastershape innerhalb der Selektion.")
-                ArrangeAdvanced.master = self.fallback_first_last
-                return self.get_master_from_shapes(shapes)
+                return False
+        # def _test_ref_or_use_fallback(ref):
+        #     try:
+        #         ref.left #test if ref still exists
+        #         return ref
+        #     except:
+        #         bkt.message.warning("Fehler: Referenz wurde nicht gefunden. Master wird zurückgesetzt.")
+        #         ArrangeAdvanced.master = self.fallback_first_last
+        #         return self.get_master_from_shapes(shapes)
 
         ''' obtain master shape from given shapes according to master-setting '''
         if bkt.get_key_state(bkt.KeyCodes.CTRL):
             return pplib.BoundingFrame(shapes[0].parent, contentarea=True)
         
-        elif ArrangeAdvanced.master == "FIXED-SHAPE" and self.ref_shape != None:
-            return _test_ref_or_use_fallback(self.ref_shape)
-        elif ArrangeAdvanced.master == "FIXED-SLIDE" and self.ref_frame !=None:
-            return _test_ref_or_use_fallback(self.ref_frame)
-        elif ArrangeAdvanced.master == "FIXED-CONTENTAREA" and self.ref_frame !=None:
-            return _test_ref_or_use_fallback(self.ref_frame)
-        elif ArrangeAdvanced.master == "FIXED-CUSTOMAREA" and self.ref_frame !=None:
-            return _test_ref_or_use_fallback(self.ref_frame)
+        elif ArrangeAdvanced.master == "FIXED-SHAPE" and self.ref_shape and self.ref_frame:
+            #if ref_shape was deleted, use ref_frame instead
+            if _test_ref(self.ref_shape):
+                return self.ref_shape
+            else:
+                return self.ref_frame
+        elif ArrangeAdvanced.master == "FIXED-SLIDE" and self.ref_frame:
+            return self.ref_frame
+        elif ArrangeAdvanced.master == "FIXED-CONTENTAREA" and self.ref_frame:
+            return self.ref_frame
+        elif ArrangeAdvanced.master == "FIXED-CUSTOMAREA" and self.ref_frame:
+            return self.ref_frame
             
         elif len(shapes) == 1:
             ## fallback if only one shape in selection
@@ -1736,6 +1746,7 @@ class ArrangeAdvanced(object):
         ''' callback: set master to selected shape. On deactivation fallback to master in selection '''
         if pressed:
             self.ref_shape = shape
+            self.ref_frame = pplib.BoundingFrame.from_shape(shape) #set ref_frame as fallback if shape is deleted
             ArrangeAdvanced.master = "FIXED-SHAPE"
         else:
             ArrangeAdvanced.master = self.fallback_first_last
@@ -1760,6 +1771,9 @@ class ArrangeAdvanced(object):
         ''' set master to given target-frame '''
         ArrangeAdvanced.master = "FIXED-CUSTOMAREA"
         self.ref_frame = target_frame
+            
+    def specify_master_customarea_toggle(self, pressed):
+        ArrangeAdvanced.master = self.fallback_first_last
     
     
     def specify_wiz(self, pressed, context):
@@ -2018,7 +2032,7 @@ class ArrangeAdvanced(object):
                 bkt.ribbon.ToggleButton(
                     id="arrange_use_customarea"+postfix,
                     label="Benutzerdef. Bereich",
-                    #on_toggle_action=bkt.Callback(self.specify_master_contentarea),
+                    on_toggle_action=bkt.Callback(self.specify_master_customarea_toggle),
                     get_pressed=bkt.Callback(self.is_customarea_specified),
                     get_enabled=bkt.Callback(self.is_customarea_specified),
                     screentip="Ausrichtung an benutzerdefiniertem Bereich",
