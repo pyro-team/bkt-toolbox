@@ -494,12 +494,11 @@ class PositionGallery(bkt.ribbon.Gallery):
         
         # reference size
         if reference == 'CONTENT':
-            presentation = context.app.activewindow.presentation
-            ref_left,ref_top,ref_width,ref_height = pplib.slide_content_size(presentation)
+            ref_left,ref_top,ref_width,ref_height = pplib.slide_content_size(context.slide)
         else: # SLIDE / ABS
-            presentation = context.app.activewindow.presentation
+            page_setup = context.presentation.PageSetup
             ref_left,ref_top = 0, 0
-            ref_width,ref_height = presentation.PageSetup.SlideWidth, presentation.PageSetup.SlideHeight
+            ref_width,ref_height = page_setup.SlideWidth, page_setup.SlideHeight
         
         # target size
         left,top,width,height = self.rect_from_definition(position, ref_frame=[ref_left,ref_top,ref_width, ref_height])

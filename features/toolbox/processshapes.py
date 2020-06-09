@@ -43,7 +43,7 @@ class ProcessChevrons(object):
 
     @classmethod
     def create_process(cls, slide, num_steps=3, first_pentagon=True, spacing=5):
-        ref_left,ref_top,ref_width,_ = pplib.slide_content_size(slide.parent)
+        ref_left,ref_top,ref_width,_ = pplib.slide_content_size(slide)
 
         width=(ref_width+spacing)/num_steps-spacing
         height=50

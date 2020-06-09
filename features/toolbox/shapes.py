@@ -1607,7 +1607,7 @@ class ShapeTableGallery(bkt.ribbon.Gallery):
     
     def create_shape_table(self, slide, rows, columns):
         
-        ref_left,ref_top,ref_width,ref_height = pplib.slide_content_size(slide.parent)
+        ref_left,ref_top,ref_width,ref_height = pplib.slide_content_size(slide)
         target_width = ref_width + self._margin
         target_height = ref_height + self._margin
         
@@ -1698,7 +1698,7 @@ class ChessTableGallery(ShapeTableGallery):
     
     def create_shape_table(self, slide, rows, columns):
         
-        ref_left,ref_top,ref_width,ref_height = pplib.slide_content_size(slide.parent)
+        ref_left,ref_top,ref_width,ref_height = pplib.slide_content_size(slide)
         target_width = ref_width
         target_height = ref_height
         

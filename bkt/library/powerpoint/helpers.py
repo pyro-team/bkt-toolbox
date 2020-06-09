@@ -949,14 +949,52 @@ class BKTTag(object):
 # = Slide content size =
 # ======================
 
-def slide_content_size(presentation):
-    ''' get size of content area (i.e. big text field of standard layout) '''
-    shapes_sizes = [[shape.left, shape.top, shape.width, shape.height] for shape in iter(presentation.SlideMaster.Shapes) if shape.type == 14 and shape.Placeholderformat.type == 2]
-    if len(shapes_sizes) == 0:
-        return 0, 0, presentation.PageSetup.SlideWidth, presentation.PageSetup.SlideHeight
+def slidemaster_from_obj(obj):
+    ''' get slide master object from any object (presentation, slide, shape, layout, etc.) '''
+    #obj.parent:
+    # -> if obj.parent.Master exists, then obj was shape
+    # -> if obj.parent.CustomLayouts exists, then obj was custom layout or shape on slidemaster
+    #obj.parent.parent
+    # -> if obj.parent.parent.design.SlideMaster exists, then obj was shape on custom layout
+    #obj.parent.parent.parent
+    # -> fallback to presentation
+    master_obj = obj
+    attrs = [None, "parent", "parent", "design", "parent"]
+    for attr in attrs:
+        if attr:
+            master_obj = getattr(master_obj, attr)
+        
+        if hasattr(master_obj, "CustomLayouts"):
+            #obj is slide master
+            return master_obj
+
+        try:
+            #obj is presentation or design
+            return master_obj.SlideMaster
+        except AttributeError:
+            pass
+
+        try:
+            #obj is slide 
+            return master_obj.Master
+        except AttributeError:
+            pass
+    
     else:
-        slide_content_size = shapes_sizes[0]
-        return slide_content_size[0], slide_content_size[1], slide_content_size[2], slide_content_size[3]
+        raise AttributeError("%s cannot be converted to slidemaster" % obj)
+
+def content_size_from_master(slidemaster):
+    ''' get size of content area (i.e. big text field of standard layout) from slide master '''
+    try:
+        return next([shape.left, shape.top, shape.width, shape.height] for shape in iter(slidemaster.Shapes) if shape.type == 14 and shape.Placeholderformat.type == 2)
+    except StopIteration:
+        return 0, 0, slidemaster.Width, slidemaster.Height
+        # page_setup = slidemaster.Parent.PageSetup
+        # return 0, 0, page_setup.SlideWidth, page_setup.SlideHeight
+
+def slide_content_size(any_obj):
+    ''' get size of content area (i.e. big text field of standard layout) from any object (slide, presentation, shape, etc.) '''
+    return content_size_from_master(slidemaster_from_obj(any_obj))
 
 
 BKT_CONTENTAREA = "BKT_CONTENTAREA"
@@ -1145,11 +1183,15 @@ class BoundingFrame(object):
         self.rotation=0
         
         if slide != None:
+            slidemaster = slidemaster_from_obj(slide)
             if contentarea:
-                self.left, self.top, self.width, self.height = slide_content_size(slide.parent)
+                self.left, self.top, self.width, self.height = content_size_from_master(slidemaster)
             else:
-                self.width  = slide.parent.PageSetup.SlideWidth
-                self.height = slide.parent.PageSetup.SlideHeight
+                self.width  = slidemaster.Width
+                self.height = slidemaster.Height
+                # page_setup  = slide.parent.PageSetup
+                # self.width  = page_setup.SlideWidth
+                # self.height = page_setup.SlideHeight
     
     @classmethod
     def from_rect(cls, left, top, width, height):
