@@ -20,19 +20,27 @@ Drawing = dotnet.import_drawing()
 
 class StateShape(object):
     BKT_DIALOG_TAG = 'BKT_DIALOG_STATESHAPE'
+
+    _special_stateshapes = dict()
     
+    @classmethod
+    def register_special_stateshape(cls, name, switch_func):
+        cls._special_stateshapes[name] = switch_func
+
     @classmethod
     def is_convertable_to_state_shape(cls, shape):
         try:
-            return shape.Type == pplib.MsoShapeType['msoGroup']
+            return shape.Type == pplib.MsoShapeType['msoGroup'] and not cls.is_state_shape(shape)
         except:
             return False
 
     @classmethod
-    def convert_to_state_shape(cls, shapes):
+    def convert_to_state_shape(cls, shapes, special_name=None):
         for shape in shapes:
             try:
                 shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
+                if special_name and special_name in cls._special_stateshapes:
+                    shape.Tags.Add(cls.BKT_DIALOG_TAG, special_name)
                 cls.switch_state(shape, pos=0)
             except:
                 logging.exception("Error converting to state stape")
@@ -51,6 +59,14 @@ class StateShape(object):
     def switch_state(cls, shape, delta=0, pos=None):
         if not cls.is_state_shape(shape):
             raise ValueError("Shape is not a state shape")
+
+        special_name = pplib.TagHelper.get_tag(shape, cls.BKT_DIALOG_TAG)
+        try:
+            return cls._special_stateshapes[special_name](shape, delta, pos)
+        except KeyError:
+            pass
+
+
         # ungroup shape, to get list of groups inside grouped items
         # ungrouped_shapes = shape.Ungroup()
         # shapes = list(iter(ungrouped_shapes))
@@ -327,16 +343,20 @@ class LikertScale(bkt.ribbon.Gallery):
         StateShape.convert_to_state_shape([grp])
 
 
+#Slider-Element
+#Progressbar
 
 class CheckBox(bkt.ribbon.Gallery):
+    SHAPE_TAG = "BKT_CHECKBOX"
+
     #settings in powerpoint
     size = 16
 
     #settings for gallery
     shape_types = {1:"Quadratisch", 9:"Kreisförmig"} #rectangle, oval
     checkmark_groups = [
-        dict(font="Wingdings", chars=[u'\xfc', u'\xfb', u'\x6c', u'\x6e']),
-        dict(font="Arial Unicode", chars=[u'\u2713', u'\u2717', u'\u2715']),
+        dict(font="Wingdings", chars=[u'\xfc', u'\xfb', u'\x6c', u'\x6e', '']),
+        dict(font="Arial Unicode", chars=[u'\u2713', u'\u2717', u'\u2715', '']),
     ]
     checkmark_columns = 4
     checkmark_maxchars = 3
@@ -373,14 +393,16 @@ class CheckBox(bkt.ribbon.Gallery):
         self._insert_checkmark(slide, item["shape_type"], item["style"], item["font_group"])
 
     def _insert_checkmark(self, slide, shape_type, style, font_group):
-        for char in font_group["chars"]:
-            self._insert_single_box(slide, shape_type, style, (font_group["font"], char))
-        #add empty box
-        self._insert_single_box(slide, shape_type, style)
-        #group and make stateshape
-        grp = pplib.last_n_shapes_on_slide(slide, 1+len(font_group["chars"])).group()
+        # for char in font_group["chars"]:
+        #     self._insert_single_box(slide, shape_type, style, (font_group["font"], char))
+        # #add empty box
+        # self._insert_single_box(slide, shape_type, style)
+        # #group and make stateshape
+        # grp = pplib.last_n_shapes_on_slide(slide, 1+len(font_group["chars"])).group()
+
+        grp = self._insert_single_box(slide, shape_type, style, (font_group["font"], font_group["chars"][0]))
         grp.LockAspectRatio = -1
-        StateShape.convert_to_state_shape([grp])
+        StateShape.convert_to_state_shape([grp], CheckBox.SHAPE_TAG)
     
     def _insert_single_box(self, slide, shape_type=1, style='light', font_char=None):
         s = slide.Shapes.AddShape( shape_type, 100, 100, self.size, self.size )
@@ -471,10 +493,30 @@ class CheckBox(bkt.ribbon.Gallery):
 
         return img
 
+    @classmethod
+    def switch_state(cls, shape, delta=0, pos=None):
+        textrange = shape.TextFrame2.TextRange
+        font = textrange.Font.Name
+        text = textrange.Text
+        for d in cls.checkmark_groups:
+            if d["font"] == font:
+                chars = d["chars"]
+                break
+        else:
+            bkt.message.error("Fehler! Unbekanntes Checkbox-Symbol.")
+            return
+        if pos is None:
+            pos = chars.index(text)
+        pos = (pos + delta) % len(chars)
+        textrange.Text = chars[pos]
+        shape.select(False)
+
 
 
 likert_button = LikertScale(id="likert_insert")
 checkbox_button = CheckBox(id="checkbox_insert")
+
+StateShape.register_special_stateshape(CheckBox.SHAPE_TAG, CheckBox.switch_state)
 
 
 stateshape_gruppe = bkt.ribbon.Group(
