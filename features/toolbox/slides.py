@@ -223,6 +223,11 @@ class SendOrSaveSlides(object):
 class SlideMenu(object):
 
     @classmethod
+    def slide_navigator(cls, context):
+        from .dialogs.slide_navigator import SlideNavigatorManager
+        SlideNavigatorManager.show_panel_for_active_window(context)
+
+    @classmethod
     def send_slides_dialog(cls, context):
         from .dialogs.slides_send import SendWindow
         SendWindow.create_and_show_dialog(SendOrSaveSlides, context)
@@ -743,6 +748,13 @@ slides_group = bkt.ribbon.Group(
                     label="Im Vollbild starten",
                     supertip="Startet eine Bilschirmpräsentation im Vollbild beginnend mit der aktuellen Folie und aktiviertem Laserpointer.",
                     on_action=bkt.Callback(SlideShow.fullscreen_slideshow),
+                ),
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Button(
+                    # image_mso="SlideShowFromCurrent",
+                    label="Folien-Navigator",
+                    # supertip="Startet eine Bilschirmpräsentation im Vollbild beginnend mit der aktuellen Folie.",
+                    on_action=bkt.Callback(SlideMenu.slide_navigator),
                 ),
             ]
         )
