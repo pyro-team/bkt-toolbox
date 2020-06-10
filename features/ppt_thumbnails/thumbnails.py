@@ -108,37 +108,44 @@ class Thumbnailer(object):
         close = None
         tmpfile = None
         try:
-            pres, close = cls._get_presentation(application, slide_path)
+            try:
+                pres, close = cls._get_presentation(application, slide_path)
+            except EnvironmentError:
+                logging.exception("presentation not found")
+                raise IOError("presentation not found")
+        
+            try:
+                slide = pres.Slides.FindBySlideId(slide_id)
+            except EnvironmentError:
+                logging.exception("slide id not found")
+                raise IndexError("slide id not found")
 
-            slide = pres.Slides.FindBySlideId(slide_id)
             filetype = DATATYPE_MAPPING.get(data_type, PASTE_DATATYPE_PNG)
             tmpfile = os.path.join(tempfile.gettempdir(), "bkt-thumbnail-tempfile."+filetype[1])
 
-            if shape_id is None and not content_only:
-                if data_type == PASTE_DATATYPE_PNG:
-                    slide.Export(tmpfile, filetype[1], 2000)
+            try:
+                if shape_id is None and not content_only:
+                    if data_type == PASTE_DATATYPE_PNG:
+                        slide.Export(tmpfile, filetype[1], 2000)
+                    else:
+                        slide.Export(tmpfile, filetype[1])
+                    # slide.Copy()
+                elif content_only:
+                    shpr = cls._find_content_shapes(slide)
+                    if shpr.Count == 0:
+                        raise ValueError("empty slide")
+                    shpr.Export(tmpfile, filetype[0])
+                    # shpr.Copy()
                 else:
-                    slide.Export(tmpfile, filetype[1])
-                # slide.Copy()
-            elif content_only:
-                shpr = cls._find_content_shapes(slide)
-                if shpr.Count == 0:
-                    raise ValueError("empty slide")
-                shpr.Export(tmpfile, filetype[0]) 
-                # shpr.Copy()
-            else:
-                shp = cls._find_by_shape_id(slide, shape_id)
-                shp.Export(tmpfile, filetype[0]) 
-                # shp.Copy()
+                    shp = cls._find_by_shape_id(slide, shape_id)
+                    shp.Export(tmpfile, filetype[0])
+                    # shp.Copy()
 
-            yield tmpfile
+                yield tmpfile
 
-        except EnvironmentError:
-            logging.exception("slide id not found")
-            raise IndexError("slide id not found")
-        except IndexError:
-            logging.exception("shape id not found")
-            raise IndexError("shape id not found")
+            except IndexError:
+                logging.exception("shape id not found")
+                raise IndexError("shape id not found")
         
         finally:
             if close:
@@ -195,19 +202,21 @@ class Thumbnailer(object):
                 slide_id = slide_id[0]
             else:
                 shape_id = None
-            try:
-                try:
-                    #Copy
-                    with cls.find_and_export_object(application, slide_id, data["slide_path"], content_only, shape_id, data_type) as filename:
-                        lefttop = 200+pasted_shapes*20
-                        shape = cur_slide.Shapes.AddPicture(filename, 0, -1, lefttop, lefttop)
-                        pasted_shapes += 1
 
-                except Exception as e:
-                    # bkt.helpers.exception_as_message()
-                    bkt.message.error("Fehler! Referenz nicht gefunden.\n\n{}".format(e), "BKT: Thumbnails")
-                    logging.exception("Thumbnails: Error finding slide reference!")
-                    continue
+            try:
+                #Copy
+                with cls.find_and_export_object(application, slide_id, data["slide_path"], content_only, shape_id, data_type) as filename:
+                    lefttop = 200+pasted_shapes*20
+                    shape = cur_slide.Shapes.AddPicture(filename, 0, -1, lefttop, lefttop)
+                    pasted_shapes += 1
+
+            except Exception as e:
+                # bkt.helpers.exception_as_message()
+                bkt.message.error("Fehler! Referenz nicht gefunden.\n\n{}".format(e), "BKT: Thumbnails")
+                logging.exception("Thumbnails: Error finding slide reference!")
+                continue
+
+            try:
                 #Paste
                 # shape = cur_slide.Shapes.PasteSpecial(Datatype=data_type)
                 # pasted_shapes += 1
@@ -264,6 +273,8 @@ class Thumbnailer(object):
 
         path = cls._prepare_path(application, fileDialog.FileName)
 
+        logging.debug("New path: %s", path)
+
         with ThumbnailerTags(shape.Tags) as tags:
             tags["slide_path"] = path
 
@@ -274,30 +285,35 @@ class Thumbnailer(object):
         with ThumbnailerTags(shape.Tags) as tags:
             slide_id = tags["slide_id"]
             slide_path = tags["slide_path"]
-            try:
-                pres, _ = cls._get_presentation(application, slide_path, False)
-                
-                #bring window to front
-                if pres.Windows.Count > 0:
-                    pres.Windows[1].Activate()
-                else:
-                    pres.NewWindow()
+            shape_id = tags.get("shape_id")
 
-                try:
-                    slide = pres.Slides.FindBySlideId(slide_id)
-                    slide.Select()
-                    
-                    if "shape_id" in tags.data and tags["shape_id"] is not None:
-                        try:
-                            shp = cls._find_by_shape_id(slide, tags["shape_id"])
-                            shp.Select()
-                        except:
-                            bkt.message.error("Fehler! Shape in der referenzierten Präsentation nicht gefunden.", "BKT: Thumbnails")
-                except:
-                    bkt.message.error("Fehler! Folie in der referenzierten Präsentation nicht gefunden.", "BKT: Thumbnails")
-            except:
-                if bkt.message.confirmation("Fehler! Referenzierte Präsentation '%s' nicht gefunden. Neue Datei auswählen?" % slide_path, "BKT: Thumbnails", icon=bkt.MessageBox.WARNING):
-                    cls.replace_file_ref(shape, application)
+        try:
+            pres, _ = cls._get_presentation(application, slide_path, False)
+            
+            #bring window to front
+            if pres.Windows.Count > 0:
+                pres.Windows[1].Activate()
+            else:
+                pres.NewWindow()
+        except EnvironmentError:
+            logging.exception("Thumbnails: Error finding presentation")
+            if bkt.message.confirmation("Fehler! Referenzierte Präsentation '%s' nicht gefunden. Neue Datei auswählen?" % slide_path, "BKT: Thumbnails", icon=bkt.MessageBox.WARNING):
+                cls.replace_file_ref(shape, application)
+            return
+
+        try:
+            slide = pres.Slides.FindBySlideId(slide_id)
+            slide.Select()
+        except EnvironmentError:
+            bkt.message.error("Fehler! Folie in der referenzierten Präsentation nicht gefunden.", "BKT: Thumbnails")
+            return
+
+        if shape_id is not None:
+            try:
+                shp = cls._find_by_shape_id(slide, shape_id)
+                shp.Select()
+            except IndexError:
+                bkt.message.error("Fehler! Shape in der referenzierten Präsentation nicht gefunden.", "BKT: Thumbnails")
 
     @classmethod
     def presentation_refresh(cls, application, presentation):
@@ -458,6 +474,7 @@ class Thumbnailer(object):
 
     @classmethod
     def _prepare_path(cls, application, path):
+        #FIXME: if presentation is stored in OneDriver a url is returned, refer to https://stackoverflow.com/questions/33734706/excels-fullname-property-with-onedrive
         drive1, _ = os.path.splitdrive(path)
         drive2, _ = os.path.splitdrive(application.ActivePresentation.FullName)
         if path == application.ActivePresentation.FullName:
