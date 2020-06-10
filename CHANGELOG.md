@@ -1,3 +1,28 @@
+# Unreleased
+
+  * Added quickedit dark theme
+  * Added function to open slideshow in window or fullscreen
+  * Added option to remove hidden slides when sending slides
+  * Added checkbox stateshape
+  * Added sticker with custom text
+  * Added support for transparent background in chartlib thumbnails
+  * Added function to open in explorer
+  * Added function to toggle master shape visibility
+  * Added multiple traffic light styles
+  * Improved shape statistics: supertip show details about found numbers, result can be copied to clipboard, correct processing of decimals for various countries
+  * Improved text replacement with additional placeholders and proper template engine
+  * Improved arrange behavior if master/reference shape is deleted
+  * Fixed shape statistics did not consider negative numbers
+  * Fixed logging was processed even if logging was turned on
+  * Fixed error in settings shelve auto repair
+  * Fixed use of slide index vs slide number in multiple places
+  * Fixed maintaining lock aspect ratio for all stateshapes (incl. likert scale)
+  * Fixed sending slides of unsaved presentation
+  * Fixed popup positioning with multiple monitors (especially negative coordinates)
+  * Fixed charlib refresh not working due to premature comrelease
+  * Fixed getting correct content area size for slide master
+
+
 # Release 2020-05-17 (2.7.0)
 
   * Added option to link shapes by its shape names
