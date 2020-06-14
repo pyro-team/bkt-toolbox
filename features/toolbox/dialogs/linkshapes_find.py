@@ -4,7 +4,7 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import bkt.ui
 notify_property = bkt.ui.notify_property
@@ -48,11 +48,11 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
 
     @notify_property
     def threshold(self):
-        return self._threshold
+        return self._threshold*100
     @threshold.setter
     def threshold(self, value):
-        ViewModel.default_threshold = value
-        self._threshold = value
+        ViewModel.default_threshold = value/100
+        self._threshold = value/100
         
 
     @notify_property
@@ -211,8 +211,8 @@ class FindWindow(bkt.ui.WpfWindowAbstract):
 
     def _link_shapes(self, dry_run=False):
         shape_keys = [k for k,v in self._vm._shape_keys.items() if v]
-        num_slides = None if self._vm.findmode_all else self._vm.num_slides
-        self._model.find_similar_shapes_and_link(self.shape, self._context, shape_keys, self._vm.threshold, num_slides, dry_run)
+        num_slides = None if self._vm.findmode_all else self._vm._num_slides
+        self._model.find_similar_shapes_and_link(self.shape, self._context, shape_keys, self._vm._threshold, num_slides, dry_run)
 
     def cancel(self, sender, event):
         self.Close()
