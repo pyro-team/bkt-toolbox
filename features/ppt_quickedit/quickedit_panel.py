@@ -14,7 +14,7 @@ from time import time
 from System.Collections.ObjectModel import ObservableCollection
 from System.Windows.Controls import Orientation
 from System.Windows.Media import Colors, SolidColorBrush
-from System.Windows import Visibility
+# from System.Windows import Visibility
 
 import bkt.ui
 notify_property = bkt.ui.notify_property
@@ -167,12 +167,12 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         else:
             return Orientation.Vertical
     
-    @notify_property
-    def recent_visibility(self):
-        if self.recent_visible:
-            return Visibility.Visible
-        else:
-            return Visibility.Collapsed
+    # @notify_property
+    # def recent_visibility(self):
+    #     if self.recent_visible:
+    #         return Visibility.Visible
+    #     else:
+    #         return Visibility.Collapsed
     
     @notify_property
     def color_background(self):
@@ -194,7 +194,7 @@ class ViewModel(bkt.ui.ViewModelSingleton):
     @recent_visible.setter
     def recent_visible(self, value):
         self._viewstate.recent_hidden = not value
-        self.OnPropertyChanged("recent_visibility")
+        # self.OnPropertyChanged("recent_visibility")
 
     @notify_property
     def docking_to_slide(self):
