@@ -34,11 +34,15 @@ Bitmap = bkt.dotnet.import_drawing().Bitmap
 
 #FIXME: gleiche Log-Datei wie im .Net-Addin verwenden. Verwendung von bkt-debug.log führt noch zu Fehlern (Verlust von log-Text), da die Logger nicht Zeilenweise schreiben. Alternativ logging über C#-Addin-Klasse durchführen
 if _h.config.log_write_file:
+    from logging.handlers import RotatingFileHandler
+    
     log_level = getattr(logging, bkt.config.log_level or 'WARNING', logging.WARNING)
 
     logfile = _h.bkt_base_path_join("bkt-debug-py.log")
 
-    filehandler = logging.FileHandler(logfile, 'w', 'utf-8')
+    # filehandler = logging.FileHandler(logfile, 'w', 'utf-8')
+    filehandler = RotatingFileHandler(logfile, 'a', 'utf-8', backupCount=2)
+    filehandler.doRollover() #rollover on each start
     filehandler.setLevel(log_level)
     filehandler.setFormatter(logging.Formatter(u'%(asctime)s %(levelname)s: %(message)s'))
 
