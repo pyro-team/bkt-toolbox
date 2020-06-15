@@ -16,13 +16,13 @@
     <StackPanel x:Name="DataPanel" Orientation="Vertical" Margin="5">
 
         <StackPanel Orientation="Horizontal" Margin="5">
-            <fr:RadioButton GroupName="copymode" Header="Auf alle Folgefolien kopieren" IsChecked="{Binding copymode_all, UpdateSourceTrigger=PropertyChanged}" />
+            <RadioButton VerticalContentAlignment="Center" GroupName="copymode" Content="Auf _alle Folgefolien kopieren" IsChecked="{Binding copymode_all, UpdateSourceTrigger=PropertyChanged}" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="5">
-            <fr:RadioButton GroupName="copymode" Header="Kopiere" IsChecked="{Binding copymode_num, UpdateSourceTrigger=PropertyChanged}" />
-            <fr:Spinner InputWidth="40" Value="{Binding num_slides, Mode=TwoWay}" Format="0" Minimum="0" Maximum="{Binding max_slides}" />
+            <RadioButton VerticalContentAlignment="Center" GroupName="copymode" Content="Kopiere" IsChecked="{Binding copymode_num, UpdateSourceTrigger=PropertyChanged}" />
+            <fr:Spinner InputWidth="40" Value="{Binding num_slides, Mode=TwoWay}" Format="0" Minimum="0" Maximum="{Binding max_slides}" SelectAllTextOnFocus="True" />
             <Label Content="mal bis zur Folie Nr." />
-            <fr:Spinner InputWidth="40" Value="{Binding slide_no, Mode=TwoWay}" Format="0" Minimum="{Binding cur_slideno}" Maximum="{Binding max_slideno}" />
+            <fr:Spinner InputWidth="40" Value="{Binding slide_no, Mode=TwoWay}" Format="0" Minimum="{Binding cur_slideno}" Maximum="{Binding max_slideno}" SelectAllTextOnFocus="True" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="5">
             <Label FontStyle="Italic" Content="{Binding copy_description}" />
@@ -34,8 +34,8 @@
               <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <StackPanel Orientation="Horizontal" Grid.Column="1">
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="OK"        IsDefault="True" Click="linkshapes_copy" IsEnabled="{Binding okay_enabled, UpdateSourceTrigger=PropertyChanged}"/>
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Kopieren"  IsDefault="True" Click="linkshapes_copy" IsEnabled="{Binding okay_enabled, UpdateSourceTrigger=PropertyChanged}"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
           </StackPanel>
         </Grid>
     </StackPanel>

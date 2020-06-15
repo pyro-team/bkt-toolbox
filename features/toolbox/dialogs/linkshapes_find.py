@@ -213,9 +213,30 @@ class FindWindow(bkt.ui.WpfWindowAbstract):
         shape_keys = [k for k,v in self._vm._shape_keys.items() if v]
         num_slides = None if self._vm.findmode_all else self._vm._num_slides
         self._model.find_similar_shapes_and_link(self.shape, self._context, shape_keys, self._vm._threshold, num_slides, dry_run)
+    
+    def select_all(self, sender, event):
+        self._vm.attr_bottom    = True
+        self._vm.attr_center    = True
+        self._vm.attr_height    = True
+        self._vm.attr_left      = True
+        self._vm.attr_name      = True
+        self._vm.attr_right     = True
+        self._vm.attr_rotation  = True
+        self._vm.attr_top       = True
+        self._vm.attr_type      = True
+        self._vm.attr_width     = True
 
-    def cancel(self, sender, event):
-        self.Close()
+    def select_none(self, sender, event):
+        self._vm.attr_bottom    = False
+        self._vm.attr_center    = False
+        self._vm.attr_height    = False
+        self._vm.attr_left      = False
+        self._vm.attr_name      = False
+        self._vm.attr_right     = False
+        self._vm.attr_rotation  = False
+        self._vm.attr_top       = False
+        self._vm.attr_type      = False
+        self._vm.attr_width     = False
     
     def linkshapes_find(self, sender, event):
         self.Close()
