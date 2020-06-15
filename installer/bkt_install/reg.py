@@ -58,7 +58,7 @@ class Properties(object):
     pass
 
 class AssemblyRegService(object):
-    def __init__(self, prog_id=None, uuid=None, assembly_path=None, wow6432=True):
+    def __init__(self, prog_id=None, uuid=None, assembly_path=None, wow6432=None):
         self.prog_id = prog_id
         self.uuid = uuid
         self.assembly_path = assembly_path
@@ -79,9 +79,9 @@ class AssemblyRegService(object):
     def get_hkcu(self, view=RegistryView.Default):
         return RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view)
 
-    def get_hkcu_wow(self):
+    def get_hkcu_wow(self, wow6432):
         if System.Environment.Is64BitOperatingSystem:
-            if self.wow6432:
+            if wow6432:
                 view = RegistryView.Registry32
             else:
                 view = RegistryView.Registry64
@@ -102,8 +102,14 @@ class AssemblyRegService(object):
             self._define_prog_id(base, self.prog_id, self.uuid)
 
     def define_wow_uuid_clsid(self):
-        with self.get_hkcu_wow() as base:
-            self._define_wow_uuid_clsid(base)
+        if System.Environment.Is64BitOperatingSystem and self.wow6432 is None:
+            with self.get_hkcu_wow(True) as base:
+                self._define_wow_uuid_clsid(base)
+            with self.get_hkcu_wow(False) as base:
+                self._define_wow_uuid_clsid(base)
+        else:
+            with self.get_hkcu_wow(self.wow6432) as base:
+                self._define_wow_uuid_clsid(base)
 
     def _define_wow_uuid_clsid(self, base):
         uuid_path = PathString('Software') / 'Classes' / 'CLSID' / self.uuid
@@ -145,8 +151,14 @@ class AssemblyRegService(object):
             base.DeleteSubKeyTree(prog_id_path, False)
 
         uuid_path = PathString('Software') / 'Classes' / 'CLSID' / self.uuid
-        with self.get_hkcu_wow() as base:
-            base.DeleteSubKeyTree(uuid_path, False)
+        if System.Environment.Is64BitOperatingSystem and self.wow6432 is None:
+            with self.get_hkcu_wow(True) as base:
+                base.DeleteSubKeyTree(uuid_path, False)
+            with self.get_hkcu_wow(False) as base:
+                base.DeleteSubKeyTree(uuid_path, False)
+        else:
+            with self.get_hkcu_wow(self.wow6432) as base:
+                base.DeleteSubKeyTree(uuid_path, False)
 
 def office_default_path(app_name):
     return PathString('Software') / 'Microsoft' / 'Office' / app_name / 'Addins'
