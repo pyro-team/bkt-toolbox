@@ -1,43 +1,49 @@
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:fr="clr-namespace:Fluent;assembly=Fluent"
-    ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen"
+    ResizeMode="NoResize" SizeToContent="Height" WindowStartupLocation="CenterScreen"
     Title="Markierte Folien per E-Mail senden"
     FocusManager.FocusedElement="{Binding ElementName=filename_box}"
-    ShowInTaskbar="False" MinWidth="400">
+    ShowInTaskbar="False" Width="500">
 
-    <Window.Resources>
+    <!-- <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
            </ResourceDictionary.MergedDictionaries>
        </ResourceDictionary>
-   </Window.Resources>
+   </Window.Resources> -->
 
     <StackPanel x:Name="DataPanel" Orientation="Vertical" Margin="5">
 
         <Label Content="Bitte Dateiname eingeben:"/>
-        <fr:TextBox Name="filename_box" Margin="5" Text="{Binding filename, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Name="filename_box" Margin="5" Padding="3" Text="{Binding filename, UpdateSourceTrigger=PropertyChanged}" />
 
-        <GroupBox Header="Dateiformat" Margin="5">
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <fr:RadioButton GroupName="fileformat" Header="Nur PowerPoint" IsChecked="{Binding fileformat_ppt, Mode=TwoWay}" />
-                <fr:RadioButton GroupName="fileformat" Header="Nur PDF" IsChecked="{Binding fileformat_pdf, Mode=TwoWay}" />
-                <fr:RadioButton GroupName="fileformat" Header="PowerPoint + PDF" IsChecked="{Binding fileformat_all, Mode=TwoWay}" />
-            </StackPanel>
-        </GroupBox>
+        <Grid Margin="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
 
-        <GroupBox Header="Folienauswahl" Margin="5">
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <fr:RadioButton GroupName="slides" Header="Ausgewählte Folien" IsChecked="{Binding slides_selected, Mode=TwoWay}" />
-                <fr:RadioButton GroupName="slides" Header="Alle Folien" IsChecked="{Binding slides_all, Mode=TwoWay}" />
-            </StackPanel>
-        </GroupBox>
+            <GroupBox Header="Dateiformat" Margin="5" Grid.Column="0">
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <RadioButton VerticalAlignment="Center" GroupName="fileformat" Content="Nur PowerPoint" IsChecked="{Binding fileformat_ppt, Mode=TwoWay}" Margin="5" />
+                    <RadioButton VerticalAlignment="Center" GroupName="fileformat" Content="Nur PDF" IsChecked="{Binding fileformat_pdf, Mode=TwoWay}" Margin="5" />
+                    <RadioButton VerticalAlignment="Center" GroupName="fileformat" Content="PowerPoint + PDF" IsChecked="{Binding fileformat_all, Mode=TwoWay}" Margin="5" />
+                </StackPanel>
+            </GroupBox>
 
-        <fr:CheckBox Header="Alle Abschnitte entfernen" IsChecked="{Binding remove_sections, Mode=TwoWay}" IsEnabled="{Binding rm_se_enabled, UpdateSourceTrigger=PropertyChanged}" Margin="10,5" />
-        <fr:CheckBox Header="Ungenutzte Folienmaster entfernen" IsChecked="{Binding remove_designs, Mode=TwoWay}" IsEnabled="{Binding rm_se_enabled, UpdateSourceTrigger=PropertyChanged}" Margin="10,5" />
-        <fr:CheckBox Header="Autor aus Dokumenteneigenschaften entfernen" IsChecked="{Binding remove_author, Mode=TwoWay}" Margin="10,5" />
-        <fr:CheckBox Header="Versteckte Folien löschen" IsChecked="{Binding remove_hidden, Mode=TwoWay}" Margin="10,5" />
+            <GroupBox Header="Folienauswahl" Margin="5" Grid.Column="1">
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <RadioButton VerticalAlignment="Center" GroupName="slides" Content="{Binding num_selected_slides}" ContentStringFormat="Ausgewählte Folien ({0})" IsChecked="{Binding slides_selected, Mode=TwoWay}" Margin="5" />
+                    <RadioButton VerticalAlignment="Center" GroupName="slides" Content="{Binding num_all_slides}" ContentStringFormat="Ganze Präsentation ({0})" IsChecked="{Binding slides_all, Mode=TwoWay}" Margin="5" />
+                    <CheckBox Content="Versteckte Folien löschen" IsChecked="{Binding remove_hidden, Mode=TwoWay}" Margin="4,5" />
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+
+        <CheckBox Content="Alle Abschnitte entfernen" IsChecked="{Binding remove_sections, Mode=TwoWay}" IsEnabled="{Binding rm_se_enabled, UpdateSourceTrigger=PropertyChanged}" Margin="10,5" />
+        <CheckBox Content="Ungenutzte Folienmaster entfernen" IsChecked="{Binding remove_designs, Mode=TwoWay}" IsEnabled="{Binding rm_se_enabled, UpdateSourceTrigger=PropertyChanged}" Margin="10,5" />
+        <CheckBox Content="Autor aus Dokumenteneigenschaften entfernen" IsChecked="{Binding remove_author, Mode=TwoWay}" Margin="10,5" />
 
         <Grid Margin="0">
           <Grid.ColumnDefinitions>
@@ -45,8 +51,8 @@
               <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <StackPanel Orientation="Horizontal" Grid.Column="1">
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="OK"        IsDefault="True" Click="send_slides"/>
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Senden"    IsDefault="True" Click="send_slides"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
           </StackPanel>
       </Grid>
     </StackPanel>
