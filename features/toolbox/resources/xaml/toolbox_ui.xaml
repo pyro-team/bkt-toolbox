@@ -245,9 +245,9 @@
           </Grid.ColumnDefinitions>
           <Label Grid.Column="0" FontStyle="Italic" Content="* Theme-Standardwert" />
           <StackPanel Orientation="Horizontal" Grid.Column="1">
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Speichern" IsDefault="True" Click="save_settings" ToolTip="Einstellungen speichern und BKT neu laden"/>
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Zurücksetzen"               Click="reset_settings" ToolTip="Alle Einstellungen löschen und BKT neu laden"/>
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Speichern" IsDefault="True" Click="save_settings" ToolTip="Einstellungen speichern und BKT neu laden"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Zurücksetzen"               Click="reset_settings" ToolTip="Alle Einstellungen löschen und BKT neu laden"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
           </StackPanel>
         </Grid>
     </StackPanel>
