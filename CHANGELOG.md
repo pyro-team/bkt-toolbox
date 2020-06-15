@@ -9,9 +9,11 @@
   * Added function to open in explorer
   * Added function to toggle master shape visibility
   * Added multiple traffic light styles
+  * Added shape scaling function
   * Improved shape statistics: supertip show details about found numbers, result can be copied to clipboard, correct processing of decimals for various countries
   * Improved text replacement with additional placeholders and proper template engine
   * Improved arrange behavior if master/reference shape is deleted
+  * Improved various WPF dialogs, i.e. shape selection dialog
   * Fixed shape statistics did not consider negative numbers
   * Fixed logging was processed even if logging was turned on
   * Fixed error in settings shelve auto repair
