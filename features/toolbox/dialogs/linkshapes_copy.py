@@ -112,9 +112,6 @@ class CopyWindow(bkt.ui.WpfWindowAbstract):
         self._vm = ViewModel(context)
 
         super(CopyWindow, self).__init__(context)
-
-    def cancel(self, sender, event):
-        self.Close()
     
     def linkshapes_copy(self, sender, event):
         self.Close()
