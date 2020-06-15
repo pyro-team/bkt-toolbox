@@ -12,6 +12,15 @@ import bkt.ui
 notify_property = bkt.ui.notify_property
 
 class ViewModel(bkt.ui.ViewModelSingleton):
+    selectors = {
+        'shape_all':    ["shape_type", "shape_width", "shape_height"],
+        'pos_all':      ["pos_left", "pos_top", "pos_rotation"],
+        'fill_all':     ["fill_type", "fill_color", "fill_transp"],
+        'line_all':     ["line_weight", "line_style", "line_color", "line_begin", "line_end"],
+        'font_all':     ["font_name", "font_size", "font_color", "font_style"],
+        'content_all':  ["content_len", "content_text"],
+    }
+
     def __init__(self, model, context):
         super(ViewModel, self).__init__()
 
@@ -19,87 +28,23 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         self._context = context
 
         self._shape_keys = {k: False for k in model.key_functions.keys()}
-
-        # self._shape_all = False
-        # self._pos_all = False
-        # self._fill_all = False
-        # self._line_all = False
-        # self._font_all = False
-        # self._content_all = False
-
-
-    # @notify_property
-    # def shape_all(self):
-    #     return self._shape_all
-    # @shape_all.setter
-    # def shape_all(self, value):
-    #     self._shape_all = value
-    #     self.shape_keys["shape_type"] = value
-    #     self.shape_keys["shape_width"] = value
-    #     self.shape_keys["shape_height"] = value
-    #     self.OnPropertyChanged('shape_keys')
+    
+    def __getattr__(self, name):
+        return self._shape_keys[name[3:]]
+    
+    def __setattr__(self, name, value):
+        if name.startswith("sk_"):
+            self._shape_keys[name[3:]] = value
+            self.OnPropertyChanged(name)
+        else:
+            super(ViewModel, self).__setattr__(name, value)
 
     # @notify_property
-    # def pos_all(self):
-    #     return self._pos_all
-    # @pos_all.setter
-    # def pos_all(self, value):
-    #     self._pos_all = value
-    #     self.shape_keys["pos_left"] = value
-    #     self.shape_keys["pos_top"] = value
-    #     self.shape_keys["pos_rotation"] = value
-    #     self.OnPropertyChanged('shape_keys')
-
-    # @notify_property
-    # def fill_all(self):
-    #     return self._fill_all
-    # @fill_all.setter
-    # def fill_all(self, value):
-    #     self._fill_all = value
-    #     self.shape_keys["fill_type"] = value
-    #     self.shape_keys["fill_color"] = value
-    #     self.OnPropertyChanged('shape_keys')
-
-    # @notify_property
-    # def line_all(self):
-    #     return self._line_all
-    # @line_all.setter
-    # def line_all(self, value):
-    #     self._line_all = value
-    #     self.shape_keys["line_weight"] = value
-    #     self.shape_keys["line_style"] = value
-    #     self.shape_keys["line_color"] = value
-    #     self.shape_keys["line_begin"] = value
-    #     self.shape_keys["line_end"] = value
-    #     self.OnPropertyChanged('shape_keys')
-
-    # @notify_property
-    # def font_all(self):
-    #     return self._font_all
-    # @font_all.setter
-    # def font_all(self, value):
-    #     self._font_all = value
-    #     self.shape_keys["font_name"] = value
-    #     self.shape_keys["font_color"] = value
-    #     self.shape_keys["font_style"] = value
-    #     self.OnPropertyChanged('shape_keys')
-
-    # @notify_property
-    # def content_all(self):
-    #     return self._content_all
-    # @content_all.setter
-    # def content_all(self, value):
-    #     self._content_all = value
-    #     self.shape_keys["content_len"] = value
-    #     self.shape_keys["content_text"] = value
-    #     self.OnPropertyChanged('shape_keys')
-
-    @notify_property
-    def shape_keys(self):
-        return self._shape_keys
-    @shape_keys.setter
-    def shape_keys(self, value):
-        self._shape_keys = value
+    # def shape_keys(self):
+    #     return self._shape_keys
+    # @shape_keys.setter
+    # def shape_keys(self, value):
+    #     self._shape_keys = value
 
 
 class SelectWindow(bkt.ui.WpfWindowAbstract):
@@ -117,6 +62,18 @@ class SelectWindow(bkt.ui.WpfWindowAbstract):
         self.Close()
         #undo preview by selecting only master shapes
         self._model.selectShapes(self._context, self._master_shapes)
+
+    def select_all(self, sender, event):
+        tag = sender.Tag
+        keys = self._vm.selectors.get(tag, [])
+        for key in keys:
+            setattr(self._vm, "sk_"+key, True)
+
+    def select_none(self, sender, event):
+        tag = sender.Tag
+        keys = self._vm.selectors.get(tag, [])
+        for key in keys:
+            setattr(self._vm, "sk_"+key, False)
     
     def shapes_select(self, sender, event):
         logging.debug("SelectWindow.shapes_select")
