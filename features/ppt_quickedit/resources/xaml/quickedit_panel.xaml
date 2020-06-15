@@ -7,7 +7,7 @@
     ShowActivated="False" Focusable="False"
     Left="{Binding window_left, Mode=TwoWay}" Top="{Binding window_top, Mode=TwoWay}"
     MouseLeftButtonDown="Window_MouseLeftButtonDown"
-    Closing="Window_Closing">
+    Closing="Window_Closing" UseLayoutRounding="True">
 
     <!-- <Window.Resources>
         <ResourceDictionary>
@@ -38,7 +38,7 @@
         </Style>
     </Window.Resources>
 
-    <Border BorderThickness="1" BorderBrush="Silver" Background="{Binding color_background}" UseLayoutRounding="True">
+    <Border BorderThickness="1" BorderBrush="Silver" Background="{Binding color_background}">
     <DockPanel x:Name="DataPanel">
         <DockPanel x:Name="TitleBar" DockPanel.Dock="Top">
             <DockPanel.ContextMenu>
