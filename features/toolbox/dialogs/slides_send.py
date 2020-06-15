@@ -23,6 +23,10 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         self._remove_sections = True
         self._remove_designs = True
         self._remove_hidden = False
+
+        self.num_selected_slides = len(context.slides)
+        self.num_all_slides = context.presentation.slides.count
+
         self.update_filename()
 
     @notify_property
