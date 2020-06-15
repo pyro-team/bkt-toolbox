@@ -770,6 +770,11 @@ class ShapeDialogs(object):
     def shape_split(context, shapes):
         from .dialogs.shape_split import ShapeSplitWindow
         ShapeSplitWindow.create_and_show_dialog(context, shapes)
+
+    @staticmethod
+    def shape_scale(context, shapes):
+        from .dialogs.shape_scale import ShapeScaleWindow
+        ShapeScaleWindow.create_and_show_dialog(context, shapes)
     
     @staticmethod
     def show_segmented_circle_dialog(context, slide):
@@ -1969,6 +1974,14 @@ shapes_group = bkt.ribbon.Group(
                     screentip="Shapes teilen oder vervielfachen",
                     supertip="Shape horizontal/vertikal in mehrere Shapes teilen oder verfielfachen.",
                     on_action=bkt.Callback(ShapeDialogs.shape_split),
+                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                ),
+                bkt.ribbon.Button(
+                    label="Shapes skalieren…",
+                    image_mso="DiagramScale",
+                    screentip="Shapes skalieren",
+                    supertip="Shape-Größe inkl. aller Elemente/Eigenschaften (Schriftgröße, Konturen, etc.) gleichmäßig ändern.",
+                    on_action=bkt.Callback(ShapeDialogs.shape_scale),
                     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
                 ),
                 bkt.mso.control.ObjectEditPoints,
