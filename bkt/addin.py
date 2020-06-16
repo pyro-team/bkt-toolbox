@@ -42,7 +42,11 @@ if _h.config.log_write_file:
 
     # filehandler = logging.FileHandler(logfile, 'w', 'utf-8')
     filehandler = RotatingFileHandler(logfile, 'a', 'utf-8', backupCount=2)
-    filehandler.doRollover() #rollover on each start
+    try:
+        filehandler.doRollover() #rollover on each start
+    except WindowsError:
+        #rollover fails if file is not accessible due to other office program with bkt addin
+        pass
     filehandler.setLevel(log_level)
     filehandler.setFormatter(logging.Formatter(u'%(asctime)s %(levelname)s: %(message)s'))
 

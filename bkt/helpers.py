@@ -280,6 +280,9 @@ class BKTShelf(shelve.DbfilenameShelf):
                 self[key] = default
 
             return default
+        except ValueError:
+            logging.error("Operation on closed shelf file %s for getting key %s. Reset to default value: %s", self._filename, key, default)
+            return default
 
 
 
