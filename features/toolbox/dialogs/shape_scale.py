@@ -16,14 +16,29 @@ import bkt.library.powerpoint as pplib
 
 
 class ScaleShapes(object):
+    excluded_shapes = [
+        pplib.MsoShapeType["msoChart"],
+        pplib.MsoShapeType["msoDiagram"],
+        pplib.MsoShapeType["msoSmartArt"],
+        pplib.MsoShapeType["msoTable"],
+    ]
     
     @classmethod
     def scale_shapes(cls, shapes, value, scale="percent"):
+        shapes_exluded_message = False
         for shape in shapes:
             try:
+                if shape.Type in cls.excluded_shapes:
+                    raise TypeError("shape type not supported")
                 cls.scale_shape(shape, value, scale)
+            except TypeError:
+                logging.warning("scale shape failed due to unsupported shape type")
+                shapes_exluded_message = True
             except:
                 logging.exception("scale shape failed")
+        
+        if shapes_exluded_message:
+            bkt.message.warning("Shape-Skalierung wird nicht unterstützt für Diagramme, Tabellen und Smart-Arts!")
     
     @classmethod
     def scale_shape(cls, shape, value, scale):
@@ -87,9 +102,7 @@ class ViewModel(bkt.ui.ViewModelSingleton):
     def __init__(self):
         super(ViewModel, self).__init__()
         
-        self._scale_percent = True
-        self._scale_width = False
-        self._scale_height = False
+        self._scale_target = "percent"
         
         self._target_percent = 1.0
         self._target_width = 10
@@ -99,12 +112,18 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         self._orig_height = 10
     
     def set_dimensions(self, width, height):
-        self._target_percent = 1.0
-        self._target_width = width
-        self._target_height = height
-
         self._orig_width = width
         self._orig_height = height
+
+        if self._scale_target == "height":
+            self._target_percent = self._target_height/height
+            self._target_width = width * self._target_percent
+        elif self._scale_target == "width":
+            self._target_percent = self._target_width/width
+            self._target_height = height * self._target_percent
+        else:
+            self._target_width = width * self._target_percent
+            self._target_height = height * self._target_percent
 
         self.OnPropertyChanged('target_percent')
         self.OnPropertyChanged('target_height')
@@ -112,24 +131,27 @@ class ViewModel(bkt.ui.ViewModelSingleton):
     
     @notify_property
     def scale_percent(self):
-        return self._scale_percent
+        return self._scale_target == "percent"
     @scale_percent.setter
     def scale_percent(self, value):
-        self._scale_percent = value
+        if value:
+            self._scale_target = "percent"
     
     @notify_property
     def scale_width(self):
-        return self._scale_width
+        return self._scale_target == "width"
     @scale_width.setter
     def scale_width(self, value):
-        self._scale_width = value
+        if value:
+            self._scale_target = "width"
     
     @notify_property
     def scale_height(self):
-        return self._scale_height
+        return self._scale_target == "height"
     @scale_height.setter
     def scale_height(self, value):
-        self._scale_height = value
+        if value:
+            self._scale_target = "height"
     
     
     @notify_property
@@ -180,20 +202,16 @@ class ShapeScaleWindow(bkt.ui.WpfWindowAbstract):
         self.ref_shapes = shapes
         self._vm.set_dimensions(pplib.pt_to_cm(shapes[0].width), pplib.pt_to_cm(shapes[0].height))
 
-
-    def cancel(self, sender, event):
-        self.Close()
+    def reset(self, sender, event):
+        self._vm.target_percent = 1.0
     
     def scale(self, sender, event):
         vm = self._vm
-        if vm.scale_height:
-            scale = "height"
+        if vm._scale_target == "height":
             value = pplib.cm_to_pt(vm._target_height)
-        elif vm.scale_width:
-            scale = "width"
+        elif vm._scale_target == "width":
             value = pplib.cm_to_pt(vm._target_width)
         else:
-            scale = "percent"
             value = vm._target_percent
-        ScaleShapes.scale_shapes(self.ref_shapes, value, scale)
+        ScaleShapes.scale_shapes(self.ref_shapes, value, vm._scale_target)
         self.Close()
