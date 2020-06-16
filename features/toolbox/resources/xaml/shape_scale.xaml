@@ -30,9 +30,9 @@
           <RadioButton VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="1" GroupName="scaletarget" Content="Breite" IsChecked="{Binding scale_width, Mode=TwoWay}" Margin="5" />
           <RadioButton VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="2" GroupName="scaletarget" Content="Höhe" IsChecked="{Binding scale_height, Mode=TwoWay}" Margin="5" />
           
-          <fr:Spinner Grid.Column="1" Grid.Row="0" InputWidth="70" Value="{Binding target_percent, Mode=TwoWay}" Format="0 '%'" Increment="5" Minimum="0" SelectAllTextOnFocus="True"/>
-          <fr:Spinner Grid.Column="1" Grid.Row="1" InputWidth="70" Value="{Binding target_width, Mode=TwoWay}" Format="0.0 cm" Increment="0.2" Minimum="0" SelectAllTextOnFocus="True"/>
-          <fr:Spinner Grid.Column="1" Grid.Row="2" InputWidth="70" Value="{Binding target_height, Mode=TwoWay}" Format="0.0 cm" Increment="0.2" Minimum="0" SelectAllTextOnFocus="True"/>
+          <fr:Spinner Grid.Column="1" Grid.Row="0" InputWidth="90" Value="{Binding target_percent, Mode=TwoWay}" Format="0.0 '%'" Increment="5" Minimum="0" SelectAllTextOnFocus="True"/>
+          <fr:Spinner Grid.Column="1" Grid.Row="1" InputWidth="90" Value="{Binding target_width, Mode=TwoWay}" Format="0.00 cm" Increment="0.2" Minimum="0" SelectAllTextOnFocus="True"/>
+          <fr:Spinner Grid.Column="1" Grid.Row="2" InputWidth="90" Value="{Binding target_height, Mode=TwoWay}" Format="0.00 cm" Increment="0.2" Minimum="0" SelectAllTextOnFocus="True"/>
         </Grid>
         
         <Grid Margin="0">
