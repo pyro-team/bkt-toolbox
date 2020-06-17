@@ -529,12 +529,16 @@ def replicate_shape(shape, force_textbox=False):
     The duplicate function throws a ComException if the duplicate is used (e.g. merged, deleted) afterwards due to pending event handling.
     '''
     slide = shape.Parent
-    if force_textbox or shape.Type == MsoShapeType['msoTextBox']:
+    # Note: Placeholder can be table, chart, diagram, smartart, picture, whatever...
+    if shape.Type == MsoShapeType['msoPlaceholder']:
+        shape_type = shape.PlaceholderFormat.ContainedType
+    shape_type = shape.Type
+    if force_textbox or shape_type == MsoShapeType['msoTextBox']:
         new_shape = slide.shapes.AddTextbox(
             1, #msoTextOrientationHorizontal
             shape.Left, shape.Top, shape.Width, shape.Height)
         new_shape.AutoShapeType = shape.AutoShapeType
-    elif shape.Type != MsoShapeType["msoAutoShape"]:
+    elif shape_type != MsoShapeType["msoAutoShape"]:
         raise ValueError("replication only possible with autoshapes and textboxes")
     else:
         new_shape = slide.shapes.AddShape(
