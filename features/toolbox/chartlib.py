@@ -669,6 +669,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
            Initializes Gallery for chart/shape-library
         '''
         self.filename = filename
+        self.thumb_dict = os.path.splitext(filename)[0] + THUMBNAIL_POSTFIX
         self.items_initialized = False
         
         self.labels = []
@@ -928,7 +929,11 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     
     def get_image_filename(self, index, postfix=""):
         ''' returns path of thumbnail for given chart-lib slide '''
-        return os.path.join(os.path.splitext(self.filename)[0] + THUMBNAIL_POSTFIX, str(index) + postfix + '.png')
+        return os.path.join(self.thumb_dict, ''.join([str(index),postfix,'.png']))
+    
+    def get_image_filename_for_index(self, index, postfix=""):
+        ''' returns path of thumbnail for given chart-lib slide '''
+        return self.get_image_filename(self.slide_indices[index], postfix)
     
     
     def generate_gallery_images_from_slides(self, presentation, closing_gallery_workaround=False):
@@ -938,7 +943,8 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         # control_chars = dict.fromkeys(range(32))
         
         # make sure, directory exists
-        directory = os.path.split( self.get_image_filename(1) )[0]
+        # directory = os.path.split( self.get_image_filename(1) )[0]
+        directory = self.thumb_dict
         if not os.path.exists(directory):
             os.makedirs(directory)
         
@@ -967,12 +973,13 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         # control_chars = dict.fromkeys(range(32))
         
         # make sure, directory exists
-        directory = os.path.split( self.get_image_filename(1) )[0]
+        # directory = os.path.split( self.get_image_filename(1) )[0]
+        directory = self.thumb_dict
         if not os.path.exists(directory):
             os.makedirs(directory)
         
         for slide in presentation.slides:
-            if slide.shapes.hastitle != False:
+            if slide.shapes.hastitle:
                 # find relevant shapes
                 shape_indices = []
                 shape_index = 1
@@ -1019,7 +1026,11 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     def get_chartlib_item_image(self, index):
         ''' load item image from corresponding image-file and return Bitmap-object '''
         #logging.debug('get_chartlib_item_image %s -- %s', filename, index)
-        image_filename = self.get_image_filename(index+1)
+        try:
+            image_filename = self.get_image_filename_for_index(index)
+        except IndexError:
+            #IndexError occurs for gallery image before init_gallery was called
+            image_filename = self.get_image_filename(index+1)
         #logging.debug('get_chartlib_item_image %s', image_filename)
         if os.path.exists(image_filename):
             # return empty from file
