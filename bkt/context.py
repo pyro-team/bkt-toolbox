@@ -265,13 +265,20 @@ class AppContextPowerPoint(AppContext):
     @property
     def slides(self):
         ''' gives list-access to app.ActiveWindow.Selection.SlideRange '''
-        selection = self.app.ActiveWindow.Selection
-        slides = list(iter(selection.SlideRange))
+        try:
+            slides = list(iter(self.selection.SlideRange))
+        except EnvironmentError:
+            #fallback for Invalid request.  SlideRange cannot be constructed from a Master.
+            return [self.app.ActiveWindow.View.Slide]
         return slides
 
     @property
     def slide(self):
-        return self.slides[0]
+        try:
+            return self.slides[0]
+        except EnvironmentError:
+            #fallback for Invalid request.  SlideRange cannot be constructed from a Master.
+            return self.app.ActiveWindow.View.Slide
     
     @property
     def selection(self):
@@ -358,8 +365,12 @@ class AppContextPowerPoint(AppContext):
             except KeyError:
                 try:
                     self.cache['slides'] = slides = list(iter(selection.SlideRange))
-                except:
-                    self.fail()
+                except EnvironmentError:
+                    #fallback to slide in view, e.g. Invalid request.  SlideRange cannot be constructed from a Master.
+                    try:
+                        self.cache['slides'] = slides = [self.app.ActiveWindow.View.Slide]
+                    except:
+                        self.fail()
                 
             if not slides:
                 self.fail()
