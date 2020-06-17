@@ -614,9 +614,6 @@ class ChartLib(object):
         # template_presentation = cls.open_presentation_file(context, filename)
         with open_presentation_without_window(context, filename) as template_presentation:
             template_slide = template_presentation.slides.item(int(slide_index))
-            # current slide
-            cur_slide = context.app.activeWindow.View.Slide
-            shape_count = cur_slide.shapes.count
             # find relevant shapes
             shape_indices = []
             shape_index = 1
@@ -627,14 +624,21 @@ class ChartLib(object):
                 shape_index+=1
             # select and copy shapes
             template_slide.shapes.Range(Array[int](shape_indices)).copy()
-            # cur_slide.shapes.paste()
-            cls._save_paste(cur_slide.shapes)
-            
-            # group+select shapes
-            if cur_slide.shapes.count - shape_count > 1:
-                cur_slide.shapes.Range(Array[int](range(shape_count+1, cur_slide.shapes.count+1))).group().select()
-            else:
-                cur_slide.shapes.item(cur_slide.shapes.count).select()
+            # current slide
+            # cur_slide = context.app.activeWindow.View.Slide
+            cur_slides = context.slides
+            do_select = len(cur_slides) == 1
+            for cur_slide in cur_slides:
+                shape_count = cur_slide.shapes.count
+                # cur_slide.shapes.paste()
+                cls._save_paste(cur_slide.shapes)
+                new_shape_count = cur_slide.shapes.count
+                # group+select shapes
+                if new_shape_count - shape_count > 1:
+                    shape = cur_slide.shapes.Range(Array[int](range(shape_count+1, new_shape_count+1))).group()
+                    shape.select()
+                elif do_select:
+                    cur_slide.shapes.item(new_shape_count).select()
             # template_presentation.Close()
     
     
