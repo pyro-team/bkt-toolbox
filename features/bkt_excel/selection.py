@@ -510,6 +510,7 @@ selektion_gruppe = bkt.ribbon.Group(
             image_mso='SizeToControlHeightAndWidth',
             screentip="Verschieben der Selektion verändert auch die Größe",
             on_toggle_action=bkt.Callback(SelectionOps.toggle_move_resize),
+            get_pressed=bkt.Callback(lambda: SelectionOps.move_resize),
             get_enabled = bkt.Callback(lambda areas: True, areas=True, areas_min=1, areas_max=1),
         ),
         bkt.ribbon.Separator(),
