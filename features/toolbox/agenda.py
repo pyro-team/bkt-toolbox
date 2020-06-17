@@ -1267,7 +1267,10 @@ class ToolboxAgenda(object):
     @classmethod
     def is_agenda_slide(cls, slide):
         ''' check if current slide is agenda-slide '''
-        return slide.Tags.Item(TOOLBOX_AGENDA) != ""
+        try:
+            return slide.Tags.Item(TOOLBOX_AGENDA) != ""
+        except: #AttributeError
+            return False
         # settings = cls.get_agenda_settings_from_slide(slide)
         # return settings != {}
     
