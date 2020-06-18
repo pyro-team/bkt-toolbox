@@ -530,9 +530,9 @@ def replicate_shape(shape, force_textbox=False):
     '''
     slide = shape.Parent
     # Note: Placeholder can be table, chart, diagram, smartart, picture, whatever...
-    if shape.Type == MsoShapeType['msoPlaceholder']:
-        shape_type = shape.PlaceholderFormat.ContainedType
     shape_type = shape.Type
+    if shape_type == MsoShapeType['msoPlaceholder']:
+        shape_type = shape.PlaceholderFormat.ContainedType
     if force_textbox or shape_type == MsoShapeType['msoTextBox']:
         new_shape = slide.shapes.AddTextbox(
             1, #msoTextOrientationHorizontal
