@@ -24,13 +24,13 @@ class ScaleShapes(object):
     ]
     
     @classmethod
-    def scale_shapes(cls, shapes, value, scale="percent"):
+    def scale_shapes(cls, shapes, value, scale="percent", settings=['size', 'line', 'shadow', 'font', 'margin', 'indent']):
         shapes_exluded_message = False
         for shape in shapes:
             try:
                 if shape.Type in cls.excluded_shapes:
                     raise TypeError("shape type not supported")
-                cls.scale_shape(shape, value, scale)
+                cls.scale_shape(shape, value, scale, settings)
             except TypeError:
                 logging.warning("scale shape failed due to unsupported shape type")
                 shapes_exluded_message = True
@@ -41,7 +41,7 @@ class ScaleShapes(object):
             bkt.message.warning("Shape-Skalierung wird nicht unterstützt für Diagramme, Tabellen und Smart-Arts!")
     
     @classmethod
-    def scale_shape(cls, shape, value, scale):
+    def scale_shape(cls, shape, value, scale, settings):
         if scale == "height":
             rel = value / shape.height
         elif scale == "width":
@@ -50,45 +50,47 @@ class ScaleShapes(object):
             rel = value
             logging.warning("scale percent: %s", rel)
 
-        #TODO: tables: do not work
-
-        shape.ScaleWidth(rel,0,0)
-        if not shape.LockAspectRatio:
-            shape.ScaleHeight(rel,0,0)
+        if 'size' in settings:
+            shape.ScaleWidth(rel,0,0)
+            if not shape.LockAspectRatio:
+                shape.ScaleHeight(rel,0,0)
 
         for shape in pplib.iterate_shape_subshapes([shape]):
-            if shape.Line.Visible:
+            if 'line' in settings and shape.Line.Visible:
                 shape.Line.Weight *= rel
 
-            if shape.Shadow.Visible:
+            if 'shadow' in settings and shape.Shadow.Visible:
                 shape.shadow.Blur *= rel
                 shape.shadow.OffsetX *= rel
                 shape.shadow.OffsetY *= rel
 
             if shape.HasTextFrame:
                 textframe = shape.TextFrame2
-                textframe.MarginTop *= rel
-                textframe.MarginBottom *= rel
-                textframe.MarginLeft *= rel
-                textframe.MarginRight *= rel
+                if 'margin' in settings:
+                    textframe.MarginTop *= rel
+                    textframe.MarginBottom *= rel
+                    textframe.MarginLeft *= rel
+                    textframe.MarginRight *= rel
                 #per run
                 textrange = textframe.TextRange
                 for run in textrange.Runs():
-                    run.Font.Size *= rel
-                    if run.Font.Line.Visible:
-                        run.Font.Line.Weight *= rel
+                    if 'font' in settings:
+                        run.Font.Size *= rel
+                        if run.Font.Line.Visible:
+                            run.Font.Line.Weight *= rel
 
-                    parf = run.ParagraphFormat
-                    if not parf.LineRuleBefore:
-                        parf.SpaceBefore *= rel
-                    if not parf.LineRuleAfter:
-                        parf.SpaceAfter *= rel
-                    if not parf.LineRuleWithin:
-                        parf.SpaceWithin *= rel
+                    if 'indent' in settings:
+                        parf = run.ParagraphFormat
+                        if not parf.LineRuleBefore:
+                            parf.SpaceBefore *= rel
+                        if not parf.LineRuleAfter:
+                            parf.SpaceAfter *= rel
+                        if not parf.LineRuleWithin:
+                            parf.SpaceWithin *= rel
 
-                    parf.FirstLineIndent *= rel
-                    parf.LeftIndent *= rel
-                    parf.RightIndent *= rel
+                        parf.FirstLineIndent *= rel
+                        parf.LeftIndent *= rel
+                        parf.RightIndent *= rel
 
 
 
@@ -110,6 +112,8 @@ class ViewModel(bkt.ui.ViewModelSingleton):
 
         self._orig_width = 10
         self._orig_height = 10
+
+        self._settings = set(['size', 'line', 'shadow', 'font', 'margin', 'indent'])
     
     def set_dimensions(self, width, height):
         self._orig_width = width
@@ -190,6 +194,66 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         self.OnPropertyChanged('target_percent')
         self.OnPropertyChanged('target_width')
         self.scale_height = True
+    
+    @notify_property
+    def settings_size(self):
+        return 'size' in self._settings
+    @settings_size.setter
+    def settings_size(self, value):
+        if value:
+            self._settings.add('size')
+        else:
+            self._settings.remove('size')
+    
+    @notify_property
+    def settings_line(self):
+        return 'line' in self._settings
+    @settings_line.setter
+    def settings_line(self, value):
+        if value:
+            self._settings.add('line')
+        else:
+            self._settings.remove('line')
+    
+    @notify_property
+    def settings_shadow(self):
+        return 'shadow' in self._settings
+    @settings_shadow.setter
+    def settings_shadow(self, value):
+        if value:
+            self._settings.add('shadow')
+        else:
+            self._settings.remove('shadow')
+    
+    @notify_property
+    def settings_font(self):
+        return 'font' in self._settings
+    @settings_font.setter
+    def settings_font(self, value):
+        if value:
+            self._settings.add('font')
+        else:
+            self._settings.remove('font')
+    
+    @notify_property
+    def settings_margin(self):
+        return 'margin' in self._settings
+    @settings_margin.setter
+    def settings_margin(self, value):
+        if value:
+            self._settings.add('margin')
+        else:
+            self._settings.remove('margin')
+    
+    @notify_property
+    def settings_indent(self):
+        return 'indent' in self._settings
+    @settings_indent.setter
+    def settings_indent(self, value):
+        if value:
+            self._settings.add('indent')
+        else:
+            self._settings.remove('indent')
 
 
 class ShapeScaleWindow(bkt.ui.WpfWindowAbstract):
@@ -213,5 +277,5 @@ class ShapeScaleWindow(bkt.ui.WpfWindowAbstract):
             value = pplib.cm_to_pt(vm._target_width)
         else:
             value = vm._target_percent
-        ScaleShapes.scale_shapes(self.ref_shapes, value, vm._scale_target)
+        ScaleShapes.scale_shapes(self.ref_shapes, value, vm._scale_target, vm._settings)
         self.Close()
