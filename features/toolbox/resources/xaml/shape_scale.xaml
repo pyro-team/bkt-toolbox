@@ -20,19 +20,35 @@
               <RowDefinition />
               <RowDefinition />
               <RowDefinition />
+              <RowDefinition />
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
               <ColumnDefinition />
               <ColumnDefinition />
+              <ColumnDefinition Width="30" />
+              <ColumnDefinition />
+              <ColumnDefinition />
           </Grid.ColumnDefinitions>
 
-          <RadioButton VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="0" GroupName="scaletarget" Content="Prozent" IsChecked="{Binding scale_percent, Mode=TwoWay}" Margin="5" />
-          <RadioButton VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="1" GroupName="scaletarget" Content="Breite" IsChecked="{Binding scale_width, Mode=TwoWay}" Margin="5" />
-          <RadioButton VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="2" GroupName="scaletarget" Content="Höhe" IsChecked="{Binding scale_height, Mode=TwoWay}" Margin="5" />
+          <Label Grid.Column="0" Grid.Row="0" Content="Zielgröße:" FontWeight="Bold" />
+
+          <RadioButton VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="1" GroupName="scaletarget" Content="Prozent" IsChecked="{Binding scale_percent, Mode=TwoWay}" Margin="5" />
+          <RadioButton VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="2" GroupName="scaletarget" Content="Breite" IsChecked="{Binding scale_width, Mode=TwoWay}" Margin="5" />
+          <RadioButton VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="3" GroupName="scaletarget" Content="Höhe" IsChecked="{Binding scale_height, Mode=TwoWay}" Margin="5" />
           
-          <fr:Spinner Grid.Column="1" Grid.Row="0" InputWidth="90" Value="{Binding target_percent, Mode=TwoWay}" Format="0.0 '%'" Increment="5" Minimum="0" SelectAllTextOnFocus="True"/>
-          <fr:Spinner Grid.Column="1" Grid.Row="1" InputWidth="90" Value="{Binding target_width, Mode=TwoWay}" Format="0.00 cm" Increment="0.2" Minimum="0" SelectAllTextOnFocus="True"/>
-          <fr:Spinner Grid.Column="1" Grid.Row="2" InputWidth="90" Value="{Binding target_height, Mode=TwoWay}" Format="0.00 cm" Increment="0.2" Minimum="0" SelectAllTextOnFocus="True"/>
+          <fr:Spinner Grid.Column="1" Grid.Row="1" InputWidth="90" Value="{Binding target_percent, Mode=TwoWay}" Format="0.0 '%'" Increment="5" Minimum="0" SelectAllTextOnFocus="True"/>
+          <fr:Spinner Grid.Column="1" Grid.Row="2" InputWidth="90" Value="{Binding target_width, Mode=TwoWay}" Format="0.00 cm" Increment="0.2" Minimum="0" SelectAllTextOnFocus="True"/>
+          <fr:Spinner Grid.Column="1" Grid.Row="3" InputWidth="90" Value="{Binding target_height, Mode=TwoWay}" Format="0.00 cm" Increment="0.2" Minimum="0" SelectAllTextOnFocus="True"/>
+
+          <Label Grid.Column="3" Grid.Row="0" Content="Skalierung:" FontWeight="Bold" />
+
+          <CheckBox Grid.Column="3" Grid.Row="1" Content="Größe" IsChecked="{Binding settings_size, Mode=TwoWay}" Margin="5" />
+          <CheckBox Grid.Column="3" Grid.Row="2" Content="Linie/Rahmen" IsChecked="{Binding settings_line, Mode=TwoWay}" Margin="5" />
+          <CheckBox Grid.Column="3" Grid.Row="3" Content="Schatten" IsChecked="{Binding settings_shadow, Mode=TwoWay}" Margin="5" />
+          <CheckBox Grid.Column="4" Grid.Row="1" Content="Schriftgröße" IsChecked="{Binding settings_font, Mode=TwoWay}" Margin="5" />
+          <CheckBox Grid.Column="4" Grid.Row="2" Content="Textfeld Innenabstand" IsChecked="{Binding settings_margin, Mode=TwoWay}" Margin="5" />
+          <CheckBox Grid.Column="4" Grid.Row="3" Content="Absatzformat" IsChecked="{Binding settings_indent, Mode=TwoWay}" Margin="5" />
+
         </Grid>
         
         <Grid Margin="0">
