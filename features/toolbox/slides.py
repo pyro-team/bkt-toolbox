@@ -314,47 +314,9 @@ class SlideMenu(object):
     
     @classmethod
     def remove_all(cls, context):
-        try:
-            logging.debug("Slide clean-up: slide notes")
-            cls.remove_slide_notes(context)
-        except:
-            logging.exception("error in slide clean-up")
-        
-        try:
-            logging.debug("Slide clean-up: hidden slides")
-            cls.remove_hidden_slides(context)
-        except:
-            logging.exception("error in slide clean-up")
-        
-        try:
-            logging.debug("Slide clean-up: transitions")
-            cls.remove_transitions(context)
-        except:
-            logging.exception("error in slide clean-up")
-        
-        try:
-            logging.debug("Slide clean-up: animations")
-            cls.remove_animations(context)
-        except:
-            logging.exception("error in slide clean-up")
-        
-        try:
-            logging.debug("Slide clean-up: slide comments")
-            cls.remove_slide_comments(context)
-        except:
-            logging.exception("error in slide clean-up")
-        
-        try:
-            logging.debug("Slide clean-up: double spaces")
-            cls.remove_doublespaces(context)
-        except:
-            logging.exception("error in slide clean-up")
-        
-        try:
-            logging.debug("Slide clean-up: empty placeholder")
-            cls.remove_empty_placeholders(context)
-        except:
-            logging.exception("error in slide clean-up")
+        from .dialogs.slides_clean import SlideCleanWindow
+        SlideCleanWindow.create_and_show_dialog(cls, context)
+
         
     @classmethod
     def _iterate_all_shapes(cls, context, groupitems=False):
@@ -437,7 +399,7 @@ class SlideMenu(object):
         context.presentation.BuiltInDocumentProperties.item["author"].value = ''
 
     @classmethod
-    def remove_unused_masters(cls, context):
+    def remove_unused_masters(cls, context, silent=True):
         deleted_layouts = 0
         unused_designs = []
         for design in context.presentation.Designs:
@@ -450,6 +412,9 @@ class SlideMenu(object):
                     continue
             if design.SlideMaster.CustomLayouts.Count == 0:
                 unused_designs.append(design)
+
+        if silent:
+            return
         
         unused_designs_len = len(unused_designs)
         if unused_designs_len > 0:
@@ -464,7 +429,7 @@ class SlideMenu(object):
             bkt.message("Es wurden {} Folienlayouts gelöscht!".format(deleted_layouts))
     
     @classmethod
-    def remove_unused_designs(cls, context):
+    def remove_unused_designs(cls, context, silent=True):
         deleted_designs = 0
         designs = context.presentation.designs
         #list incides of all designs
@@ -484,13 +449,15 @@ class SlideMenu(object):
             except:
                 logging.exception("error deleting design")
         
-        bkt.message("Es wurden {} Folienmaster gelöscht!".format(deleted_designs))
+        if not silent:
+            bkt.message("Es wurden {} Folienmaster gelöscht!".format(deleted_designs))
 
     @classmethod
     def break_links(cls, context):
         for shape in cls._iterate_all_shapes(context, groupitems=True):
             try:
-                shape.LinkFormat.BreakLink()
+                if shape.Type in (pplib.MsoShapeType["msoLinkedGraphic"], pplib.MsoShapeType["msoLinkedOLEObject"], pplib.MsoShapeType["msoLinkedPicture"]):
+                    shape.LinkFormat.BreakLink()
             except:
                 logging.exception("error breaking link")
     
@@ -607,12 +574,19 @@ slides_group = bkt.ribbon.Group(
                 bkt.ribbon.SplitButton(children=[
                     bkt.ribbon.Button(
                         id = 'slide_remove_all',
-                        label='Slidedeck aufräumen',
+                        label='Slidedeck aufräumen…',
                         image_mso='SlideShowFromCurrent', #AcceptTask, SlideShowFromCurrent, FilePublishSlides
-                        supertip="Lösche Notizen, ausgebledete Slides, Übergänge, Animationen, Kommentare, doppelte Leerzeichen, leere Platzhalter.",
+                        supertip="Zeigt Dialog zur Auswahl der anzuwendenden Funktionen.",
                         on_action=bkt.Callback(SlideMenu.remove_all)
                     ),
                     bkt.ribbon.Menu(label="Slidedeck aufräumen", supertip="Funktionen zum Aufräumen aller Folien der Präsentation", image_mso='SlideShowFromCurrent', children=[
+                        bkt.ribbon.Button(
+                            id = 'slide_remove_all2',
+                            label='Funktionen auswählen…',
+                            image_mso='SlideShowFromCurrent', #AcceptTask, SlideShowFromCurrent, FilePublishSlides
+                            supertip="Zeigt Dialog zur Auswahl der anzuwendenden Funktionen.",
+                            on_action=bkt.Callback(SlideMenu.remove_all)
+                        ),
                         bkt.ribbon.MenuSeparator(title="Inhalte"),
                         bkt.ribbon.Button(
                             id = 'slide_remove_hidden_slides',
@@ -692,14 +666,14 @@ slides_group = bkt.ribbon.Group(
                             label='Nicht genutzte Folienlayouts entfernen',
                             image_mso='SlideDelete',
                             supertip="Lösche alle nicht verwendeten Folienmaster-Layouts sowie leere Folienmaster (Designs).",
-                            on_action=bkt.Callback(SlideMenu.remove_unused_masters)
+                            on_action=bkt.Callback(lambda context: SlideMenu.remove_unused_masters(context, False))
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_unused_designs',
                             label='Nicht genutzte Folienmaster entfernen',
                             image_mso='SlideDelete',
                             supertip="Lösche alle nicht verwendeten Folienmaster (Designs).",
-                            on_action=bkt.Callback(SlideMenu.remove_unused_designs)
+                            on_action=bkt.Callback(lambda context: SlideMenu.remove_unused_designs(context, False))
                         ),
                     ]),
                 ]),
