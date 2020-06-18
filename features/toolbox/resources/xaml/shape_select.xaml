@@ -40,9 +40,9 @@
                 </StackPanel>
             </GroupBox.Header>
             <StackPanel Orientation="Vertical" Margin="5">
-                <CheckBox Content="Typ/Form" IsChecked="{Binding sk_shape_type, Mode=TwoWay}" Margin="5,0" />
-                <CheckBox Content="Breite" IsChecked="{Binding sk_shape_width, Mode=TwoWay}" Margin="5,0" />
-                <CheckBox Content="Höhe" IsChecked="{Binding sk_shape_height, Mode=TwoWay}" Margin="5,0" />
+                <CheckBox Content="Typ/Form" IsChecked="{Binding sk_shape_type, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Breite" IsChecked="{Binding sk_shape_width, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Höhe" IsChecked="{Binding sk_shape_height, Mode=TwoWay}" Margin="5,1" />
             </StackPanel>
         </GroupBox>
 
@@ -56,9 +56,9 @@
                 </StackPanel>
             </GroupBox.Header>
             <StackPanel Orientation="Vertical" Margin="5">
-                <CheckBox Content="Links" IsChecked="{Binding sk_pos_left, Mode=TwoWay}" Margin="5,0"/>
-                <CheckBox Content="Oben" IsChecked="{Binding sk_pos_top, Mode=TwoWay}" Margin="5,0" />
-                <CheckBox Content="Rotation" IsChecked="{Binding sk_pos_rotation, Mode=TwoWay}" Margin="5,0" />
+                <CheckBox Content="Links" IsChecked="{Binding sk_pos_left, Mode=TwoWay}" Margin="5,1"/>
+                <CheckBox Content="Oben" IsChecked="{Binding sk_pos_top, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Rotation" IsChecked="{Binding sk_pos_rotation, Mode=TwoWay}" Margin="5,1" />
             </StackPanel>
         </GroupBox>
 
@@ -72,9 +72,9 @@
                 </StackPanel>
             </GroupBox.Header>
             <StackPanel Orientation="Vertical" Margin="5">
-                <CheckBox Content="Art" ToolTip="Einfarbig/Verlauf/Muster" IsChecked="{Binding sk_fill_type, Mode=TwoWay}" Margin="5,0" />
-                <CheckBox Content="Farbe" IsChecked="{Binding sk_fill_color, Mode=TwoWay}" Margin="5,0" />
-                <CheckBox Content="Transparenz" IsChecked="{Binding sk_fill_transp, Mode=TwoWay}" Margin="5,0" />
+                <CheckBox Content="Art" ToolTip="Einfarbig/Verlauf/Muster" IsChecked="{Binding sk_fill_type, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Farbe" IsChecked="{Binding sk_fill_color, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Transparenz" IsChecked="{Binding sk_fill_transp, Mode=TwoWay}" Margin="5,1" />
             </StackPanel>
         </GroupBox>
 
@@ -88,11 +88,11 @@
                 </StackPanel>
             </GroupBox.Header>
             <StackPanel Orientation="Vertical" Margin="5">
-                <CheckBox Content="Konturstärke" IsChecked="{Binding sk_line_weight, Mode=TwoWay}" Margin="5,0" />
-                <CheckBox Content="Art/Strichtyp" IsChecked="{Binding sk_line_style, Mode=TwoWay}" Margin="5,0" />
-                <CheckBox Content="Farbe" IsChecked="{Binding sk_line_color, Mode=TwoWay}" Margin="5,0" />
-                <CheckBox Content="Anfang (Pfeiltyp)" IsChecked="{Binding sk_line_begin, Mode=TwoWay}" Margin="5,0" />
-                <CheckBox Content="Ende (Pfeiltyp)" IsChecked="{Binding sk_line_end, Mode=TwoWay}" Margin="5,0" />
+                <CheckBox Content="Konturstärke" IsChecked="{Binding sk_line_weight, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Art/Strichtyp" IsChecked="{Binding sk_line_style, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Farbe" IsChecked="{Binding sk_line_color, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Anfang (Pfeiltyp)" IsChecked="{Binding sk_line_begin, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Ende (Pfeiltyp)" IsChecked="{Binding sk_line_end, Mode=TwoWay}" Margin="5,1" />
             </StackPanel>
         </GroupBox>
 
@@ -106,10 +106,10 @@
                 </StackPanel>
             </GroupBox.Header>
             <StackPanel Orientation="Vertical" Margin="5">
-                <CheckBox Content="Schriftart" IsChecked="{Binding sk_font_name, Mode=TwoWay}" Margin="5,0" />
-                <CheckBox Content="Schriftgröße" IsChecked="{Binding sk_font_size, Mode=TwoWay}" Margin="5,0" />
-                <CheckBox Content="Schriftfarbe" IsChecked="{Binding sk_font_color, Mode=TwoWay}" Margin="5,0" />
-                <CheckBox Content="Stil" ToolTip="Fett/Unterstrichen/Kursiv" IsChecked="{Binding sk_font_style, Mode=TwoWay}" Margin="5,0" />
+                <CheckBox Content="Schriftart" IsChecked="{Binding sk_font_name, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Schriftgröße" IsChecked="{Binding sk_font_size, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Schriftfarbe" IsChecked="{Binding sk_font_color, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Stil" ToolTip="Fett/Unterstrichen/Kursiv" IsChecked="{Binding sk_font_style, Mode=TwoWay}" Margin="5,1" />
             </StackPanel>
         </GroupBox>
 
@@ -123,8 +123,8 @@
                 </StackPanel>
             </GroupBox.Header>
             <StackPanel Orientation="Vertical" Margin="5">
-                <CheckBox Content="Anzahl Zeichen" IsChecked="{Binding sk_content_len, Mode=TwoWay}" Margin="5,0" />
-                <CheckBox Content="Text" IsChecked="{Binding sk_content_text, Mode=TwoWay}" Margin="5,0" />
+                <CheckBox Content="Anzahl Zeichen" IsChecked="{Binding sk_content_len, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Text" IsChecked="{Binding sk_content_text, Mode=TwoWay}" Margin="5,1" />
             </StackPanel>
         </GroupBox>
 

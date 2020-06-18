@@ -134,9 +134,6 @@ class SendWindow(bkt.ui.WpfWindowAbstract):
 
         super(SendWindow, self).__init__(context)
 
-    def cancel(self, sender, event):
-        self.Close()
-    
     def send_slides(self, sender, event):
         self.Close()
         slides = None if self._vm._slides == "all" else self._context.slides
