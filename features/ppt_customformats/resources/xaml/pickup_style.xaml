@@ -32,9 +32,9 @@
               <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <StackPanel Orientation="Horizontal" Grid.Column="1">
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Okay"      IsDefault="True" Click="pickup_style"/>
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Löschen"                    Click="delete_style" Visibility="{Binding show_delete}"/>
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Okay"      IsDefault="True" Click="pickup_style"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Löschen"                    Click="delete_style" Visibility="{Binding show_delete}"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
           </StackPanel>
       </Grid>
     </StackPanel>
