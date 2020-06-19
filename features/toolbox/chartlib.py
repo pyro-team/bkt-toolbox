@@ -110,7 +110,7 @@ class ChartLib(object):
         for folder in bkt.config.feature_folders:
             chartlib_folder = os.path.join(folder, subfolder)
             if os.path.exists(chartlib_folder):
-                self.library_folders.append( { 'title':os.path.basename(os.path.realpath(folder)), 'folder':os.path.join(folder, subfolder)})
+                self.library_folders.append( {'title':os.path.basename(os.path.realpath(folder)), 'folder':chartlib_folder} )
         
         # add favorite folder as first folder
         self.fav_folder = bkt.helpers.get_fav_folder(subfolder)
@@ -210,7 +210,7 @@ class ChartLib(object):
             self.init_chartlib()
 
         # create menu-items for chartlibrary-directories
-        if len(self.library_folders) == 0:
+        if not self.library_folders:
             # create empty menu
             menu = bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
@@ -219,22 +219,33 @@ class ChartLib(object):
         elif len(self.library_folders) == 1:
             # create menu with contents of directory
             folder = self.library_folders[0]
-            if type(folder) == dict:
+            if type(folder) is dict:
                 folder = folder['folder']
             menu = self.get_folder_menu(folder, id=None)
             menu.label=None
         else:
             # create menu with sections for each directory
-            folders = [ folder if type(folder) == dict else  {'folder':folder, 'title':os.path.basename(folder)}   for folder in self.library_folders]
-            logging.debug("ChartLib root menu with folders: %s", folders)
-            
-            children = [ self.get_folder_menu(folder['folder'], label=folder['title']) for folder in folders]
-            # make list flat 
+            children = []
+            for folder in self.library_folders:
+                if type(folder) is dict:
+                    title = folder['title']
+                    directory = folder['folder']
+                else:
+                    title = os.path.basename(folder)
+                    directory = folder
+                children.append( self.get_folder_menu(directory, label=title) )
+
+            # old version (shorter but less readable and more loops):
+            # folders = [ folder if type(folder) == dict else  {'folder':folder, 'title':os.path.basename(folder)}   for folder in self.library_folders]
+            # logging.debug("ChartLib root menu with folders: %s", folders)
+            # children = [ self.get_folder_menu(folder['folder'], label=folder['title']) for folder in folders]
+
+            # make list flat
             flat_children = []
             for folder_menu in children:
-                if len(folder_menu.children) > 0:
+                if folder_menu.children:
                     flat_children.append( bkt.ribbon.MenuSeparator(title=folder_menu['label'] or None) )
-                    flat_children += folder_menu.children
+                    flat_children.extend( folder_menu.children )
             
             menu = bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
@@ -244,14 +255,18 @@ class ChartLib(object):
             
             
         # create menu-items for chartlibrary-files
-        menu.children.append( bkt.ribbon.MenuSeparator() )
-        for filename in self.library_files:
-            menu.children.append( self.get_dynamic_file_menu(filename) )
+        if self.library_files:
+            menu.children.append( bkt.ribbon.MenuSeparator(title="Einzel-Libraries") )
+            for filename in self.library_files:
+                if self.show_gallery:
+                    menu.children.append( self.get_chartlib_gallery_from_file(filename) )
+                else:
+                    menu.children.append( self.get_dynamic_file_menu(filename) )
         
         # buttons
         menu.children += [
             bkt.ribbon.MenuSeparator(title="Settings"),
-            bkt.ribbon.Button(label="Zu Favoriten hinzufügen",
+            bkt.ribbon.Button(label="Shapes zu Favoriten hinzufügen" if self.copy_shapes_setting else "Folien zu Favoriten hinzufügen",
                 screentip="Chart zu Favoriten-Library hinzufügen",
                 supertip="Ausgewählte Slides/Shapes zu Standard-Favoriten-Library hinzufügen. Falls diese Library noch nicht existiert, wird diese neu angelegt.",
                 image_mso='AddToFavorites',
@@ -289,17 +304,17 @@ class ChartLib(object):
         subfolders = []
         
         if os.path.isdir(folder):
-            # find pptx-Files
             for filename in os.listdir(folder):
+                # find pptx-Files
                 if filename.endswith(".pptx") and not filename.startswith("~$"):
                     files.append(filename)
-            logging.debug('get_folder_menu files: %s', files)
-        
-            # find subfolders
-            for filename in os.listdir(folder):
+    
+                # find subfolders
                 if os.path.isdir(os.path.join(folder, filename)):
                     if not filename.endswith(THUMBNAIL_POSTFIX):
                         subfolders.append(filename)
+
+            logging.debug('get_folder_menu files: %s', files)
             logging.debug('get_folder_menu folders: %s', subfolders)
             
         else:
@@ -307,17 +322,27 @@ class ChartLib(object):
         
         # FIXME: no folders which belong to files
         
-        if len(files) + len(subfolders) == 0:
-            children = []
-        else:
-            # create DynamicMenus / Galleries
-            children = [
-                self.get_chartlib_gallery_from_file(folder + "\\" + filename) if self.show_gallery else self.get_dynamic_file_menu(folder + "\\" + filename) 
-                for filename in files
-            ] + ([bkt.ribbon.MenuSeparator()] if len(files) > 0 else [] )+ [
-                self.get_dynamic_folder_menu(folder + "\\" + subfolder)
-                for subfolder in subfolders
-            ]
+        children = []
+        # create DynamicMenus / Galleries
+        for filename in files:
+            if self.show_gallery:
+                children.append( self.get_chartlib_gallery_from_file(os.path.join(folder, filename)) )
+            else:
+                children.append( self.get_dynamic_file_menu(os.path.join(folder, filename)) )
+        if files:
+            #only add separator if files >0
+            children.append(bkt.ribbon.MenuSeparator())
+        for subfolder in subfolders:
+            children.append( self.get_dynamic_folder_menu(os.path.join(folder, subfolder)) )
+            
+            # old version (shorter but less readable and more loops):
+            # children = [
+            #     self.get_chartlib_gallery_from_file(folder + "\\" + filename) if self.show_gallery else self.get_dynamic_file_menu(folder + "\\" + filename) 
+            #     for filename in files
+            # ] + ([bkt.ribbon.MenuSeparator()] if len(files) > 0 else [] )+ [
+            #     self.get_dynamic_folder_menu(folder + "\\" + subfolder)
+            #     for subfolder in subfolders
+            # ]
         
         # return Menu
         return bkt.ribbon.Menu(
@@ -341,17 +366,38 @@ class ChartLib(object):
         )
     
     def update_thumbnails_and_reset_cashes(self, context):
-        if not bkt.message.confirmation("Dieser Vorgang kann bei vielen Libraries einige Minuten dauern und nicht abgebrochen werden. Trotzdem fortsetzen?"):
+        if not bkt.message.confirmation("Dieser Vorgang kann bei vielen Libraries einige Minuten dauern und nicht abgebrochen werden. Trotzdem fortsetzen?", "BKT: ChartLib"):
             return
 
         def loop(worker):
             try:
-                total = len(self.cached_presentation_galleries)+1
-                current = 1.0
-                worker.ReportProgress(1, "Lade Dateien")
-                for gal in self.cached_presentation_galleries.itervalues():
+                worker.ReportProgress(1, "Lade Ordner und Dateien")
+                #get all galleries
+                galleries = []
+                for file in self.library_files:
                     if worker.CancellationPending:
                         break
+                    galleries.append( self.get_chartlib_gallery_from_file(file) )
+
+                for folder in self.library_folders:
+                    if worker.CancellationPending:
+                        break
+                    if type(folder) is dict:
+                        folder = folder["folder"]
+                    for root, _, files in os.walk(folder):
+                        if root.endswith(THUMBNAIL_POSTFIX):
+                            continue
+                        for file in files:
+                            if file.endswith(".pptx") and not file.startswith("~$"):
+                                galleries.append( self.get_chartlib_gallery_from_file(os.path.join(root, file)) )
+
+                total = len(galleries)+1
+                current = 1.0
+                # for gal in self.cached_presentation_galleries.values():
+                for gal in galleries:
+                    if worker.CancellationPending:
+                        break
+                    logging.info("Updating library %s", gal.filename)
                     if len(gal.filename) > 50:
                         worker.ReportProgress(current/total*100, "..." + gal.filename[-50:])
                     else:
@@ -436,7 +482,7 @@ class ChartLib(object):
             pres.Save()
         except:
             logging.exception("error adding chart to library")
-            bkt.message.error("Fehler beim Hinzufügen zu Favoriten")
+            bkt.message.error("Fehler beim Hinzufügen zu Favoriten", "BKT: ChartLib")
             # bkt.helpers.exception_as_message()
         finally:
             pres.Saved = True
@@ -546,12 +592,12 @@ class ChartLib(object):
         
         return [
             bkt.ribbon.Button(
-                label = slides.item(idx).Shapes.Title.Textframe.TextRange.text[:40].translate(control_chars) if slides.item(idx).Shapes.Title.Textframe.TextRange.text != "" else "slide" + str(idx),
+                label = slides.item(idx).Shapes.Title.Textframe.TextRange.text[:40].translate(control_chars) if slides.item(idx).Shapes.Title.Textframe.TextRange.text else "slide" + str(idx),
                 tag=slides.parent.FullName + "|" + str(idx),
                 on_action=bkt.Callback(self.slide_action, context=True, current_control=True)
             )
             for idx in range(offset, offset+count)
-            if slides.item(idx).shapes.hastitle != False
+            if slides.item(idx).shapes.hastitle
         ]
     
 
