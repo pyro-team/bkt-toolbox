@@ -1573,6 +1573,34 @@ class PictureFormat(object):
 
 
 
+class PlaceholderConverter(object):
+    @staticmethod
+    def is_text_placeholder(shape):
+        # return shape.Type == pplib.MsoShapeType["msoPlaceholder"] and shape.PlaceholderFormat.ContainedType in (pplib.MsoShapeType['msoTextBox'],pplib.MsoShapeType['msoAutoShape'] )
+        return shape.Type == pplib.MsoShapeType["msoPlaceholder"]
+    
+    @classmethod
+    def convert_placeholder(cls, shape):
+        # new = pplib.replicate_shape(shape)
+        new = shape.Duplicate()
+        new.top, new.left = shape.top, shape.left
+        shape.Delete()
+        new.select(False)
+
+    @classmethod
+    def convert_shapes(cls, shapes):
+        success=False
+        for shape in shapes:
+            if cls.is_text_placeholder(shape):
+                try:
+                    cls.convert_placeholder(shape)
+                    success = True
+                except:
+                    logging.exception("placeholder conversion failed")
+
+        if not success:
+            bkt.message.warning("Aktuelle Auswahl enthält keine Platzhalter!")
+
 
 class ShapeTableGallery(bkt.ribbon.Gallery):
     
@@ -1982,6 +2010,13 @@ shapes_group = bkt.ribbon.Group(
                     screentip="Shapes skalieren",
                     supertip="Shape-Größe inkl. aller Elemente/Eigenschaften (Schriftgröße, Konturen, etc.) gleichmäßig ändern.",
                     on_action=bkt.Callback(ShapeDialogs.shape_scale),
+                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                ),
+                bkt.ribbon.Button(
+                    label="Platzhalter in Textbox umwandeln",
+                    image_mso="ConvertTableToText",
+                    supertip="Wandelt alle markierten Text-Platzhalter in echte Textboxen um, die u.A. eine Gruppierung erlauben.",
+                    on_action=bkt.Callback(PlaceholderConverter.convert_shapes),
                     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
                 ),
                 bkt.mso.control.ObjectEditPoints,
