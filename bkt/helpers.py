@@ -186,7 +186,11 @@ class BKTConfigParser(ConfigParser.ConfigParser):
         using attribute notation (e.g. config.my_list_option).
         '''
         if type(value) == list:
-            self.set('BKT', option, "\n" + "\n".join(str(v) for v in value))
+            if value:
+                self.set('BKT', option, "\n" + "\n".join(str(v) for v in value))
+            else:
+                #empty list
+                self.set('BKT', option, '')
         else:
             self.set('BKT', option, str(value)) #always transform to string, otherwise cannot access the value in same session anymore
 
