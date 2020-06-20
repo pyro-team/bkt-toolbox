@@ -36,7 +36,7 @@ class FolderSetup(object):
         # dialog.Description = "Please choose an additional folder with BKT-features"
         dialog.Description = "Bitte einen BKT Feature-Ordner auswählen"
         
-        if (dialog.ShowDialog(None) == F.DialogResult.OK):
+        if dialog.ShowDialog() == F.DialogResult.OK:
             cls.add_folder(context, dialog.SelectedPath)
     
     @staticmethod
