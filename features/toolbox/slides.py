@@ -311,6 +311,28 @@ class SlideMenu(object):
             cls.remove_slide_numbering(slides)
         else:
             cls.add_slide_numbering(slides, context)
+
+
+    @classmethod
+    def select_and_apply_theme(cls, context):
+        from bkt import dotnet
+        F = dotnet.import_forms()
+        
+        fileDialog = F.OpenFileDialog()
+        fileDialog.Filter = "PowerPoint (*.pptx;*.ppt;*.pot;*.potx)|*.pptx;*.ppt;*.pot;*.potx|Alle Dateien (*.*)|*.*"
+        if context.presentation.Path:
+            fileDialog.InitialDirectory = context.presentation.Path + '\\'
+        fileDialog.Title = "PowerPoint-Datei auswählen"
+
+        if not fileDialog.ShowDialog() == F.DialogResult.OK:
+            return
+
+        filename = fileDialog.FileName
+        try:
+            context.presentation.ApplyTemplate(filename)
+        except:
+            logging.exception("error appyling theme %s", filename)
+    
     
     @classmethod
     def remove_all(cls, context):
@@ -546,6 +568,13 @@ slides_group = bkt.ribbon.Group(
                 bkt.mso.control.SlideLayoutGallery,
                 bkt.mso.control.SlideReset,
                 bkt.mso.control.SectionMenu,
+                bkt.ribbon.Button(
+                    id="slide_apply_theme",
+                    label="Folienmaster aus Datei ersetzen…",
+                    image_mso="SlideMasterMasterLayout",
+                    supertip="Ersetzt den aktuellen Folienmaster (Templates und Design) in der Präsentation durch den Folienmaster aus der gewählten Datei.",
+                    on_action=bkt.Callback(SlideMenu.select_and_apply_theme)
+                ),
                 bkt.ribbon.MenuSeparator(title="Agenda")
                 ] + agenda.agendamenu.children + [
                 bkt.ribbon.MenuSeparator(title="Funktionen"),
