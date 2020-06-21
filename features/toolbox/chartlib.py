@@ -14,6 +14,7 @@ import logging
 
 from threading import Thread #used for non-blocking gallery thumbnails refresh
 from contextlib import contextmanager #used for opening and closing presentations
+from string import maketrans #for cleansing names
 
 from System import Array
 
@@ -31,12 +32,14 @@ Forms = dotnet.import_forms() #required for clipboard functions
 def open_presentation_without_window(context, filename):
     ''' opens and returns presentation file '''
     logging.debug("open_presentation_without_window: %s", filename)
+    presentation = None
     try:
         presentation = context.app.Presentations.Open(filename, True, False, False) #readonly, untitled, withwindow
         yield presentation
     finally:
-        presentation.Saved = True
-        presentation.Close()
+        if presentation:
+            presentation.Saved = True
+            presentation.Close()
 
 
 # TODO
@@ -46,6 +49,8 @@ def open_presentation_without_window(context, filename):
 #    copy shape/slide action
 
 THUMBNAIL_POSTFIX = '_thumbnails'
+FILETYPES_PPT = ('.pptx', '.ppt')
+FILETYPES_POT = ('.potx', '.pot')
 
 
 
@@ -157,6 +162,22 @@ class ChartLib(object):
                 #FIXME: maybe better way to check if clipboard actually contains "something"
         else:
             raise EnvironmentError("pasting not successfull")
+    def _is_template_file(self, filename):
+        return filename.endswith(FILETYPES_POT)
+    
+    def _is_valid_powerpoint(self, filename):
+        if self.copy_shapes_setting:
+            return filename.endswith(FILETYPES_PPT) and not filename.startswith("~$")
+        else:
+            return filename.endswith(FILETYPES_PPT+FILETYPES_POT) and not filename.startswith("~$")
+    
+    def _get_control_for_file(self, filename):
+        if not self.copy_shapes_setting and self._is_template_file(filename):
+            return self.get_template_file_control(filename)
+        elif self.show_gallery:
+            return self.get_chartlib_gallery_from_file(filename)
+        else:
+            return self.get_dynamic_file_menu(filename)
     
     # ====================================
     # = Menus for folders and subfolders =
@@ -233,6 +254,9 @@ class ChartLib(object):
                 else:
                     title = os.path.basename(folder)
                     directory = folder
+                if not os.path.isdir(directory):
+                    logging.warning("chartlib: %s is not a folder", directory)
+                    continue
                 children.append( self.get_folder_menu(directory, label=title) )
 
             # old version (shorter but less readable and more loops):
@@ -258,16 +282,16 @@ class ChartLib(object):
         if self.library_files:
             menu.children.append( bkt.ribbon.MenuSeparator(title="Einzel-Libraries") )
             for filename in self.library_files:
-                if self.show_gallery:
-                    menu.children.append( self.get_chartlib_gallery_from_file(filename) )
-                else:
-                    menu.children.append( self.get_dynamic_file_menu(filename) )
+                if not os.path.isfile(filename):
+                    logging.warning("chartlib: %s is not a file", filename)
+                    continue
+                menu.children.append( self._get_control_for_file(filename) )
         
         # buttons
         menu.children += [
             bkt.ribbon.MenuSeparator(title="Settings"),
-            bkt.ribbon.Button(label="Shapes zu Favoriten hinzufügen" if self.copy_shapes_setting else "Folien zu Favoriten hinzufügen",
-                screentip="Chart zu Favoriten-Library hinzufügen",
+            bkt.ribbon.Button(label="Markierte Shapes zu Favoriten" if self.copy_shapes_setting else "Markierte Folien zu Favoriten",
+                screentip="Aktuelle Auswahl zu Favoriten-Library hinzufügen",
                 supertip="Ausgewählte Slides/Shapes zu Standard-Favoriten-Library hinzufügen. Falls diese Library noch nicht existiert, wird diese neu angelegt.",
                 image_mso='AddToFavorites',
                 on_action=bkt.Callback(self.add_chart_to_lib)
@@ -306,7 +330,7 @@ class ChartLib(object):
         if os.path.isdir(folder):
             for filename in os.listdir(folder):
                 # find pptx-Files
-                if filename.endswith(".pptx") and not filename.startswith("~$"):
+                if self._is_valid_powerpoint(filename):
                     files.append(filename)
     
                 # find subfolders
@@ -325,10 +349,7 @@ class ChartLib(object):
         children = []
         # create DynamicMenus / Galleries
         for filename in files:
-            if self.show_gallery:
-                children.append( self.get_chartlib_gallery_from_file(os.path.join(folder, filename)) )
-            else:
-                children.append( self.get_dynamic_file_menu(os.path.join(folder, filename)) )
+            children.append( self._get_control_for_file(os.path.join(folder, filename)) )
         if files:
             #only add separator if files >0
             children.append(bkt.ribbon.MenuSeparator())
@@ -355,13 +376,12 @@ class ChartLib(object):
         ''' returns dynamic menu for folder. if menu unfolds, menu content is obtained by get_folder_menu '''
         basename = os.path.basename(folder)
         return bkt.ribbon.DynamicMenu(label=basename, tag=folder, get_content=bkt.Callback(self.get_folder_menu_callback, current_control=True))
-
     
     def get_dynamic_file_menu(self, filename):
         ''' returns dynamic menu for file. if menu unfolds, menu content is obtained by get_chartlib_menu_from_file '''
         file_basename = os.path.splitext(os.path.basename(filename))[0]
         return bkt.ribbon.DynamicMenu(
-            label=file_basename, tag=filename, 
+            label=file_basename, tag=filename,
             get_content=bkt.Callback(self.get_chartlib_menu_callback, current_control=True, context=True)
         )
     
@@ -388,7 +408,7 @@ class ChartLib(object):
                         if root.endswith(THUMBNAIL_POSTFIX):
                             continue
                         for file in files:
-                            if file.endswith(".pptx") and not file.startswith("~$"):
+                            if self._is_valid_powerpoint(file):
                                 galleries.append( self.get_chartlib_gallery_from_file(os.path.join(root, file)) )
 
                 total = len(galleries)+1
@@ -625,7 +645,7 @@ class ChartLib(object):
     def open_file(cls, context, current_control):
         ''' Open library file with window and write access '''
         filename = current_control['tag']
-        # Parameter: rw-access, ohne Titel, mit Fenster
+        # Parameter: readonly, untitled, withwindow
         context.app.Presentations.Open(filename, False, False, True)
     
     @classmethod
@@ -636,17 +656,28 @@ class ChartLib(object):
     @classmethod
     def copy_slide(cls, context, filename, slide_index):
         ''' Copy slide from chart lib '''
-        # open presentation
+        # active_window = context.app.ActiveWindow
+        # # open presentation
+        # # template_presentation = cls.open_presentation_file(context, filename)
+        # with open_presentation_without_window(context, filename) as template_presentation:
+        #     # copy slide
+        #     orig_slide = template_presentation.slides.item(int(slide_index))
+        #     orig_slide.copy()
+        #     # paste slide
+        #     position = active_window.View.Slide.SlideIndex
+        #     # active_window.presentation.slides.paste(position+1)
+        #     slide = cls._save_paste(active_window.presentation.slides, position+1)
+        #     # template_presentation.Close()
+        
         active_window = context.app.ActiveWindow
-        # template_presentation = cls.open_presentation_file(context, filename)
-        with open_presentation_without_window(context, filename) as template_presentation:
-            # copy slide
-            template_presentation.slides.item(int(slide_index)).copy()
-            # paste slide
+        try:
             position = active_window.View.Slide.SlideIndex
-            # active_window.presentation.slides.paste(position+1)
-            cls._save_paste(active_window.presentation.slides, position+1)
-            # template_presentation.Close()
+        except:
+            #fallback is not slide in view, e.g. selection within two slides in sorter
+            position = 0
+        slide_index = int(slide_index)
+        active_window.presentation.slides.InsertFromFile(filename, position, slide_index, slide_index)
+        active_window.View.GotoSlide(position+1)
     
     @classmethod
     def copy_shapes_callback(cls, context, current_control):
@@ -686,20 +717,7 @@ class ChartLib(object):
                 elif do_select:
                     cur_slide.shapes.item(new_shape_count).select()
             # template_presentation.Close()
-    
-    
-    
 
-
-def filename_as_ui_id(filename):
-    from string import maketrans
-    ''' creates customui-id from filename by removing unsupported characters '''
-    # characters to remove
-    chr_numbers = range(45) + range(46,48) + range(58,65) + range(91,95) + [96] + range(123,256)
-    # translation tab
-    transtab = maketrans("".join( chr(i) for i in chr_numbers ), '|'*len(chr_numbers))
-    
-    return 'id_' + filename.translate(transtab).replace('|', '__')
 
 
 
@@ -709,6 +727,21 @@ class ChartLibGallery(bkt.ribbon.Gallery):
     # item_width should not be used in chart lib (copy_shapes=False); will be overwritten with respect to slide-format
     item_height = 150
     item_width = 200
+
+    #translation table
+    transtab = None
+
+    @classmethod
+    def filename_as_ui_id(cls, filename):
+        ''' creates customui-id from filename by removing unsupported characters '''
+        if not cls.transtab:
+            # characters to remove
+            chr_numbers = range(45) + range(46,48) + range(58,65) + range(91,95) + [96] + range(123,256)
+            # translation tab
+            cls.transtab = maketrans("".join( chr(i) for i in chr_numbers ), '|'*len(chr_numbers))
+        
+        return 'id_' + filename.translate(cls.transtab).replace('|', '__')
+    
     
     def __init__(self, filename, copy_shapes=False, **user_kwargs):
         '''Constructor
@@ -723,7 +756,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         
         # parent_id = user_kwargs.get('id') or ""
         
-        self.this_id = filename_as_ui_id(filename) + "--" + str(copy_shapes)
+        self.this_id = ChartLibGallery.filename_as_ui_id(filename) + "--" + str(copy_shapes)
         
         self.cache = bkt.helpers.caches.get("chartlib")
         
