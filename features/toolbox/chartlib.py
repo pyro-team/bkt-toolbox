@@ -162,6 +162,62 @@ class ChartLib(object):
                 #FIXME: maybe better way to check if clipboard actually contains "something"
         else:
             raise EnvironmentError("pasting not successfull")
+
+    def _open_in_explorer(self, path):
+        from os import startfile
+        if os.path.isdir(path):
+            startfile(path)
+
+    def _check_folder_in_lib(self, folder):
+        for f in self.library_folders:
+            if type(f) is dict:
+                f = f["folder"]
+            if folder.startswith(f):
+                return True
+        else:
+            return False
+
+    def _check_file_in_lib(self, file):
+        if file in self.library_files:
+            return True
+        for f in self.library_folders:
+            if type(f) is dict:
+                f = f["folder"]
+            if file.startswith(f):
+                return True
+        else:
+            return False
+
+    def _add_files_to_config(self, files):
+        if self.copy_shapes_setting:
+            conf = "shape_libraries"
+        else:
+            conf = "chart_libraries"
+        
+        cur_files = getattr(bkt.config, conf) or []
+        cur_files.extend(files)
+        bkt.config.set_smart(conf, cur_files)
+
+        self.reset_cashes()
+        self.library_files = []
+        self.library_folders = []
+        self.init_chartlib()
+
+    def _add_folder_to_config(self, folder):
+        if self.copy_shapes_setting:
+            conf = "shape_library_folders"
+        else:
+            conf = "chart_library_folders"
+        
+        cur_folders = getattr(bkt.config, conf) or []
+        cur_folders.append(folder)
+        bkt.config.set_smart(conf, cur_folders)
+
+        self.reset_cashes()
+        self.library_files = []
+        self.library_folders = []
+        self.init_chartlib()
+
     def _is_template_file(self, filename):
         return filename.endswith(FILETYPES_POT)
     
@@ -301,7 +357,14 @@ class ChartLib(object):
                 supertip="Alle Cashes werden zurückgesetzt. Library-Order und -Dateien werden jeweils beim nächsten Öffnen erneut indiziert.\n\nEs werden nur Thumbnails bereits geöffneter Libraries aktualisiert. Eine Neugenerierung der Thumbnails kann auch für jede Shape-Library-Datei separat angestoßen werden (im jeweiligen Menü).",
                 image_mso='AccessRefreshAllLists',
                 on_action=bkt.Callback(self.update_thumbnails_and_reset_cashes)
-            )
+            ),
+            bkt.ribbon.MenuSeparator(),
+            bkt.ribbon.DynamicMenu(
+                label="Library verwalten",
+                supertip="Library-Dateien oder Ordner hinzufügen oder entfernen.",
+                image_mso='AddToolGallery',
+                get_content=bkt.Callback(self.get_libraries_menu),
+            ),
         ]
         
         logging.debug("ChartLib root menu: %s", menu.xml())
@@ -478,11 +541,174 @@ class ChartLib(object):
         self.cached_presentation_menus = {}
         self.cached_presentation_galleries = {}
         
+
+    # ==============================================
+    # = Manage library, add files/folder to config =
+    # ==============================================
+
+    def get_libraries_menu(self):
+        children = []
+        if self.library_files:
+            children.append( bkt.ribbon.MenuSeparator(title="Einzel-Libraries") )
+            for filename in self.library_files:
+                children.append(
+                    bkt.ribbon.Button(
+                        label=os.path.basename(filename),
+                        supertip=filename,
+                        tag=filename,
+                        image_mso="Delete",
+                        on_action=bkt.Callback(self.delete_library),
+                    )
+                )
+        
+        if self.library_folders:
+            folders_lib = []
+            folder_feat = []
+            for folder in self.library_folders:
+                if type(folder) is dict:
+                    folder_feat.append(
+                        bkt.ribbon.Button(
+                            label=folder["title"],
+                            supertip=folder["folder"],
+                            tag="ff|"+folder["folder"],
+                            image_mso="Delete",
+                            on_action=bkt.Callback(self.delete_library),
+                        )
+                    )
+                else:
+                    folders_lib.append(
+                        bkt.ribbon.Button(
+                            label=os.path.basename(folder),
+                            supertip=folder,
+                            tag=folder,
+                            image_mso="Delete",
+                            on_action=bkt.Callback(self.delete_library),
+                        )
+                    )
+
+            if folders_lib:
+                children.append(bkt.ribbon.MenuSeparator(title="Ordner-Libraries"))
+                children.extend(folders_lib)
+            if folder_feat:
+                children.append(bkt.ribbon.MenuSeparator(title="Über Feature-Folders"))
+                children.extend(folder_feat)
+
+        children.extend([
+            bkt.ribbon.MenuSeparator(title="Hinzufügen"),
+            bkt.ribbon.Button(
+                label="Datei zu Library hinzufügen",
+                supertip="Library-Dateien auswählen und zur Konfiguration dauerhaft hinzufügen.",
+                image_mso='FilesToolAddFiles',
+                on_action=bkt.Callback(self.add_files_to_config)
+            ),
+            bkt.ribbon.Button(
+                label="Ordner zu Library hinzufügen",
+                supertip="Library-Ordner auswählen und zur Konfiguration dauerhaft hinzufügen.",
+                image_mso='Folder',
+                on_action=bkt.Callback(self.add_folders_to_config)
+            ),
+            bkt.ribbon.Button(
+                label="Neue Library-Datei erstellen",
+                supertip="Library-Ordner auswählen und zur Konfiguration dauerhaft hinzufügen.",
+                image_mso='FileSaveAsPowerPointPptx',
+                on_action=bkt.Callback(self.create_new_library)
+            ),
+        ])
+        
+        return bkt.ribbon.Menu(
+            xmlns="http://schemas.microsoft.com/office/2009/07/customui",
+            id=None,
+            children=children
+        )
+    
+    def delete_library(self, current_control):
+        lib = current_control["tag"]
+        if lib.startswith("ff|"):
+            lib = lib[3:]
+            
+            if lib == self.fav_folder:
+                bkt.message.warning("Der Favoriten-Ordner selbst kann nicht gelöscht werden, aber einzelne Dateien können manuell gelöscht werden. Der Ordner wird nun im Explorer geöffnet.")
+                return self._open_in_explorer(lib)
+            
+            if not bkt.message.confirmation("Soll der Feature-Folder aus der Library entfernt werden?\n\nAchtung: Feature-Folder können gleichzeitig ChartLibs, ShapeLibs und Funktionen enthalten, die dann nicht mehr verfügbar sind!"):
+                return
+            conf = "feature_folders"
+        elif os.path.isfile(lib):
+            if self.copy_shapes_setting:
+                conf = "shape_libraries"
+            else:
+                conf = "chart_libraries"
+        elif os.path.isdir(lib):
+            if self.copy_shapes_setting:
+                conf = "shape_library_folders"
+            else:
+                conf = "chart_library_folders"
+        else:
+            bkt.message.error("Library nicht gefunden!")
+        
+        current = getattr(bkt.config, conf) or []
+        current.remove(lib)
+        bkt.config.set_smart(conf, current)
+
+        self.reset_cashes()
+        self.library_files = []
+        self.library_folders = []
+        self.init_chartlib()
+
+    def add_files_to_config(self):
+        fileDialog = Forms.OpenFileDialog()
+        fileDialog.Filter = "PowerPoint (*.pptx;*.ppt;*.pot;*.potx)|*.pptx;*.ppt;*.pot;*.potx|Alle Dateien (*.*)|*.*"
+        fileDialog.Title = "PowerPoint-Dateien auswählen"
+        fileDialog.Multiselect = True
+
+        if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
+            return
+
+        to_add = []
+        skipped = []
+        for file in fileDialog.FileNames:
+            # if self._check_file_in_lib(file):
+            #     skipped.append(file)
+            # else:
+            #     to_add.append(file)
+            if os.path.isfile(file):
+                to_add.append(file)
+
+        if skipped:
+            bkt.message.warning("Einige Dateien sind bereits in der Library und werden nicht hinzugefügt!")
+
+        self._add_files_to_config(to_add)
+
+    def add_folders_to_config(self):
+        dialog = Forms.FolderBrowserDialog()
+        dialog.Description = "Bitte einen Ordner mit PowerPoint-Dateien auswählen"
+        
+        if dialog.ShowDialog() == Forms.DialogResult.OK:
+            folder = dialog.SelectedPath
+            if os.path.isdir(folder):
+                if self._check_folder_in_lib(folder):
+                    return bkt.message.warning("Der Ordner (oder ein Überordner) ist bereits in der Library und wird nicht hinzugefügt!")
+
+                self._add_folder_to_config(folder)
+    
+    def create_new_library(self, context):
+        name = bkt.ui.show_user_input("Bitte Name der Library eingeben:", "Name", "BKT Lib")
+        if not name:
+            return
+        
+        file = os.path.join(self.fav_folder, name)
+        if os.path.isfile(file):
+            return bkt.message.error("Library existiert schon!")
+        
+        self._add_files_to_config([file])
+
+        pres = self.create_or_open_presentation(context, file)
+        pres.NewWindow()
         
     
-    # ====================================
+    # ==========================
     # = Quick add to favorites =
-    # ====================================
+    # ==========================
 
     # def add_fav_to_config(self):
     #     if not self.copy_shapes_setting:
