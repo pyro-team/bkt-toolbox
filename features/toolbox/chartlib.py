@@ -384,6 +384,46 @@ class ChartLib(object):
             label=file_basename, tag=filename,
             get_content=bkt.Callback(self.get_chartlib_menu_callback, current_control=True, context=True)
         )
+
+    def get_template_file_control(self, filename):
+        ''' return menu for template file '''
+        file_basename = os.path.splitext(os.path.basename(filename))[0]
+        return bkt.ribbon.Menu(
+            label=file_basename,
+            image_mso="SlideMasterMasterLayout",
+            children=[
+                bkt.ribbon.Button(
+                    label="Design auf markierte Folien anwenden",
+                    supertip="Folienmaster auf die ausgewählten Folien anwenden.",
+                    tag=filename,
+                    on_action=bkt.Callback(self.apply_template_to_slides, current_control=True, context=True)
+                ),
+                bkt.ribbon.Button(
+                    label="Design auf ganze Präsentation anwenden",
+                    supertip="Folienmaster auf die ganze Präsentation anwenden.",
+                    tag=filename,
+                    on_action=bkt.Callback(self.replace_template_in_presentation, current_control=True, context=True)
+                ),
+                bkt.ribbon.Button(
+                    label="Design zu Präsentation hinzufügen",
+                    supertip="Folienmaster zu der aktuellen Präsentation hinzufügen.",
+                    tag=filename,
+                    on_action=bkt.Callback(self.apply_template_to_slides, current_control=True, context=True)
+                ),
+                bkt.ribbon.Button(
+                    label="Neue Präsentation mit Design erstellen",
+                    supertip="Neue leere Präsentation auf Basis des Folienmasters erstellen.",
+                    tag=filename,
+                    on_action=bkt.Callback(self.new_presentation_with_template, current_control=True, context=True)
+                ),
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Button(label="Datei öffnen und bearbeiten",
+                    image_mso='FileSaveAsPowerPointPptx',
+                    tag=filename,
+                    on_action=bkt.Callback(self.open_file, context=True, current_control=True)
+                ),
+            ]
+        )
     
     def update_thumbnails_and_reset_cashes(self, context):
         if not bkt.message.confirmation("Dieser Vorgang kann bei vielen Libraries einige Minuten dauern und nicht abgebrochen werden. Trotzdem fortsetzen?", "BKT: ChartLib"):
@@ -647,6 +687,31 @@ class ChartLib(object):
         filename = current_control['tag']
         # Parameter: readonly, untitled, withwindow
         context.app.Presentations.Open(filename, False, False, True)
+    
+    @classmethod
+    def apply_template_to_slides(cls, context, current_control):
+        ''' Apply template to presentation '''
+        filename = current_control['tag']
+        context.selection.SlideRange.ApplyTemplate(filename)
+    
+    @classmethod
+    def replace_template_in_presentation(cls, context, current_control):
+        ''' Apply template to presentation '''
+        filename = current_control['tag']
+        context.presentation.ApplyTemplate(filename)
+    
+    @classmethod
+    def add_template_to_presentation(cls, context, current_control):
+        ''' Apply template to presentation '''
+        filename = current_control['tag']
+        context.presentation.Designs.Load(filename)
+    
+    @classmethod
+    def new_presentation_with_template(cls, context, current_control):
+        ''' Open presentation untitled '''
+        filename = current_control['tag']
+        # Parameter: readonly, untitled, withwindow
+        context.app.Presentations.Open(filename, False, True, True)
     
     @classmethod
     def copy_slide_callback(cls, context, current_control):
