@@ -260,6 +260,13 @@ class AppUI(object):
         '''
         
         ribbon_id = ribbon_id or self.default_custom_ribbon_id
+        try:
+            custom_ribbon = self.custom_ribbon_uis[ribbon_id]
+        except KeyError:
+            #to avoid error with unknown ribbon id (e.g. Microsoft.Mso.IMLayerUI) just create a dummy one
+            #this will also prevent any errors that occur due to new ribbon ids in future office versions
+            logging.warning("Creating dummy ribbon for unknown ribbon id: %s", ribbon_id)
+            custom_ribbon = self.custom_ribbon_uis[ribbon_id] = CustomRibbonUI(ribbon_id)
         
         # Context-Menus
         context_menus = []
