@@ -311,7 +311,7 @@ class CellsOps(object):
 
         def _do_regex(regex, string):
             if regex.groups > 0:
-                return sum(res is not None for res in chain.from_iterable(m.groups() for m in regex.finditer(string)))
+                return sum(res is not None for res in bkt.helpers.flatten(m.groups() for m in regex.finditer(string)))
             else:
                 # return len(list(m.group() for m in regex.finditer(string)))
                 return len(list(regex.finditer(string)))
@@ -387,7 +387,7 @@ class CellsOps(object):
                 regex_result = regex.split(string)
             else:
                 if regex.groups > 0:
-                    regex_result = list(chain.from_iterable(m.groups("") for m in regex.finditer(string)))
+                    regex_result = list(bkt.helpers.flatten(m.groups("") for m in regex.finditer(string)))
                 else:
                     regex_result = list(m.group() for m in regex.finditer(string))
             
