@@ -13,6 +13,52 @@ import os
 import bkt.helpers as helpers
 
 
+class IterTools(unittest.TestCase):
+    def test_iterable(self):
+        self.assertFalse(helpers.iterable(None))
+        self.assertFalse(helpers.iterable(True))
+        self.assertFalse(helpers.iterable(0))
+        self.assertFalse(helpers.iterable(42.123))
+
+        self.assertTrue(helpers.iterable("ABCD"))
+        self.assertTrue(helpers.iterable([]))
+        self.assertTrue(helpers.iterable([1, 2, 3]))
+        self.assertTrue(helpers.iterable(range(3)))
+        self.assertTrue(helpers.iterable(x for x in range(3)))
+
+    def test_flatten(self):
+        self.assertListEqual( list(helpers.flatten([range(2), range(2,4)])), [0,1,2,3] )
+        self.assertListEqual( list(helpers.flatten(range(i) for i in range(4))), [0,0,1,0,1,2] )
+
+    def test_all_equal(self):
+        self.assertFalse(helpers.all_equal( range(2) ))
+        self.assertFalse(helpers.all_equal( [1,1,0,1,1] ))
+        self.assertFalse(helpers.all_equal( i<3 for i in range(4) ))
+        self.assertFalse(helpers.all_equal( i>0 for i in range(4) ))
+
+        self.assertTrue(helpers.all_equal( [] ))
+        self.assertTrue(helpers.all_equal( [1] ))
+        self.assertTrue(helpers.all_equal( [1,1,1,1,1] ))
+        self.assertTrue(helpers.all_equal( i<5 for i in range(4) ))
+        self.assertTrue(helpers.all_equal( "ABC" for _ in range(4) ))
+
+    def test_nth(self):
+        self.assertEqual(helpers.nth(range(4,8), 2), 6)
+        self.assertEqual(helpers.nth(range(4,8), 25), None)
+        self.assertEqual(helpers.nth(["a", "b", "c"], 1, "x"), "b")
+        self.assertEqual(helpers.nth(["a", "b", "c"], 5, "x"), "x")
+
+    def test_ambiguity_tuple(self):
+        self.assertTupleEqual(helpers.get_ambiguity_tuple([3,3,3,3,3]), (False, 3))
+        self.assertTupleEqual(helpers.get_ambiguity_tuple([3,3,3,4,3]), (True, 3))
+        self.assertTupleEqual(helpers.get_ambiguity_tuple(["a","a","a"]), (False, "a"))
+        self.assertTupleEqual(helpers.get_ambiguity_tuple(["b","a","a"]), (True, "b"))
+
+        self.assertTupleEqual(helpers.get_ambiguity_tuple(range(2,6)), (True, 2))
+        self.assertTupleEqual(helpers.get_ambiguity_tuple(i>0 for i in range(2,6)), (False, True))
+
+
+
 class StringConversions(unittest.TestCase):
     def test_lower_camelcase(self):
         self.assertEqual(helpers.snake_to_lower_camelcase("nothingToChange"), "nothingToChange")

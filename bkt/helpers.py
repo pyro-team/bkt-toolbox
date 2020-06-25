@@ -17,6 +17,7 @@ import ConfigParser #required for config.txt file
 import shelve #required for BKTShelf
 
 from functools import wraps
+from itertools import groupby, chain, islice
 
 BKT_BASE = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -55,6 +56,41 @@ def snake_to_upper_camelcase(string):
     else:
         return string[0].upper() + string[1:]
 
+#Source: https://docs.python.org/2/library/itertools.html#recipes
+def all_equal(iterable, key=None):
+    "Returns True if all the elements are equal to each other"
+    g = groupby(iterable, key=None)
+    return next(g, True) and not next(g, False)
+
+#Source: https://docs.python.org/2/library/itertools.html#recipes
+def flatten(listOfLists, from_iterable=chain.from_iterable):
+    "Flatten one level of nesting"
+    return from_iterable(listOfLists)
+
+#Source: https://docs.python.org/2/library/itertools.html#recipes
+def nth(iterable, n, default=None):
+    "Returns the nth item or a default value"
+    return next(islice(iterable, n, None), default)
+
+#Source: https://stackoverflow.com/questions/1952464/in-python-how-do-i-determine-if-an-object-is-iterable
+def iterable(obj):
+    "Check if object is iterable"
+    try:
+        iter(obj)
+    except Exception:
+        return False
+    else:
+        return True
+
+def get_ambiguity_tuple(iterable):
+    '''
+    Returns ambiguity tuple as input value for bkt.ribbon.RoundingSpinnerBox.
+    Has better performance than using list method and also takes generator objects.
+    '''
+    g = groupby(iterable)
+    first = next(g, True)
+    all_equal = first and not next(g, False)
+    return (not all_equal, first[0])
 
 def endings_to_windows(text, prepend="", prepend_first=""):
     ''' ensures that all line endings are using windows CRLF format '''
