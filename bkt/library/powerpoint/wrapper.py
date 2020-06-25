@@ -31,7 +31,7 @@ class ShapeWrapper(object):
     @property
     def left(self):
         ''' get left position considering locpin setting '''
-        return round(self.shape.left + self.locpin.get_fractions()[1]*self.shape.width, 3) #max precision for position in ppt is 3 decimal places
+        return round(self.shape.left + self.locpin.get_fractions()[1]*self.shape.width, 4) #max precision for position in ppt is 3 decimal places
     @left.setter
     def left(self, value):
         ''' set left position considering locpin setting '''
@@ -41,7 +41,7 @@ class ShapeWrapper(object):
     @property
     def top(self):
         ''' get top position considering locpin setting '''
-        return round(self.shape.top + self.locpin.get_fractions()[0]*self.shape.height, 3) #max precision for position in ppt is 3 decimal places
+        return round(self.shape.top + self.locpin.get_fractions()[0]*self.shape.height, 4) #max precision for position in ppt is 3 decimal places
     @top.setter
     def top(self, value):
         ''' set top position considering locpin setting '''
@@ -202,7 +202,7 @@ class ShapeWrapper(object):
     @property
     def visual_left(self):
         ''' get visual left position considering locpin setting '''
-        return round(self.visual_x + self.locpin.get_fractions()[1]*self.visual_width, 3)
+        return round(self.visual_x + self.locpin.get_fractions()[1]*self.visual_width, 4)
     @visual_left.setter
     def visual_left(self, value):
         ''' set visual left position considering locpin setting '''
@@ -211,7 +211,7 @@ class ShapeWrapper(object):
     @property
     def visual_top(self):
         ''' get visual top position considering locpin setting '''
-        return round(self.visual_y + self.locpin.get_fractions()[0]*self.visual_height, 3)
+        return round(self.visual_y + self.locpin.get_fractions()[0]*self.visual_height, 4)
     @visual_top.setter
     def visual_top(self, value):
         ''' set visual top position considering locpin setting '''
