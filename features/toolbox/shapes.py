@@ -5,7 +5,7 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import logging
 
@@ -15,6 +15,7 @@ import bkt
 import bkt.library.powerpoint as pplib
 pt_to_cm = pplib.pt_to_cm
 cm_to_pt = pplib.cm_to_pt
+get_ambiguity_tuple = bkt.helpers.get_ambiguity_tuple
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
@@ -54,7 +55,6 @@ class PositionSize(object):
     def get_image_use_visual_size(cls):
         return bkt.ribbon.Gallery.get_check_image(cls.use_visual_size)
 
-
     @classmethod
     def set_top(cls, shapes, value):
         attr = 'visual_top' if cls.use_visual_pos else 'top'
@@ -66,9 +66,9 @@ class PositionSize(object):
     @classmethod
     def get_top(cls, shapes):
         if not cls.use_visual_pos:
-            return [shape.top for shape in shapes] #shapes[0].top
+            return get_ambiguity_tuple(shape.top for shape in shapes) #shapes[0].top
         else:
-            return [shape.visual_top for shape in shapes]
+            return get_ambiguity_tuple(shape.visual_top for shape in shapes)
     
     
     @classmethod
@@ -82,9 +82,9 @@ class PositionSize(object):
     @classmethod
     def get_left(cls, shapes):
         if not cls.use_visual_pos:
-            return [shape.left for shape in shapes] #shapes[0].left
+            return get_ambiguity_tuple(shape.left for shape in shapes) #shapes[0].left
         else:
-            return [shape.visual_left for shape in shapes]
+            return get_ambiguity_tuple(shape.visual_left for shape in shapes)
 
 
     @classmethod
@@ -98,9 +98,9 @@ class PositionSize(object):
     @classmethod
     def get_height(cls, shapes):
         if not cls.use_visual_size:
-            return [shape.height for shape in shapes] #shapes[0].height
+            return get_ambiguity_tuple(shape.height for shape in shapes) #shapes[0].height
         else:
-            return [shape.visual_height for shape in shapes]
+            return get_ambiguity_tuple(shape.visual_height for shape in shapes)
     
     
     @classmethod
@@ -114,9 +114,9 @@ class PositionSize(object):
     @classmethod
     def get_width(cls, shapes):
         if not cls.use_visual_size:
-            return [shape.width for shape in shapes] #shapes[0].width
+            return get_ambiguity_tuple(shape.width for shape in shapes) #shapes[0].width
         else:
-            return [shape.visual_width for shape in shapes]
+            return get_ambiguity_tuple(shape.visual_width for shape in shapes)
 
 
     @staticmethod
@@ -136,7 +136,7 @@ class PositionSize(object):
         if len(shapes) == 1:
             return shapes[0].ZOrderPosition
         else:
-            return [shapes[0].ZOrderPosition, None] #force ambiguous mode
+            return (True, shapes[0].ZOrderPosition) #force ambiguous mode
 
     @staticmethod
     def front_to_back(shapes):
