@@ -159,7 +159,16 @@ class ShapeWrapper(object):
     def resize_to_y1(self, value):
         ''' resize shape to given bottom edge (y1-value) '''
         self.shape.height = value-self.y
-    
+
+
+    @property
+    def lock_aspect_ratio(self):
+        return self.shape.LockAspectRatio == -1
+    @lock_aspect_ratio.setter
+    def lock_aspect_ratio(self, value):
+        self.shape.LockAspectRatio = -1 if value else 0
+
+
     def transpose(self):
         ''' switch shape height and width '''
         orig_lar = self.shape.LockAspectRatio
@@ -167,15 +176,19 @@ class ShapeWrapper(object):
         self.width,self.height = self.height,self.width
         self.shape.LockAspectRatio = orig_lar
     
-    def square(self, w2h=True):
-        ''' square shape by setting width to height (if w2h=True) or height to width '''
+    def force_aspect_ratio(self, ratio, landscape=True):
+        ''' force specific aspect ratio by settings  '''
         orig_lar = self.shape.LockAspectRatio
         self.shape.LockAspectRatio = 0
-        if w2h:
-            self.width = self.height
+        if landscape or ratio < 1:
+            self.width = self.height * ratio
         else:
-            self.height = self.width
+            self.height = self.width * ratio
         self.shape.LockAspectRatio = orig_lar
+    
+    def square(self, w2h=True):
+        ''' square shape by setting width to height (if w2h=True) or height to width '''
+        self.force_aspect_ratio(1, w2h)
 
 
     @property
