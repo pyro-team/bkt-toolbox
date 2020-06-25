@@ -746,15 +746,20 @@ class RoundingSpinnerBox(SpinnerBox):
         
         if value is None:
             return None
-        elif type(value) == list:
+        elif type(value) is tuple:
+            #tuple with 2 values ambiguous bool and fallback value
+            assert len(value) == 2, "Ambiguity tuple must have exactly two values"
+            ambiguous, value = value
+        elif type(value) is list:
             # list means ambiguous values
-            if len(value) == 0 or value[0] is None:
+            value_0 = value[0]
+            if not value or value_0 is None:
                 return None
-            elif value.count(value[0]) == len(value):
-                # all values are the same, use first value
-                value = value[0]
+            elif value.count(value_0) == len(value):
+                # https://stackoverflow.com/questions/3844801/check-if-all-elements-in-a-list-are-identical
+                value = value_0 # all values are the same, use first value
             else:
-                value = value[0] #fallback value for dec/inc methods
+                value = value_0 #fallback value for dec/inc methods
                 ambiguous = True
 
         convert_func_name = 'convert_' + str(self.convert) + '_A'
