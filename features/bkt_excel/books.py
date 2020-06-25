@@ -35,39 +35,82 @@ class BooksOps(object):
             pass
 
     @staticmethod
-    def theme_export(workbook, application):
+    def theme_apply(workbook):
+        fileDialog = Forms.OpenFileDialog()
+        fileDialog.Filter = "Excel (*.xlsx;*.xls;*.xltx;*.xlt)|*.xlsx;*.xls;*.xltx;*.xlt|Alle Dateien (*.*)|*.*"
+        fileDialog.Title = "Excel-Datei auswählen"
+
+        if workbook.Path:
+            fileDialog.InitialDirectory = workbook.Path + '\\'
+
+        if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
+            return
+        schemePath = fileDialog.FileName
+
+        try:
+            workbook.ApplyTheme(schemePath)
+            bkt.message("Theme erfolgreich angewendet!")
+        except:
+            bkt.message("Fehler beim Anwenden des Themes! Eventuell ist die Arbeitsmappe oder einzelne Blätter geschützt.")
+
+    @classmethod
+    def theme_color_export(cls, workbook):
+        cls._theme_export(workbook, "color")
+    @classmethod
+    def theme_color_import(cls, workbook):
+        cls._theme_import(workbook, "color")
+
+    @classmethod
+    def theme_font_export(cls, workbook):
+        cls._theme_export(workbook, "font")
+    @classmethod
+    def theme_font_import(cls, workbook):
+        cls._theme_import(workbook, "font")
+
+    @staticmethod
+    def _theme_export(workbook, theme_type):
         #Using SaveFileDialog because application.FileDialog does not support xml-File-Filter
         fileDialog = Forms.SaveFileDialog()
         fileDialog.Filter = "XML (*.xml)|*.xml|Alle Dateien (*.*)|*.*"
         if workbook.Path:
             fileDialog.InitialDirectory = workbook.Path + '\\'
-        fileDialog.FileName = 'colorscheme.xml'
+        if theme_type == "color":
+            fileDialog.FileName = 'colorscheme.xml'
+        else:
+            fileDialog.FileName = 'fontscheme.xml'
         fileDialog.Title = "Speicherort auswählen"
         fileDialog.RestoreDirectory = True
 
         if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
             return
-        colorschemePath = fileDialog.FileName
-        workbook.Theme.ThemeColorScheme.Save(colorschemePath)
+        schemePath = fileDialog.FileName
 
-        bkt.message("Theme Color Scheme erfolgreich exportiert!")
+        if theme_type == "color":
+            workbook.Theme.ThemeColorScheme.Save(schemePath)
+        else:
+            workbook.Theme.ThemeFontScheme.Save(schemePath)
+
+        bkt.message("Scheme-Datei erfolgreich exportiert!")
 
     @staticmethod
-    def theme_import(workbook, application):
-        fileDialog = application.FileDialog(3) #msoFileDialogFilePicker
-        fileDialog.Filters.Add("XML", "*.xml", 1)
-        fileDialog.Filters.Add("Alle Dateien", "*.*", 2)
-        if workbook.Path:
-            fileDialog.InitialFileName = workbook.Path + '\\'
-        fileDialog.title = "XML Color Scheme auswählen"
+    def _theme_import(workbook, theme_type):
+        fileDialog = Forms.OpenFileDialog()
+        fileDialog.Filter = "XML (*.xml)|*.xml|Alle Dateien (*.*)|*.*"
+        fileDialog.Title = "XML Scheme-Datei auswählen"
 
-        if fileDialog.Show() == 0: #msoFalse
+        if workbook.Path:
+            fileDialog.InitialDirectory = workbook.Path + '\\'
+
+        if not fileDialog.ShowDialog() == Forms.DialogResult.OK:
             return
-        colorschemePath = fileDialog.SelectedItems(1)
+        schemePath = fileDialog.FileName
 
         try:
-            workbook.Theme.ThemeColorScheme.Load(colorschemePath)
-            bkt.message("Theme Color Scheme erfolgreich importiert!")
+            if theme_type == "color":
+                workbook.Theme.ThemeColorScheme.Load(schemePath)
+            else:
+                workbook.Theme.ThemeFontScheme.Load(schemePath)
+            bkt.message("Scheme-Datei erfolgreich importiert!")
         except:
             bkt.message("Fehler beim Import!")
 
@@ -600,27 +643,64 @@ mappen_gruppe = bkt.ribbon.Group(
             ]
         ),
         bkt.ribbon.Menu(
-            label="Color Scheme",
+            label="Theme & Color Scheme",
             show_label=True,
             image_mso='SchemeColorsGallery',
             children = [
                 bkt.ribbon.Button(
-                    id = 'theme_export',
-                    label="Export",
-                    #show_label=True,
-                    #image_mso='SchemeColorsGallery',
-                    supertip="Exportiere Farbschema der Arbeitsmappe als XML-Datei.",
-                    on_action=bkt.Callback(BooksOps.theme_export, workbook=True, application=True),
+                    id = 'theme_apply',
+                    label="Theme aus Datei anwenden",
+                    supertip="Beliebige Excel-Datei auswählen und dessen Theme (Farb- und Fontschema) auf aktuelle Datei anwenden.",
+                    image_mso='SchemeColorsGallery',
+                    on_action=bkt.Callback(BooksOps.theme_apply, workbook=True),
                     get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                 ),
-                bkt.ribbon.Button(
-                    id = 'theme_import',
-                    label="Import",
-                    #show_label=True,
-                    #image_mso='SchemeColorsGallery',
-                    supertip="Importiere Farbschema aus einer XML-Datei in die Arbeitsmappe.",
-                    on_action=bkt.Callback(BooksOps.theme_import, workbook=True, application=True),
-                    get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Menu(
+                    label="Color Scheme",
+                    show_label=True,
+                    # image_mso='SchemeColorsGallery',
+                    children = [
+                        bkt.ribbon.Button(
+                            id = 'theme_color_export',
+                            label="Export",
+                            screentip="Farbschema Export",
+                            supertip="Exportiere Farbschema der Arbeitsmappe als XML-Datei.",
+                            on_action=bkt.Callback(BooksOps.theme_color_export, workbook=True),
+                            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'theme_color_import',
+                            label="Import",
+                            screentip="Farbschema Import",
+                            supertip="Importiere Farbschema aus einer XML-Datei in die Arbeitsmappe.",
+                            on_action=bkt.Callback(BooksOps.theme_color_import, workbook=True),
+                            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                        ),
+                    ]
+                ),
+                bkt.ribbon.Menu(
+                    label="Font Scheme",
+                    show_label=True,
+                    # image_mso='SchemeColorsGallery',
+                    children = [
+                        bkt.ribbon.Button(
+                            id = 'theme_font_export',
+                            label="Export",
+                            screentip="Fontschema Export",
+                            supertip="Exportiere Fontschema der Arbeitsmappe als XML-Datei.",
+                            on_action=bkt.Callback(BooksOps.theme_font_export, workbook=True),
+                            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                        ),
+                        bkt.ribbon.Button(
+                            id = 'theme_font_import',
+                            label="Import",
+                            screentip="Fontschema Import",
+                            supertip="Importiere Fontschema aus einer XML-Datei in die Arbeitsmappe.",
+                            on_action=bkt.Callback(BooksOps.theme_font_import, workbook=True),
+                            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                        ),
+                    ]
                 ),
             ]
         ),
