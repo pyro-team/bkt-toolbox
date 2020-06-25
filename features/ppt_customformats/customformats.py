@@ -668,16 +668,16 @@ class CustomQuickEdit(object):
         cls.temp_settings_done = False
 
         if bkt.get_key_state(bkt.KeyCodes.CTRL):
-            import bkt.console
+            from bkt import console
             # logging.debug(json.dumps(cls.temp_custom_format.to_json()))
-            bkt.console.show_message("%r" % cls.temp_custom_format.to_json())
+            console.show_message("%r" % cls.temp_custom_format.to_json())
 
     @classmethod
-    def temp_apply(cls, shapes):
+    def temp_apply(cls, shapes, context):
         do_apply = True
         if bkt.get_key_state(bkt.KeyCodes.CTRL) or not cls.temp_settings_done:
             from .pickup_style import PickupWindow
-            wnd = PickupWindow.create_and_show_dialog(cls, cls.temp_custom_format.style_setting)
+            wnd = PickupWindow.create_and_show_dialog(context, cls, cls.temp_custom_format.style_setting)
         
             if wnd.result:
                 cls.temp_custom_format.style_setting.update(wnd.result)
