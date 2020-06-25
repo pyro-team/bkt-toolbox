@@ -184,7 +184,10 @@ class Thumbnailer(object):
         height = shape.Height
         shape.ScaleHeight(1, True)
         shape.ScaleWidth(1, True)
+        #reapply ratio (only required if LockAspectRatio=0)
+        ratio = shape.Width/shape.Height
         shape.Height = height
+        shape.Width = ratio*height
 
     @classmethod
     def slide_paste(cls, application, data_type=PASTE_DATATYPE_PNG, content_only=False):
