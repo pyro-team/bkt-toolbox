@@ -467,7 +467,8 @@ class AppContextExcel(AppContext):
             if nfo.cells:
                 try:
                     #cells = list(iter(self.app.ActiveWindow.RangeSelection.Cells))  # crashs excel when too many cells are selected
-                    cells = iter(selection.Cells)
+                    #cells = iter(selection.Cells)  # incorrect loop for non-contiguous selection
+                    cells = _h.flatten(a.Cells for a in selection.Areas)
                 except:
                     cells = None
                 if not cells:
