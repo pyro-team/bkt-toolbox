@@ -3307,7 +3307,7 @@ arrange_group = bkt.ribbon.Group(
                     on_action=bkt.Callback(ArrangeCenter.arrange_shapes, shapes=True),
                     get_enabled = bkt.apps.ppt_shapes_min2_selected,
                 ),
-                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.MenuSeparator(title="Gruppierung"),
                 bkt.ribbon.Button(
                     id = 'add_into_group',
                     label="In Gruppe einfügen",
