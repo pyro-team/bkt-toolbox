@@ -32,6 +32,11 @@ from . import slides
 
 bkt.powerpoint.add_context_menu(
     bkt.ribbon.ContextMenu(id_mso='ContextMenuObjectsGroup', children=[
+        ### Any shapes
+        bkt.ribbon.Button(id='context-format-sync', label="Format angleichen", insertBeforeMso='Cut', image_mso="FormatPainter",
+            supertip="Alle Shapes so formatieren wie das Shape, welches beim Öffnen des Kontextmenüs unter dem Cursor ist",
+            on_action=bkt.Callback(shape_selection.FormatPainter.cm_sync_shapes, shapes=True, context=True),
+        ),
         ### Chevron with header
         bkt.ribbon.Button(id='context-arrange-header-group', label="Überschrift anordnen", insertBeforeMso='Cut', image="headered_pentagon",
             supertip="Kopfzeile (Überschrift) wieder richtig auf dem Prozessschritt-Shape positionieren",

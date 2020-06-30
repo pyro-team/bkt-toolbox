@@ -13,6 +13,7 @@ from collections import OrderedDict
 import bkt
 import bkt.library.powerpoint as pplib
 
+from bkt.contextdialogs import DialogHelpers
 # from .shapes import ShapesMore
 
 
@@ -262,6 +263,42 @@ class SlidesMore(object):
 
 
 
+class FormatPainter(object):
+    # @staticmethod
+    # def fp_visible(context):
+    #     try:
+    #         return len(context.shapes) < 2
+    #     except:
+    #         return True
+
+    @staticmethod
+    def _get_shape_below_cursor(context):
+        return DialogHelpers.last_coordinates_within_shape(context)
+
+    @staticmethod
+    def _sync_shapes(master, shapes):
+        try:
+            master.PickUp()
+        except ValueError:
+            return bkt.message.error("Funktion für ausgewähltes Shape nicht verfügar!")
+        for shape in shapes:
+            try:
+                shape.Apply()
+            except:
+                logging.exception("failed to apply format")
+    
+    @classmethod
+    def cm_sync_shapes(cls, shapes, context):
+        master = cls._get_shape_below_cursor(context) or shapes[0]
+        cls._sync_shapes(master, shapes)
+    
+    @classmethod
+    def sync_shapes(cls, shapes):
+        cls._sync_shapes(shapes[0], shapes)
+
+
+
+
 selection_menu = bkt.ribbon.Menu(
     label='Auswahl',
     screentip='Auswahl von Shapes',
@@ -283,7 +320,7 @@ selection_menu = bkt.ribbon.Menu(
 
         bkt.ribbon.Button(
             id = 'shapes_bg',
-            image_mso = 'AppointmentColor1',
+            image_mso = 'ColorBlue',
             label='…mit gleichem Hintergrund',
             #show_label=False,
             on_action=bkt.Callback(lambda context: ShapeSelector.selectByKeys(context, ['fill_type', 'fill_color']), context=True),
@@ -294,7 +331,7 @@ selection_menu = bkt.ribbon.Menu(
 
         bkt.ribbon.Button(
             id = 'shapes_border',
-            image_mso = 'BlackAndWhiteBlackWithWhiteFill',
+            image_mso = 'ColorWhite',
             label='…mit gleichem Rahmen',
             #show_label=False,
             on_action=bkt.Callback(lambda context: ShapeSelector.selectByKeys(context, ['line_style', 'line_color']), context=True),
@@ -473,13 +510,50 @@ clipboard_group = bkt.ribbon.Group(
         ),
         #bkt.mso.control.PasteSpecialDialog,
         #bkt.mso.control.Cut,
-        # bkt.mso.control.CopySplitButton,
+        #bkt.mso.control.CopySplitButton,
         
         selection_menu,
         
         bkt.mso.control.PasteApplyStyle,
         bkt.mso.control.PickUpStyle,
-        bkt.mso.control.FormatPainter
+        bkt.ribbon.Button(
+            id="select_by_fill",
+            image_mso = 'ColorBlue',
+            label='Auswahl von Shapes mit gleichem Hintergrund',
+            show_label=False,
+            on_action=bkt.Callback(lambda context: ShapeSelector.selectByKeys(context, ['fill_type', 'fill_color']), context=True),
+            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+            screentip="Shape-Objekte mit gleichem Hintergrund markieren",
+            supertip="Selektiere alle Shapes auf dem aktuellen Slide, die den gleichen Hintergrund (Farbe) haben wie eine der selektierten Shapes",
+        ),
+
+
+        bkt.mso.control.FormatPainter,
+        bkt.ribbon.Button(
+            id="format_syncer",
+            label="Format Syncer",
+            supertip="Alle Shapes so formatieren wie das zuerst ausgewählte Shape",
+            image_mso="ShapeFillEffectMoreTexturesDialogClassic",
+            show_label=False,
+            get_enabled=bkt.apps.ppt_shapes_min2_selected,
+            on_action=bkt.Callback(FormatPainter.sync_shapes, shapes=True)
+        ),
+        bkt.ribbon.Button(
+            id="select_by_border",
+            image_mso = 'ColorWhite',
+            label='Auswahl von Shapes mit gleichem Rahmen',
+            show_label=False,
+            on_action=bkt.Callback(lambda context: ShapeSelector.selectByKeys(context, ['line_style', 'line_color']), context=True),
+            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+            screentip="Shape-Objekte mit gleichem Rahmen markieren",
+            supertip="Selektiere alle Shapes auf dem aktuellen Slide, die den gleichen Rahmen (Farbe, Strichtyp) haben wie eine der selektierten Shapes",
+        ),
+
+        #dirty hack to show only one of the following two buttons:
+        # bkt.ribbon.Box(get_visible=bkt.Callback(FormatPainter.fp_visible, context=True), children=[
+        #     bkt.mso.control.FormatPainter
+        # ]),
+        
     ]
 )
 
