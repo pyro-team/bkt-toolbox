@@ -540,12 +540,16 @@ def replicate_shape(shape, force_textbox=False):
             1, #msoTextOrientationHorizontal
             shape.Left, shape.Top, shape.Width, shape.Height)
         new_shape.AutoShapeType = shape.AutoShapeType
-    elif shape_type != MsoShapeType["msoAutoShape"]:
-        raise ValueError("replication only possible with autoshapes and textboxes")
-    else:
+    elif shape_type == MsoShapeType["msoAutoShape"]:
         new_shape = slide.shapes.AddShape(
             shape.AutoShapeType,
             shape.Left, shape.Top, shape.Width, shape.Height)
+    elif shape_type == MsoShapeType["msoCallout"]:
+        new_shape = slide.shapes.AddCallout(
+            shape.AutoShapeType,
+            shape.Left, shape.Top, shape.Width, shape.Height)
+    else:
+        raise ValueError("replication only possible with autoshapes and textboxes")
     
     #replicate shape properties
     if shape.VerticalFlip != new_shape.VerticalFlip:
