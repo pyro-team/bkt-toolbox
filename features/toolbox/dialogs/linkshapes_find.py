@@ -157,13 +157,13 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     @slide_no.setter
     def slide_no(self, value):
         self._num_slides = value - self.cur_slideno
-        self._copymode_all = False
-        self._copymode_num = True
+        self._findmode_all = False
+        self._findmode_num = True
         self.OnPropertyChanged('num_slides')
-        self.OnPropertyChanged('copymode_all')
-        self.OnPropertyChanged('copymode_num')
+        self.OnPropertyChanged('findmode_all')
+        self.OnPropertyChanged('findmode_num')
         self.OnPropertyChanged('okay_enabled')
-        self.OnPropertyChanged('copy_description')
+        self.OnPropertyChanged('search_description')
     
     @notify_property
     def findmode_all(self):

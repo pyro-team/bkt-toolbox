@@ -223,7 +223,11 @@ class LinkedShapes(object):
 
         for cShp in cls._iterate_linked_shapes(shape, context):
             cShp.left, cShp.top = ref_position_left, ref_position_top
-            cShp.Rotation = ref_rotation
+            try:
+                cShp.Rotation = ref_rotation
+            except ValueError:
+                #certain shape types do not support rotation, e.g. tables
+                pass
 
     @classmethod
     def format_linked_shapes(cls, shape, context):
@@ -395,7 +399,11 @@ class LinkedShapes(object):
         cur_value = getattr(wrap_shape(shape), property_name)
         for cShp in cls._iterate_linked_shapes(shape, context):
             cShp = wrap_shape(cShp)
-            setattr(cShp, property_name, cur_value)
+            try:
+                setattr(cShp, property_name, cur_value)
+            except:
+                #not all properties supported by all shapes (e.g. rotation not supported by tables)
+                pass
 
     ### CUSTOM ONE-TIME DEV METHODS ###
     # @classmethod
