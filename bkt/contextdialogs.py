@@ -14,6 +14,8 @@ import importlib #for loading context dialog modules
 # wpf basics
 from bkt import dotnet
 wpf = dotnet.import_wpf() #this is required to import System.Windows.Controls
+Forms = dotnet.import_forms() #this is required for System.Windows.Forms.MouseButtons
+MouseButtonRight = Forms.MouseButtons.Right
 
 # for Primitives.Popup
 from System import Windows, Diagnostics # for Primitives.Popup
@@ -375,6 +377,9 @@ class ContextDialogs(object):
         if not self.drag_started:
             if self.context and DialogHelpers.coordinates_within_slideview_window(e.X, e.Y, self.context):
                 self.re_show_shape_dialogs()
+            #FIXME: this code has nothing to do with contextdialogs, but there is currently no better location for this code
+            if e.Button == MouseButtonRight:
+                DialogHelpers.set_last_mouse_position(e.X, e.Y)
 
     # def mouse_move(self, sender, e):
     #     ''' object sender, MouseEventExtArgs e) '''
@@ -419,6 +424,7 @@ class ContextDialogs(object):
 
 class DialogHelpers(object):
     hooked = False
+    last_mouse_position = (0,0)
 
     @classmethod
     def hook_events(cls, ctx_dialogs):
@@ -431,6 +437,10 @@ class DialogHelpers(object):
         cls.hooked = False
         # ctx_dialogs.addin.UnhookEvents()
 
+    @classmethod
+    def set_last_mouse_position(cls, x, y):
+        ''' store last right button mouse up position '''
+        cls.last_mouse_position = (x,y)
     
     @classmethod
     def get_dialog_positon_from_shape(cls, active_window, shape, consider_scaling=True):
@@ -506,11 +516,21 @@ class DialogHelpers(object):
     
     @staticmethod
     def coordinates_within_shape(x, y, context):
+        ''' returns shape(s) that are within coordinates, otherwise None '''
         try:
             active_window = context.app.ActiveWindow
             return active_window.RangeFromPoint(x,y)
         except:
             return None
+
+    @classmethod
+    def last_coordinates_within_shape(cls, context):
+        '''
+        returns shape(s) that are within last stored coordinations, otherwise None
+        this is useful to get shape that was clicked when context menu was opened
+        '''
+        x, y = cls.last_mouse_position
+        return cls.coordinates_within_shape(x, y, context)
 
     # FIXME:
     # https://dzimchuk.net/best-way-to-get-dpi-value-in-wpf/
