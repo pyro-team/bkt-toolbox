@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import
 
-from ctypes import windll
+from ctypes import windll, Structure, c_long, byref
 
 # _User32 = None
 # _GetKeyState = None
@@ -57,6 +57,16 @@ def apply_delta_on_ALT_key(setter_method, getter_method, shapes, value, **kwargs
             setter_method(shape=shape, value=old_value + delta, **kwargs)
 
     return None
+
+
+class POINT(Structure):
+    _fields_ = [("x", c_long), ("y", c_long)]
+
+def get_mouse_position():
+    pt = POINT()
+    windll.user32.GetCursorPos(byref(pt))
+    return { "x": pt.x, "y": pt.y}
+
 
 class MessageBox(object):
     '''
