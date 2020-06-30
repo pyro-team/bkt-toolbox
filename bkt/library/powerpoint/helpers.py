@@ -546,7 +546,7 @@ def replicate_shape(shape, force_textbox=False):
             shape.Left, shape.Top, shape.Width, shape.Height)
     elif shape_type == MsoShapeType["msoCallout"]:
         new_shape = slide.shapes.AddCallout(
-            shape.AutoShapeType,
+            shape.Callout.Type,
             shape.Left, shape.Top, shape.Width, shape.Height)
     else:
         raise ValueError("replication only possible with autoshapes and textboxes")
