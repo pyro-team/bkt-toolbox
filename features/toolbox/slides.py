@@ -478,7 +478,8 @@ class SlideMenu(object):
     def break_links(cls, context):
         for shape in cls._iterate_all_shapes(context, groupitems=True):
             try:
-                if shape.Type in (pplib.MsoShapeType["msoLinkedGraphic"], pplib.MsoShapeType["msoLinkedOLEObject"], pplib.MsoShapeType["msoLinkedPicture"]):
+                pst = pplib.MsoShapeType
+                if shape.Type in (pst["msoLinkedGraphic"], pst["msoLinkedOLEObject"], pst["msoLinkedPicture"], pst["msoLinked3DModel"]):
                     shape.LinkFormat.BreakLink()
             except:
                 logging.exception("error breaking link")
