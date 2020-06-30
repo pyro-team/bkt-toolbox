@@ -218,6 +218,7 @@ MsoAutoShapeType = {
 
 # shape.Type
 MsoShapeType = {
+    'mso3DModel':          30,
     'msoAutoShape':         1,
     'msoCallout':           2,
     'msoCanvas':           20,
@@ -234,6 +235,7 @@ MsoShapeType = {
     'msoInkComment':       23,
     'msoLine':              9,
     'msoLinkedGraphic':    29,
+    'msoLinked3DModel':    31,
     'msoLinkedOLEObject':  10,
     'msoLinkedPicture':    11,
     'msoMedia':            16,
@@ -241,7 +243,7 @@ MsoShapeType = {
     'msoPicture':          13,
     'msoPlaceholder':      14,
     'msoScriptAnchor':     18,
-    'msoShapeTypeMixed':    2,
+    'msoShapeTypeMixed':   -2,
     'msoSmartArt':         24,
     'msoTable':            19,
     'msoTextBox':          17,
