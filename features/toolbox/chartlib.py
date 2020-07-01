@@ -1440,7 +1440,8 @@ chartlib_button = bkt.ribbon.DynamicMenu(
     show_label=False,
     screentip="Folie aus Slide-Library einfügen",
     supertip="Aus den hinterlegten Slide-Templates kann ein Template als neue Folie eingefügt werden.",
-    image_mso="SlideMasterInsertLayout",
+    image_mso="BibliographyGallery",
+    # image_mso="SlideMasterInsertLayout",
     #image_mso="CreateFormBlankForm",
     get_content = bkt.Callback(
         charts.get_root_menu
