@@ -24,6 +24,9 @@ info.TabActivator.tab_id = "my_bkt_powerpoint_toolbox"
 ### default settings
 default_settings = {
     "tab_name": "BKT", #Tab Name
+    "default_group_font": 0, #off
+    "default_group_paragraph": 0, #off
+    "mini_group_text": 1, #page no 1
     "size_group": 0, #off
     "pos_size_group": 1, #page no 1
     "arrange_mini_group": 1, #page no 1
