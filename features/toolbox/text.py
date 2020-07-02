@@ -1796,3 +1796,64 @@ paragraph_indent_group = bkt.ribbon.Group(
 )
 
 
+mini_group_text = bkt.ribbon.Group(
+    id="bkt_mini_group_text",
+    label = u"Schriftart/Text",
+    image_mso='GroupFont',
+    children = [
+        #NOTE: horizontal box layout leads to spacing between Font and FontSize ComboBox!
+        bkt.mso.control.Font,
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.Bold,
+            bkt.mso.control.Italic,
+            bkt.mso.control.Underline,
+            # bkt.mso.control.Shadow,
+            bkt.mso.control.Strikethrough,
+        ]),
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.CharacterSpacingGallery,
+            bkt.mso.control.ChangeCaseGallery,
+            bkt.mso.control.ClearFormatting,
+        ]),
+
+        bkt.mso.control.FontSize,
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.FontSizeIncrease,
+            bkt.mso.control.FontSizeDecrease,
+        ]),
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.Superscript,
+            bkt.mso.control.Subscript,
+        ]),
+
+        bkt.ribbon.Separator(),
+
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.BulletsGallery,
+            bkt.mso.control.NumberingGallery,
+            bkt.mso.control.IndentDecrease,
+            bkt.mso.control.IndentIncrease,
+            # bkt.mso.control.ConvertToSmartArt,
+        ]),
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.AlignLeft,
+            bkt.mso.control.AlignCenter,
+            bkt.mso.control.AlignRight,
+            bkt.mso.control.AlignJustify,
+            bkt.mso.control.AlignJustifyMenu,
+            # bkt.mso.control.ParagraphDistributed,
+            # bkt.mso.control.AlignJustifyThai,
+            # bkt.mso.control.TextDirectionLeftToRight,
+            # bkt.mso.control.TextDirectionRightToLeft,
+            bkt.mso.control.TableColumnsGallery,
+        ]),
+
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.LineSpacingGalleryPowerPoint,
+            # bkt.mso.control.FontColorPicker,
+            bkt.mso.control.TextDirectionGallery,
+            bkt.mso.control.TextAlignGallery,
+        ]),
+        bkt.ribbon.DialogBoxLauncher(idMso='FontDialogPowerPoint')
+    ]
+)
