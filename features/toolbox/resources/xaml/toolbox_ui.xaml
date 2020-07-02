@@ -132,12 +132,12 @@
 
             <Label Grid.Row="7" Grid.Column="0" Content="Schrift und Text (BKT-Version)" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
-                    <Image Source="{Binding mini_group_text_url}" />
+                    <Image Source="{Binding text_compact_group_url}" />
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="7" Grid.Column="1" GroupName="mini_group_text" IsChecked="{Binding mini_group_text[0], Mode=TwoWay}" Content="{Binding mini_group_text_header[0]}" />
-            <RadioButton Grid.Row="7" Grid.Column="2" GroupName="mini_group_text" IsChecked="{Binding mini_group_text[1], Mode=TwoWay}" Content="{Binding mini_group_text_header[1]}" />
-            <RadioButton Grid.Row="7" Grid.Column="3" GroupName="mini_group_text" IsChecked="{Binding mini_group_text[2], Mode=TwoWay}" Content="{Binding mini_group_text_header[2]}" />
+            <RadioButton Grid.Row="7" Grid.Column="1" GroupName="text_compact_group" IsChecked="{Binding text_compact_group[0], Mode=TwoWay}" Content="{Binding text_compact_group_header[0]}" />
+            <RadioButton Grid.Row="7" Grid.Column="2" GroupName="text_compact_group" IsChecked="{Binding text_compact_group[1], Mode=TwoWay}" Content="{Binding text_compact_group_header[1]}" />
+            <RadioButton Grid.Row="7" Grid.Column="3" GroupName="text_compact_group" IsChecked="{Binding text_compact_group[2], Mode=TwoWay}" Content="{Binding text_compact_group_header[2]}" />
 
             <Rectangle Grid.Row="8" Fill="WhiteSmoke" Grid.ColumnSpan="4" />
             <Label Grid.Row="8" Grid.Column="0" Content="Shapes" />

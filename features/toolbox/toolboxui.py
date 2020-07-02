@@ -33,7 +33,7 @@ class ToolboxUi(object):
 
         "default_group_font": 1, #page no 1
         "default_group_paragraph": 1, #page no 1
-        "mini_group_text": 0, #off
+        "text_compact_group": 0, #off
 
         "shapes_group": 1, #page no 1
         "styles_group": 1, #page no 1
@@ -136,7 +136,7 @@ class ToolboxUi(object):
         #position size
         self.toolboxui_pages[self.toolboxui_settings["default_group_font"]].append(bkt.mso.group.GroupFont)
         self.toolboxui_pages[self.toolboxui_settings["default_group_paragraph"]].append(bkt.mso.group.GroupParagraph)
-        self.toolboxui_pages[self.toolboxui_settings["mini_group_text"]].append(text.mini_group_text)
+        self.toolboxui_pages[self.toolboxui_settings["text_compact_group"]].append(text.text_compact_group)
     
     def _render_pages_shapestyle(self):
         #position size

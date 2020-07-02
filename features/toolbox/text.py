@@ -1768,13 +1768,13 @@ paragraph_indent_group = bkt.ribbon.Group(
 )
 
 
-mini_group_text = bkt.ribbon.Group(
-    id="bkt_mini_group_text",
+text_compact_group = bkt.ribbon.Group(
+    id="bkt_text_compact_group",
     label = u"Schriftart/Text",
     image_mso='GroupFont',
     children = [
         #NOTE: horizontal box layout leads to spacing between Font and FontSize ComboBox!
-        bkt.mso.control.Font,
+        bkt.mso.comboBox.Font(sizeString="WWWWWWWI"),
         bkt.ribbon.Box(box_style="horizontal", children=[
             bkt.mso.control.Bold,
             bkt.mso.control.Italic,
