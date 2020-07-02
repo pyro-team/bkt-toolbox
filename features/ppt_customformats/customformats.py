@@ -23,6 +23,18 @@ from .helpers import ShapeFormats #local helper functions
 
 
 CF_VERSION = "20191112"
+CF_TYPES = (
+    pplib.MsoShapeType["msoAutoShape"],
+    pplib.MsoShapeType["msoCallout"],
+    pplib.MsoShapeType["msoFreeform"],
+    pplib.MsoShapeType["msoGraphic"],
+    pplib.MsoShapeType["msoLine"],
+    pplib.MsoShapeType["msoPicture"],
+    pplib.MsoShapeType["msoTextBox"],
+    pplib.MsoShapeType["msoPlaceholder"],
+    pplib.MsoShapeType["msoLinkedGraphic"],
+    pplib.MsoShapeType["msoLinkedPicture"],
+    )
 
 class CustomFormat(object):
     '''
@@ -101,6 +113,10 @@ class CustomFormat(object):
 
     @staticmethod
     def from_shape(shape, style_setting=None):
+        if shape.type not in CF_TYPES:
+            bkt.message("Shape-Typ wird nicht unterstützt!", "BKT: Custom Styles")
+            return
+
         ### BUTTON SETTINGS
         button_setting = {}
         if shape.Fill.Visible == -1:
@@ -276,7 +292,7 @@ class CustomFormatCatalog(object):
             
             if not isinstance(catalog, OrderedDict) or catalog.get("version", 0) != CF_VERSION:
                 #pre-migration TODO: create backup-file
-                bkt.message("Einmalige Migration des Katalogformats erforderlich. Diese wird nun gestartet.")
+                bkt.message("Einmalige Migration des Katalogformats erforderlich. Diese wird nun gestartet.", "BKT: Custom Styles")
 
                 try:
                     #migration from old list-format
@@ -289,13 +305,13 @@ class CustomFormatCatalog(object):
 
                     #check version again
                     if catalog.get("version", 0) != CF_VERSION:
-                        raise ValueError("invalid version number. migration incomplete.")
+                        raise ValueError("invalid version number. migration incomplete.", "BKT: Custom Styles")
                     
                     #migration successful, save file to config later
                     catalog_migration = True
-                    bkt.message("Migration erfolgreich. Katalog wird nun geladen.")
+                    bkt.message("Migration erfolgreich. Katalog wird nun geladen.", "BKT: Custom Styles")
                 except:
-                    bkt.message("Migration fehlgeschlagen!")
+                    bkt.message.error("Migration fehlgeschlagen!", "BKT: Custom Styles")
                     logging.exception("Customformats: Migration failed")
                     return
             
@@ -448,9 +464,11 @@ class CustomFormatCatalog(object):
 
     @classmethod
     def pickup_custom_style(cls, shape, style_setting=None):
-        cls.custom_styles.append(CustomFormat.from_shape(shape, style_setting))
-        cls._generate_thumbnail_image(len(cls.custom_styles)-1, shape)
-        cls.save_to_config()
+        cm_style = CustomFormat.from_shape(shape, style_setting)
+        if cm_style:
+            cls.custom_styles.append(cm_style)
+            cls._generate_thumbnail_image(len(cls.custom_styles)-1, shape)
+            cls.save_to_config()
 
     @classmethod
     def edit_custom_style(cls, index, style_setting):
@@ -561,7 +579,7 @@ class CustomQuickEdit(object):
         try:
             CustomFormatCatalog.create_new_config(filename)
         except OSError:
-            bkt.message("Dateiname existiert bereits")
+            bkt.message.warning("Dateiname existiert bereits", "BKT: Custom Styles")
 
 
     @staticmethod
@@ -665,12 +683,13 @@ class CustomQuickEdit(object):
     @classmethod
     def temp_pickup(cls, shape):
         cls.temp_custom_format = CustomFormat.from_shape(shape)
-        cls.temp_settings_done = False
+        if cls.temp_custom_format:
+            cls.temp_settings_done = False
 
-        if bkt.get_key_state(bkt.KeyCodes.CTRL):
-            from bkt import console
-            # logging.debug(json.dumps(cls.temp_custom_format.to_json()))
-            console.show_message("%r" % cls.temp_custom_format.to_json())
+            if bkt.get_key_state(bkt.KeyCodes.CTRL):
+                from bkt import console
+                # logging.debug(json.dumps(cls.temp_custom_format.to_json()))
+                console.show_message("%r" % cls.temp_custom_format.to_json())
 
     @classmethod
     def temp_apply(cls, shapes, context):
@@ -691,7 +710,7 @@ class CustomQuickEdit(object):
 
     @staticmethod
     def show_caveats():
-        bkt.message("Aufgrund von PowerPoint-Bugs gibt es folgende Einschränkungen:\r\n- Textkontur kann gesetzt, aber nicht wieder entfernt werden\r\n- Farb-Verläufe werden nur für Hintergrund (nicht Linien) unterstützt\r\n- Farb-Verläufe (insb. Winkel) werden nicht immer richtig übertragen\r\n- Schatten werden nicht auf Gruppen angewendet\r\n- Abschluss-/Anschlusstyp bei Linien werden nicht gesetzt")
+        bkt.message("Aufgrund von PowerPoint-Bugs gibt es folgende Einschränkungen:\r\n- Textkontur kann gesetzt, aber nicht wieder entfernt werden\r\n- Farb-Verläufe werden nur für Hintergrund (nicht Linien) unterstützt\r\n- Farb-Verläufe (insb. Winkel) werden nicht immer richtig übertragen\r\n- Schatten werden nicht auf Gruppen angewendet\r\n- Abschluss-/Anschlusstyp bei Linien werden nicht gesetzt", "BKT: Custom Styles")
 
 
 class FormatLibGallery(bkt.ribbon.Gallery):
