@@ -7,6 +7,7 @@ Created on 2017-07-24
 from __future__ import absolute_import
 
 import logging
+from collections import OrderedDict
 
 import bkt
 import bkt.library.powerpoint as pplib
@@ -100,6 +101,60 @@ class WindowTests(object):
 
 
 class FormattingTestFunctions(object):
+    shape_db = None
+
+    @classmethod
+    def build_shape_db(cls, shapes):
+        import io
+        import json
+
+        from bkt import console
+
+        from json import encoder
+        encoder.FLOAT_REPR = lambda o: format(o, '.4f')
+
+        from toolbox.shape_adjustments import ShapeAdjustments
+
+        cls.shape_db = OrderedDict()
+
+        def _get_key_by_value(search_dict, value):
+            try:
+                return search_dict.keys()[search_dict.values().index(value)]
+            except:
+                return "?"
+        
+        for shape in sorted(shapes, key=lambda s: s.AutoShapeType):
+            dba = cls.shape_db[shape.AutoShapeType] = OrderedDict()
+            dba['id']                   = shape.AutoShapeType
+            dba['name']                 = _get_key_by_value(pplib.MsoAutoShapeType, shape.AutoShapeType)
+            dba['ratio']                = float(shape.width/shape.height)
+            dba['adjustments_count']    = shape.adjustments.count
+            # dba['adjustments']          = [float(a) for a in shape.adjustments]
+            dba['adjustments']          = []
+
+            if shape.adjustments.count == 0:
+                continue
+
+            adj_settings = ShapeAdjustments.auto_shape_type_settings.get(shape.AutoShapeType, [])
+            if not adj_settings:
+                logging.warning("Shape DB: No adj settings for type %s", shape.AutoShapeType)
+                shape.fill.forecolor.rgb = 3243501
+            for i,a in enumerate(shape.adjustments):
+                try:
+                    d = adj_settings[i]
+                except:
+                    # logging.warning("Shape DB: Missing adj setting for type %s, i %s", shape.AutoShapeType, i)
+                    d = dict()
+                d['default'] = float(a)
+                dba['adjustments'].append(d)
+
+            dba['adjustments']
+        
+        file = bkt.helpers.file_base_path_join(__file__, "shapedb.json")
+        with io.open(file, 'w', encoding='utf-8') as json_file:
+            json.dump(cls.shape_db, json_file, ensure_ascii=False, indent=2)
+
+        # console.show_message(json.dumps(cls.shape_db, indent=2))
 
     @staticmethod
     def export_as_png(presentation, slides):
@@ -250,6 +305,15 @@ testformatting_gruppe = bkt.ribbon.Group(
             show_label=True,
             image_mso='HappyFace',
             on_action=bkt.Callback(FormattingTestFunctions.control_position),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            size="large",
+        ),
+        bkt.ribbon.Button(
+            id = 'shapetypedb',
+            label="Shape DB",
+            show_label=True,
+            image_mso='HappyFace',
+            on_action=bkt.Callback(FormattingTestFunctions.build_shape_db),
             get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
             size="large",
         ),
