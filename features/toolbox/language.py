@@ -35,6 +35,11 @@ class LangSetter(object):
     }
 
     @classmethod
+    def show_lang_dialog(cls, context):
+        from .dialogs.language import LanguageWindow
+        LanguageWindow.create_and_show_dialog(context, cls)
+
+    @classmethod
     def get_languages(cls):
         for lang in cls.active_langs:
             yield cls.langs[lang]
@@ -101,8 +106,12 @@ class LangSetter(object):
             #bkt.message("Setze Sprache für Präsentation")
             if not bkt.message.confirmation("Sprache aller Shapes auf allen Folien (inkl. Standardsprache der Präsentation) ändern?"):
                 return
-            presentation.DefaultLanguageID = lang_code
-            cls.set_language_for_slides(presentation.slides, lang_code)
+            cls.set_language_for_presentation(presentation, lang_code)
+
+    @classmethod
+    def set_language_for_presentation(cls, presentation, lang_code):
+        presentation.DefaultLanguageID = lang_code
+        cls.set_language_for_slides(presentation.slides, lang_code)
 
     @classmethod
     def set_language_for_slides(cls, slides, lang_code):
@@ -144,24 +153,40 @@ sprachen_gruppe = bkt.ribbon.Group(
     ]
 )
 
-sprachen_menu = bkt.ribbon.Menu(
+sprachen_menu = bkt.ribbon.SplitButton(
     id="lang_change_menu",
-    label="Sprache ändern",
-    supertip="Sprache der Rechtschreibkorrektur für mehrere Shapes, Folien oder die ganze Präsentation anpassen",
-    image_mso="GroupLanguage",
     children=[
-        bkt.ribbon.MenuSeparator(title="Sprache von Shapes oder Folien ändern"),
-    ] + [
-        LangSetter.get_button(lang)
-        for lang in LangSetter.get_languages()
-    ] + [
         bkt.ribbon.Button(
-            label="Wählbare Sprachen editieren…",
-            supertip="Öffnet Dialog um wählbare Sprachen zu ändern.",
-            on_action=bkt.Callback(LangSetter.edit_active_language),
+            label='Sprache ändern…',
+            image_mso='GroupLanguage',
+            supertip="Zeigt Dialog zur Auswahl der anzuwendenden Sprache auf die Präsentation oder die ausgewählten Folien.",
+            on_action=bkt.Callback(LangSetter.show_lang_dialog)
         ),
-        bkt.ribbon.MenuSeparator(),
-        bkt.mso.button.SetLanguage,
-        bkt.mso.button.Spelling,
+        bkt.ribbon.Menu(
+            label="Sprache ändern",
+            supertip="Sprache der Rechtschreibkorrektur für mehrere Shapes, Folien oder die ganze Präsentation anpassen",
+            image_mso="GroupLanguage",
+            children=[
+                bkt.ribbon.MenuSeparator(title="Sprache von Shapes oder Folien ändern"),
+                bkt.ribbon.Button(
+                    label="Alle Sprachen anzeigen…",
+                    image_mso='GroupLanguage',
+                    supertip="Zeigt Dialog zur Auswahl der anzuwendenden Sprache auf die Präsentation oder die ausgewählten Folien.",
+                    on_action=bkt.Callback(LangSetter.show_lang_dialog),
+                ),
+            ] + [
+                LangSetter.get_button(lang)
+                for lang in LangSetter.get_languages()
+            ] + [
+                bkt.ribbon.Button(
+                    label="Wählbare Sprachen editieren…",
+                    supertip="Öffnet Dialog um wählbare Sprachen zu ändern.",
+                    on_action=bkt.Callback(LangSetter.edit_active_language),
+                ),
+                bkt.ribbon.MenuSeparator(),
+                bkt.mso.button.SetLanguage,
+                bkt.mso.button.Spelling,
+            ]
+        )
     ]
 )
