@@ -247,6 +247,14 @@ class ShapeAdjustments(object):
                 # if i <= shape.adjustments.count:
                 #     shape.adjustments.item[i] = master.adjustments.item[i]
 
+    @classmethod
+    def reset_adjustments(cls, shapes):
+        for shape in shapes:
+            shape_db = pplib.GlobalShapeDb.get_by_shape(shape)
+            default_adj = shape_db["adjustments"]
+            for i in range(shape.adjustments.count):
+                shape.adjustments.item[i+1] = default_adj[i]["default"]
+
 
     @classmethod
     def get_shape_details(cls, shape):
@@ -337,6 +345,12 @@ adjustments_group = bkt.ribbon.Group(
                             get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (7,8)),
                         ),
                         bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.Button(
+                            label="Alle Shapes zurücksetzen",
+                            image_mso='ResetCurrentView',
+                            supertip="Shape-Anfasser-Werte für alle ausgewählten Shapes auf die Originalwerte zurücksetzen",
+                            on_action=bkt.Callback(ShapeAdjustments.reset_adjustments, shapes=True),
+                        ),
                         bkt.ribbon.Button(
                             label="Alle Shapes angleichen",
                             image_mso='ShapeArc',
