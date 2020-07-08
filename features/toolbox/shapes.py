@@ -8,6 +8,7 @@ Created on 06.07.2016
 from __future__ import absolute_import, division
 
 import logging
+import locale
 
 from System import Array
 
@@ -151,11 +152,6 @@ class PositionSize(object):
         target_zorder = shapes.pop(-1).ZOrderPosition
         for shape in shapes:
             pplib.set_shape_zorder(shape, value=target_zorder)
-
-    @staticmethod
-    def shape_lock_aspect_ratio(shapes, pressed):
-        for shape in shapes:
-            shape.LockAspectRatio = -1 if pressed else 0
     
     @staticmethod
     def set_height_to_width(shapes):
@@ -186,6 +182,92 @@ class PositionSize(object):
     def swap_left_and_top(shapes):
         for shape in shapes:
             shape.top, shape.left = shape.left, shape.top
+
+
+class AspectRatio(object):
+    types_scale = (
+        pplib.MsoShapeType["msoPicture"],
+        pplib.MsoShapeType["msoLinkedPicture"],
+        pplib.MsoShapeType["msoFreeform"],
+        pplib.MsoShapeType["msoEmbeddedOLEObject"],
+        pplib.MsoShapeType["msoLinkedOLEObject"],
+        pplib.MsoShapeType["msoMedia"],
+    )
+    types_in_db = (
+        pplib.MsoShapeType["msoAutoShape"],
+        pplib.MsoShapeType["msoCallout"],
+    )
+
+    aspect_ratios = [
+        (1,1),
+        (3,2),
+        (4,3),
+        (13,9),
+        (15,10),
+        (16,9),
+    ]
+
+    @classmethod
+    def reset(cls, shapes):
+        for shape in shapes:
+            try:
+                shape_type = shape.Type
+                #TODO: placeholder support
+                if shape_type in cls.types_scale:
+                    height = shape.Height
+                    shape.ScaleHeight(1, True)
+                    shape.ScaleWidth(1, True)
+                    #reapply ratio (only required if LockAspectRatio=0)
+                    ratio = shape.Width/shape.Height
+                    shape.Height = height
+                    shape.Width = ratio*height
+                elif shape_type in cls.types_in_db:
+                    try:
+                        shape_db = pplib.GlobalShapeDb.get_by_shape(shape)
+                        ratio = shape_db["ratio"]
+                    except:
+                        logging.exception("shape not found in db")
+                        ratio = 1
+                    # landscape = shape.width > shape.height
+                    shape.force_aspect_ratio(ratio)
+            except:
+                continue
+    
+    @staticmethod
+    def swap(shapes):
+        for shape in shapes:
+            shape.transpose()
+    
+    @classmethod
+    def set_aspect_ratio(cls, shapes, current_control):
+        index = int(current_control["tag"])
+        r1,r2 = cls.aspect_ratios[index]
+        value = r1/r2
+        for shape in shapes:
+            # landscape = shape.width > shape.height
+            shape.force_aspect_ratio(value)
+            shape.lock_aspect_ratio = True
+    
+    @staticmethod
+    def get_aspect_ratio(shape):
+        return shape.width/shape.height
+    
+    @classmethod
+    def get_aspect_ratio_label(cls, context):
+        try:
+            return "Aktuelles Seiteverhältnis: {:.4n}".format(cls.get_aspect_ratio(context.shape))
+        except:
+            return "Aktuelles Seiteverhältnis: -"
+
+    @staticmethod
+    def lock_aspect_ratio(shapes, pressed):
+        for shape in shapes:
+            shape.LockAspectRatio = -1 if pressed else 0
+    
+    @staticmethod
+    def get_aspect_ratio_locked(shapes):
+        return shapes[0].LockAspectRatio == -1
+
 
 
 spinner_top = bkt.ribbon.RoundingSpinnerBox(
@@ -371,12 +453,65 @@ spinner_zorder = bkt.ribbon.RoundingSpinnerBox(
 #button_lock_aspect_ratio = bkt.ribbon.CheckBox(
 button_lock_aspect_ratio = dict(
     #id = 'shape_lock_aspect_ratio',
-    label="Seitenverhält.",
+    # label="Seitenverhält.",
     screentip="Seitenverhältnis sperren",
     supertip="Wenn das Kontrollkästchen Seitenverhältnis sperren aktiviert ist, ändern sich die Einstellungen von Höhe und Breite im Verhältnis zueinander.",
-    on_toggle_action = bkt.Callback(PositionSize.shape_lock_aspect_ratio, shapes=True),
-    get_pressed = bkt.Callback(lambda shapes: shapes[0].LockAspectRatio == -1, shapes=True),
+    on_toggle_action = bkt.Callback(AspectRatio.lock_aspect_ratio, shapes=True),
+    get_pressed = bkt.Callback(AspectRatio.get_aspect_ratio_locked, shapes=True),
     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+)
+
+menu_lock_aspect_ratio = bkt.ribbon.Box(
+    box_style="horizontal",
+    children=[
+        bkt.ribbon.Menu(
+            label="Sperren",
+            show_label=False,
+            image_mso="AutoSizePage",
+            children=[
+                bkt.ribbon.ToggleButton(id="shape_lock_aspect_ratio3", label="Seitenverhältnis sperren an/aus", image_mso="Lock", **button_lock_aspect_ratio),
+                bkt.ribbon.Button(
+                    get_label=bkt.Callback(AspectRatio.get_aspect_ratio_label, context=True),
+                    enabled=False,
+                ),
+                bkt.ribbon.MenuSeparator(),
+            ] + [
+                bkt.ribbon.Button(
+                    label="Setzen auf {}:{} ({:.4n})".format(r[0], r[1], r[0]/r[1]),
+                    tag=str(i),
+                    on_action=bkt.Callback(AspectRatio.set_aspect_ratio, shapes=True, current_control=True, wrap_shapes=True),
+                ) for i, r in enumerate(AspectRatio.aspect_ratios)
+            ] + [
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Button(
+                    label="Tauschen",
+                    screentip="Seitenverhältnis tauschen",
+                    supertip="Vertauscht Breite und Größe und dreht damit das Seitenverhältnis um.",
+                    image_mso="PageScaleToFitOptionsDialog",
+                    on_action = bkt.Callback(AspectRatio.swap, shapes=True, wrap_shapes=True),
+                ),
+                bkt.ribbon.Button(
+                    label="Zurücksetzen",
+                    screentip="Seitenverhältnis zurücksetzen",
+                    supertip="Setzt das Seitenverhältnis auf den Ursprungszustand zurück.",
+                    image_mso="ResetCurrentView",
+                    on_action = bkt.Callback(AspectRatio.reset, shapes=True, wrap_shapes=True),
+                ),
+                # bkt.mso.control.PictureResetAndSize,
+            ]
+        ),
+        bkt.ribbon.CheckBox(id="shape_lock_aspect_ratio2", label="Seitenv.", **button_lock_aspect_ratio),
+        # bkt.ribbon.ToggleButton(
+        #     label="Gesperrt",
+        #     # show_label=False,
+        #     image_mso="Lock",
+        # ),
+        # bkt.ribbon.ToggleButton(
+        #     label="Offen",
+        #     show_label=False,
+        #     image_mso="Lock",
+        # ),
+    ]
 )
 
 size_group = bkt.ribbon.Group(
@@ -388,7 +523,7 @@ size_group = bkt.ribbon.Group(
         #spinner_width,
         bkt.mso.control.ShapeHeight(show_label=False),
         bkt.mso.control.ShapeWidth(show_label=False),
-        bkt.ribbon.CheckBox(id="shape_lock_aspect_ratio1", **button_lock_aspect_ratio),
+        bkt.ribbon.CheckBox(id="shape_lock_aspect_ratio1", label="Seitenverhält.", **button_lock_aspect_ratio),
         bkt.ribbon.DialogBoxLauncher(idMso='ObjectSizeAndPositionDialog')
     ]
 )
@@ -411,7 +546,8 @@ pos_size_group = bkt.ribbon.Group(
     children =[
         spinner_height,
         spinner_width,
-        bkt.ribbon.CheckBox(id="shape_lock_aspect_ratio2", **button_lock_aspect_ratio),
+        menu_lock_aspect_ratio,
+        # bkt.ribbon.CheckBox(id="shape_lock_aspect_ratio2", **button_lock_aspect_ratio),
         spinner_top,
         spinner_left,
         spinner_zorder,
