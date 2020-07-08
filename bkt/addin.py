@@ -183,7 +183,7 @@ class AddIn(object):
         
         self.events = None
         if self.app_callbacks:
-            self.app_callbacks.unbind_app_events()
+            self.app_callbacks.destroy()
         self.app_callbacks=None
         self.app_ui = None
         
