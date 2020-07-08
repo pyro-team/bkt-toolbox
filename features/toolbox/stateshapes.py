@@ -68,7 +68,8 @@ class StateShape(object):
         pos = (pos + delta) % len(shapes)
         shapes[pos].visible = True
         group.regroup()
-        group.select(replace=False)
+        # group.select(replace=False) #NOTE: this causes trouble if shape is corrupt, better to return and select all at the end
+        return group.shape
         # grp = ungrouped_shapes.Group()
         # grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
         # try:
@@ -76,44 +77,34 @@ class StateShape(object):
         #     grp.Select(replace=False)
         # except:
         #     grp.Select()
+    
+    @classmethod
+    def switch_states(cls, shapes, **kwargs):
+        resulting_shapes = []
+        for shape in shapes:
+            try:
+                resulting_shapes.append( cls.switch_state(shape, **kwargs) )
+            except:
+                logging.exception("Statehape error swichting state")
+                continue
+        pplib.shapes_to_range(resulting_shapes).select()
 
 
     @classmethod
     def reset_state(cls, shapes):
-        for shape in shapes:
-            try:
-                cls.switch_state(shape, pos=0)
-            except:
-                logging.exception("Statehape error resetting state")
-                continue
+        cls.switch_states(shapes, pos=0)
 
     @classmethod
     def next_state(cls, shapes):
-        for shape in shapes:
-            try:
-                cls.switch_state(shape, delta=1)
-            except:
-                logging.exception("Statehape error switching to next state")
-                continue
+        cls.switch_states(shapes, delta=1)
 
     @classmethod
     def previous_state(cls, shapes):
-        for shape in shapes:
-            try:
-                cls.switch_state(shape, delta=-1)
-            except:
-                logging.exception("Statehape error switching to previous state")
-                continue
+        cls.switch_states(shapes, delta=-1)
 
     @classmethod
     def set_state(cls, shapes, value):
-        value = int(value)
-        for shape in shapes:
-            try:
-                cls.switch_state(shape, pos=value)
-            except:
-                logging.exception("Statehape error setting state")
-                continue
+        cls.switch_states(shapes, pos=int(value))
 
     # @classmethod
     # def get_show_all(cls, shape):
