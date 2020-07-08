@@ -1,0 +1,2194 @@
+{
+  "1": {
+    "id": 1, 
+    "name": "msoShapeRectangle", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "2": {
+    "id": 2, 
+    "name": "msoShapeParallelogram", 
+    "ratio": 1.3300, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "h", 
+        "max": "w", 
+        "default": 0.2500, 
+        "min": 0
+      }
+    ]
+  }, 
+  "3": {
+    "id": 3, 
+    "name": "msoShapeTrapezoid", 
+    "ratio": 0.7519, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": "w/2", 
+        "default": 0.2500, 
+        "min": 0
+      }
+    ]
+  }, 
+  "4": {
+    "id": 4, 
+    "name": "msoShapeDiamond", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "5": {
+    "id": 5, 
+    "name": "msoShapeRoundedRectangle", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1667, 
+        "min": 0
+      }
+    ]
+  }, 
+  "6": {
+    "id": 6, 
+    "name": "msoShapeOctagon", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.2929, 
+        "min": 0
+      }
+    ]
+  }, 
+  "7": {
+    "id": 7, 
+    "name": "msoShapeIsoscelesTriangle", 
+    "ratio": 1.1600, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "w", 
+        "max": "w", 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "8": {
+    "id": 8, 
+    "name": "msoShapeRightTriangle", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "9": {
+    "id": 9, 
+    "name": "msoShapeOval", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "10": {
+    "id": 10, 
+    "name": "msoShapeHexagon", 
+    "ratio": 1.1600, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": "w/2", 
+        "default": 0.2500, 
+        "min": 0
+      }, 
+      {
+        "default": 1.1547
+      }
+    ]
+  }, 
+  "11": {
+    "id": 11, 
+    "name": "msoShapeCross", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.2500, 
+        "min": 0
+      }
+    ]
+  }, 
+  "12": {
+    "id": 12, 
+    "name": "msoShapeRegularPentagon", 
+    "ratio": 1.0500, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "default": 1.0515
+      }, 
+      {
+        "default": 1.1056
+      }
+    ]
+  }, 
+  "13": {
+    "id": 13, 
+    "name": "msoShapeCan", 
+    "ratio": 0.7519, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": "h/2", 
+        "default": 0.2500, 
+        "min": 0.0010
+      }
+    ]
+  }, 
+  "14": {
+    "id": 14, 
+    "name": "msoShapeCube", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 1, 
+        "default": 0.2500, 
+        "min": 0
+      }
+    ]
+  }, 
+  "15": {
+    "id": 15, 
+    "name": "msoShapeBevel", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1250, 
+        "min": 0
+      }
+    ]
+  }, 
+  "16": {
+    "id": 16, 
+    "name": "msoShapeFoldedCorner", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1667, 
+        "min": 0
+      }
+    ]
+  }, 
+  "17": {
+    "id": 17, 
+    "name": "msoShapeSmileyFace", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "default": 0.0465
+      }
+    ]
+  }, 
+  "18": {
+    "id": 18, 
+    "name": "msoShapeDonut", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.2500, 
+        "min": 0
+      }
+    ]
+  }, 
+  "19": {
+    "id": 19, 
+    "name": "msoShapeNoSymbol", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1875, 
+        "min": 0
+      }
+    ]
+  }, 
+  "20": {
+    "id": 20, 
+    "name": "msoShapeBlockArc", 
+    "ratio": 1.0000, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "ref": "deg", 
+        "max": 180, 
+        "default": 180.0000, 
+        "min": -180
+      }, 
+      {
+        "ref": "deg", 
+        "max": 180, 
+        "default": 0.0000, 
+        "min": -180
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.2500, 
+        "min": 0
+      }
+    ]
+  }, 
+  "21": {
+    "id": 21, 
+    "name": "msoShapeHeart", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "22": {
+    "id": 22, 
+    "name": "msoShapeLightningBolt", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "23": {
+    "id": 23, 
+    "name": "msoShapeSun", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "default": 0.2500
+      }
+    ]
+  }, 
+  "24": {
+    "id": 24, 
+    "name": "msoShapeMoon", 
+    "ratio": 0.5000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "w", 
+        "max": 0.8750, 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "25": {
+    "id": 25, 
+    "name": "msoShapeArc", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "deg", 
+        "max": 180, 
+        "default": -90.0000, 
+        "min": -180
+      }, 
+      {
+        "ref": "deg", 
+        "max": 180, 
+        "default": 0.0000, 
+        "min": -180
+      }
+    ]
+  }, 
+  "26": {
+    "id": 26, 
+    "name": "msoShapeDoubleBracket", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1667, 
+        "min": 0
+      }
+    ]
+  }, 
+  "27": {
+    "id": 27, 
+    "name": "msoShapeDoubleBrace", 
+    "ratio": 1.1700, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.0833, 
+        "min": 0
+      }
+    ]
+  }, 
+  "28": {
+    "id": 28, 
+    "name": "msoShapePlaque", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1667, 
+        "min": 0
+      }
+    ]
+  }, 
+  "29": {
+    "id": 29, 
+    "name": "msoShapeLeftBracket", 
+    "ratio": 0.0800, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "w", 
+        "max": "h/2", 
+        "default": 0.0833, 
+        "min": 0
+      }
+    ]
+  }, 
+  "30": {
+    "id": 30, 
+    "name": "msoShapeRightBracket", 
+    "ratio": 0.0800, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "w", 
+        "max": "h/2", 
+        "default": 0.0833, 
+        "min": 0
+      }
+    ]
+  }, 
+  "31": {
+    "id": 31, 
+    "name": "msoShapeLeftBrace", 
+    "ratio": 0.1700, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "w", 
+        "max": "h/4", 
+        "default": 0.0833, 
+        "min": 0
+      }, 
+      {
+        "ref": "h", 
+        "max": 1, 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "32": {
+    "id": 32, 
+    "name": "msoShapeRightBrace", 
+    "ratio": 0.1700, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "w", 
+        "max": "h/4", 
+        "default": 0.0833, 
+        "min": 0
+      }, 
+      {
+        "ref": "h", 
+        "max": 1, 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "33": {
+    "id": 33, 
+    "name": "msoShapeRightArrow", 
+    "ratio": 2.0189, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "h", 
+        "max": 1, 
+        "default": 0.5000, 
+        "min": 0
+      }, 
+      {
+        "ref": "h", 
+        "max": "w", 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "34": {
+    "id": 34, 
+    "name": "msoShapeLeftArrow", 
+    "ratio": 2.0189, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "h", 
+        "max": 1, 
+        "default": 0.5000, 
+        "min": 0
+      }, 
+      {
+        "ref": "h", 
+        "max": "w", 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "35": {
+    "id": 35, 
+    "name": "msoShapeUpArrow", 
+    "ratio": 0.4953, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "w", 
+        "max": 1, 
+        "default": 0.5000, 
+        "min": 0
+      }, 
+      {
+        "ref": "w", 
+        "max": "h", 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "36": {
+    "id": 36, 
+    "name": "msoShapeDownArrow", 
+    "ratio": 0.4953, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "w", 
+        "max": 1, 
+        "default": 0.5000, 
+        "min": 0
+      }, 
+      {
+        "ref": "w", 
+        "max": "h", 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "37": {
+    "id": 37, 
+    "name": "msoShapeLeftRightArrow", 
+    "ratio": 2.5094, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "h", 
+        "max": 1, 
+        "default": 0.5000, 
+        "min": 0
+      }, 
+      {
+        "ref": "h", 
+        "max": "w/2", 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "38": {
+    "id": 38, 
+    "name": "msoShapeUpDownArrow", 
+    "ratio": 0.3985, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "w", 
+        "max": 1, 
+        "default": 0.5000, 
+        "min": 0
+      }, 
+      {
+        "ref": "w", 
+        "max": "h/2", 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "39": {
+    "id": 39, 
+    "name": "msoShapeQuadArrow", 
+    "ratio": 1.0000, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 1, 
+        "default": 0.2250, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)*2", 
+        "max": 0.5000, 
+        "default": 0.2250, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.2250, 
+        "min": 0
+      }
+    ]
+  }, 
+  "40": {
+    "id": 40, 
+    "name": "msoShapeLeftRightUpArrow", 
+    "ratio": 1.4301, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 1, 
+        "default": 0.2500, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)*2", 
+        "max": 0.5000, 
+        "default": 0.2500, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.2500, 
+        "min": 0
+      }
+    ]
+  }, 
+  "41": {
+    "id": 41, 
+    "name": "msoShapeBentArrow", 
+    "ratio": 0.9368, 
+    "adjustments_count": 4, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 1, 
+        "default": 0.2500, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)*2", 
+        "max": 0.5000, 
+        "default": 0.2500, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.2500, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": 1, 
+        "default": 0.4375, 
+        "min": 0
+      }
+    ]
+  }, 
+  "42": {
+    "id": 42, 
+    "name": "msoShapeUTurnArrow", 
+    "ratio": 1.0104, 
+    "adjustments_count": 5, 
+    "adjustments": [
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.4375
+      }, 
+      {
+        "default": 0.7500
+      }
+    ]
+  }, 
+  "43": {
+    "id": 43, 
+    "name": "msoShapeLeftUpArrow", 
+    "ratio": 1.0000, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 1, 
+        "default": 0.2500, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)*2", 
+        "max": 0.5000, 
+        "default": 0.2500, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.2500, 
+        "min": 0
+      }
+    ]
+  }, 
+  "44": {
+    "id": 44, 
+    "name": "msoShapeBentUpArrow", 
+    "ratio": 1.1625, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 1, 
+        "default": 0.2500, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)*2", 
+        "max": 0.5000, 
+        "default": 0.2500, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.2500, 
+        "min": 0
+      }
+    ]
+  }, 
+  "45": {
+    "id": 45, 
+    "name": "msoShapeCurvedRightArrow", 
+    "ratio": 0.6015, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.5000
+      }, 
+      {
+        "default": 0.2500
+      }
+    ]
+  }, 
+  "46": {
+    "id": 46, 
+    "name": "msoShapeCurvedLeftArrow", 
+    "ratio": 0.6015, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.5000
+      }, 
+      {
+        "default": 0.2500
+      }
+    ]
+  }, 
+  "47": {
+    "id": 47, 
+    "name": "msoShapeCurvedUpArrow", 
+    "ratio": 1.6625, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.5000
+      }, 
+      {
+        "default": 0.2500
+      }
+    ]
+  }, 
+  "48": {
+    "id": 48, 
+    "name": "msoShapeCurvedDownArrow", 
+    "ratio": 1.6625, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.5000
+      }, 
+      {
+        "default": 0.2500
+      }
+    ]
+  }, 
+  "49": {
+    "id": 49, 
+    "name": "msoShapeStripedRightArrow", 
+    "ratio": 2.0189, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "h", 
+        "max": "h", 
+        "default": 0.5000, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": "w", 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "50": {
+    "id": 50, 
+    "name": "msoShapeNotchedRightArrow", 
+    "ratio": 2.0189, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "h", 
+        "max": "h", 
+        "default": 0.5000, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": "w", 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "51": {
+    "id": 51, 
+    "name": "msoShapePentagon", 
+    "ratio": 2.0189, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": "w", 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "52": {
+    "id": 52, 
+    "name": "msoShapeChevron", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": "w", 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "53": {
+    "id": 53, 
+    "name": "msoShapeRightArrowCallout", 
+    "ratio": 1.0000, 
+    "adjustments_count": 4, 
+    "adjustments": [
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.6498
+      }
+    ]
+  }, 
+  "54": {
+    "id": 54, 
+    "name": "msoShapeLeftArrowCallout", 
+    "ratio": 1.0000, 
+    "adjustments_count": 4, 
+    "adjustments": [
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.6498
+      }
+    ]
+  }, 
+  "55": {
+    "id": 55, 
+    "name": "msoShapeUpArrowCallout", 
+    "ratio": 1.0000, 
+    "adjustments_count": 4, 
+    "adjustments": [
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.6498
+      }
+    ]
+  }, 
+  "56": {
+    "id": 56, 
+    "name": "msoShapeDownArrowCallout", 
+    "ratio": 1.0000, 
+    "adjustments_count": 4, 
+    "adjustments": [
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.6498
+      }
+    ]
+  }, 
+  "57": {
+    "id": 57, 
+    "name": "msoShapeLeftRightArrowCallout", 
+    "ratio": 2.1111, 
+    "adjustments_count": 4, 
+    "adjustments": [
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.4812
+      }
+    ]
+  }, 
+  "59": {
+    "id": 59, 
+    "name": "msoShapeQuadArrowCallout", 
+    "ratio": 1.0000, 
+    "adjustments_count": 4, 
+    "adjustments": [
+      {
+        "default": 0.1851
+      }, 
+      {
+        "default": 0.1851
+      }, 
+      {
+        "default": 0.1851
+      }, 
+      {
+        "default": 0.4812
+      }
+    ]
+  }, 
+  "60": {
+    "id": 60, 
+    "name": "msoShapeCircularArrow", 
+    "ratio": 1.0000, 
+    "adjustments_count": 5, 
+    "adjustments": [
+      {
+        "default": 0.1250
+      }, 
+      {
+        "default": 19.0387
+      }, 
+      {
+        "default": -19.0387
+      }, 
+      {
+        "default": 180.0000
+      }, 
+      {
+        "default": 0.1250
+      }
+    ]
+  }, 
+  "61": {
+    "id": 61, 
+    "name": "msoShapeFlowchartProcess", 
+    "ratio": 1.4925, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "62": {
+    "id": 62, 
+    "name": "msoShapeFlowchartAlternateProcess", 
+    "ratio": 1.4925, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "63": {
+    "id": 63, 
+    "name": "msoShapeFlowchartDecision", 
+    "ratio": 1.4925, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "64": {
+    "id": 64, 
+    "name": "msoShapeFlowchartData", 
+    "ratio": 1.4925, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "65": {
+    "id": 65, 
+    "name": "msoShapeFlowchartPredefinedProcess", 
+    "ratio": 1.4925, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "66": {
+    "id": 66, 
+    "name": "msoShapeFlowchartInternalStorage", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "67": {
+    "id": 67, 
+    "name": "msoShapeFlowchartDocument", 
+    "ratio": 1.4925, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "68": {
+    "id": 68, 
+    "name": "msoShapeFlowchartMultidocument", 
+    "ratio": 1.3976, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "69": {
+    "id": 69, 
+    "name": "msoShapeFlowchartTerminator", 
+    "ratio": 3.0303, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "70": {
+    "id": 70, 
+    "name": "msoShapeFlowchartPreparation", 
+    "ratio": 1.7313, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "71": {
+    "id": 71, 
+    "name": "msoShapeFlowchartManualInput", 
+    "ratio": 2.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "72": {
+    "id": 72, 
+    "name": "msoShapeFlowchartManualOperation", 
+    "ratio": 1.4925, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "73": {
+    "id": 73, 
+    "name": "msoShapeFlowchartConnector", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "74": {
+    "id": 74, 
+    "name": "msoShapeFlowchartOffpageConnector", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "75": {
+    "id": 75, 
+    "name": "msoShapeFlowchartCard", 
+    "ratio": 1.1364, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "76": {
+    "id": 76, 
+    "name": "msoShapeFlowchartPunchedTape", 
+    "ratio": 1.1364, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "77": {
+    "id": 77, 
+    "name": "msoShapeFlowchartSummingJunction", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "78": {
+    "id": 78, 
+    "name": "msoShapeFlowchartOr", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "79": {
+    "id": 79, 
+    "name": "msoShapeFlowchartCollate", 
+    "ratio": 0.5000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "80": {
+    "id": 80, 
+    "name": "msoShapeFlowchartSort", 
+    "ratio": 0.5000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "81": {
+    "id": 81, 
+    "name": "msoShapeFlowchartExtract", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "82": {
+    "id": 82, 
+    "name": "msoShapeFlowchartMerge", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "83": {
+    "id": 83, 
+    "name": "msoShapeFlowchartStoredData", 
+    "ratio": 1.4925, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "84": {
+    "id": 84, 
+    "name": "msoShapeFlowchartDelay", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "85": {
+    "id": 85, 
+    "name": "msoShapeFlowchartSequentialAccessStorage", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "86": {
+    "id": 86, 
+    "name": "msoShapeFlowchartMagneticDisk", 
+    "ratio": 1.4925, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "87": {
+    "id": 87, 
+    "name": "msoShapeFlowchartDirectAccessStorage", 
+    "ratio": 1.3333, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "88": {
+    "id": 88, 
+    "name": "msoShapeFlowchartDisplay", 
+    "ratio": 1.4925, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "89": {
+    "id": 89, 
+    "name": "msoShapeExplosion1", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "90": {
+    "id": 90, 
+    "name": "msoShapeExplosion2", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "91": {
+    "id": 91, 
+    "name": "msoShape4pointStar", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "default": 0.1250
+      }
+    ]
+  }, 
+  "92": {
+    "id": 92, 
+    "name": "msoShape5pointStar", 
+    "ratio": 1.0000, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "default": 0.1910
+      }, 
+      {
+        "default": 1.0515
+      }, 
+      {
+        "default": 1.1056
+      }
+    ]
+  }, 
+  "93": {
+    "id": 93, 
+    "name": "msoShape8pointStar", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "default": 0.3750
+      }
+    ]
+  }, 
+  "94": {
+    "id": 94, 
+    "name": "msoShape16pointStar", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "default": 0.3750
+      }
+    ]
+  }, 
+  "95": {
+    "id": 95, 
+    "name": "msoShape24pointStar", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "default": 0.3750
+      }
+    ]
+  }, 
+  "96": {
+    "id": 96, 
+    "name": "msoShape32pointStar", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "default": 0.3750
+      }
+    ]
+  }, 
+  "97": {
+    "id": 97, 
+    "name": "msoShapeUpRibbon", 
+    "ratio": 1.9851, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "default": 0.1667
+      }, 
+      {
+        "default": 0.5000
+      }
+    ]
+  }, 
+  "98": {
+    "id": 98, 
+    "name": "msoShapeDownRibbon", 
+    "ratio": 1.9851, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "default": 0.1667
+      }, 
+      {
+        "default": 0.5000
+      }
+    ]
+  }, 
+  "99": {
+    "id": 99, 
+    "name": "msoShapeCurvedUpRibbon", 
+    "ratio": 1.6024, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.5000
+      }, 
+      {
+        "default": 0.1250
+      }
+    ]
+  }, 
+  "100": {
+    "id": 100, 
+    "name": "msoShapeCurvedDownRibbon", 
+    "ratio": 1.6024, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "default": 0.2500
+      }, 
+      {
+        "default": 0.5000
+      }, 
+      {
+        "default": 0.1250
+      }
+    ]
+  }, 
+  "101": {
+    "id": 101, 
+    "name": "msoShapeVerticalScroll", 
+    "ratio": 0.9040, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "default": 0.1250
+      }
+    ]
+  }, 
+  "102": {
+    "id": 102, 
+    "name": "msoShapeHorizontalScroll", 
+    "ratio": 1.1062, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "default": 0.1250
+      }
+    ]
+  }, 
+  "103": {
+    "id": 103, 
+    "name": "msoShapeWave", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "default": 0.1250
+      }, 
+      {
+        "default": 0.0000
+      }
+    ]
+  }, 
+  "104": {
+    "id": 104, 
+    "name": "msoShapeDoubleWave", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "default": 0.0625
+      }, 
+      {
+        "default": 0.0000
+      }
+    ]
+  }, 
+  "105": {
+    "id": 105, 
+    "name": "msoShapeRectangularCallout", 
+    "ratio": 1.4925, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "w", 
+        "max": null, 
+        "default": -0.2083, 
+        "min": null
+      }, 
+      {
+        "ref": "h", 
+        "max": null, 
+        "default": 0.6250, 
+        "min": null
+      }
+    ]
+  }, 
+  "106": {
+    "id": 106, 
+    "name": "msoShapeRoundedRectangularCallout", 
+    "ratio": 1.4925, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "ref": "w", 
+        "max": null, 
+        "default": -0.2083, 
+        "min": null
+      }, 
+      {
+        "ref": "h", 
+        "max": null, 
+        "default": 0.6250, 
+        "min": null
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1667, 
+        "min": 0
+      }
+    ]
+  }, 
+  "107": {
+    "id": 107, 
+    "name": "msoShapeOvalCallout", 
+    "ratio": 1.4925, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "w", 
+        "max": null, 
+        "default": -0.2083, 
+        "min": null
+      }, 
+      {
+        "ref": "h", 
+        "max": null, 
+        "default": 0.6250, 
+        "min": null
+      }
+    ]
+  }, 
+  "108": {
+    "id": 108, 
+    "name": "msoShapeCloudCallout", 
+    "ratio": 1.4925, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "w", 
+        "max": null, 
+        "default": -0.2083, 
+        "min": null
+      }, 
+      {
+        "ref": "h", 
+        "max": null, 
+        "default": 0.6250, 
+        "min": null
+      }
+    ]
+  }, 
+  "109": {
+    "id": 109, 
+    "name": "msoShapeLineCallout1", 
+    "ratio": 1.4925, 
+    "adjustments_count": 4, 
+    "adjustments": [
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.0833
+      }, 
+      {
+        "default": 1.1250
+      }, 
+      {
+        "default": -0.3833
+      }
+    ]
+  }, 
+  "111": {
+    "id": 111, 
+    "name": "msoShapeLineCallout3", 
+    "ratio": 1.4925, 
+    "adjustments_count": 6, 
+    "adjustments": [
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.0833
+      }, 
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.1667
+      }, 
+      {
+        "default": 1.1250
+      }, 
+      {
+        "default": -0.4667
+      }
+    ]
+  }, 
+  "112": {
+    "id": 112, 
+    "name": "msoShapeLineCallout4", 
+    "ratio": 1.4925, 
+    "adjustments_count": 8, 
+    "adjustments": [
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.0833
+      }, 
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.1667
+      }, 
+      {
+        "default": 1.0000
+      }, 
+      {
+        "default": -0.1667
+      }, 
+      {
+        "default": 1.1296
+      }, 
+      {
+        "default": -0.0833
+      }
+    ]
+  }, 
+  "113": {
+    "id": 113, 
+    "name": "msoShapeLineCallout1AccentBar", 
+    "ratio": 1.4925, 
+    "adjustments_count": 4, 
+    "adjustments": [
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.0833
+      }, 
+      {
+        "default": 1.1250
+      }, 
+      {
+        "default": -0.3833
+      }
+    ]
+  }, 
+  "114": {
+    "id": 114, 
+    "name": "msoShapeLineCallout2AccentBar", 
+    "ratio": 1.4925, 
+    "adjustments_count": 4, 
+    "adjustments": [
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.0833
+      }, 
+      {
+        "default": 1.1250
+      }, 
+      {
+        "default": -0.3833
+      }
+    ]
+  }, 
+  "116": {
+    "id": 116, 
+    "name": "msoShapeLineCallout4AccentBar", 
+    "ratio": 1.4925, 
+    "adjustments_count": 8, 
+    "adjustments": [
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.0833
+      }, 
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.1667
+      }, 
+      {
+        "default": 1.0000
+      }, 
+      {
+        "default": -0.1667
+      }, 
+      {
+        "default": 1.1296
+      }, 
+      {
+        "default": -0.0833
+      }
+    ]
+  }, 
+  "119": {
+    "id": 119, 
+    "name": "msoShapeLineCallout3NoBorder", 
+    "ratio": 1.4925, 
+    "adjustments_count": 6, 
+    "adjustments": [
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.0833
+      }, 
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.1667
+      }, 
+      {
+        "default": 1.1250
+      }, 
+      {
+        "default": -0.4667
+      }
+    ]
+  }, 
+  "120": {
+    "id": 120, 
+    "name": "msoShapeLineCallout4NoBorder", 
+    "ratio": 1.4925, 
+    "adjustments_count": 8, 
+    "adjustments": [
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.0833
+      }, 
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.1667
+      }, 
+      {
+        "default": 1.0000
+      }, 
+      {
+        "default": -0.1667
+      }, 
+      {
+        "default": 1.1296
+      }, 
+      {
+        "default": -0.0833
+      }
+    ]
+  }, 
+  "122": {
+    "id": 122, 
+    "name": "msoShapeLineCallout2BorderandAccentBar", 
+    "ratio": 1.4925, 
+    "adjustments_count": 4, 
+    "adjustments": [
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.0833
+      }, 
+      {
+        "default": 1.1250
+      }, 
+      {
+        "default": -0.3833
+      }
+    ]
+  }, 
+  "123": {
+    "id": 123, 
+    "name": "msoShapeLineCallout3BorderandAccentBar", 
+    "ratio": 1.4925, 
+    "adjustments_count": 6, 
+    "adjustments": [
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.0833
+      }, 
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.1667
+      }, 
+      {
+        "default": 1.1250
+      }, 
+      {
+        "default": -0.4667
+      }
+    ]
+  }, 
+  "124": {
+    "id": 124, 
+    "name": "msoShapeLineCallout4BorderandAccentBar", 
+    "ratio": 1.4925, 
+    "adjustments_count": 8, 
+    "adjustments": [
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.0833
+      }, 
+      {
+        "default": 0.1875
+      }, 
+      {
+        "default": -0.1667
+      }, 
+      {
+        "default": 1.0000
+      }, 
+      {
+        "default": -0.1667
+      }, 
+      {
+        "default": 1.1296
+      }, 
+      {
+        "default": -0.0833
+      }
+    ]
+  }, 
+  "141": {
+    "id": 141, 
+    "name": "msoShapeDiagonalStripe", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "h", 
+        "max": "h", 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "142": {
+    "id": 142, 
+    "name": "msoShapePie", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "deg", 
+        "max": 180, 
+        "default": 0.0000, 
+        "min": -180
+      }, 
+      {
+        "ref": "deg", 
+        "max": 180, 
+        "default": -90.0000, 
+        "min": -180
+      }
+    ]
+  }, 
+  "144": {
+    "id": 144, 
+    "name": "msoShapeDecagon", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "default": 1.0515
+      }
+    ]
+  }, 
+  "145": {
+    "id": 145, 
+    "name": "msoShapeHeptagon", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "default": 1.0257
+      }, 
+      {
+        "default": 1.0521
+      }
+    ]
+  }, 
+  "146": {
+    "id": 146, 
+    "name": "msoShapeDodecagon", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }, 
+  "147": {
+    "id": 147, 
+    "name": "msoShape6pointStar", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "default": 0.2887
+      }, 
+      {
+        "default": 1.1547
+      }
+    ]
+  }, 
+  "148": {
+    "id": 148, 
+    "name": "msoShape7pointStar", 
+    "ratio": 1.0000, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "default": 0.3460
+      }, 
+      {
+        "default": 1.0257
+      }, 
+      {
+        "default": 1.0521
+      }
+    ]
+  }, 
+  "149": {
+    "id": 149, 
+    "name": "msoShape10pointStar", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "default": 0.4253
+      }, 
+      {
+        "default": 1.0515
+      }
+    ]
+  }, 
+  "150": {
+    "id": 150, 
+    "name": "msoShape12pointStar", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "default": 0.3750
+      }
+    ]
+  }, 
+  "151": {
+    "id": 151, 
+    "name": "msoShapeRound1Rectangle", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1667, 
+        "min": 0
+      }
+    ]
+  }, 
+  "152": {
+    "id": 152, 
+    "name": "msoShapeRound2SameRectangle", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1667, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.0000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "153": {
+    "id": 153, 
+    "name": "msoShapeRound2DiagRectangle", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1667, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.0000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "154": {
+    "id": 154, 
+    "name": "msoShapeSnipRoundRectangle", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1667, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1667, 
+        "min": 0
+      }
+    ]
+  }, 
+  "155": {
+    "id": 155, 
+    "name": "msoShapeSnip1Rectangle", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1667, 
+        "min": 0
+      }
+    ]
+  }, 
+  "156": {
+    "id": 156, 
+    "name": "msoShapeSnip2SameRectangle", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1667, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.0000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "157": {
+    "id": 157, 
+    "name": "msoShapeSnip2DiagRectangle", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.0000, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1667, 
+        "min": 0
+      }
+    ]
+  }, 
+  "158": {
+    "id": 158, 
+    "name": "msoShapeFrame", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 0.5000, 
+        "default": 0.1250, 
+        "min": 0
+      }
+    ]
+  }, 
+  "159": {
+    "id": 159, 
+    "name": "msoShapeHalfFrame", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": "h", 
+        "default": 0.3333, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": "w", 
+        "default": 0.3333, 
+        "min": 0
+      }
+    ]
+  }, 
+  "160": {
+    "id": 160, 
+    "name": "msoShapeTear", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "w/2", 
+        "max": "w", 
+        "default": 1.0000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "161": {
+    "id": 161, 
+    "name": "msoShapeChord", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "deg", 
+        "max": 180, 
+        "default": 45.0000, 
+        "min": -180
+      }, 
+      {
+        "ref": "deg", 
+        "max": 180, 
+        "default": -90.0000, 
+        "min": -180
+      }
+    ]
+  }, 
+  "162": {
+    "id": 162, 
+    "name": "msoShapeCorner", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": "h", 
+        "default": 0.5000, 
+        "min": 0
+      }, 
+      {
+        "ref": "min(hw)", 
+        "max": "w", 
+        "default": 0.5000, 
+        "min": 0
+      }
+    ]
+  }, 
+  "163": {
+    "id": 163, 
+    "name": "msoShapeMathPlus", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 2, 
+        "default": 0.2352, 
+        "min": 0
+      }
+    ]
+  }, 
+  "164": {
+    "id": 164, 
+    "name": "msoShapeMathMinus", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "h", 
+        "max": "h", 
+        "default": 0.2352, 
+        "min": 0
+      }
+    ]
+  }, 
+  "165": {
+    "id": 165, 
+    "name": "msoShapeMathMultiply", 
+    "ratio": 1.0000, 
+    "adjustments_count": 1, 
+    "adjustments": [
+      {
+        "ref": "min(hw)", 
+        "max": 1, 
+        "default": 0.2352, 
+        "min": 0
+      }
+    ]
+  }, 
+  "166": {
+    "id": 166, 
+    "name": "msoShapeMathDivide", 
+    "ratio": 1.0000, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "default": 0.2352
+      }, 
+      {
+        "default": 0.0588
+      }, 
+      {
+        "default": 0.1176
+      }
+    ]
+  }, 
+  "167": {
+    "id": 167, 
+    "name": "msoShapeMathEqual", 
+    "ratio": 1.0000, 
+    "adjustments_count": 2, 
+    "adjustments": [
+      {
+        "default": 0.2352
+      }, 
+      {
+        "default": 0.1176
+      }
+    ]
+  }, 
+  "168": {
+    "id": 168, 
+    "name": "msoShapeMathNotEqual", 
+    "ratio": 1.0000, 
+    "adjustments_count": 3, 
+    "adjustments": [
+      {
+        "default": 0.2352
+      }, 
+      {
+        "default": 110.0000
+      }, 
+      {
+        "default": 0.1176
+      }
+    ]
+  }, 
+  "179": {
+    "id": 179, 
+    "name": "msoShapeCloud", 
+    "ratio": 1.0000, 
+    "adjustments_count": 0, 
+    "adjustments": []
+  }
+}
