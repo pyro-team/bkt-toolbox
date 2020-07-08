@@ -352,7 +352,7 @@ class LinkedShapes(object):
     def linked_shapes_tofront(cls, shape, context):
         shape.ZOrder(0)
         for cShp in cls._iterate_linked_shapes(shape, context):
-            cShp.ZOrder(1) #0=msoBringToFront, 1=msoSendToBack
+            cShp.ZOrder(0) #0=msoBringToFront, 1=msoSendToBack
 
     @classmethod
     def linked_shapes_flipv(cls, shape, context):
