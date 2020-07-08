@@ -307,6 +307,32 @@ MsoThemeColorIndex = {
 }
 
 
+class ShapeDb(object):
+    def __init__(self):
+        self._db_file = None
+
+    def get_db(self):
+        if not self._db_file:
+            self._db_file = self._load_db()
+        return self._db_file
+
+    def _load_db(self):
+        import os.path
+        import io
+        filename = os.path.realpath(os.path.join(os.path.dirname(__file__), 'shapedb.json'))
+        with io.open(filename, 'r', encoding='utf-8') as json_file:
+            return json.load(json_file)
+    
+    def get_by_autoshape_type(self, autoshape_type):
+        db = self.get_db()
+        return db[str(autoshape_type)]
+
+    def get_by_shape(self, shape):
+        return self.get_by_autoshape_type(shape.AutoShapeType)
+
+GlobalShapeDb = ShapeDb()
+
+
 class LocPin(object):
     '''
     Helper class to storage the "loc pin" of shapes for various powerpoint operations.
