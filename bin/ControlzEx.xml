@@ -1151,34 +1151,6 @@
             <param name="devicePoint">A point in the physical coordinate system.</param>
             <returns>Returns the parameter converted to the device independent coordinate system.</returns>
         </member>
-        <member name="T:ControlzEx.Standard.DpiScale">
-            <summary>Stores DPI information from which a <see cref="T:System.Windows.Media.Visual" /> or <see cref="T:System.Windows.UIElement" /> is rendered.</summary>
-        </member>
-        <member name="P:ControlzEx.Standard.DpiScale.DpiScaleX">
-            <summary>Gets the DPI scale on the X axis.</summary>
-            <returns>The DPI scale for the X axis.</returns>
-        </member>
-        <member name="P:ControlzEx.Standard.DpiScale.DpiScaleY">
-            <summary>Gets the DPI scale on the Yaxis.</summary>
-            <returns>The DPI scale for the Y axis.</returns>
-        </member>
-        <member name="P:ControlzEx.Standard.DpiScale.PixelsPerDip">
-            <summary>Get or sets the PixelsPerDip at which the text should be rendered.</summary>
-            <returns>The current <see cref="P:System.Windows.DpiScale.PixelsPerDip" /> value.</returns>
-        </member>
-        <member name="P:ControlzEx.Standard.DpiScale.PixelsPerInchX">
-            <summary>Gets the DPI along X axis.</summary>
-            <returns>The DPI along the X axis.</returns>
-        </member>
-        <member name="P:ControlzEx.Standard.DpiScale.PixelsPerInchY">
-            <summary>Gets the DPI along Y axis.</summary>
-            <returns>The DPI along the Y axis.</returns>
-        </member>
-        <member name="M:ControlzEx.Standard.DpiScale.#ctor(System.Double,System.Double)">
-            <summary>Initializes a new instance of the <see cref="T:System.Windows.DpiScale" /> structure.</summary>
-            <param name="dpiScaleX">The DPI scale on the X axis.</param>
-            <param name="dpiScaleY">The DPI scale on the Y axis. </param>
-        </member>
         <member name="T:ControlzEx.Standard.Win32Error">
             <summary>
             Wrapper for common Win32 status codes.
