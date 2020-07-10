@@ -7298,7 +7298,7 @@
             The returned <see cref="T:System.Windows.Media.ImageSource"/> will be the closest <see cref="T:System.Windows.Media.Imaging.BitmapFrame"/> found in the provided image.
             </summary>
             <remarks>
-            - This converter is also a <see cref="T:System.Windows.Markup.MarkupExtension"/> to be able to extract the <see cref="T:ControlzEx.Standard.DpiScale"/> from the target control.
+            - This converter is also a <see cref="T:System.Windows.Markup.MarkupExtension"/> to be able to extract the <see cref="T:System.Windows.DpiScale"/> from the target control.
             - This converter is also a <see cref="T:System.Windows.Data.IMultiValueConverter"/>. The order for parameters/values is:
               0 = value to convert
               1 = visual target or desired size
@@ -7413,7 +7413,7 @@
             Get the scaled desired size.
             </summary>
         </member>
-        <member name="M:Fluent.Converters.ObjectToImageConverter.GetScaledDesiredSize(System.Windows.Size,ControlzEx.Standard.DpiScale)">
+        <member name="M:Fluent.Converters.ObjectToImageConverter.GetScaledDesiredSize(System.Windows.Size,System.Windows.DpiScale)">
             <summary>
             Get the scaled desired size.
             </summary>
