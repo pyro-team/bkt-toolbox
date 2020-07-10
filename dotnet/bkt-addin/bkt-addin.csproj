@@ -234,4 +234,7 @@
   </ItemGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(TargetDir)*.*" "$(SolutionDir)..\bin"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
