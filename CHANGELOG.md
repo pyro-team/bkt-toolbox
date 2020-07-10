@@ -17,6 +17,8 @@
   * Added more shape types to shape adjustments
   * Added "Format Syncer" that allows to sync format for all selected shapes (master can be the one right clicked)
   * Added minified font and text group (default in 2-page layout)
+  * Added function to reset adjustment values
+  * Added function to choose aspect ratio from picklist or reset to default ratio
   * Excel: Added function to translate english formula to local and vice versa
   * Excel: Added function to apply theme from other file and import/export font schema
   * Improved shape statistics: supertip show details about found numbers, result can be copied to clipboard, correct processing of decimals for various countries
