@@ -621,6 +621,11 @@ namespace BKT
                 LogMessage(e.ToString());
             }
             try {
+                Marshal.ReleaseComObject(app);
+            } catch (Exception e) {
+                LogMessage(e.ToString());
+            }
+            try {
                 if(ipy != null) {
                     ipy.Runtime.Shutdown();
                 }
