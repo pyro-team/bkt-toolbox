@@ -7,6 +7,9 @@ Created on 08.07.2019
 
 from __future__ import absolute_import
 
+import logging
+
+from uuid import uuid4
 from contextlib import contextmanager #for flip and rotation correction
 
 import bkt
@@ -18,6 +21,7 @@ cm_to_pt = pplib.cm_to_pt
 
 class ProcessChevrons(object):
     BKT_DIALOG_TAG = "BKT_PROCESS_CHEVRONS"
+    BKT_ROW_TAG = "BKT_PROCESS_CHEVRONS_ROW"
 
     @classmethod
     def is_convertible(cls, shape):
@@ -31,94 +35,209 @@ class ProcessChevrons(object):
     
     @classmethod
     def convert_to_process_chevrons(cls, shape):
-        cls._add_tags(shape)
+        cls._add_tags(shape, str(uuid4()))
 
     @classmethod
     def is_process_chevrons(cls, shape):
         return pplib.TagHelper.has_tag(shape, bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
 
     @classmethod
-    def _add_tags(cls, shape):
+    def _add_tags(cls, shape, uuid):
         shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
+        shape.Tags.Add(cls.BKT_DIALOG_TAG, uuid)
 
     @classmethod
-    def create_process(cls, slide, num_steps=3, first_pentagon=True, spacing=5):
-        ref_left,ref_top,ref_width,_ = pplib.slide_content_size(slide)
+    def _add_tags_row(cls, shape, uuid):
+        shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_ROW_TAG)
+        shape.Tags.Add(cls.BKT_ROW_TAG, uuid)
 
-        width=(ref_width+spacing)/num_steps-spacing
-        height=50
-        top=ref_top
-        left=ref_left
+    @classmethod
+    def create_process(cls, slide, num_steps=3, first_pentagon=True, spacing=5, num_rows=2):
+        ref_left,ref_top,ref_width,ref_height = pplib.slide_content_size(slide)
 
-        if first_pentagon:
-            slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapePentagon'] , left, top, width, height)
-        else:
-            slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeChevron'] , left, top, width, height)
+        p_spacing = spacing - cm_to_pt(0.5)
+        width   = (ref_width+p_spacing)/num_steps-p_spacing
+        height  = 50
+        top     = ref_top
+        left    = ref_left
+        adj     = cm_to_pt(.5)/min(width, height)
+
+        uuid = str(uuid4())
         
-        for _ in range(num_steps-1):
-            left += width+spacing
-            slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeChevron'] , left, top, width, height)
+        #create process shapes
+        first = True
+        for _ in range(num_steps):
+            if first:
+                st = pplib.MsoAutoShapeType['msoShapePentagon'] if first_pentagon else pplib.MsoAutoShapeType['msoShapeChevron']
+                first = False
+            else:
+                st = pplib.MsoAutoShapeType['msoShapeChevron']
+
+            s=slide.shapes.addshape( st , left, top, width, height)
+            s.Adjustments[1] = adj
+            left += width+p_spacing
         
+        #text formatting
         shapes = pplib.last_n_shapes_on_slide(slide, num_steps)
-        shapes.Adjustments[1] = 0.28346 #0.5cm
         shapes.Textframe2.TextRange.ParagraphFormat.Bullet.Type = 0
         shapes.Textframe2.TextRange.ParagraphFormat.LeftIndent = 0
         shapes.Textframe2.TextRange.ParagraphFormat.FirstLineIndent = 0
         shapes.Textframe2.VerticalAnchor = 3 #middle
-        grp = shapes.group()
-        cls._add_tags(grp)
-        grp.select()
+        p_grp = shapes.group()
+        cls._add_tags(p_grp, uuid)
 
+        if num_rows:
+            #create row shapes
+            rect_top    = top+height+spacing
+            rect_height = (ref_height-height)/num_rows-spacing
+            rect_width  = width-cm_to_pt(.5)
 
+            for _ in range(num_rows):
+                left = ref_left
+                for _ in range(num_steps):
+                    slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeRectangle'] , left, rect_top, rect_width, rect_height)
+                    left += width+p_spacing
+                shapes = pplib.last_n_shapes_on_slide(slide, num_steps)
+                grp = shapes.group()
+                cls._add_tags_row(grp, uuid)
+                # grp.select(False)
+                rect_top += rect_height+spacing
+
+        #select process only
+        p_grp.select()
+    
     @classmethod
-    def add_chevron(cls, shapes):
+    def align_process(cls, slide, shapes):
         for shape in shapes:
-            cls._add_chevron(shape)
+            try:
+                cls._align_process_shapes(slide, shape)
+                cls._align_row_shapes(slide, shape)
+            except:
+                logging.exception("error aligning process")
 
     @classmethod
-    def _add_chevron(cls, shape):
-        group = pplib.GroupManager(shape, additional_attrs=["width"])
+    def _align_process_shapes(cls, slide, process_shape, ref_width=None):
+        group_shapes = list(iter(process_shape.GroupItems))
+        num_steps = len(group_shapes)
+        first_shape = group_shapes[0]
+
+        if not ref_width:
+            ref_width = process_shape.width
+
+        adj_value = first_shape.Adjustments[1]*min(first_shape.width,first_shape.height)
+        dis_value = group_shapes[1].left - first_shape.left-first_shape.width
+
+        left = first_shape.left
+        new_width = (ref_width+dis_value)/num_steps - dis_value
+        for shape in group_shapes:
+            shape.left = left
+            shape.width = new_width
+            shape.Adjustments[1] = adj_value/min(shape.width,shape.height)
+            left += shape.width+dis_value
+
+    @classmethod
+    def _find_row_shapes(cls, slide, uuid):
+        result = []
+        for shape in slide.shapes:
+            if pplib.TagHelper.has_tag(shape, cls.BKT_ROW_TAG, uuid):
+                result.append(shape)
+        return sorted(result, key=lambda s: s.top)
+    
+    @classmethod
+    def _align_row_shapes(cls, slide, process_shape):
+        uuid = pplib.TagHelper.get_tag(process_shape, cls.BKT_DIALOG_TAG)
+
+        if not uuid:
+            return
+
+        group_shapes = list(iter(process_shape.GroupItems))
+        len_process = len(group_shapes)
+        first_shape = group_shapes[0]
+
+        adj_value = first_shape.Adjustments[1]*min(first_shape.width,first_shape.height)
+
+        for row in cls._find_row_shapes(slide, uuid):
+            group_row = pplib.GroupManager(row)
+            group_row.prepare_ungroup()
+            row_shapes = sorted(group_row.child_items, key=lambda s:s.left)
+            for i in range(max(len_process, len(row_shapes))):
+                try:
+                    p_shape = group_shapes[i]
+                except IndexError:
+                    logging.info("Process: Too many row shapes, deleting shape %s", i)
+                    row_shapes[i].Delete()
+                else:
+                    try:
+                        shape = row_shapes[i]
+                    except IndexError:
+                        logging.info("Process: Too few row shapes, duplicating shape %s", i)
+                        shape = row_shapes[-1].Duplicate()
+                        shape.top = row_shapes[-1].top
+                    
+                    shape.left = p_shape.left
+                    shape.width = p_shape.width - adj_value
+            group_row.refresh()
+
+
+    @classmethod
+    def add_chevron(cls, slide, shapes):
+        for shape in shapes:
+            try:
+                cls._add_chevron(slide, shape)
+            except:
+                logging.exception("error adding chevron to process")
+
+    @classmethod
+    def _add_chevron(cls, slide, shape):
+        ref_width = shape.width
+
+        # group = pplib.GroupManager(shape, additional_attrs=["width"])
+        group = pplib.GroupManager(shape)
         group.prepare_ungroup()
 
-        # group_shapes = sorted(iter(shape.GroupItems), key=lambda s: s.left)
-        group_shapes = group.child_items
-        group_shapes.sort(key=lambda s: s.left)
+        group_shapes = sorted(group.child_items, key=lambda s:s.left)
         ref_shape = group_shapes[-1]
-        dis_shape = group_shapes[-2]
 
         new_shape = ref_shape.Duplicate()
-
         new_shape.top = ref_shape.top
-        distance = ref_shape.left - dis_shape.left-dis_shape.width
-        new_shape.left = ref_shape.left+ref_shape.width+distance
 
+        group_shapes.append(new_shape) #this is not really required...
         group.refresh()
+
+        cls._align_process_shapes(slide, group.shape, ref_width)
+        cls._align_row_shapes(slide, group.shape)
+
         group.select(False)
-        return group.shape
 
     @classmethod
-    def remove_chevron(cls, shapes):
+    def remove_chevron(cls, slide, shapes):
         for shape in shapes:
-            cls._remove_chevron(shape)
+            try:
+                cls._remove_chevron(slide, shape)
+            except:
+                logging.exception("error removing chevron from process")
 
     @classmethod
-    def _remove_chevron(cls, shape):
+    def _remove_chevron(cls, slide, shape):
         if shape.GroupItems.Count < 3:
             return
 
-        group = pplib.GroupManager(shape, additional_attrs=["width"])
+        ref_width = shape.width
+
+        # group = pplib.GroupManager(shape, additional_attrs=["width"])
+        group = pplib.GroupManager(shape)
         group.prepare_ungroup()
 
-        # group_shapes = sorted(iter(shape.GroupItems), key=lambda s: s.left)
-        group_shapes = group.child_items
-        group_shapes.sort(key=lambda s: s.left)
-        ref_shape = group_shapes[-1]
-        
+        group_shapes = sorted(group.child_items, key=lambda s:s.left)
+        ref_shape = group_shapes.pop(-1)
         ref_shape.delete()
 
         group.refresh()
+
+        cls._align_process_shapes(slide, group.shape, ref_width)
+        cls._align_row_shapes(slide, group.shape)
+
         group.select(False)
-        return group.shape
 
 
 

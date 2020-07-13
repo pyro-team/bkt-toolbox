@@ -20,6 +20,7 @@
               <RowDefinition />
               <RowDefinition />
               <RowDefinition />
+              <RowDefinition />
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
               <ColumnDefinition />
@@ -52,8 +53,12 @@
           
           <Label      Grid.Column="0" Grid.Row="1" Content="Anzahl Schritte" />
           <fr:Spinner Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" InputWidth="60" Value="{Binding num_steps, UpdateSourceTrigger=PropertyChanged}" Format="0" Minimum="1"/>
+
           <Label      Grid.Column="0" Grid.Row="2" Content="Abstand" />
           <fr:Spinner Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" InputWidth="60" Value="{Binding spacing, UpdateSourceTrigger=PropertyChanged}" Format="0.0 cm" Increment="0.2" Minimum="-1000"/>
+
+          <Label      Grid.Column="0" Grid.Row="3" Content="Zeilen unterhalb Prozess" />
+          <fr:Spinner Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" InputWidth="60" Value="{Binding num_rows, UpdateSourceTrigger=PropertyChanged}" Format="0" Increment="1" Minimum="0"/>
         </Grid>
         
         <Grid Margin="0">
