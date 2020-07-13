@@ -282,18 +282,20 @@ class ShapeAdjustments(object):
         
         try:
             shape_adjustments = shape.adjustments.count
+            shape_db = pplib.GlobalShapeDb.get_by_shape(shape)
+            default_adj = shape_db["adjustments"]
         except: #ValueError for Groups
             shape_adjustments = 0
         infomsg += "{:16} {:3}\n\n".format("Adjust.-Werte:", shape_adjustments)
 
-        infomsg += "│ {:2} {:>8} │ {:10} {:>6} {:>6} │\n".format("#", "Wert", "ref", "min", "max")
-        infomsg += "├─────────────┼──────────────────────────┤\n"
+        infomsg += "│ {:2} {:>8} │ {:10} {:>6} {:>6} {:>8} │\n".format("#", "Wert", "ref", "min", "max", "default")
+        infomsg += "├─────────────┼───────────────────────────────────┤\n"
         for i in range(1,shape_adjustments+1):
             try:
                 bktlib = cls.auto_shape_type_settings[shape_autotype][i-1]
             except:
                 bktlib = dict(ref="", min="", max="")
-            infomsg += "│ {:<2} {:8.4} │ {:10} {:>6} {:>6} │\n".format(i, shape.adjustments.item[i], bktlib["ref"], bktlib["min"], bktlib["max"])
+            infomsg += "│ {:<2} {:8.4} │ {:10} {:>6} {:>6} {:8.4} │\n".format(i, shape.adjustments.item[i], bktlib["ref"], bktlib["min"], bktlib["max"], default_adj[i-1]["default"])
 
         bkt.console.show_message(bkt.helpers.endings_to_windows(infomsg))
 
