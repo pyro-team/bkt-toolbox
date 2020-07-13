@@ -143,9 +143,12 @@ class ShapeNodes(object):
     @classmethod
     def draw_shape_nodes(cls, shape, slide):
         #convert into freeform by adding and deleting in order to acces points
-        shape.nodes.insert(1,0,0,0,0)
-        shape.nodes.delete(2)
-        shape_nodes = [(node.points[0,0], node.points[0,1]) for node in shape.nodes]
+        dummy = shape.duplicate()
+        dummy.left, dummy.top = shape.left, shape.top
+        dummy.nodes.insert(1,0,0,0,0)
+        dummy.nodes.delete(2)
+        shape_nodes = [(node.points[0,0], node.points[0,1]) for node in dummy.nodes]
+        dummy.delete()
         cls.draw_nodes(slide, shape_nodes, "SHAPE")
     
     @classmethod
