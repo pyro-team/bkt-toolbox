@@ -7,17 +7,7 @@ import logging
 import bkt
 import bkt.library.powerpoint as pplib
 
-# wpf basics
-# import clr
-# clr.AddReference("IronPython.Wpf")
-# import wpf
-
-# import System
-# from System.Windows import Controls, Window
-
-# property binding
-# import bkt
-# from bkt.library.wpf.notify import NotifyPropertyChangedBase, notify_property
+from bkt.callbacks import WpfActionCallback
 
 
 
@@ -123,20 +113,6 @@ class Ampel(object):
 
 
 
-
-# ==============
-# = view model =
-# ==============
-
-# class ViewModel(NotifyPropertyChangedBase):
-#     '''
-#     empty view model for traffic-light popup-window
-#     '''
-
-#     def __init__(self):
-#         super(ViewModel, self).__init__()
-
-
 # ==========
 # = window =
 # ==========
@@ -161,6 +137,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
     #     self._context = context
     #     self.DataContext = self._vm
 
+    @WpfActionCallback
     def btnred(self, sender, event):
         try:
             shapes = list(iter(self._context.selection.shaperange))
@@ -170,6 +147,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
         except:
             logging.exception("traffic light exception")
 
+    @WpfActionCallback
     def btnyellow(self, sender, event):
         try:
             shapes = list(iter(self._context.selection.shaperange))
@@ -179,6 +157,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
         except:
             logging.exception("traffic light exception")
 
+    @WpfActionCallback
     def btngreen(self, sender, event):
         try:
             shapes = list(iter(self._context.selection.shaperange))
@@ -188,6 +167,7 @@ class TrafficPopup(bkt.ui.WpfWindowAbstract):
         except:
             logging.exception("traffic light exception")
 
+    @WpfActionCallback
     def btnwhite(self, sender, event):
         try:
             shapes = list(iter(self._context.selection.shaperange))

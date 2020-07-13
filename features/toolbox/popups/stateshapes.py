@@ -11,6 +11,7 @@ import logging
 
 import bkt.ui
 
+from bkt.callbacks import WpfActionCallback
 from ..stateshapes import StateShape
 
 
@@ -26,6 +27,7 @@ class StateShapePopup(bkt.ui.WpfWindowAbstract):
 
         super(StateShapePopup, self).__init__(context)
 
+    @WpfActionCallback
     def btnprev(self, sender, event):
         try:
             #always use ShapeRange, never ChildShapeRange
@@ -34,6 +36,7 @@ class StateShapePopup(bkt.ui.WpfWindowAbstract):
         except:
             logging.exception("Error in StateShape popup: %s")
 
+    @WpfActionCallback
     def btnnext(self, sender, event):
         try:
             #always use ShapeRange, never ChildShapeRange

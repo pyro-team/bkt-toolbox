@@ -9,6 +9,7 @@ from __future__ import absolute_import
 
 import bkt
 
+from bkt.callbacks import WpfActionCallback
 from ..agenda import ToolboxAgenda
 
 
@@ -30,6 +31,7 @@ class AgendaPopup(bkt.ui.WpfWindowAbstract):
         except:
             bkt.message.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
 
+    @WpfActionCallback
     def btnupdate(self, sender, event):
         try:
             ToolboxAgenda.update_or_create_agenda_from_slide(self._context.slide, self._context)

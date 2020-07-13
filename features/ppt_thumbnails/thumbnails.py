@@ -20,6 +20,8 @@ import bkt.library.powerpoint as pplib
 import bkt.dotnet as dotnet
 Forms = dotnet.import_forms() #required to read clipboard
 
+from bkt.callbacks import WpfActionCallback
+
 
 PASTE_DATATYPE_BTM = 1 #ppPasteBitmap
 PASTE_DATATYPE_EMF = 2 #ppPasteEnhancedMetafile
@@ -823,6 +825,7 @@ class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
         if context.app.activewindow.selection.shaperange.count > 1:
             self.btngoto.Visibility = Visibility.Collapsed
 
+    @WpfActionCallback
     def btnrefresh(self, sender, event):
         try:
             shapes = self._context.shapes
@@ -834,6 +837,7 @@ class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
             bkt.message.error("Thumbnail-Aktualisierung aus unbekannten Gründen fehlgeschlagen.", "BKT: Thumbnails")
             logging.exception("Thumbnails: Error in popup!")
 
+    @WpfActionCallback
     def btngoto(self, sender, event):
         try:
             Thumbnailer.goto_ref(self._context.shape, self._context.app)

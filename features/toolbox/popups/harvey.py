@@ -11,6 +11,7 @@ import logging
 
 import bkt
 
+from bkt.callbacks import WpfActionCallback
 from ..harvey import harvey_balls
 
 
@@ -33,6 +34,7 @@ class HarveyPopup(bkt.ui.WpfWindowAbstract):
         except:
             bkt.message.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
 
+    @WpfActionCallback
     def btnplus(self, sender, event):
         try:
             harvey_balls.harvey_percent_setter_popup(list(iter(self._context.selection.ShapeRange)))
@@ -41,6 +43,7 @@ class HarveyPopup(bkt.ui.WpfWindowAbstract):
             bkt.message.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
             # bkt.helpers.exception_as_message()
 
+    @WpfActionCallback
     def btnminus(self, sender, event):
         try:
             harvey_balls.harvey_percent_setter_popup(list(iter(self._context.selection.ShapeRange)), inc=False)
