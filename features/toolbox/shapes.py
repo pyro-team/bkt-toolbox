@@ -18,6 +18,8 @@ pt_to_cm = pplib.pt_to_cm
 cm_to_pt = pplib.cm_to_pt
 get_ambiguity_tuple = bkt.helpers.get_ambiguity_tuple
 
+from bkt.library.algorithms import get_bounding_nodes, mid_point
+
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
 office = dotnet.import_officecore()
@@ -671,6 +673,13 @@ class ShapeConnectorTags(pplib.BKTTag):
     TAG_NAME = "BKT_SHAPE_CONNECTORS"
 
 class ShapeConnectors(object):
+    _default_shape_nodes = dict(top=(0,3), right=(3,2), bottom=(1,2), left=(0,1))
+    _special_shape_nodes = {
+        pplib.MsoAutoShapeType["msoShapeChevron"]: dict(top=(0,1), right=(1,3), bottom=(3,4), left=(4,0)),
+        pplib.MsoAutoShapeType["msoShapePentagon"]: dict(top=(0,1), right=(1,3), bottom=(3,4), left=(4,0)),
+        pplib.MsoAutoShapeType["msoShapeHexagon"]: dict(top=(1,2), right=(2,4), bottom=(4,5), left=(5,1)),
+        pplib.MsoAutoShapeType["msoShapeOval"]: dict(top=(0,6), right=(3,9), bottom=(6,0), left=(9,3)),
+    }
 
     @staticmethod
     def is_connector(shape):
@@ -684,30 +693,39 @@ class ShapeConnectors(object):
                 return shp
         else:
             raise IndexError("shape id not found on slide")
+
+    @classmethod
+    def _get_shape_connector_nodes(cls, shape, side):
+        dummy = None
+        try:
+            special_nodes = cls._special_shape_nodes[shape.AutoShapeType]
+            #convert into freeform by adding and deleting in order to acces points
+            dummy = shape.duplicate()
+            dummy.left, dummy.top = shape.left, shape.top
+            dummy.nodes.insert(1,0,0,0,0)
+            dummy.nodes.delete(2)
+            shape_nodes = [(node.points[0,0], node.points[0,1]) for node in dummy.nodes]
+            shape_p1, shape_p2 = special_nodes[side]
+            return shape_nodes[shape_p1], shape_nodes[shape_p2]
+        except: #KeyError, or any COM Error
+            shape_nodes = get_bounding_nodes(shape)
+            shape_p1, shape_p2 = cls._default_shape_nodes[side]
+            return shape_nodes[shape_p1], shape_nodes[shape_p2]
+        finally:
+            if dummy:
+                dummy.delete()
     
-    @staticmethod
-    def _set_connector_shape_nodes(shape_connector, shape1, shape2, shape1_side="bottom", shape2_side="top"):
-        from bkt.library.algorithms import get_bounding_nodes, mid_point
+    @classmethod
+    def _set_connector_shape_nodes(cls, shape_connector, shape1, shape2, shape1_side="bottom", shape2_side="top"):
         from math import atan2
 
-        #get_boundin_nodes returns nodes counter-clockwise: left-top, left-bottom, right-bottom, right-top
-        shape1_nodes = get_bounding_nodes(shape1)
-        shape2_nodes = get_bounding_nodes(shape2)
+        shape1_p1, shape1_p2 = cls._get_shape_connector_nodes(shape1, shape1_side)
+        shape2_p1, shape2_p2 = cls._get_shape_connector_nodes(shape2, shape2_side)
 
-        sides2points = {
-            'top': (0,3),
-            'right': (3,2),
-            'bottom': (1,2),
-            'left': (0,1),
-        }
-
-        shape1_p1, shape1_p2 = sides2points[shape1_side]
-        shape2_p1, shape2_p2 = sides2points[shape2_side]
-
-        connector_nodes = [shape1_nodes[shape1_p1], shape1_nodes[shape1_p2], shape2_nodes[shape2_p1], shape2_nodes[shape2_p2]]
+        connector_nodes = [shape1_p1, shape1_p2, shape2_p1, shape2_p2]
         #correct ordering is the key to set nodes, here clockwise ordering (left-top, right-top, right-bottom, left-bottom)
-        mid_point = mid_point(connector_nodes)
-        connector_nodes.sort(key=lambda p: atan2(p[1]-mid_point[1], p[0]-mid_point[0]))
+        mid_p = mid_point(connector_nodes)
+        connector_nodes.sort(key=lambda p: atan2(p[1]-mid_p[1], p[0]-mid_p[0]))
 
         #convert shape into freeform by adding and deleting node (not sure if this is required)
         shape_connector.Nodes.Insert(1, 0, 0, 0, 0) #msoSegmentLine, msoEditingAuto, x, y
