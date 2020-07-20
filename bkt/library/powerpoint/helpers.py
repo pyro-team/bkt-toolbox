@@ -545,10 +545,15 @@ def transfer_textrange(from_textrange, to_textrange):
             to_obj.Brightness = from_obj.Brightness
 
     for i,run in enumerate(from_textrange.Runs(), start=1):
-        copy_color(run.Font.Fill.ForeColor, to_textrange.Runs(i).Font.Fill.ForeColor)
-        copy_color(run.Font.Fill.BackColor, to_textrange.Runs(i).Font.Fill.BackColor)
-        copy_color(run.Font.Line.ForeColor, to_textrange.Runs(i).Font.Line.ForeColor)
-        copy_color(run.Font.Line.BackColor, to_textrange.Runs(i).Font.Line.BackColor)
+        try:
+            to_font = to_textrange.Runs(i).Font
+        except ValueError:
+            #ValueError: Der Index in der angegebenen Sammlung ist außerhalb des zulässigen Bereichs.
+            continue
+        copy_color(run.Font.Fill.ForeColor, to_font.Fill.ForeColor)
+        copy_color(run.Font.Fill.BackColor, to_font.Fill.BackColor)
+        copy_color(run.Font.Line.ForeColor, to_font.Line.ForeColor)
+        copy_color(run.Font.Line.BackColor, to_font.Line.BackColor)
 
 
 def replicate_shape(shape, force_textbox=False):
