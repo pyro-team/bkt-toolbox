@@ -7,12 +7,20 @@ Created on 14.07.2020
 
 from __future__ import absolute_import
 
-from .mock import Mock
+from .mock import OfficeMock
 
+class TextFrame(OfficeMock):
+    def __init__(self):
+        self._attributes = {
+            "autosize": 1,
+            "wordwrap": -1,
+            "hastext": -1,
+        }
 
-class Shape(Mock):
+class Shape(OfficeMock):
     def __init__(self, autoshapetype=1, left=0, top=0, width=1, height=1):
         self._attributes = {
+            "name": "Shape %s" % id(self),
             "type": 1, #msoAutoShape
             "autoshapetype": autoshapetype,
             "left": left,
@@ -20,18 +28,8 @@ class Shape(Mock):
             "width": width,
             "height": height,
             "rotation": 0,
+            "lockaspectratio": 0,
+            "hastextframe": -1,
+            "textframe": TextFrame(),
         }
-    
-    def __setattr__(self, name, value):
-        if name.startswith("_"):
-            super(Shape, self).__setattr__(name, value)
-        elif name.lower() in self._attributes:
-            self._attributes[name.lower()] = value
-        else:
-            raise AttributeError
-     
-    def __getattr__(self, name):
-        try:
-            return self._attributes[name.lower()]
-        except KeyError:
-            raise AttributeError
+        self._attributes["textframe2"] = self._attributes["textframe"]
