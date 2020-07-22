@@ -64,12 +64,16 @@
 | Auswahl > Auswahl invertieren                      | Invertiert die aktuelle Auswahl. Es werden alle Shapes (auch Platzhalter) markiert, die vorher nicht markiert waren. |
 | *Formatvorlage übernehmen*                         |                                                    |
 | *Format kopieren*                                  |                                                    |
+| Auswahl von Shapes mit gleichem Hintergrund        | Selektiere alle Shapes auf dem aktuellen Slide, die den gleichen Hintergrund (Farbe) haben wie eine der selektierten Shapes |
 | *Format übertragen*                                | Gefällt Ihnen das Aussehen eines bestimmten Abschnitts? Sie können dieses Aussehen auf andere Inhalte im Dokument anwenden.<br><br>Und so wird's gemacht:<br>1. Wählen Sie Inhalt mit der gewünschten Formatierung aus.<br>2. Klicken Sie auf "Format übertragen".<br>3. Wählen Sie Inhalt aus, auf den die Formatierung automatisch angewendet werden soll.<br><br>Info: Wenn Sie die Formatierung an mehreren Stellen anwenden möchten, doppelklicken Sie auf "Format übertragen". |
+| Format Syncer                                      | Alle Shapes so formatieren wie das zuerst ausgewählte Shape |
+| Auswahl von Shapes mit gleichem Rahmen             | Selektiere alle Shapes auf dem aktuellen Slide, die den gleichen Rahmen (Farbe, Strichtyp) haben wie eine der selektierten Shapes |
 
 
 ### Folien
 
 <img src="documentation/groups/bkt_slide_group.jpg">
+
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -79,20 +83,23 @@
 | Mehr > *Layout*                                    | Das Layout Ihrer Folie ändern.                     |
 | Mehr > *Folie zurücksetzen*                        | Die Position, Größe und Formatierung der Folienplatzhalter auf die Standardeinstellungen zurücksetzen. |
 | Mehr > *Abschnitt*                                 | Ihre Folien in Abschnitte organisieren.            |
+| Mehr > Folienmaster aus Datei ersetzen…            | Ersetzt den aktuellen Folienmaster (Templates und Design) in der Präsentation durch den Folienmaster aus der gewählten Datei. |
 | Mehr > Agenda-Textbox einfügen                     | Standard Agenda-Textbox einfügen, um daraus eine aktualisierbare Agenda zu generieren. |
 | Mehr > Agenda neu erstellen                        | Neue Agenda auf Basis des aktuellen Slides erstellen. Aktuelles Slide wird Master-Slide der Agenda. |
 | Mehr > Agenda aktualisieren                        | Agenda aktualisieren und durch Agenda auf dem Agenda-Master-Slide ersetzen; Folien werden dabei neu erstellt. |
-| Mehr > Agenda-Slides für Unterpunkte               | Für Unterpunkte eines Agendapunkts (Indent-Level>1) werden Agenda-Slides erstellt |
-| Mehr > Andere Agenda-Unterpunkte ausblenden        | Unterpunkte eines Agendapunkts (Indent-Level>1) werden in den anderen Abschnitten ausgeblendet |
-| Mehr > Abschnitte für Agenda-Punkte erstellen      | Einen neuen Abschnitt je Agenda-Folie beginnen.    |
-| Mehr > Hyperlinks für Agenda-Punkte erstellen      | Jeden Agenda-Punkt mit der zugehörigen Agenda-Folie verlinken. |
+| Mehr > Agenda-Einstellungen                        |                                                    |
+| Mehr > Agenda-Einstellungen > Agenda-Slides für Unterpunkte | Für Unterpunkte eines Agendapunkts (Indent-Level>1) werden Agenda-Slides erstellt |
+| Mehr > Agenda-Einstellungen > Andere Agenda-Unterpunkte ausblenden | Unterpunkte eines Agendapunkts (Indent-Level>1) werden in den anderen Abschnitten ausgeblendet |
+| Mehr > Agenda-Einstellungen > Abschnitte für Agenda-Punkte erstellen | Einen neuen Abschnitt je Agenda-Folie beginnen.    |
+| Mehr > Agenda-Einstellungen > Hyperlinks für Agenda-Punkte erstellen | Jeden Agenda-Punkt mit der zugehörigen Agenda-Folie verlinken. |
 | Mehr > Agenda-Folie entfernen                      | Entfernt Agenda-Folien der gewählten Agenda, alle Meta-Informationen werden gelöscht. |
 | Mehr > Alle Agenden aus Präsentation entfernen     | Entfernt alle Agenda-Folien in der ganzen Präsentation, alle Meta-Informationen werden gelöscht. |
 | Mehr > Foliennummerierung ein-/ausblenden          | Füge Foliennummerierungen ein, welche sich bei Umsortierung der Folien nicht ändern.<br><br>Hilfreich bei der Erfassung von Anmerkungen, wenn man während einer Diskussion des Foliensatzes Umsortierungen durchführt. |
 | Mehr > Ausgewählte Folien speichern                | Speichert die ausgewählten Folien in einer neuen Präsentation, als PDF-Datei oder in PNG-Bilder. |
 | Mehr > Ausgewählte Folien senden                   | Sendet die ausgewählten Folien als Email-Anhang, wahlweise auch als PDF-Datei. |
-| Mehr > Slidedeck aufräumen                         | Lösche Notizen, ausgebledete Slides, Übergänge, Animationen, Kommentare, doppelte Leerzeichen, leere Platzhalter. |
+| Mehr > Slidedeck aufräumen…                        | Zeigt Dialog zur Auswahl der anzuwendenden Funktionen. |
 | Mehr > Slidedeck aufräumen                         | Funktionen zum Aufräumen aller Folien der Präsentation |
+| Mehr > Slidedeck aufräumen > Funktionen auswählen… | Zeigt Dialog zur Auswahl der anzuwendenden Funktionen. |
 | Mehr > Slidedeck aufräumen > Ausgeblendete Slides entfernen | Lösche alle ausgeblendeten Slides im gesamten Foliensatz. |
 | Mehr > Slidedeck aufräumen > Notizen entfernen     | Lösche alle Notizen im gesamten Foliensatz.        |
 | Mehr > Slidedeck aufräumen > Kommentare entfernen  | Lösche alle Kommentare im gesamten Foliensatz.     |
@@ -105,7 +112,9 @@
 | Mehr > Slidedeck aufräumen > Leere Platzhalter entfernen | Lösche leere Platzhalter-Textboxen im gesamten Foliensatz. |
 | Mehr > Slidedeck aufräumen > Nicht genutzte Folienlayouts entfernen | Lösche alle nicht verwendeten Folienmaster-Layouts sowie leere Folienmaster (Designs). |
 | Mehr > Slidedeck aufräumen > Nicht genutzte Folienmaster entfernen | Lösche alle nicht verwendeten Folienmaster (Designs). |
+| Mehr > Sprache ändern…                             | Zeigt Dialog zur Auswahl der anzuwendenden Sprache auf die Präsentation oder die ausgewählten Folien. |
 | Mehr > Sprache ändern                              | Sprache der Rechtschreibkorrektur für mehrere Shapes, Folien oder die ganze Präsentation anpassen |
+| Mehr > Sprache ändern > Alle Sprachen anzeigen…    | Zeigt Dialog zur Auswahl der anzuwendenden Sprache auf die Präsentation oder die ausgewählten Folien. |
 | Mehr > Sprache ändern > Deutsch                    | Setze Sprache für ausgewählten Text bzw. alle ausgewählten Shapes.<br>Wenn mehrere Folien ausgewählt sind, werden alle Shapes der gewählten Folien geändert.<br>Wenn nichts ausgewählt ist, werden alle Shapes in der Präsentation sowie die Standardsprache geändert. |
 | Mehr > Sprache ändern > US English                 | Setze Sprache für ausgewählten Text bzw. alle ausgewählten Shapes.<br>Wenn mehrere Folien ausgewählt sind, werden alle Shapes der gewählten Folien geändert.<br>Wenn nichts ausgewählt ist, werden alle Shapes in der Präsentation sowie die Standardsprache geändert. |
 | Mehr > Sprache ändern > UK English                 | Setze Sprache für ausgewählten Text bzw. alle ausgewählten Shapes.<br>Wenn mehrere Folien ausgewählt sind, werden alle Shapes der gewählten Folien geändert.<br>Wenn nichts ausgewählt ist, werden alle Shapes in der Präsentation sowie die Standardsprache geändert. |
@@ -120,7 +129,11 @@
 | Mehr > Farbe/Graustufen > *Farbe*                  | Ihre Präsentation ganz in Farbe anzeigen.          |
 | Mehr > Farbe/Graustufen > *Graustufe*              | Diese Präsentation in Graustufen anzeigen und anpassen, wie die Farben in Graustufen übersetzt werden. |
 | Mehr > Farbe/Graustufen > *Schwarzweiß*            | Diese Präsentation in Schwarzweiß anzeigen und anpassen, wie die Farben in Schwarzweiß übersetzt werden. |
-| Mehr > *Führungslinien*                            | Anpassbare Führungslinien anzeigen, an denen Objekte auf der Folie ausgerichtet werden können. |
+| Mehr > *Führungslinien*                            | Anpassbare Zeichnungslinien anzeigen, an denen Objekte auf der Folie ausgerichtet werden können. |
+| Mehr > Master-Shapes ein-/ausblenden               | Alle Shapes im Folienmaster ein- und ausblenden, um ungestört und vertraulich an Folien arbeiten zu können. |
+| Mehr > Im Explorer öffnen                          | Ordner der aktuellen Präsentation im Explorer öffnen. |
+| Mehr > Im Fenster starten                          | Startet eine Bilschirmpräsentation im Fenster beginnend mit der aktuellen Folie und aktiviertem Laserpointer. |
+| Mehr > Im Vollbild starten                         | Startet eine Bilschirmpräsentation im Vollbild beginnend mit der aktuellen Folie und aktiviertem Laserpointer. |
 
 
 ### Schriftart
@@ -131,6 +144,40 @@
 ### Absatz
 
 <img src="documentation/groups/GroupParagraph.jpg">
+
+
+### Schriftart/Text
+
+<img src="documentation/groups/bkt_text_compact_group.jpg">
+
+| Name                                               | Beschreibung                                       |
+| -------------------------------------------------- | -------------------------------------------------- |
+| *Schriftart:*                                      | Wählen Sie eine neue Schriftart für Ihren Text aus. |
+| *Fett*                                             | Formatieren Sie Text fett.                         |
+| *Kursiv*                                           | Formatieren Sie den markierten Text kursiv.        |
+| *Unterstrichen*                                    | Unterstreichen Sie den markierten Text.            |
+| *Durchstreichen*                                   | Streichen Sie ein Element durch, indem Sie eine Linie mitten hindurchziehen. |
+| *Zeichenabstand*                                   | Passen Sie den Abstand zwischen Zeichen an.        |
+| *Groß-/Kleinschreibung*                            | Ändern Sie den markierten Text in Großbuchstaben, Kleinbuchstaben oder sonstige gängige Großschreibungen. |
+| *Formatierung löschen*                             | Entfernen Sie die gesamte Formatierung der Auswahl, sodass nur der normale, nicht formatierte Text übrig bleibt. |
+| *Schriftgrad:*                                     | Ändern Sie den Schriftgrad.                        |
+| *Schriftgrad vergrößern*                           | Ihren Text ein bisschen vergrößern.                |
+| *Schriftgrad verkleinern*                          | Ihren Text ein bisschen verkleinern.               |
+| *Hochgestellt*                                     | Geben Sie kleine Buchstaben oberhalb der Textzeile ein. |
+| *Tiefgestellt*                                     | Geben Sie kleine Buchstaben unterhalb der Textzeile ein. |
+| *Aufzählungszeichen*                               | Erstellen Sie eine Aufzählung.<br><br>Klicken Sie auf den Pfeil, um das Aussehen der Aufzählungszeichen zu ändern. |
+| *Nummerierung*                                     | Erstellen Sie eine nummerierte Liste.<br><br>Klicken Sie auf den Pfeil, um weitere Nummerierungsformate anzuzeigen. |
+| *Einzug verkleinern*                               | Den Einzug verkleinern.                            |
+| *Einzug vergrößern*                                | Den Einzug vergrößern.                             |
+| *Linksbündig*                                      | Den Inhalt linksbündig ausrichten.                 |
+| *Zentriert*                                        | Den Inhalt zentrieren.                             |
+| *Rechtsbündig*                                     | Den Inhalt rechtsbündig ausrichten.                |
+| *Blocksatz*                                        | Text gleichmäßig zwischen den Seitenrändern anordnen.<br><br>Blocksatz verleiht Ihrem Dokument klare, präzise Ränder und macht einen professionellen Eindruck. |
+| *Blocksatz*                                        | Text gleichmäßig zwischen den Seitenrändern anordnen.<br><br>Blocksatz verleiht Ihrem Dokument klare, präzise Ränder und macht einen professionellen Eindruck. |
+| *Spalten*                                          | Text in zwei oder mehr Spalten aufteilen.<br><br>Außerdem können Sie die Breite und die Abstände Ihrer Spalten auswählen oder eins der voreingestellten Formate verwenden. |
+| *Zeilenabstand*                                    | Den Abstand zwischen Textzeilen festlegen.         |
+| *Textrichtung*                                     | Geben Sie dem Text eine vertikale oder stapelförmige Textrichtung, oder drehen Sie ihn in der gewünschten Richtung. |
+| *Text ausrichten*                                  | Ändern, wie Ihr Text innerhalb des Textfelds ausgerichtet wird. |
 
 
 ### Formen
@@ -150,6 +197,8 @@
 | Textfeld zeichnen Menü > Sticker Menü > FOR DISCUSSION-Sticker | Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text FOR DISCUSSION ein. |
 | Textfeld zeichnen Menü > Sticker Menü > ILLUSTRATIVE-Sticker | Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text ILLUSTRATIVE ein. |
 | Textfeld zeichnen Menü > Sticker Menü > CONFIDENTIAL-Sticker | Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text CONFIDENTIAL ein. |
+| Textfeld zeichnen Menü > Sticker Menü > Selbst definierten Sticker einfügen | Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit selbst definiertem ein. |
+| Textfeld zeichnen Menü > Sticker Menü > Sticker-Text ändern | Ändere des Text des selbst definierten Stickers.   |
 | Textfeld zeichnen Menü > Sticker Menü > Ausrichtung | Ausrichtungsoptionen für Sticker einstellen        |
 | Textfeld zeichnen Menü > Sticker Menü > Ausrichtung > Links | Setzt die Position beim Einfügen der Sticker auf links. |
 | Textfeld zeichnen Menü > Sticker Menü > Ausrichtung > Mitte | Setzt die Position beim Einfügen der Sticker auf mittig. |
@@ -222,17 +271,23 @@
 | Spezialformen > Prozessschritt mit Kopfzeile       | Erstelle einen Prozess-Pfeil mit Header-Shape. Das Header-Shape kann im Prozess-Pfeil über Kontext-Menü des Header-Shapes passend angeordnet werden. |
 | Spezialformen > 2. Prozessschritt mit Kopfzeile    | Erstelle einen Prozess-Pfeil mit Header-Shape. Das Header-Shape kann im Prozess-Pfeil über Kontext-Menü des Header-Shapes passend angeordnet werden. |
 | Spezialformen > Harvey Ball                        | Füge ein Harvey-Ball ein, welcher sich bzgl. Farbe/Füllstand konfigurieren lässt.<br><br>Farbe und Füllstand lassen sich über Kontext-Menü und Kontext-Tab konfigurieren, im Tab auch Prozent-Angaben möglich.<br><br>Ein Harvey-Ball-Shape ist eine Gruppe aus Kreis- und Torten-Shape. |
-| Spezialformen > Ampel                              | Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden. |
+| Spezialformen > Ampel                              |                                                    |
+| Spezialformen > Ampel > Ampel vertikal             | Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden. |
+| Spezialformen > Ampel > Ampel horizontal           | Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden. |
+| Spezialformen > Ampel > Ampel Punkt                | Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden. |
 | Spezialformen > Likert-Scale                       | Eine Likert-Scale als Wechselshape einfügen. Über die Wechselshape-Funktionen kann der Füllstand, sowie die Farben verändert werden. |
+| Spezialformen > Checkbox                           | Füge ein Checkbox-Symbol als Wechselshape ein, welches interaktiv geändert werden kann. |
 | Spezialformen > Horizontale Verbindungsfläche      | Erstelle eine horizontale Verbindungsfläche zwischen den vertikalen Seiten (links/rechts) von zwei Shapes. |
 | Spezialformen > Vertikale Verbindungsfläche        | Erstelle eine vertikale Verbindungsfläche zwischen den horizontalen Seiten (oben/unten) von zwei Shapes. |
 | Spezialformen > Verbindungsfläche neu verbinden    | Aktualisiere die Verbindungsfläche nachdem sich die verbundenen Shapes geändert haben. |
 | *Form ändern*                                      | Die Form der Zeichnung ändern, wobei die gesamte Formatierung beibehalten wird. |
 | Shape verändern                                    | Funktionen um Shape-Punkte zu manipulieren, Shapes zu duplizieren, und Text in Symbol/Grafik umzuwandeln |
 | Shape verändern > Shapes teilen/vervielfachen…     | Shape horizontal/vertikal in mehrere Shapes teilen oder verfielfachen. |
+| Shape verändern > Shapes skalieren…                | Shape-Größe inkl. aller Elemente/Eigenschaften (Schriftgröße, Konturen, etc.) gleichmäßig ändern. |
+| Shape verändern > Platzhalter in Textbox umwandeln | Wandelt alle markierten Text-Platzhalter in echte Textboxen um, die u.A. eine Gruppierung erlauben. |
 | Shape verändern > *Punkte bearbeiten*              |                                                    |
 | Shape verändern > Text/Symbol zu Shapes umwandeln  | Ersetzt den Text einer Textbox in Shapes. Damit kann man bspw. einen Icon-Font in echte Icons umwandeln. |
-| Shape verändern > *Vereinigen*                     |                                                    |
+| Shape verändern > *Vereinigung*                    |                                                    |
 | Shape verändern > *Kombinieren*                    |                                                    |
 | Shape verändern > *In Einzelmengen zerlegen*       |                                                    |
 | Shape verändern > *Schnittmenge bilden*            |                                                    |
@@ -240,15 +295,15 @@
 | Mehr                                               | Standardobjekte (Bilder, Smart-Art, etc.) einfügen, Shapes verstecken und wieder anzeigen, Kopf- und Fußzeile anpassen |
 | Mehr > *Bilder...*                                 | Fügen Sie Bilder von Ihrem Computer oder von anderen Computern ein, mit denen eine Verbindung besteht. |
 | Mehr > *Objekt...*                                 | Eingebettete Objekte sind Dokumente oder andere Dateien, die Sie in dieses Dokument eingefügt haben. Statt mit gesonderten Dateien zu arbeiten, ist es manchmal einfacher, alle eingebettet in einem Dokument zu verwenden. |
-| Mehr > *Onlinebilder...*                           | Suchen Sie Bilder in einer Vielzahl von Onlinequellen, und fügen Sie diese dann ein. |
+| Mehr > *Onlinegrafiken...*                         | Suchen Sie Bilder in einer Vielzahl von Onlinequellen, und fügen Sie diese dann ein. |
 | Mehr > *SmartArt...*                               | Fügen Sie eine SmartArt-Grafik ein, um Informationen grafisch zu veranschaulichen.<br><br>SmartArt-Grafiken reichen von grafischen Listen und Prozessdiagrammen bis hin zu komplexeren Grafiken, wie z. B. Venn-Diagrammen oder Organigrammen. |
 | Mehr > *Diagramm...*                               | Erleichtern Sie das Erkennen von Mustern und Trends in Ihren Daten, indem Sie ein Balken-, Flächen- oder Liniendiagramm einfügen. |
 | Mehr > *Kopf- und Fußzeile...*                     | Der Inhalt der Kopf- und Fußzeilen wird am oberen bzw. unteren Rand jeder gedruckten Seite wiederholt.<br><br>Diese Funktion ist nützlich, um Informationen wie Dateiname, Datum und Uhrzeit hervorzuheben. |
 | Mehr > *Datum und Uhrzeit...*                      | Das aktuelle Datum oder die aktuelle Uhrzeit schnell hinzufügen. |
 | Mehr > *Zahl...*                                   | Die Folien in der Präsentation nummerieren, um das Verweisen zu erleichtern.<br><br>Sie können die Foliennummer auch hinzufügen, indem Sie zuerst in ein Textfeld und dann auf "Foliennummer" klicken. |
-| Mehr > *Kommentar*                                 | Fügen Sie einen Kommentar zu diesem Teil des Dokuments hinzu. |
-| Mehr > Shapes verstecken                           | Verstecke alle markierten Shapes (visible=False).  |
-| Mehr > Versteckte Shapes einblenden                | Mache alle versteckten Shapes (visible=False) wieder sichtbar. |
+| Mehr > *Kommentar*                                 | Fügen Sie eine Notiz zu diesem Teil des Dokuments hinzu. |
+| Mehr > Shapes vertecken/einblenden                 | Wenn Shapes ausgewählt sind, verstecke alle markierten Shapes (visible=False), anderen falls mache Shapes wieder sichtbar (visible=True). Gibt es keine unsichtbaren Shapes, werden die zuletzt versteckten Shapes erneut versteckt. |
+| Mehr > Alle versteckten Shapes einblenden          | Mache alle versteckten Shapes (visible=False) wieder sichtbar. |
 
 
 ### Stile
@@ -487,6 +542,7 @@
 | Anfasser-Werte wechseln > Werte 3 und 4            | Anfasser-Werte Nr. 3 und 4 in Spinner-Boxen anpassen |
 | Anfasser-Werte wechseln > Werte 5 und 6            | Anfasser-Werte Nr. 5 und 6 in Spinner-Boxen anpassen |
 | Anfasser-Werte wechseln > Werte 7 und 8            | Anfasser-Werte Nr. 7 und 8 in Spinner-Boxen anpassen |
+| Anfasser-Werte wechseln > Alle Shapes zurücksetzen | Shape-Anfasser-Werte für alle ausgewählten Shapes auf die Originalwerte zurücksetzen |
 | Anfasser-Werte wechseln > Alle Shapes angleichen   | Shape-Anfasser-Werte für alle ausgewählten Shapes entsprechend des zuerst gewählten Shapes angleichen |
 | Anfasser-Werte wechseln > Shape-Details anzeigen   | Zeigt ein Fenster mit ausführlichen Informationen über das gewählte Shape an |
 | >                                                  | Springe zu nächsten Seite für die Anfasser-Werte.  |
@@ -549,6 +605,16 @@
 | Breite > Visuelle Größe                            | Visuelle Größe unter Berücksichtigung der Rotation verwenden |
 | Breite > Breite = Höhe                             | Setzt die Breite gleich der Höhe unter Berücksichtigung des Fixpunkts. Ist das Seitenverhältnis gesperrt, wird dies temporär aufgehoben. |
 | Breite > Breite ⇄ Höhe                             | Tauscht die Breite mit der Höhe unter Berücksichtigung des Fixpunkts |
+| Sperren                                            |                                                    |
+| Sperren > Seitenverhältnis sperren an/aus          | Wenn das Kontrollkästchen Seitenverhältnis sperren aktiviert ist, ändern sich die Einstellungen von Höhe und Breite im Verhältnis zueinander. |
+| Sperren > Setzen auf 1:1 (1)                       |                                                    |
+| Sperren > Setzen auf 3:2 (1,5)                     |                                                    |
+| Sperren > Setzen auf 4:3 (1,333)                   |                                                    |
+| Sperren > Setzen auf 13:9 (1,444)                  |                                                    |
+| Sperren > Setzen auf 15:10 (1,5)                   |                                                    |
+| Sperren > Setzen auf 16:9 (1,778)                  |                                                    |
+| Sperren > Tauschen                                 | Vertauscht Breite und Größe und dreht damit das Seitenverhältnis um. |
+| Sperren > Zurücksetzen                             | Setzt das Seitenverhältnis auf den Ursprungszustand zurück. |
 | Position von oben                                  | Änderung der Position von oben.<br><br>Bei gedrückter STRG-Taste Veränderung um 0,1 cm statt 0,2 cm.<br><br>Bei gedrückter ALT-Taste Veränderung relativ je Shape (wenn mehrere Shapes ausgewählt sind). |
 | Position von oben                                  | Änderung der Position von oben.<br><br>Bei gedrückter STRG-Taste Veränderung um 0,1 cm statt 0,2 cm.<br><br>Bei gedrückter ALT-Taste Veränderung relativ je Shape (wenn mehrere Shapes ausgewählt sind). |
 | Position von oben > Visuelle Position              | Visuelle Position unter Berücksichtigung der Rotation verwenden |
@@ -859,6 +925,12 @@ Aktiviert eine kleine freischwebende Mini-Toolbar mit einer interaktiven Farbaus
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
 | QuickEdit Panel                                    | Blendet das QuickEdit Panel mit der interaktiven Farbauswahl ein. |
+| QuickEdit Panel Menü                               |                                                    |
+| QuickEdit Panel Menü > Für dieses Fenster anzeigen | Blendet das QuickEdit Panel mit der interaktiven Farbauswahl ein. |
+| QuickEdit Panel Menü > Für dieses Fenster schließen | Schließt das QuickEdit Panel für das aktuelle PowerPoint-Fenster. |
+| QuickEdit Panel Menü > Alle schließen              | Schließt alle QuickEdit Panels für alle PowerPoint-Fenster. |
+| QuickEdit Panel Menü > Hilfe anzeigen              | Öffnet die Hilfedatei.                             |
+| QuickEdit Panel Menü > Autostart ein/aus           | Anzeige des QuickEdit Panels bei PowerPoint-Start ein- und ausschalten. |
 
 
 ### Statistik
@@ -870,10 +942,13 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
 | Anzahl Shapes                                      | Zählt die Anzahl der ausgewählten Shapes (inkl. Shapes innerhalb von Gruppen bzw. Zellen innerhalb von Tabellen). |
+| Ergebnis Anzahl Shapes                             |                                                    |
 | Neu laden                                          | Statistiken für aktuelle Auswahl neu berechnen     |
 | Anzahl Zahlen                                      | Zählt die Anzahl der erkennbaren Zahlen in der aktuellen Auswahl, die im Feld Summe aufsummiert angezeigt werden. |
+| Ergebnis für Anzahl Zahlen                         |                                                    |
 | Neu laden                                          | Statistiken für aktuelle Auswahl neu berechnen     |
 | Summe                                              | Summiert alle erkennbaren Zahlen in der aktuellen Auswahl. Je nach Sprache der Rechtschreibkorrektur wird Punkt oder Komma als Dezimaltrenner genommen. Negative Zahlen werden abgezogen. |
+| Ergebnis für Summe                                 |                                                    |
 | Neu laden                                          | Statistiken für aktuelle Auswahl neu berechnen     |
 
 
@@ -1187,6 +1262,7 @@ Kontextmenü bei Auswahl mehrerer Shapes oder Objekte
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
+| Format angleichen                                  | Alle Shapes so formatieren wie das Shape, welches beim Öffnen des Kontextmenüs unter dem Cursor ist |
 | Überschrift anordnen                               | Kopfzeile (Überschrift) wieder richtig auf dem Prozessschritt-Shape positionieren |
 | In Prozess konvertieren                            | Ausgewählte Prozess-Shapes in eine interaktive Prozess-Gruppe umwandeln, um einfach Prozesschritte hinzuzufügen |
 | Füllstand ändern                                   | Passe den Füllstand eines Harvey-Balls entsprechend der Auswahl an.<br><br>Ein Harvey-Ball-Shape ist eine Gruppe aus Kreis- und Torten-Shape. |
