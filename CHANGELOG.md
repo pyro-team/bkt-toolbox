@@ -19,6 +19,7 @@
   * Added minified font and text group (default in 2-page layout)
   * Added function to reset adjustment values
   * Added function to choose aspect ratio from picklist or reset to default ratio
+  * Added rows support to process chevrons
   * Excel: Added function to translate english formula to local and vice versa
   * Excel: Added function to apply theme from other file and import/export font schema
   * Improved shape statistics: supertip show details about found numbers, result can be copied to clipboard, correct processing of decimals for various countries
@@ -27,6 +28,7 @@
   * Improved various WPF dialogs, i.e. shape selection dialog
   * Improved chartlib may paste on multiple selected slides
   * Improved chartlib insertion of slides
+  * Improved shape connector support for chevron, pentagon, hexagon and oval
   * Fixed shape statistics did not consider negative numbers
   * Fixed logging was processed even if logging was turned on
   * Fixed error in settings shelve auto repair
