@@ -124,6 +124,34 @@ At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergr
                     plh.Delete()
 
 
+class Calendar(object):
+    @classmethod
+    def get_calendar(cls):
+        pass
+        # import calendar
+        # from itertools import count, cycle
+
+        # daynames_iter   = cycle(calendar.day_name)
+        # monthnames_iter = cycle(calendar.month_name[1:])
+
+        # dayabbrs_iter   = cycle(calendar.day_abbr)
+        # monthabbrs_iter = cycle(calendar.month_abbr[1:])
+
+        # "day_names":    daynames_iter.next(),
+        # "month_names":  monthnames_iter.next(),
+        # "day_abbrs":    dayabbrs_iter.next(),
+        # "month_abbrs":  monthabbrs_iter.next(),
+
+        # with pplib.override_locale(presentation.DefaultLanguageID):
+        # with pplib.override_locale(first_textframe.TextRange.LanguageID):
+
+    #create 1 month view like outlook
+    #create week table
+    #create 1 month mini calendar
+    #create month-> calendar week rows
+    #datumsfeld? (WPF Calendar, Datepicker)
+
+
 class Characters(object):
     @staticmethod
     def symbol_insert(context):
