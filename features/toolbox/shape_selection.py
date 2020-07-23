@@ -199,6 +199,14 @@ class SlidesMore(object):
             logging.exception("error pasting as link")
             bkt.message.error("Das Element in der Zwischenablage unterstützt diesen Einfügetyp nicht.")
     
+    @classmethod
+    def paste_and_replace_shapes(cls, slide, shapes, keep_size=True):
+        for shape in shapes:
+            try:
+                cls.paste_and_replace(slide, shape, keep_size)
+            except:
+                logging.exception("error paste-replacing shape")
+    
     @staticmethod
     def paste_and_replace(slide, shape, keep_size=True):
         pasted_shapes = slide.Shapes.Paste()
@@ -227,7 +235,7 @@ class SlidesMore(object):
             #replace shape
             shape.delete()
         
-        pasted_shapes.select()
+        pasted_shapes.select(False)
 
     @staticmethod
     def copy_in_highquality(slide):
@@ -474,10 +482,10 @@ clipboard_group = bkt.ribbon.Group(
                         bkt.ribbon.Button(
                             id='paste_and_replace',
                             label="Mit Zwischenablage ersetzen",
-                            supertip="Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
+                            supertip="Markierte Shapes mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
                             image_mso='PasteSingleCellExcelTableDestinationFormatting',
-                            on_action=bkt.Callback(SlidesMore.paste_and_replace, slide=True, shape=True),
-                            get_enabled=bkt.apps.ppt_shapes_exactly1_selected,
+                            on_action=bkt.Callback(SlidesMore.paste_and_replace_shapes, slide=True, shapes=True),
+                            get_enabled=bkt.apps.ppt_shapes_or_text_selected,
                         ),
                         bkt.ribbon.MenuSeparator(),
                         bkt.mso.button.ShowClipboard,
