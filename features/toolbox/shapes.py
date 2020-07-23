@@ -18,6 +18,8 @@ pt_to_cm = pplib.pt_to_cm
 cm_to_pt = pplib.cm_to_pt
 get_ambiguity_tuple = bkt.helpers.get_ambiguity_tuple
 
+from bkt.library.algorithms import get_bounding_nodes, mid_point
+
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
 office = dotnet.import_officecore()
