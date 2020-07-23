@@ -12,8 +12,8 @@ from __future__ import absolute_import
 __author__ = "Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann"
 __copyright__ = "Copyright 2019 Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann"
 __license__ = "MIT"
-__version__ = "2.7.0"
-__release__ = "BKT r20-05-17"
+__version__ = "2.7.1"
+__release__ = "BKT r20-07-24"
 
 
 # NOTE: Use StandardLib.dll as alternative to /bin/Lib, but seems to have problems with wpf/fluent
