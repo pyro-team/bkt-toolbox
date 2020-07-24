@@ -187,6 +187,10 @@ class QueryRegService(object):
 
     # def get_hkcu(self, view=RegistryView.Default):
     #     return RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view)
+    
+    def _get_outlook_bitness_for_base(self, base, app_paths):
+        with open_key(base, app_paths) as path:
+            return path.GetValue('Bitness')
 
     def _get_path_for_base(self, base, app_name):
         app_paths = PathString('Software') / 'Microsoft' / 'Windows' / 'CurrentVersion' / 'App Paths' / app_name
@@ -206,3 +210,17 @@ class QueryRegService(object):
         #         pass
         # raise KeyError("no path in registry found for %s" % app_name)
 
+    def get_outlook_bitness(self):
+        paths = [
+            PathString('Software') / 'Microsoft' / 'Office' / 'ClickToRun' / 'REGISTRY' / 'MACHINE' / 'Software' / 'Microsoft' / 'Office' / '16.0' / 'Outlook',
+            PathString('Software') / 'Microsoft' / 'Office' / '16.0' / 'Outlook',
+            PathString('Software') / 'Microsoft' / 'Office' / '15.0' / 'Outlook',
+            PathString('Software') / 'Microsoft' / 'Office' / '14.0' / 'Outlook',
+        ]
+        with self.get_hklm() as base:
+            for path in paths:
+                try:
+                    return self._get_outlook_bitness_for_base(base, path)
+                except KeyError:
+                    continue
+        return None
