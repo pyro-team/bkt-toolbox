@@ -242,14 +242,14 @@ def fmt_load_behavior(integer):
 
 
 class Installer(object):
-    def __init__(self, config=dict(), install_base=None, bitness_check=False, wow6432=None):
+    def __init__(self, config=dict(), install_base=None, wow6432=None):
         if install_base is None:
             install_base = INSTALL_BASE
 
         self.install_base = install_base
         self.user_config = config
         
-        if bitness_check and wow6432 is None:
+        if wow6432 is None:
             helper.log('checking system and office for 32/64 bit')
             wow6432 = check_wow6432()
             helper.log('office is running in %s' % ("32-bit" if wow6432 else "64-bit"))
@@ -410,9 +410,8 @@ dummy_option = dummy_value
 def uninstall(args):
     print('Uninstalling BKT from current directory...')
     try:
-        Installer().unregister()
-        # Installer(wow6432=True).unregister()
-        # Installer(wow6432=False).unregister()
+        Installer(wow6432=True).unregister()
+        Installer(wow6432=False).unregister()
         print("\nBKT successfully uninstalled")
     except:
         helper.exception_as_message()
@@ -435,9 +434,8 @@ def install(args):
     print('Deactivate any previous installation...')
     try:
         #this is required to avoid BKT loading when doing wow6232 check during installation
-        Installer().unregister()
-        # Installer(wow6432=True).unregister()
-        # Installer(wow6432=False).unregister()
+        Installer(wow6432=True).unregister()
+        Installer(wow6432=False).unregister()
     except:
         helper.exception_as_message()
 
@@ -456,21 +454,16 @@ def install(args):
         Outlook.load_behavior = { 'bkt' : 3, 'bkt_dev': 3 }
 
     wow6432 = None
-    bitness_check = False
     if args.force_office_bitness:
-        if args.force_office_bitness == "auto":
-            bitness_check = True
-            helper.log("forced office bitness auto check")
-        else:
-            wow6432 = args.force_office_bitness in ('32', 'x86')
-            helper.log("forced office bitness to %s" % ("32-bit" if wow6432 else "64-bit"))
+        wow6432 = args.force_office_bitness in ('32', 'x86')
+        helper.log("forced office bitness to %s" % ("32-bit" if wow6432 else "64-bit"))
 
     # start installation
     try:
         if args.register_only:
-            installer = Installer(bitness_check=bitness_check, wow6432=wow6432, config=None)
+            installer = Installer(wow6432=wow6432, config=None)
         else:
-            installer = Installer(bitness_check=bitness_check, wow6432=wow6432, config=default_config)
+            installer = Installer(wow6432=wow6432, config=default_config)
         installer.install()
 
         print("\nInstallation ready -- addin available after Office restart")
