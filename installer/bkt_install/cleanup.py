@@ -67,6 +67,14 @@ class Cleaner(object):
         xml_folder = os.path.join(INSTALL_BASE, 'resources', 'xml')
         cls._purge_folder(xml_folder)
 
+    @classmethod
+    def clear_resiliency(cls):
+        from .reg import ResiliencyRegService
+        apps = ['Outlook', 'PowerPoint', 'Excel', 'Word']
+        for app_name in apps:
+            ret = ResiliencyRegService('BKT.AddIn', app_name).clear_disabled_items()
+            helper.log("%s disabled item(s) removed from resiliency for %s" % (ret, app_name))
+
 
 def clean(args):
     if args.clear_cache:
@@ -84,3 +92,7 @@ def clean(args):
     if args.clear_xml:
         print("\nClearing XML files...")
         Cleaner.clear_xml()
+
+    if args.clear_resiliency:
+        print("\nClearing resiliency registry...")
+        Cleaner.clear_resiliency()

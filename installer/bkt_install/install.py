@@ -27,6 +27,7 @@ class AppInfo(object):
 
 
 class PowerPoint(AppInfo):
+    name = 'PowerPoint'
     addins_regpath = reg.office_default_path('PowerPoint')
     register_addins = {'bkt', 'bkt_dev'}
     # load_behavior = {
@@ -36,18 +37,22 @@ class PowerPoint(AppInfo):
 
 
 class Word(AppInfo):
+    name = 'Word'
     addins_regpath = reg.office_default_path('Word')
 
 
 class Excel(AppInfo):
+    name = 'Excel'
     addins_regpath = reg.office_default_path('Excel')
 
 
 class Outlook(AppInfo):
+    name = 'Outlook'
     addins_regpath = reg.office_default_path('Outlook')
 
 
 class Visio(AppInfo):
+    name = 'Visio'
     addins_regpath = reg.PathString('Software') / 'Microsoft' / 'Visio' / 'Addins'
 
 
@@ -57,7 +62,7 @@ APPS = [
     Word,
     Outlook,
     Visio,
-    ] 
+    ]
 
 
 class AddinInfo(object):
@@ -143,16 +148,30 @@ class RegistryInfoService(object):
                    )
 
     def iter_application_addin_infos(self):
-        all_addins = list(self.addins)
         for app in self.apps:
             if self.uninstall:
-                addins = all_addins
+                addins = list(self.addins)
             else:
                 addins = app.register_addins
             
             for addin_key in addins:
                 addin = self.addins[addin_key]
                 yield self.get_application_addin_info(app, addin)
+    
+    def iter_active_application_addin_infos(self):
+        for app in self.apps:
+            if self.uninstall:
+                addins = list(self.addins)
+            else:
+                addins = app.register_addins
+            
+            for addin_key in addins:
+                addin = self.addins[addin_key]
+                if app.load_behavior.get(addin.key, 0) == 3:
+                    yield dict(
+                        prog_id=addin.prog_id,
+                        app_name=app.name
+                    )
 
 
 def fmt_load_behavior(integer):
@@ -160,7 +179,7 @@ def fmt_load_behavior(integer):
 
 
 class Installer(object):
-    def __init__(self, config=dict(), install_base=None, wow6432=None):
+    def __init__(self, config=dict(), install_base=None, wow6432=None, dndlist=False):
         if install_base is None:
             install_base = INSTALL_BASE
 
@@ -173,6 +192,7 @@ class Installer(object):
             helper.log('office is running in %s' % ("32-bit" if wow6432 else "64-bit"))
         
         self.wow6432 = wow6432
+        self.dndlist = dndlist
     
     def create_config_file(self):
         ''' creates the config file with the entries necessary to bootstrap the IronPython environment '''
@@ -298,21 +318,24 @@ dummy_option = dummy_value
         reginfo = RegistryInfoService(uninstall=True, install_base=self.install_base)
         for info in reginfo.iter_application_addin_infos():
             reg.AddinRegService(**info).unregister_addin()
-            
+
         for info in reginfo.iter_addin_assembly_infos():
             reg.AssemblyRegService(wow6432=self.wow6432, **info).unregister_assembly()
+
+        for info in reginfo.iter_active_application_addin_infos():
+            reg.ResiliencyRegService(**info).remove_from_dndlist()
             
     def install(self):
         self.unregister()
-        try:
-            helper.log('create registry entries')
-            self.register()
-            if self.user_config is not None:
-                helper.log('create/update config file')
-                self.create_config_file()
-        except Exception as e:
-            self.unregister()
-            raise e #re-raise exception
+        # try:
+        helper.log('create registry entries')
+        self.register()
+        if self.user_config is not None:
+            helper.log('create/update config file')
+            self.create_config_file()
+        # except Exception as e:
+        #     self.unregister()
+        #     raise e #re-raise exception
     
     def register(self):
         reginfo = RegistryInfoService(install_base=self.install_base)
@@ -323,6 +346,11 @@ dummy_option = dummy_value
         helper.log('register office addin in registry')
         for info in reginfo.iter_application_addin_infos():
             reg.AddinRegService(**info).register_addin()
+        
+        if self.dndlist:
+            helper.log('register office addin in resiliency do-not-disable list')
+            for info in reginfo.iter_active_application_addin_infos():
+                reg.ResiliencyRegService(**info).add_to_dndlist()
 
 
 def uninstall(args):
@@ -379,9 +407,9 @@ def install(args):
     # start installation
     try:
         if args.register_only:
-            installer = Installer(wow6432=wow6432, config=None)
+            installer = Installer(wow6432=wow6432, config=None, dndlist=args.add_to_dndlist)
         else:
-            installer = Installer(wow6432=wow6432, config=default_config)
+            installer = Installer(wow6432=wow6432, config=default_config, dndlist=args.add_to_dndlist)
         installer.install()
 
         print("\nInstallation ready -- addin available after Office restart")
