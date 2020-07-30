@@ -7,12 +7,14 @@ Created on 06.07.2016
 
 from __future__ import absolute_import
 
+import logging
 import os.path
 
 from contextlib import contextmanager
 
 import bkt
 import bkt.ui
+import bkt.library.powerpoint as pplib
 
 # for ui composition
 from . import agenda
@@ -23,7 +25,7 @@ from .chartlib import chartlib_button
 class SendOrSaveSlides(object):
     @classmethod
     def _slide_range_identifier(cls, slides):
-        indices = [slide.SlideIndex for slide in slides]
+        indices = [slide.SlideNumber for slide in slides]
         indices.sort()
         ind_str = str(indices[0])
         last_index = indices[0]
@@ -61,7 +63,7 @@ class SendOrSaveSlides(object):
         # Foliennummern
         if slides is not None:
             if len(slides) == 1:
-                fileName = fileName + "_Folie_" + str(slides[0].SlideIndex)
+                fileName = fileName + "_Folie_" + str(slides[0].SlideNumber)
             else:
                 fileName = fileName + "_Folien_" + cls._slide_range_identifier(slides)
 
@@ -76,11 +78,14 @@ class SendOrSaveSlides(object):
     def _delete_unselected_slides(cls, slides, newPres):
         from System import Array
 
-        # Folien rueckwaerts durchgehen und schauen, ob Index in Range dabei ist
+        # get slide indicies of slides to keep
         slideIndices = [slide.SlideIndex for slide in slides]
+        # list of all indices - the one to keep = all indices to remove
         removeIndices = list(set(range(1,newPres.Slides.Count+1)) - set(slideIndices))
+        # if there are any slides to remove, delete all at once
         if len(removeIndices) > 0:
             newPres.Slides.Range(Array[int](removeIndices)).Delete()
+        # Folien rueckwaerts durchgehen und schauen, ob Index in Range dabei ist
         # removeIndices.sort()
         # removeIndices.reverse()
         # for slideId in removeIndices:
@@ -97,10 +102,11 @@ class SendOrSaveSlides(object):
             presentation = application.ActiveWindow.Presentation
             # Richtige Dateiendung prüfen und temporären Pfad erstellen
             pres_ext = os.path.splitext(presentation.Name)[1]
-            if pres_ext == '':
-                pres_ext == '.pptx'
+            if not pres_ext:
+                pres_ext = '.pptx'
             filename = os.path.splitext(filename)[0] + pres_ext
             temporary_ppt_file = os.path.join(tempfile.gettempdir(), filename)
+            logging.debug("save temporary copy to: %s", temporary_ppt_file)
             # Temporäre Kopie erstellen und öffnen
             presentation.SaveCopyAs(temporary_ppt_file)
             newPres = application.Presentations.Open(temporary_ppt_file, False, False, False) #readonly, untitled, withwindow
@@ -146,7 +152,7 @@ class SendOrSaveSlides(object):
             newPres.NewWindow()
 
     @classmethod
-    def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False, remove_designs=False):
+    def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False, remove_designs=False, remove_hidden=False):
         from bkt import dotnet
         Outlook = dotnet.import_outlook()
 
@@ -191,6 +197,12 @@ class SendOrSaveSlides(object):
                             design.Delete()
                         except:
                             continue
+                newPres.Save()
+            
+            if remove_hidden:
+                for slide in list(iter(newPres.Slides)):
+                    if slide.SlideShowTransition.Hidden == -1:
+                        slide.Delete()
                 newPres.Save()
 
             if fileformat != "pdf":
@@ -261,7 +273,7 @@ class SlideMenu(object):
             shp.TextFrame.TextRange.Font.Bold = -1 # msoTrue
             shp.TextFrame.TextRange.Font.Color = 192 + 0 * 256 + 0 * 256**2
             shp.TextFrame.TextRange.ParagraphFormat.Alignment = 3 #ppAlignRight
-            shp.TextFrame.TextRange.text = sld.SlideIndex
+            shp.TextFrame.TextRange.text = sld.SlideNumber #SlideIndex always starts with 1, but in PageSetup beginning can be changed so using SlideNumber
             shp.TextFrame.MarginBottom = 0
             shp.TextFrame.MarginTop = 0
             shp.TextFrame.MarginRight = 0
@@ -299,43 +311,34 @@ class SlideMenu(object):
             cls.remove_slide_numbering(slides)
         else:
             cls.add_slide_numbering(slides, context)
+
+
+    @classmethod
+    def select_and_apply_theme(cls, context):
+        from bkt import dotnet
+        F = dotnet.import_forms()
+        
+        fileDialog = F.OpenFileDialog()
+        fileDialog.Filter = "PowerPoint (*.pptx;*.ppt;*.pot;*.potx)|*.pptx;*.ppt;*.pot;*.potx|Alle Dateien (*.*)|*.*"
+        if context.presentation.Path:
+            fileDialog.InitialDirectory = context.presentation.Path + '\\'
+        fileDialog.Title = "PowerPoint-Datei auswählen"
+
+        if not fileDialog.ShowDialog() == F.DialogResult.OK:
+            return
+
+        filename = fileDialog.FileName
+        try:
+            context.presentation.ApplyTemplate(filename)
+        except:
+            logging.exception("error appyling theme %s", filename)
+    
     
     @classmethod
     def remove_all(cls, context):
-        try:
-            cls.remove_slide_notes(context)
-        except:
-            pass
-        
-        try:
-            cls.remove_hidden_slides(context)
-        except:
-            pass
-        
-        try:
-            cls.remove_transitions(context)
-        except:
-            pass
-        
-        try:
-            cls.remove_animations(context)
-        except:
-            pass
-        
-        try:
-            cls.remove_slide_comments(context)
-        except:
-            pass
-        
-        try:
-            cls.remove_doublespaces(context)
-        except:
-            pass
-        
-        try:
-            cls.remove_empty_placeholders(context)
-        except:
-            pass
+        from .dialogs.slides_clean import SlideCleanWindow
+        SlideCleanWindow.create_and_show_dialog(cls, context)
+
         
     @classmethod
     def _iterate_all_shapes(cls, context, groupitems=False):
@@ -376,7 +379,7 @@ class SlideMenu(object):
                     if shape.PlaceholderFormat.type == 2: 
                         # ppt.PpPlaceholderType.ppPlaceholderBody.value__
                         shape.TextFrame.TextRange.Text = ""
-                except:
+                except EnvironmentError:
                     # EnvironmentError: System.Runtime.InteropServices.COMException (0x80048240): PlaceholderFormat.Type : Invalid request.  Shape is not a placeholder.
                     pass
 
@@ -389,11 +392,14 @@ class SlideMenu(object):
 
     @classmethod
     def remove_doublespaces(cls, context):
-        for shape in cls._iterate_all_shapes(context, groupitems=True):
-            if shape.HasTextFrame == -1:
+        slides = context.app.ActivePresentation.Slides
+        for slide in slides:
+            for textframe in pplib.iterate_shape_textframes(slide.shapes):
+        # for shape in cls._iterate_all_shapes(context, groupitems=True):
+        #     if shape.HasTextFrame == -1:
                 found = True
                 while found is not None:
-                    found = shape.TextFrame.TextRange.Replace("  ", " ")
+                    found = textframe.TextRange.Replace("  ", " ")
     
     @classmethod
     def remove_empty_placeholders(cls, context):
@@ -415,7 +421,7 @@ class SlideMenu(object):
         context.presentation.BuiltInDocumentProperties.item["author"].value = ''
 
     @classmethod
-    def remove_unused_masters(cls, context):
+    def remove_unused_masters(cls, context, silent=True):
         deleted_layouts = 0
         unused_designs = []
         for design in context.presentation.Designs:
@@ -423,10 +429,14 @@ class SlideMenu(object):
                 try:
                     cl.Delete()
                     deleted_layouts += 1
-                except: #deletion fails if layout in use
+                except EnvironmentError: #deletion fails if layout in use
+                    #EnvironmentError: System.Runtime.InteropServices.COMException (0x80048240): Slide (unknown member) : Invalid request.  Can't delete master.
                     continue
             if design.SlideMaster.CustomLayouts.Count == 0:
                 unused_designs.append(design)
+
+        if silent:
+            return
         
         unused_designs_len = len(unused_designs)
         if unused_designs_len > 0:
@@ -435,39 +445,107 @@ class SlideMenu(object):
                     try:
                         design.Delete()
                     except:
-                        continue
+                        logging.exception("error deleting design")
             bkt.message("Leere Folienmaster wurden gelöscht!")
         else:
             bkt.message("Es wurden {} Folienlayouts gelöscht!".format(deleted_layouts))
     
     @classmethod
-    def remove_unused_designs(cls, context):
+    def remove_unused_designs(cls, context, silent=True):
         deleted_designs = 0
         designs = context.presentation.designs
+        #list incides of all designs
         unused_designs = range(1,designs.count+1)
         for slide in context.presentation.slides:
             try:
+                #remove indices of used designs
                 unused_designs.remove(slide.design.index)
-            except ValueError:
+            except ValueError: #index already removed
                 pass
         
+        #remove all remaining indices
         for i in reversed(unused_designs):
             try:
                 designs[i].delete()
                 deleted_designs += 1
             except:
-                continue
+                logging.exception("error deleting design")
         
-        bkt.message("Es wurden {} Folienmaster gelöscht!".format(deleted_designs))
+        if not silent:
+            bkt.message("Es wurden {} Folienmaster gelöscht!".format(deleted_designs))
 
     @classmethod
     def break_links(cls, context):
         for shape in cls._iterate_all_shapes(context, groupitems=True):
             try:
-                shape.LinkFormat.BreakLink()
+                pst = pplib.MsoShapeType
+                if shape.Type in (pst["msoLinkedGraphic"], pst["msoLinkedOLEObject"], pst["msoLinkedPicture"], pst["msoLinked3DModel"]):
+                    shape.LinkFormat.BreakLink()
             except:
-                pass
+                logging.exception("error breaking link")
+    
+    @staticmethod
+    def _iter_all_layouts(context):
+        for design in context.presentation.designs:
+            if design.HasTitleMaster:
+                yield design.TitleMaster
+            yield design.SlideMaster
+            for layout in design.SlideMaster.CustomLayouts:
+                yield layout
+    
+    @classmethod
+    def _iter_master_shapes(cls, context):
+        for layout in cls._iter_all_layouts(context):
+            for shape in layout.Shapes:
+                if pplib.TagHelper.has_tag(shape, "THINKCELLSHAPEDONOTDELETE"):
+                    continue
+                yield shape
+    
+    @classmethod
+    def toggle_hide_master_shapes(cls, context):
+        visibility = None
+        for s in cls._iter_master_shapes(context):
+            if visibility is None:
+                visibility = 0 if s.visible else -1
+            s.visible = visibility
+    
+    @staticmethod
+    def open_in_explorer(context):
+        from os import startfile
+        path = context.presentation.path
+        if not path:
+            return bkt.message.error("Präsentation ist nicht gespeichert!")
+        if os.path.isdir(path):
+            startfile(path)
 
+
+class SlideShow(object):
+    @classmethod
+    def windowed_slideshow(cls, context):
+        cls._slideshow(context, 2) #ppShowTypeWindow
+
+    @classmethod
+    def fullscreen_slideshow(cls, context):
+        cls._slideshow(context, 1) #ppShowTypeSpeaker
+
+    @classmethod
+    def _slideshow(cls, context, show_type):
+        #get slide (as later activewindow is not present anymore)
+        slide = context.slide
+        #use with-notation to avoid comrelease error
+        with context.presentation.SlideShowSettings as sld_settings:
+            #save current setting
+            prev = sld_settings.ShowType
+            #define type (windowed or fullscreen)
+            sld_settings.ShowType = show_type
+            #run slideshow
+            sld_window = sld_settings.Run()
+            #go to selected slide
+            if slide:
+                sld_window.View.GoToSlide(slide.SlideIndex)
+                sld_window.view.LaserPointerEnabled = True
+            #restore setting
+            sld_settings.ShowType = prev
 
 
 
@@ -491,6 +569,13 @@ slides_group = bkt.ribbon.Group(
                 bkt.mso.control.SlideLayoutGallery,
                 bkt.mso.control.SlideReset,
                 bkt.mso.control.SectionMenu,
+                bkt.ribbon.Button(
+                    id="slide_apply_theme",
+                    label="Folienmaster aus Datei ersetzen…",
+                    image_mso="SlideMasterMasterLayout",
+                    supertip="Ersetzt den aktuellen Folienmaster (Templates und Design) in der Präsentation durch den Folienmaster aus der gewählten Datei.",
+                    on_action=bkt.Callback(SlideMenu.select_and_apply_theme)
+                ),
                 bkt.ribbon.MenuSeparator(title="Agenda")
                 ] + agenda.agendamenu.children + [
                 bkt.ribbon.MenuSeparator(title="Funktionen"),
@@ -519,12 +604,19 @@ slides_group = bkt.ribbon.Group(
                 bkt.ribbon.SplitButton(children=[
                     bkt.ribbon.Button(
                         id = 'slide_remove_all',
-                        label='Slidedeck aufräumen',
+                        label='Slidedeck aufräumen…',
                         image_mso='SlideShowFromCurrent', #AcceptTask, SlideShowFromCurrent, FilePublishSlides
-                        supertip="Lösche Notizen, ausgebledete Slides, Übergänge, Animationen, Kommentare, doppelte Leerzeichen, leere Platzhalter.",
+                        supertip="Zeigt Dialog zur Auswahl der anzuwendenden Funktionen.",
                         on_action=bkt.Callback(SlideMenu.remove_all)
                     ),
                     bkt.ribbon.Menu(label="Slidedeck aufräumen", supertip="Funktionen zum Aufräumen aller Folien der Präsentation", image_mso='SlideShowFromCurrent', children=[
+                        bkt.ribbon.Button(
+                            id = 'slide_remove_all2',
+                            label='Funktionen auswählen…',
+                            image_mso='SlideShowFromCurrent', #AcceptTask, SlideShowFromCurrent, FilePublishSlides
+                            supertip="Zeigt Dialog zur Auswahl der anzuwendenden Funktionen.",
+                            on_action=bkt.Callback(SlideMenu.remove_all)
+                        ),
                         bkt.ribbon.MenuSeparator(title="Inhalte"),
                         bkt.ribbon.Button(
                             id = 'slide_remove_hidden_slides',
@@ -604,14 +696,14 @@ slides_group = bkt.ribbon.Group(
                             label='Nicht genutzte Folienlayouts entfernen',
                             image_mso='SlideDelete',
                             supertip="Lösche alle nicht verwendeten Folienmaster-Layouts sowie leere Folienmaster (Designs).",
-                            on_action=bkt.Callback(SlideMenu.remove_unused_masters)
+                            on_action=bkt.Callback(lambda context: SlideMenu.remove_unused_masters(context, False))
                         ),
                         bkt.ribbon.Button(
                             id = 'slide_remove_unused_designs',
                             label='Nicht genutzte Folienmaster entfernen',
                             image_mso='SlideDelete',
                             supertip="Lösche alle nicht verwendeten Folienmaster (Designs).",
-                            on_action=bkt.Callback(SlideMenu.remove_unused_designs)
+                            on_action=bkt.Callback(lambda context: SlideMenu.remove_unused_designs(context, False))
                         ),
                     ]),
                 ]),
@@ -627,7 +719,35 @@ slides_group = bkt.ribbon.Group(
                     bkt.mso.control.ViewDisplayInGrayscale(show_label=True),
                     bkt.mso.control.ViewDisplayInPureBlackAndWhite(show_label=True),
                 ]),
+                bkt.ribbon.MenuSeparator(),
                 bkt.mso.control.GuidesShowHide(show_label=True),
+                bkt.ribbon.Button(
+                    label="Master-Shapes ein-/ausblenden",
+                    image_mso='SlideHide',
+                    supertip="Alle Shapes im Folienmaster ein- und ausblenden, um ungestört und vertraulich an Folien arbeiten zu können.",
+                    on_action=bkt.Callback(SlideMenu.toggle_hide_master_shapes)
+                ),
+                bkt.ribbon.Button(
+                    label="Im Explorer öffnen",
+                    image_mso='OpenFolder',
+                    supertip="Ordner der aktuellen Präsentation im Explorer öffnen.",
+                    on_action=bkt.Callback(SlideMenu.open_in_explorer)
+                ),
+                bkt.ribbon.MenuSeparator(title="Bildschirmpräsentation"),
+                bkt.ribbon.Button(
+                    id="slide_windowed_slideshow",
+                    image_mso="SlideShowInAWindow",
+                    label="Im Fenster starten",
+                    supertip="Startet eine Bilschirmpräsentation im Fenster beginnend mit der aktuellen Folie und aktiviertem Laserpointer.",
+                    on_action=bkt.Callback(SlideShow.windowed_slideshow),
+                ),
+                bkt.ribbon.Button(
+                    id="slide_fullscreen_slideshow",
+                    image_mso="SlideShowFromCurrent",
+                    label="Im Vollbild starten",
+                    supertip="Startet eine Bilschirmpräsentation im Vollbild beginnend mit der aktuellen Folie und aktiviertem Laserpointer.",
+                    on_action=bkt.Callback(SlideShow.fullscreen_slideshow),
+                ),
             ]
         )
     ]

@@ -7,7 +7,6 @@ Created on 2018-05-29
 from __future__ import absolute_import
 
 import logging
-import traceback
 
 import os
 import io
@@ -18,14 +17,24 @@ from collections import OrderedDict
 
 import bkt
 import bkt.library.powerpoint as pplib
-
-import bkt.dotnet
-D = bkt.dotnet.import_drawing()
+import bkt.library.graphics as glib
 
 from .helpers import ShapeFormats #local helper functions
 
 
 CF_VERSION = "20191112"
+CF_TYPES = (
+    pplib.MsoShapeType["msoAutoShape"],
+    pplib.MsoShapeType["msoCallout"],
+    pplib.MsoShapeType["msoFreeform"],
+    pplib.MsoShapeType["msoGraphic"],
+    pplib.MsoShapeType["msoLine"],
+    pplib.MsoShapeType["msoPicture"],
+    pplib.MsoShapeType["msoTextBox"],
+    pplib.MsoShapeType["msoPlaceholder"],
+    pplib.MsoShapeType["msoLinkedGraphic"],
+    pplib.MsoShapeType["msoLinkedPicture"],
+    )
 
 class CustomFormat(object):
     '''
@@ -104,6 +113,10 @@ class CustomFormat(object):
 
     @staticmethod
     def from_shape(shape, style_setting=None):
+        if shape.type not in CF_TYPES:
+            bkt.message("Shape-Typ wird nicht unterstützt!", "BKT: Custom Styles")
+            return
+
         ### BUTTON SETTINGS
         button_setting = {}
         if shape.Fill.Visible == -1:
@@ -162,26 +175,26 @@ class CustomFormat(object):
         try:
             if self.is_format("Type") or shape_is_new:
                 ShapeFormats._set_type(shape, self.get_format("Type"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting shape type with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting shape type")
 
         try:
             if self.is_format("Fill"):
                 ShapeFormats._set_fill(shape.fill, self.get_format("Fill"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting fill with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting fill")
 
         try:
             if self.is_format("Line"):
                 ShapeFormats._set_line(shape.line, self.get_format("Line"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting line with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting line")
 
         try:
             if self.is_format("TextFrame"):
                 ShapeFormats._set_textframe(shape.textframe2, self.get_format("TextFrame"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting textframe with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting textframe")
 
         try:
             # order is important here. shadow must be last as setting glow, reflection or softedge will re-enable shadow
@@ -193,32 +206,32 @@ class CustomFormat(object):
                 ShapeFormats._set_softedge(shape.softedge, self.get_format("SoftEdge"))
             if self.is_format("Shadow"):
                 ShapeFormats._set_shadow(shape.shadow, self.get_format("Shadow"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting effects with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting effects")
 
         try:
             if self.is_format("Size") or shape_is_new:
                 ShapeFormats._set_size(shape, self.get_format("Size"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting shape size with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting shape size")
 
         try:
             if self.is_format("Position") or shape_is_new:
                 ShapeFormats._set_position(shape, self.get_format("Position"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting shape position with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting shape position")
 
         try:
             if self.is_format("ParagraphFormat"):
                 ShapeFormats._set_indentlevels(shape.TextFrame2, "paragraph", self.get_format("ParagraphFormat"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting paragraph format with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting paragraph format")
 
         try:
             if self.is_format("Font"):
                 ShapeFormats._set_indentlevels(shape.TextFrame2, "font", self.get_format("Font"))
-        except Exception as e:
-            logging.error("Custom formats: Error in setting font with error: {}".format(e))
+        except:
+            logging.exception("Custom formats: Error in setting font")
 
 
 class CustomFormatCatalog(object):
@@ -279,7 +292,7 @@ class CustomFormatCatalog(object):
             
             if not isinstance(catalog, OrderedDict) or catalog.get("version", 0) != CF_VERSION:
                 #pre-migration TODO: create backup-file
-                bkt.message("Einmalige Migration des Katalogformats erforderlich. Diese wird nun gestartet.")
+                bkt.message("Einmalige Migration des Katalogformats erforderlich. Diese wird nun gestartet.", "BKT: Custom Styles")
 
                 try:
                     #migration from old list-format
@@ -292,15 +305,14 @@ class CustomFormatCatalog(object):
 
                     #check version again
                     if catalog.get("version", 0) != CF_VERSION:
-                        raise ValueError("invalid version number. migration incomplete.")
+                        raise ValueError("invalid version number. migration incomplete.", "BKT: Custom Styles")
                     
                     #migration successful, save file to config later
                     catalog_migration = True
-                    bkt.message("Migration erfolgreich. Katalog wird nun geladen.")
+                    bkt.message("Migration erfolgreich. Katalog wird nun geladen.", "BKT: Custom Styles")
                 except:
-                    bkt.message("Migration fehlgeschlagen!")
-                    logging.error("Customformats: Migration failed")
-                    logging.error(traceback.format_exc())
+                    bkt.message.error("Migration fehlgeschlagen!", "BKT: Custom Styles")
+                    logging.exception("Customformats: Migration failed")
                     return
             
             if catalog.get("filename", "") != filename:
@@ -340,7 +352,7 @@ class CustomFormatCatalog(object):
                 try:
                     fill_obj["GradientStops"] = convert_stop(fill_obj["GradientStops"])
                 except:
-                    logging.error("Customformats: Error converting a gradient stop from 20190814")
+                    logging.exception("Customformats: Error converting a gradient stop from 20190814")
 
         for style in catalog["styles"]:
 
@@ -373,7 +385,7 @@ class CustomFormatCatalog(object):
                             elif style["formats"]["ParagraphFormat"][i]['Bullet.Type'] == 2: #ppBulletNumbered
                                 del style["formats"]["ParagraphFormat"][i]['Bullet.Character']
                     except:
-                        logging.error("Customformats: Error converting a style from 20190613")
+                        logging.exception("Customformats: Error converting a style from 20190613")
             # cls.custom_styles.append(CustomFormat.from_json(style))
         catalog["version"] = "20190814"
         return catalog
@@ -452,9 +464,11 @@ class CustomFormatCatalog(object):
 
     @classmethod
     def pickup_custom_style(cls, shape, style_setting=None):
-        cls.custom_styles.append(CustomFormat.from_shape(shape, style_setting))
-        cls._generate_thumbnail_image(len(cls.custom_styles)-1, shape)
-        cls.save_to_config()
+        cm_style = CustomFormat.from_shape(shape, style_setting)
+        if cm_style:
+            cls.custom_styles.append(cm_style)
+            cls._generate_thumbnail_image(len(cls.custom_styles)-1, shape)
+            cls.save_to_config()
 
     @classmethod
     def edit_custom_style(cls, index, style_setting):
@@ -499,10 +513,7 @@ class CustomFormatCatalog(object):
 
         if os.path.exists(file):
             #version that should not lock the file, which prevents updating of thumbnails:
-            with D.Bitmap.FromFile(file) as img:
-                thumbnail = D.Bitmap(img)
-                img.Dispose()
-            return thumbnail
+            return glib.open_bitmap_nonblocking(file)
         
         # black image
         # settings = [0, None, None, "X"]
@@ -529,36 +540,9 @@ class CustomFormatCatalog(object):
         # resize thumbnail image to square
         if os.path.exists(filename):
             try:
-                # init croped image
-                width = size
-                height = size
-                image = D.Bitmap(filename)
-                bmp = D.Bitmap(width, height)
-                graph = D.Graphics.FromImage(bmp)
-                # compute scale
-                scale = min(float(width) / image.Width, float(height) / image.Height)
-                scaleWidth = int(image.Width * scale)
-                scaleHeight = int(image.Height * scale)
-                # set quality
-                graph.InterpolationMode  = D.Drawing2D.InterpolationMode.High
-                graph.CompositingQuality = D.Drawing2D.CompositingQuality.HighQuality
-                graph.SmoothingMode      = D.Drawing2D.SmoothingMode.AntiAlias
-                # redraw and save
-                # logging.debug('crop image from %sx%s to %sx%s. rect %s.%s-%sx%s' % (image.Width, image.Height, width, height, int((width - scaleWidth)/2), int((height - scaleHeight)/2), scaleWidth, scaleHeight))
-                graph.DrawImage(image, D.Rectangle(int((width - scaleWidth)/2), int((height - scaleHeight)/2), scaleWidth, scaleHeight))
-
-                # close and save files
-                image.Dispose()
-                bmp.Save(filename)
-                bmp.Dispose()
+                glib.make_thumbnail(filename, size, size, filename)
             except:
-                logging.error('Creation of croped thumbnail image failed: %s' % filename)
-                logging.debug(traceback.format_exc())
-            finally:
-                if image:
-                    image.Dispose()
-                if bmp:
-                    bmp.Dispose()
+                logging.exception('Creation of croped thumbnail image failed: %s', filename)
         else:
             raise OSError("thumbnail image not found")
         
@@ -595,7 +579,7 @@ class CustomQuickEdit(object):
         try:
             CustomFormatCatalog.create_new_config(filename)
         except OSError:
-            bkt.message("Dateiname existiert bereits")
+            bkt.message.warning("Dateiname existiert bereits", "BKT: Custom Styles")
 
 
     @staticmethod
@@ -699,19 +683,20 @@ class CustomQuickEdit(object):
     @classmethod
     def temp_pickup(cls, shape):
         cls.temp_custom_format = CustomFormat.from_shape(shape)
-        cls.temp_settings_done = False
+        if cls.temp_custom_format:
+            cls.temp_settings_done = False
 
-        if bkt.get_key_state(bkt.KeyCodes.CTRL):
-            import bkt.console
-            # logging.debug(json.dumps(cls.temp_custom_format.to_json()))
-            bkt.console.show_message("%r" % cls.temp_custom_format.to_json())
+            if bkt.get_key_state(bkt.KeyCodes.CTRL):
+                from bkt import console
+                # logging.debug(json.dumps(cls.temp_custom_format.to_json()))
+                console.show_message("%r" % cls.temp_custom_format.to_json())
 
     @classmethod
-    def temp_apply(cls, shapes):
+    def temp_apply(cls, shapes, context):
         do_apply = True
         if bkt.get_key_state(bkt.KeyCodes.CTRL) or not cls.temp_settings_done:
             from .pickup_style import PickupWindow
-            wnd = PickupWindow.create_and_show_dialog(cls, cls.temp_custom_format.style_setting)
+            wnd = PickupWindow.create_and_show_dialog(context, cls, cls.temp_custom_format.style_setting)
         
             if wnd.result:
                 cls.temp_custom_format.style_setting.update(wnd.result)
@@ -725,7 +710,7 @@ class CustomQuickEdit(object):
 
     @staticmethod
     def show_caveats():
-        bkt.message("Aufgrund von PowerPoint-Bugs gibt es folgende Einschränkungen:\r\n- Textkontur kann gesetzt, aber nicht wieder entfernt werden\r\n- Farb-Verläufe werden nur für Hintergrund (nicht Linien) unterstützt\r\n- Farb-Verläufe (insb. Winkel) werden nicht immer richtig übertragen\r\n- Schatten werden nicht auf Gruppen angewendet\r\n- Abschluss-/Anschlusstyp bei Linien werden nicht gesetzt")
+        bkt.message("Aufgrund von PowerPoint-Bugs gibt es folgende Einschränkungen:\r\n- Textkontur kann gesetzt, aber nicht wieder entfernt werden\r\n- Farb-Verläufe werden nur für Hintergrund (nicht Linien) unterstützt\r\n- Farb-Verläufe (insb. Winkel) werden nicht immer richtig übertragen\r\n- Schatten werden nicht auf Gruppen angewendet\r\n- Abschluss-/Anschlusstyp bei Linien werden nicht gesetzt", "BKT: Custom Styles")
 
 
 class FormatLibGallery(bkt.ribbon.Gallery):

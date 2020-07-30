@@ -311,7 +311,7 @@ class CellsOps(object):
 
         def _do_regex(regex, string):
             if regex.groups > 0:
-                return sum(res is not None for res in chain.from_iterable(m.groups() for m in regex.finditer(string)))
+                return sum(res is not None for res in bkt.helpers.flatten(m.groups() for m in regex.finditer(string)))
             else:
                 # return len(list(m.group() for m in regex.finditer(string)))
                 return len(list(regex.finditer(string)))
@@ -387,7 +387,7 @@ class CellsOps(object):
                 regex_result = regex.split(string)
             else:
                 if regex.groups > 0:
-                    regex_result = list(chain.from_iterable(m.groups("") for m in regex.finditer(string)))
+                    regex_result = list(bkt.helpers.flatten(m.groups("") for m in regex.finditer(string)))
                 else:
                     regex_result = list(m.group() for m in regex.finditer(string))
             
@@ -672,6 +672,23 @@ class CellsOps(object):
         for cell in cells:
             if cell.HasFormula:
                 cell.Formula = application.ConvertFormula(cell.Formula, 1, 1, 4) #xlA1, xlA1, xlRelative
+    
+    @staticmethod
+    def local_formula_to_english_text(cells):
+        if not xllib.confirm_no_undo(): return
+        for cell in cells:
+            if cell.HasFormula:
+                cell.Value = "'" + cell.Formula
+    
+    @staticmethod
+    def english_text_to_local_formula(cells, application):
+        if not xllib.confirm_no_undo(): return
+        general_format = application.International(xlcon.XlApplicationInternational["xlGeneralFormatName"])
+        for cell in cells:
+            if cell.Text[0] != "=":
+                continue
+            cell.NumberFormatLocal = general_format
+            cell.Formula = cell.Value()
 
     @staticmethod
     def prohibit_duplicates(areas, application):
@@ -1176,6 +1193,25 @@ zellen_inhalt_gruppe = bkt.ribbon.Group(
                         #image_mso='PasteFormulas',
                         supertip="Konvertiert Referenzen in Formeln zu relativen Referenzen.",
                         on_action=bkt.Callback(CellsOps.formula_to_relative, cells=True, application=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.MenuSeparator(),
+                    bkt.ribbon.Button(
+                        id = 'eng_text_to_formula',
+                        label="Englische Formeln zu Formeln",
+                        show_label=True,
+                        #image_mso='PasteFormulas',
+                        supertip="Konvertiert als Text gespeicherte englische Formeln in echte Formeln. Dabei wird das Zellenformat auf 'Standard' geändert.",
+                        on_action=bkt.Callback(CellsOps.english_text_to_local_formula, cells=True, application=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'formula_to_eng_text',
+                        label="Formeln zu englischen Formeln",
+                        show_label=True,
+                        #image_mso='PasteTextOnly',
+                        supertip="Konvertiert Formeln in als Text gespeicherte englische Formeln. Dabei wird das Zellenformat auf 'Text' geändert. Zellen ohne Formeln bleiben unverändert.",
+                        on_action=bkt.Callback(CellsOps.local_formula_to_english_text, cells=True),
                         get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                     ),
                 ])

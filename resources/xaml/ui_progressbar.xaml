@@ -1,6 +1,5 @@
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:fr="clr-namespace:Fluent;assembly=Fluent"
     ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
     Title="BKT Progress" WindowStyle="SingleBorderWindow"
     ShowInTaskbar="False" Height="110" Width="400">

@@ -9,6 +9,7 @@ from __future__ import absolute_import
 
 import bkt
 
+from bkt.callbacks import WpfActionCallback
 from ..linkshapes import LinkedShapes
 
 
@@ -33,12 +34,14 @@ class LinkedShapePopup(bkt.ui.WpfWindowAbstract):
         except:
             bkt.message.error("Tab-Wechsel aus unbekannten Gründen fehlgeschlagen.")
 
+    @WpfActionCallback
     def btnsync_text(self, sender, event):
         try:
             LinkedShapes.text_linked_shapes(self._context.shapes[-1], self._context)
         except:
             bkt.message.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
+    @WpfActionCallback
     def btnsync_possize(self, sender, event):
         try:
             LinkedShapes.align_linked_shapes(self._context.shapes[-1], self._context)
@@ -46,6 +49,7 @@ class LinkedShapePopup(bkt.ui.WpfWindowAbstract):
         except:
             bkt.message.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
+    @WpfActionCallback
     def btnsync_format(self, sender, event):
         try:
             LinkedShapes.format_linked_shapes(self._context.shapes[-1], self._context)

@@ -4,19 +4,22 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
-import os.path
+import logging
+# import os.path
 
 from time import time
 
 from System.Collections.ObjectModel import ObservableCollection
 from System.Windows.Controls import Orientation
-from System.Windows import Visibility
+from System.Windows.Media import Colors, SolidColorBrush
+# from System.Windows import Visibility
 
 import bkt.ui
 notify_property = bkt.ui.notify_property
 
+from bkt.helpers import BitwiseValueAccessor
 from bkt.callbacks import WpfActionCallback
 from .quickedit_model import QuickEdit, QEColorButton, QEColorButtons, QECatalog
 
@@ -48,19 +51,21 @@ from .quickedit_model import QuickEdit, QEColorButton, QEColorButtons, QECatalog
 #         self.OnPropertyChanged("Checked")
 
 
-VIEWSTATE_RECENT_HIDDEN = 1
-DOCKING_SLIDE_LEFT = 2
-
 class ViewModel(bkt.ui.ViewModelSingleton):
-    def __init__(self, orientation_mode, window_left, window_top, viewstate):
+    def __init__(self, orientation_mode, window_left, window_top, docking_edge):
         super(ViewModel, self).__init__()
         self.init_buttons()
         self._orientation_mode = orientation_mode
         self._left = window_left
         self._top  = window_top
-        self._viewstate = viewstate
+        self._docking_edge = docking_edge
+        
+        self._viewstate = BitwiseValueAccessor(settings_key="quickedit.viewstate", attributes=["recent_hidden", "docking_to_slide", "dark_theme"])
 
         self._editmode  = False
+
+        self._brush_dark = SolidColorBrush(Colors.DimGray)
+        self._brush_light = SolidColorBrush(Colors.WhiteSmoke)
         
         self._catalogs = ObservableCollection[QECatalog]()
         for cat in QuickEdit._catalogs:
@@ -107,6 +112,13 @@ class ViewModel(bkt.ui.ViewModelSingleton):
             btn.OnPropertyChanged("Checked")
 
     @notify_property
+    def docking_edge(self):
+        return self._docking_edge
+    @docking_edge.setter
+    def docking_edge(self, value):
+        self._docking_edge = value
+
+    @notify_property
     def colors_theme(self):
         return self._colors_theme
     @colors_theme.setter
@@ -128,11 +140,16 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         self._colors_own = value
     
     @notify_property
+    def current_orientation(self):
+        return "%s/4" % (self._orientation_mode+1)
+    
+    @notify_property
     def orientation_mode(self):
         return self._orientation_mode
     @orientation_mode.setter
     def orientation_mode(self, value):
         self._orientation_mode = value
+        self.OnPropertyChanged("current_orientation")
         self.OnPropertyChanged("outer_orientation")
         self.OnPropertyChanged("inner_orientation")
     
@@ -150,35 +167,52 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         else:
             return Orientation.Vertical
     
+    # @notify_property
+    # def recent_visibility(self):
+    #     if self.recent_visible:
+    #         return Visibility.Visible
+    #     else:
+    #         return Visibility.Collapsed
+    
     @notify_property
-    def recent_visibility(self):
-        if self.recent_visible:
-            return Visibility.Visible
+    def color_background(self):
+        if self.dark_theme:
+            return self._brush_dark
         else:
-            return Visibility.Collapsed
+            return self._brush_light
+    
+    @notify_property
+    def color_foreground(self):
+        if self.dark_theme:
+            return self._brush_light
+        else:
+            return self._brush_dark
 
     @notify_property
     def recent_visible(self):
-        return not (self._viewstate & VIEWSTATE_RECENT_HIDDEN == VIEWSTATE_RECENT_HIDDEN)
+        return not self._viewstate.recent_hidden
     @recent_visible.setter
     def recent_visible(self, value):
-        if value:
-            self._viewstate = self._viewstate ^ VIEWSTATE_RECENT_HIDDEN
-        else:
-            self._viewstate = self._viewstate | VIEWSTATE_RECENT_HIDDEN
-        self.OnPropertyChanged("recent_visibility")
+        self._viewstate.recent_hidden = not value
+        # self.OnPropertyChanged("recent_visibility")
 
     @notify_property
-    def docking_left(self):
-        return self._viewstate & DOCKING_SLIDE_LEFT == DOCKING_SLIDE_LEFT
-    @docking_left.setter
-    def docking_left(self, value):
-        if value:
-            self._viewstate = self._viewstate | DOCKING_SLIDE_LEFT
-        else:
-            self._viewstate = self._viewstate ^ DOCKING_SLIDE_LEFT
+    def docking_to_slide(self):
+        return self._viewstate.docking_to_slide
+    @docking_to_slide.setter
+    def docking_to_slide(self, value):
+        self._viewstate.docking_to_slide = value
         # self.OnPropertyChanged("window_left")
         # self.OnPropertyChanged("window_top")
+
+    @notify_property
+    def dark_theme(self):
+        return self._viewstate.dark_theme
+    @dark_theme.setter
+    def dark_theme(self, value):
+        self._viewstate.dark_theme = value
+        self.OnPropertyChanged("color_background")
+        self.OnPropertyChanged("color_foreground")
 
     @notify_property
     def window_left(self):
@@ -247,7 +281,8 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
             context.settings.get("quickedit.orientation_mode", 0),
             context.settings.get("quickedit.window_left", 300),
             context.settings.get("quickedit.window_top", 300),
-            context.settings.get("quickedit.viewstate", 0)
+            context.settings.get("quickedit.docking_edge", None),
+            # context.settings.get("quickedit.viewstate", 0)
         )
 
         # first start detection
@@ -265,14 +300,77 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
 
     def cancel(self, sender, event):
         self.Close()
-    
+
+    def determine_docking(self, sender=None, event=None):
+        try:
+            window = self._context.app.ActiveWindow #exception: no active window when in slideshow mode
+            if window.WindowState == 3 and window.ViewType == 9: #docking only if ppWindowMaximized and ppViewNormal
+                window.Panes(2).Activate() #active ppViewSlide pane
+                #remove current setting to trigger determine edge
+                self._vm.docking_edge = None
+                self.update_docking(window=window)
+            else:
+                bkt.message("Docking funktioniert nur bei maximiertem Fenster und bei normaler Folienansicht!")
+        except:
+            #EnvironmentError: System.Runtime.InteropServices.COMException (0x80048240): Application.ActiveWindow : Invalid request.  There is no currently active document window.
+            logging.exception("QUICKEDIT DOCKINGERROR")
+
+
     def update_docking(self, sender=None, event=None, window=None):
-        if self._vm.docking_left:
-            activewindow = window or self._context.app.ActiveWindow
-            if activewindow.WindowState == 3: #ppWindowMaximized
-                left, top = activewindow.PointsToScreenPixelsX(0), activewindow.PointsToScreenPixelsY(0)
-                self.SetDevicePosition(left, top)
-                self.Left -= self.Width +5
+        try:
+            if not self._vm.docking_to_slide:
+                return
+            if not window:
+                window = self._context.app.ActiveWindow #exception: no active window when in slideshow mode
+            if window.WindowState == 3 and window.ViewType == 9 and window.ActivePane.ViewType == 1: #ppWindowMaximized and ppViewNormal and ppViewSlide
+                slidem = window.View.Slide.Master
+                left, top = window.PointsToScreenPixelsX(0), window.PointsToScreenPixelsY(0)
+                right, bottom = window.PointsToScreenPixelsX(slidem.Width), window.PointsToScreenPixelsY(slidem.Height)
+
+                if self._vm.docking_edge is None:
+                    #determine edge
+                    rect = self.GetDeviceRect()
+                    mid_rect = (rect.Left + rect.Width/2, rect.Top + rect.Height/2)
+                    mid_slide = (left + (right-left)/2, top + (bottom-top)/2)
+                    vec = (mid_rect[0] - mid_slide[0], mid_rect[1] - mid_slide[1])
+                    if vec[0] > 0 and vec[1] > 0:
+                        self._vm.docking_edge = 4
+                    elif vec[0] < 0 and vec[1] > 0:
+                        self._vm.docking_edge = 3
+                    elif vec[0] > 0 and vec[1] < 0:
+                        self._vm.docking_edge = 2
+                    else: #if vec[0] < 0 and vec[1] < 0:
+                        self._vm.docking_edge = 1
+                
+                if self._vm.docking_edge == 1:
+                    ###top-left docking
+                    if self._vm.orientation_mode <= 1: #horizontal
+                        self.SetDevicePosition(deviceLeft=left, deviceBottom=top-5)
+                    else:
+                        self.SetDevicePosition(deviceRight=left-5, deviceTop=top)
+                elif self._vm.docking_edge == 2:
+                    ###top-right docking
+                    if self._vm.orientation_mode <= 1: #horizontal
+                        self.SetDevicePosition(deviceRight=right, deviceBottom=top-5)
+                    else:
+                        self.SetDevicePosition(deviceLeft=right+5, deviceTop=top)
+                elif self._vm.docking_edge == 3:
+                    ###bottom-left docking
+                    if self._vm.orientation_mode <= 1: #horizontal
+                        self.SetDevicePosition(deviceLeft=left, deviceTop=bottom+5)
+                    else:
+                        self.SetDevicePosition(deviceRight=left-5, deviceBottom=bottom)
+                else:
+                    ###bottom-right docking
+                    if self._vm.orientation_mode <= 1: #horizontal
+                        self.SetDevicePosition(deviceRight=right, deviceTop=bottom+5)
+                    else:
+                        self.SetDevicePosition(deviceLeft=right+5, deviceBottom=bottom)
+
+        except:
+            #PointsToScreenPixelsX illegal value if ActivePane != 1 (e.g. slide thumbnails selected)
+            #EnvironmentError: System.Runtime.InteropServices.COMException (0x80048240): Application.ActiveWindow : Invalid request.  There is no currently active document window.
+            logging.exception("QUICKEDIT DOCKINGERROR")
     
     def change_orientation(self, sender, event):
         self._vm.orientation_mode = (self._vm.orientation_mode+1) %4
@@ -354,15 +452,18 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
         QuickEdit.show_help()
 
     def Window_MouseLeftButtonDown(self, sender, event):
-        self._vm.docking_left = False
-        self.DragMove()
+        # self._vm.docking_to_slide = False
+        if event.ClickCount >= 2:
+            self.determine_docking()
+        else:
+            self.DragMove()
 
     def Window_Closing(self, sender, event):
         # print("window closing")
         self._context.settings["quickedit.orientation_mode"] = self._vm.orientation_mode
         self._context.settings["quickedit.window_left"] = self._vm.window_left
         self._context.settings["quickedit.window_top"] = self._vm.window_top
-        self._context.settings["quickedit.viewstate"] = self._vm._viewstate
+        self._context.settings["quickedit.docking_edge"] = self._vm.docking_edge
     
     # def show_dialog(self, modal=True):
     #     #TODO: Save and restore position and size of window

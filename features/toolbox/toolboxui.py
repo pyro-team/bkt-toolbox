@@ -27,6 +27,17 @@ class ToolboxUi(object):
 
     default_settings = {
         "tab_name": "Toolbox", #Tab Name
+
+        "clipboard_group": 1, #page no 1
+        "slides_group": 1, #page no 1
+
+        "default_group_font": 1, #page no 1
+        "default_group_paragraph": 1, #page no 1
+        "text_compact_group": 0, #off
+
+        "shapes_group": 1, #page no 1
+        "styles_group": 1, #page no 1
+
         "size_group": 1, #page no 1
         "pos_size_group": 2, #page no 2
 
@@ -102,6 +113,8 @@ class ToolboxUi(object):
         self._render_pages_defaults()
 
         ### optional components
+        self._render_pages_fontpar()
+        self._render_pages_shapestyle()
         self._render_pages_possize()
         self._render_pages_arrange()
         self._render_pages_text()
@@ -112,14 +125,23 @@ class ToolboxUi(object):
 
     def _render_pages_defaults(self):
         ### standard definitions of page 1 and 2
-        self.toolboxui_pages[1].extend([
-            shape_selection.clipboard_group,
-            slides.slides_group,
-            bkt.mso.group.GroupFont,
-            bkt.mso.group.GroupParagraph,
-            mod_shapes.shapes_group,
-            mod_shapes.styles_group,
-        ])
+        # self.toolboxui_pages[1].extend([
+        #     shape_selection.clipboard_group,
+        #     slides.slides_group,
+        # ])
+        self.toolboxui_pages[self.toolboxui_settings["clipboard_group"]].append(shape_selection.clipboard_group)
+        self.toolboxui_pages[self.toolboxui_settings["slides_group"]].append(slides.slides_group)
+    
+    def _render_pages_fontpar(self):
+        #position size
+        self.toolboxui_pages[self.toolboxui_settings["default_group_font"]].append(bkt.mso.group.GroupFont)
+        self.toolboxui_pages[self.toolboxui_settings["default_group_paragraph"]].append(bkt.mso.group.GroupParagraph)
+        self.toolboxui_pages[self.toolboxui_settings["text_compact_group"]].append(text.text_compact_group)
+    
+    def _render_pages_shapestyle(self):
+        #position size
+        self.toolboxui_pages[self.toolboxui_settings["shapes_group"]].append(mod_shapes.shapes_group)
+        self.toolboxui_pages[self.toolboxui_settings["styles_group"]].append(mod_shapes.styles_group)
     
     def _render_pages_possize(self):
         #position size

@@ -9,6 +9,7 @@ from __future__ import absolute_import
 
 import bkt
 
+from bkt.callbacks import WpfActionCallback
 from ..processshapes import ProcessChevrons
 
 
@@ -26,16 +27,26 @@ class ProcessChevronsPopup(bkt.ui.WpfWindowAbstract):
 
         super(ProcessChevronsPopup, self).__init__()
 
+    @WpfActionCallback
     def btnplus(self, sender, event):
         try:
-            ProcessChevrons.add_chevron(list(iter(self._context.selection.ShapeRange)))
+            ProcessChevrons.add_chevron(self._context.slide, list(iter(self._context.selection.ShapeRange)))
         except:
             bkt.message.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
             # bkt.helpers.exception_as_message()
 
+    @WpfActionCallback
     def btnminus(self, sender, event):
         try:
-            ProcessChevrons.remove_chevron(list(iter(self._context.selection.ShapeRange)))
+            ProcessChevrons.remove_chevron(self._context.slide, list(iter(self._context.selection.ShapeRange)))
+        except:
+            bkt.message.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
+            # bkt.helpers.exception_as_message()
+
+    @WpfActionCallback
+    def btnupdate(self, sender, event):
+        try:
+            ProcessChevrons.align_process(self._context.slide, list(iter(self._context.selection.ShapeRange)))
         except:
             bkt.message.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
             # bkt.helpers.exception_as_message()

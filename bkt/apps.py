@@ -8,7 +8,6 @@ Created on 11.07.2014
 
 from __future__ import absolute_import
 
-import traceback
 import logging
 
 import time #for cache invalidation and event throttling
@@ -31,7 +30,7 @@ class AppEventType(object):
         self.event_name = attr
 
     def register(self, method):
-        logging.debug("Method registered for event: %r" % self.event_name)
+        logging.debug("Method registered for event: %r", self.event_name)
 
         if isinstance(method, Callback) and method.callback_type is None:
             method.callback_type = CallbackTypes.bkt_event
@@ -40,12 +39,12 @@ class AppEventType(object):
         return self
 
     def unregister(self, method):
-        logging.debug("Method unregistered for event: %r" % self.event_name)
+        logging.debug("Method unregistered for event: %r", self.event_name)
         self.registered_methods.remove(method)
         return self
     
     # def fire(self):
-    #     logging.debug("Fired event: %r" % self.event_name)
+    #     logging.debug("Fired event: %r", self.event_name)
     #     for method in self.registered_methods:
     #         method()
 
@@ -98,11 +97,13 @@ AppEvents.window_deactivate = AppEventType(office=True) #keyword args: ppt: pres
 AppEvents.selection_changed = AppEventType(office=True) #keyword args: - #NOTE: sheet selection in excel, window selection in ppt, selection or cell in visio
 
 #PPT-specific events
-AppEvents.slide_selection_changed  = AppEventType(office=True) #keyword args: -
+AppEvents.slide_selection_changed  = AppEventType(office=True) #keyword args: slide_range
 AppEvents.after_shapesize_changed  = AppEventType(office=True) #keyword args: -
 AppEvents.after_new_presentation   = AppEventType(office=True) #keyword args: presentation
 AppEvents.after_presentation_open  = AppEventType(office=True) #keyword args: presentation
 AppEvents.presentation_close       = AppEventType(office=True) #keyword args: presentation
+AppEvents.slideshow_begin       = AppEventType(office=True) #keyword args: window
+AppEvents.slideshow_end         = AppEventType(office=True) #keyword args: presentation
 
 
 
@@ -155,7 +156,7 @@ class AppCallbacksBase(AppCallbacks):
     # ==========
 
     def fire_event(self, event, **kwargs):
-        logging.debug("Event triggered: %r" % event)
+        logging.debug("Event triggered: %r", event)
         for method in event:
             try:
                 if isinstance(method, Callback):
@@ -163,8 +164,7 @@ class AppCallbacksBase(AppCallbacks):
                 else:
                     method(**kwargs)
             except:
-                logging.error("Error triggering event method")
-                logging.error(traceback.format_exc())
+                logging.exception("Error triggering event method")
 
 
 
@@ -180,6 +180,7 @@ class AppCallbacksBase(AppCallbacks):
     def refresh_cache(self, force=False):
         #global cache timeout will prevent that manual invalidates are not working properly
         if force or time.time() - self.cache_last_refresh > self.cache_timeout:
+            logging.debug("AppCallbacksBase.refresh_cache, force=%s", force)
             self.cache = {}
             self.cache_last_refresh = time.time()
             return True
@@ -196,17 +197,18 @@ class AppCallbacksBase(AppCallbacks):
         do_cache = False
         # if callback.callback_type in self.cache_cb_types and not self.refresh_cache():
         if callback.callback_type.cacheable and callback.invocation_context.cache and not self.refresh_cache():
+            logging.debug("trying cache for callback %s", callback.method)
             # cache_key = repr([callback.method.__name__] + kwargs.keys()) #TESTME: add invocation context to key?
             # cache_key = callback.method.__name__ #only method name not sufficient if same name is used in different classes
-            cache_key = str(callback.method) #TESTME: is method string representation sufficient as key? add callback type?
+            cache_key = hash(callback.method) #TESTME: is method string representation sufficient as key? add callback type?
             do_cache = True
             try:
-                logging.debug("trying cache for %r" % cache_key)
+                logging.debug("cache key is %r", cache_key)
                 return self.cache[cache_key]
                 # if time.time() - self.cache[cache_key][1] < self.cache_timeout:
                 #     return self.cache[cache_key][0]
             except KeyError:
-                logging.debug("no cache for %r" % cache_key)
+                logging.debug("no cache for %r", cache_key)
 
         for i, arg in enumerate(args):
             kwargs[callback.callback_type.pos_args[i]] = arg
@@ -217,7 +219,8 @@ class AppCallbacksBase(AppCallbacks):
                 ctx_args = context.resolve_arguments(callback.invocation_context)
                 kwargs.update(ctx_args)
             except InappropriateContextError:
-                #traceback.print_exc()
+                # import traceback
+                # traceback.print_exc()
                 logging.debug("InappropriateContextError")
                 #TESTME: also cache InappropriateContextError, so return value "None"
                 if do_cache:
@@ -225,16 +228,19 @@ class AppCallbacksBase(AppCallbacks):
                 return
         
         self.undo_start(callback)
-        logging.debug("AppCallbacksBase.invoke_callback: run callback method\nkwargs=%s" % kwargs)
+        logging.debug("AppCallbacksBase.invoke_callback: run callback method=%s\nkwargs=%s", callback.method, kwargs)
         return_value = callback.method(**kwargs)
         self.undo_end(callback)
         
         # release com objects
-        context.release_com_references()
+        # logging.debug("AppCallbacksBase.invoke_callback: request release com references from callback %s", callback.method)
+        # context.release_com_references()
         
         if do_cache:
             self.cache[cache_key] = return_value
             # self.cache[cache_key] = (return_value, time.time())
+
+        logging.debug("AppCallbacksBase.invoke_callback: finished")
         
         return return_value
     
@@ -419,7 +425,7 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
         try:
             self.app_ui.context_dialogs.close_active_dialog()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error closing acive contextdialog")
 
         super(AppCallbacksPowerPoint, self).invalidate()
 
@@ -469,6 +475,8 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
         app.AfterNewPresentation   += self.after_new_presentation
         app.PresentationCloseFinal += self.presentation_close
         
+        app.SlideShowBegin += self.slideshow_begin
+        app.SlideShowEnd   += self.slideshow_end
         #print 'PPT events registered'
         
         
@@ -490,6 +498,9 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
             app.AfterPresentationOpen  -= self.after_presentation_open
             app.AfterNewPresentation   -= self.after_new_presentation
             app.PresentationCloseFinal -= self.presentation_close
+        
+            app.SlideShowBegin -= self.slideshow_begin
+            app.SlideShowEnd   -= self.slideshow_end
             # NOTE: ReleaseComObject is necessary for Excel, but in Powerpoint it seems to lead to crashes after Powerpoint is closed
             # ReleaseComObject(app)
 
@@ -506,7 +517,7 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
     def slide_selection_changed(self, sld_range):
         logging.debug("app event slide_selection_changed")
 
-        self.fire_event(self.events.slide_selection_changed)
+        self.fire_event(self.events.slide_selection_changed, slide_range=sld_range)
         self.invalidate()
     
     def window_activate(self, pres, wnd):
@@ -539,13 +550,13 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
         try:
             self.invalidate()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error invalidating")
 
         try:
             if self.app_ui.use_contextdialogs:
                 self.app_ui.context_dialogs.show_shape_dialog_for_selection(selection, self.context)
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error showing shape dialog")
         
         # # 0 = ppSelectionNone
         # # 1 = ppSelectionSlide
@@ -555,7 +566,7 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
         #     # selection in text, event raised a lot during keyboard input
         #     # restrict to a few invalidations per second
         #     #logging.debug("text selection")
-        #     #logging.debug("last_time_window_selection_changed_in_text " + str(self.last_time_window_selection_changed_in_text))
+        #     #logging.debug("last_time_window_selection_changed_in_text %s", self.last_time_window_selection_changed_in_text)
         #     if time.time() - self.last_time_window_selection_changed_in_text > 0.5:
         #         self.invalidate()
         #         self.last_time_window_selection_changed_in_text = time.time()
@@ -566,12 +577,12 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
         #     try:
         #         self.invalidate()
         #     except:
-        #         logging.error(traceback.format_exc())
+        #         logging.exception("error invalidating")
             
         #     try:
         #         self.app_ui.context_dialogs.show_shape_dialog_for_selection(selection, self.context)
         #     except:
-        #         logging.error(traceback.format_exc())
+        #         logging.exception("error invalidating")
     
     def after_presentation_open(self, pres):
         logging.debug("app event after_presentation_open")
@@ -584,6 +595,14 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
     def presentation_close(self, pres):
         logging.debug("app event presentation_close")
         self.fire_event(self.events.presentation_close, presentation=pres)
+    
+    def slideshow_begin(self, wnd):
+        logging.debug("app event slideshow_begin")
+        self.fire_event(self.events.slideshow_begin, window=wnd)
+    
+    def slideshow_end(self, pres):
+        logging.debug("app event slideshow_end")
+        self.fire_event(self.events.slideshow_end, presentation=pres)
 
 
 

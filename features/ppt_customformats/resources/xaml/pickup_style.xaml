@@ -1,17 +1,8 @@
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:fr="clr-namespace:Fluent;assembly=Fluent"
     ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen"
     Title="Shape-Style anpassen"
     ShowInTaskbar="False" MinWidth="280">
-
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
-           </ResourceDictionary.MergedDictionaries>
-       </ResourceDictionary>
-   </Window.Resources>
 
     <StackPanel x:Name="DataPanel" Orientation="Vertical" Margin="5">
 
@@ -19,17 +10,17 @@
 
         <Label Content="Standardmäßig anzuwendende Angaben:"/>
         <StackPanel Orientation="Vertical" Margin="15,0,15,5">
-            <fr:CheckBox Header="Alle Werte" IsChecked="{Binding settings_all, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontStyle="Italic" Margin="5" />
+            <CheckBox Content="Alle Werte" IsChecked="{Binding settings_all, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontStyle="Italic" Margin="5" />
             <Separator />
-            <fr:CheckBox Header="Form/Shape-Typ" IsChecked="{Binding settings_type, Mode=TwoWay}" Margin="5" />
-            <fr:CheckBox Header="Hintergrund" IsChecked="{Binding settings_fill, Mode=TwoWay}" Margin="5" />
-            <fr:CheckBox Header="Rahmen/Linie" IsChecked="{Binding settings_line, Mode=TwoWay}" Margin="5" />
-            <fr:CheckBox Header="Textbox-Format (Innenabstand, Spalten, etc.)" IsChecked="{Binding settings_textframe, Mode=TwoWay}" Margin="5" />
-            <fr:CheckBox Header="Absatz-Format (Ausrichtung, Einzug, Listen, etc.)" IsChecked="{Binding settings_paragraphformat, Mode=TwoWay}" Margin="5" />
-            <fr:CheckBox Header="Schrift-Format (Schriftart, -farbe, etc.)" IsChecked="{Binding settings_font, Mode=TwoWay}" Margin="5" />
-            <fr:CheckBox Header="Schatten/Leuchteffekt/etc. (ohne 3D)" IsChecked="{Binding settings_shadow, Mode=TwoWay}" Margin="5" />
-            <fr:CheckBox Header="Größe" IsChecked="{Binding settings_size, Mode=TwoWay}" Margin="5" />
-            <fr:CheckBox Header="Position/Rotation" IsChecked="{Binding settings_position, Mode=TwoWay}" Margin="5" />
+            <CheckBox Content="Form/Shape-Typ" IsChecked="{Binding settings_type, Mode=TwoWay}" Margin="5" />
+            <CheckBox Content="Hintergrund" IsChecked="{Binding settings_fill, Mode=TwoWay}" Margin="5" />
+            <CheckBox Content="Rahmen/Linie" IsChecked="{Binding settings_line, Mode=TwoWay}" Margin="5" />
+            <CheckBox Content="Textbox-Format (Innenabstand, Spalten, etc.)" IsChecked="{Binding settings_textframe, Mode=TwoWay}" Margin="5" />
+            <CheckBox Content="Absatz-Format (Ausrichtung, Einzug, Listen, etc.)" IsChecked="{Binding settings_paragraphformat, Mode=TwoWay}" Margin="5" />
+            <CheckBox Content="Schrift-Format (Schriftart, -farbe, etc.)" IsChecked="{Binding settings_font, Mode=TwoWay}" Margin="5" />
+            <CheckBox Content="Schatten/Leuchteffekt/etc. (ohne 3D)" IsChecked="{Binding settings_shadow, Mode=TwoWay}" Margin="5" />
+            <CheckBox Content="Größe" IsChecked="{Binding settings_size, Mode=TwoWay}" Margin="5" />
+            <CheckBox Content="Position/Rotation" IsChecked="{Binding settings_position, Mode=TwoWay}" Margin="5" />
         </StackPanel>
         <TextBlock TextWrapping="WrapWithOverflow" Width="250" FontStyle="Italic" Margin="5,0,5,15">
             Hinweis: Bei Klick auf die Buttons mit gedrückter STRG-Taste können diese Einstellungen nachträglich geändert werden.
@@ -41,9 +32,9 @@
               <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <StackPanel Orientation="Horizontal" Grid.Column="1">
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Okay"      IsDefault="True" Click="pickup_style"/>
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Löschen"                    Click="delete_style" Visibility="{Binding show_delete}"/>
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Okay"      IsDefault="True" Click="pickup_style"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Löschen"                    Click="delete_style" Visibility="{Binding show_delete}"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
           </StackPanel>
       </Grid>
     </StackPanel>

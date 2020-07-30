@@ -8,10 +8,10 @@ Created on 11.11.2019
 
 from __future__ import absolute_import
 
-# import logging
+import logging
 import time #required for cache
 
-from System.Runtime.InteropServices import Marshal
+# from System.Runtime.InteropServices import Marshal
 
 import bkt.helpers as _h #for providing config and settings
 from bkt.library.comrelease import AutoReleasingComObject
@@ -62,12 +62,14 @@ class AppContext(object):
     
     
     def release_com_references(self):
+        logging.debug("Context.release_com_references")
         self.app.dispose()
     
     
     def refresh_cache(self, force=False):
         #global cache timeout will prevent that manual invalidates are not working properly
         if force or time.time() - self.cache_last_refresh > self.cache_timeout:
+            logging.debug("Context.refresh_cache, force=%s", force)
             self.cache = {}
             self.cache_last_refresh = time.time()
             return True
@@ -196,7 +198,9 @@ class AppContext(object):
         kwargs.update(self.resolve_generic_arguments(callback.invocation_context))
         # application-specific arguments should be resolved by invoke_callback
         return_value = self.app_callbacks.invoke_callback(self, callback, *args, **kwargs)
-        self.release_com_references()
+        # release com objects
+        # logging.debug("Context.invoke_callback: request com release after callback %s", callback.method)
+        # self.release_com_references()
         return return_value
     
     
@@ -261,13 +265,20 @@ class AppContextPowerPoint(AppContext):
     @property
     def slides(self):
         ''' gives list-access to app.ActiveWindow.Selection.SlideRange '''
-        selection = self.app.ActiveWindow.Selection
-        slides = list(iter(selection.SlideRange))
+        try:
+            slides = list(iter(self.selection.SlideRange))
+        except EnvironmentError:
+            #fallback for Invalid request.  SlideRange cannot be constructed from a Master.
+            return [self.app.ActiveWindow.View.Slide]
         return slides
 
     @property
     def slide(self):
-        return self.slides[0]
+        try:
+            return self.slides[0]
+        except EnvironmentError:
+            #fallback for Invalid request.  SlideRange cannot be constructed from a Master.
+            return self.app.ActiveWindow.View.Slide
     
     @property
     def selection(self):
@@ -280,9 +291,9 @@ class AppContextPowerPoint(AppContext):
     @property
     def presentation(self):
         try:
-            return self.app.ActiveWindow.Presentation
+            # return self.app.ActiveWindow.Presentation #fails, if ActiveWindow is not available (e.g. in slideshow mode), so better to use ActivePresentation
+            return self.app.ActivePresentation
         except:
-            # fails, if ActiveWindow is not available
             self.fail()
     
     
@@ -354,8 +365,12 @@ class AppContextPowerPoint(AppContext):
             except KeyError:
                 try:
                     self.cache['slides'] = slides = list(iter(selection.SlideRange))
-                except:
-                    self.fail()
+                except EnvironmentError:
+                    #fallback to slide in view, e.g. Invalid request.  SlideRange cannot be constructed from a Master.
+                    try:
+                        self.cache['slides'] = slides = [self.app.ActiveWindow.View.Slide]
+                    except:
+                        self.fail()
                 
             if not slides:
                 self.fail()
@@ -452,7 +467,8 @@ class AppContextExcel(AppContext):
             if nfo.cells:
                 try:
                     #cells = list(iter(self.app.ActiveWindow.RangeSelection.Cells))  # crashs excel when too many cells are selected
-                    cells = iter(selection.Cells)
+                    #cells = iter(selection.Cells)  # incorrect loop for non-contiguous selection
+                    cells = _h.flatten(a.Cells for a in selection.Areas)
                 except:
                     cells = None
                 if not cells:

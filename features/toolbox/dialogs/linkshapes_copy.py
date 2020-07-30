@@ -14,7 +14,9 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     def __init__(self, context):
         super(ViewModel, self).__init__()
         
-        cur_slideno = context.slide.slideindex
+        slide = context.slide
+
+        cur_slideno = slide.slideindex
         max_slideno = context.presentation.slides.count
         initial_num_slides = self._get_last_slideindex_in_section(context) - cur_slideno
 
@@ -22,10 +24,13 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         self._copymode_all = True
         self._copymode_num = False
 
+        #difference between slide number and slide index (slide number may begin with 0 or any value >0, so diff can also be negative)
+        diff_to_real_slide_number = slide.slidenumber - cur_slideno
+
         self.max_slides = max(0, max_slideno-cur_slideno)
 
-        self.cur_slideno = cur_slideno
-        self.max_slideno = max_slideno
+        self.cur_slideno = cur_slideno + diff_to_real_slide_number
+        self.max_slideno = max_slideno + diff_to_real_slide_number
     
     def _get_last_slideindex_in_section(self, context):
         sections = context.presentation.sectionProperties
@@ -107,9 +112,6 @@ class CopyWindow(bkt.ui.WpfWindowAbstract):
         self._vm = ViewModel(context)
 
         super(CopyWindow, self).__init__(context)
-
-    def cancel(self, sender, event):
-        self.Close()
     
     def linkshapes_copy(self, sender, event):
         self.Close()

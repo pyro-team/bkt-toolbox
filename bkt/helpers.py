@@ -17,39 +17,9 @@ import ConfigParser #required for config.txt file
 import shelve #required for BKTShelf
 
 from functools import wraps
+from itertools import groupby, chain, islice
 
 BKT_BASE = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
-
-
-# ==================
-# = Error messages =
-# ==================
-
-def message(*args, **kwargs):
-    #only for backwards compatibility
-    from bkt import message
-    return message(*args, **kwargs)
-
-
-def log(s):
-    import bkt.console
-    logging.warning(s)
-    bkt.console.show_message(s)
-
-def exception_as_message(additional_message=None):
-    from cStringIO import StringIO
-    import traceback
-
-    import bkt.console
-    import bkt.ui
-
-    fd = StringIO()
-    if additional_message:
-        print(additional_message,file=fd)
-    traceback.print_exc(file=fd)
-    traceback.print_exc()
-
-    bkt.console.show_message(bkt.ui.endings_to_windows(fd.getvalue()))
 
 
 
@@ -86,6 +56,98 @@ def snake_to_upper_camelcase(string):
     else:
         return string[0].upper() + string[1:]
 
+#Source: https://docs.python.org/2/library/itertools.html#recipes
+def all_equal(iterable, key=None):
+    "Returns True if all the elements are equal to each other"
+    g = groupby(iterable, key=None)
+    return next(g, True) and not next(g, False)
+
+#Source: https://docs.python.org/2/library/itertools.html#recipes
+def flatten(listOfLists, from_iterable=chain.from_iterable):
+    "Flatten one level of nesting"
+    return from_iterable(listOfLists)
+
+#Source: https://docs.python.org/2/library/itertools.html#recipes
+def nth(iterable, n, default=None):
+    "Returns the nth item or a default value"
+    return next(islice(iterable, n, None), default)
+
+#Source: https://stackoverflow.com/questions/1952464/in-python-how-do-i-determine-if-an-object-is-iterable
+def iterable(obj):
+    "Check if object is iterable"
+    try:
+        iter(obj)
+    except Exception:
+        return False
+    else:
+        return True
+
+def get_ambiguity_tuple(iterable):
+    '''
+    Returns ambiguity tuple as input value for bkt.ribbon.RoundingSpinnerBox.
+    Has better performance than using list method and also takes generator objects.
+    '''
+    g = groupby(iterable)
+    first = next(g, True)
+    all_equal = first and not next(g, False)
+    return (not all_equal, first[0])
+
+def endings_to_windows(text, prepend="", prepend_first=""):
+    ''' ensures that all line endings are using windows CRLF format '''
+    def _iter():
+        first = True
+        for line in text.splitlines():
+            if first:
+                line = prepend_first + line
+                first = False
+            else:
+                line = prepend + line
+            yield line
+    
+    res = '\r\n'.join(_iter())
+    #terminal line ending is removed by splitlines
+    if text.endswith(("\r", "\n", "\r\n")):
+        res += "\r\n"
+    return res
+
+def endings_to_unix(text):
+    ''' ensures that all line endings are using unix LF format '''
+    res = '\n'.join(text.splitlines())
+    #terminal line ending is removed by splitlines
+    if text.endswith(("\r", "\n", "\r\n")):
+        res += "\n"
+    return res
+
+
+# ==================
+# = Error messages =
+# ==================
+
+def message(*args, **kwargs):
+    #only for backwards compatibility
+    from bkt import message
+    return message(*args, **kwargs)
+
+
+def log(s):
+    import bkt.console
+    logging.warning(s)
+    bkt.console.show_message(s)
+
+def exception_as_message(additional_message=None):
+    from cStringIO import StringIO
+    import traceback
+
+    import bkt.console
+    import bkt.ui
+
+    fd = StringIO()
+    if additional_message:
+        print(additional_message,file=fd)
+    traceback.print_exc(file=fd)
+    traceback.print_exc()
+
+    bkt.console.show_message(endings_to_windows(fd.getvalue()))
 
 
 # ==============================
@@ -160,7 +222,11 @@ class BKTConfigParser(ConfigParser.ConfigParser):
         using attribute notation (e.g. config.my_list_option).
         '''
         if type(value) == list:
-            self.set('BKT', option, "\n" + "\n".join(str(v) for v in value))
+            if value:
+                self.set('BKT', option, "\n" + "\n".join(str(v) for v in value))
+            else:
+                #empty list
+                self.set('BKT', option, '')
         else:
             self.set('BKT', option, str(value)) #always transform to string, otherwise cannot access the value in same session anymore
 
@@ -242,7 +308,7 @@ class BKTShelf(shelve.DbfilenameShelf):
                 return self[key]
             return default
         except EOFError:
-            logging.error("EOF-Error in shelf file {} for getting key {}. Reset to default value: {}".format(self._filename, key, default))
+            logging.error("EOF-Error in shelf file %s for getting key %s. Reset to default value: %s", self._filename, key, default)
             if config.show_exception and not key.startswith("bkt.console."):
                 #if key starts with bkt.console its not possible to show exception in console as error happended during console initialization
                 exception_as_message("Shelf file {} corrupt for key {}. Trying to repair now.".format(self._filename, key))
@@ -253,6 +319,9 @@ class BKTShelf(shelve.DbfilenameShelf):
             else:
                 self[key] = default
 
+            return default
+        except ValueError:
+            logging.error("Operation on closed shelf file %s for getting key %s. Reset to default value: %s", self._filename, key, default)
             return default
 
 
@@ -266,15 +335,16 @@ class BKTSettings(BKTShelf):
     ''' App-specific settings are stored as shelve object that supports various python data formats '''
 
     def __init__(self):
+        self._filename = None
         shelve.Shelf.__init__(self, shelve._ClosedDict(), protocol=2)
     
     def open(self, filename):
         import anydbm
+        self._filename = get_settings_folder(filename)
         try:
-            self.dict = anydbm.open(get_settings_folder(filename), 'c')
+            self.dict = anydbm.open(self._filename, 'c')
         except:
-            logging.error("error reading bkt settings")
-            # logging.debug(traceback.format_exc())
+            logging.exception("error reading bkt settings")
             exception_as_message()
             self.dict = dict() #fallback to empty dict
 
@@ -339,14 +409,13 @@ class Resources(object):
         try:
             self._cache = caches.get("resources.%s"%category)
         except:
-            logging.error("Loading resource cache failed")
-            logging.debug(traceback.format_exc())
+            logging.exception("Loading resource cache failed")
             
     def locate(self, name):
         try:
             return self._cache[name]
         except KeyError:
-            logging.info("Locate {} resource: {}.{}".format(self.category, name, self.suffix))
+            logging.info("Locate %s resource: %s.%s", self.category, name, self.suffix)
             for root_folder in self.root_folders:
                 path = os.path.join(root_folder, self.category, name + '.' + self.suffix)
                 if os.path.exists(path):
@@ -355,8 +424,7 @@ class Resources(object):
                     return path
             return None
         except:
-            logging.error("Unknown error reading from resource cache")
-            logging.debug(traceback.format_exc())
+            logging.exception("Unknown error reading from resource cache")
             return None
     
     @staticmethod
@@ -366,3 +434,89 @@ class Resources(object):
         Resources.xaml = Resources("xaml", "xaml")
 
 Resources.bootstrap()
+
+
+
+
+# ===========================
+# = Bitwise boolean storage =
+# ===========================
+
+
+class BitwiseValueAccessor(object):
+    '''
+    Provides an easy way to access boolean options stored as single integer value using bitwise operators.
+    The integer bitvalue can be retrieved via get_bitvalue(). Attribute and item notation are supported.
+    All options can be retrieved with as_dict() function. New options can be added with add_option(name, value).
+    '''
+    def __init__(self, bitvalue=0, attributes=[], settings_key=None):
+        if settings_key:
+            self.__bitvalue = settings.get(settings_key, 0)
+        else:
+            self.__bitvalue = bitvalue
+        self._settings_key = settings_key
+        self._attributes = attributes
+        self._attr_dict = {k: 2**i for i, k in enumerate(attributes)}
+    
+    @property
+    def _bitvalue(self):
+        return self.__bitvalue
+    @_bitvalue.setter
+    def _bitvalue(self, value):
+        self.__bitvalue = value
+        if self._settings_key:
+            settings[self._settings_key] = value
+
+    def __repr__(self):
+        return "<BitwiseValueAccessor bitvalue=%d attributes=%r>" % (self._bitvalue, self._attributes)
+    
+    def __getattr__(self, attr):
+        try:
+            return self.__getitem__(attr)
+        except KeyError:
+            raise AttributeError(attr)
+
+    def __setattr__(self, attr, value):
+        if attr.startswith("_"):
+            super(BitwiseValueAccessor, self).__setattr__(attr, value)
+        else:
+            try:
+                self.__setitem__(attr, value)
+            except KeyError:
+                raise AttributeError(attr)
+    
+    def __getitem__(self, key):
+        option = self._attr_dict[key]
+        return self._bitvalue & option == option
+
+    def __setitem__(self, key, value):
+        option = self._attr_dict[key]
+        if value:
+            self._bitvalue = self._bitvalue | option
+        else:
+            self._bitvalue = self._bitvalue ^ option
+
+    def __dir__(self):
+        return sorted(set( dir(type(self)) + self.__dict__.keys() + self._attributes ))
+    
+    def __contains__(self, value):
+        return value in self._attributes
+
+    def __len__(self):
+        return len(self._attributes)
+    
+    def __iter__(self):
+        for k in self._attributes:
+            yield k, getattr(self, k)
+
+    def get_bitvalue(self):
+        return self._bitvalue
+
+    def as_dict(self):
+        return {k: getattr(self, k) for k in self._attributes}
+    
+    def add_option(self, name, value=False):
+        self._attributes.append(name)
+        self._attr_dict[name] = 2**(len(self._attributes)-1)
+        if value:
+            self.__setitem__(name, value)

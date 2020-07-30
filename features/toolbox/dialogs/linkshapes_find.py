@@ -4,7 +4,7 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import bkt.ui
 notify_property = bkt.ui.notify_property
@@ -17,7 +17,9 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     def __init__(self, context):
         super(ViewModel, self).__init__()
         
-        cur_slideno = context.slide.slideindex
+        slide = context.slide
+
+        cur_slideno = slide.slideindex
         max_slideno = context.presentation.slides.count
         initial_num_slides = self._get_last_slideindex_in_section(context) - cur_slideno
         
@@ -25,10 +27,13 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         self._findmode_all = True
         self._findmode_num = False
 
+        #difference between slide number and slide index (slide number may begin with 0 or any value >0, so diff can also be negative)
+        diff_to_real_slide_number = slide.slidenumber - cur_slideno
+
         self.max_slides = max(0, max_slideno-cur_slideno)
 
-        self.cur_slideno = cur_slideno
-        self.max_slideno = max_slideno
+        self.cur_slideno = cur_slideno + diff_to_real_slide_number
+        self.max_slideno = max_slideno + diff_to_real_slide_number
 
         self._threshold = ViewModel.default_threshold
         self._shape_keys = ViewModel.default_shape_keys
@@ -43,11 +48,11 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
 
     @notify_property
     def threshold(self):
-        return self._threshold
+        return self._threshold*100
     @threshold.setter
     def threshold(self, value):
-        ViewModel.default_threshold = value
-        self._threshold = value
+        ViewModel.default_threshold = value/100
+        self._threshold = value/100
         
 
     @notify_property
@@ -152,13 +157,13 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     @slide_no.setter
     def slide_no(self, value):
         self._num_slides = value - self.cur_slideno
-        self._copymode_all = False
-        self._copymode_num = True
+        self._findmode_all = False
+        self._findmode_num = True
         self.OnPropertyChanged('num_slides')
-        self.OnPropertyChanged('copymode_all')
-        self.OnPropertyChanged('copymode_num')
+        self.OnPropertyChanged('findmode_all')
+        self.OnPropertyChanged('findmode_num')
         self.OnPropertyChanged('okay_enabled')
-        self.OnPropertyChanged('copy_description')
+        self.OnPropertyChanged('search_description')
     
     @notify_property
     def findmode_all(self):
@@ -206,11 +211,32 @@ class FindWindow(bkt.ui.WpfWindowAbstract):
 
     def _link_shapes(self, dry_run=False):
         shape_keys = [k for k,v in self._vm._shape_keys.items() if v]
-        num_slides = None if self._vm.findmode_all else self._vm.num_slides
-        self._model.find_similar_shapes_and_link(self.shape, self._context, shape_keys, self._vm.threshold, num_slides, dry_run)
+        num_slides = None if self._vm.findmode_all else self._vm._num_slides
+        self._model.find_similar_shapes_and_link(self.shape, self._context, shape_keys, self._vm._threshold, num_slides, dry_run)
+    
+    def select_all(self, sender, event):
+        self._vm.attr_bottom    = True
+        self._vm.attr_center    = True
+        self._vm.attr_height    = True
+        self._vm.attr_left      = True
+        self._vm.attr_name      = True
+        self._vm.attr_right     = True
+        self._vm.attr_rotation  = True
+        self._vm.attr_top       = True
+        self._vm.attr_type      = True
+        self._vm.attr_width     = True
 
-    def cancel(self, sender, event):
-        self.Close()
+    def select_none(self, sender, event):
+        self._vm.attr_bottom    = False
+        self._vm.attr_center    = False
+        self._vm.attr_height    = False
+        self._vm.attr_left      = False
+        self._vm.attr_name      = False
+        self._vm.attr_right     = False
+        self._vm.attr_rotation  = False
+        self._vm.attr_top       = False
+        self._vm.attr_type      = False
+        self._vm.attr_width     = False
     
     def linkshapes_find(self, sender, event):
         self.Close()

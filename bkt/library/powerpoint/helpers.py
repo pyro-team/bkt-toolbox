@@ -9,6 +9,7 @@ from __future__ import absolute_import
 
 import json # required for tags
 from collections import namedtuple # required for color class
+from contextlib import contextmanager # for locale helper
 
 import System.Array # to create int/str-Arrays
 
@@ -217,6 +218,7 @@ MsoAutoShapeType = {
 
 # shape.Type
 MsoShapeType = {
+    'mso3DModel':          30,
     'msoAutoShape':         1,
     'msoCallout':           2,
     'msoCanvas':           20,
@@ -233,6 +235,7 @@ MsoShapeType = {
     'msoInkComment':       23,
     'msoLine':              9,
     'msoLinkedGraphic':    29,
+    'msoLinked3DModel':    31,
     'msoLinkedOLEObject':  10,
     'msoLinkedPicture':    11,
     'msoMedia':            16,
@@ -240,7 +243,7 @@ MsoShapeType = {
     'msoPicture':          13,
     'msoPlaceholder':      14,
     'msoScriptAnchor':     18,
-    'msoShapeTypeMixed':    2,
+    'msoShapeTypeMixed':   -2,
     'msoSmartArt':         24,
     'msoTable':            19,
     'msoTextBox':          17,
@@ -304,11 +307,37 @@ MsoThemeColorIndex = {
 }
 
 
-'''
-Helper class to storage the "loc pin" of shapes for various powerpoint operations.
-The "loc pin" is the pin location within the shapes that should be fixed when using shape operations (e.g. changing the size).
-'''
+class ShapeDb(object):
+    def __init__(self):
+        self._db_file = None
+
+    def get_db(self):
+        if not self._db_file:
+            self._db_file = self._load_db()
+        return self._db_file
+
+    def _load_db(self):
+        import os.path
+        import io
+        filename = os.path.realpath(os.path.join(os.path.dirname(__file__), 'shapedb.json'))
+        with io.open(filename, 'r', encoding='utf-8') as json_file:
+            return json.load(json_file)
+    
+    def get_by_autoshape_type(self, autoshape_type):
+        db = self.get_db()
+        return db[str(autoshape_type)]
+
+    def get_by_shape(self, shape):
+        return self.get_by_autoshape_type(shape.AutoShapeType)
+
+GlobalShapeDb = ShapeDb()
+
+
 class LocPin(object):
+    '''
+    Helper class to storage the "loc pin" of shapes for various powerpoint operations.
+    The "loc pin" is the pin location within the shapes that should be fixed when using shape operations (e.g. changing the size).
+    '''
     def __init__(self, initial_pin=0, settings_key=None):
         # fix_height = 1 #1=top, 2=middle, 3=bottom
         # fix_width  = 1 #1=left, 2=middle, 3=right
@@ -516,10 +545,15 @@ def transfer_textrange(from_textrange, to_textrange):
             to_obj.Brightness = from_obj.Brightness
 
     for i,run in enumerate(from_textrange.Runs(), start=1):
-        copy_color(run.Font.Fill.ForeColor, to_textrange.Runs(i).Font.Fill.ForeColor)
-        copy_color(run.Font.Fill.BackColor, to_textrange.Runs(i).Font.Fill.BackColor)
-        copy_color(run.Font.Line.ForeColor, to_textrange.Runs(i).Font.Line.ForeColor)
-        copy_color(run.Font.Line.BackColor, to_textrange.Runs(i).Font.Line.BackColor)
+        try:
+            to_font = to_textrange.Runs(i).Font
+        except ValueError:
+            #ValueError: Der Index in der angegebenen Sammlung ist außerhalb des zulässigen Bereichs.
+            continue
+        copy_color(run.Font.Fill.ForeColor, to_font.Fill.ForeColor)
+        copy_color(run.Font.Fill.BackColor, to_font.Fill.BackColor)
+        copy_color(run.Font.Line.ForeColor, to_font.Line.ForeColor)
+        copy_color(run.Font.Line.BackColor, to_font.Line.BackColor)
 
 
 def replicate_shape(shape, force_textbox=False):
@@ -528,15 +562,25 @@ def replicate_shape(shape, force_textbox=False):
     The duplicate function throws a ComException if the duplicate is used (e.g. merged, deleted) afterwards due to pending event handling.
     '''
     slide = shape.Parent
-    if force_textbox or shape.Type == MsoShapeType['msoTextBox']:
+    # Note: Placeholder can be table, chart, diagram, smartart, picture, whatever...
+    shape_type = shape.Type
+    if shape_type == MsoShapeType['msoPlaceholder']:
+        shape_type = shape.PlaceholderFormat.ContainedType
+    if force_textbox or shape_type == MsoShapeType['msoTextBox']:
         new_shape = slide.shapes.AddTextbox(
             1, #msoTextOrientationHorizontal
             shape.Left, shape.Top, shape.Width, shape.Height)
         new_shape.AutoShapeType = shape.AutoShapeType
-    else:
+    elif shape_type == MsoShapeType["msoAutoShape"]:
         new_shape = slide.shapes.AddShape(
             shape.AutoShapeType,
             shape.Left, shape.Top, shape.Width, shape.Height)
+    elif shape_type == MsoShapeType["msoCallout"]:
+        new_shape = slide.shapes.AddCallout(
+            shape.Callout.Type,
+            shape.Left, shape.Top, shape.Width, shape.Height)
+    else:
+        raise ValueError("replication only possible with autoshapes and textboxes")
     
     #replicate shape properties
     if shape.VerticalFlip != new_shape.VerticalFlip:
@@ -650,6 +694,9 @@ def convert_text_into_shape(shape):
 # ====================
 
 class TagHelper(object):
+    '''
+    Helper to check if shape has a tag, get all tag values as dict or set tags from dict.
+    '''
     @staticmethod
     def get_dict_from_tags(obj_tags):
         '''
@@ -878,6 +925,9 @@ class ColorHelper(object):
 # =========================================
 
 class BKTTag(object):
+    '''
+    Use shape tags using with-statement and item-notation. Tag values are stored as json data.
+    '''
     TAG_NAME = "BKT"
 
     def __init__(self, tags):
@@ -909,6 +959,9 @@ class BKTTag(object):
     def remove(self):
         self.data = {}
 
+    def get(self, arg, default=None):
+        self.data.get(arg, default)
+
     def __enter__(self):
         self.load()
         return self
@@ -937,14 +990,52 @@ class BKTTag(object):
 # = Slide content size =
 # ======================
 
-def slide_content_size(presentation):
-    ''' get size of content area (i.e. big text field of standard layout) '''
-    shapes_sizes = [[shape.left, shape.top, shape.width, shape.height] for shape in iter(presentation.SlideMaster.Shapes) if shape.type == 14 and shape.Placeholderformat.type == 2]
-    if len(shapes_sizes) == 0:
-        return 0, 0, presentation.PageSetup.SlideWidth, presentation.PageSetup.SlideHeight
+def slidemaster_from_obj(obj):
+    ''' get slide master object from any object (presentation, slide, shape, layout, etc.) '''
+    #obj.parent:
+    # -> if obj.parent.Master exists, then obj was shape
+    # -> if obj.parent.CustomLayouts exists, then obj was custom layout or shape on slidemaster
+    #obj.parent.parent
+    # -> if obj.parent.parent.design.SlideMaster exists, then obj was shape on custom layout
+    #obj.parent.parent.parent
+    # -> fallback to presentation
+    master_obj = obj
+    attrs = [None, "parent", "parent", "design", "parent"]
+    for attr in attrs:
+        if attr:
+            master_obj = getattr(master_obj, attr)
+        
+        if hasattr(master_obj, "CustomLayouts"):
+            #obj is slide master
+            return master_obj
+
+        try:
+            #obj is presentation or design
+            return master_obj.SlideMaster
+        except AttributeError:
+            pass
+
+        try:
+            #obj is slide 
+            return master_obj.Master
+        except AttributeError:
+            pass
+    
     else:
-        slide_content_size = shapes_sizes[0]
-        return slide_content_size[0], slide_content_size[1], slide_content_size[2], slide_content_size[3]
+        raise AttributeError("%s cannot be converted to slidemaster" % obj)
+
+def content_size_from_master(slidemaster):
+    ''' get size of content area (i.e. big text field of standard layout) from slide master '''
+    try:
+        return next([shape.left, shape.top, shape.width, shape.height] for shape in iter(slidemaster.Shapes) if shape.type == 14 and shape.Placeholderformat.type == 2)
+    except StopIteration:
+        return 0, 0, slidemaster.Width, slidemaster.Height
+        # page_setup = slidemaster.Parent.PageSetup
+        # return 0, 0, page_setup.SlideWidth, page_setup.SlideHeight
+
+def slide_content_size(any_obj):
+    ''' get size of content area (i.e. big text field of standard layout) from any object (slide, presentation, shape, etc.) '''
+    return content_size_from_master(slidemaster_from_obj(any_obj))
 
 
 BKT_CONTENTAREA = "BKT_CONTENTAREA"
@@ -998,13 +1089,13 @@ class ContentArea(object):
 # = Iterator for "subshapes" & textframes =
 # =========================================
 
-'''
-Iterate through shapes of different types and return every shapes "subhsapes", e.g. group shapes or table cells
-arg 'from_selection': If shapes are not from a selection (e.g. iterate all shapes of a slide), set this to False to disable selected table cells detection,
-                      otherwise not all table cells are iterated at least in the rare case that a table is the only shape on a slide.
-'''
-
 class SubShapeIterator(object):
+    '''
+    Iterate through shapes of different types and return every shapes "subhsapes", e.g. group shapes or table cells
+    arg 'from_selection': If shapes are not from a selection (e.g. iterate all shapes of a slide), set this to False to disable selected table cells detection,
+                        otherwise not all table cells are iterated at least in the rare case that a table is the only shape on a slide.
+    '''
+
     def __init__(self, shapes, from_selection=True):
         #Ensure list
         if type(shapes) != list:
@@ -1077,14 +1168,14 @@ class SubShapeIterator(object):
 
 
 def iterate_shape_subshapes(shapes, from_selection=True, filter_method=lambda shp: True, getter_method=lambda shp: shp):
+    ''' Function to create sub shape iterator '''
     return SubShapeIterator(shapes, from_selection)
 
 
-'''
-Iterate through shapes of different types and return every shapes textframe
-'''
-
 class TextframeIterator(SubShapeIterator):
+    '''
+    Iterate through shapes of different types and return every shapes textframe
+    '''
     
     def _iter_group(self, shape):
         for shp in shape.GroupItems:
@@ -1112,6 +1203,7 @@ class TextframeIterator(SubShapeIterator):
 
 
 def iterate_shape_textframes(shapes, from_selection=True):
+    ''' Function to create textframe iterator '''
     return TextframeIterator(shapes, from_selection)
 
 
@@ -1121,6 +1213,9 @@ def iterate_shape_textframes(shapes, from_selection=True):
 # ===============================
 
 class BoundingFrame(object):
+    '''
+    Helper class to simulate a rectangle and create a bounding frame from shape list.
+    '''
     def __init__(self, slide=None, contentarea=False):
         self.left=0
         self.top=0
@@ -1129,11 +1224,15 @@ class BoundingFrame(object):
         self.rotation=0
         
         if slide != None:
+            slidemaster = slidemaster_from_obj(slide)
             if contentarea:
-                self.left, self.top, self.width, self.height = slide_content_size(slide.parent)
+                self.left, self.top, self.width, self.height = content_size_from_master(slidemaster)
             else:
-                self.width  = slide.parent.PageSetup.SlideWidth
-                self.height = slide.parent.PageSetup.SlideHeight
+                self.width  = slidemaster.Width
+                self.height = slidemaster.Height
+                # page_setup  = slide.parent.PageSetup
+                # self.width  = page_setup.SlideWidth
+                # self.height = page_setup.SlideHeight
     
     @classmethod
     def from_rect(cls, left, top, width, height):
@@ -1143,6 +1242,10 @@ class BoundingFrame(object):
         bf.width = width
         bf.height = height
         return bf
+
+    @classmethod
+    def from_shape(cls, shape):
+        return cls.from_rect(shape.left, shape.top, shape.width, shape.height)
 
     @classmethod
     def from_shapes(cls, shapes):
@@ -1181,8 +1284,9 @@ class GroupManager(object):
 
         self._name = group.name
         self._tags = TagHelper.get_dict_from_tags(group.tags)
-        self._rotation = group.rotation
-        self._zorder   = group.ZOrderPosition
+        self._rotation      = group.rotation
+        self._zorder        = group.ZOrderPosition
+        self._aspectratio   = group.LockAspectRatio
 
         self._attr = {n:getattr(group, n) for n in additional_attrs}
 
@@ -1288,6 +1392,8 @@ class GroupManager(object):
             setattr(self._group, k, v)
         #restore zorder
         set_shape_zorder(self._group, value=self._zorder)
+        #restore lock aspect ration
+        self._group.LockAspectRatio = self._aspectratio
         #call post_regroup to reset rotation
         if self._ungroup_prepared:
             self.post_regroup()
@@ -1338,5 +1444,42 @@ class GroupManager(object):
         self._ungroup = shapes_to_range( list(_ungroup(self._group.ungroup())) )
         self._group = None
         return self
+
+
+
+# =================
+# = Locale helper =
+# =================
+
+language_id_to_locale = {
+    1031: 'de_DE', #"Deutsch",
+    3079: 'de_AT', #"Deutsch (Österreich)",
+    1040: 'it', #"Italienisch",
+    1036: 'fr', #"Französisch",
+    3082: 'es', #"Spanisch",
+    1049: 'ru', #"Russisch",
+    1029: 'cz', #"Tschechisch",
+    1030: 'dk', #"Dänisch",
+    1043: 'nl', #"Holländisch",
+    1045: 'pl', #"Polnisch",
+    2070: 'pt', #"Portugisisch",
+    1053: 'se', #"Schwedisch",
+    1055: 'tr', #"Türkisch",
+    1033: 'en_US', #"US English",
+    2057: 'en_UK', #"UK English",
+}
+
+@contextmanager
+def override_locale(language_id):
+    '''
+    Temporarily change the python locale based on msoLanguageId
+    '''
+    import locale
+    category = locale.LC_ALL
+    locale_string = language_id_to_locale.get(language_id, 'en')
+    prev_locale_string = locale.getlocale(category)[0]
+    locale.setlocale(category, locale_string)
+    yield
+    locale.setlocale(category, prev_locale_string)
 
 

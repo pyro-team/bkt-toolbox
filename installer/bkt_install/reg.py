@@ -44,6 +44,7 @@ def open_key(base, path, *args, **kwargs):
 
 @contextmanager
 def open_or_create(base, path, *args, **kwargs):
+    value = None
     try:
         value = base.CreateSubKey(path, *args, **kwargs)
         if value is None:
@@ -179,6 +180,53 @@ class AddinRegService(object):
             base.DeleteSubKeyTree(prog_id_path, False)
 
 
+class ResiliencyRegService(object):
+    def __init__(self, prog_id, app_name):
+        self.prog_id = prog_id
+        self.app_name = app_name
+
+    def get_hkcu(self, view=RegistryView.Default):
+        return RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view)
+
+    def add_to_dndlist(self):
+        path = PathString('Software') / 'Microsoft' / 'Office' / '16.0' / self.app_name / 'Resiliency' / 'DoNotDisableAddinList'
+        with self.get_hkcu() as base:
+            with open_or_create(base, path) as dndlist:
+                dndlist.SetValue(self.prog_id, 1, RegistryValueKind.DWord)
+
+    def remove_from_dndlist(self):
+        path = PathString('Software') / 'Microsoft' / 'Office' / '16.0' / self.app_name / 'Resiliency' / 'DoNotDisableAddinList'
+        with self.get_hkcu() as base:
+            try:
+                with open_key(base, path, True) as dndlist: #writable=True
+                    dndlist.DeleteValue(self.prog_id)
+            except (KeyError, ValueError):
+                pass
+
+    def clear_disabled_items(self):
+        app_paths = [
+            PathString('Software') / 'Microsoft' / 'Office' / 'ClickToRun' / 'REGISTRY' / 'MACHINE' / 'Software' / 'Microsoft' / 'Office' / '16.0' / self.app_name / 'Resiliency' / 'DisabledItems',
+            PathString('Software') / 'Microsoft' / 'Office' / '16.0' / self.app_name / 'Resiliency' / 'DisabledItems',
+            PathString('Software') / 'Microsoft' / 'Office' / '15.0' / self.app_name / 'Resiliency' / 'DisabledItems',
+            PathString('Software') / 'Microsoft' / 'Office' / '14.0' / self.app_name / 'Resiliency' / 'DisabledItems',
+        ]
+        removed_items = 0
+        with self.get_hkcu() as base:
+            for path in app_paths:
+                # base.DeleteSubKey(path, False)
+                try:
+                    with open_key(base, path, True) as key: #writable=True
+                        # removed_items += key.ValueCount
+                        for name in key.GetValueNames():
+                            #FIXME: would be better to remove only the BKT entry, not all
+                            key.DeleteValue(name)
+                            removed_items += 1
+                except KeyError:
+                    continue
+        return removed_items
+
+
+
 
 class QueryRegService(object):
 
@@ -187,6 +235,10 @@ class QueryRegService(object):
 
     # def get_hkcu(self, view=RegistryView.Default):
     #     return RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view)
+    
+    def _get_outlook_bitness_for_base(self, base, app_paths):
+        with open_key(base, app_paths) as path:
+            return path.GetValue('Bitness')
 
     def _get_path_for_base(self, base, app_name):
         app_paths = PathString('Software') / 'Microsoft' / 'Windows' / 'CurrentVersion' / 'App Paths' / app_name
@@ -206,3 +258,17 @@ class QueryRegService(object):
         #         pass
         # raise KeyError("no path in registry found for %s" % app_name)
 
+    def get_outlook_bitness(self):
+        paths = [
+            PathString('Software') / 'Microsoft' / 'Office' / 'ClickToRun' / 'REGISTRY' / 'MACHINE' / 'Software' / 'Microsoft' / 'Office' / '16.0' / 'Outlook',
+            PathString('Software') / 'Microsoft' / 'Office' / '16.0' / 'Outlook',
+            PathString('Software') / 'Microsoft' / 'Office' / '15.0' / 'Outlook',
+            PathString('Software') / 'Microsoft' / 'Office' / '14.0' / 'Outlook',
+        ]
+        with self.get_hklm() as base:
+            for path in paths:
+                try:
+                    return self._get_outlook_bitness_for_base(base, path)
+                except KeyError:
+                    continue
+        return None

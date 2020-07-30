@@ -76,6 +76,16 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
             self._reload_bkt()
 
     def save_settings(self, sender, event):
+        self._model.set_setting("clipboard_group", self._value2key(self._vm.clipboard_group))
+        self._model.set_setting("slides_group", self._value2key(self._vm.slides_group))
+
+        self._model.set_setting("default_group_font", self._value2key(self._vm.default_group_font))
+        self._model.set_setting("default_group_paragraph", self._value2key(self._vm.default_group_paragraph))
+        self._model.set_setting("text_compact_group", self._value2key(self._vm.text_compact_group))
+
+        self._model.set_setting("shapes_group", self._value2key(self._vm.shapes_group))
+        self._model.set_setting("styles_group", self._value2key(self._vm.styles_group))
+        
         self._model.set_setting("size_group", self._value2key(self._vm.size_group))
         self._model.set_setting("pos_size_group", self._value2key(self._vm.pos_size_group))
 

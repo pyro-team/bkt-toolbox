@@ -19,6 +19,19 @@ def autorelease(comobj):
     Marshal.ReleaseComObject(comobj)
 
 
+def is_com_obj(comobj):
+    # return type(comobj).__name__ == '__ComObject'
+    try:
+        return Marshal.IsComObject(comobj)
+    except:
+        return False
+
+
+#separte logger for comrelease to avoid spamming of log file
+logger = logging.getLogger().getChild("comrelease")
+logger.setLevel(logging.INFO) #comment out this line for comrelease debugging
+#FIXME: log comrelease in separate file?
+
 
 class AutoReleasingComObject(object):
     '''
@@ -38,11 +51,12 @@ class AutoReleasingComObject(object):
         #     #raise AttributeError("AutoReleasingComObject expects to wrap a ComObject.")
         #     self._is_comobj = False
         #     pass
-        self._is_comobj = (type(comobj).__name__ == '__ComObject')
+        self._is_comobj = is_com_obj(comobj)
         self._comobj = comobj
         self._release_self = release_self
         self._accessed_com_attributes = []
-        logging.debug("Com-Release: created %s" % (self))
+        self._within_context = False
+        logger.debug("Com-Release: created %s", self)
     
     
     # Magic methods: https://rszalski.github.io/magicmethods/
@@ -76,11 +90,16 @@ class AutoReleasingComObject(object):
     # def __str__(self): #__str__ not required as __repr__ returns a string
     
     def __repr__(self):
-        return "<AutoReleasingComObject for %s>" % (self._comobj)
+        try:
+            return "<AutoReleasingComObject for %s>" % (self._comobj)
+        except SystemError:
+            #in rare situations the com object is already released and logging calls __repr__ which throws SystemError
+            return "<AutoReleasingComObject for <DISPOSED COM OBJECT>>"
 
     def __dir__(self):
         #this is essential for interactive python console
-        return dir(self._comobj)
+        # return dir(self._comobj)
+        return sorted(set( dir(type(self)) + self.__dict__.keys() + dir(self._comobj) ))
     
     
     
@@ -91,7 +110,7 @@ class AutoReleasingComObject(object):
         Only allow to write attributes starting with _
         All other attributes are written to wrapped ComObject
         '''
-        if attr[0] == "_":
+        if attr.startswith("_"):
             super(AutoReleasingComObject, self).__setattr__(attr, value)
         else:
             setattr(self._comobj, attr, value)
@@ -110,11 +129,11 @@ class AutoReleasingComObject(object):
         '''
         
         # FIXME: hack to allow: .item[1]=xxx
-        if attr == 'Item' or attr == 'item':
+        if attr.lower() == "item":
             return self
         
         value = getattr(self._comobj, attr)
-        logging.debug("Com-Release: access to attribute %s" % (attr))
+        logger.debug("Com-Release: access to attribute %s", attr)
         
         if type(value).__name__ != 'DispCallable':
             # attribute did not return a function
@@ -201,6 +220,8 @@ class AutoReleasingComObject(object):
         '''
         Allow usage as context-manager (with-statement).
         '''
+        logger.info("Com-Release: entering context for %s", self)
+        self._within_context = True
         return self
     
     
@@ -211,6 +232,8 @@ class AutoReleasingComObject(object):
         By default, the wrapped ComObject in the AutoReleasingComObject-instance is also released.
         This is configurable by the release_self-parameter.
         '''
+        logger.info("Com-Release: exiting context for %s", self)
+        self._within_context = False
         self.dispose()
     
     
@@ -222,15 +245,15 @@ class AutoReleasingComObject(object):
         creates an AutoReleasingComObject-instance if com_obj is a ComObject,
         or returns the given value
         '''
-        if type(com_obj).__name__ == '__ComObject':
+        if is_com_obj(com_obj):
             if self._is_comobj:
                 auto_release_com_obj = AutoReleasingComObject(com_obj, release_self=True)
-                logging.debug("Com-Release: created com-object %s" % (com_obj))
+                logger.debug("Com-Release: created com-object %s", com_obj)
             else:
                 # self is no com-Object, but the attribute is. 
                 # Hence, attribute is not generated here and should not be disposed.
                 # therefore: release_self=False
-                logging.debug("Com-Release: accessed existing com-object %s" % (com_obj))
+                logger.debug("Com-Release: accessed existing com-object %s", com_obj)
                 auto_release_com_obj = AutoReleasingComObject(com_obj, release_self=False)
             self._accessed_com_attributes.append(auto_release_com_obj)
             
@@ -251,15 +274,19 @@ class AutoReleasingComObject(object):
         Dispose will go down this AutoReleasingComObject-tree and call dispose on these instances as well.
         Therefore, all ComObjects accessed in the object-tree are released by a single dispose-call.
         '''
+        if self._within_context:
+            logger.debug("Com-Release: dispose aborted on %s", self)
+            return
+        
         # release ComObjects generated further down the object-tree
-        logging.debug("Com-Release: dispose on %s" % (self))
+        logger.debug("Com-Release: dispose on %s", self)
         for auto_release_com_obj in self._accessed_com_attributes:
             auto_release_com_obj.dispose()
         self._accessed_com_attributes = []
         
         # release wrapped ComObject
         if self._release_self:
-            logging.debug("Com-Release: releasing %s" % (self._comobj))
+            logger.debug("Com-Release: releasing %s", self)
             Marshal.ReleaseComObject(self._comobj)
     
     

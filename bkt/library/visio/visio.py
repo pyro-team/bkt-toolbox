@@ -593,7 +593,7 @@ def check_angle(method):
         s = self
         if s.angle != 0:
             #raise ValueError('shape has angle != 0: angle=%r, sw=%r' % (s.angle,s))
-            logging.warning('shape has angle != 0: angle=%r, sw=%r. Using Bounding-Box.' % (s.angle,s))
+            logging.warning('shape has angle != 0: angle=%r, sw=%r. Using Bounding-Box.', s.angle,s)
         return method(self,*args,**kwargs)
     return _method
 

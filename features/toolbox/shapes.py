@@ -5,14 +5,20 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import logging
+import locale
+
+from System import Array
 
 import bkt
 import bkt.library.powerpoint as pplib
 pt_to_cm = pplib.pt_to_cm
 cm_to_pt = pplib.cm_to_pt
+get_ambiguity_tuple = bkt.helpers.get_ambiguity_tuple
+
+from bkt.library.algorithms import get_bounding_nodes, mid_point
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
@@ -52,7 +58,6 @@ class PositionSize(object):
     def get_image_use_visual_size(cls):
         return bkt.ribbon.Gallery.get_check_image(cls.use_visual_size)
 
-
     @classmethod
     def set_top(cls, shapes, value):
         attr = 'visual_top' if cls.use_visual_pos else 'top'
@@ -64,9 +69,9 @@ class PositionSize(object):
     @classmethod
     def get_top(cls, shapes):
         if not cls.use_visual_pos:
-            return [shape.top for shape in shapes] #shapes[0].top
+            return get_ambiguity_tuple(shape.top for shape in shapes) #shapes[0].top
         else:
-            return [shape.visual_top for shape in shapes]
+            return get_ambiguity_tuple(shape.visual_top for shape in shapes)
     
     
     @classmethod
@@ -80,9 +85,9 @@ class PositionSize(object):
     @classmethod
     def get_left(cls, shapes):
         if not cls.use_visual_pos:
-            return [shape.left for shape in shapes] #shapes[0].left
+            return get_ambiguity_tuple(shape.left for shape in shapes) #shapes[0].left
         else:
-            return [shape.visual_left for shape in shapes]
+            return get_ambiguity_tuple(shape.visual_left for shape in shapes)
 
 
     @classmethod
@@ -96,9 +101,9 @@ class PositionSize(object):
     @classmethod
     def get_height(cls, shapes):
         if not cls.use_visual_size:
-            return [shape.height for shape in shapes] #shapes[0].height
+            return get_ambiguity_tuple(shape.height for shape in shapes) #shapes[0].height
         else:
-            return [shape.visual_height for shape in shapes]
+            return get_ambiguity_tuple(shape.visual_height for shape in shapes)
     
     
     @classmethod
@@ -112,9 +117,9 @@ class PositionSize(object):
     @classmethod
     def get_width(cls, shapes):
         if not cls.use_visual_size:
-            return [shape.width for shape in shapes] #shapes[0].width
+            return get_ambiguity_tuple(shape.width for shape in shapes) #shapes[0].width
         else:
-            return [shape.visual_width for shape in shapes]
+            return get_ambiguity_tuple(shape.visual_width for shape in shapes)
 
 
     @staticmethod
@@ -134,7 +139,7 @@ class PositionSize(object):
         if len(shapes) == 1:
             return shapes[0].ZOrderPosition
         else:
-            return [shapes[0].ZOrderPosition, None] #force ambiguous mode
+            return (True, shapes[0].ZOrderPosition) #force ambiguous mode
 
     @staticmethod
     def front_to_back(shapes):
@@ -149,11 +154,6 @@ class PositionSize(object):
         target_zorder = shapes.pop(-1).ZOrderPosition
         for shape in shapes:
             pplib.set_shape_zorder(shape, value=target_zorder)
-
-    @staticmethod
-    def shape_lock_aspect_ratio(shapes, pressed):
-        for shape in shapes:
-            shape.LockAspectRatio = -1 if pressed else 0
     
     @staticmethod
     def set_height_to_width(shapes):
@@ -184,6 +184,92 @@ class PositionSize(object):
     def swap_left_and_top(shapes):
         for shape in shapes:
             shape.top, shape.left = shape.left, shape.top
+
+
+class AspectRatio(object):
+    types_scale = (
+        pplib.MsoShapeType["msoPicture"],
+        pplib.MsoShapeType["msoLinkedPicture"],
+        pplib.MsoShapeType["msoFreeform"],
+        pplib.MsoShapeType["msoEmbeddedOLEObject"],
+        pplib.MsoShapeType["msoLinkedOLEObject"],
+        pplib.MsoShapeType["msoMedia"],
+    )
+    types_in_db = (
+        pplib.MsoShapeType["msoAutoShape"],
+        pplib.MsoShapeType["msoCallout"],
+    )
+
+    aspect_ratios = [
+        (1,1),
+        (3,2),
+        (4,3),
+        (13,9),
+        (15,10),
+        (16,9),
+    ]
+
+    @classmethod
+    def reset(cls, shapes):
+        for shape in shapes:
+            try:
+                shape_type = shape.Type
+                #TODO: placeholder support
+                if shape_type in cls.types_scale:
+                    height = shape.Height
+                    shape.ScaleHeight(1, True)
+                    shape.ScaleWidth(1, True)
+                    #reapply ratio (only required if LockAspectRatio=0)
+                    ratio = shape.Width/shape.Height
+                    shape.Height = height
+                    shape.Width = ratio*height
+                elif shape_type in cls.types_in_db:
+                    try:
+                        shape_db = pplib.GlobalShapeDb.get_by_shape(shape)
+                        ratio = shape_db["ratio"]
+                    except:
+                        logging.exception("shape not found in db")
+                        ratio = 1
+                    # landscape = shape.width > shape.height
+                    shape.force_aspect_ratio(ratio)
+            except:
+                continue
+    
+    @staticmethod
+    def swap(shapes):
+        for shape in shapes:
+            shape.transpose()
+    
+    @classmethod
+    def set_aspect_ratio(cls, shapes, current_control):
+        index = int(current_control["tag"])
+        r1,r2 = cls.aspect_ratios[index]
+        value = r1/r2
+        for shape in shapes:
+            # landscape = shape.width > shape.height
+            shape.force_aspect_ratio(value)
+            shape.lock_aspect_ratio = True
+    
+    @staticmethod
+    def get_aspect_ratio(shape):
+        return shape.width/shape.height
+    
+    @classmethod
+    def get_aspect_ratio_label(cls, context):
+        try:
+            return "Aktuelles Seiteverhältnis: {:.4n}".format(cls.get_aspect_ratio(context.shape))
+        except:
+            return "Aktuelles Seiteverhältnis: -"
+
+    @staticmethod
+    def lock_aspect_ratio(shapes, pressed):
+        for shape in shapes:
+            shape.LockAspectRatio = -1 if pressed else 0
+    
+    @staticmethod
+    def get_aspect_ratio_locked(shapes):
+        return shapes[0].LockAspectRatio == -1
+
 
 
 spinner_top = bkt.ribbon.RoundingSpinnerBox(
@@ -369,12 +455,65 @@ spinner_zorder = bkt.ribbon.RoundingSpinnerBox(
 #button_lock_aspect_ratio = bkt.ribbon.CheckBox(
 button_lock_aspect_ratio = dict(
     #id = 'shape_lock_aspect_ratio',
-    label="Seitenverhält.",
+    # label="Seitenverhält.",
     screentip="Seitenverhältnis sperren",
     supertip="Wenn das Kontrollkästchen Seitenverhältnis sperren aktiviert ist, ändern sich die Einstellungen von Höhe und Breite im Verhältnis zueinander.",
-    on_toggle_action = bkt.Callback(PositionSize.shape_lock_aspect_ratio, shapes=True),
-    get_pressed = bkt.Callback(lambda shapes: shapes[0].LockAspectRatio == -1, shapes=True),
+    on_toggle_action = bkt.Callback(AspectRatio.lock_aspect_ratio, shapes=True),
+    get_pressed = bkt.Callback(AspectRatio.get_aspect_ratio_locked, shapes=True),
     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+)
+
+menu_lock_aspect_ratio = bkt.ribbon.Box(
+    box_style="horizontal",
+    children=[
+        bkt.ribbon.Menu(
+            label="Sperren",
+            show_label=False,
+            image_mso="AutoSizePage",
+            children=[
+                bkt.ribbon.ToggleButton(id="shape_lock_aspect_ratio3", label="Seitenverhältnis sperren an/aus", image_mso="Lock", **button_lock_aspect_ratio),
+                bkt.ribbon.Button(
+                    get_label=bkt.Callback(AspectRatio.get_aspect_ratio_label, context=True),
+                    enabled=False,
+                ),
+                bkt.ribbon.MenuSeparator(),
+            ] + [
+                bkt.ribbon.Button(
+                    label="Setzen auf {}:{} ({:.4n})".format(r[0], r[1], r[0]/r[1]),
+                    tag=str(i),
+                    on_action=bkt.Callback(AspectRatio.set_aspect_ratio, shapes=True, current_control=True, wrap_shapes=True),
+                ) for i, r in enumerate(AspectRatio.aspect_ratios)
+            ] + [
+                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.Button(
+                    label="Tauschen",
+                    screentip="Seitenverhältnis tauschen",
+                    supertip="Vertauscht Breite und Größe und dreht damit das Seitenverhältnis um.",
+                    image_mso="PageScaleToFitOptionsDialog",
+                    on_action = bkt.Callback(AspectRatio.swap, shapes=True, wrap_shapes=True),
+                ),
+                bkt.ribbon.Button(
+                    label="Zurücksetzen",
+                    screentip="Seitenverhältnis zurücksetzen",
+                    supertip="Setzt das Seitenverhältnis auf den Ursprungszustand zurück.",
+                    image_mso="ResetCurrentView",
+                    on_action = bkt.Callback(AspectRatio.reset, shapes=True, wrap_shapes=True),
+                ),
+                # bkt.mso.control.PictureResetAndSize,
+            ]
+        ),
+        bkt.ribbon.CheckBox(id="shape_lock_aspect_ratio2", label="Seitenv.", **button_lock_aspect_ratio),
+        # bkt.ribbon.ToggleButton(
+        #     label="Gesperrt",
+        #     # show_label=False,
+        #     image_mso="Lock",
+        # ),
+        # bkt.ribbon.ToggleButton(
+        #     label="Offen",
+        #     show_label=False,
+        #     image_mso="Lock",
+        # ),
+    ]
 )
 
 size_group = bkt.ribbon.Group(
@@ -386,7 +525,7 @@ size_group = bkt.ribbon.Group(
         #spinner_width,
         bkt.mso.control.ShapeHeight(show_label=False),
         bkt.mso.control.ShapeWidth(show_label=False),
-        bkt.ribbon.CheckBox(id="shape_lock_aspect_ratio1", **button_lock_aspect_ratio),
+        bkt.ribbon.CheckBox(id="shape_lock_aspect_ratio1", label="Seitenverhält.", **button_lock_aspect_ratio),
         bkt.ribbon.DialogBoxLauncher(idMso='ObjectSizeAndPositionDialog')
     ]
 )
@@ -409,7 +548,8 @@ pos_size_group = bkt.ribbon.Group(
     children =[
         spinner_height,
         spinner_width,
-        bkt.ribbon.CheckBox(id="shape_lock_aspect_ratio2", **button_lock_aspect_ratio),
+        menu_lock_aspect_ratio,
+        # bkt.ribbon.CheckBox(id="shape_lock_aspect_ratio2", **button_lock_aspect_ratio),
         spinner_top,
         spinner_left,
         spinner_zorder,
@@ -533,6 +673,13 @@ class ShapeConnectorTags(pplib.BKTTag):
     TAG_NAME = "BKT_SHAPE_CONNECTORS"
 
 class ShapeConnectors(object):
+    _default_shape_nodes = dict(top=(0,3), right=(3,2), bottom=(1,2), left=(0,1))
+    _special_shape_nodes = {
+        pplib.MsoAutoShapeType["msoShapeChevron"]: dict(top=(0,1), right=(1,3), bottom=(3,4), left=(4,0)),
+        pplib.MsoAutoShapeType["msoShapePentagon"]: dict(top=(0,1), right=(1,3), bottom=(3,4), left=(4,0)),
+        pplib.MsoAutoShapeType["msoShapeHexagon"]: dict(top=(1,2), right=(2,4), bottom=(4,5), left=(5,1)),
+        pplib.MsoAutoShapeType["msoShapeOval"]: dict(top=(0,6), right=(3,9), bottom=(6,0), left=(9,3)),
+    }
 
     @staticmethod
     def is_connector(shape):
@@ -546,30 +693,39 @@ class ShapeConnectors(object):
                 return shp
         else:
             raise IndexError("shape id not found on slide")
+
+    @classmethod
+    def _get_shape_connector_nodes(cls, shape, side):
+        dummy = None
+        try:
+            special_nodes = cls._special_shape_nodes[shape.AutoShapeType]
+            #convert into freeform by adding and deleting in order to acces points
+            dummy = shape.duplicate()
+            dummy.left, dummy.top = shape.left, shape.top
+            dummy.nodes.insert(1,0,0,0,0)
+            dummy.nodes.delete(2)
+            shape_nodes = [(node.points[0,0], node.points[0,1]) for node in dummy.nodes]
+            shape_p1, shape_p2 = special_nodes[side]
+            return shape_nodes[shape_p1], shape_nodes[shape_p2]
+        except: #KeyError, or any COM Error
+            shape_nodes = get_bounding_nodes(shape)
+            shape_p1, shape_p2 = cls._default_shape_nodes[side]
+            return shape_nodes[shape_p1], shape_nodes[shape_p2]
+        finally:
+            if dummy:
+                dummy.delete()
     
-    @staticmethod
-    def _set_connector_shape_nodes(shape_connector, shape1, shape2, shape1_side="bottom", shape2_side="top"):
-        from bkt.library.algorithms import get_bounding_nodes, mid_point
+    @classmethod
+    def _set_connector_shape_nodes(cls, shape_connector, shape1, shape2, shape1_side="bottom", shape2_side="top"):
         from math import atan2
 
-        #get_boundin_nodes returns nodes counter-clockwise: left-top, left-bottom, right-bottom, right-top
-        shape1_nodes = get_bounding_nodes(shape1)
-        shape2_nodes = get_bounding_nodes(shape2)
+        shape1_p1, shape1_p2 = cls._get_shape_connector_nodes(shape1, shape1_side)
+        shape2_p1, shape2_p2 = cls._get_shape_connector_nodes(shape2, shape2_side)
 
-        sides2points = {
-            'top': (0,3),
-            'right': (3,2),
-            'bottom': (1,2),
-            'left': (0,1),
-        }
-
-        shape1_p1, shape1_p2 = sides2points[shape1_side]
-        shape2_p1, shape2_p2 = sides2points[shape2_side]
-
-        connector_nodes = [shape1_nodes[shape1_p1], shape1_nodes[shape1_p2], shape2_nodes[shape2_p1], shape2_nodes[shape2_p2]]
+        connector_nodes = [shape1_p1, shape1_p2, shape2_p1, shape2_p2]
         #correct ordering is the key to set nodes, here clockwise ordering (left-top, right-top, right-bottom, left-bottom)
-        mid_point = mid_point(connector_nodes)
-        connector_nodes.sort(key=lambda p: atan2(p[1]-mid_point[1], p[0]-mid_point[0]))
+        mid_p = mid_point(connector_nodes)
+        connector_nodes.sort(key=lambda p: atan2(p[1]-mid_p[1], p[0]-mid_p[0]))
 
         #convert shape into freeform by adding and deleting node (not sure if this is required)
         shape_connector.Nodes.Insert(1, 0, 0, 0, 0) #msoSegmentLine, msoEditingAuto, x, y
@@ -665,27 +821,85 @@ class ShapeConnectors(object):
         # shpConnector.Select()
 
 
+class VisibilityToggleTags(pplib.BKTTag):
+    TAG_NAME = "BKT_VISIBILITY_TOGGLE"
+
 class ShapesMore(object):
 
     @staticmethod
-    def hide_shapes(shapes):
-        for shape in shapes:
-            shape.visible = False
-
-    @staticmethod
-    def show_shapes(slide):
-        slide.Application.ActiveWindow.Selection.Unselect()
+    def show_invisible_shapes(context):
+        toggle_shapes = list()
+        slide = context.slide
+        context.selection.Unselect()
         for shape in slide.shapes:
             if not shape.visible and not pplib.TagHelper.has_tag(shape, "THINKCELLSHAPEDONOTDELETE"):
                 shape.visible = True
                 shape.Select(replace=False)
+                toggle_shapes.append(shape.id)
+        return toggle_shapes
+
+    @staticmethod
+    def _hide_selected_shapes(context, shapes):
+        toggle_shapes = list()
+        for shape in shapes:
+            shape.visible = False
+            toggle_shapes.append(shape.id)
+        return toggle_shapes
+    
+    @staticmethod
+    def _hide_saved_shapes(context, shape_ids):
+        toggle_shapes = list()
+        slide = context.slide
+        for shape in slide.shapes:
+            if shape.id in shape_ids:
+                shape.visible = False
+                toggle_shapes.append(shape.id)
+        return toggle_shapes
+
+    @classmethod
+    def toggle_shapes_visibility(cls, context):
+        with VisibilityToggleTags(context.slide.Tags) as tags:
+
+            sel_shapes = context.shapes
+            if not sel_shapes:
+                shapes_shown = cls.show_invisible_shapes(context)
+                if shapes_shown:
+                    tags["shape_ids"] = shapes_shown
+                else:
+                    try:
+                        shape_ids = tags["shape_ids"]
+                        cls._hide_saved_shapes(context, shape_ids)
+                        del tags["shape_ids"]
+                    except KeyError:
+                        bkt.message.warning("Es sind keine Shapes zum Verstecken ausgewählt, es wurden keine vormals versteckten Shapes gefunden, und es gibt keine versteckten Shapes!")
+            
+            else:
+                cls._hide_selected_shapes(context, sel_shapes)
+                try:
+                    del tags["shape_ids"]
+                except KeyError:
+                    pass
+
+
+    # @staticmethod
+    # def hide_shapes(shapes):
+    #     for shape in shapes:
+    #         shape.visible = False
+
+    # @staticmethod
+    # def show_shapes(slide):
+    #     slide.Application.ActiveWindow.Selection.Unselect()
+    #     for shape in slide.shapes:
+    #         if not shape.visible and not pplib.TagHelper.has_tag(shape, "THINKCELLSHAPEDONOTDELETE"):
+    #             shape.visible = True
+    #             shape.Select(replace=False)
     
     @staticmethod
     def _text_to_shape(shape):
         try:
             return pplib.convert_text_into_shape(shape)
-        except Exception as e:
-            logging.error("Text to shape failed with error {}".format(e))
+        except:
+            logging.exception("Text to shape failed")
     
     @classmethod
     def texts_to_shapes(cls, shapes):
@@ -710,6 +924,11 @@ class ShapeDialogs(object):
     def shape_split(context, shapes):
         from .dialogs.shape_split import ShapeSplitWindow
         ShapeSplitWindow.create_and_show_dialog(context, shapes)
+
+    @staticmethod
+    def shape_scale(context, shapes):
+        from .dialogs.shape_scale import ShapeScaleWindow
+        ShapeScaleWindow.create_and_show_dialog(context, shapes)
     
     @staticmethod
     def show_segmented_circle_dialog(context, slide):
@@ -735,9 +954,9 @@ class ShapeDialogs(object):
         Pentagon.create_headered_chevron(slide)
     
     @staticmethod
-    def create_traffic_light(slide):
+    def create_traffic_light(slide, style):
         from .popups.traffic_light import Ampel
-        Ampel.create(slide)
+        Ampel.create(slide, style)
 
 
 
@@ -750,11 +969,19 @@ class NumberedShapes(object):
     position = "top-left"       # top-left, top-right
     position_offset = True      # True, False
     
-    label_1 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]
-    label_a = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-    label_A = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-    label_I = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI']
+    # label_1 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]
+    # label_a = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+    # label_A = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+    # label_I = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI']
     
+    _count_formatter = None
+    @classmethod
+    def get_count_formatter(cls):
+        if not cls._count_formatter:
+            from formatter import AbstractFormatter, DumbWriter
+            cls._count_formatter = AbstractFormatter(DumbWriter())
+        return cls._count_formatter
+
     
     @classmethod
     def create_numbers_for_shapes(cls, slide, shapes, **kwargs):
@@ -770,14 +997,12 @@ class NumberedShapes(object):
         # default settings are overwritten by key-word-arguments
         settings.update(kwargs)
         
-        number = 1
-        num_shapes = []
-        for shape in shapes:
-            num_shape = cls.create_number_shape(slide, shape, number, **settings)
-            num_shapes.append(num_shape)
-            number += 1
+        len_shapes = 0
+        for number, shape in enumerate(shapes, start=1):
+            cls.create_number_shape(slide, shape, number, **settings)
+            len_shapes = number
         
-        bkt.library.powerpoint.last_n_shapes_on_slide(slide, len(num_shapes)).select()
+        pplib.last_n_shapes_on_slide(slide, len_shapes).select()
         
         
     
@@ -786,20 +1011,36 @@ class NumberedShapes(object):
         
         if shape_type == 'square':
             numshape = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeRectangle'] , shape.left, shape.top, 14, 14)
+        elif shape_type == 'diamond':
+            numshape = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeDiamond'] , shape.left, shape.top, 14, 14)
         else: #circle
             numshape = slide.shapes.addshape( pplib.MsoAutoShapeType['msoShapeOval'] , shape.left, shape.top, 14, 14)
         
+        numshape.LockAspectRatio = -1
+
         if style == "dark":
-            numshape.line.visible = False
-            numshape.fill.ForeColor.RGB = 0
-            numshape.TextFrame.TextRange.Font.Color.rgb = 255 + 255 * 256 + 255 * 256**2
+            col_background = 13 #msoThemeColorText1
+            col_foreground = 14 #msoThemeColorBackground1
+        else:
+            col_background = 14 #msoThemeColorBackground1
+            col_foreground = 13 #msoThemeColorText1
+
+        numshape.Line.Visible = -1
+        numshape.Line.ForeColor.ObjectThemeColor = col_foreground
+        numshape.Fill.Visible = -1
+        numshape.Fill.ForeColor.ObjectThemeColor = col_background
+
+        # if style == "dark":
+        #     numshape.line.visible = False
+        #     numshape.fill.ForeColor.RGB = 0
+        #     numshape.TextFrame.TextRange.Font.Color.rgb = 255 + 255 * 256 + 255 * 256**2
             
-        else: # light
-            numshape.line.style = 1
-            numshape.line.weight = 1
-            numshape.line.ForeColor.RGB = 0
-            numshape.fill.ForeColor.RGB = 255 + 255 * 256 + 255 * 256**2
-            numshape.TextFrame.TextRange.Font.Color.rgb = 0
+        # else: # light
+        #     numshape.line.style = 1
+        #     numshape.line.weight = 1
+        #     numshape.line.ForeColor.RGB = 0
+        #     numshape.fill.ForeColor.RGB = 255 + 255 * 256 + 255 * 256**2
+        #     numshape.TextFrame.TextRange.Font.Color.rgb = 0
         
         # positions corrections for rounded rectangles and pentagon/chevron-shapes
         pos_correction_l = 0
@@ -823,18 +1064,21 @@ class NumberedShapes(object):
                 numshape.top -= numshape.height/2
         
         # format shape and text
-        numshape.TextFrame.TextRange.text = getattr(cls, 'label_' + label)[(number-1)%26] #at number 26 start from beginning to avoid IndexError
-        numshape.TextFrame.TextRange.font.size = 12
-        numshape.TextFrame.TextRange.ParagraphFormat.Alignment = pplib.PowerPoint.PpParagraphAlignment.ppAlignCenter.value__
-        numshape.TextFrame.TextRange.ParagraphFormat.Bullet.Type = 0
-        numshape.TextFrame.AutoSize = 0
-        numshape.TextFrame.WordWrap = False
-        numshape.TextFrame.MarginTop = 0
-        numshape.TextFrame.MarginLeft = 0
-        numshape.TextFrame.MarginRight = 0
-        numshape.TextFrame.MarginBottom = 0
-        #numshape.TextFrame.HorizontalAnchor = office.MsoHorizontalAnchor.msoAnchorCenter.value__
-        numshape.TextFrame.VerticalAnchor = office.MsoVerticalAnchor.msoAnchorMiddle.value__
+        # numshape.TextFrame.TextRange.text = getattr(cls, 'label_' + label)[(number-1)%26] #at number 26 start from beginning to avoid IndexError
+        textframe = numshape.TextFrame2
+        textframe.TextRange.Text = cls.get_count_formatter().format_counter(label, number)
+        textframe.TextRange.Font.Size = 12
+        textframe.TextRange.Font.Fill.ForeColor.ObjectThemeColor = col_foreground
+        textframe.TextRange.ParagraphFormat.Alignment = pplib.PowerPoint.PpParagraphAlignment.ppAlignCenter.value__
+        textframe.TextRange.ParagraphFormat.Bullet.Type = 0
+        textframe.AutoSize = 0
+        textframe.WordWrap = False
+        textframe.MarginTop = 0
+        textframe.MarginLeft = 0
+        textframe.MarginRight = 0
+        textframe.MarginBottom = 0
+        #textframe.HorizontalAnchor = office.MsoHorizontalAnchor.msoAnchorCenter.value__
+        textframe.VerticalAnchor = office.MsoVerticalAnchor.msoAnchorMiddle.value__
         
         return numshape
     
@@ -843,20 +1087,20 @@ class NumberedShapes(object):
 class NumberShapesGallery(bkt.ribbon.Gallery):
     
     # item-settings for gallery
-    items = [ dict(label=l, style=s, shape_type=t) for l in ['1', 'a', 'A', 'I'] for t in ['circle', 'square'] for s in ['dark', 'light']  ]
-    columns = 4
+    items = [ dict(label=l, style=s, shape_type=t) for l in ['1', 'a', 'A', 'i', 'I'] for t in ['circle', 'square', 'diamond'] for s in ['dark', 'light'] ]
+    item_cols = 6
     
     position = "top-left"
     position_offset = True
     
     def __init__(self, **kwargs):
         parent_id = kwargs.get('id') or ""
-        super(NumberShapesGallery, self).__init__(
+        my_kwargs = dict(
             label = 'Nummerierung',
-            columns = 4,
+            columns = self.item_cols,
             screentip="Nummerierungs-Shapes einfügen",
             supertip="Fügt für jedes markierte Shape ein Nummerierungs-Shape ein. Nummerierung und Styling entsprechend der Auswahl. Markierte Shapes werden entsprechend der Selektions-Reihenfolge durchnummeriert.",
-            get_image=bkt.Callback(lambda: self.get_item_image(0) ),
+            get_image=bkt.Callback(lambda: self.get_item_image(0)),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
             item_width=24,
             item_height=24,
@@ -868,8 +1112,10 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
                 bkt.ribbon.Button(id=parent_id + "_pos-offset", label="Versetzt positionieren", screentip="Nummerierungs-Shapes versetzt positionieren", on_action=bkt.Callback(self.toggle_pos_offset), get_image=bkt.Callback(lambda: self.get_toggle_image('pos-offset')),
                     supertip="Standardmäßig werden Nummerierungs-Shapes genau am Rand des zugehörigen Shapes ausgerichtet.\n\nIst \"Versetzt positionieren\" aktiviert, werden die Nummerierungs-Shapes etwas weiter außerhalb des zugehörigen Shapes plaziert, so dass der Mittelpunkt des Nummerierungs-Shapes auf der Ecke liegt.")
             ],
-            **kwargs
         )
+        my_kwargs.update(kwargs)
+
+        super(NumberShapesGallery, self).__init__(**my_kwargs)
     
     
     def on_action_indexed(self, selected_item, index, slide, shapes):
@@ -900,31 +1146,52 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         size = 48
         img = Drawing.Bitmap(size, size)
         g = Drawing.Graphics.FromImage(img)
-        # color_black = Drawing.ColorTranslator.FromOle(0)
-        color_black = Drawing.Color.Black
         
         #Draw smooth rectangle/ellipse
         g.SmoothingMode = Drawing.Drawing2D.SmoothingMode.AntiAlias
-        
-        if item['style'] == 'dark':
-            # create black circle/rectangle
-            brush = Drawing.SolidBrush(color_black)
+
+        if item['style'] == "dark":
+            pen_border = Drawing.Pen(Drawing.Color.White,2)
+            brush_fill = Drawing.Brushes.Black
             text_brush = Drawing.Brushes.White
-
-            if item['shape_type'] == 'circle':
-                g.FillEllipse(brush, 2,2, size-5, size-5)
-            else: #square
-                g.FillRectangle(brush, Drawing.Rectangle(2,2, size-5, size-5))
-
-        else: # light
-            # create white circle/rectangle
+        else:
+            pen_border = Drawing.Pen(Drawing.Color.Black,2)
+            brush_fill = Drawing.Brushes.White
             text_brush = Drawing.Brushes.Black
-            pen = Drawing.Pen(color_black,2)
 
-            if item['shape_type'] == 'circle':
-                g.DrawEllipse(pen, 2,1, size-4, size-4)
-            else: #square
-                g.DrawRectangle(pen, Drawing.Rectangle(2,2, size-4, size-4))
+        if item['shape_type'] == 'circle':
+            g.FillEllipse(brush_fill, 2, 2, size-4, size-4) #left, top, width, height
+            g.DrawEllipse(pen_border, 2, 2, size-4, size-4) #left, top, width, height
+        elif item['shape_type'] == 'diamond':
+            diamond_points = [(0,1),(1,2),(2,1),(1,0)]
+            size_factor = size/2
+            points = Array[Drawing.Point]([Drawing.Point(l*size_factor,t*size_factor) for t,l in diamond_points])
+            g.FillPolygon(brush_fill, points)
+            g.DrawPolygon(pen_border, points)
+        else: #fallback shape=1 rectangle
+            g.FillRectangle(brush_fill, 2, 2, size-4, size-4) #left, top, width, height
+            g.DrawRectangle(pen_border, 2, 2, size-4, size-4) #left, top, width, height
+        
+        # color_black = Drawing.Color.Black
+        # if item['style'] == 'dark':
+        #     # create black circle/rectangle
+        #     brush = Drawing.SolidBrush(color_black)
+        #     text_brush = Drawing.Brushes.White
+
+        #     if item['shape_type'] == 'circle':
+        #         g.FillEllipse(brush, 2,2, size-5, size-5)
+        #     else: #square
+        #         g.FillRectangle(brush, Drawing.Rectangle(2,2, size-5, size-5))
+
+        # else: # light
+        #     # create white circle/rectangle
+        #     text_brush = Drawing.Brushes.Black
+        #     pen = Drawing.Pen(color_black,2)
+
+        #     if item['shape_type'] == 'circle':
+        #         g.DrawEllipse(pen, 2,1, size-4, size-4)
+        #     else: #square
+        #         g.DrawRectangle(pen, Drawing.Rectangle(2,2, size-4, size-4))
 
         # set string format
         strFormat = Drawing.StringFormat()
@@ -934,7 +1201,8 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         # draw string
         g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAliasGridFit
         # g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
-        g.DrawString(str(getattr(NumberedShapes, 'label_' + item['label'])[index%int(self.columns)]),
+        # g.DrawString(str(getattr(NumberedShapes, 'label_' + item['label'])[index%int(self.columns)]),
+        g.DrawString(NumberedShapes.get_count_formatter().format_counter(item['label'], index%int(self.item_cols)+1),
                      Drawing.Font("Arial", 32, Drawing.FontStyle.Bold, Drawing.GraphicsUnit.Pixel), text_brush, 
                      # Drawing.Font("Arial", 7, Drawing.FontStyle.Bold), text_brush, 
                      Drawing.RectangleF(1, 2, size, size-1), 
@@ -1191,7 +1459,7 @@ class ShapeFormats(object):
             setattr(shp_object, "visible", -1)
             setattr(shp_object, attribute, value)
         except:
-            logging.debug("Setting {} attribute {} to value {} failed!".format(shp_object, attribute, value))
+            logging.exception("Setting %s attribute %s to value %s failed!", shp_object, attribute, value)
     @classmethod
     def _attr_getter(cls, shape, shp_object, attribute):
         try:
@@ -1201,7 +1469,7 @@ class ShapeFormats(object):
                 value = value*100
             return value
         except:
-            logging.debug("Getting {} attribute {} failed!".format(shp_object, attribute))
+            logging.exception("Getting %s attribute %s failed!", shp_object, attribute)
             return 0
 
     ### Fill properties ###
@@ -1459,6 +1727,34 @@ class PictureFormat(object):
 
 
 
+class PlaceholderConverter(object):
+    @staticmethod
+    def is_text_placeholder(shape):
+        # return shape.Type == pplib.MsoShapeType["msoPlaceholder"] and shape.PlaceholderFormat.ContainedType in (pplib.MsoShapeType['msoTextBox'],pplib.MsoShapeType['msoAutoShape'] )
+        return shape.Type == pplib.MsoShapeType["msoPlaceholder"]
+    
+    @classmethod
+    def convert_placeholder(cls, shape):
+        # new = pplib.replicate_shape(shape)
+        new = shape.Duplicate()
+        new.top, new.left = shape.top, shape.left
+        shape.Delete()
+        new.select(False)
+
+    @classmethod
+    def convert_shapes(cls, shapes):
+        success=False
+        for shape in shapes:
+            if cls.is_text_placeholder(shape):
+                try:
+                    cls.convert_placeholder(shape)
+                    success = True
+                except:
+                    logging.exception("placeholder conversion failed")
+
+        if not success:
+            bkt.message.warning("Aktuelle Auswahl enthält keine Platzhalter!")
+
 
 class ShapeTableGallery(bkt.ribbon.Gallery):
     
@@ -1498,7 +1794,7 @@ class ShapeTableGallery(bkt.ribbon.Gallery):
     
     def create_shape_table(self, slide, rows, columns):
         
-        ref_left,ref_top,ref_width,ref_height = pplib.slide_content_size(slide.parent)
+        ref_left,ref_top,ref_width,ref_height = pplib.slide_content_size(slide)
         target_width = ref_width + self._margin
         target_height = ref_height + self._margin
         
@@ -1589,7 +1885,7 @@ class ChessTableGallery(ShapeTableGallery):
     
     def create_shape_table(self, slide, rows, columns):
         
-        ref_left,ref_top,ref_width,ref_height = pplib.slide_content_size(slide.parent)
+        ref_left,ref_top,ref_width,ref_height = pplib.slide_content_size(slide)
         target_width = ref_width
         target_height = ref_height
         
@@ -1786,14 +2082,38 @@ shapes_group = bkt.ribbon.Group(
                     on_action=bkt.Callback(ShapeDialogs.create_headered_chevron)
                 ),
                 harvey.harvey_create_button,
-                bkt.ribbon.Button(
+                bkt.ribbon.Menu(
+                    id="traffic_light_menu",
                     label="Ampel",
                     image="traffic_light",
                     screentip='Status-Ampel erstellen',
-                    supertip="Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden.",
-                    on_action=bkt.Callback(ShapeDialogs.create_traffic_light)
+                    children=[
+                        bkt.ribbon.Button(
+                            id="traffic_light",
+                            label="Ampel vertikal",
+                            image="traffic_light",
+                            screentip='Status-Ampel vertikal erstellen',
+                            supertip="Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden.",
+                            on_action=bkt.Callback(lambda slide: ShapeDialogs.create_traffic_light(slide, "vertical"), slide=True)
+                        ),
+                        bkt.ribbon.Button(
+                            label="Ampel horizontal",
+                            image="traffic_light2",
+                            screentip='Status-Ampel horizontal erstellen',
+                            supertip="Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden.",
+                            on_action=bkt.Callback(lambda slide: ShapeDialogs.create_traffic_light(slide, "horizontal"), slide=True)
+                        ),
+                        bkt.ribbon.Button(
+                            label="Ampel Punkt",
+                            image="traffic_light3",
+                            screentip='Status-Ampel einfach erstellen',
+                            supertip="Füge eine Status-Ampel ein. Die Status-Farbe der Ampel kann per Kontext-Dialog konfiguriert werden.",
+                            on_action=bkt.Callback(lambda slide: ShapeDialogs.create_traffic_light(slide, "simple"), slide=True)
+                        ),
+                    ]
                 ),
                 stateshapes.likert_button,
+                stateshapes.checkbox_button,
                 bkt.ribbon.MenuSeparator(title="Verbindungsflächen"),
                 bkt.ribbon.Button(
                     id = 'connector_h',
@@ -1838,6 +2158,21 @@ shapes_group = bkt.ribbon.Group(
                     on_action=bkt.Callback(ShapeDialogs.shape_split),
                     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
                 ),
+                bkt.ribbon.Button(
+                    label="Shapes skalieren…",
+                    image_mso="DiagramScale",
+                    screentip="Shapes skalieren",
+                    supertip="Shape-Größe inkl. aller Elemente/Eigenschaften (Schriftgröße, Konturen, etc.) gleichmäßig ändern.",
+                    on_action=bkt.Callback(ShapeDialogs.shape_scale),
+                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                ),
+                bkt.ribbon.Button(
+                    label="Platzhalter in Textbox umwandeln",
+                    image_mso="ConvertTableToText",
+                    supertip="Wandelt alle markierten Text-Platzhalter in echte Textboxen um, die u.A. eine Gruppierung erlauben.",
+                    on_action=bkt.Callback(PlaceholderConverter.convert_shapes),
+                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                ),
                 bkt.mso.control.ObjectEditPoints,
                 bkt.ribbon.Button(
                     label="Text/Symbol zu Shapes umwandeln",
@@ -1875,18 +2210,27 @@ shapes_group = bkt.ribbon.Group(
                 bkt.mso.control.InsertNewComment,
                 bkt.ribbon.MenuSeparator(title="Ein-/Ausblenden"),
                 bkt.ribbon.Button(
-                    id = 'hide_shape',
-                    label = u"Shapes verstecken",
+                    id = 'toggle_shapes_visibility',
+                    label = u"Shapes vertecken/einblenden",
                     image_mso="ShapesSubtract",
-                    supertip="Verstecke alle markierten Shapes (visible=False).",
-                    on_action=bkt.Callback(ShapesMore.hide_shapes),
-                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                    supertip="Wenn Shapes ausgewählt sind, verstecke alle markierten Shapes (visible=False), anderen falls mache Shapes wieder sichtbar (visible=True). Gibt es keine unsichtbaren Shapes, werden die zuletzt versteckten Shapes erneut versteckt.",
+                    on_action=bkt.Callback(ShapesMore.toggle_shapes_visibility),
+                    # get_enabled = bkt.apps.ppt_shapes_or_text_selected,
                 ),
+                # bkt.ribbon.Button(
+                #     id = 'hide_shape',
+                #     label = u"Shapes verstecken",
+                #     image_mso="ShapesSubtract",
+                #     supertip="Verstecke alle markierten Shapes (visible=False).",
+                #     on_action=bkt.Callback(ShapesMore.hide_shapes),
+                #     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                # ),
                 bkt.ribbon.Button(
                     id = 'show_shapes',
-                    label = u"Versteckte Shapes einblenden",
+                    label = u"Alle versteckten Shapes einblenden",
+                    image_mso="VisibilityVisible",
                     supertip="Mache alle versteckten Shapes (visible=False) wieder sichtbar.",
-                    on_action=bkt.Callback(ShapesMore.show_shapes)
+                    on_action=bkt.Callback(ShapesMore.show_invisible_shapes)
                 ),
 
             ]

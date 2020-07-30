@@ -1,91 +1,134 @@
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:fr="clr-namespace:Fluent;assembly=Fluent"
     ResizeMode="NoResize" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen"
     Title="Shapes selektieren"
     ShowInTaskbar="False" MinWidth="400">
 
     <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
-           </ResourceDictionary.MergedDictionaries>
-       </ResourceDictionary>
+        <Style x:Key="selectAllBtn" TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+            <Setter Property="Content" Value="&#xE73A;" />
+        </Style>
+        <Style x:Key="selectNoneBtn" TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+            <Setter Property="Content" Value="&#xE739;" />
+        </Style>
    </Window.Resources>
 
     <StackPanel x:Name="DataPanel" Orientation="Vertical" Margin="5">
+        
+        <Grid Margin="5" HorizontalAlignment="Center">
+          <Grid.RowDefinitions>
+              <RowDefinition />
+              <RowDefinition />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="200" />
+              <ColumnDefinition Width="200" />
+              <ColumnDefinition Width="200" />
+          </Grid.ColumnDefinitions>
 
-        <Label Content="Eigenschaften für Selektion auswählen:"/>
+        <!-- <Label Content="Eigenschaften für Selektion auswählen:"/> -->
 
-        <GroupBox Margin="5" Header="Shape-Typ und -Größe">
-            <!-- <GroupBox.Header>
-                <StackPanel Orientation="Horizontal" Margin="5">
-                    <fr:CheckBox Header="Shape-Typ und -Größe" IsChecked="{Binding shape_all, Mode=TwoWay}" FontWeight="Bold" />
+        <GroupBox Grid.Row="0" Grid.Column="0" Margin="5">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <!-- <CheckBox Content="Shape-Typ und -Größe" IsChecked="{Binding shape_all, Mode=TwoWay}" FontWeight="Bold" /> -->
+                    <Label Content="Shape-Typ und -Größe" />
+                    <Button Style="{StaticResource selectAllBtn}" Tag="shape_all" Click="select_all" />
+                    <Button Style="{StaticResource selectNoneBtn}" Tag="shape_all" Click="select_none" />
                 </StackPanel>
-            </GroupBox.Header> -->
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <fr:CheckBox Header="Typ/Form" IsChecked="{Binding shape_keys[shape_type], Mode=TwoWay}" Margin="5,0" />
-                <fr:CheckBox Header="Breite" IsChecked="{Binding shape_keys[shape_width], Mode=TwoWay}" Margin="5,0" />
-                <fr:CheckBox Header="Höhe" IsChecked="{Binding shape_keys[shape_height], Mode=TwoWay}" Margin="5,0" />
+            </GroupBox.Header>
+            <StackPanel Orientation="Vertical" Margin="5">
+                <CheckBox Content="Typ/Form" IsChecked="{Binding sk_shape_type, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Breite" IsChecked="{Binding sk_shape_width, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Höhe" IsChecked="{Binding sk_shape_height, Mode=TwoWay}" Margin="5,1" />
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Margin="5" Header="Shape-Position">
-            <!-- <GroupBox.Header>
-                <fr:CheckBox Header="Shape-Position" IsChecked="{Binding pos_all, Mode=TwoWay}" FontWeight="Bold" />
-            </GroupBox.Header> -->
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <fr:CheckBox Header="Links" IsChecked="{Binding shape_keys[pos_left], Mode=TwoWay}" Margin="5,0"/>
-                <fr:CheckBox Header="Oben" IsChecked="{Binding shape_keys[pos_top], Mode=TwoWay}" Margin="5,0" />
-                <fr:CheckBox Header="Rotation" IsChecked="{Binding shape_keys[pos_rotation], Mode=TwoWay}" Margin="5,0" />
+        <GroupBox Grid.Row="0" Grid.Column="1" Margin="5">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <!-- <CheckBox Content="Shape-Position" IsChecked="{Binding pos_all, Mode=TwoWay}" FontWeight="Bold" /> -->
+                    <Label Content="Shape-Position" />
+                    <Button Style="{StaticResource selectAllBtn}" Tag="pos_all" Click="select_all" />
+                    <Button Style="{StaticResource selectNoneBtn}" Tag="pos_all" Click="select_none" />
+                </StackPanel>
+            </GroupBox.Header>
+            <StackPanel Orientation="Vertical" Margin="5">
+                <CheckBox Content="Links" IsChecked="{Binding sk_pos_left, Mode=TwoWay}" Margin="5,1"/>
+                <CheckBox Content="Oben" IsChecked="{Binding sk_pos_top, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Rotation" IsChecked="{Binding sk_pos_rotation, Mode=TwoWay}" Margin="5,1" />
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Margin="5" Header="Hintergrund/Füllung">
-            <!-- <GroupBox.Header>
-                <fr:CheckBox Header="Hintergrund/Füllung" IsChecked="{Binding fill_all, Mode=TwoWay}" FontWeight="Bold" />
-            </GroupBox.Header> -->
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <fr:CheckBox Header="Art (Einfarbig/Verlauf/Muster)" IsChecked="{Binding shape_keys[fill_type], Mode=TwoWay}" Margin="5,0" />
-                <fr:CheckBox Header="Farbe" IsChecked="{Binding shape_keys[fill_color], Mode=TwoWay}" Margin="5,0" />
-                <fr:CheckBox Header="Transparenz" IsChecked="{Binding shape_keys[fill_transp], Mode=TwoWay}" Margin="5,0" />
+        <GroupBox Grid.Row="1" Grid.Column="0" Margin="5">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <!-- <CheckBox Content="Hintergrund/Füllung" IsChecked="{Binding fill_all, Mode=TwoWay}" FontWeight="Bold" /> -->
+                    <Label Content="Hintergrund/Füllung" />
+                    <Button Style="{StaticResource selectAllBtn}" Tag="fill_all" Click="select_all" />
+                    <Button Style="{StaticResource selectNoneBtn}" Tag="fill_all" Click="select_none" />
+                </StackPanel>
+            </GroupBox.Header>
+            <StackPanel Orientation="Vertical" Margin="5">
+                <CheckBox Content="Art" ToolTip="Einfarbig/Verlauf/Muster" IsChecked="{Binding sk_fill_type, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Farbe" IsChecked="{Binding sk_fill_color, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Transparenz" IsChecked="{Binding sk_fill_transp, Mode=TwoWay}" Margin="5,1" />
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Margin="5" Header="Linie/Rahmen">
-            <!-- <GroupBox.Header>
-                <fr:CheckBox Header="Linie/Rahmen" IsChecked="{Binding line_all, Mode=TwoWay}" FontWeight="Bold" />
-            </GroupBox.Header> -->
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <fr:CheckBox Header="Konturstärke" IsChecked="{Binding shape_keys[line_weight], Mode=TwoWay}" Margin="5,0" />
-                <fr:CheckBox Header="Art/Strichtyp" IsChecked="{Binding shape_keys[line_style], Mode=TwoWay}" Margin="5,0" />
-                <fr:CheckBox Header="Farbe" IsChecked="{Binding shape_keys[line_color], Mode=TwoWay}" Margin="5,0" />
-                <fr:CheckBox Header="Anfang (Pfeiltyp)" IsChecked="{Binding shape_keys[line_begin], Mode=TwoWay}" Margin="5,0" />
-                <fr:CheckBox Header="Ende (Pfeiltyp)" IsChecked="{Binding shape_keys[line_end], Mode=TwoWay}" Margin="5,0" />
+        <GroupBox Grid.Row="1" Grid.Column="1" Margin="5">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <!-- <CheckBox Content="Linie/Rahmen" IsChecked="{Binding line_all, Mode=TwoWay}" FontWeight="Bold" /> -->
+                    <Label Content="Linie/Rahmen" />
+                    <Button Style="{StaticResource selectAllBtn}" Tag="line_all" Click="select_all" />
+                    <Button Style="{StaticResource selectNoneBtn}" Tag="line_all" Click="select_none" />
+                </StackPanel>
+            </GroupBox.Header>
+            <StackPanel Orientation="Vertical" Margin="5">
+                <CheckBox Content="Konturstärke" IsChecked="{Binding sk_line_weight, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Art/Strichtyp" IsChecked="{Binding sk_line_style, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Farbe" IsChecked="{Binding sk_line_color, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Anfang (Pfeiltyp)" IsChecked="{Binding sk_line_begin, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Ende (Pfeiltyp)" IsChecked="{Binding sk_line_end, Mode=TwoWay}" Margin="5,1" />
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Margin="5" Header="Schrift">
-            <!-- <GroupBox.Header>
-                <fr:CheckBox Header="Schrift" IsChecked="{Binding font_all, Mode=TwoWay}" FontWeight="Bold" />
-            </GroupBox.Header> -->
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <fr:CheckBox Header="Schriftart" IsChecked="{Binding shape_keys[font_name], Mode=TwoWay}" Margin="5,0" />
-                <fr:CheckBox Header="Schriftgröße" IsChecked="{Binding shape_keys[font_size], Mode=TwoWay}" Margin="5,0" />
-                <fr:CheckBox Header="Schriftfarbe" IsChecked="{Binding shape_keys[font_color], Mode=TwoWay}" Margin="5,0" />
-                <fr:CheckBox Header="Stil (Fett/Unterstrichen/Kursiv)" IsChecked="{Binding shape_keys[font_style], Mode=TwoWay}" Margin="5,0" />
+        <GroupBox Grid.Row="1" Grid.Column="2" Margin="5">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <!-- <CheckBox Content="Schrift" IsChecked="{Binding font_all, Mode=TwoWay}" FontWeight="Bold" /> -->
+                    <Label Content="Schrift" />
+                    <Button Style="{StaticResource selectAllBtn}" Tag="font_all" Click="select_all" />
+                    <Button Style="{StaticResource selectNoneBtn}" Tag="font_all" Click="select_none" />
+                </StackPanel>
+            </GroupBox.Header>
+            <StackPanel Orientation="Vertical" Margin="5">
+                <CheckBox Content="Schriftart" IsChecked="{Binding sk_font_name, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Schriftgröße" IsChecked="{Binding sk_font_size, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Schriftfarbe" IsChecked="{Binding sk_font_color, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Stil" ToolTip="Fett/Unterstrichen/Kursiv" IsChecked="{Binding sk_font_style, Mode=TwoWay}" Margin="5,1" />
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Margin="5" Header="Inhalt">
-            <!-- <GroupBox.Header>
-                <fr:CheckBox Header="Inhalt" IsChecked="{Binding content_all, Mode=TwoWay}" FontWeight="Bold" />
-            </GroupBox.Header> -->
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <fr:CheckBox Header="Anzahl Zeichen" IsChecked="{Binding shape_keys[content_len], Mode=TwoWay}" Margin="5,0" />
-                <fr:CheckBox Header="Text" IsChecked="{Binding shape_keys[content_text], Mode=TwoWay}" Margin="5,0" />
+        <GroupBox Grid.Row="0" Grid.Column="2" Margin="5">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <!-- <CheckBox Content="Inhalt" IsChecked="{Binding content_all, Mode=TwoWay}" FontWeight="Bold" /> -->
+                    <Label Content="Inhalt" />
+                    <Button Style="{StaticResource selectAllBtn}" Tag="content_all" Click="select_all" />
+                    <Button Style="{StaticResource selectNoneBtn}" Tag="content_all" Click="select_none" />
+                </StackPanel>
+            </GroupBox.Header>
+            <StackPanel Orientation="Vertical" Margin="5">
+                <CheckBox Content="Anzahl Zeichen" IsChecked="{Binding sk_content_len, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Text" IsChecked="{Binding sk_content_text, Mode=TwoWay}" Margin="5,1" />
             </StackPanel>
         </GroupBox>
+
+        </Grid>
 
         <Grid Margin="0">
           <Grid.ColumnDefinitions>
@@ -93,9 +136,9 @@
               <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <StackPanel Orientation="Horizontal" Grid.Column="1">
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Vorschau" Click="shapes_select"/>
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Auswählen" IsDefault="True" Click="shapes_select_close"/>
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Vorschau"                   Click="shapes_select"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Auswählen" IsDefault="True" Click="shapes_select_close"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
           </StackPanel>
       </Grid>
     </StackPanel>

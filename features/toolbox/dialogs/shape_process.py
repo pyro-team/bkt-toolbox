@@ -21,6 +21,7 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         super(ViewModel, self).__init__()
         
         self._num_steps = 3
+        self._num_rows  = 2
         self._spacing   = 0.2
         self._first_pentagon = True
     
@@ -40,6 +41,15 @@ class ViewModel(bkt.ui.ViewModelSingleton):
     @spacing.setter
     def spacing(self, value):
         self._spacing = value
+    
+    
+    @notify_property
+    def num_rows(self):
+        return self._num_rows
+
+    @num_rows.setter
+    def num_rows(self, value):
+        self._num_rows = value
 
     @notify_property
     def first_pentagon(self):
@@ -72,5 +82,5 @@ class ProcessWindow(bkt.ui.WpfWindowAbstract):
         self.Close()
     
     def create_process(self, sender, event):
-        self._model.create_process(self._slide, self._vm.num_steps, self._vm.first_pentagon, cm_to_pt(self._vm.spacing))
+        self._model.create_process(self._slide, self._vm.num_steps, self._vm.first_pentagon, cm_to_pt(self._vm.spacing), self._vm.num_rows)
         self.Close()

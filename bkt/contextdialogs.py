@@ -9,12 +9,13 @@ Created on 11.11.2019
 from __future__ import absolute_import
 
 import logging
-import traceback
 import importlib #for loading context dialog modules
 
 # wpf basics
 from bkt import dotnet
 wpf = dotnet.import_wpf() #this is required to import System.Windows.Controls
+Forms = dotnet.import_forms() #this is required for System.Windows.Forms.MouseButtons
+MouseButtonRight = Forms.MouseButtons.Right
 
 # for Primitives.Popup
 from System import Windows, Diagnostics # for Primitives.Popup
@@ -61,7 +62,7 @@ class ContextDialog(object):
             logging.warning("ContextDialog.trigger_doubleclick: No double click action defined in module %s" % self.module_name)
 
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog double click")
     
     def show_dialog_at_shape_position(self, shape, context):
         ''' create window for the context dialog at show it at shape's position '''
@@ -107,7 +108,7 @@ class ContextDialog(object):
                 return self.module.create_window(context)
             
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog window creation")
     
     # def show(self, parent_window_handle, left, top, context):
     #     ''' show the context dialog from the corresponding module '''
@@ -120,7 +121,7 @@ class ContextDialog(object):
     #             return self.module.show(parent_window_handle, left, top, context)
     #
     #     except:
-    #         logging.error(traceback.format_exc())
+    #         logging.exception("error in contextdialogs")
     #
     # def show_window(self, parent_window_handle, left, top, context):
     #     ''' show the context dialog using the corresponding window-class '''
@@ -209,7 +210,7 @@ class ContextDialogs(object):
                 return #if context not defined or dialog already visible, skip re-show
             self.show_shape_dialog_for_selection(self.context.selection, self.context)
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog reshow shape dialog")
 
 
     def show_shape_dialog_for_selection(self, selection, context):
@@ -239,7 +240,7 @@ class ContextDialogs(object):
             else:
                 self.close_active_dialog()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog show shape dialog")
     
     
     def hide_on_window_deactivate(self):
@@ -247,7 +248,7 @@ class ContextDialogs(object):
         try:
             self.close_active_dialog()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog close active dialog")
     
     
     def show_shape_dialog_for_shapes(self, shapes, context):
@@ -266,7 +267,7 @@ class ContextDialogs(object):
             ### close active dialog
             self.close_active_dialog()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog close active dialog")
 
         try:
             ### check shape tag and show suitable dialog
@@ -288,7 +289,7 @@ class ContextDialogs(object):
             DialogHelpers.hook_events(self)
             
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog show shape dialog")
     
     def show_master_shape_dialog(self, shapes, context):
         ''' create and show a context dialog for the given shape, depending on the shape's settings '''
@@ -298,7 +299,7 @@ class ContextDialogs(object):
             ### close active dialog
             self.close_active_dialog()
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog close active dialog")
             
         try:
             ### check shape tag and show suitable dialog
@@ -320,7 +321,7 @@ class ContextDialogs(object):
             DialogHelpers.hook_events(self)
             
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog show master shape dialog")
     
     def close_active_dialog(self):
         ''' close the latest active dialog if it still exists '''
@@ -337,7 +338,7 @@ class ContextDialogs(object):
                     DialogHelpers.unhook_events(self)
             
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog close active dialog")
     
     
     def trigger_doubleclick_for_shape(self, shape, context):
@@ -360,7 +361,7 @@ class ContextDialogs(object):
             ctx_dialog.trigger_doubleclick(shape, context)
             
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog double click")
         
     
     def mouse_down(self, sender, e):
@@ -376,6 +377,9 @@ class ContextDialogs(object):
         if not self.drag_started:
             if self.context and DialogHelpers.coordinates_within_slideview_window(e.X, e.Y, self.context):
                 self.re_show_shape_dialogs()
+            #FIXME: this code has nothing to do with contextdialogs, but there is currently no better location for this code
+            if e.Button == MouseButtonRight:
+                DialogHelpers.set_last_mouse_position(e.X, e.Y)
 
     # def mouse_move(self, sender, e):
     #     ''' object sender, MouseEventExtArgs e) '''
@@ -420,6 +424,7 @@ class ContextDialogs(object):
 
 class DialogHelpers(object):
     hooked = False
+    last_mouse_position = (0,0)
 
     @classmethod
     def hook_events(cls, ctx_dialogs):
@@ -432,6 +437,10 @@ class DialogHelpers(object):
         cls.hooked = False
         # ctx_dialogs.addin.UnhookEvents()
 
+    @classmethod
+    def set_last_mouse_position(cls, x, y):
+        ''' store last right button mouse up position '''
+        cls.last_mouse_position = (x,y)
     
     @classmethod
     def get_dialog_positon_from_shape(cls, active_window, shape, consider_scaling=True):
@@ -468,7 +477,7 @@ class DialogHelpers(object):
 
             return left, top
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog get position")
     
     
     @staticmethod
@@ -477,7 +486,7 @@ class DialogHelpers(object):
         try:
             return shape.parent.parent.Windows.item(1)
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog get window")
     
     @staticmethod
     def coordinates_within_slideview_window(x, y, context):
@@ -486,11 +495,15 @@ class DialogHelpers(object):
             #FIXME: would be better to check actual slide view window instead of slide, because this doesnt work with zoomed in slides
             active_window = context.app.ActiveWindow
 
+            # quick check of viewtype and activepane before checking actual coordinates
+            if active_window.ViewType != 9 or active_window.ActivePane.ViewType != 1: #ppViewNormal and ppViewSlide
+                return False
+
             ### METHOD 1: calculate coordinates of slide and compare
             page_setup = context.app.ActivePresentation.PageSetup
             l,t = active_window.PointsToScreenPixelsX(0), active_window.PointsToScreenPixelsY(0)
-            w,h = active_window.PointsToScreenPixelsX(page_setup.SlideWidth), active_window.PointsToScreenPixelsY(page_setup.SlideHeight)
-            return x>l and y>t and x<l+w and y<t+h
+            r,b = active_window.PointsToScreenPixelsX(page_setup.SlideWidth), active_window.PointsToScreenPixelsY(page_setup.SlideHeight)
+            return x>l and y>t and x<r and y<b
 
             ### METHOD 2: try to find a shape under cursor
             #FIXME: shape selection frame is actually bigger than shape
@@ -498,15 +511,26 @@ class DialogHelpers(object):
             # shape = active_window.RangeFromPoint(x,y)
             # return shape is not None
         except:
+            logging.exception("error determining if coordinates are in slideview")
             return False
     
     @staticmethod
     def coordinates_within_shape(x, y, context):
+        ''' returns shape(s) that are within coordinates, otherwise None '''
         try:
             active_window = context.app.ActiveWindow
             return active_window.RangeFromPoint(x,y)
         except:
             return None
+
+    @classmethod
+    def last_coordinates_within_shape(cls, context):
+        '''
+        returns shape(s) that are within last stored coordinations, otherwise None
+        this is useful to get shape that was clicked when context menu was opened
+        '''
+        x, y = cls.last_mouse_position
+        return cls.coordinates_within_shape(x, y, context)
 
     # FIXME:
     # https://dzimchuk.net/best-way-to-get-dpi-value-in-wpf/
@@ -523,7 +547,7 @@ class DialogHelpers(object):
             dpi = hkcu.OpenSubKey("Control Panel").OpenSubKey("Desktop").OpenSubKey("WindowMetrics").GetValue("AppliedDPI")
             return dpi/96.
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog get dpi")
             return 1.
 
             
@@ -533,7 +557,7 @@ class DialogHelpers(object):
         try:
             return Diagnostics.Process.GetCurrentProcess().MainWindowHandle
         except:
-            logging.error(traceback.format_exc())
+            logging.exception("error in contextdialog get handle")
     
     
 

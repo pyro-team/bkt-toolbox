@@ -13,18 +13,13 @@ import bkt.library.powerpoint as pplib
 # import fontawesome
 
 
-# pt_to_cm_factor = 2.54 / 72;
-# def pt_to_cm(pt):
-#     return float(pt) * pt_to_cm_factor;
-# def cm_to_pt(cm):
-#     return float(cm) / pt_to_cm_factor;
 
 class TextPlaceholder(object):
     recent_placeholder = bkt.settings.get("toolbox.recent_placeholder", "…")
     #labels for counter, but max 0..25
-    label_a = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-    label_A = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-    label_I = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI']
+    # label_a = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+    # label_A = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+    # label_I = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI']
 
     @staticmethod
     def set_text_for_shape(textframe, text=None): #None=delete text
@@ -45,37 +40,59 @@ class TextPlaceholder(object):
             cls.set_text_for_shape(textframe, None)
 
     @classmethod
-    def text_replace(cls, shapes):
-        input_text = bkt.ui.show_user_input("Text eingeben, der auf alle Shapes angewendet werden soll (Platzhalter [text] kann für bestehenden Text und [counter], [counter-a], [counter-A], [counter-I] zur Nummerierung verwendet werden):", "Text ersetzen", cls.recent_placeholder, True)
+    def text_replace(cls, shapes, presentation):
+        from string import Template
+        from formatter import AbstractFormatter, DumbWriter
 
-        # user_form = bkt.ui.UserInputBox("Text eingeben, der auf alle Shapes angewendet werden soll (Platzhalter [counter] kann zur Nummerierung verwendet werden):", "Text ersetzen")
-        # user_form._add_textbox("new_text", "…", True)
-        # user_form._add_checkbox("keep_text", "Text anhängen/ Vorhandenen Text erhalten")
-        # form_return = user_form.show()
-        # if len(form_return) == 0:
+        input_text = bkt.ui.show_user_input('''Text eingeben, der auf alle Shapes angewendet werden soll. Es stehen folgende Platzhalter zur Verfügung:
+
+${text}:\t\tSetzt bestehenden Shape-Text ein
+$text_len:\tAnzahl Zeichen im bestehenden Text
+$counter:\tNummerierung (Fortsetzung wenn erstes Shape eine Zahl enthält)
+$counter_a/A:\tNummerierung mit Klein- bzw. Großbuchstaben
+$counter_i/I:\tNummerierung mit römischen Ziffern (bspw. xi bzw. XI)''', "Text ersetzen", cls.recent_placeholder, True)
+
         if input_text is None:
             return
         cls.recent_placeholder = bkt.settings["toolbox.recent_placeholder"] = input_text
 
-        placeholder_count = input_text.count("[text]")
-        counter = 1
-        for textframe in pplib.iterate_shape_textframes(shapes):
-            new_text = input_text.replace("[counter]", str(counter))
-            new_text = new_text.replace("[counter-a]", cls.label_a[counter-1%26])
-            new_text = new_text.replace("[counter-A]", cls.label_A[counter-1%26])
-            new_text = new_text.replace("[counter-I]", cls.label_I[counter-1%26])
+        #get very first textframe to define language and counter start
+        first_textframe = next(iter(pplib.iterate_shape_textframes(shapes)))
+
+        #if first shape has a number, use it as counter start
+        try:
+            count_start = int(first_textframe.TextRange.Text)-1
+        except (ValueError, TypeError):
+            count_start = 0
+
+        template = Template(input_text)
+        count_formatter = AbstractFormatter(DumbWriter())
+
+        for i,textframe in enumerate(pplib.iterate_shape_textframes(shapes), start=1):
+            placeholders = {
+                "counter":   count_formatter.format_counter('1', i+count_start),
+                "counter_a": count_formatter.format_counter('a', i),
+                "counter_A": count_formatter.format_counter('A', i),
+                "counter_i": count_formatter.format_counter('i', i),
+                "counter_I": count_formatter.format_counter('I', i),
+
+                "text":      "[$text]",
+                "text_len":  len(textframe.TextRange.Text),
+            }
+
+            # run template engine
+            new_text = template.safe_substitute(placeholders)
             
+            # check if $text placeholder was present
+            placeholder_count = new_text.count("[$text]")
             if placeholder_count > 1:
                 #replace placeholder with text, might loose existing formatting
-                new_text = new_text.replace("[text]", textframe.TextRange.Text)
+                new_text = new_text.replace("[$text]", textframe.TextRange.Text)
             elif placeholder_count == 1:
                 #only one occurence of text-placeholder, make use of InsertBefore/After to keep formatting
-                new_text = new_text.split("[text]", 1)
+                new_text = new_text.split("[$text]", 1)
             
             cls.set_text_for_shape(textframe, new_text)
-            
-            # TextPlaceholder.set_text_for_shape(textframe, new_text, form_return["keep_text"])
-            counter += 1
 
     @classmethod
     def text_tbd(cls, shapes):
@@ -84,10 +101,8 @@ class TextPlaceholder(object):
 
     @classmethod
     def text_counter(cls, shapes):
-        counter = 1
-        for textframe in pplib.iterate_shape_textframes(shapes):
+        for counter,textframe in enumerate(pplib.iterate_shape_textframes(shapes), start=1):
             cls.set_text_for_shape(textframe, str(counter))
-            counter += 1
 
     @classmethod
     def text_lorem(cls, shapes):
@@ -95,7 +110,7 @@ class TextPlaceholder(object):
 At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
 At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.'''
-        lorem_text = bkt.ui.endings_to_windows(lorem_text)
+        lorem_text = bkt.helpers.endings_to_windows(lorem_text)
 
         for textframe in pplib.iterate_shape_textframes(shapes):
             cls.set_text_for_shape(textframe, lorem_text)
@@ -107,6 +122,34 @@ At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergr
                 if plh.HasTextFrame == -1 and plh.TextFrame2.HasText == 0:
                     #placeholder is a text placeholder and has no text. note: placeholder can also be a picture, table or diagram without text!
                     plh.Delete()
+
+
+class Calendar(object):
+    @classmethod
+    def get_calendar(cls):
+        pass
+        # import calendar
+        # from itertools import count, cycle
+
+        # daynames_iter   = cycle(calendar.day_name)
+        # monthnames_iter = cycle(calendar.month_name[1:])
+
+        # dayabbrs_iter   = cycle(calendar.day_abbr)
+        # monthabbrs_iter = cycle(calendar.month_abbr[1:])
+
+        # "day_names":    daynames_iter.next(),
+        # "month_names":  monthnames_iter.next(),
+        # "day_abbrs":    dayabbrs_iter.next(),
+        # "month_abbrs":  monthabbrs_iter.next(),
+
+        # with pplib.override_locale(presentation.DefaultLanguageID):
+        # with pplib.override_locale(first_textframe.TextRange.LanguageID):
+
+    #create 1 month view like outlook
+    #create week table
+    #create 1 month mini calendar
+    #create month-> calendar week rows
+    #datumsfeld? (WPF Calendar, Datepicker)
 
 
 class Characters(object):
@@ -812,7 +855,7 @@ class BulletStyle(object):
             try:
                 # produces error if no text is selected
                 return getter_method(selection.TextRange2.Paragraphs(1,1).ParagraphFormat)
-            except:
+            except ValueError: #ValueError: Der Index in der angegebenen Sammlung ist außerhalb des zulässigen Bereichs.
                 return getter_method(selection.TextRange2.ParagraphFormat)
         
         else:
@@ -916,6 +959,7 @@ class BulletStyle(object):
 class TextShapes(object):
     sticker_alignment = bkt.settings.get("toolbox.sticker_alignment", "right")
     sticker_fontsize = bkt.settings.get("toolbox.sticker_fontsize", 14)
+    sticker_custom = bkt.settings.get("toolbox.sticker_custom", None)
 
     @classmethod
     def settings_setter(cls, name, value):
@@ -925,9 +969,9 @@ class TextShapes(object):
     @staticmethod
     def textbox_insert(context, pressed):
         if bkt.get_key_state(bkt.KeyCodes.SHIFT):
-            TextShapes.addUnderlinedTextbox(context.app.ActiveWindow.Selection.SlideRange[1], context.app.ActivePresentation)
+            TextShapes.addUnderlinedTextbox(context.slide, context.presentation)
         elif bkt.get_key_state(bkt.KeyCodes.CTRL):
-            TextShapes.addSticker(context.app.ActiveWindow.Selection.SlideRange[1], context.app.ActivePresentation)
+            TextShapes.addSticker(context.slide, context.presentation)
         else:
             # NOTE: idMso is different on some machines, see: https://answers.microsoft.com/en-us/msoffice/forum/msoffice_powerpoint-msoffice_custom-mso_2007/powerpoint-2007-textboxinsert-vs/52f12b52-7e1c-4d7c-86a7-bded312437b0
             try:
@@ -990,7 +1034,7 @@ class TextShapes(object):
     
     
     @classmethod
-    def addSticker(cls, slide, presentation, sticker_text="DRAFT"):
+    def addSticker(cls, slide, presentation, sticker_text="DRAFT", select_text=True):
         # Textbox erstellen, damit Standardformatierung der Textbox genommen wird
         shp = slide.shapes.AddTextbox( 1 #msoTextOrientationHorizontal
             , 0, 60, 100, 20)
@@ -1056,9 +1100,41 @@ class TextShapes(object):
             connector1.Line.ForeColor.RGB = color.RGB
             connector2.Line.ForeColor.RGB = color.RGB
 
-        # Text auswählen
-        shp.TextFrame2.TextRange.Select()
+        if select_text:
+            # Text auswählen
+            shp.Select()
+            shp.TextFrame2.TextRange.Select()
     
+    
+    @classmethod
+    def add_sticker_to_slides(cls, slides, presentation, sticker_text="DRAFT"):
+        select_text = len(slides) == 1
+        for slide in slides:
+            cls.addSticker(slide, presentation, sticker_text, select_text)
+    
+    @classmethod
+    def own_sticker_enabled(cls):
+        return cls.sticker_custom is not None
+    
+    @classmethod
+    def own_sticker_label(cls):
+        if cls.sticker_custom:
+            return cls.sticker_custom + "-Sticker"
+        else:
+            return "Noch nicht definiert"
+    
+    @classmethod
+    def own_sticker_insert(cls, slides, presentation):
+        if cls.sticker_custom and not bkt.get_key_state(bkt.KeyCodes.SHIFT):
+            cls.add_sticker_to_slides(slides, presentation, cls.sticker_custom)
+        else:
+            cls.own_sticker_edit()
+    
+    @classmethod
+    def own_sticker_edit(cls):
+        res = bkt.ui.show_user_input("Selbst definierten Sticker-Text eingeben:", "Sticker bearbeiten", cls.sticker_custom)
+        cls.sticker_custom = bkt.settings["toolbox.sticker_custom"] = res
+
 
 class TextOnShape(object):
 
@@ -1298,7 +1374,7 @@ text_menu = bkt.ribbon.Menu(
                     image = "Sticker",
                     screentip="Sticker einfügen",
                     supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide ein.",
-                    on_action=bkt.Callback(TextShapes.addSticker, slide=True, presentation=True)
+                    on_action=bkt.Callback(TextShapes.add_sticker_to_slides, slides=True, presentation=True)
                 ),
                 bkt.ribbon.Menu(label="Sticker Menü", supertip="Verschiedene Sticker einfügen", children=[
                     bkt.ribbon.Button(
@@ -1307,35 +1383,51 @@ text_menu = bkt.ribbon.Menu(
                         image = "Sticker",
                         screentip="DRAFT-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text DRAFT ein.",
-                        on_action=bkt.Callback(TextShapes.addSticker, slide=True, presentation=True)
+                        on_action=bkt.Callback(TextShapes.add_sticker_to_slides, slides=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_backup",
                         label = u"BACKUP-Sticker",
                         screentip="BACKUP-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text BACKUP ein.",
-                        on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "BACKUP"), slide=True, presentation=True)
+                        on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "BACKUP"), slides=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_discussion",
                         label = u"FOR DISCUSSION-Sticker",
                         screentip="FOR DISCUSSION-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text FOR DISCUSSION ein.",
-                        on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "FOR DISCUSSION"), slide=True, presentation=True)
+                        on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "FOR DISCUSSION"), slides=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_illustrative",
                         label = u"ILLUSTRATIVE-Sticker",
                         screentip="ILLUSTRATIVE-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text ILLUSTRATIVE ein.",
-                        on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "ILLUSTRATIVE"), slide=True, presentation=True)
+                        on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "ILLUSTRATIVE"), slides=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_confidential",
                         label = u"CONFIDENTIAL-Sticker",
                         screentip="CONFIDENTIAL-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text CONFIDENTIAL ein.",
-                        on_action=bkt.Callback(lambda slide, presentation: TextShapes.addSticker(slide, presentation, "CONFIDENTIAL"), slide=True, presentation=True)
+                        on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "CONFIDENTIAL"), slides=True, presentation=True)
+                    ),
+                    bkt.ribbon.MenuSeparator(),
+                    bkt.ribbon.Button(
+                        id="sticker_own",
+                        get_label=bkt.Callback(TextShapes.own_sticker_label),
+                        screentip="Selbst definierten Sticker einfügen",
+                        supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit selbst definiertem ein.",
+                        on_action=bkt.Callback(TextShapes.own_sticker_insert, slides=True, presentation=True),
+                        get_enabled=bkt.Callback(TextShapes.own_sticker_enabled)
+                    ),
+                    bkt.ribbon.Button(
+                        id="sticker_own_edit",
+                        label = u"Sticker-Text ändern",
+                        screentip="Selbst definierten Sticker bearbeiten",
+                        supertip="Ändere des Text des selbst definierten Stickers.",
+                        on_action=bkt.Callback(TextShapes.own_sticker_edit)
                     ),
                     bkt.ribbon.MenuSeparator(),
                     bkt.ribbon.Menu(
@@ -1504,7 +1596,7 @@ text_menu = bkt.ribbon.Menu(
                     label="Shape-Texte ersetzen…",
                     image_mso='ReplaceDialog',
                     supertip="Text aller gewählten Shapes mit im Dialogfeld eingegebenen Text ersetzen.",
-                    on_action=bkt.Callback(TextPlaceholder.text_replace, shapes=True),
+                    on_action=bkt.Callback(TextPlaceholder.text_replace, shapes=True, presentation=True),
                     get_enabled=bkt.apps.ppt_shapes_or_text_selected,
                 ),
                 bkt.ribbon.Menu(label="Shape-Texte ersetzen Menü", supertip="Text mit vordefinierten Standard-Platzhaltern ersetzen", children=[
@@ -1539,7 +1631,7 @@ text_menu = bkt.ribbon.Menu(
                         image_mso='ReplaceDialog',
                         screentip="Text mit eigener Eingabe ersetzen",
                         supertip="Text aller gewählten Shapes mit im Dialogfeld eingegebenen Text ersetzen.",
-                        on_action=bkt.Callback(TextPlaceholder.text_replace, shapes=True),
+                        on_action=bkt.Callback(TextPlaceholder.text_replace, shapes=True, presentation=True),
                         get_enabled=bkt.apps.ppt_shapes_or_text_selected,
                     ),
                 ])
@@ -1704,3 +1796,64 @@ paragraph_indent_group = bkt.ribbon.Group(
 )
 
 
+text_compact_group = bkt.ribbon.Group(
+    id="bkt_text_compact_group",
+    label = u"Schriftart/Text",
+    image_mso='GroupFont',
+    children = [
+        #NOTE: horizontal box layout leads to spacing between Font and FontSize ComboBox!
+        bkt.mso.comboBox.Font(sizeString="WWWWWWWI"),
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.Bold,
+            bkt.mso.control.Italic,
+            bkt.mso.control.Underline,
+            # bkt.mso.control.Shadow,
+            bkt.mso.control.Strikethrough,
+        ]),
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.CharacterSpacingGallery,
+            bkt.mso.control.ChangeCaseGallery,
+            bkt.mso.control.ClearFormatting,
+        ]),
+
+        bkt.mso.control.FontSize,
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.FontSizeIncrease,
+            bkt.mso.control.FontSizeDecrease,
+        ]),
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.Superscript,
+            bkt.mso.control.Subscript,
+        ]),
+
+        bkt.ribbon.Separator(),
+
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.BulletsGallery,
+            bkt.mso.control.NumberingGallery,
+            bkt.mso.control.IndentDecrease,
+            bkt.mso.control.IndentIncrease,
+            # bkt.mso.control.ConvertToSmartArt,
+        ]),
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.AlignLeft,
+            bkt.mso.control.AlignCenter,
+            bkt.mso.control.AlignRight,
+            bkt.mso.control.AlignJustify,
+            bkt.mso.control.AlignJustifyMenu,
+            # bkt.mso.control.ParagraphDistributed,
+            # bkt.mso.control.AlignJustifyThai,
+            # bkt.mso.control.TextDirectionLeftToRight,
+            # bkt.mso.control.TextDirectionRightToLeft,
+            bkt.mso.control.TableColumnsGallery,
+        ]),
+
+        bkt.ribbon.Box(box_style="horizontal", children=[
+            bkt.mso.control.LineSpacingGalleryPowerPoint,
+            # bkt.mso.control.FontColorPicker,
+            bkt.mso.control.TextDirectionGallery,
+            bkt.mso.control.TextAlignGallery,
+        ]),
+        bkt.ribbon.DialogBoxLauncher(idMso='FontDialogPowerPoint')
+    ]
+)

@@ -585,15 +585,15 @@ namespace BKT
             try {
                 if (host == HostApplication.PowerPoint)
                 {
-                    UnbindPowerPointEvents((PowerPoint.Application)context.app);
+                    UnbindPowerPointEvents((PowerPoint.Application)app);
                 }
                 else if (host == HostApplication.Excel)
                 {
-                    UnbindExcelEvents((Excel.Application)context.app);
+                    UnbindExcelEvents((Excel.Application)app);
                 }
                 else if (host == HostApplication.Word)
                 {
-                    UnbindWordEvents((Word.Application)context.app);
+                    UnbindWordEvents((Word.Application)app);
                 }
                 else
                 {
@@ -617,6 +617,11 @@ namespace BKT
                 if(!broken) {
                     python_delegate.on_destroy();
                 }
+            } catch (Exception e) {
+                LogMessage(e.ToString());
+            }
+            try {
+                Marshal.ReleaseComObject(app);
             } catch (Exception e) {
                 LogMessage(e.ToString());
             }
@@ -1151,24 +1156,24 @@ namespace BKT
             
             if (host == HostApplication.Excel)
             {
-                return ((Excel.Application)context.app).ActiveWindow;
+                return ((Excel.Application)app).ActiveWindow;
             }
             else if (host == HostApplication.PowerPoint)
             {
-                if ( ((PowerPoint.Application)context.app).Windows.Count == 0) {
+                if ( ((PowerPoint.Application)app).Windows.Count == 0) {
                     // Avoid error: System.Runtime.InteropServices.COMException (0x80048240): Application (unknown member) : Invalid request.  There is no currently active document window.
                     DebugMessage("GetActiveWindow: no active Windows!");
                     throw new NullReferenceException("No active windows");
                 }
-                return ((PowerPoint.Application)context.app).ActiveWindow;
+                return ((PowerPoint.Application)app).ActiveWindow;
             }
             else if (host == HostApplication.Word)
             {
-                return ((Word.Application)context.app).ActiveWindow;
+                return ((Word.Application)app).ActiveWindow;
             }
             // else if (host == HostApplication.Visio)
             // {
-            //     return ((Visio.Application)context.app).ActiveWindow;
+            //     return ((Visio.Application)app).ActiveWindow;
             // }
             else
             {
@@ -1195,8 +1200,13 @@ namespace BKT
                 }
                 else if (host == HostApplication.PowerPoint)
                 {
-                    int windowID = ((PowerPoint.DocumentWindow)window).HWND;
-                    return windowID;
+                    try {
+                        int windowID = ((PowerPoint.DocumentWindow)window).HWND;
+                        return windowID;
+                    } catch (InvalidCastException) {
+                        int windowID = ((PowerPoint.SlideShowWindow)window).HWND;
+                        return windowID;
+                    }
                 }
                 else if (host == HostApplication.Word)
                 {
@@ -1213,8 +1223,9 @@ namespace BKT
                     return 0;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                DebugMessage(e.ToString());
                 return 0;
             }
 #endif

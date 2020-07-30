@@ -9,6 +9,7 @@ from __future__ import absolute_import
 
 import bkt
 import bkt.library.powerpoint as powerpoint
+import bkt.library.graphics as glib
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
@@ -43,6 +44,7 @@ class HarveyBalls(object):
         # circ.fill.ForeColor.RGB = type(self)._fill_color
         circ.line.visible = -1 #msoTrue, important if default shape style does not have line
         circ.line.forecolor.ObjectThemeColor = 13 #msoThemeColorText1
+        circ.fill.visible = -1 #msoTrue, important if default shape style does not have fill
         circ.fill.forecolor.ObjectThemeColor = 14 #msoThemeColorBackground1
         circ.LockAspectRatio = -1 #msoTrue
 
@@ -52,6 +54,7 @@ class HarveyBalls(object):
         # pie.fill.ForeColor.RGB = type(self)._line_color
         pie.line.visible = -1 #msoTrue, important if default shape style does not have line
         pie.line.forecolor.ObjectThemeColor = 13 #msoThemeColorText1
+        pie.fill.visible = -1 #msoTrue, important if default shape style does not have fill
         pie.fill.forecolor.ObjectThemeColor = 13 #msoThemeColorText1
         pie.LockAspectRatio = -1 #msoTrue
 
@@ -350,11 +353,10 @@ class HarveyBalls(object):
         return self.get_harvey_image(self.harvey_buttons[index][0]*1. / self.harvey_buttons[index][1] )
 
     def get_harvey_image(self, percent, size=32):
-        img = Drawing.Bitmap(size, size)
         if percent < 0 or percent > 1:
-            color = Drawing.ColorTranslator.FromHtml('#ffffff00')
-            img.SetPixel(0, 0, color)
-            return img
+            return glib.empty_image(size, size)
+
+        img = Drawing.Bitmap(size, size)
         color = Drawing.ColorTranslator.FromOle(0)
         g = Drawing.Graphics.FromImage(img)
         

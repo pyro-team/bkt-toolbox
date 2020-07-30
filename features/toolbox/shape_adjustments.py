@@ -44,29 +44,33 @@ class ShapeAdjustments(object):
     
     auto_shape_type_settings = {
         # process-arrows
-        pplib.MsoAutoShapeType['msoShapeChevron'] : [dict(ref='min(hw)', min=0, max='w')],
-        pplib.MsoAutoShapeType['msoShapePentagon']: [dict(ref='min(hw)', min=0, max='w')],
+        pplib.MsoAutoShapeType['msoShapeChevron']             : [dict(ref='min(hw)', min=0, max='w')],                                        # type=52
+        pplib.MsoAutoShapeType['msoShapePentagon']            : [dict(ref='min(hw)', min=0, max='w')],                                        # type=51
+        pplib.MsoAutoShapeType['msoShapeHexagon']             : [dict(ref='min(hw)', min=0, max='w/2')],                                      # type=10
         # rounded/sniped rectangles, max=min(h, w)/2 = 0.5
-        pplib.MsoAutoShapeType['msoShapeRoundedRectangle']    : [dict(ref='min(hw)', min=0, max=0.5)],
+        pplib.MsoAutoShapeType['msoShapeRoundedRectangle']    : [dict(ref='min(hw)', min=0, max=0.5)],                                        # type=5
         pplib.MsoAutoShapeType['msoShapeSnip1Rectangle']      : [dict(ref='min(hw)', min=0, max=0.5)],
-        pplib.MsoAutoShapeType['msoShapeSnip2DiagRectangle']  : [dict(ref='min(hw)', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],
-        pplib.MsoAutoShapeType['msoShapeSnip2SameRectangle']  : [dict(ref='min(hw)', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],
-        pplib.MsoAutoShapeType['msoShapeSnipRoundRectangle']  : [dict(ref='min(hw)', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],
-        pplib.MsoAutoShapeType['msoShapeRound1Rectangle']     : [dict(ref='min(hw)', min=0, max=0.5)],
-        pplib.MsoAutoShapeType['msoShapeRound2DiagRectangle'] : [dict(ref='min(hw)', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],
-        pplib.MsoAutoShapeType['msoShapeRound2SameRectangle'] : [dict(ref='min(hw)', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],
+        pplib.MsoAutoShapeType['msoShapeSnip2DiagRectangle']  : [dict(ref='min(hw)', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],   # type=155
+        pplib.MsoAutoShapeType['msoShapeSnip2SameRectangle']  : [dict(ref='min(hw)', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],   # type=156
+        pplib.MsoAutoShapeType['msoShapeSnipRoundRectangle']  : [dict(ref='min(hw)', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],   # type=157
+        pplib.MsoAutoShapeType['msoShapeRound1Rectangle']     : [dict(ref='min(hw)', min=0, max=0.5)],                                        # type=151
+        pplib.MsoAutoShapeType['msoShapeRound2DiagRectangle'] : [dict(ref='min(hw)', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],   # type=153
+        pplib.MsoAutoShapeType['msoShapeRound2SameRectangle'] : [dict(ref='min(hw)', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],   # type=152
         pplib.MsoAutoShapeType['msoShapeBevel']               : [dict(ref='min(hw)', min=0, max=0.5)],                                        # type=15
         pplib.MsoAutoShapeType['msoShapeCross']               : [dict(ref='min(hw)', min=0, max=0.5)],                                        # type=11
         pplib.MsoAutoShapeType['msoShapePlaque']              : [dict(ref='min(hw)', min=0, max=0.5)],                                        # type=29
         pplib.MsoAutoShapeType['msoShapeFoldedCorner']        : [dict(ref='min(hw)', min=0, max=0.5)],                                        # type=16
         # arrows, anchor-1 thickness, anchor-2 arrow-size
-        pplib.MsoAutoShapeType['msoShapeRightArrow']          : [dict(ref='h', min=0, max='h'), dict(ref='h', min=0, max='w')],               # type=33
-        pplib.MsoAutoShapeType['msoShapeLeftArrow']           : [dict(ref='h', min=0, max='h'), dict(ref='h', min=0, max='w')],               # type=34
-        pplib.MsoAutoShapeType['msoShapeLeftRightArrow']      : [dict(ref='h', min=0, max='h'), dict(ref='h', min=0, max='w/2')],             # type=37
-        pplib.MsoAutoShapeType['msoShapeUpArrow']             : [dict(ref='w', min=0, max='w'), dict(ref='w', min=0, max='h')],               # type=35
-        pplib.MsoAutoShapeType['msoShapeDownArrow']           : [dict(ref='w', min=0, max='w'), dict(ref='w', min=0, max='h')],               # type=36
-        pplib.MsoAutoShapeType['msoShapeUpDownArrow']         : [dict(ref='w', min=0, max='w'), dict(ref='w', min=0, max='h/2')],             # type=38
+        pplib.MsoAutoShapeType['msoShapeRightArrow']          : [dict(ref='h', min=0, max=1), dict(ref='h', min=0, max='w')],                 # type=33
+        pplib.MsoAutoShapeType['msoShapeLeftArrow']           : [dict(ref='h', min=0, max=1), dict(ref='h', min=0, max='w')],                 # type=34
+        pplib.MsoAutoShapeType['msoShapeLeftRightArrow']      : [dict(ref='h', min=0, max=1), dict(ref='h', min=0, max='w/2')],               # type=37
+        pplib.MsoAutoShapeType['msoShapeUpArrow']             : [dict(ref='w', min=0, max=1), dict(ref='w', min=0, max='h')],                 # type=35
+        pplib.MsoAutoShapeType['msoShapeDownArrow']           : [dict(ref='w', min=0, max=1), dict(ref='w', min=0, max='h')],                 # type=36
+        pplib.MsoAutoShapeType['msoShapeUpDownArrow']         : [dict(ref='w', min=0, max=1), dict(ref='w', min=0, max='h/2')],               # type=38
         pplib.MsoAutoShapeType['msoShapeBentArrow']           : [dict(ref='min(hw)', min=0, max=1), dict(ref='min(hw)*2', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5), dict(ref='min(hw)', min=0, max=1)],             # type=41
+        pplib.MsoAutoShapeType['msoShapeQuadArrow']           : [dict(ref='min(hw)', min=0, max=1), dict(ref='min(hw)*2', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],             # type=39
+        pplib.MsoAutoShapeType['msoShapeLeftRightUpArrow']    : [dict(ref='min(hw)', min=0, max=1), dict(ref='min(hw)*2', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],             # type=40
+        pplib.MsoAutoShapeType['msoShapeLeftUpArrow']         : [dict(ref='min(hw)', min=0, max=1), dict(ref='min(hw)*2', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],             # type=43
         pplib.MsoAutoShapeType['msoShapeBentUpArrow']         : [dict(ref='min(hw)', min=0, max=1), dict(ref='min(hw)*2', min=0, max=0.5), dict(ref='min(hw)', min=0, max=0.5)],             # type=44
         pplib.MsoAutoShapeType['msoShapeParallelogram']       : [dict(ref='h', min=0, max='w')],                                              # type=2
         pplib.MsoAutoShapeType['msoShapeTrapezoid']           : [dict(ref='min(hw)', min=0, max="w/2")],                                      # type=3
@@ -80,6 +84,17 @@ class ShapeAdjustments(object):
         pplib.MsoAutoShapeType['msoShapeNoSymbol']            : [dict(ref='min(hw)', min=0, max=0.5)],                                        # type=19
         # moon
         pplib.MsoAutoShapeType['msoShapeMoon']                : [dict(ref='w', min=0, max=0.875)],                                            # type=24
+        # tear
+        pplib.MsoAutoShapeType['msoShapeTear']                : [dict(ref='w/2', min=0, max='w')],                                            # type=160
+        # stripes
+        pplib.MsoAutoShapeType['msoShapeDiagonalStripe']      : [dict(ref='h', min=0, max='h')],                                              # type=141
+        # math
+        pplib.MsoAutoShapeType['msoShapeMathMinus']           : [dict(ref='h', min=0, max='h')],                                              # type=164
+        pplib.MsoAutoShapeType['msoShapeMathPlus']            : [dict(ref='min(hw)', min=0, max=2)],                                          # type=163
+        pplib.MsoAutoShapeType['msoShapeMathMultiply']        : [dict(ref='min(hw)', min=0, max=1)],                                          # type=165
+        #triangle, x-agons
+        pplib.MsoAutoShapeType['msoShapeIsoscelesTriangle']   : [dict(ref='w', min=0, max='w')],                                              # type=7
+        pplib.MsoAutoShapeType['msoShapeOctagon']             : [dict(ref='min(hw)', min=0, max=0.5)],                                        # type=6
         # brackes, braces
         pplib.MsoAutoShapeType['msoShapeDoubleBracket']       : [dict(ref='min(hw)', min=0, max=0.5)],                                        # type=26
         pplib.MsoAutoShapeType['msoShapeDoubleBrace']         : [dict(ref='min(hw)', min=0, max=0.5)],                                        # type=27
@@ -89,6 +104,7 @@ class ShapeAdjustments(object):
         pplib.MsoAutoShapeType['msoShapeRightBrace']          : [dict(ref='w', min=0, max='h/4'), dict(ref='h', min=0, max=1)],               # type=32
         # frame, frame-corner
         pplib.MsoAutoShapeType['msoShapeFrame']               : [dict(ref='min(hw)', min=0, max=0.5)],                                        # type=158
+        pplib.MsoAutoShapeType['msoShapeHalfFrame']           : [dict(ref='min(hw)', min=0, max='h'), dict(ref='min(hw)', min=0, max='w')],   # type=159
         pplib.MsoAutoShapeType['msoShapeCorner']              : [dict(ref='min(hw)', min=0, max='h'), dict(ref='min(hw)', min=0, max='w')],   # type=162
         # arc-shape, pie
         pplib.MsoAutoShapeType['msoShapeArc']                 : [dict(ref='deg', min=-180, max=180), dict(ref='deg', min=-180, max=180)],     # type=25
@@ -227,9 +243,17 @@ class ShapeAdjustments(object):
                 try:
                     cls.set_adjustment(shape, i, cls.get_adjustment(master, i))
                 except:
-                    pass
+                    logging.exception("error equalizing shape adjustments")
                 # if i <= shape.adjustments.count:
                 #     shape.adjustments.item[i] = master.adjustments.item[i]
+
+    @classmethod
+    def reset_adjustments(cls, shapes):
+        for shape in shapes:
+            shape_db = pplib.GlobalShapeDb.get_by_shape(shape)
+            default_adj = shape_db["adjustments"]
+            for i in range(shape.adjustments.count):
+                shape.adjustments.item[i+1] = default_adj[i]["default"]
 
 
     @classmethod
@@ -258,20 +282,22 @@ class ShapeAdjustments(object):
         
         try:
             shape_adjustments = shape.adjustments.count
+            shape_db = pplib.GlobalShapeDb.get_by_shape(shape)
+            default_adj = shape_db["adjustments"]
         except: #ValueError for Groups
             shape_adjustments = 0
         infomsg += "{:16} {:3}\n\n".format("Adjust.-Werte:", shape_adjustments)
 
-        infomsg += "│ {:2} {:>8} │ {:10} {:>6} {:>6} │\n".format("#", "Wert", "ref", "min", "max")
-        infomsg += "├─────────────┼──────────────────────────┤\n"
+        infomsg += "│ {:2} {:>8} │ {:10} {:>6} {:>6} {:>8} │\n".format("#", "Wert", "ref", "min", "max", "default")
+        infomsg += "├─────────────┼───────────────────────────────────┤\n"
         for i in range(1,shape_adjustments+1):
             try:
                 bktlib = cls.auto_shape_type_settings[shape_autotype][i-1]
             except:
                 bktlib = dict(ref="", min="", max="")
-            infomsg += "│ {:<2} {:8.4} │ {:10} {:>6} {:>6} │\n".format(i, shape.adjustments.item[i], bktlib["ref"], bktlib["min"], bktlib["max"])
+            infomsg += "│ {:<2} {:8.4} │ {:10} {:>6} {:>6} {:8.4} │\n".format(i, shape.adjustments.item[i], bktlib["ref"], bktlib["min"], bktlib["max"], default_adj[i-1]["default"])
 
-        bkt.console.show_message(bkt.ui.endings_to_windows(infomsg))
+        bkt.console.show_message(bkt.helpers.endings_to_windows(infomsg))
 
 
 
@@ -321,6 +347,12 @@ adjustments_group = bkt.ribbon.Group(
                             get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (7,8)),
                         ),
                         bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.Button(
+                            label="Alle Shapes zurücksetzen",
+                            image_mso='ResetCurrentView',
+                            supertip="Shape-Anfasser-Werte für alle ausgewählten Shapes auf die Originalwerte zurücksetzen",
+                            on_action=bkt.Callback(ShapeAdjustments.reset_adjustments, shapes=True),
+                        ),
                         bkt.ribbon.Button(
                             label="Alle Shapes angleichen",
                             image_mso='ShapeArc',

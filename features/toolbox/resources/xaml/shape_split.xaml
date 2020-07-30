@@ -86,9 +86,9 @@
           </Grid.ColumnDefinitions>
           <StackPanel Orientation="Horizontal" Grid.Column="1">
               <!-- <Button Margin="5" MinWidth="80" Padding="5,2" Content="OK"        IsDefault="True" Click="split_multiply_shapes"/> -->
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Teilen"        IsDefault="True" Click="split_shapes"/>
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Vervielfachen"                  Click="multiply_shapes"/>
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Teilen"        IsDefault="True" Click="split_shapes"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Vervielfachen"                  Click="multiply_shapes"/>
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Abbrechen"     IsCancel="True"  Click="cancel"/>
           </StackPanel>
         </Grid>
     </StackPanel>

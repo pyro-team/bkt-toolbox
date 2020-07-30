@@ -1,3 +1,49 @@
+# Release 2020-07-30 (2.7.1)
+
+  * Added quickedit dark theme
+  * Added function to open slideshow in window or fullscreen
+  * Added option to remove hidden slides when sending slides
+  * Added checkbox stateshape
+  * Added sticker with custom text
+  * Added support for transparent background in chartlib thumbnails
+  * Added function to open in explorer
+  * Added function to toggle master shape visibility
+  * Added multiple traffic light styles
+  * Added shape scaling function
+  * Added dialog to apply multiple slide cleanup functions at once
+  * Added function to apply theme from file
+  * Added support for template files (*.potx) in chartlib
+  * Added format sync via context menu and format painter button if multiple shapes are selected
+  * Added more shape types to shape adjustments
+  * Added "Format Syncer" that allows to sync format for all selected shapes (master can be the one right clicked)
+  * Added minified font and text group (default in 2-page layout)
+  * Added function to reset adjustment values
+  * Added function to choose aspect ratio from picklist or reset to default ratio
+  * Added rows support to process chevrons
+  * Excel: Added function to translate english formula to local and vice versa
+  * Excel: Added function to apply theme from other file and import/export font schema
+  * Improved shape statistics: supertip show details about found numbers, result can be copied to clipboard, correct processing of decimals for various countries
+  * Improved text replacement with additional placeholders and proper template engine
+  * Improved arrange behavior if master/reference shape is deleted
+  * Improved various WPF dialogs, i.e. shape selection dialog
+  * Improved chartlib may paste on multiple selected slides
+  * Improved chartlib insertion of slides
+  * Improved shape connector support for chevron, pentagon, hexagon and oval
+  * Fixed shape statistics did not consider negative numbers
+  * Fixed logging was processed even if logging was turned on
+  * Fixed error in settings shelve auto repair
+  * Fixed use of slide index vs slide number in multiple places
+  * Fixed maintaining lock aspect ratio for all stateshapes (incl. likert scale)
+  * Fixed sending slides of unsaved presentation
+  * Fixed popup positioning with multiple monitors (especially negative coordinates)
+  * Fixed charlib refresh not working due to premature comrelease
+  * Fixed getting correct content area size for slide master
+  * Fixed multiple issues related to getting slide in slide master view
+  * Fixed charlib not updating all libraries
+  * Fixed iteration of non-contiguous selection of cells in Excel
+  * Fixed error message if ribbon id is unknown (e.g. contact popup in Word)
+
+
 # Release 2020-05-17 (2.7.0)
 
   * Added option to link shapes by its shape names

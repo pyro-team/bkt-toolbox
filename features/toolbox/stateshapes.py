@@ -20,22 +20,30 @@ Drawing = dotnet.import_drawing()
 
 class StateShape(object):
     BKT_DIALOG_TAG = 'BKT_DIALOG_STATESHAPE'
+
+    _special_stateshapes = dict()
     
+    @classmethod
+    def register_special_stateshape(cls, name, switch_func):
+        cls._special_stateshapes[name] = switch_func
+
     @classmethod
     def is_convertable_to_state_shape(cls, shape):
         try:
-            return shape.Type == pplib.MsoShapeType['msoGroup']
+            return shape.Type == pplib.MsoShapeType['msoGroup'] and not cls.is_state_shape(shape)
         except:
             return False
 
     @classmethod
-    def convert_to_state_shape(cls, shapes):
+    def convert_to_state_shape(cls, shapes, special_name=None):
         for shape in shapes:
             try:
                 shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
+                if special_name and special_name in cls._special_stateshapes:
+                    shape.Tags.Add(cls.BKT_DIALOG_TAG, special_name)
                 cls.switch_state(shape, pos=0)
-            except Exception as e:
-                logging.error("Error converting to state stape: %s" % str(e))
+            except:
+                logging.exception("Error converting to state stape")
                 continue
 
     @classmethod
@@ -51,6 +59,14 @@ class StateShape(object):
     def switch_state(cls, shape, delta=0, pos=None):
         if not cls.is_state_shape(shape):
             raise ValueError("Shape is not a state shape")
+
+        special_name = pplib.TagHelper.get_tag(shape, cls.BKT_DIALOG_TAG)
+        try:
+            return cls._special_stateshapes[special_name](shape, delta, pos)
+        except KeyError:
+            pass
+
+
         # ungroup shape, to get list of groups inside grouped items
         # ungrouped_shapes = shape.Ungroup()
         # shapes = list(iter(ungrouped_shapes))
@@ -68,7 +84,8 @@ class StateShape(object):
         pos = (pos + delta) % len(shapes)
         shapes[pos].visible = True
         group.regroup()
-        group.select(replace=False)
+        # group.select(replace=False) #NOTE: this causes trouble if shape is corrupt, better to return and select all at the end
+        return group.shape
         # grp = ungrouped_shapes.Group()
         # grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
         # try:
@@ -76,44 +93,34 @@ class StateShape(object):
         #     grp.Select(replace=False)
         # except:
         #     grp.Select()
+    
+    @classmethod
+    def switch_states(cls, shapes, **kwargs):
+        resulting_shapes = []
+        for shape in shapes:
+            try:
+                resulting_shapes.append( cls.switch_state(shape, **kwargs) )
+            except:
+                logging.exception("Statehape error swichting state")
+                continue
+        pplib.shapes_to_range(resulting_shapes).select()
 
 
     @classmethod
     def reset_state(cls, shapes):
-        for shape in shapes:
-            try:
-                cls.switch_state(shape, pos=0)
-            except Exception as e:
-                logging.error("Statehape error resetting state: %s" % str(e))
-                continue
+        cls.switch_states(shapes, pos=0)
 
     @classmethod
     def next_state(cls, shapes):
-        for shape in shapes:
-            try:
-                cls.switch_state(shape, delta=1)
-            except Exception as e:
-                logging.error("Statehape error switching to next state: %s" % str(e))
-                continue
+        cls.switch_states(shapes, delta=1)
 
     @classmethod
     def previous_state(cls, shapes):
-        for shape in shapes:
-            try:
-                cls.switch_state(shape, delta=-1)
-            except Exception as e:
-                logging.error("Statehape error switching to previous state: %s" % str(e))
-                continue
+        cls.switch_states(shapes, delta=-1)
 
     @classmethod
     def set_state(cls, shapes, value):
-        value = int(value)
-        for shape in shapes:
-            try:
-                cls.switch_state(shape, pos=value)
-            except Exception as e:
-                logging.error("Statehape error setting state: %s" % str(e))
-                continue
+        cls.switch_states(shapes, pos=int(value))
 
     # @classmethod
     # def get_show_all(cls, shape):
@@ -224,12 +231,11 @@ class StateShape(object):
 
 
 class LikertScale(bkt.ribbon.Gallery):
+    #settings in powerpoint
     spacing = 5
     size = 20
-    color_line = 0
-    color_filled = 14540253
-    color_empty = 16777215
 
+    #settings for  gallery
     likert_sizes = [3,4,5]
     likert_columns = len(likert_sizes)
     likert_shapes = {1: "Quadratisch", 9: "Kreisförmig", 92: "Sternförmig"} #rectangle, oval, star
@@ -247,35 +253,30 @@ class LikertScale(bkt.ribbon.Gallery):
             columns = self.likert_columns,
             screentip="Likert-Scale als Wechselshape einfügen",
             supertip="Eine Likert-Scale als Wechselshape einfügen. Über die Wechselshape-Funktionen kann der Füllstand, sowie die Farben verändert werden.",
-            item_width=5*16,
+            item_width=max(self.likert_sizes)*16,
             item_height=16,
         )
         my_kwargs.update(kwargs)
 
         super(LikertScale, self).__init__(**my_kwargs)
 
-    @classmethod
-    def get_item_count(cls):
-        return len(cls.likert_buttons)
+    def get_item_count(self):
+        return len(self.likert_buttons)
 
-    @classmethod
-    def get_item_screentip(cls, index):
-        return "%sen %ser-Likert-Scale einfügen" % (cls.likert_shapes[cls.likert_buttons[index][0]], cls.likert_buttons[index][1])
+    def get_item_screentip(self, index):
+        return "%sen %ser-Likert-Scale einfügen" % (self.likert_shapes[self.likert_buttons[index][0]], self.likert_buttons[index][1])
 
-    @classmethod
-    def get_item_image(cls, index):
-        return LikertScale.get_likert_image( count=cls.likert_buttons[index][1], shape=cls.likert_buttons[index][0] )
+    def get_item_image(self, index):
+        return self.get_likert_image( count=self.likert_buttons[index][1], shape=self.likert_buttons[index][0] )
 
-    @classmethod
-    def on_action_indexed(cls, selected_item, index, slide):
-        cls._create_stateshape_scale(slide, cls.likert_buttons[index][0], cls.likert_buttons[index][1]),
+    def on_action_indexed(self, selected_item, index, slide):
+        self._create_stateshape_scale(slide, self.likert_buttons[index][0], self.likert_buttons[index][1]),
 
-    @staticmethod
-    def get_likert_image(size_factor=2, count=3, shape=1):
-        img = Drawing.Bitmap(5*16*size_factor, 16*size_factor)
-        color_black = Drawing.ColorTranslator.FromOle(0)
-        color_grey  = Drawing.ColorTranslator.FromOle(14540253)
-        color_white = Drawing.ColorTranslator.FromOle(16777215)
+    def get_likert_image(self, size_factor=2, count=3, shape=1):
+        img = Drawing.Bitmap(max(self.likert_sizes)*16*size_factor, 16*size_factor)
+        color_black = Drawing.Color.Black
+        color_grey  = Drawing.Color.Gray
+        color_white = Drawing.Color.White
         g = Drawing.Graphics.FromImage(img)
         
         #Draw smooth rectangle/ellipse
@@ -302,40 +303,211 @@ class LikertScale(bkt.ribbon.Gallery):
             left += 16*size_factor
         return img
 
-    @classmethod
-    def _create_single_scale(cls, slide, shape_type=1, state=0, total=3, visible=0):
+    def _create_single_scale(self, slide, shape_type=1, state=0, total=3):
         # shapecount = slide.Shapes.Count
         left = 90
         for i in range(total):
-            left += cls.size + cls.spacing
-            s = slide.Shapes.AddShape( shape_type, left, 100, cls.size, cls.size )
-            s.Line.Weight = 0.75
-            s.Line.ForeColor.RGB = cls.color_line
+            left += self.size + self.spacing
+            s = slide.Shapes.AddShape( shape_type, left, 100, self.size, self.size )
+            # s.Line.Weight = 0.75
+            # s.Line.ForeColor.RGB = self.color_line
+            s.Line.Visible = -1
+            s.Line.ForeColor.ObjectThemeColor = 13 #msoThemeColorText1
+            s.Fill.Visible = -1
             if i < state:
-                s.Fill.ForeColor.RGB = cls.color_filled
+                # s.Fill.ForeColor.RGB = self.color_filled
+                s.Fill.ForeColor.ObjectThemeColor = 16 #msoThemeColorBackground2
             else:
-                s.Fill.ForeColor.RGB = cls.color_empty
+                # s.Fill.ForeColor.RGB = self.color_empty
+                s.Fill.ForeColor.ObjectThemeColor = 14 #msoThemeColorBackground1
 
         # grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total))).group()
         grp = pplib.last_n_shapes_on_slide(slide, total).group()
-        grp.Visible = visible
         return grp
 
-    @classmethod
-    def _create_stateshape_scale(cls, slide, shape_type, total):
-        shapecount = slide.Shapes.Count
+    def _create_stateshape_scale(self, slide, shape_type, total):
         for i in range(total+1):
-            cls._create_single_scale(slide, shape_type, i, total)
+            self._create_single_scale(slide, shape_type, i, total)
         
-        slide.Shapes.Range(shapecount+1).visible = -1 #make first visible
-        # grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total+1))).group()
         grp = pplib.last_n_shapes_on_slide(slide, total+1).group()
-        grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, StateShape.BKT_DIALOG_TAG)
-        grp.select()
+        grp.LockAspectRatio = -1
+        StateShape.convert_to_state_shape([grp])
+
+
+#Slider-Element
+#Progressbar
+
+class CheckBox(bkt.ribbon.Gallery):
+    SHAPE_TAG = "BKT_CHECKBOX"
+
+    #settings in powerpoint
+    size = 16
+
+    #settings for gallery
+    shape_types = {1:"Quadratisch", 9:"Kreisförmig"} #rectangle, oval
+    checkmark_groups = [
+        dict(font="Wingdings", chars=[u'\xfc', u'\xfb', u'\x6c', u'\x6e', '']),
+        dict(font="Arial Unicode", chars=[u'\u2713', u'\u2717', u'\u2715', '']),
+    ]
+    checkmark_columns = 4
+    checkmark_maxchars = 3
+    item_size = 24
+    items = [ dict(shape_type=t, style=s, font_group=c) for c in checkmark_groups for t in shape_types.keys() for s in ['light', 'dark'] ]
+    
+    def __init__(self, **kwargs):
+        # parent_id = kwargs.get('id') or ""
+        my_kwargs = dict(
+            label="Checkbox",
+            image_mso="FormControlCheckBox",
+            screentip='Checkbox erstellen',
+            supertip="Füge ein Checkbox-Symbol als Wechselshape ein, welches interaktiv geändert werden kann.",
+            columns=self.checkmark_columns,
+            item_width=self.checkmark_maxchars*self.item_size,
+            item_height=self.item_size,
+        )
+        my_kwargs.update(kwargs)
+
+        super(CheckBox, self).__init__(**my_kwargs)
+
+    def get_item_count(self):
+        return len(self.items)
+
+    def get_item_screentip(self, index):
+        return "%se Checkbox mit %s einfügen" % (self.shape_types[self.items[index]["shape_type"]], self.items[index]["font_group"]["font"])
+
+    def get_item_image(self, index):
+        item = self.items[index]
+        return self.get_checkmark_image( item["shape_type"], item["style"], item["font_group"] )
+
+    def on_action_indexed(self, selected_item, index, slide):
+        item = self.items[index]
+        self._insert_checkmark(slide, item["shape_type"], item["style"], item["font_group"])
+
+    def _insert_checkmark(self, slide, shape_type, style, font_group):
+        # for char in font_group["chars"]:
+        #     self._insert_single_box(slide, shape_type, style, (font_group["font"], char))
+        # #add empty box
+        # self._insert_single_box(slide, shape_type, style)
+        # #group and make stateshape
+        # grp = pplib.last_n_shapes_on_slide(slide, 1+len(font_group["chars"])).group()
+
+        grp = self._insert_single_box(slide, shape_type, style, (font_group["font"], font_group["chars"][0]))
+        grp.LockAspectRatio = -1
+        StateShape.convert_to_state_shape([grp], CheckBox.SHAPE_TAG)
+    
+    def _insert_single_box(self, slide, shape_type=1, style='light', font_char=None):
+        s = slide.Shapes.AddShape( shape_type, 100, 100, self.size, self.size )
+
+        if style == "dark":
+            col_background = 13 #msoThemeColorText1
+            col_foreground = 14 #msoThemeColorBackground1
+        else:
+            col_background = 14 #msoThemeColorBackground1
+            col_foreground = 13 #msoThemeColorText1
+
+        s.Line.Visible = -1
+        s.Line.ForeColor.ObjectThemeColor = col_foreground
+        s.Fill.Visible = -1
+        s.Fill.ForeColor.ObjectThemeColor = col_background
+        s.LockAspectRatio = -1
+
+        textframe = s.TextFrame2
+        textframe.AutoSize     = 0
+        textframe.MarginBottom = 0
+        textframe.MarginLeft   = 0
+        textframe.MarginRight  = 0
+        textframe.MarginTop    = 0
+        # textframe.HorizontalAnchor = 2
+        textframe.VerticalAnchor   = 3
+
+        textrange = textframe.TextRange
+        textrange.ParagraphFormat.Bullet.Visible = False
+        textrange.ParagraphFormat.Alignment = 2 #ppAlignCenter
+        textrange.ParagraphFormat.SpaceBefore = 0
+        textrange.ParagraphFormat.SpaceAfter  = 0
+        textrange.ParagraphFormat.SpaceWithin = 1
+        textrange.ParagraphFormat.BaselineAlignment = 4 #default is 5=TextBottom, but 4=TextTop looks more centered
+        textrange.Font.Bold   = 0
+        textrange.Font.Italic = 0
+        textrange.Font.Size   = self.size
+        textrange.Font.Fill.ForeColor.ObjectThemeColor = col_foreground
+
+        if font_char:
+            textrange.Font.Name = font_char[0]
+            textrange.InsertSymbol(font_char[0], ord(font_char[1]), -1) #symbol: FontName, CharNumber (decimal), Unicode=True
+        # s.Visible = visible
+        return s
+
+    def get_checkmark_image(self, shape_type, style, font_group):
+        size_factor = 2
+        base_size = self.item_size*size_factor
+
+        img = Drawing.Bitmap(self.checkmark_maxchars*base_size, base_size)
+        g = Drawing.Graphics.FromImage(img)
+        
+        #Draw smooth rectangle/ellipse
+        g.SmoothingMode = Drawing.Drawing2D.SmoothingMode.AntiAlias
+
+        if style == "dark":
+            pen_border = Drawing.Pen(Drawing.Color.White,1*size_factor)
+            brush_fill = Drawing.Brushes.Black
+            text_brush = Drawing.Brushes.White
+        else:
+            pen_border = Drawing.Pen(Drawing.Color.Black,1*size_factor)
+            brush_fill = Drawing.Brushes.White
+            text_brush = Drawing.Brushes.Black
+
+        font = Drawing.Font(font_group["font"], base_size-6*size_factor, Drawing.GraphicsUnit.Pixel)
+
+        left = 2
+        for char in font_group["chars"]:
+
+            if shape_type == 9: #oval
+                g.FillEllipse(brush_fill, left, 2, base_size-4, base_size-4) #left, top, width, height
+                g.DrawEllipse(pen_border, left, 2, base_size-4, base_size-4) #left, top, width, height
+            else: #fallback shape=1 rectangle
+                g.FillRectangle(brush_fill, left, 2, base_size-4, base_size-4) #left, top, width, height
+                g.DrawRectangle(pen_border, left, 2, base_size-4, base_size-4) #left, top, width, height
+        
+            # set string format
+            strFormat = Drawing.StringFormat()
+            strFormat.Alignment = Drawing.StringAlignment.Center
+            strFormat.LineAlignment = Drawing.StringAlignment.Center
+            
+            g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
+            g.DrawString(char,
+                        font, text_brush,
+                        Drawing.RectangleF(left-1, 4, base_size, base_size), 
+                        strFormat)
+            
+            left += base_size
+
+        return img
+
+    @classmethod
+    def switch_state(cls, shape, delta=0, pos=None):
+        textrange = shape.TextFrame2.TextRange
+        font = textrange.Font.Name
+        text = textrange.Text
+        for d in cls.checkmark_groups:
+            if d["font"] == font:
+                chars = d["chars"]
+                break
+        else:
+            bkt.message.error("Fehler! Unbekanntes Checkbox-Symbol.")
+            return
+        if pos is None:
+            pos = chars.index(text)
+        pos = (pos + delta) % len(chars)
+        textrange.Text = chars[pos]
+        shape.select(False)
 
 
 
 likert_button = LikertScale(id="likert_insert")
+checkbox_button = CheckBox(id="checkbox_insert")
+
+StateShape.register_special_stateshape(CheckBox.SHAPE_TAG, CheckBox.switch_state)
 
 
 stateshape_gruppe = bkt.ribbon.Group(

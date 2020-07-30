@@ -4,16 +4,16 @@ Created on 2017-07-24
 @author: Florian Stallmann
 '''
 
+from __future__ import absolute_import
+
+import logging
+from collections import OrderedDict
+
 import bkt
 import bkt.library.powerpoint as pplib
 import bkt.library.algorithms as algos
 
-import logging
-
-# import clr
-# clr.AddReference('System.Windows.Forms')
-# import System.Windows.Forms as F
-
+import bkt.dotnet
 F = bkt.dotnet.import_forms()
 D = bkt.dotnet.import_drawing()
 
@@ -22,18 +22,7 @@ D = bkt.dotnet.import_drawing()
 # german = gettext.translation('iso3166', pycountry.LOCALES_DIR, languages=['de'])
 # german.install()
 
-import os
-from collections import OrderedDict
-
-# import quickedit
-import wpftest
-
-
-import ctypes
-
-# import clr
-# clr.AddReference("BKT")
-# import BKT
+from . import wpftest
 
 
 
@@ -57,7 +46,7 @@ class ColorSelectorWindow(object):
         testbtn.Text = "OK"
         testbtn.Width = 20
         testbtn.Height = 20
-        testbtn.BackColor = F.Color.LightGreen
+        testbtn.BackColor = D.Color.LightGreen
         testbtn.Click += self.testbtn
 
         buttonsPanel = F.FlowLayoutPanel()
@@ -93,12 +82,9 @@ class ColorSelectorWindow(object):
         else:
             self.show()
 
-    @staticmethod
-    def colorwindow(application):
-        ColorSelectorWindow(application).switchWindow()
 
+class WindowTests(object):
 
-class TestsFST(object):
     @staticmethod
     def open_color_dialog(shape):
         cd = F.ColorDialog()
@@ -110,8 +96,71 @@ class TestsFST(object):
             # bkt.message("Farbe: %r" % color)
 
     @staticmethod
+    def colorwindow(application):
+        ColorSelectorWindow(application).switchWindow()
+
+
+class FormattingTestFunctions(object):
+    shape_db = None
+
+    @classmethod
+    def build_shape_db(cls, shapes):
+        import io
+        import json
+
+        from bkt import console
+
+        from json import encoder
+        encoder.FLOAT_REPR = lambda o: format(o, '.4f')
+
+        from toolbox.shape_adjustments import ShapeAdjustments
+
+        cls.shape_db = OrderedDict()
+
+        def _get_key_by_value(search_dict, value):
+            try:
+                return search_dict.keys()[search_dict.values().index(value)]
+            except:
+                return "?"
+        
+        for shape in sorted(shapes, key=lambda s: s.AutoShapeType):
+            dba = cls.shape_db[shape.AutoShapeType] = OrderedDict()
+            dba['id']                   = shape.AutoShapeType
+            dba['name']                 = _get_key_by_value(pplib.MsoAutoShapeType, shape.AutoShapeType)
+            dba['ratio']                = float(shape.width/shape.height)
+            dba['adjustments_count']    = shape.adjustments.count
+            # dba['adjustments']          = [float(a) for a in shape.adjustments]
+            dba['adjustments']          = []
+
+            if shape.adjustments.count == 0:
+                continue
+
+            adj_settings = ShapeAdjustments.auto_shape_type_settings.get(shape.AutoShapeType, [])
+            if not adj_settings:
+                logging.warning("Shape DB: No adj settings for type %s", shape.AutoShapeType)
+                shape.fill.forecolor.rgb = 3243501
+            for i,a in enumerate(shape.adjustments):
+                try:
+                    d = adj_settings[i]
+                except:
+                    # logging.warning("Shape DB: Missing adj setting for type %s, i %s", shape.AutoShapeType, i)
+                    d = dict()
+                d['default'] = float(a)
+                dba['adjustments'].append(d)
+
+            dba['adjustments']
+        
+        file = bkt.helpers.file_base_path_join(__file__, "shapedb.json")
+        with io.open(file, 'w', encoding='utf-8') as json_file:
+            json.dump(cls.shape_db, json_file, ensure_ascii=False, indent=2)
+
+        # console.show_message(json.dumps(cls.shape_db, indent=2))
+
+    @staticmethod
     def export_as_png(presentation, slides):
-        import System
+        from System import Array
+        import bkt.library.graphics as glib
+
         for slide in slides:
             shape_indices = []
             shape_index = 1
@@ -121,9 +170,13 @@ class TestsFST(object):
                     shape_indices.append(shape_index)
                 shape_index+=1
             # select shapes
-            shape_range = slide.shapes.Range(System.Array[int](shape_indices))
+            shape_range = slide.shapes.Range(Array[int](shape_indices))
             path = presentation.Path + "\\" + str(slide.SlideIndex) + ".png"
+            path2 = presentation.Path + "\\" + str(slide.SlideIndex) + "-sq.png"
             shape_range.Export(path, 2) #2=ppShapeFormatPNG
+
+            #make square
+            glib.make_thumbnail(path, 32, 32, path2)
 
     @staticmethod
     def table_formatter(shape):
@@ -138,20 +191,6 @@ class TestsFST(object):
             if cell_in_row_selected:
                 index = (index+1) % len(colors)
     
-    @staticmethod
-    def hook_events():
-        import mousehook
-        mousehook.mouse_msg_loop()
-        # HC_ACTION = 0
-        # WH_MOUSE_LL = 14
-        # WM_LBUTTONDOWN = 0x0201
-
-        # def my_callback(nCode, wParam, lParam):
-        #     if nCode == HC_ACTION and wParam == WM_LBUTTONDOWN:
-        #         print("hier i am mouse")
-        #     return ctypes.windll.user32.CallNextHookEx(None, nCode, wParam, lParam)
-        
-        # hook = ctypes.windll.user32.SetWindowsHookExW(WH_MOUSE_LL, my_callback, None, 0)
 
     current_control = None
     customui_control = None
@@ -168,7 +207,6 @@ class TestsFST(object):
             print("test2: %s" % context.app.Caller)
         except:
             pass
-    
 
 
 class CustomFontStyles(object):
@@ -208,14 +246,48 @@ class AppEventTester(object):
     def unload():
         logging.debug("bkt unload")
 
+    @staticmethod
+    def sld_begin(**kwargs):
+        logging.debug("sld_begin: %r"%kwargs)
+    @staticmethod
+    def sld_end(**kwargs):
+        logging.debug("sld_end: %r"%kwargs)
+
 
 bkt.AppEvents.bkt_load += bkt.Callback(AppEventTester.load)
 bkt.AppEvents.bkt_unload += bkt.Callback(AppEventTester.unload)
 
+bkt.AppEvents.slideshow_begin += bkt.Callback(AppEventTester.sld_begin)
+bkt.AppEvents.slideshow_end += bkt.Callback(AppEventTester.sld_end)
 
 
 testfenster_gruppe = bkt.ribbon.Group(
-    label='Tests FST',
+    label='Colordialog Tests',
+    image_mso='HappyFace',
+    children = [
+        bkt.ribbon.Button(
+            id = 'colorwindow',
+            label="Fenster mit Farbauswahl",
+            show_label=True,
+            image_mso='HappyFace',
+            on_action=bkt.Callback(WindowTests.colorwindow, application=True),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            size="large",
+        ),
+        bkt.ribbon.Button(
+            id = 'color_dialog',
+            label="Windows Farbdialog",
+            show_label=True,
+            image_mso='HappyFace',
+            on_action=bkt.Callback(WindowTests.open_color_dialog, shape=True),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            size="large",
+        ),
+    ]
+)
+
+testformatting_gruppe = bkt.ribbon.Group(
+    label='Formatting Tests',
     image_mso='HappyFace',
     children = [
         bkt.ribbon.Button(
@@ -223,56 +295,37 @@ testfenster_gruppe = bkt.ribbon.Group(
             label="Folie als PNG speichern",
             show_label=True,
             image_mso='HappyFace',
-            supertip="XXX",
-            on_action=bkt.Callback(TestsFST.export_as_png),
-            # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            on_action=bkt.Callback(FormattingTestFunctions.export_as_png),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
             size="large",
-        ),
-        bkt.ribbon.Separator(),
-        bkt.ribbon.Button(
-            id = 'colorwindow',
-            label="Fenster mit Farbauswahl",
-            show_label=True,
-            image_mso='HappyFace',
-            supertip="XXX",
-            on_action=bkt.Callback(ColorSelectorWindow.colorwindow, application=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
-        ),
-        bkt.ribbon.Button(
-            id = 'color_dialog',
-            label="Windows Farbdialog",
-            show_label=True,
-            image_mso='HappyFace',
-            supertip="XXX",
-            on_action=bkt.Callback(TestsFST.open_color_dialog, shape=True),
-            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
-        ),
-        bkt.ribbon.Button(
-            id = 'table_formatter',
-            label="Tabelle formatieren",
-            show_label=True,
-            image_mso='HappyFace',
-            supertip="XXX",
-            on_action=bkt.Callback(TestsFST.table_formatter),
-            # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
-        ),
-        bkt.ribbon.Button(
-            id = 'hook_mouse',
-            label="Maushook",
-            show_label=True,
-            image_mso='HappyFace',
-            supertip="XXX",
-            on_action=bkt.Callback(TestsFST.hook_events),
-            # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
         ),
         bkt.ribbon.Button(
             id = 'buttonpos',
             label="Control pos",
             show_label=True,
             image_mso='HappyFace',
-            supertip="XXX",
-            on_action=bkt.Callback(TestsFST.control_position),
-            # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            on_action=bkt.Callback(FormattingTestFunctions.control_position),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            size="large",
+        ),
+        bkt.ribbon.Button(
+            id = 'shapetypedb',
+            label="Shape DB",
+            show_label=True,
+            image_mso='HappyFace',
+            on_action=bkt.Callback(FormattingTestFunctions.build_shape_db),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            size="large",
+        ),
+        bkt.ribbon.Separator(),
+        bkt.ribbon.Button(
+            id = 'table_formatter',
+            label="Tabelle formatieren",
+            show_label=True,
+            image_mso='HappyFace',
+            on_action=bkt.Callback(FormattingTestFunctions.table_formatter),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            size="large",
         ),
         bkt.ribbon.ToggleButton(
             id = 'custom_bold',
@@ -282,9 +335,11 @@ testfenster_gruppe = bkt.ribbon.Group(
             get_pressed=bkt.Callback(CustomFontStyles.get_pressed),
             on_toggle_action=bkt.Callback(CustomFontStyles.on_toggle_action),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+            size="large",
         ),
     ]
 )
+
 
 def get_content_symbols_test():
     return bkt.ribbon.Menu(
@@ -300,7 +355,6 @@ def get_content_symbols_test():
             ),
         ],
     )
-
 
 ampersand_gruppe = bkt.ribbon.Group(
     label='Sonderzeichen',
@@ -337,10 +391,16 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
     children = [
         ampersand_gruppe,
         testfenster_gruppe,
+        testformatting_gruppe,
         wpftest.xamltest_gruppe,
-        # quickedit.color_selector_gruppe,
     ]
 ))
+
+
+
+##############################
+### Backstage area testing ###
+##############################
 
 bkt.powerpoint.add_backstage_control(
     bkt.ribbon.Tab(

@@ -575,7 +575,7 @@ class QuickEdit(object):
             # bkt.helpers.exception_as_message()
 
     @classmethod
-    def update_colors(cls, context):
+    def update_colors(cls, context, slide_range=None):
         QEColorButtons.update_colors(context)
 
     @classmethod
@@ -881,7 +881,7 @@ class QuickEdit(object):
             from os import startfile
             startfile(helpfile)
         except:
-            logging.error("QuickEdit: Error opening the help file.")
+            logging.exception("QuickEdit: Error opening the help file.")
             bkt.message("Fehler beim Öffnen der PDF-Hilfedatei. Bitte Datei manuell öffnen: {}".format(helpfile))
 
 #         help_msg = '''

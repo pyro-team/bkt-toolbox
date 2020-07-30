@@ -15,8 +15,7 @@ import traceback
 import re
 import math
 
-from bkt.helpers import settings
-from bkt.ui import endings_to_windows, endings_to_unix
+from bkt.helpers import settings, endings_to_windows
 
 
 class Mock(object):

@@ -9,7 +9,6 @@ Created on 11.11.2019
 from __future__ import absolute_import
 
 import logging
-import traceback
 
 from collections import OrderedDict, defaultdict
 
@@ -56,7 +55,7 @@ class CustomRibbonUI(object):
                 raise ValueError('duplicate tab id %r' % tab_id)
         else:
             self.tabs[tab_id] = tab
-            #logging.debug('added tab with id %r' % tab_id)
+            #logging.debug('added tab with id %r', tab_id)
 
         return tab_id
 
@@ -225,15 +224,16 @@ class AppUI(object):
         
         if isinstance(element, mod_ribbon.RibbonControl):
             # lazy replacement and extension of controls
+            custom_ribbon = self.custom_ribbon_uis[ribbon_id]
             element_id = element.id
-            if element_id in self.custom_ribbon_uis[ribbon_id].lazy_replacements:
-                element = self.custom_ribbon_uis[ribbon_id].lazy_replacements[element_id]
-                logging.debug("create_control: element with id {} replaced by element with id {}".format(element_id, element.id))
-            if element_id in self.custom_ribbon_uis[ribbon_id].lazy_extensions:
-                element.children.extend( self.custom_ribbon_uis[ribbon_id].lazy_extensions[element_id] )
-                logging.debug("create_control: element with id {} extended".format(element_id))
+            if element_id in custom_ribbon.lazy_replacements:
+                element = custom_ribbon.lazy_replacements[element_id]
+                logging.debug("create_control: element with id %s replaced by element with id %s", element_id, element.id)
+            if element_id in custom_ribbon.lazy_extensions:
+                element.children.extend( custom_ribbon.lazy_extensions[element_id] )
+                logging.debug("create_control: element with id %s extended", element_id)
             
-            element.children = [self.create_control(c, ribbon_id=ribbon_id) for c in element.children ]
+            element.children = [self.create_control(c, ribbon_id=ribbon_id) for c in element.children]
             return element
         
         elif bkt.config.enable_legacy_syntax or False:
@@ -241,15 +241,15 @@ class AppUI(object):
             from bkt.factory import ControlFactory #@deprecated
             
             if isinstance(element, ContainerUsage):
-                logging.debug("create_control for ContainerUsage: %s" % element.container)
+                logging.debug("create_control for ContainerUsage: %s", element.container)
                 return ControlFactory(element.container, ribbon_info=None).create_control()
             
             else:
-                logging.warning("FeatureContainer used where instance of ContainerUsage was expected: %s" % element)
+                logging.warning("FeatureContainer used where instance of ContainerUsage was expected: %s", element)
                 return ControlFactory(element, ribbon_info=None).create_control()
         
         else:
-            logging.warning("create_control for element {} skipped".format(element))
+            logging.warning("create_control for element %s skipped", element)
     
     
     
@@ -260,28 +260,35 @@ class AppUI(object):
         '''
         
         ribbon_id = ribbon_id or self.default_custom_ribbon_id
+        try:
+            custom_ribbon = self.custom_ribbon_uis[ribbon_id]
+        except KeyError:
+            #to avoid error with unknown ribbon id (e.g. Microsoft.Mso.IMLayerUI) just create a dummy one
+            #this will also prevent any errors that occur due to new ribbon ids in future office versions
+            logging.warning("Creating dummy ribbon for unknown ribbon id: %s", ribbon_id)
+            custom_ribbon = self.custom_ribbon_uis[ribbon_id] = CustomRibbonUI(ribbon_id)
         
         # Context-Menus
         context_menus = []
-        if len(self.custom_ribbon_uis[ribbon_id].context_menus) > 0:
+        if len(custom_ribbon.context_menus) > 0:
             context_menus = [mod_ribbon.ContextMenus(
-                children = [ self.create_control(c, ribbon_id=ribbon_id)  for c in self.custom_ribbon_uis[ribbon_id].context_menus.values()]
+                children = [self.create_control(c, ribbon_id=ribbon_id)  for c in custom_ribbon.context_menus.values()]
             )]
         
         # Commands
         commands = []
-        if len(self.custom_ribbon_uis[ribbon_id].commands) > 0:
+        if len(custom_ribbon.commands) > 0:
             commands = [mod_ribbon.CommandList(
-                children = [self.create_control(c, ribbon_id=ribbon_id)  for c in self.custom_ribbon_uis[ribbon_id].commands.values()]
+                children = [self.create_control(c, ribbon_id=ribbon_id)  for c in custom_ribbon.commands.values()]
             )]
         
         # Contextual-Tabsets
         contextual_tabs = []
-        # if len(self.custom_ribbon_uis[ribbon_id].contextual_tabsets) > 0:
+        # if len(custom_ribbon.contextual_tabsets) > 0:
         #     contextual_tabs = [mod_ribbon.ContextualTabs(
-        #         children = [self.create_control(t, ribbon_id)  for  t in self.custom_ribbon_uis[ribbon_id].contextual_tabsets]
+        #         children = [self.create_control(t, ribbon_id)  for  t in custom_ribbon.contextual_tabsets]
         #     )]
-        if len(self.custom_ribbon_uis[ribbon_id].contextual_tabs) > 0:
+        if len(custom_ribbon.contextual_tabs) > 0:
             contextual_tabs = [mod_ribbon.ContextualTabs(
                 children = [
                     mod_ribbon.TabSet(
@@ -291,7 +298,7 @@ class AppUI(object):
                             for tab in tablist
                         ]
                     )
-                    for id_mso, tablist in self.custom_ribbon_uis[ribbon_id].contextual_tabs.iteritems()
+                    for id_mso, tablist in custom_ribbon.contextual_tabs.iteritems()
                 ]
             )]
         
@@ -311,31 +318,29 @@ class AppUI(object):
         
         # Backstage Controls
         backstage_controls = []
-        if len(self.custom_ribbon_uis[ribbon_id].backstage_controls) > 0:
+        if len(custom_ribbon.backstage_controls) > 0:
             backstage_controls = [mod_ribbon.Backstage(
-                children = [self.create_control(c, ribbon_id) for c in self.custom_ribbon_uis[ribbon_id].backstage_controls]
+                children = [self.create_control(c, ribbon_id) for c in custom_ribbon.backstage_controls]
             )]
         
         # Tabs
         tabs = []
-        if len(self.custom_ribbon_uis[ribbon_id].tabs) > 0:
-            tabs = [
-                mod_ribbon.Tabs(
-                    children = [self.create_control(tab, ribbon_id)  for _, tab in self.custom_ribbon_uis[ribbon_id].tabs.iteritems()]
-                )
-            ]
+        if len(custom_ribbon.tabs) > 0:
+            tabs = [mod_ribbon.Tabs(
+                    children = [self.create_control(tab, ribbon_id)  for _, tab in custom_ribbon.tabs.iteritems()]
+            )]
 
         # Ribbon
-        ribbon = mod_ribbon.Ribbon(start_from_scratch=False,
+        ribbon = [mod_ribbon.Ribbon(start_from_scratch=False,
             children = quick_access_toolbar + tabs + contextual_tabs
-        )
+        )]
 
         
         
         # build-up CustomUI
         customUI = mod_ribbon.CustomUI(
             onLoad='PythonOnRibbonLoad', loadImage='PythonLoadImage',
-            children = [ ribbon ] + backstage_controls + context_menus + commands
+            children = ribbon + backstage_controls + context_menus + commands
         )
         
         return customUI
@@ -363,7 +368,7 @@ class AppUI(object):
                 image_name: _h.Resources.images.locate(image_name)
                 for image_name in stack_panel.collect_image_resources()
             }
-            logging.debug('image resources: %s' % image_resources)
+            logging.debug('image resources: %s', image_resources)
             taskpane_control = bkt.taskpane.BaseScrollViewer(
                 image_resources = image_resources,
                 children = [stack_panel]

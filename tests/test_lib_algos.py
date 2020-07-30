@@ -9,7 +9,19 @@ from __future__ import absolute_import
 
 import unittest
 
+from tests.mock_shape import Shape
+
 from bkt.library import algorithms
+
+
+def float_to_int(var):
+    if type(var) is list:
+        return [float_to_int(f) for f in var]
+    elif type(var) is tuple:
+        return tuple(float_to_int(f) for f in var)
+    else:
+        return round(var)
+
 
 class MathTests(unittest.TestCase):
     def test_median(self):
@@ -35,21 +47,38 @@ class MathTests(unittest.TestCase):
         self.assertTupleEqual(algorithms.get_bounds([(1,1),(1,3),(3,1),(3,3)]), (1,1,2,2))
         
     def test_rotate_point(self):
-        self.assertAlmostEqual(algorithms.rotate_point(1,1, 0,0, 90)[0], 1)
-        self.assertAlmostEqual(algorithms.rotate_point(1,1, 0,0, 90)[1],-1)
+        self.assertTupleEqual(float_to_int(algorithms.rotate_point(1,1, 0,0, 0)), (1,1))
+        self.assertTupleEqual(float_to_int(algorithms.rotate_point(1,1, 0,0, 90)), (1,-1))
+        self.assertTupleEqual(float_to_int(algorithms.rotate_point(1,1, 0,0, -90)), (-1,1))
+        self.assertTupleEqual(float_to_int(algorithms.rotate_point(1,1, 0,0, 180)), (-1,-1))
+        self.assertTupleEqual(float_to_int(algorithms.rotate_point(1,1, 0,0, 360)), (1,1))
+        self.assertTupleEqual(float_to_int(algorithms.rotate_point(2,2, 1,1, 180)), (0,0))
 
-        self.assertAlmostEqual(algorithms.rotate_point(1,1, 0,0,-90)[0],-1)
-        self.assertAlmostEqual(algorithms.rotate_point(1,1, 0,0,-90)[1], 1)
 
-        self.assertAlmostEqual(algorithms.rotate_point(1,1, 0,0, 180)[0],-1)
-        self.assertAlmostEqual(algorithms.rotate_point(1,1, 0,0, 180)[1],-1)
+class ShapeTests(unittest.TestCase):
+    def setUp(self):
+        s0 = Shape(1,1,2,3,4)
+        s1 = Shape(1,1,2,3,4)
+        s1.rotation = 180
+        s2 = Shape(1,1,2,3,4)
+        s2.rotation = 90
+        s3 = Shape(1,0,5,6,3)
+        s4 = Shape(1,7,5,1,25)
 
-        self.assertAlmostEqual(algorithms.rotate_point(1,1, 0,0, 360)[0], 1)
-        self.assertAlmostEqual(algorithms.rotate_point(1,1, 0,0, 360)[1], 1)
-
-        self.assertAlmostEqual(algorithms.rotate_point(2,2, 1,1, 180)[0], 0)
-        self.assertAlmostEqual(algorithms.rotate_point(2,2, 1,1, 180)[1], 0)
-
+        self.shapes = [s0,s1,s2,s3,s4]
+        
+    def test_get_bounds_shapse(self):
+        self.assertTupleEqual(algorithms.get_bounds_shapes(self.shapes), (0,2,8,28))
+        
+    def test_rotate_point_by_shape_rotation(self):
+        self.assertTupleEqual(float_to_int(algorithms.rotate_point_by_shape_rotation(1,1, self.shapes[0])), (1,1))
+        self.assertTupleEqual(float_to_int(algorithms.rotate_point_by_shape_rotation(1,1, self.shapes[1])), (-1,-1))
+        self.assertTupleEqual(float_to_int(algorithms.rotate_point_by_shape_rotation(1,1, self.shapes[2])), (-1,1))
+        
+    def test_get_bounding_nodes(self):
+        self.assertListEqual(float_to_int(algorithms.get_bounding_nodes(self.shapes[0])), [[1,2],[1,6],[4,6],[4,2]])
+        self.assertListEqual(float_to_int(algorithms.get_bounding_nodes(self.shapes[1])), [[4,6],[4,2],[1,2],[1,6]])
+        self.assertListEqual(float_to_int(algorithms.get_bounding_nodes(self.shapes[2])), [[5,3],[1,2],[0,6],[5,6]])
 
 
 class ColorTests(unittest.TestCase):

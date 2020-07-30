@@ -36,7 +36,7 @@ class FolderSetup(object):
         # dialog.Description = "Please choose an additional folder with BKT-features"
         dialog.Description = "Bitte einen BKT Feature-Ordner auswählen"
         
-        if (dialog.ShowDialog(None) == F.DialogResult.OK):
+        if dialog.ShowDialog() == F.DialogResult.OK:
             cls.add_folder(context, dialog.SelectedPath)
     
     @staticmethod
@@ -70,7 +70,7 @@ class BKTReload(object):
         try:
             context.python_addin.invalidate_ribbon()
         except:
-            pass
+            logging.exception("error invalidating ribbon")
 
 
 class BKTUpdatesConfig(object):
@@ -170,12 +170,12 @@ class BKTUpdates(object):
             try:
                 is_update, latest_version = cls._check_latest_version()
                 if is_update:
-                    logging.info("BKT Autoupdate: new version found: "+latest_version.version_string)
+                    logging.info("BKT Autoupdate: new version found: %s", latest_version.version_string)
                     cls._update_notification(latest_version)
                 else:
-                    logging.info("BKT Autoupdate: version is up-to-date: "+latest_version.version_string)
-            except Exception as e:
-                logging.error("BKT Autoupdate Error: {}".format(e))
+                    logging.info("BKT Autoupdate: version is up-to-date: %s", latest_version.version_string)
+            except:
+                logging.exception("BKT Autoupdate Error")
 
         t = Thread(target=threaded_update)
         t.start()
@@ -323,7 +323,7 @@ Temp-Dir:               {}
         bkt.helpers.get_fav_folder(),
         tempfile.gettempdir()
         )
-        bkt.console.show_message(bkt.ui.endings_to_windows(debug_info))
+        bkt.console.show_message(bkt.helpers.endings_to_windows(debug_info))
         
     @classmethod
     def open_folder(cls, path=None):

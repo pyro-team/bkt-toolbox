@@ -11,7 +11,7 @@ from __future__ import absolute_import
 import logging
 import uuid #for getting random id
 
-from itertools import count #NOTE: DEPRECATED: this is required for setting target_order which is only used by legacy annotations syntax
+from itertools import count
 
 import bkt.helpers as _h #for snake-to-camelcase
 import bkt.library.system as lib_sys #for getting key-states in spinner
@@ -59,7 +59,7 @@ class RibbonControl(object):
     no_id = False
     _attributes = {}
     _id_attribute_key = "id"
-    _auto_id_counter = 0
+    _auto_id_counter = count()
     _predefined_ids = set(["id_mso", "idMso", "id_q", "idQ"])
 
     #NOTE: DEPRECATED: this counter is only used to set target_order for legacy annotations syntax
@@ -188,8 +188,7 @@ class RibbonControl(object):
     
     def create_persisting_id(self):
         ''' generates an id, which will be identical on every addin-start '''
-        RibbonControl._auto_id_counter += 1
-        return "_auto_id_" + str(RibbonControl._auto_id_counter)
+        return "_auto_id_" + str(next(RibbonControl._auto_id_counter))
         
     
     def set_id(self, fallback_id=None, ribbon_short_id=None, id_tag=None):
@@ -747,15 +746,20 @@ class RoundingSpinnerBox(SpinnerBox):
         
         if value is None:
             return None
-        elif type(value) == list:
+        elif type(value) is tuple:
+            #tuple with 2 values ambiguous bool and fallback value
+            assert len(value) == 2, "Ambiguity tuple must have exactly two values"
+            ambiguous, value = value
+        elif type(value) is list:
             # list means ambiguous values
-            if len(value) == 0 or value[0] is None:
+            value_0 = value[0]
+            if not value or value_0 is None:
                 return None
-            elif value.count(value[0]) == len(value):
-                # all values are the same, use first value
-                value = value[0]
+            elif value.count(value_0) == len(value):
+                # https://stackoverflow.com/questions/3844801/check-if-all-elements-in-a-list-are-identical
+                value = value_0 # all values are the same, use first value
             else:
-                value = value[0] #fallback value for dec/inc methods
+                value = value_0 #fallback value for dec/inc methods
                 ambiguous = True
 
         convert_func_name = 'convert_' + str(self.convert) + '_A'

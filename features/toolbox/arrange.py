@@ -112,16 +112,24 @@ class Swap(object):
 
     @classmethod
     def replace_keep_size(cls, shapes):
-        shapes = pplib.wrap_shapes(shapes[:2], cls.locpin)
-        new, ref = shapes
-        new.rotation = ref.rotation
-        new.width    = ref.width
-        if new.LockAspectRatio == 0 or new.height > ref.height:
-            new.height   = ref.height
-        new.top      = ref.top
-        new.left     = ref.left
-        pplib.set_shape_zorder(new, value=ref.ZOrderPosition)
-        ref.Delete()
+        shapes = pplib.wrap_shapes(shapes, cls.locpin)
+        master = shapes.pop(0) #first selected is master shape
+        first = True
+        for ref in shapes:
+            if first:
+                new = master
+                first = False
+            else:
+                new = master.Duplicate()
+            new.rotation = ref.rotation
+            new.width    = ref.width
+            if new.LockAspectRatio == 0 or new.height > ref.height:
+                new.height   = ref.height
+            new.top      = ref.top
+            new.left     = ref.left
+            pplib.set_shape_zorder(new, value=ref.ZOrderPosition)
+            ref.Delete()
+            new.Select(False)
 
 
 
@@ -210,8 +218,8 @@ swap_button = bkt.ribbon.SplitButton(
                 show_label=True,
                 #size='large',
                 image='replace_keep_size',
-                supertip="Zuletzt gewähltes Shape mit zuerst gewähltem Shape ersetzen und dabei die Größe vom Original-Shape erhalten.",
-                on_action=bkt.Callback(Swap.replace_keep_size, shapes=True, shapes_min=2, shapes_max=2),
+                supertip="Zuerst gewähltes Shape ersetzt alle anderen gewählten Shapes, wobei jeweils die Position und Größe der ersetzten Shapes erhalten bleibt.",
+                on_action=bkt.Callback(Swap.replace_keep_size, shapes=True, shapes_min=2),
                 get_enabled = bkt.get_enabled_auto,
             ),
         ])
@@ -1579,27 +1587,37 @@ class ArrangeAdvanced(object):
     ### detect master shape ###
 
     def get_master_from_shapes(self, shapes):
-        def _test_ref_or_use_fallback(ref):
+        def _test_ref(ref):
             try:
                 ref.left #test if ref still exists
-                return ref
+                return True
             except:
-                bkt.message.warning("Fehler: Referenz wurde nicht gefunden. Fallback zu Ausrichtung am Mastershape innerhalb der Selektion.")
-                ArrangeAdvanced.master = self.fallback_first_last
-                return self.get_master_from_shapes(shapes)
+                return False
+        # def _test_ref_or_use_fallback(ref):
+        #     try:
+        #         ref.left #test if ref still exists
+        #         return ref
+        #     except:
+        #         bkt.message.warning("Fehler: Referenz wurde nicht gefunden. Master wird zurückgesetzt.")
+        #         ArrangeAdvanced.master = self.fallback_first_last
+        #         return self.get_master_from_shapes(shapes)
 
         ''' obtain master shape from given shapes according to master-setting '''
         if bkt.get_key_state(bkt.KeyCodes.CTRL):
             return pplib.BoundingFrame(shapes[0].parent, contentarea=True)
         
-        elif ArrangeAdvanced.master == "FIXED-SHAPE" and self.ref_shape != None:
-            return _test_ref_or_use_fallback(self.ref_shape)
-        elif ArrangeAdvanced.master == "FIXED-SLIDE" and self.ref_frame !=None:
-            return _test_ref_or_use_fallback(self.ref_frame)
-        elif ArrangeAdvanced.master == "FIXED-CONTENTAREA" and self.ref_frame !=None:
-            return _test_ref_or_use_fallback(self.ref_frame)
-        elif ArrangeAdvanced.master == "FIXED-CUSTOMAREA" and self.ref_frame !=None:
-            return _test_ref_or_use_fallback(self.ref_frame)
+        elif ArrangeAdvanced.master == "FIXED-SHAPE" and self.ref_shape and self.ref_frame:
+            #if ref_shape was deleted, use ref_frame instead
+            if _test_ref(self.ref_shape):
+                return self.ref_shape
+            else:
+                return self.ref_frame
+        elif ArrangeAdvanced.master == "FIXED-SLIDE" and self.ref_frame:
+            return self.ref_frame
+        elif ArrangeAdvanced.master == "FIXED-CONTENTAREA" and self.ref_frame:
+            return self.ref_frame
+        elif ArrangeAdvanced.master == "FIXED-CUSTOMAREA" and self.ref_frame:
+            return self.ref_frame
             
         elif len(shapes) == 1:
             ## fallback if only one shape in selection
@@ -1728,6 +1746,7 @@ class ArrangeAdvanced(object):
         ''' callback: set master to selected shape. On deactivation fallback to master in selection '''
         if pressed:
             self.ref_shape = shape
+            self.ref_frame = pplib.BoundingFrame.from_shape(shape) #set ref_frame as fallback if shape is deleted
             ArrangeAdvanced.master = "FIXED-SHAPE"
         else:
             ArrangeAdvanced.master = self.fallback_first_last
@@ -1752,6 +1771,9 @@ class ArrangeAdvanced(object):
         ''' set master to given target-frame '''
         ArrangeAdvanced.master = "FIXED-CUSTOMAREA"
         self.ref_frame = target_frame
+            
+    def specify_master_customarea_toggle(self, pressed):
+        ArrangeAdvanced.master = self.fallback_first_last
     
     
     def specify_wiz(self, pressed, context):
@@ -2010,7 +2032,7 @@ class ArrangeAdvanced(object):
                 bkt.ribbon.ToggleButton(
                     id="arrange_use_customarea"+postfix,
                     label="Benutzerdef. Bereich",
-                    #on_toggle_action=bkt.Callback(self.specify_master_contentarea),
+                    on_toggle_action=bkt.Callback(self.specify_master_customarea_toggle),
                     get_pressed=bkt.Callback(self.is_customarea_specified),
                     get_enabled=bkt.Callback(self.is_customarea_specified),
                     screentip="Ausrichtung an benutzerdefiniertem Bereich",
@@ -3011,7 +3033,7 @@ class EdgeAutoFixer(object):
             child_shapes.remove(master_shape)
             
             for shape in child_shapes:
-                # logging.debug("Autofix1: {} x {}".format(master_shape.name, shape.name))
+                # logging.debug("Autofix1: %s x %s", master_shape.name, shape.name)
 
                 #save values before moving shape
                 # visual_x1, visual_y1 = shape.visual_x1, shape.visual_y1
@@ -3285,7 +3307,7 @@ arrange_group = bkt.ribbon.Group(
                     on_action=bkt.Callback(ArrangeCenter.arrange_shapes, shapes=True),
                     get_enabled = bkt.apps.ppt_shapes_min2_selected,
                 ),
-                bkt.ribbon.MenuSeparator(),
+                bkt.ribbon.MenuSeparator(title="Gruppierung"),
                 bkt.ribbon.Button(
                     id = 'add_into_group',
                     label="In Gruppe einfügen",
