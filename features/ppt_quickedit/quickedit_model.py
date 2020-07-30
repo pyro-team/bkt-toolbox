@@ -72,11 +72,11 @@ class PPTColor(object):
         if self.shade_index == -1:
             color = pplib.ColorHelper.get_theme_color(context, self.color_index, brightness=self.brightness)
             self.shade_index = color.shade_index
-            logging.debug("QuickEdit: shade index changed to %s", self.shade_index)
+            logging.debug("QuickEdit: shade index changed to %s" % str(self.shade_index))
         elif self.shade_index is not None:
             color = pplib.ColorHelper.get_theme_color(context, self.color_index, shade_index=self.shade_index)
             self.brightness = color.brightness
-            logging.debug("QuickEdit: brightness changed to %s", self.brightness)
+            logging.debug("QuickEdit: brightness changed to %s" % str(self.brightness))
         else:
             color = pplib.ColorHelper.get_theme_color(context, self.color_index, brightness=self.brightness)
         self.color_rgb = color.rgb

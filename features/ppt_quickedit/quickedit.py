@@ -76,7 +76,7 @@ class QuickEditPanelManager(object):
 
     @classmethod
     def _show_panel(cls, context, windowid):
-        logging.debug("show panel for window %s", windowid)
+        logging.debug("show panel for window %s" % windowid)
         try:
             panel = cls._create_panel(context)
             panel.SetOwner(windowid)
@@ -93,7 +93,7 @@ class QuickEditPanelManager(object):
 
     @classmethod
     def _close_panel(cls, windowid):
-        logging.debug("close panel for window %s", windowid)
+        logging.debug("close panel for window %s" % windowid)
         try:
             cls.panel_windows[windowid].Close()
             del cls.panel_windows[windowid]
