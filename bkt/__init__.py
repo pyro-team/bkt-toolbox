@@ -13,7 +13,7 @@ __author__ = "Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallma
 __copyright__ = "Copyright 2019 Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann"
 __license__ = "MIT"
 __version__ = "2.7.1"
-__release__ = "BKT r20-07-24"
+__release__ = "BKT r20-07-30"
 
 
 # NOTE: Use StandardLib.dll as alternative to /bin/Lib, but seems to have problems with wpf/fluent

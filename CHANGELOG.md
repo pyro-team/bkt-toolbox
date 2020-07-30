@@ -1,4 +1,4 @@
-# Release 2020-07-24 (2.7.1)
+# Release 2020-07-30 (2.7.1)
 
   * Added quickedit dark theme
   * Added function to open slideshow in window or fullscreen
