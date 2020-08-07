@@ -3365,6 +3365,15 @@ arrange_group = bkt.ribbon.Group(
                     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
                 ),
                 bkt.ribbon.Button(
+                    id = 'each_link_shapes',
+                    label="Ausgewählte Shapes einzeln in Verknüpfung umwandeln",
+                    # image_mso="HyperlinkCreate",
+                    screentip="Alle ausgewählte Shapes einzeln verknüpfen",
+                    supertip="Die ausgewählten Shapes bekommen jeweils eine interne Verknüpfungs-ID. Die Verknüpfung bleibt beim Kopieren der Shapes erhalten.",
+                    on_action=bkt.Callback(LinkedShapes.each_link_shapes, shapes=True),
+                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                ),
+                bkt.ribbon.Button(
                     id = 'extend_link_shapes',
                     label="Bestehende Shape-Verknüpfung erweitern",
                     # image_mso="HyperlinkCreate",

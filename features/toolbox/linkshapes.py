@@ -17,6 +17,7 @@ BKT_LINK_UUID = "BKT_LINK_UUID"
 
 class LinkedShapes(object):
     current_link_guid = None
+    master = "current"
 
     @staticmethod
     def _add_tags(shape, link_guid):
@@ -31,6 +32,14 @@ class LinkedShapes(object):
     def not_is_linked_shape(cls, shape):
         return not cls.is_linked_shape(shape)
 
+    @classmethod
+    def get_master_shape(cls, shape, context):
+        if cls.master == "first":
+            return cls.get_linked_shape(shape, context, 0, False)
+        elif cls.master == "last":
+            return cls.get_linked_shape(shape, context, -1, False)
+        else: #current
+            return shape
 
     @classmethod
     def enabled_add_linked_shapes(cls):
@@ -138,6 +147,12 @@ class LinkedShapes(object):
     def link_shapes(cls, shapes):
         cls.current_link_guid = str(uuid.uuid4())
         cls.add_to_link_shapes(shapes)
+    
+    @classmethod
+    def each_link_shapes(cls, shapes):
+        for shape in shapes:
+            link_guid = str(uuid.uuid4())
+            cls._add_tags(shape, link_guid)
 
     @classmethod
     def unlink_shape(cls, shape):
@@ -166,7 +181,18 @@ class LinkedShapes(object):
         bkt.message("Es wurden %s verknüpfte Shapes gefunden." % count_shapes, "BKT: Verknüpfte Shapes")
     
     @classmethod
-    def goto_linked_shape(cls, shape, context, goto=1, delta=True): #goto=1 -> next linked shape, delta=False -> goto interpreted as absolute index
+    def select_link_shapes_slides(cls, shape, context):
+        # from System import Array
+        # slides = set(s.Parent.SlideIndex for s in cls._iterate_linked_shapes(shape, context))
+        # slides.add(shape.Parent.SlideIndex)
+        # bkt.message("%s" % slides)
+        # context.presentation.Slides.Range(Array[int](slides)).Select()
+        slides = set(s.Parent.SlideNumber for s in cls._iterate_linked_shapes(shape, context))
+        slides.add(shape.Parent.SlideNumber)
+        bkt.message('Folgende Folie enthalten verknüpfte Shapes: %s' % ", ".join(str(i) for i in sorted(slides)), "BKT: Verknüpfte Shapes")
+
+    @classmethod
+    def get_linked_shape(cls, shape, context, goto=1, delta=True): #goto=1 -> next linked shape, delta=False -> goto interpreted as absolute index
         link_guid = shape.Tags.Item(BKT_LINK_UUID)
         cur_shape_index = None
         list_shapes = []
@@ -179,12 +205,31 @@ class LinkedShapes(object):
                     cur_shape_index = len(list_shapes)-1
         
         sel_shape_index = goto if not delta else (cur_shape_index + goto) % len(list_shapes)
-        list_shapes[sel_shape_index].parent.select() #select slide
-        list_shapes[sel_shape_index].select() #select shape
+        return list_shapes[sel_shape_index]
+    
+    @classmethod
+    def goto_linked_shape(cls, shape, context, goto=1, delta=True): #goto=1 -> next linked shape, delta=False -> goto interpreted as absolute index
+        goto_shape = cls.get_linked_shape(shape, context, goto, delta)
+        #activate view
+        context.app.ActiveWindow.View.GotoSlide(goto_shape.Parent.SlideIndex)
+        # goto_shape.parent.select() #select slide
+        goto_shape.select() #select shape
 
     @classmethod
     def goto_first_shape(cls, shape, context):
         cls.goto_linked_shape(shape, context, 0, False)
+
+    @classmethod
+    def goto_last_shape(cls, shape, context):
+        cls.goto_linked_shape(shape, context, -1, False)
+
+    @classmethod
+    def goto_next_shape(cls, shape, context):
+        cls.goto_linked_shape(shape, context, 1)
+
+    @classmethod
+    def goto_previous_shape(cls, shape, context):
+        cls.goto_linked_shape(shape, context, -1)
 
     @classmethod
     def _iterate_linked_shapes(cls, shape, context):
@@ -206,6 +251,7 @@ class LinkedShapes(object):
 
     @classmethod
     def size_linked_shapes(cls, shape, context):
+        shape = cls.get_master_shape(shape, context)
         ref_heigth = shape.Height
         ref_width = shape.Width
         ref_lock_ar = shape.LockAspectRatio
@@ -217,6 +263,7 @@ class LinkedShapes(object):
 
     @classmethod
     def align_linked_shapes(cls, shape, context):
+        shape = cls.get_master_shape(shape, context)
         ref_position_left = shape.left
         ref_position_top = shape.top
         ref_rotation = shape.Rotation
@@ -231,6 +278,7 @@ class LinkedShapes(object):
 
     @classmethod
     def format_linked_shapes(cls, shape, context):
+        shape = cls.get_master_shape(shape, context)
         try:
             shape.Pickup() #fails for some shapes, e.g. a group
             mode = "simple"
@@ -264,11 +312,13 @@ class LinkedShapes(object):
     @classmethod
     def adjustments_linked_shapes(cls, shape, context):
         from .shape_adjustments import ShapeAdjustments
+        shape = cls.get_master_shape(shape, context)
         for cShp in cls._iterate_linked_shapes(shape, context):
             ShapeAdjustments.equalize_adjustments([shape, cShp])
 
     @classmethod
     def text_linked_shapes(cls, shape, context, with_formatting=True):
+        shape = cls.get_master_shape(shape, context)
         if shape.HasTextFrame == -1: #msoTrue
             if with_formatting:
                 # shape.TextFrame2.TextRange.Copy()
@@ -395,6 +445,7 @@ class LinkedShapes(object):
     ### PROPERTIES ###
     @classmethod
     def linked_shapes_custom(cls, shape, context, property_name, wrap=True):
+        shape = cls.get_master_shape(shape, context)
         wrap_shape = lambda shp: shp if not wrap else pplib.wrap_shape(shp)
         cur_value = getattr(wrap_shape(shape), property_name)
         for cShp in cls._iterate_linked_shapes(shape, context):
@@ -543,29 +594,62 @@ linkshapes_tab = bkt.ribbon.Tab(
             id="bkt_linkshapes_find_group",
             label = "Verknüpfte Shapes finden",
             children = [
+                bkt.ribbon.Box(box_style="horizontal", children=[
+                    bkt.ribbon.Button(
+                        id = 'linked_shapes_first',
+                        label="Erstes verknüpfte Shape finden",
+                        show_label=False,
+                        image_mso="MailMergeGoToFirstRecord",
+                        screentip="Zum ersten verknüpften Shape gehen",
+                        supertip="Sucht nach dem ersten verknüpften Shape.",
+                        on_action=bkt.Callback(LinkedShapes.goto_first_shape, shape=True, context=True),
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'linked_shapes_previous',
+                        label="Vorheriges verknüpfte Shape finden",
+                        show_label=False,
+                        image_mso="MailMergeGoToPreviousRecord",
+                        screentip="Zum vorherigen verknüpften Shape gehen",
+                        supertip="Sucht nach dem vorherigen verknüpften Shape. Sollte auf den vorherigen Folien kein Shape mehr kommen, wird das letzte verknüpfte Shape der Präsentation gesucht.",
+                        on_action=bkt.Callback(LinkedShapes.goto_previous_shape, shape=True, context=True),
+                    ),
+                    bkt.ribbon.Label(
+                        label="Gehe zu",
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'linked_shapes_next',
+                        label="Nächstes verknüpfte Shape finden",
+                        show_label=False,
+                        image_mso="MailMergeGoToNextRecord",
+                        screentip="Zum nächsten verknüpften Shape gehen",
+                        supertip="Sucht nach dem nächste verknüpften Shape. Sollte auf den Folgefolien kein Shape mehr kommen, wird das erste verknüpfte Shape der Präsentation gesucht.",
+                        on_action=bkt.Callback(LinkedShapes.goto_next_shape, shape=True, context=True),
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'linked_shapes_last',
+                        label="Letztes verknüpfte Shape finden",
+                        show_label=False,
+                        image_mso="MailMergeGotToLastRecord",
+                        screentip="Zum letzten verknüpften Shape gehen",
+                        supertip="Sucht nach dem letzten verknüpften Shape.",
+                        on_action=bkt.Callback(LinkedShapes.goto_last_shape, shape=True, context=True),
+                    ),
+                ]),
                 bkt.ribbon.Button(
                     id = 'linked_shapes_count',
-                    label="Verknüpfte Shapes zählen",
+                    label="Shapes zählen",
                     image_mso="FormattingUnique",
                     screentip="Alle verknüpften Shapes zählen",
                     supertip="Zählt die Anzahl der verknüpften Shapes auf allen Folien.",
                     on_action=bkt.Callback(LinkedShapes.count_link_shapes, shape=True, context=True),
                 ),
                 bkt.ribbon.Button(
-                    id = 'linked_shapes_next',
-                    label="Nächstes verknüpfte Shape finden",
-                    image_mso="FindNext",
-                    screentip="Zum nächsten verknüpften Shape gehen",
-                    supertip="Sucht nach dem nächste verknüpften Shape. Sollte auf den Folgefolien kein Shape mehr kommen, wird das erste verknüpfte Shape der Präsentation gesucht.",
-                    on_action=bkt.Callback(LinkedShapes.goto_linked_shape, shape=True, context=True),
-                ),
-                bkt.ribbon.Button(
-                    id = 'linked_shapes_first',
-                    label="Erstes verknüpfte Shape finden",
-                    image_mso="FirstPage",
-                    screentip="Zum ersten verknüpften Shape gehen",
-                    supertip="Sucht nach dem ersten verknüpften Shape.",
-                    on_action=bkt.Callback(LinkedShapes.goto_first_shape, shape=True, context=True),
+                    id = 'linked_shapes_select',
+                    label="Folien anzeigen",
+                    image_mso="SlideTransitionApplyToAll",
+                    screentip="Alle Foliennummern mit verknüpften Shapes anzeigen",
+                    supertip="Zeigt alle Foliennummern die zugehörige verknüpfte Shapes enthalten.",
+                    on_action=bkt.Callback(LinkedShapes.select_link_shapes_slides, shape=True, context=True),
                 ),
             ]
         ),
@@ -573,6 +657,31 @@ linkshapes_tab = bkt.ribbon.Tab(
             id="bkt_linkshapes_align_group",
             label = "Verknüpfte Shapes angleichen",
             children = [
+                bkt.ribbon.Menu(
+                    id = 'linked_shapes_master',
+                    label="Referenz wählen",
+                    image_mso="CircularReferences",
+                    size="large",
+                    screentip="Referenzshape auswählen",
+                    supertip="Auswählen, ob selektiertes, erstes oder letztes Shape als Referenz für alle Angleichungsfunktionen verwendet werden soll. Standard ist das aktuell ausgewählte Shape.",
+                    children=[
+                        bkt.ribbon.ToggleButton(
+                            label="Ausgewähltes Shapes (Standard)",
+                            get_pressed=bkt.Callback(lambda: LinkedShapes.master == "current"),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(LinkedShapes, "master", "current")),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Erstes Shape im Foliensatz",
+                            get_pressed=bkt.Callback(lambda: LinkedShapes.master == "first"),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(LinkedShapes, "master", "first")),
+                        ),
+                        bkt.ribbon.ToggleButton(
+                            label="Letztes Shape im Foliensatz",
+                            get_pressed=bkt.Callback(lambda: LinkedShapes.master == "last"),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(LinkedShapes, "master", "last")),
+                        ),
+                    ]
+                ),
                 bkt.ribbon.Button(
                     id = 'linked_shapes_all',
                     label="Alles angleichen",
