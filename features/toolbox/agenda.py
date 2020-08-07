@@ -225,6 +225,7 @@ class ToolboxAgenda(object):
             cls.set_tags_for_textbox(shp)
 
             # select shape (to show popup)
+            shp.Name = "[BKT] Agenda-Textbox %s" % shp.id
             shp.select()
 
             if context:
@@ -314,6 +315,7 @@ class ToolboxAgenda(object):
         # Neues Selector-Shape erstellen
         shp = sld.shapes.AddShape(office.MsoAutoShapeType.msoShapeRectangle.value__, 0, 0, 100, 20)
         cls.set_tags_for_selector(shp)
+        shp.Name = "[BKT] Agenda-Selektor %s" % shp.id
         shp.ZOrder(office.MsoZOrderCmd.msoSendToBack.value__)
         # Grauer Hintergrund/Rand
         cls.set_selector_fill(shp.Fill, cls.selectorFillColor)

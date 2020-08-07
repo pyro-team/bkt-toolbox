@@ -63,7 +63,9 @@ class SegmentedCircle(object):
 
         #slide.Shapes.Range(array('l', [i + shapeCount for i in range(0,len(aussenKurve))])).Group.select
         # slide.Shapes.Range(Array[int]([i+shapeCount+1 for i in range(0,len(aussenKurve))])).group().select()
-        pplib.last_n_shapes_on_slide(slide, num_segments).group().select()
+        grp = pplib.last_n_shapes_on_slide(slide, num_segments).group()
+        grp.Name = "[BKT] Segmented Circle %s" % grp.id
+        grp.select()
 
 
 # =======================

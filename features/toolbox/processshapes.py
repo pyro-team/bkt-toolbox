@@ -84,6 +84,7 @@ class ProcessChevrons(object):
         shapes.Textframe2.TextRange.ParagraphFormat.FirstLineIndent = 0
         shapes.Textframe2.VerticalAnchor = 3 #middle
         p_grp = shapes.group()
+        p_grp.Name = "[BKT] Process %s" % p_grp.id
         cls._add_tags(p_grp, uuid)
 
         if num_rows:
@@ -100,6 +101,7 @@ class ProcessChevrons(object):
                 shapes = pplib.last_n_shapes_on_slide(slide, num_steps)
                 grp = shapes.group()
                 cls._add_tags_row(grp, uuid)
+                grp.Name = "[BKT] Process-Row %s.%s" % (p_grp.id, grp.id)
                 # grp.select(False)
                 rect_top += rect_height+spacing
 
@@ -327,6 +329,7 @@ class Pentagon(object):
         # gruppieren/selektieren
         # grp = slide.Shapes.Range(Array[int]([shapeCount+1, shapeCount+2])).group()
         grp = pplib.last_n_shapes_on_slide(slide, 2).group()
+        grp.Name = "[BKT] Headered Pentagon %s" % grp.id
         grp.select()
 
         #cls.update_pentagon_group(grp)
@@ -369,6 +372,7 @@ class Pentagon(object):
         # gruppieren/selektieren
         # grp = slide.Shapes.Range(Array[int]([shapeCount+1, shapeCount+2])).group()
         grp = pplib.last_n_shapes_on_slide(slide, 2).group()
+        grp.Name = "[BKT] Headered Chevron %s" % grp.id
         grp.select()
 
         #cls.update_pentagon_group(grp)

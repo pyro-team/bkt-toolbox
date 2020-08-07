@@ -766,6 +766,8 @@ class ShapeConnectors(object):
         # shp_connector.Line.Weight = 0.75
         shp_connector.Line.Visible = -1 #msoTrue
 
+        shp_connector.Name = "[BKT] Connector %s" % shp_connector.id
+
         with ShapeConnectorTags(shp_connector.Tags) as tags:
             tags["shape1_id"]   = shape1.id
             tags["shape1_side"] = shape1_side
@@ -2203,6 +2205,7 @@ shapes_group = bkt.ribbon.Group(
                 bkt.mso.control.ClipArtInsertDialog,
                 bkt.mso.control.SmartArtInsert,
                 bkt.mso.control.ChartInsert,
+                # bkt.mso.control.IconInsertFromFile, #only available in Office 2016 with 365 subscription
                 bkt.ribbon.MenuSeparator(title="Text & Beschriftungen"),
                 bkt.mso.control.HeaderFooterInsert,
                 bkt.mso.control.DateAndTimeInsert,
