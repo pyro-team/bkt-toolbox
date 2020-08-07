@@ -547,15 +547,15 @@ anordnen_gruppe = bkt.ribbon.Group(
                             label="Gleiche Höhe",
                             show_label=False,
                             image_mso='ShapeHeight',
-                            screentip="Höhe der Shapes einheitlich (Ausrichtung am Master-Shape)",
+                            screentip="Höhe der Shapes einheitlich (Ausrichtung am Referenzshape)",
                             on_action=bkt.Callback(EqualSize.equal_height, shapes=True, shapes_min=2),
                             get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name
                         ),
                         bkt.ribbon.Menu(children=[
                             bkt.ribbon.Button(
-                                label="Gleiche Höhe wie Master-Shape",
+                                label="Gleiche Höhe wie Referenzshape",
                                 image_mso='ShapeHeight',
-                                screentip="Höhe der Shapes einheitlich (Ausrichtung am Master-Shape)",
+                                screentip="Höhe der Shapes einheitlich (Ausrichtung am Referenzshape)",
                                 on_action=bkt.Callback(EqualSize.equal_height, shapes=True, shapes_min=2),
                                 get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name
                             ),
@@ -585,15 +585,15 @@ anordnen_gruppe = bkt.ribbon.Group(
                             label="Gleiche Breite",
                             show_label=False,
                             image_mso='ShapeWidth',
-                            screentip="Breite der Shapes einheitlich (Ausrichtung am Master-Shape)",
+                            screentip="Breite der Shapes einheitlich (Ausrichtung am Referenzshape)",
                             on_action=bkt.Callback(EqualSize.equal_width, shapes=True, shapes_min=2),
                             get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name
                         ),
                         bkt.ribbon.Menu(children=[
                             bkt.ribbon.Button(
-                                label="Gleiche Breite wie Master-Shape",
+                                label="Gleiche Breite wie Referenzshape",
                                 image_mso='ShapeWidth',
-                                screentip="Breite der Shapes einheitlich (Ausrichtung am Master-Shape)",
+                                screentip="Breite der Shapes einheitlich (Ausrichtung am Referenzshape)",
                                 on_action=bkt.Callback(EqualSize.equal_width, shapes=True, shapes_min=2),
                                 get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name
                             ),

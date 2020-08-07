@@ -722,7 +722,7 @@ slides_group = bkt.ribbon.Group(
                 bkt.ribbon.MenuSeparator(),
                 bkt.mso.control.GuidesShowHide(show_label=True),
                 bkt.ribbon.Button(
-                    label="Master-Shapes ein-/ausblenden",
+                    label="Template-Shapes ein-/ausblenden",
                     image_mso='SlideHide',
                     supertip="Alle Shapes im Folienmaster ein- und ausblenden, um ungestört und vertraulich an Folien arbeiten zu können.",
                     on_action=bkt.Callback(SlideMenu.toggle_hide_master_shapes)

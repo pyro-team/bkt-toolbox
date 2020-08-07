@@ -526,7 +526,7 @@ class ToolboxAgenda(object):
         settings = cls.get_agenda_settings(agenda_slide)
         if settings.get(SETTING_HIDE_SUBITEMS, False) == True:
             return_value = bkt.message.confirmation(
-                "Agenda-Master nicht gefunden!\nAgenda kann aus der ersten Agendafolie wiederhergestellt werden, aber versteckte Unterpunkte gehen dabei verloren.\n\nAgenda-Aktualisierung forsetzen?",
+                "Agenda-Hauptseite nicht gefunden!\nAgenda kann aus der ersten Agendafolie wiederhergestellt werden, aber versteckte Unterpunkte gehen dabei verloren.\n\nAgenda-Aktualisierung forsetzen?",
                 "Toolbox: Agenda", 
                 bkt.MessageBox.MB_YESNO,
                 bkt.MessageBox.WARNING)
@@ -1617,7 +1617,7 @@ agendamenu = bkt.ribbon.Menu(
         bkt.ribbon.Button(
             id='agenda-new-create',
             label="Agenda neu erstellen",
-            supertip="Neue Agenda auf Basis des aktuellen Slides erstellen. Aktuelles Slide wird Master-Slide der Agenda.",
+            supertip="Neue Agenda auf Basis der aktuellen Folie erstellen. Aktuelle Folien wird Hauptfolie der Agenda.",
             imageMso="TableOfContentsAddTextGallery",
             on_action=bkt.Callback(ToolboxAgenda.create_agenda_from_slide),
             get_enabled=bkt.Callback(ToolboxAgenda.can_create_agenda_from_slide)
@@ -1626,7 +1626,7 @@ agendamenu = bkt.ribbon.Menu(
         bkt.ribbon.Button(
             id='agenda-new-update',
             label="Agenda aktualisieren",
-            supertip="Agenda aktualisieren und durch Agenda auf dem Agenda-Master-Slide ersetzen; Folien werden dabei neu erstellt.",
+            supertip="Agenda aktualisieren und durch Agenda auf dem Agenda-Hauptfolie ersetzen; Folien werden dabei neu erstellt.",
             imageMso="SaveSelectionToTableOfContentsGallery",
             on_action=bkt.Callback(ToolboxAgenda.update_agenda_slides_by_slide),
             get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
@@ -1714,7 +1714,7 @@ agenda_tab = bkt.ribbon.Tab(
             children = [
                 bkt.ribbon.Label(label='Schritt 1: Textbox mit Agenda füllen und "Agenda neu erstellen"'),
                 bkt.ribbon.Label(label='Schritt 2: Nach jeder weiteren Änderung "Agenda aktualisieren"'),
-                bkt.ribbon.Label(label='Hinweis: Agenda-Masterfolie sollte nicht gelöscht werden!'),
+                bkt.ribbon.Label(label='Hinweis: Agenda-Hauptfolie sollte nicht gelöscht werden!'),
             ]
         ),
         bkt.ribbon.Group(
@@ -1725,7 +1725,7 @@ agenda_tab = bkt.ribbon.Tab(
                     id='agenda_new_create',
                     label="Agenda neu erstellen",
                     size="large",
-                    supertip="Neue Agenda auf Basis des aktuellen Slides erstellen. Aktuelles Slide wird Master-Slide der Agenda.",
+                    supertip="Neue Agenda auf Basis des aktuellen Slides erstellen. Aktuelles Slide wird Hauptfolie der Agenda.",
                     imageMso="TableOfContentsAddTextGallery",
                     on_action=bkt.Callback(ToolboxAgenda.create_agenda_from_slide),
                     get_enabled=bkt.Callback(ToolboxAgenda.can_create_agenda_from_slide)
@@ -1734,7 +1734,7 @@ agenda_tab = bkt.ribbon.Tab(
                     id='agenda_new_update',
                     label="Agenda aktualisieren",
                     size="large",
-                    supertip="Agenda aktualisieren und durch Agenda auf dem Agenda-Master-Slide ersetzen; Folien werden dabei neu erstellt.",
+                    supertip="Agenda aktualisieren und durch Agenda auf dem Agenda-Hauptfolie ersetzen; Folien werden dabei neu erstellt.",
                     imageMso="SaveSelectionToTableOfContentsGallery",
                     on_action=bkt.Callback(ToolboxAgenda.update_agenda_slides_by_slide),
                     get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
@@ -1788,7 +1788,7 @@ agenda_tab = bkt.ribbon.Tab(
                     label="Agenda-Folien entfernen",
                     size="large",
                     screentip="Alle zugehörigen Agenda-Folien entfernen",
-                    supertip="Entfernt alle Agenda-Folien, die zur aktuellen Agenda gehören, außer der Master-Folie. Alle Meta-Informationen werden gelöscht.",
+                    supertip="Entfernt alle Agenda-Folien, die zur aktuellen Agenda gehören, außer der Hauptfolie. Alle Meta-Informationen werden gelöscht.",
                     imageMso="TableOfContentsRemove",
                     on_action=bkt.Callback(ToolboxAgenda.remove_agenda),
                     get_enabled=bkt.Callback(ToolboxAgenda.is_agenda_slide)
