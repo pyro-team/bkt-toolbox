@@ -183,6 +183,14 @@ class ShapeSelector(object):
             for shp in all_shapes:
                 if not cls._is_ontop(shpMaster, shp) and cls._is_within(shpMaster, shp):
                     shp.Select(replace=False)
+    
+    @classmethod
+    def select_with_tags(cls, context):
+        all_shapes = cls._get_all_shapes(context)
+        for shp in all_shapes:
+            if shp.visible and shp.tags.count > 0:
+                shp.Select(replace=False)
+
 
 
 class SlidesMore(object):
@@ -443,6 +451,14 @@ selection_menu = bkt.ribbon.Menu(
             on_action=bkt.Callback(ShapeSelector.invert_selection, context=True),
             # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
             supertip="Invertiert die aktuelle Auswahl. Es werden alle Shapes (auch Platzhalter) markiert, die vorher nicht markiert waren.",
+        ),
+        bkt.ribbon.Button(
+            id = 'shapes_select_tags',
+            image_mso = 'FindTag',
+            label='Shapes mit Tags',
+            on_action=bkt.Callback(ShapeSelector.select_with_tags, context=True),
+            # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            supertip="Markiert alle Shapes auf der Folie mit Tags (Meta-Daten), die u.A. für diverse BKT-Funktionen verwendet werden.",
         ),
     ]
 )
