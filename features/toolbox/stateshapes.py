@@ -324,6 +324,7 @@ class LikertScale(bkt.ribbon.Gallery):
 
         # grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total))).group()
         grp = pplib.last_n_shapes_on_slide(slide, total).group()
+        grp.Name = "[BKT] Likert Scale %s" % grp.id
         return grp
 
     def _create_stateshape_scale(self, slide, shape_type, total):
@@ -394,6 +395,7 @@ class CheckBox(bkt.ribbon.Gallery):
 
         grp = self._insert_single_box(slide, shape_type, style, (font_group["font"], font_group["chars"][0]))
         grp.LockAspectRatio = -1
+        grp.Name = "[BKT] Checkbox %s" % grp.id
         StateShape.convert_to_state_shape([grp], CheckBox.SHAPE_TAG)
     
     def _insert_single_box(self, slide, shape_type=1, style='light', font_char=None):

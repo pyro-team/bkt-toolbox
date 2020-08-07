@@ -58,10 +58,11 @@ class Ampel(object):
         else:
             grp = pplib.last_n_shapes_on_slide(slide, len(shapes)).group()
         
-        grp.select()
         grp.LockAspectRatio = -1 #msoTrue
         grp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_AMPEL)
+        grp.Name = "[BKT] Traffic Light %s" % grp.id
 
+        grp.select()
         cls.set_color(grp)
         
     
