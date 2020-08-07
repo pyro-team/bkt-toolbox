@@ -21,6 +21,7 @@ class Ampel(object):
 
     color_states = ['red', 'yellow', 'green']
     color_rgb    = [255, 65535, 5287936]
+    color_white  = 16777215
 
     @classmethod
     def create(cls, slide, style="vertical", border=True):
@@ -35,14 +36,14 @@ class Ampel(object):
                 slide.shapes.addshape(1, 100, 100, 80, 30), #rect: left, top, width, height
                 slide.shapes.addshape(9, 105, 105, 20, 20), #red
                 slide.shapes.addshape(9, 130, 105, 20, 20), #yellow
-                slide.shapes.addshape(9, 155, 105, 20, 20) #green
+                slide.shapes.addshape(9, 155, 105, 20, 20)  #green
             ]
         else:
             shapes = [
                 slide.shapes.addshape(1, 100, 100, 30, 80), #rect: left, top, width, height
                 slide.shapes.addshape(9, 105, 105, 20, 20), #red
                 slide.shapes.addshape(9, 105, 130, 20, 20), #yellow
-                slide.shapes.addshape(9, 105, 155, 20, 20) #green
+                slide.shapes.addshape(9, 105, 155, 20, 20)  #green
             ]
         for shape in shapes:
             shape.fill.ForeColor.RGB = 14277081
@@ -75,13 +76,13 @@ class Ampel(object):
         # shape to change depending on traffic light type
         if shape.Type != pplib.MsoShapeType['msoGroup']:
             shape_to_change = shape
-            shape_to_change.fill.ForeColor.RGB = 16777215 # white
+            shape_to_change.fill.ForeColor.RGB = cls.color_white # white
         else:
             colors = [shp for shp in shape.GroupItems if shp.AutoShapeType == 9]
             colors.sort(key=lambda shp: (shp.Top, shp.Left))
-            colors[0].fill.ForeColor.RGB = 16777215 # white
-            colors[1].fill.ForeColor.RGB = 16777215 # white
-            colors[2].fill.ForeColor.RGB = 16777215 # white
+            colors[0].fill.ForeColor.RGB = cls.color_white # white
+            colors[1].fill.ForeColor.RGB = cls.color_white # white
+            colors[2].fill.ForeColor.RGB = cls.color_white # white
             shape_to_change = colors[index]
         # if index is -1 nothing to change (light stays white)
         if index >= 0:
