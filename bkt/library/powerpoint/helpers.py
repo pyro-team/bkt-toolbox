@@ -1198,8 +1198,14 @@ class TextframeIterator(SubShapeIterator):
             yield node.TextFrame2
     
     def _iter_chart(self, shape):
+        yield shape.Chart.Format.TextFrame2
         yield shape.Chart.ChartArea.Format.TextFrame2
-        yield shape.Chart.ChartTitle.Format.TextFrame2
+        if shape.Chart.HasTitle:
+            yield shape.Chart.ChartTitle.Format.TextFrame2
+        if shape.Chart.HasLegend:
+            yield shape.Chart.Legend.Format.TextFrame2
+        if shape.Chart.HasDataTable:
+            yield shape.Chart.DataTable.Format.TextFrame2
 
 
 def iterate_shape_textframes(shapes, from_selection=True):
