@@ -427,8 +427,10 @@ class SlideMenu(object):
         for design in context.presentation.Designs:
             for cl in list(iter(design.SlideMaster.CustomLayouts)): #list(iter()) required as delete function will not work on all elements otherwise!
                 try:
+                    name = cl.name
                     cl.Delete()
                     deleted_layouts += 1
+                    logging.info("deleted custom layout %s", name)
                 except EnvironmentError: #deletion fails if layout in use
                     #EnvironmentError: System.Runtime.InteropServices.COMException (0x80048240): Slide (unknown member) : Invalid request.  Can't delete master.
                     continue
@@ -443,7 +445,9 @@ class SlideMenu(object):
             if bkt.message.confirmation("Es wurden {} Folienlayouts gelöscht und {} Folienmaster sind nun ohne Layout. Sollen diese gelöscht werden?".format(deleted_layouts, unused_designs_len)):
                 for design in unused_designs:
                     try:
+                        name = design.name
                         design.Delete()
+                        logging.info("deleted design %s", name)
                     except:
                         logging.exception("error deleting design")
             bkt.message("Leere Folienmaster wurden gelöscht!")
@@ -466,8 +470,10 @@ class SlideMenu(object):
         #remove all remaining indices
         for i in reversed(unused_designs):
             try:
+                name = designs[i].name
                 designs[i].delete()
                 deleted_designs += 1
+                logging.info("deleted design %s", name)
             except:
                 logging.exception("error deleting design")
         
