@@ -52,8 +52,6 @@ class ConsolSplit(object):
 
     @classmethod
     def export_slide(cls, application, slides, full_name):
-        from System import Array
-
         slides[0].Parent.SaveCopyAs(full_name)
         newPres = application.Presentations.Open(full_name, False, False, False) #readonly, untitled, withwindow
 
