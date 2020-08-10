@@ -152,7 +152,7 @@ class SendOrSaveSlides(object):
             newPres.NewWindow()
 
     @classmethod
-    def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False, remove_designs=False, remove_hidden=False):
+    def send_slides(cls, application, slides, filename, fileformat="ppt", remove_empty_sections=True, remove_all_sections=False, remove_author=False, remove_designs=False, remove_hidden=False):
         from bkt import dotnet
         Outlook = dotnet.import_outlook()
 
@@ -174,11 +174,18 @@ class SendOrSaveSlides(object):
                 cls._delete_unselected_slides(slides, newPres)
                 newPres.Save()
 
-            if remove_sections:
+            if remove_all_sections:
                 # Alle Abschnitte entfernen
                 sections = newPres.SectionProperties
                 for i in reversed(range(sections.count)):
                     sections.Delete(i+1, 0) #index, deleteSlides=False
+                newPres.Save()
+            elif remove_empty_sections:
+                # Leere Abschnitte entfernen
+                sections = newPres.SectionProperties
+                for i in reversed(range(sections.count)):
+                    if sections.SlidesCount(i+1) == 0:
+                        sections.Delete(i+1, 0) #index, deleteSlides=False
                 newPres.Save()
             
             if remove_author:
