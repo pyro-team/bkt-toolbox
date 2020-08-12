@@ -15,25 +15,34 @@ import bkt.library.algorithms as algos
 class Shapetags(object):
     @classmethod
     def presentation_tags(cls, presentation):
-        cls.show_tags_as_message(presentation)
+        cls.show_message(
+            cls.get_tags_for_message(presentation)
+        )
 
     @classmethod
     def slide_tags(cls, slides):
-        for slide in slides:
-            cls.show_tags_as_message(slide)
+        cls.show_message(
+            "\r\n\r\n".join(
+                cls.get_tags_for_message(slide)
+                for slide in slides
+            )
+        )
         
     @classmethod
     def shape_tags(cls, shapes):
-        for shape in shapes:
-            cls.show_tags_as_message(shape)
+        cls.show_message(
+            "\r\n\r\n".join(
+                cls.get_tags_for_message(shape)
+                for shape in shapes
+            )
+        )
 
     @staticmethod
-    def show_tags_as_message(obj):
-        import bkt.console
+    def get_tags_for_message(obj):
         if(hasattr(obj, 'SlideId')):
-            name = "Slide ID " + str(obj.SlideId)
+            name = "Slide No %s (ID %s)" % (obj.SlideNumber, obj.SlideId)
         elif(hasattr(obj, 'Id')):
-            name = "Shape ID " + str(obj.Id)
+            name = "Shape %s (ID %s)" % (obj.Name, obj.Id)
         else:
             name = "Object"
 
@@ -44,13 +53,16 @@ class Shapetags(object):
         else:
             msg = "No tags for " + name + " found!"
 
-        # bkt.message(msg)
+        return msg
+
+    @staticmethod
+    def show_message(msg):
+        import bkt.console
         bkt.console.show_message(msg)
-    
 
     @staticmethod
     def remove_all_tags(obj):
-        for idx in reversed(range(1, obj.Tags.Count+1)):
+        for idx in range(obj.Tags.Count+1,0,-1):
             obj.tags.delete(obj.Tags.Name(idx))
         
     @classmethod
