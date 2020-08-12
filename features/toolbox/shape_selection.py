@@ -480,6 +480,7 @@ clipboard_group = bkt.ribbon.Group(
                     supertip="Menü mit verschiedenen Einfüge-Operationen",
                     children=[
                         bkt.mso.button.PasteSpecialDialog,
+                        bkt.mso.button.PasteAsPicture,
                         bkt.ribbon.MenuSeparator(),
                         bkt.ribbon.Button(
                             id='paste_to_slides',
