@@ -37,28 +37,28 @@ class LinkedShapePopup(bkt.ui.WpfWindowAbstract):
     @WpfActionCallback
     def btnsync_text(self, sender, event):
         try:
-            LinkedShapes.text_linked_shapes(self._context.shapes[-1], self._context)
+            LinkedShapes.text_linked_shapes(self._context.shapes, self._context)
         except:
             bkt.message.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
     @WpfActionCallback
     def btnsync_possize(self, sender, event):
         try:
-            LinkedShapes.align_linked_shapes(self._context.shapes[-1], self._context)
-            LinkedShapes.size_linked_shapes(self._context.shapes[-1], self._context)
+            LinkedShapes.align_linked_shapes(self._context.shapes, self._context)
+            LinkedShapes.size_linked_shapes(self._context.shapes, self._context)
         except:
             bkt.message.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
     @WpfActionCallback
     def btnsync_format(self, sender, event):
         try:
-            LinkedShapes.format_linked_shapes(self._context.shapes[-1], self._context)
+            LinkedShapes.format_linked_shapes(self._context.shapes, self._context)
         except:
             bkt.message.error("Aktualisierung aus unbekannten Gründen fehlgeschlagen.")
 
     def btnnext(self, sender, event):
         try:
-            LinkedShapes.goto_linked_shape(self._context.shapes[-1], self._context)
+            LinkedShapes.goto_next_shape(self._context.shapes[-1], self._context)
         except:
             bkt.message.error("Funktion aus unbekannten Gründen fehlgeschlagen.")
 
