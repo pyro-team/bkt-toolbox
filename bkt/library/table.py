@@ -13,6 +13,220 @@ import logging
 from .algorithms import median
 
 
+class TableData(object):
+    "Generic class to store tabular data"
+    def __init__(self, rows=[]):
+        self._rows = rows
+        self._num_cols = None
+
+    @property
+    def rows(self):
+        "return number of rows in the table"
+        return len(self._rows)
+
+    @property
+    def columns(self):
+        "return number of columns in the table"
+        if self._num_cols is None:
+            self._num_cols = max(len(row) for row in self._rows)
+        return self._num_cols
+
+    @property
+    def dimension(self):
+        "return the table dimension as tuple with rows, columns"
+        return self.rows, self.columns
+
+    def add_rows(self, *args):
+        "add row(s) to table by passing each row-list as argument"
+        for arg in args:
+            self._rows.append(arg)
+        self._num_cols = None #force column recalc on use
+        # self._num_cols = max(self.columns, len(row))
+
+    def get_row(self, index):
+        "return all cell-shapes of a specific row"
+        return self._rows[index]
+    
+    def get_rows(self):
+        "return all rows"
+        return self._rows
+
+    def get_column(self, index, fill=None):
+        "return all cell-shapes of a specific column"
+        if index >= self.columns:
+            raise IndexError
+        for line in self._rows:
+            if index < len(line):
+                yield line[index]
+            else:
+                yield fill
+    
+    def get_columns(self, fill=None):
+        "return all columns"
+        return (self.get_column(i, fill) for i in range(self.columns))
+
+    def get_cell(self, row, column, fill=None):
+        "return a cell-shape by given row and column"
+        list_row = self._rows[row]
+        try:
+            return list_row[column]
+        except IndexError:
+            if column >= self.columns:
+                raise IndexError #reraise error
+            else:
+                return fill
+
+    def __getitem__(self, key):
+        "if key is an index, return according row, if key is a tuple of ("
+        if type(key) is tuple:
+            row,col = key
+            if row is None:
+                return self.get_column(col)
+            else:
+                return self.get_cell(row, col)
+        else:
+            return self.get_row(key)
+
+    def __iter__(self):
+        "iterate over all cell-shapes by returning the tuple (row index, col index, cell shape)"
+        rows, cols = self.dimension
+        for i in range(rows):
+            for j in range(cols):
+                cell = self.get_cell(i,j)
+                if cell is None:
+                    continue
+                yield i,j,cell
+
+    def transpose(self):
+        "transpose the table cells"
+        self._rows = zip(*self._rows)
+    
+    @classmethod
+    def from_list(cls, cells, max_columns=None):
+        "create table from list of of cells, optionally divide in rows with max number of given columns"
+        from itertools import izip_longest
+        if max_columns:
+            args = [iter(cells)] * int(max_columns)
+            return cls(list(izip_longest(*args)))
+        else:
+            return cls(cells)
+
+
+class ShapeTableAlignment(object):
+    def __init__(self, table):
+        self._table = table
+
+        self.cell_alignment_x = "left"
+        self.cell_alignment_y = "top"
+        self.cell_fit = False
+
+        self.spacing_rows = None
+        self.spacing_cols = None
+
+        self.distribute_rows = False
+        self.distribute_cols = False
+
+        self.bounds = None
+
+    @property
+    def spacing(self):
+        return self.spacing_rows, self.spacing_cols
+    @spacing.setter
+    def spacing(self, value):
+        if type(value) is tuple:
+            self.spacing_rows, self.spacing_cols = value
+        else:
+            self.spacing_rows = self.spacing_cols = value
+
+    def _column_left(self,col):
+        "return the left-most coordinate of all cell-shapes of the given column"
+        return min(s.left for s in self._table.get_column(col) if s is not None)
+    
+    def _column_width(self,col):
+        "return the maximum width of all cell-shapes of the given column"
+        return max(s.width for s in self._table.get_column(col) if s is not None)
+    
+    def _row_top(self,row):
+        "return the top-most coordinate of all cell-shapes of the given row"
+        return min(s.top for s in self._table.get_row(row) if s is not None)
+    
+    def _row_height(self,row):
+        "return the maximum height of all cell-shapes of the given row"
+        return max(s.height for s in self._table.get_row(row) if s is not None)
+
+
+    def align(self, xstart=None, ystart=None):
+        """
+        Align table shape with given spacing. If spacing is a tuple, first value define row-spacing, second column-spacing.
+        The whole table can be moved with given xstart and ystart coordinates.
+        If fit_cells is set to True, the cell-shapes will fill the whole cell size.
+        Alignment within cells is specified with align_x and align_y, default is top-left.
+        """
+
+        #set x-start coordinate
+        if xstart is None:
+            x = self._column_left(0)
+        else:
+            x = xstart
+
+        #set y-start coordinate
+        if ystart is None:
+            # y = self.first_top.Top
+            y = self._row_top(0)
+        else:
+            y = ystart
+
+        #get column left coordinates and widths for each column
+        widths = []
+        lefts = []
+        for col in range(self._table.columns):
+            col_width = self._column_width(col)
+            widths.append(col_width)
+            if self.spacing_cols is not None:
+                lefts.append(x)
+                x += col_width + self.spacing_cols
+        
+        #iterate lines
+        for row, line in enumerate(self._table.get_rows()):
+            #get height of current line
+            height = self._row_height(row)
+            
+            for j, shape in enumerate(line):
+                if shape is None:
+                    continue
+                
+                #fill the whole cell
+                if self.cell_fit:
+                    shape.width = widths[j]
+                    shape.height = height
+
+                #vertical alignment
+                if self.spacing_rows is not None:
+                    y_pos = y
+                    y_pos += (height - shape.height) if self.cell_alignment_y == "bottom" else 0
+                    y_pos += (height - shape.height)/2 if self.cell_alignment_y == "middle" else 0
+                    shape.top = y_pos
+                
+                #horizontal alignment
+                if self.spacing_cols is not None:
+                    x_pos = lefts[j]
+                    x_pos += (widths[j] - shape.width) if self.cell_alignment_x == "right" else 0
+                    x_pos += (widths[j] - shape.width)/2 if self.cell_alignment_x == "center" else 0
+                    shape.left = x_pos
+            
+            if self.spacing_rows is not None:
+                y += height + self.spacing_rows
+
+
+
+class ShapeTableRecognition(object):
+    def __init__(self, shapes):
+        self._shapes = set(shapes)
+    #run, get spacing
+
+
+
+
 class TableRecognition(object):
     "Recognize table of shapes and manipulate all shapes at once, e.g. increase spacing between rows and columns."
 
