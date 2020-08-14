@@ -1,3 +1,16 @@
+# Unreleased
+
+  * Rename "Master" to "Reference" or "Main" across the whole UI
+  * Added functions to linked shapes: Select reference shape, skip between linked shapes, set link ID for each individual selected shape
+  * Added function to select shapes with tags
+  * Added font-icon dropdown to search group
+  * Added option to remove empty sections when sending slides
+  * Improved handlings of chart textframes
+  * Improved shape names of various BKT shapes
+  * Improved linked shapes functionalities now support multiple selected linked shapes at once
+  * Fixed errors for certain chart types when changing language or showing paragraph spinners
+
+
 # Release 2020-07-30 (2.7.1)
 
   * Added quickedit dark theme
