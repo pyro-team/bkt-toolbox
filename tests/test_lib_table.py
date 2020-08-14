@@ -11,10 +11,84 @@ import unittest
 
 from tests.mock_shape import Shape
 
-from bkt.library.table import TableRecognition
+from bkt.library.table import TableRecognition, TableData
 
 
-class TableTestsEasy(unittest.TestCase):
+class TableDataTest(unittest.TestCase):
+    def setUp(self):
+        self.table = TableData.from_list(range(10), 4)
+    
+    def test_table_standards(self):
+        table = self.table
+
+        self.assertEqual(table.columns, 4)
+        self.assertEqual(table.rows, 3)
+        self.assertTupleEqual(table.dimension, (3,4))
+
+        self.assertEqual(table.get_cell(0,0), 0)
+        self.assertEqual(table.get_cell(1,3), 7)
+        self.assertEqual(table.get_cell(2,3), None)
+        self.assertSequenceEqual(table.get_row(2), [8,9,None,None])
+        self.assertSequenceEqual(list(table.get_column(1)), [1,5,9])
+
+        self.assertEqual(table[0,0], 0)
+        self.assertEqual(table[1,3], 7)
+        self.assertEqual(table[2,3], None)
+        self.assertSequenceEqual(table[2], [8,9,None,None])
+        self.assertSequenceEqual(list(table[None,1]), [1,5,9])
+
+        self.assertSequenceEqual(list(iter(table)), [
+            (0,0,0),(0,1,1),(0,2,2),(0,3,3),
+            (1,0,4),(1,1,5),(1,2,6),(1,3,7),
+            (2,0,8),(2,1,9)
+            ])
+    
+    def test_table_errors(self):
+        table = self.table
+
+        with self.assertRaises(IndexError):
+            table.get_cell(5,5)
+        with self.assertRaises(IndexError):
+            table.get_cell(0,5)
+        with self.assertRaises(IndexError):
+            table.get_cell(5,0)
+    
+    def test_table_transpose(self):
+        table = self.table
+        table.transpose()
+
+        self.assertSequenceEqual(list(iter(table)), [
+            (0,0,0),(0,1,4),(0,2,8),
+            (1,0,1),(1,1,5),(1,2,9),
+            (2,0,2),(2,1,6),
+            (3,0,3),(3,1,7)
+            ])
+    
+    def test_table_variation(self):
+        table_rows = [
+            [None, "a", "b", "c"],
+            ["d", None, "e"],
+            ]
+        table = TableData(table_rows)
+
+        self.assertTupleEqual(table.dimension, (2,4))
+        self.assertSequenceEqual(list(table.get_column(1)), ["a", None])
+        self.assertSequenceEqual(list(table.get_column(3)), ["c", None])
+
+        table.add_rows(["f", "g", "h", None, "i"], ["j"])
+        self.assertTupleEqual(table.dimension, (4,5))
+        self.assertSequenceEqual(list(table.get_column(1)), ["a", None,"g", None])
+        self.assertSequenceEqual(list(table.get_column(3)), ["c", None, None, None])
+
+
+
+class TableAlignmentTest(unittest.TestCase):
+    def setUp(self):
+        self.table = TableData.from_list(range(10), 4)
+
+
+
+class TableRecognitionTest(unittest.TestCase):
     def setUp(self):
         s0 = Shape(left=1,top=1, width=2,height=2)
         s1 = Shape(left=1,top=4, width=2,height=2)

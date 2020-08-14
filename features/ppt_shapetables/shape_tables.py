@@ -262,6 +262,11 @@ class ShapeTables(object):
         tr.fit_content(*bounds, spacing=(spacing, None), fit_cells=True) #equalize spacing in first run
         tr.fit_content(*bounds, spacing=(spacing, None), fit_cells=True, distribute_rows=True) #distribute in second run
 
+    @staticmethod
+    def show_dialog(context, shapes):
+        from .table_dialog import ShapesAsTableWindow
+        ShapesAsTableWindow.create_and_show_dialog(context, shapes)
+
 
 shape_tables = ShapeTables()
 
@@ -318,6 +323,16 @@ tabellen_gruppe = bkt.ribbon.Group(
                         image='align_table_zero',
                         supertip="Richtet die ausgewählten Shapes als Tabelle ohne Abstand aus.",
                         on_action=bkt.Callback(shape_tables.align_table_zero, shapes=True, shapes_min=2),
+                        # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'align_table_dialog',
+                        label="Tabellen-Dialog",
+                        # description="Shapes als Tabelle ohne Abstand ausrichten.",
+                        # show_label=True,
+                        # image='align_table_zero',
+                        # supertip="Richtet die ausgewählten Shapes als Tabelle ohne Abstand aus.",
+                        on_action=bkt.Callback(ShapeTables.show_dialog, context=True, shapes=True, shapes_min=2),
                         # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                     ),
                     # bkt.ribbon.MenuSeparator(),
