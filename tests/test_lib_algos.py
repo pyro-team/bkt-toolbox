@@ -57,13 +57,13 @@ class MathTests(unittest.TestCase):
 
 class ShapeTests(unittest.TestCase):
     def setUp(self):
-        s0 = Shape(1,1,2,3,4)
-        s1 = Shape(1,1,2,3,4)
+        s0 = Shape(left=1,top=2,width=3,height=4)
+        s1 = Shape(left=1,top=2,width=3,height=4)
         s1.rotation = 180
-        s2 = Shape(1,1,2,3,4)
+        s2 = Shape(left=1,top=2,width=3,height=4)
         s2.rotation = 90
-        s3 = Shape(1,0,5,6,3)
-        s4 = Shape(1,7,5,1,25)
+        s3 = Shape(left=0,top=5,width=6,height=3)
+        s4 = Shape(left=7,top=5,width=1,height=25)
 
         self.shapes = [s0,s1,s2,s3,s4]
         
