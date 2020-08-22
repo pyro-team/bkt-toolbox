@@ -154,6 +154,26 @@ class PositionSize(object):
         target_zorder = shapes.pop(-1).ZOrderPosition
         for shape in shapes:
             pplib.set_shape_zorder(shape, value=target_zorder)
+
+    @staticmethod
+    def zorder_top2bottom(shapes):
+        shapes = sorted(shapes, key=lambda shape: shape.Top)
+        start = shapes[0].ZOrderPosition
+        for shape in shapes:
+            pplib.set_shape_zorder(shape, value=start)
+            start += 1
+        #update selection
+        pplib.shapes_to_range(shapes).select()
+
+    @staticmethod
+    def zorder_left2right(shapes):
+        shapes = sorted(shapes, key=lambda shape: shape.Left)
+        start = shapes[0].ZOrderPosition
+        for shape in shapes:
+            pplib.set_shape_zorder(shape, value=start)
+            start += 1
+        #update selection
+        pplib.shapes_to_range(shapes).select()
     
     @staticmethod
     def set_height_to_width(shapes):
@@ -447,6 +467,21 @@ spinner_zorder = bkt.ribbon.RoundingSpinnerBox(
                 image="zorder_back_to_front",
                 get_enabled=bkt.apps.ppt_shapes_min2_selected,
                 on_action=bkt.Callback(PositionSize.back_to_front, shapes=True),
+            ),
+            bkt.ribbon.MenuSeparator(),
+            bkt.ribbon.Button(
+                label="Oben nach unten",
+                supertip="Sortiert die Z-Order von oben nach unten, sodass das unterste Shape das vorderste wird",
+                image="zorder_top_to_bottom",
+                get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                on_action=bkt.Callback(PositionSize.zorder_top2bottom, shapes=True),
+            ),
+            bkt.ribbon.Button(
+                label="Links nach rechts",
+                supertip="Sortiert die Z-Order von links nach rechts, sodass das rechte Shape das vorderste wird",
+                image="zorder_left_to_right",
+                get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                on_action=bkt.Callback(PositionSize.zorder_left2right, shapes=True),
             ),
         ],
     ),
