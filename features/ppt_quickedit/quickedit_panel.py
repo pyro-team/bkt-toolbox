@@ -286,7 +286,8 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
         )
 
         # first start detection
-        if "quickedit.viewstate" not in context.settings:
+        if context.settings.get("quickedit.start_version", None) != "20200819":
+            context.settings["quickedit.start_version"] = "20200819"
             if bkt.message.confirmation("Dies scheint dein erster Start von QuickEdit zu sein. Soll die Anleitung (PDF) geöffnet werden?"):
                 QuickEdit.show_help()
 
