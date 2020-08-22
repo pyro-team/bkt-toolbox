@@ -458,6 +458,7 @@ class LinkedShapes(object):
 
     @classmethod
     def replace_with_this_shape(cls, shape, context):
+        shape = cls.get_master_shape(shape, context)
         shape.Copy()
         for cShp in cls._iterate_linked_shapes(shape, context):
             slide = cShp.Parent
@@ -1011,10 +1012,10 @@ linkshapes_tab = bkt.ribbon.Tab(
                 ),
                 bkt.ribbon.Button(
                     id = 'linked_shapes_replace',
-                    label="Andere mit diesem ersetzen",
+                    label="Mit Referenz ersetzen",
                     image_mso="HyperlinkCreate",
                     screentip="Verknüpfte Shapes ersetzen",
-                    supertip="Alle verknüpften Shapes auf allen Folien mit ausgewähltem Shape ersetzen.",
+                    supertip="Alle verknüpften Shapes auf allen Folien mit Referenz-Shape (standardmäßig das ausgwählte Shape) ersetzen.",
                     on_action=bkt.Callback(LinkedShapes.replace_with_this, shapes=True, context=True),
                 ),
                 bkt.ribbon.Button(
