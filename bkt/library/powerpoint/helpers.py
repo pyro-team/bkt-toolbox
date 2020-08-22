@@ -960,7 +960,7 @@ class BKTTag(object):
         self.data = {}
 
     def get(self, arg, default=None):
-        self.data.get(arg, default)
+        return self.data.get(arg, default)
 
     def __enter__(self):
         self.load()
