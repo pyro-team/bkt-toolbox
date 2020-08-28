@@ -5,9 +5,13 @@
   * Added function to select shapes with tags
   * Added font-icon dropdown to search group
   * Added option to remove empty sections when sending slides
+  * Added functions to sort Z-Order (and therefore selection) by position top-down or left-right
+  * Added compact font/paragraph group as new default also for 3-page layout
   * Improved handlings of chart textframes
   * Improved shape names of various BKT shapes
   * Improved linked shapes functionalities now support multiple selected linked shapes at once
+  * Improved statistics: now shown in dialog window with additional data
+  * Improved UI settings editor with scroll-viewer
   * Fixed errors for certain chart types when changing language or showing paragraph spinners
 
 
