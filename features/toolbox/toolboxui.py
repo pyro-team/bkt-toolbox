@@ -31,9 +31,10 @@ class ToolboxUi(object):
         "clipboard_group": 1, #page no 1
         "slides_group": 1, #page no 1
 
-        "default_group_font": 1, #page no 1
-        "default_group_paragraph": 1, #page no 1
-        "text_compact_group": 0, #off
+        "default_group_font": 0, #page no 1
+        "default_group_paragraph": 0, #page no 1
+        "compact_font_group": 1, #off
+        "compact_paragraph_group": 1, #off
 
         "shapes_group": 1, #page no 1
         "styles_group": 1, #page no 1
@@ -136,7 +137,8 @@ class ToolboxUi(object):
         #position size
         self.toolboxui_pages[self.toolboxui_settings["default_group_font"]].append(bkt.mso.group.GroupFont)
         self.toolboxui_pages[self.toolboxui_settings["default_group_paragraph"]].append(bkt.mso.group.GroupParagraph)
-        self.toolboxui_pages[self.toolboxui_settings["text_compact_group"]].append(text.text_compact_group)
+        self.toolboxui_pages[self.toolboxui_settings["compact_font_group"]].append(text.compact_font_group)
+        self.toolboxui_pages[self.toolboxui_settings["compact_paragraph_group"]].append(text.compact_paragraph_group)
     
     def _render_pages_shapestyle(self):
         #position size

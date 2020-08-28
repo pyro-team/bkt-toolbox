@@ -81,7 +81,8 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
 
         self._model.set_setting("default_group_font", self._value2key(self._vm.default_group_font))
         self._model.set_setting("default_group_paragraph", self._value2key(self._vm.default_group_paragraph))
-        self._model.set_setting("text_compact_group", self._value2key(self._vm.text_compact_group))
+        self._model.set_setting("compact_font_group", self._value2key(self._vm.compact_font_group))
+        self._model.set_setting("compact_paragraph_group", self._value2key(self._vm.compact_paragraph_group))
 
         self._model.set_setting("shapes_group", self._value2key(self._vm.shapes_group))
         self._model.set_setting("styles_group", self._value2key(self._vm.styles_group))
