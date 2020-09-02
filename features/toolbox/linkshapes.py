@@ -18,6 +18,8 @@ BKT_LINK_UUID = "BKT_LINK_UUID"
 class LinkedShapes(object):
     current_link_guid = None
     master = "current"
+    status_overlay = False
+    status_colors = dict(green=0 + 192 * 256 + 0 * 256**2, yellow=192 + 192 * 256 + 0 * 256**2, red=192 + 0 * 256 + 0 * 256**2)
 
     ### Helpers ###
 
@@ -54,6 +56,31 @@ class LinkedShapes(object):
                 if cShp.Tags.Item(BKT_LINK_UUID) == link_guid:
                     # apply_func(cShp)
                     yield cShp
+    
+    @classmethod
+    def _create_status_overlay(cls, shape, context, color="green", text="updated successfully"):
+        if not cls.status_overlay:
+            return
+        overlay = context.slide.shapes.addshape(1, shape.left-1, shape.top-1, shape.width+2, shape.height+2)
+        overlay.rotation = shape.rotation
+        overlay.line.visible = 0
+        overlay.fill.forecolor.rgb = cls.status_colors.get(color, 0)
+        overlay.fill.transparency = 0.5
+        txt = overlay.textframe
+        txt.textrange.text = text
+        txt.textrange.font.color = 0
+        txt.textrange.font.size = 8
+        txt.textrange.ParagraphFormat.Bullet.Visible = False
+        txt.textrange.ParagraphFormat.Alignment = 2 #ppAlignCenter
+        # Autosize / Text nicht umbrechen
+        txt.WordWrap = 0
+        txt.AutoSize = 0
+        txt.MarginBottom = 0
+        txt.MarginTop = 0
+        txt.MarginRight = 0
+        txt.MarginLeft = 0
+        return overlay
+
 
     ### Enabled/Visible callbacks ###
 
@@ -293,59 +320,83 @@ class LinkedShapes(object):
     @classmethod
     def size_linked_shapes(cls, shapes, context):
         for shape in shapes:
-            cls.size_linked_shape(shape, context)
+            try:
+                cls.size_linked_shape(shape, context)
+            except:
+                cls._create_status_overlay(shape, context, "red", "exception")
 
     @classmethod
     def size_linked_shape(cls, shape, context):
-        shape = cls.get_master_shape(shape, context)
-        ref_heigth = shape.Height
-        ref_width = shape.Width
-        ref_lock_ar = shape.LockAspectRatio
+        master_shape = cls.get_master_shape(shape, context)
+        ref_heigth = master_shape.Height
+        ref_width = master_shape.Width
+        ref_lock_ar = master_shape.LockAspectRatio
 
-        for cShp in cls._iterate_linked_shapes(shape, context):
+        run_once = False
+        for cShp in cls._iterate_linked_shapes(master_shape, context):
             cShp.LockAspectRatio = 0 #msoFalse
             cShp.Height, cShp.Width = ref_heigth, ref_width
             cShp.LockAspectRatio = ref_lock_ar
+            run_once = True
+    
+        if run_once:
+            cls._create_status_overlay(shape, context)
+        else:
+            cls._create_status_overlay(shape, context, "yellow", "no linked shapes found")
 
     @classmethod
     def align_linked_shapes(cls, shapes, context):
         for shape in shapes:
-            cls.align_linked_shape(shape, context)
+            try:
+                cls.align_linked_shape(shape, context)
+            except:
+                cls._create_status_overlay(shape, context, "red", "exception")
 
     @classmethod
     def align_linked_shape(cls, shape, context):
-        shape = cls.get_master_shape(shape, context)
-        ref_position_left = shape.left
-        ref_position_top = shape.top
-        ref_rotation = shape.Rotation
+        master_shape = cls.get_master_shape(shape, context)
+        ref_position_left = master_shape.left
+        ref_position_top = master_shape.top
+        ref_rotation = master_shape.Rotation
 
-        for cShp in cls._iterate_linked_shapes(shape, context):
+        run_once = False
+        for cShp in cls._iterate_linked_shapes(master_shape, context):
             cShp.left, cShp.top = ref_position_left, ref_position_top
             try:
                 cShp.Rotation = ref_rotation
             except ValueError:
                 #certain shape types do not support rotation, e.g. tables
                 pass
+            run_once = True
+    
+        if run_once:
+            cls._create_status_overlay(shape, context)
+        else:
+            cls._create_status_overlay(shape, context, "yellow", "no linked shapes found")
 
     @classmethod
     def format_linked_shapes(cls, shapes, context):
         for shape in shapes:
-            cls.format_linked_shape(shape, context)
+            try:
+                cls.format_linked_shape(shape, context)
+            except:
+                cls._create_status_overlay(shape, context, "red", "exception")
 
     @classmethod
     def format_linked_shape(cls, shape, context):
-        shape = cls.get_master_shape(shape, context)
+        master_shape = cls.get_master_shape(shape, context)
         try:
-            shape.Pickup() #fails for some shapes, e.g. a group
+            master_shape.Pickup() #fails for some shapes, e.g. a group
             mode = "simple"
         except:
-            if shape.Type == pplib.MsoShapeType["msoGroup"]:
+            if master_shape.Type == pplib.MsoShapeType["msoGroup"]:
                 mode = "group"
             else:
                 bkt.message.warning("Formatierung angleichen für gewähltes Shape nicht verfügbar.", "BKT: Verknüpfte Shapes")
                 return
 
-        for cShp in cls._iterate_linked_shapes(shape, context):
+        run_once = False
+        for cShp in cls._iterate_linked_shapes(master_shape, context):
             if mode == "simple":
                 try:
                     cShp.Apply()
@@ -354,16 +405,23 @@ class LinkedShapes(object):
             elif mode == "group" and cShp.Type == pplib.MsoShapeType["msoGroup"]:
                 for index, iShp in enumerate(cShp.GroupItems, start=1):
                     try:
-                        shape.GroupItems[index].Pickup()
+                        master_shape.GroupItems[index].Pickup()
                         iShp.Apply()
                     except:
                         pass
+            run_once = True
+        
         # Adjustment-Werte angleichen
         try:
             if master_shape.adjustments.count > 0:
                 cls.adjustments_linked_shape(shape, context)
         except ValueError: #e.g. groups
             pass
+    
+        if run_once:
+            cls._create_status_overlay(shape, context)
+        else:
+            cls._create_status_overlay(shape, context, "yellow", "no linked shapes found")
 
     @classmethod
     def adjustments_linked_shapes(cls, shapes, context):
@@ -380,30 +438,34 @@ class LinkedShapes(object):
     @classmethod
     def text_linked_shapes(cls, shapes, context, with_formatting=True):
         for shape in shapes:
-            cls.text_linked_shape(shape, context, with_formatting)
+            try:
+                cls.text_linked_shape(shape, context, with_formatting)
+            except:
+                cls._create_status_overlay(shape, context, "red", "exception")
 
     @classmethod
     def text_linked_shape(cls, shape, context, with_formatting=True):
-        shape = cls.get_master_shape(shape, context)
-        if shape.HasTextFrame == -1: #msoTrue
+        master_shape = cls.get_master_shape(shape, context)
+        if master_shape.HasTextFrame == -1: #msoTrue
             if with_formatting:
                 # shape.TextFrame2.TextRange.Copy()
                 pass #nothing to do here as pplib.transfer_textrange function is used
             else:
-                ref_text = shape.TextFrame2.TextRange.Text
+                ref_text = master_shape.TextFrame2.TextRange.Text
             mode = "simple"
-        elif shape.Type == pplib.MsoShapeType["msoGroup"]:
+        elif master_shape.Type == pplib.MsoShapeType["msoGroup"]:
             mode = "group"
         else:
             bkt.message.warning("Text angleichen für gewähltes Shape nicht verfügbar.", "BKT: Verknüpfte Shapes")
             return
 
-        for cShp in cls._iterate_linked_shapes(shape, context):
+        run_once = False
+        for cShp in cls._iterate_linked_shapes(master_shape, context):
             if mode == "simple":
                 try:
                     if with_formatting:
                         # cShp.TextFrame2.TextRange.Paste()
-                        pplib.transfer_textrange(shape.TextFrame2.TextRange, cShp.TextFrame2.TextRange)
+                        pplib.transfer_textrange(master_shape.TextFrame2.TextRange, cShp.TextFrame2.TextRange)
                     else:
                         cShp.TextFrame2.TextRange.Text = ref_text
                 except:
@@ -414,11 +476,17 @@ class LinkedShapes(object):
                         if with_formatting:
                             # shape.GroupItems[index].TextFrame2.TextRange.Copy()
                             # iShp.TextFrame2.TextRange.Paste()
-                            pplib.transfer_textrange(shape.GroupItems[index].TextFrame2.TextRange, iShp.TextFrame2.TextRange)
+                            pplib.transfer_textrange(master_shape.GroupItems[index].TextFrame2.TextRange, iShp.TextFrame2.TextRange)
                         else:
-                            iShp.TextFrame2.TextRange.Text = shape.GroupItems[index].TextFrame2.TextRange.Text
+                            iShp.TextFrame2.TextRange.Text = master_shape.GroupItems[index].TextFrame2.TextRange.Text
                     except:
                         pass
+            run_once = True
+    
+        if run_once:
+            cls._create_status_overlay(shape, context)
+        else:
+            cls._create_status_overlay(shape, context, "yellow", "no linked shapes found")
 
     @classmethod
     def equalize_linked_shapes(cls, shapes, context):
@@ -765,6 +833,13 @@ linkshapes_tab = bkt.ribbon.Tab(
                             label="Letztes Shape im Foliensatz",
                             get_pressed=bkt.Callback(lambda: LinkedShapes.master == "last"),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(LinkedShapes, "master", "last")),
+                        ),
+                        bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.ToggleButton(
+                            label="Status-Overlays erstellen",
+                            supertip="Legt über das markierte Shape ein Ampelstatus-Overlay welches anzeigt, ob die Operation erfolgreich war und Shapes aktualisiert wurden. Funktioniert für Größe, Position, Formatierung und Text angleichen.",
+                            get_pressed=bkt.Callback(lambda: LinkedShapes.status_overlay),
+                            on_toggle_action=bkt.Callback(lambda pressed: setattr(LinkedShapes, "status_overlay", pressed)),
                         ),
                     ]
                 ),
