@@ -58,13 +58,10 @@ def is_close(a, b, tolerence=1e-9):
 
 def get_bounds(points):
     ''' get the outer bounds (x,y,width,height) of the given points (tuple with x,y coordinates) '''
-    x = [p[0] for p in points]
-    y = [p[1] for p in points]
-    
-    left = min(x)
-    top = min(y)
-    width = max(x)-left
-    height = max(y)-top
+    left = min(p[0] for p in points)
+    top  = min(p[1] for p in points)
+    width  = max(p[0] for p in points) - left
+    height = max(p[1] for p in points) - top
     
     return left,top,width,height
 
