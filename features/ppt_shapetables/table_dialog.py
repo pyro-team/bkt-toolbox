@@ -77,6 +77,11 @@ class ViewModel(bkt.ui.ViewModelSingleton):
 
         self._spacing_x = 0.2
         self._spacing_y = 0.2
+
+        self.equal_rows = False
+        self.equal_cols = False
+        self.cells_fit  = False
+        self.fit_bounds = False
     
     def set_len(self, len_shapes):
         self._len_shapes = len_shapes
