@@ -517,7 +517,7 @@ stateshape_gruppe = bkt.ribbon.Group(
     children = [
         bkt.ribbon.SplitButton(
             id="stateshape_convert_splitbutton",
-            size="large",
+            # size="large",
             children=[
                 bkt.ribbon.Button(
                     id="stateshape_convert",
@@ -558,7 +558,7 @@ stateshape_gruppe = bkt.ribbon.Group(
                 )
             ]
         ),
-        bkt.ribbon.Separator(),
+        # bkt.ribbon.Separator(),
         # bkt.ribbon.LabelControl(label="Wechsel: "),
         bkt.ribbon.Box(box_style="horizontal", children=[
             bkt.ribbon.Button(
