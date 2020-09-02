@@ -27,6 +27,8 @@
           <Grid.ColumnDefinitions>
               <ColumnDefinition />
               <ColumnDefinition />
+              <ColumnDefinition Width="30" />
+              <ColumnDefinition />
           </Grid.ColumnDefinitions>
 
           <Label Grid.Column="0" Grid.Row="0" Content="Zielgröße:" FontWeight="Bold" />
@@ -45,6 +47,17 @@
 
           <fr:Spinner Grid.Column="1" Grid.Row="4" InputWidth="90" Value="{Binding spacing_x, Mode=TwoWay}" Format="0.0 cm" Increment="0.2" Minimum="-1000"/>
           <fr:Spinner Grid.Column="1" Grid.Row="5" InputWidth="90" Value="{Binding spacing_y, Mode=TwoWay}" Format="0.0 cm" Increment="0.2" Minimum="-1000"/>
+
+
+          <Label Grid.Column="3" Grid.Row="0" Content="Optionen:" FontWeight="Bold" />
+
+          <CheckBox Grid.Column="3" Grid.Row="1" Content="Zeilenhöhe angleichen" IsChecked="{Binding equal_rows}" Margin="5" />
+          <CheckBox Grid.Column="3" Grid.Row="2" Content="Spaltenbreite angleichen" IsChecked="{Binding equal_cols}" Margin="5" />
+
+          <CheckBox Grid.Column="3" Grid.Row="4" Content="Shapes auf Zellengröße skalieren" IsChecked="{Binding cells_fit}" Margin="5" />
+          <CheckBox Grid.Column="3" Grid.Row="5" Content="Aktuelle Dimensionen beibehalten" IsChecked="{Binding fit_bounds}" Margin="5" />
+
+          <!-- gallery: ausrichtung innerhalb zelle -->
 
         </Grid>
         
