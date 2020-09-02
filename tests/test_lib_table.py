@@ -84,7 +84,7 @@ class TableDataTest(unittest.TestCase):
 
 class TableAlignmentTest(unittest.TestCase):
     def setUp(self):
-        self.shapes = [Shape(1, 1+i,1, 2+(i%3),2+(i%4)) for i in range(10)]
+        self.shapes = [Shape(left=1+i,top=1, width=2+(i%3),height=2+(i%4)) for i in range(10)]
         td = TableData.from_list(self.shapes, 4)
         self.table = ShapeTableAlignment(td)
 
