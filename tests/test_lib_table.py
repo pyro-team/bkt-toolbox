@@ -11,7 +11,7 @@ import unittest
 
 from tests.mock_shape import Shape
 
-from bkt.library.table import TableRecognition, TableData
+from bkt.library.table import TableRecognition, TableData, ShapeTableAlignment
 
 
 class TableDataTest(unittest.TestCase):
@@ -84,8 +84,73 @@ class TableDataTest(unittest.TestCase):
 
 class TableAlignmentTest(unittest.TestCase):
     def setUp(self):
-        self.table = TableData.from_list(range(10), 4)
+        self.shapes = [Shape(1, 1+i,1, 2+(i%3),2+(i%4)) for i in range(10)]
+        td = TableData.from_list(self.shapes, 4)
+        self.table = ShapeTableAlignment(td)
 
+    def test_simple_align(self):
+        self.table.spacing = 5
+        self.table.align()
+
+        self.assertEqual(self.shapes[2].left, 19)
+
+        self.table.spacing = 2,3
+        self.table.align()
+
+        self.fail()
+
+        self.table.cell_fit = True
+        self.table.align()
+
+        self.fail()
+    
+    def test_getter(self):
+        self.assertTupleEqual(self.table.get_bounds(), (1,1,12,5))
+        self.assertAlmostEqual(self.table.get_median_spacing(), 0)
+
+        self.table.spacing = 1.5
+        self.table.align()
+
+        self.assertTupleEqual(self.table.get_bounds(), (1,1,16.5,16))
+        self.assertAlmostEqual(self.table.get_median_spacing(), 1.5)
+    
+    def test_bounds_align(self):
+        self.table.in_bounds = True
+        self.table.align()
+
+        self.fail()
+
+    def test_rows_cols_only_align(self):
+        self.table.spacing = None,3
+        self.table.align()
+        self.fail()
+
+        self.table.spacing = 3,None
+        self.table.align()
+        self.fail()
+    
+    def test_equalize(self):
+        self.table.equalize_cols = True
+        self.table.equalize_rows = True
+        self.table.align()
+        self.fail()
+
+        self.table.bounds = None
+        self.table.align()
+        self.fail()
+
+        self.table.cell_fit = True
+        self.table.align()
+        self.fail()
+
+    def test_cell_alignment(self):
+        self.table.cell_alignment_x = "center"
+        self.table.cell_alignment_y = "right"
+        self.table.align()
+        self.fail()
+
+    def test_transpose(self):
+        self.fail()
 
 
 class TableRecognitionTest(unittest.TestCase):
