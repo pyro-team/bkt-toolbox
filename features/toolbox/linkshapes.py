@@ -46,7 +46,9 @@ class LinkedShapes(object):
         for slide in context.app.ActivePresentation.Slides:
             # if slide.SlideIndex == active_slide_index:
             #     continue
-            for cShp in list(iter(slide.Shapes)): #list(iter()) required for deletion of shapes
+            # for cShp in list(iter(slide.Shapes)): #list(iter()) required for deletion of shapes
+            for i in range(slide.Shapes.Count, 0, -1): #count backwords to support deletion
+                cShp = slide.Shapes[i]
                 if cShp == shape:
                     continue
                 if cShp.Tags.Item(BKT_LINK_UUID) == link_guid:
@@ -358,8 +360,8 @@ class LinkedShapes(object):
                         pass
         # Adjustment-Werte angleichen
         try:
-            if shape.adjustments.count > 0:
-                cls.adjustments_linked_shapes(shape, context)
+            if master_shape.adjustments.count > 0:
+                cls.adjustments_linked_shape(shape, context)
         except ValueError: #e.g. groups
             pass
 
