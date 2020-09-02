@@ -144,43 +144,49 @@ class EditModeShapes(object):
 
 notes_gruppe = bkt.ribbon.Group(
     id="bkt_notes_group",
-    label='Notes',
+    label='Folien-Notizen',
     supertip="Ermöglicht das Einfügen von Bearbeitungsnotizen auf Folien. Das Feature `ppt_notes` muss installiert sein.",
     image='noteAdd',
     children = [
         bkt.ribbon.Button(
-            label='Notizen (+)', screentip='Notiz hinzufügen',
+            id = 'notes_add',
+            label='Erstellen', screentip='Notiz hinzufügen',
             supertip="Fügt eine Bearbeitungsnotiz oben rechts auf der Folie ein inkl. Autor und Datum.",
             image='noteAdd',
             on_action=bkt.Callback(EditModeShapes.addNote)
         ),
         bkt.ribbon.Button(
-            label='Notizen (I/O)', screentip='Notizen auf Folie ein-/ausblenden',
+            id = 'notes_toggle',
+            label='An/Aus', screentip='Notizen auf Folie ein-/ausblenden',
             supertip="Alle Notizen der aktuellen Folie temporär ausblenden und wieder einblenden.",
             image='noteToggle',
             on_action=bkt.Callback(EditModeShapes.toogleNotesOnSlide)
         ),
         bkt.ribbon.Button(
-            label='Notizen (-)', screentip='Notizen auf Folie löschen',
+            id = 'notes_remove',
+            label='Löschen', screentip='Notizen auf Folie löschen',
             supertip="Alle Notizen der aktuellen Folie entfernen.",
             image='noteRemove',
             on_action=bkt.Callback(EditModeShapes.removeNotesOnSlide)
         ),
         bkt.ribbon.Button(
-            label='Alle Notizen (I/O)', screentip='Alle Notizen ein-/ausblenden',
+            id = 'notes_toggle_all',
+            label='Alle an/aus', screentip='Alle Notizen ein-/ausblenden',
             supertip="Alle Notizen auf allen Folien temporär ausblenden und wieder einblenden.",
             image='noteToggleAll',
             on_action=bkt.Callback(EditModeShapes.toggleNotesOnAllSlides)
         ),
         bkt.ribbon.Button(
-            label='Alle Notizen (-)', screentip='Alle Notizen löschen',
+            id = 'notes_remove_all',
+            label='Alle löschen', screentip='Alle Notizen löschen',
             supertip="Alle Notizen auf allen Folien entfernen.",
             image='noteRemoveAll',
             on_action=bkt.Callback(EditModeShapes.removeNotesOnAllSlides)
         ),
         bkt.ribbon.ColorGallery(
             id = 'notes_color',
-            label=u'Farbe ändern',
+            label=u'Farbe',
+            screentip=u'Notizen-Farbe ändern',
             supertip="Hintergrundfarbe für neue Bearbeitungsnotizen ändern.",
             on_rgb_color_change = bkt.Callback(EditModeShapes.set_color_rgb),
             on_theme_color_change = bkt.Callback(EditModeShapes.set_color_theme),
