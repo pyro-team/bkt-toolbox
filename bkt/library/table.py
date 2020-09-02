@@ -10,7 +10,7 @@ from __future__ import absolute_import, division #always force float-division, f
 import math
 import logging
 
-from .algorithms import median
+from .algorithms import median, get_bounds_shapes
 
 
 class TableData(object):
@@ -116,17 +116,17 @@ class ShapeTableAlignment(object):
     def __init__(self, table):
         self._table = table
 
-        self.cell_alignment_x = "left"
-        self.cell_alignment_y = "top"
-        self.cell_fit = False
+        self.cell_alignment_x = "left" #center, right
+        self.cell_alignment_y = "top" #middle, bottom
+        self.cell_fit = False #set shape size to cell size
 
-        self.spacing_rows = None
-        self.spacing_cols = None
+        self.spacing_rows = None #spacing between rows
+        self.spacing_cols = None #spacing between cols
 
-        self.distribute_rows = False
-        self.distribute_cols = False
+        self.equalize_rows = False #equalize row heights
+        self.equalize_cols = False #equalize col widths
 
-        self.bounds = None
+        self.bounds = None #set bounds to keep table within current size
 
     @property
     def spacing(self):
@@ -137,6 +137,16 @@ class ShapeTableAlignment(object):
             self.spacing_rows, self.spacing_cols = value
         else:
             self.spacing_rows = self.spacing_cols = value
+
+    @property
+    def in_bounds(self):
+        return self.bounds is not None
+    @in_bounds.setter
+    def in_bounds(self, value):
+        if value:
+            self.bounds = self.get_bounds()
+        else:
+            self.bounds = None
 
     def _column_left(self,col):
         "return the left-most coordinate of all cell-shapes of the given column"
@@ -155,6 +165,56 @@ class ShapeTableAlignment(object):
         return max(s.height for s in self._table.get_row(row) if s is not None)
 
 
+    def _set_cell_size(self, cell, width=None, height=None):
+        "set cell size to given width and/or height"
+        #FIXME: this is probably powerpoint specific
+        if cell.HasTextFrame == -1 and cell.TextFrame.AutoSize == 1:
+            cell.TextFrame.AutoSize = 0
+
+        if not cell.LockAspectRatio or width is None or height is None:
+            if width is not None:
+                cell.width = width
+            if height is not None:
+                cell.height = height
+        else:
+            ratio = float(cell.width)/float(cell.height)
+            if ratio > 1:
+                cell.width = width
+            else:
+                cell.height = height
+
+    def set_bounds(self, left,right,width,height):
+        self.bounds = left,right,width,height
+
+    def get_bounds(self):
+        "return the bounds of the whole table as tuple with left, top, width, height"
+        return get_bounds_shapes(c[2] for c in self._table)
+
+    def get_median_spacing(self):
+        "return the median spacing between all rows and columns together"
+        def iterate_spacings():
+            for i,j,cell in self._table:
+                if cell is None:
+                    continue
+                if j > 0:
+                    left = self._table.get_cell(i, j-1)
+                    if left is not None:
+                        spacing = cell.left - left.left - left.width
+                        if spacing >= 0:
+                            yield spacing
+                if i > 0:
+                    top = self._table.get_cell(i-1, j)
+                    if top is not None:
+                        spacing = cell.top - top.top - top.height
+                        if spacing >= 0:
+                            yield spacing
+                            
+        spacings = list(iterate_spacings())
+        if not spacings:
+            return 0
+        return median(spacings)
+
+
     def align(self, xstart=None, ystart=None):
         """
         Align table shape with given spacing. If spacing is a tuple, first value define row-spacing, second column-spacing.
@@ -162,6 +222,10 @@ class ShapeTableAlignment(object):
         If fit_cells is set to True, the cell-shapes will fill the whole cell size.
         Alignment within cells is specified with align_x and align_y, default is top-left.
         """
+
+        if self.in_bounds:
+            self._fit_content()
+            xstart, ystart, _, _ = self.bounds
 
         #set x-start coordinate
         if xstart is None:
@@ -182,9 +246,16 @@ class ShapeTableAlignment(object):
         for col in range(self._table.columns):
             col_width = self._column_width(col)
             widths.append(col_width)
-            if self.spacing_cols is not None:
-                lefts.append(x)
-                x += col_width + self.spacing_cols
+            # if self.spacing_cols is not None:
+            #     lefts.append(x)
+            #     x += col_width + self.spacing_cols
+        
+        if self.equalize_cols:
+            new_width = max(widths)
+            widths = [new_width] * len(widths)
+        
+        if self.spacing_cols:
+            lefts = [x + (col_width+self.spacing_cols)*i for i,col_width in enumerate(widths)]
         
         #iterate lines
         for row, line in enumerate(self._table.get_rows()):
@@ -216,6 +287,50 @@ class ShapeTableAlignment(object):
             
             if self.spacing_rows is not None:
                 y += height + self.spacing_rows
+
+    def _fit_content(self):
+        """
+        Align the table within the given bounds and with given spacing. If spacing is a tuple, first value define row-spacing, second column-spacing.
+        If fit_cells is set to True, the cell-shapes will fill the whole cell size.
+        If distribute_cols or distribute_rows is given, the col/row size is equalized within given bounds.
+        """
+
+        assert self.bounds is not None
+
+        _,_,width,height = self.bounds
+        rows, cols = self._table.dimension
+
+        widths  = []
+        heights = []
+        scale_x = 1
+        scale_y = 1
+
+        if self.spacing_cols is not None:
+            widths = [self._column_width(col) for col in range(cols)]
+            if self.equalize_cols:
+                widths = [float(sum(widths)) / len(widths)] * len(widths)
+            else:
+                remaining_width = width - (len(widths)-1)*self.spacing_cols
+                scale_x = float(remaining_width) / float(sum(widths))
+        
+        if self.spacing_rows is not None:
+            heights = [self._row_height(row) for row in range(rows)]
+            if self.equalize_rows:
+                heights = [float(sum(heights)) / len(heights)] * len(heights)
+            else:
+                remaining_height = height - (len(heights)-1)*self.spacing_rows
+                scale_y = float(remaining_height) / float(sum(heights))
+
+        for i,j,cell in self._table:
+            width = None
+            height = None
+
+            if self.spacing_cols is not None:
+                width = widths[j]*scale_x if self.cell_fit else cell.Width*scale_x
+            if self.spacing_rows is not None:
+                height = heights[i]*scale_y if self.cell_fit else cell.Height*scale_y
+
+            self._set_cell_size(cell, width, height)
 
 
 
