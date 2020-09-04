@@ -13,51 +13,6 @@ import bkt.library.powerpoint as pplib
 pt_to_cm = pplib.pt_to_cm
 cm_to_pt = pplib.cm_to_pt
 
-# =================
-# = FUNCTIONALITY =
-# =================
-
-
-class ShapesAsTable(object):
-    
-    @classmethod
-    def align_shapes(cls, shapes, cols=None, spacing_x=5, spacing_y=5):
-        # shapes.sort(key=lambda s: ())
-        # init_left = shapes[0].left
-        # top = shapes[0].top
-        # len_shapes = len(shapes)
-
-        # if rows is None:
-        #     rows = len_shapes/cols
-
-        table = lib_table.TableData.from_list(shapes, cols)
-        shape_table = lib_table.ShapeTableAlignment(table)
-        shape_table.spacing = spacing_x, spacing_y
-        shape_table.align()
-
-        # table_list = []
-        # col_widths = [0]*cols
-        # for i in range(rows):
-        #     row = []
-        #     for j in range(cols):
-        #         n=i*cols+j
-        #         if n >= len_shapes:
-        #             break
-        #         shape = shapes[n]
-        #         row.append(shape)
-        #         col_widths[j] = max(col_widths[j], shape.width)
-        #     table_list.append(row)
-        
-        # for row in table_list:
-        #     row_height = max(row, key=lambda s:s.height)
-        #     left = init_left
-        #     for i,shape in enumerate(row):
-        #         shape.left = left
-        #         shape.top = top
-        #         left += spacing + col_widths[i]
-        #     top += spacing + row_height
-
-
 
 # =======================
 # = UI MODEL AND WINDOW =
@@ -159,5 +114,14 @@ class ShapesAsTableWindow(bkt.ui.WpfWindowAbstract):
     
     def align(self, sender, event):
         vm = self._vm
-        ShapesAsTable.align_shapes(self.ref_shapes, vm.target_cols, cm_to_pt(vm.spacing_x), cm_to_pt(vm.spacing_y))
+
+        table = lib_table.TableData.from_list(self.ref_shapes, vm.target_cols)
+        shape_table = lib_table.ShapeTableAlignment(table)
+        shape_table.spacing = cm_to_pt(vm.spacing_x), cm_to_pt(vm.spacing_y)
+        shape_table.cell_fit = vm.cells_fit
+        shape_table.in_bounds = vm.fit_bounds
+        shape_table.equalize_cols = vm.equal_cols
+        shape_table.equalize_rows = vm.equal_rows
+        shape_table.align()
+
         self.Close()
