@@ -42,8 +42,8 @@
 
           <Label Grid.Column="0" Grid.Row="3" Content="Abstand:" FontWeight="Bold" />
 
-          <Label Grid.Column="0" Grid.Row="4" Content="Abstand horizontal" />
-          <Label Grid.Column="0" Grid.Row="5" Content="Abstand vertikal" />
+          <Label Grid.Column="0" Grid.Row="4" Content="Zeilenabstand" />
+          <Label Grid.Column="0" Grid.Row="5" Content="Spaltenabstand" />
 
           <fr:Spinner Grid.Column="1" Grid.Row="4" InputWidth="90" Value="{Binding spacing_x, Mode=TwoWay}" Format="0.0 cm" Increment="0.2" Minimum="-1000"/>
           <fr:Spinner Grid.Column="1" Grid.Row="5" InputWidth="90" Value="{Binding spacing_y, Mode=TwoWay}" Format="0.0 cm" Increment="0.2" Minimum="-1000"/>

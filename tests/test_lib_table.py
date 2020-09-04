@@ -5,7 +5,7 @@ Created on 13.05.2020
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import unittest
 
@@ -93,16 +93,39 @@ class TableAlignmentTest(unittest.TestCase):
         self.table.align()
 
         self.assertEqual(self.shapes[2].left, 19)
+        self.assertEqual(self.shapes[4].top, 11)
+        self.assertEqual(self.shapes[7].left, 25)
+        self.assertEqual(self.shapes[9].top, 21)
 
         self.table.spacing = 2,3
         self.table.align()
 
-        self.fail()
+        self.assertEqual(self.shapes[2].left, 15)
+        self.assertEqual(self.shapes[4].top, 8)
+        self.assertEqual(self.shapes[7].left, 19)
+        self.assertEqual(self.shapes[9].top, 15)
 
         self.table.cell_fit = True
         self.table.align()
 
-        self.fail()
+        self.assertEqual(self.shapes[2].left, 15)
+        self.assertEqual(self.shapes[4].top, 8)
+        self.assertEqual(self.shapes[7].left, 19)
+        self.assertEqual(self.shapes[9].top, 15)
+
+        self.assertEqual(self.shapes[2].width, 4)
+        self.assertEqual(self.shapes[4].height, 5)
+        self.assertEqual(self.shapes[7].width, 3)
+        self.assertEqual(self.shapes[9].height, 3)
+    
+    def test_align_zero(self):
+        self.table.spacing = 0
+        self.table.align()
+
+        self.assertEqual(self.shapes[2].left, 9)
+        self.assertEqual(self.shapes[4].top, 6)
+        self.assertEqual(self.shapes[7].left, 10)
+        self.assertEqual(self.shapes[9].top, 11)
     
     def test_getter(self):
         self.assertTupleEqual(self.table.get_bounds(), (1,1,12,5))
@@ -112,36 +135,105 @@ class TableAlignmentTest(unittest.TestCase):
         self.table.align()
 
         self.assertTupleEqual(self.table.get_bounds(), (1,1,16.5,16))
-        self.assertAlmostEqual(self.table.get_median_spacing(), 1.5)
+        self.assertAlmostEqual(self.table.get_median_spacing(), 2.5)
     
     def test_bounds_align(self):
         self.table.in_bounds = True
+        self.table.spacing = 0.5
         self.table.align()
 
-        self.fail()
+        self.assertAlmostEqual(self.shapes[2].left, 7.6, places=3)
+        self.assertAlmostEqual(self.shapes[4].top, 3.0384, places=3)
+        self.assertAlmostEqual(self.shapes[7].left, 8.8, places=3)
+        self.assertAlmostEqual(self.shapes[9].top, 5.0769, places=3)
+
+        self.assertAlmostEqual(self.shapes[2].width, 2.8, places=3)
+        self.assertAlmostEqual(self.shapes[4].height, 0.6153, places=3)
+        self.assertAlmostEqual(self.shapes[7].width, 2.1, places=3)
+        self.assertAlmostEqual(self.shapes[9].height, 0.923, places=3)
+
+        self.table.cell_fit = True
+        self.table.align()
+
+        self.assertAlmostEqual(self.shapes[2].left, 7.6, places=3)
+        self.assertAlmostEqual(self.shapes[4].top, 3.0384, places=3)
+        self.assertAlmostEqual(self.shapes[7].left, 8.8, places=3)
+        self.assertAlmostEqual(self.shapes[9].top, 5.0769, places=3)
+
+        self.assertAlmostEqual(self.shapes[2].width, 2.8, places=3)
+        self.assertAlmostEqual(self.shapes[4].height, 1.5384, places=3)
+        self.assertAlmostEqual(self.shapes[7].width, 2.1, places=3)
+        self.assertAlmostEqual(self.shapes[9].height, 0.9230, places=3)
 
     def test_rows_cols_only_align(self):
         self.table.spacing = None,3
         self.table.align()
-        self.fail()
+
+        self.assertEqual(self.shapes[2].left, 15)
+        self.assertEqual(self.shapes[4].top, 1)
+        self.assertEqual(self.shapes[7].left, 19)
+        self.assertEqual(self.shapes[9].top, 1)
 
         self.table.spacing = 3,None
         self.table.align()
-        self.fail()
+
+        self.assertEqual(self.shapes[2].left, 15)
+        self.assertEqual(self.shapes[4].top, 9)
+        self.assertEqual(self.shapes[7].left, 19)
+        self.assertEqual(self.shapes[9].top, 17)
     
     def test_equalize(self):
         self.table.equalize_cols = True
         self.table.equalize_rows = True
+        self.table.spacing = 0.5
         self.table.align()
-        self.fail()
 
-        self.table.bounds = None
+        self.assertAlmostEqual(self.shapes[2].left, 10, places=3)
+        self.assertAlmostEqual(self.shapes[4].top, 6.5, places=3)
+        self.assertAlmostEqual(self.shapes[7].left, 14.5, places=3)
+        self.assertAlmostEqual(self.shapes[9].top, 12, places=3)
+
+        self.assertAlmostEqual(self.shapes[2].width, 4, places=3)
+        self.assertAlmostEqual(self.shapes[4].height, 2, places=3)
+        self.assertAlmostEqual(self.shapes[7].width, 3, places=3)
+        self.assertAlmostEqual(self.shapes[9].height, 3, places=3)
+
+        self.table.in_bounds = True
+        self.table.spacing = 1
         self.table.align()
-        self.fail()
+
+        self.assertAlmostEqual(self.shapes[2].left, 11, places=3)
+        self.assertAlmostEqual(self.shapes[4].top, 7, places=3)
+        self.assertAlmostEqual(self.shapes[7].left, 16, places=3)
+        self.assertAlmostEqual(self.shapes[9].top, 13, places=3)
+
+        self.assertAlmostEqual(self.shapes[2].width, 4, places=3)
+        self.assertAlmostEqual(self.shapes[4].height, 2, places=3)
+        self.assertAlmostEqual(self.shapes[7].width, 3, places=3)
+        self.assertAlmostEqual(self.shapes[9].height, 3, places=3)
 
         self.table.cell_fit = True
         self.table.align()
-        self.fail()
+
+        self.assertAlmostEqual(self.shapes[2].left, 11, places=3)
+        self.assertAlmostEqual(self.shapes[4].top, 7, places=3)
+        self.assertAlmostEqual(self.shapes[7].left, 16, places=3)
+        self.assertAlmostEqual(self.shapes[9].top, 13, places=3)
+
+        self.assertAlmostEqual(self.shapes[2].width, 3.75, places=3)
+        self.assertAlmostEqual(self.shapes[4].height, 4.3333, places=3)
+        self.assertAlmostEqual(self.shapes[7].width, 3.75, places=3)
+        self.assertAlmostEqual(self.shapes[9].height, 4.3333, places=3)
+
+        # print("\n\n2\t %s" % self.shapes[2].left)
+        # print("4\t %s" % self.shapes[4].top)
+        # print("7\t %s" % self.shapes[7].left)
+        # print("9\t %s\n\n" % self.shapes[9].top)
+
+        # print("\n\n2\t %s" % self.shapes[2].width)
+        # print("4\t %s" % self.shapes[4].height)
+        # print("7\t %s" % self.shapes[7].width)
+        # print("9\t %s\n\n" % self.shapes[9].height)
 
     def test_cell_alignment(self):
         self.table.cell_alignment_x = "center"

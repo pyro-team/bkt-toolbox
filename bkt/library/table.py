@@ -254,13 +254,18 @@ class ShapeTableAlignment(object):
             new_width = max(widths)
             widths = [new_width] * len(widths)
         
-        if self.spacing_cols:
+        if self.spacing_cols is not None:
             lefts = [x + (col_width+self.spacing_cols)*i for i,col_width in enumerate(widths)]
+        
+        heights = [self._row_height(row) for row in range(self._table.rows)]
+        if self.equalize_rows:
+            new_height = max(heights)
+            heights = [new_height] * len(heights)
         
         #iterate lines
         for row, line in enumerate(self._table.get_rows()):
             #get height of current line
-            height = self._row_height(row)
+            # height = self._row_height(row)
             
             for j, shape in enumerate(line):
                 if shape is None:
@@ -269,13 +274,13 @@ class ShapeTableAlignment(object):
                 #fill the whole cell
                 if self.cell_fit:
                     shape.width = widths[j]
-                    shape.height = height
+                    shape.height = heights[row]
 
                 #vertical alignment
                 if self.spacing_rows is not None:
                     y_pos = y
-                    y_pos += (height - shape.height) if self.cell_alignment_y == "bottom" else 0
-                    y_pos += (height - shape.height)/2 if self.cell_alignment_y == "middle" else 0
+                    y_pos += (heights[row] - shape.height) if self.cell_alignment_y == "bottom" else 0
+                    y_pos += (heights[row] - shape.height)/2 if self.cell_alignment_y == "middle" else 0
                     shape.top = y_pos
                 
                 #horizontal alignment
@@ -286,7 +291,7 @@ class ShapeTableAlignment(object):
                     shape.left = x_pos
             
             if self.spacing_rows is not None:
-                y += height + self.spacing_rows
+                y += heights[row] + self.spacing_rows
 
     def _fit_content(self):
         """
