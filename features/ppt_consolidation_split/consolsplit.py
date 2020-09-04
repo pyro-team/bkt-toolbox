@@ -161,8 +161,7 @@ class ConsolSplit(object):
         application = context.app
         presentation = context.presentation
 
-        sections = presentation.SectionProperties
-        if sections.count < 2:
+        if presentation.SectionProperties.count < 2:
             bkt.message.warning("Präsentation hat weniger als 2 Abschnitte!", "BKT: Export")
             return
 
@@ -188,7 +187,7 @@ class ConsolSplit(object):
         if save_pattern is None:
             return
 
-        def _get_name(index):
+        def _get_name(sections, index):
             try:
                 title = cls._get_safe_filename(sections.Name(index))
             except:
@@ -198,6 +197,7 @@ class ConsolSplit(object):
             return os.path.join(folder, filename + ".pptx") #FIXME: file ending according to current presentation
 
         def loop(worker):
+            sections = presentation.SectionProperties
             error = False
             sections_current = 1.0
             sections_total = sections.count
@@ -213,7 +213,7 @@ class ConsolSplit(object):
                         continue #empty section
                     count = sections.SlidesCount(i+1)
                     slides = list(iter( presentation.Slides.Range( Array[int](range(start, start+count)) ) ))
-                    cls.export_slide(application, slides, _get_name(i+1))
+                    cls.export_slide(application, slides, _get_name(sections, i+1))
                 except:
                     logging.exception("split_sections_to_ppt error")
                     error = True
