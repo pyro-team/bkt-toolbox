@@ -243,12 +243,13 @@ class ShapeTableAlignment(object):
         #get column left coordinates and widths for each column
         widths = []
         lefts = []
+        left_start = x
         for col in range(self._table.columns):
             col_width = self._column_width(col)
             widths.append(col_width)
             if self.spacing_cols is not None:
-                lefts.append(x)
-                x += col_width + self.spacing_cols
+                lefts.append(left_start)
+                left_start += col_width + self.spacing_cols
         
         if self.equalize_cols:
             new_width = max(widths)

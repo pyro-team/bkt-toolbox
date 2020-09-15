@@ -94,7 +94,7 @@ class TableAlignmentTest(unittest.TestCase):
 
         self.assertEqual(self.shapes[2].left, 19)
         self.assertEqual(self.shapes[4].top, 11)
-        self.assertEqual(self.shapes[7].left, 25)
+        self.assertEqual(self.shapes[7].left, 28)
         self.assertEqual(self.shapes[9].top, 21)
 
         self.table.spacing = 2,3
@@ -102,7 +102,7 @@ class TableAlignmentTest(unittest.TestCase):
 
         self.assertEqual(self.shapes[2].left, 15)
         self.assertEqual(self.shapes[4].top, 8)
-        self.assertEqual(self.shapes[7].left, 19)
+        self.assertEqual(self.shapes[7].left, 22)
         self.assertEqual(self.shapes[9].top, 15)
 
         self.table.cell_fit = True
@@ -110,7 +110,7 @@ class TableAlignmentTest(unittest.TestCase):
 
         self.assertEqual(self.shapes[2].left, 15)
         self.assertEqual(self.shapes[4].top, 8)
-        self.assertEqual(self.shapes[7].left, 19)
+        self.assertEqual(self.shapes[7].left, 22)
         self.assertEqual(self.shapes[9].top, 15)
 
         self.assertEqual(self.shapes[2].width, 4)
@@ -124,7 +124,7 @@ class TableAlignmentTest(unittest.TestCase):
 
         self.assertEqual(self.shapes[2].left, 9)
         self.assertEqual(self.shapes[4].top, 6)
-        self.assertEqual(self.shapes[7].left, 10)
+        self.assertEqual(self.shapes[7].left, 13)
         self.assertEqual(self.shapes[9].top, 11)
     
     def test_getter(self):
@@ -134,7 +134,7 @@ class TableAlignmentTest(unittest.TestCase):
         self.table.spacing = 1.5
         self.table.align()
 
-        self.assertTupleEqual(self.table.get_bounds(), (1,1,16.5,16))
+        self.assertTupleEqual(self.table.get_bounds(), (1,1,19.5,16))
         self.assertAlmostEqual(self.table.get_median_spacing(), 2.5)
     
     def test_bounds_align(self):
@@ -144,7 +144,7 @@ class TableAlignmentTest(unittest.TestCase):
 
         self.assertAlmostEqual(self.shapes[2].left, 7.6, places=3)
         self.assertAlmostEqual(self.shapes[4].top, 3.0384, places=3)
-        self.assertAlmostEqual(self.shapes[7].left, 8.8, places=3)
+        self.assertAlmostEqual(self.shapes[7].left, 10.8999, places=3)
         self.assertAlmostEqual(self.shapes[9].top, 5.0769, places=3)
 
         self.assertAlmostEqual(self.shapes[2].width, 2.8, places=3)
@@ -157,7 +157,7 @@ class TableAlignmentTest(unittest.TestCase):
 
         self.assertAlmostEqual(self.shapes[2].left, 7.6, places=3)
         self.assertAlmostEqual(self.shapes[4].top, 3.0384, places=3)
-        self.assertAlmostEqual(self.shapes[7].left, 8.8, places=3)
+        self.assertAlmostEqual(self.shapes[7].left, 10.8999, places=3)
         self.assertAlmostEqual(self.shapes[9].top, 5.0769, places=3)
 
         self.assertAlmostEqual(self.shapes[2].width, 2.8, places=3)
@@ -171,7 +171,7 @@ class TableAlignmentTest(unittest.TestCase):
 
         self.assertEqual(self.shapes[2].left, 15)
         self.assertEqual(self.shapes[4].top, 1)
-        self.assertEqual(self.shapes[7].left, 19)
+        self.assertEqual(self.shapes[7].left, 22)
         self.assertEqual(self.shapes[9].top, 1)
 
         self.table.spacing = 3,None
@@ -179,7 +179,7 @@ class TableAlignmentTest(unittest.TestCase):
 
         self.assertEqual(self.shapes[2].left, 15)
         self.assertEqual(self.shapes[4].top, 9)
-        self.assertEqual(self.shapes[7].left, 19)
+        self.assertEqual(self.shapes[7].left, 22)
         self.assertEqual(self.shapes[9].top, 17)
     
     def test_equalize(self):
@@ -215,10 +215,10 @@ class TableAlignmentTest(unittest.TestCase):
         self.table.cell_fit = True
         self.table.align()
 
-        self.assertAlmostEqual(self.shapes[2].left, 11, places=3)
-        self.assertAlmostEqual(self.shapes[4].top, 7, places=3)
-        self.assertAlmostEqual(self.shapes[7].left, 16, places=3)
-        self.assertAlmostEqual(self.shapes[9].top, 13, places=3)
+        self.assertAlmostEqual(self.shapes[2].left, 10.5, places=3)
+        self.assertAlmostEqual(self.shapes[4].top, 6.3333, places=3)
+        self.assertAlmostEqual(self.shapes[7].left, 15.25, places=3)
+        self.assertAlmostEqual(self.shapes[9].top, 11.6666, places=3)
 
         self.assertAlmostEqual(self.shapes[2].width, 3.75, places=3)
         self.assertAlmostEqual(self.shapes[4].height, 4.3333, places=3)
