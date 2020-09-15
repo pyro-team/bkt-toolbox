@@ -147,6 +147,10 @@ class ShapeTableAlignment(object):
             self.bounds = self.get_bounds()
         else:
             self.bounds = None
+    
+    @property
+    def table(self):
+        return self._table
 
     def _column_left(self,col):
         "return the left-most coordinate of all cell-shapes of the given column"
@@ -184,6 +188,7 @@ class ShapeTableAlignment(object):
                 cell.height = height
 
     def set_bounds(self, left,right,width,height):
+        "set bounds of the table for the alignment process"
         self.bounds = left,right,width,height
 
     def get_bounds(self):
@@ -213,7 +218,18 @@ class ShapeTableAlignment(object):
         if not spacings:
             return 0
         return median(spacings)
+    
+    def transpose(self, swap_cell_size=False):
+        "Transpose all cells and align again"
+        self._table.transpose()
 
+        if swap_cell_size:
+            for _,_,cell in self._table:
+                if cell is None:
+                    continue
+                cell.width, cell.height = cell.height, cell.width
+
+        self.align()
 
     def align(self, xstart=None, ystart=None):
         """
