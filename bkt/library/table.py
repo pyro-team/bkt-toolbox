@@ -177,7 +177,7 @@ class ShapeTableAlignment(object):
             if height is not None:
                 cell.height = height
         else:
-            ratio = float(cell.width)/float(cell.height)
+            ratio = cell.width/cell.height
             if ratio > 1:
                 cell.width = width
             else:
@@ -246,16 +246,15 @@ class ShapeTableAlignment(object):
         for col in range(self._table.columns):
             col_width = self._column_width(col)
             widths.append(col_width)
-            # if self.spacing_cols is not None:
-            #     lefts.append(x)
-            #     x += col_width + self.spacing_cols
+            if self.spacing_cols is not None:
+                lefts.append(x)
+                x += col_width + self.spacing_cols
         
         if self.equalize_cols:
             new_width = max(widths)
             widths = [new_width] * len(widths)
-        
-        if self.spacing_cols is not None:
-            lefts = [x + (col_width+self.spacing_cols)*i for i,col_width in enumerate(widths)]
+            if self.spacing_cols is not None:
+                lefts = [x + (new_width+self.spacing_cols)*i for i in range(len(widths))]
         
         heights = [self._row_height(row) for row in range(self._table.rows)]
         if self.equalize_rows:
@@ -290,6 +289,7 @@ class ShapeTableAlignment(object):
                     x_pos += (widths[j] - shape.width)/2 if self.cell_alignment_x == "center" else 0
                     shape.left = x_pos
             
+            #next top coordinate
             if self.spacing_rows is not None:
                 y += heights[row] + self.spacing_rows
 
@@ -313,18 +313,18 @@ class ShapeTableAlignment(object):
         if self.spacing_cols is not None:
             widths = [self._column_width(col) for col in range(cols)]
             if self.equalize_cols:
-                widths = [float(sum(widths)) / len(widths)] * len(widths)
+                widths = [sum(widths) / len(widths)] * len(widths)
             else:
                 remaining_width = width - (len(widths)-1)*self.spacing_cols
-                scale_x = float(remaining_width) / float(sum(widths))
+                scale_x = remaining_width / sum(widths)
         
         if self.spacing_rows is not None:
             heights = [self._row_height(row) for row in range(rows)]
             if self.equalize_rows:
-                heights = [float(sum(heights)) / len(heights)] * len(heights)
+                heights = [sum(heights) / len(heights)] * len(heights)
             else:
                 remaining_height = height - (len(heights)-1)*self.spacing_rows
-                scale_y = float(remaining_height) / float(sum(heights))
+                scale_y = remaining_height / sum(heights)
 
         for i,j,cell in self._table:
             width = None
