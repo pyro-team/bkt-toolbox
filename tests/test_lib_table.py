@@ -84,7 +84,7 @@ class TableDataTest(unittest.TestCase):
 
 class TableAlignmentTest(unittest.TestCase):
     def setUp(self):
-        self.shapes = [Shape(left=1+i,top=1, width=2+(i%3),height=2+(i%4)) for i in range(10)]
+        self.shapes = [Shape(id=i, left=1+i,top=1, width=2+(i%3),height=2+(i%4)) for i in range(10)]
         td = TableData.from_list(self.shapes, 4)
         self.table = ShapeTableAlignment(td)
 
@@ -242,7 +242,22 @@ class TableAlignmentTest(unittest.TestCase):
         self.fail()
 
     def test_transpose(self):
-        self.fail()
+        self.assertEqual(self.table.table.get_cell(0,0).id, 0)
+        self.assertEqual(self.table.table.get_cell(0,2).id, 2)
+        self.assertEqual(self.table.table.get_cell(1,0).id, 4)
+        self.assertEqual(self.table.table.get_cell(1,3).id, 7)
+        self.assertEqual(self.table.table.get_cell(2,1).id, 9)
+
+        self.table.transpose()
+
+        self.assertEqual(self.table.table.columns, 3)
+        self.assertEqual(self.table.table.rows, 4)
+
+        self.assertEqual(self.table.table.get_cell(0,0).id, 0)
+        self.assertEqual(self.table.table.get_cell(2,0).id, 2)
+        self.assertEqual(self.table.table.get_cell(0,1).id, 4)
+        self.assertEqual(self.table.table.get_cell(3,1).id, 7)
+        self.assertEqual(self.table.table.get_cell(1,2).id, 9)
 
 
 class TableRecognitionTest(unittest.TestCase):
