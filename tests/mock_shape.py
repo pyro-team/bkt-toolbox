@@ -19,8 +19,12 @@ class TextFrame(OfficeMock):
         self._attributes.update(kwargs)
 
 class Shape(OfficeMock):
+    _id = 0
+
     def __init__(self, **kwargs):
+        Shape._id += 1
         self._attributes = {
+            "id": Shape._id,
             "name": "Shape %s" % id(self),
             "type": 1, #msoAutoShape
             "autoshapetype": 1,
