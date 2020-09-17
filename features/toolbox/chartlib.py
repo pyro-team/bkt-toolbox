@@ -511,7 +511,7 @@ class ChartLib(object):
                         if root.endswith(THUMBNAIL_POSTFIX):
                             continue
                         for file in files:
-                            if self._is_valid_powerpoint(file):
+                            if self._is_valid_powerpoint(file) and not file.endswith(FILETYPES_POT): #no need to create thumbnails from potx files
                                 galleries.append( self.get_chartlib_gallery_from_file(os.path.join(root, file)) )
 
                 total = len(galleries)+1
