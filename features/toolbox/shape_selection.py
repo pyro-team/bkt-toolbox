@@ -246,6 +246,30 @@ class SlidesMore(object):
         pasted_shapes.select(False)
 
     @staticmethod
+    def paste_and_distribute(slide, shapes):
+        from itertools import cycle
+
+        def par_iterator(selected_shapes):
+            for textframe in pplib.iterate_shape_textframes(selected_shapes, False):
+                for idx in range(1, textframe.TextRange.Paragraphs().Count+1):
+                    yield textframe.TextRange.Paragraphs(idx)
+        
+        pasted = slide.shapes.paste()
+        par_iter = cycle(par_iterator(pasted))
+        
+        try:
+            for textframe in pplib.iterate_shape_textframes(shapes):
+                textframe.DeleteText()
+                pplib.transfer_textrange(next(par_iter), textframe.textrange)
+        except:
+            logging.exception("error pasting texts")
+        finally:
+            pasted.Copy() #restore clipboard
+            pasted.Delete() #remove
+        
+        pplib.shapes_to_range(shapes).select()
+
+    @staticmethod
     def copy_in_highquality(slide):
         import tempfile, os
         from System import IO
@@ -481,7 +505,7 @@ clipboard_group = bkt.ribbon.Group(
                     children=[
                         bkt.mso.button.PasteSpecialDialog,
                         bkt.mso.button.PasteAsPicture,
-                        bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.MenuSeparator(title="Einfügen-Spezial"),
                         bkt.ribbon.Button(
                             id='paste_to_slides',
                             label="Auf ausgewählte Folien einfügen",
@@ -502,6 +526,14 @@ clipboard_group = bkt.ribbon.Group(
                             supertip="Markierte Shapes mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten.",
                             image_mso='PasteSingleCellExcelTableDestinationFormatting',
                             on_action=bkt.Callback(SlidesMore.paste_and_replace_shapes, slide=True, shapes=True),
+                            get_enabled=bkt.apps.ppt_shapes_or_text_selected,
+                        ),
+                        bkt.ribbon.Button(
+                            id='paste_and_distribute',
+                            label="Text auf Auswahl verteilen",
+                            supertip="Jeden Paragraphen aus der Zwischenablage einzeln auf die markierten Shapes verteilen. Überflüssige Paragraphen werden verworfen.",
+                            image_mso='PasteMergeList',
+                            on_action=bkt.Callback(SlidesMore.paste_and_distribute, slide=True, shapes=True),
                             get_enabled=bkt.apps.ppt_shapes_or_text_selected,
                         ),
                         bkt.ribbon.MenuSeparator(),
