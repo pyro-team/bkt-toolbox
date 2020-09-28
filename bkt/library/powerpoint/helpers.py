@@ -7,6 +7,7 @@ Created on 02.11.2017
 
 from __future__ import absolute_import, division
 
+import time
 import json # required for tags
 from collections import namedtuple # required for color class
 from contextlib import contextmanager # for locale helper
@@ -394,6 +395,18 @@ GlobalLocPin = LocPin(settings_key="bkt.global_loc_pin")
 # ============================
 
 
+def save_paste(obj, *args, **kwargs):
+    for _ in range(3):
+        try:
+            return obj.paste(*args, **kwargs)
+        except EnvironmentError:
+            #wait some time to avoid EnvironmentError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
+            time.sleep(.50)
+            #FIXME: maybe better way to check if clipboard actually contains "something"
+    else:
+        raise EnvironmentError("pasting not successfull")
+
+
 def shape_is_group_child(shape):
     '''
     Test if a shape is part of a group.
@@ -537,7 +550,8 @@ def transfer_textrange(from_textrange, to_textrange):
     So this function manually copies color values after copying the textrange.
     '''
     from_textrange.Copy()
-    to_textrange.Paste()
+    # to_textrange.Paste()
+    save_paste(to_textrange)
 
     def copy_color(from_obj, to_obj):
         if from_obj.ObjectThemeColor != 0:
