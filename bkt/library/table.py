@@ -112,7 +112,32 @@ class TableData(object):
             return cls(cells)
 
 
-class ShapeTableAlignment(object):
+class AbstractAlignment(object):
+    def __init__(self, table):
+        self._table = table
+    
+    @property
+    def table(self):
+        return self._table
+
+    def _column_left(self,col):
+        "return the left-most coordinate of all cell-shapes of the given column"
+        return min(s.left for s in self._table.get_column(col) if s is not None)
+    
+    def _column_width(self,col):
+        "return the maximum width of all cell-shapes of the given column"
+        return max(s.width for s in self._table.get_column(col) if s is not None)
+    
+    def _row_top(self,row):
+        "return the top-most coordinate of all cell-shapes of the given row"
+        return min(s.top for s in self._table.get_row(row) if s is not None)
+    
+    def _row_height(self,row):
+        "return the maximum height of all cell-shapes of the given row"
+        return max(s.height for s in self._table.get_row(row) if s is not None)
+
+
+class ShapeTableAlignment(AbstractAlignment):
     def __init__(self, table):
         self._table = table
 
@@ -147,26 +172,6 @@ class ShapeTableAlignment(object):
             self.bounds = self.get_bounds()
         else:
             self.bounds = None
-    
-    @property
-    def table(self):
-        return self._table
-
-    def _column_left(self,col):
-        "return the left-most coordinate of all cell-shapes of the given column"
-        return min(s.left for s in self._table.get_column(col) if s is not None)
-    
-    def _column_width(self,col):
-        "return the maximum width of all cell-shapes of the given column"
-        return max(s.width for s in self._table.get_column(col) if s is not None)
-    
-    def _row_top(self,row):
-        "return the top-most coordinate of all cell-shapes of the given row"
-        return min(s.top for s in self._table.get_row(row) if s is not None)
-    
-    def _row_height(self,row):
-        "return the maximum height of all cell-shapes of the given row"
-        return max(s.height for s in self._table.get_row(row) if s is not None)
 
 
     def _set_cell_size(self, cell, width=None, height=None):
@@ -355,11 +360,92 @@ class ShapeTableAlignment(object):
             self._set_cell_size(cell, width, height)
 
 
+class StaplesAlignment(AbstractAlignment):
+    def __init__(self, table):
+        self._table = table
+        
+        self.spacing = 0
+
+    def staple_rows(self):
+        left = self._column_left(0)
+        for row in self._table.get_rows():
+            x = left
+            for shape in row:
+                shape.left = x
+                x += shape.width + self.spacing
+
+    def staple_columns(self):
+        top = self._row_top(0)
+        for row in self._table.get_columns():
+            y = top
+            for shape in row:
+                shape.top = y
+                y += shape.height + self.spacing
+
 
 class ShapeTableRecognition(object):
+    "Recognize table of shapes and manipulate all shapes at once, e.g. increase spacing between rows and columns."
     def __init__(self, shapes):
         self._shapes = set(shapes)
-    #run, get spacing
+        self._table = TableData()
+    
+    @property
+    def table(self):
+        return self._table
+        
+    def run(self):
+        "run the table recognation algorithm and save result internally. does not change any given shapes."
+        table = []
+        while self._shapes:
+            #first shape of new row
+            line = [self._collect_seed()]
+            while self._shapes:
+                #find next shape in row
+                nxt = self._next_in_row(line)
+                if nxt is None:
+                    break
+                self._shapes.discard(nxt)
+                line.append(nxt)
+            table.append(line)
+        
+        #create table sorted by top coordinate (just in case)
+        self._table = TableData(sorted(table, key=lambda l: min(s.top for s in l)))
+        # self._correct_columns()
+    
+    def _distfun(self,refx,refy):
+        "return the distance function for a shape used as key function"
+        def dist(s):
+            return math.hypot(refx-s.Left, refy-s.Top)
+        return dist
+    
+    def _collect_seed(self):
+        "get the first shape of a new row, which is the shape with the least distance from the top-left-most edge of all remaining shapes"
+        leftmost = min(s.left for s in self._shapes)
+        topmost  = min(s.top for s in self._shapes)
+        
+        seed = min(self._shapes, key=self._distfun(leftmost, topmost))
+        self._shapes.discard(seed)
+        return seed
+        
+    def _next_in_row(self, line):
+        "return next suitable shape in row by given line, or None if no shape in line is found"
+        ref = line[0]
+        refx = ref.Left
+        refy = ref.Top
+        bound = ref.Height * 0.5
+        
+        selection = []
+        for s in self._shapes:
+            if s.Left < refx:
+                continue
+            if abs(s.Top-refy) > bound:
+                continue
+            selection.append(s)
+            
+        if selection:
+            return min(selection, key=lambda s: abs(s.Left-refx))
+        else:
+            return None
 
 
 
