@@ -270,6 +270,15 @@ class SlidesMore(object):
         pplib.shapes_to_range(shapes).select()
 
     @staticmethod
+    def copy_texts(shapes):
+        from bkt import dotnet
+        Forms = dotnet.import_forms()
+
+        txts = [textframe.TextRange.Text for textframe in pplib.iterate_shape_textframes(shapes) if textframe.HasText]
+        if txts:
+            Forms.Clipboard.SetText("\r".join(txts))
+
+    @staticmethod
     def copy_in_highquality(slide):
         import tempfile, os
         from System import IO
@@ -553,6 +562,14 @@ clipboard_group = bkt.ribbon.Group(
                     children=[
                         bkt.mso.button.Copy,
                         bkt.mso.button.PasteDuplicate,
+                        bkt.ribbon.Button(
+                            id="copy_texts",
+                            label="Shape-Text kopieren",
+                            supertip="Kopiert den Text aller markierten Shapes in die Zwischenablage.",
+                            image_mso='DrawTextBox',
+                            on_action=bkt.Callback(SlidesMore.copy_texts, shapes=True),
+                            get_enabled=bkt.get_enabled_auto
+                        ),
                         bkt.ribbon.Button(
                             id="copy_slide_hq",
                             label="Folie als HQ-Bild kopieren",
