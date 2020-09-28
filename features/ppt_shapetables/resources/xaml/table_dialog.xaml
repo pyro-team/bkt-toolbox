@@ -33,6 +33,8 @@
 
           <Label Grid.Column="0" Grid.Row="0" Content="Zielgröße:" FontWeight="Bold" />
 
+          <!-- TODO: radio auto vs. target size -->
+
           <RadioButton VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="1" GroupName="aligntarget" Content="Zeilen" IsChecked="{Binding align_rows, Mode=TwoWay}" Margin="5" />
           <RadioButton VerticalContentAlignment="Center" Grid.Column="0" Grid.Row="2" GroupName="aligntarget" Content="Spalten" IsChecked="{Binding align_cols, Mode=TwoWay}" Margin="5" />
           
