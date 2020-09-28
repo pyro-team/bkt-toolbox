@@ -103,7 +103,8 @@ class StateShape(object):
             except:
                 logging.exception("Statehape error swichting state")
                 continue
-        pplib.shapes_to_range(resulting_shapes).select()
+        if resulting_shapes:
+            pplib.shapes_to_range(resulting_shapes).select()
 
 
     @classmethod
