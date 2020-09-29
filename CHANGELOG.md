@@ -7,12 +7,15 @@
   * Added option to remove empty sections when sending slides
   * Added functions to sort Z-Order (and therefore selection) by position top-down or left-right
   * Added compact font/paragraph group as new default also for 3-page layout
+  * Added slide synchronization function
+  * Added feature to copy shape texts and distribute paragraphs on all selected shapes
   * Improved handlings of chart textframes
   * Improved shape names of various BKT shapes
   * Improved linked shapes functionalities now support multiple selected linked shapes at once
   * Improved statistics: now shown in dialog window with additional data
   * Improved UI settings editor with scroll-viewer
   * Fixed errors for certain chart types when changing language or showing paragraph spinners
+  * Fixed split by section (in consolidation-split feature)
 
 
 # Release 2020-07-30 (2.7.1)
