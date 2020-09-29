@@ -108,23 +108,30 @@ class StateShape(object):
         cls._special_stateshapes[name] = special_object
 
     @classmethod
-    def is_convertable_to_state_shape(cls, shape):
+    def is_convertable_to_state_shape(cls, shapes):
         try:
-            return shape.Type == pplib.MsoShapeType['msoGroup'] and not cls.is_state_shape(shape)
+            if len(shapes) > 1:
+                return not any(cls.is_state_shape(s) for s in shapes)
+            else:
+                shape = shapes[0]
+                return shape.Type == pplib.MsoShapeType['msoGroup'] and not cls.is_state_shape(shape)
         except:
             return False
 
     @classmethod
     def convert_to_state_shape(cls, shapes, special_name=None):
-        for shape in shapes:
-            try:
-                shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
-                if special_name and special_name in cls._special_stateshapes:
-                    shape.Tags.Add(cls.BKT_DIALOG_TAG, special_name)
-            except:
-                logging.exception("Error converting to state stape")
-                continue
-        cls.switch_states(shapes, pos=0)
+        if len(shapes) > 1:
+            shape = pplib.shapes_to_range(shapes).group()
+        else:
+            shape = shapes[0]
+        try:
+            shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
+            if special_name and special_name in cls._special_stateshapes:
+                shape.Tags.Add(cls.BKT_DIALOG_TAG, special_name)
+        except:
+            logging.exception("Error converting to state stape")
+        
+        cls.switch_states([shape], pos=0)
 
     @classmethod
     def is_state_shape(cls, shape):
