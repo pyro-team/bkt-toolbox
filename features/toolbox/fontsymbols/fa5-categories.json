@@ -586,6 +586,7 @@
   },
   "computers": {
     "icons": [
+      "compact-disc",
       "database",
       "desktop",
       "download",
@@ -1240,6 +1241,7 @@
       "plug",
       "pump-soap",
       "shower",
+      "sink",
       "snowflake",
       "soap",
       "toilet-paper",
@@ -1271,7 +1273,8 @@
       "photo-video",
       "portrait",
       "sliders-h",
-      "tint"
+      "tint",
+      "unsplash"
     ],
     "label": "Images"
   },
@@ -1583,6 +1586,8 @@
       "university",
       "utensil-spoon",
       "utensils",
+      "vest",
+      "vest-patches",
       "wheelchair",
       "wifi",
       "wine-glass",
@@ -1649,6 +1654,8 @@
     "icons": [
       "allergies",
       "ambulance",
+      "bacteria",
+      "bacterium",
       "band-aid",
       "biohazard",
       "bone",
@@ -1743,6 +1750,7 @@
   },
   "music": {
     "icons": [
+      "compact-disc",
       "drum",
       "drum-steelpan",
       "file-audio",
@@ -2024,6 +2032,7 @@
       "ethereum",
       "gem",
       "gift",
+      "google-pay",
       "google-wallet",
       "handshake",
       "heart",
@@ -2596,6 +2605,7 @@
       "user-times",
       "users",
       "users-cog",
+      "users-slash",
       "walking",
       "wheelchair"
     ],
