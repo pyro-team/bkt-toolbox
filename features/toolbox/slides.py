@@ -234,6 +234,11 @@ class SlideMenu(object):
         from .dialogs.slides_send import SendWindow
         SendWindow.create_and_show_dialog(SendOrSaveSlides, context)
 
+    @classmethod
+    def sync_slides_dialog(cls, context):
+        from .dialogs.slides_sync import SlideSyncWindow
+        SlideSyncWindow.create_and_show_dialog(context)
+
 
     @classmethod
     def save_slides_dialog(cls, context):
@@ -613,6 +618,13 @@ slides_group = bkt.ribbon.Group(
                     image_mso='FileSendAsAttachment',
                     supertip="Sendet die ausgewählten Folien als Email-Anhang, wahlweise auch als PDF-Datei.",
                     on_action=bkt.Callback(SlideMenu.send_slides_dialog)
+                ),
+                bkt.ribbon.Button(
+                    id = 'sync_slides',
+                    label='Ausgewählte Folien angleichen',
+                    image_mso='SlideShowShowPresentationOnGallery',
+                    supertip="Gleicht alle Shapes auf den Folien der ersten selektierten Folie an anhand des Shape-Namens. Die Funktion ist nützlich wenn man ein Template erstellt, die mehrfach dupliziert und Änderungen danach synchronisieren möchte",
+                    on_action=bkt.Callback(SlideMenu.sync_slides_dialog)
                 ),
                 bkt.ribbon.SplitButton(children=[
                     bkt.ribbon.Button(
