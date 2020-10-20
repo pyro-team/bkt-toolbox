@@ -19,12 +19,12 @@ class SlidesSync(object):
         self._template = template
         self._slides = slides
 
-        self._format = True
-        self._position = True
-        self._text = True
-        self._shapes_add = True
-        self._shapes_remove = True
-        self._skip_placeholders = True
+        self._format = format
+        self._position = position
+        self._text = text
+        self._shapes_add = shapes_add
+        self._shapes_remove = shapes_remove
+        self._skip_placeholders = skip_placeholders
 
     def sync_slides(self, worker):
         template_shapes = {shape.name: shape for shape in self._template.shapes}
