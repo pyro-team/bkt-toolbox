@@ -821,16 +821,19 @@ linkshapes_tab = bkt.ribbon.Tab(
                     children=[
                         bkt.ribbon.ToggleButton(
                             label="Ausgewähltes Shapes (Standard)",
+                            supertip="Referenz für alle verknüpften Shapes ist das aktuell gewählte Shape",
                             get_pressed=bkt.Callback(lambda: LinkedShapes.master == "current"),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(LinkedShapes, "master", "current")),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="Erstes Shape im Foliensatz",
+                            supertip="Die gesamte Präsentation wird nach verknüpften Shapes gescannt und das erste zugehörige Shape im Foliensatz wird als Referenz gesetzt.",
                             get_pressed=bkt.Callback(lambda: LinkedShapes.master == "first"),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(LinkedShapes, "master", "first")),
                         ),
                         bkt.ribbon.ToggleButton(
                             label="Letztes Shape im Foliensatz",
+                            supertip="Die gesamte Präsentation wird nach verknüpften Shapes gescannt und das letzte zugehörige Shape im Foliensatz wird als Referenz gesetzt.",
                             get_pressed=bkt.Callback(lambda: LinkedShapes.master == "last"),
                             on_toggle_action=bkt.Callback(lambda pressed: setattr(LinkedShapes, "master", "last")),
                         ),
