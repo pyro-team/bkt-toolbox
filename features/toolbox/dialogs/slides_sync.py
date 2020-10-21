@@ -27,7 +27,12 @@ class SlidesSync(object):
         self._skip_placeholders = skip_placeholders
 
     def sync_slides(self, worker):
-        template_shapes = {shape.name: shape for shape in self._template.shapes}
+        try:
+            #FIXME: shape name is not unique
+            template_shapes = {shape.name: shape for shape in self._template.shapes}
+        except:
+            logging.exception("error getting template shapes")
+            return
         #go through all shapes of all other slides
         len_slides = len(self._slides)
         for i,slide in enumerate(self._slides):
@@ -164,14 +169,12 @@ class SlideSyncWindow(bkt.ui.WpfWindowAbstract):
         self._slides = context.slides
         super(SlideSyncWindow, self).__init__(context)
     
+    def show_dialog(self, modal=True):
+        if len(self._slides) < 2:
+            return bkt.message.error("Es müssen mind. 2 Folien ausgewählt sein!")
+        return super(SlideSyncWindow, self).show_dialog(modal)
+    
     def sync(self, sender, event):
-
-        # def loop(worker):
-        #     vm = self._vm
-        #     try:
-        #         SlidesSync.sync_slides(self._template, self._slides, vm.sync_format, vm.sync_position, vm.sync_text, vm.sync_add, vm.sync_remove, vm.skip_placeholders)
-        #     except:
-        #         logging.error("slide sync failed")
         vm = self._vm
         slidesync = SlidesSync(self._template, self._slides, vm.sync_format, vm.sync_position, vm.sync_text, vm.sync_add, vm.sync_remove, vm.skip_placeholders)
         bkt.ui.execute_with_progress_bar(slidesync.sync_slides, self._context)
