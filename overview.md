@@ -39,14 +39,17 @@
 | *Inhalte einfügen...*                              |                                                    |
 | Einfügen-Menü                                      | Menü mit verschiedenen Einfüge-Operationen         |
 | Einfügen-Menü > *Inhalte einfügen...*              |                                                    |
+| Einfügen-Menü > *Grafik*                           |                                                    |
 | Einfügen-Menü > Auf ausgewählte Folien einfügen    | Zwischenablage auf allen ausgewählten Folien gleichzeitig einfügen. |
 | Einfügen-Menü > Als Verknüpfung einfügen           | Zwischenablage als verknüpftes Element (bspw. Bild, OLE-Objekt) einfügen. |
-| Einfügen-Menü > Mit Zwischenablage ersetzen        | Markiertes Shape mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten. |
+| Einfügen-Menü > Mit Zwischenablage ersetzen        | Markierte Shapes mit dem Inhalt der Zwischenablage ersetzen und dabei Größe und Position erhalten. |
+| Einfügen-Menü > Text auf Auswahl verteilen         | Jeden Paragraphen aus der Zwischenablage einzeln auf die markierten Shapes verteilen. Überflüssige Paragraphen werden verworfen. |
 | Einfügen-Menü > *Office-Zwischenablage...*         | Zeigen Sie alle in die Zwischenablage kopierten Elemente an. |
 | *Kopieren*                                         | Fügen Sie eine Kopie der Auswahl in die Zwischenablage ein, sodass Sie diese an einer anderen Stelle einfügen können. |
 | Kopieren-Menü                                      | Menü mit verschiedenen Kopier-Operationen          |
 | Kopieren-Menü > *Kopieren*                         | Fügen Sie eine Kopie der Auswahl in die Zwischenablage ein, sodass Sie diese an einer anderen Stelle einfügen können. |
 | Kopieren-Menü > *Duplizieren*                      |                                                    |
+| Kopieren-Menü > Shape-Text kopieren                | Kopiert den Text aller markierten Shapes in die Zwischenablage. |
 | Kopieren-Menü > Folie als HQ-Bild kopieren         | Kopiert die aktuelle Folie in hoher Qualität in die Zwischenablage. |
 | Auswahl                                            | Auswahl von Shapes, die dem aktuellem Shape bzgl. Typ/Hintergrund/Rahmen ähneln |
 | Auswahl > …mit gleicher Form                       | Selektiere alle Shapes auf dem aktuellen Slide, die die gleiche Form haben wie eine der selektierten Shapes |
@@ -62,6 +65,7 @@
 | Auswahl > Inner- & unterhalb                       | Selektiere alle Shapes auf dem aktuellen Slide, die sich vollständig innerhalb und unterhalb (d.h. Z-Order ist kleiner) eines der selektierten Shapes befinden. |
 | Auswahl > *Auswahlbereich...*                      | Eine Liste aller Ihrer Objekte anzeigen.<br><br>Dies erleichtert das Auswählen von Objekten sowie das Ändern ihrer Reihenfolge oder Sichtbarkeit. |
 | Auswahl > Auswahl invertieren                      | Invertiert die aktuelle Auswahl. Es werden alle Shapes (auch Platzhalter) markiert, die vorher nicht markiert waren. |
+| Auswahl > Shapes mit Tags                          | Markiert alle Shapes auf der Folie mit Tags (Meta-Daten), die u.A. für diverse BKT-Funktionen verwendet werden. |
 | *Formatvorlage übernehmen*                         |                                                    |
 | *Format kopieren*                                  |                                                    |
 | Auswahl von Shapes mit gleichem Hintergrund        | Selektiere alle Shapes auf dem aktuellen Slide, die den gleichen Hintergrund (Farbe) haben wie eine der selektierten Shapes |
@@ -85,8 +89,8 @@
 | Mehr > *Abschnitt*                                 | Ihre Folien in Abschnitte organisieren.            |
 | Mehr > Folienmaster aus Datei ersetzen…            | Ersetzt den aktuellen Folienmaster (Templates und Design) in der Präsentation durch den Folienmaster aus der gewählten Datei. |
 | Mehr > Agenda-Textbox einfügen                     | Standard Agenda-Textbox einfügen, um daraus eine aktualisierbare Agenda zu generieren. |
-| Mehr > Agenda neu erstellen                        | Neue Agenda auf Basis des aktuellen Slides erstellen. Aktuelles Slide wird Master-Slide der Agenda. |
-| Mehr > Agenda aktualisieren                        | Agenda aktualisieren und durch Agenda auf dem Agenda-Master-Slide ersetzen; Folien werden dabei neu erstellt. |
+| Mehr > Agenda neu erstellen                        | Neue Agenda auf Basis der aktuellen Folie erstellen. Aktuelle Folien wird Hauptfolie der Agenda. |
+| Mehr > Agenda aktualisieren                        | Agenda aktualisieren und durch Agenda auf dem Agenda-Hauptfolie ersetzen; Folien werden dabei neu erstellt. |
 | Mehr > Agenda-Einstellungen                        |                                                    |
 | Mehr > Agenda-Einstellungen > Agenda-Slides für Unterpunkte | Für Unterpunkte eines Agendapunkts (Indent-Level>1) werden Agenda-Slides erstellt |
 | Mehr > Agenda-Einstellungen > Andere Agenda-Unterpunkte ausblenden | Unterpunkte eines Agendapunkts (Indent-Level>1) werden in den anderen Abschnitten ausgeblendet |
@@ -97,6 +101,7 @@
 | Mehr > Foliennummerierung ein-/ausblenden          | Füge Foliennummerierungen ein, welche sich bei Umsortierung der Folien nicht ändern.<br><br>Hilfreich bei der Erfassung von Anmerkungen, wenn man während einer Diskussion des Foliensatzes Umsortierungen durchführt. |
 | Mehr > Ausgewählte Folien speichern                | Speichert die ausgewählten Folien in einer neuen Präsentation, als PDF-Datei oder in PNG-Bilder. |
 | Mehr > Ausgewählte Folien senden                   | Sendet die ausgewählten Folien als Email-Anhang, wahlweise auch als PDF-Datei. |
+| Mehr > Ausgewählte Folien angleichen               | Gleicht alle Shapes auf den Folien der ersten selektierten Folie an anhand des Shape-Namens. Die Funktion ist nützlich wenn man ein Template erstellt, die mehrfach dupliziert und Änderungen danach synchronisieren möchte |
 | Mehr > Slidedeck aufräumen…                        | Zeigt Dialog zur Auswahl der anzuwendenden Funktionen. |
 | Mehr > Slidedeck aufräumen                         | Funktionen zum Aufräumen aller Folien der Präsentation |
 | Mehr > Slidedeck aufräumen > Funktionen auswählen… | Zeigt Dialog zur Auswahl der anzuwendenden Funktionen. |
@@ -130,7 +135,7 @@
 | Mehr > Farbe/Graustufen > *Graustufe*              | Diese Präsentation in Graustufen anzeigen und anpassen, wie die Farben in Graustufen übersetzt werden. |
 | Mehr > Farbe/Graustufen > *Schwarzweiß*            | Diese Präsentation in Schwarzweiß anzeigen und anpassen, wie die Farben in Schwarzweiß übersetzt werden. |
 | Mehr > *Führungslinien*                            | Anpassbare Zeichnungslinien anzeigen, an denen Objekte auf der Folie ausgerichtet werden können. |
-| Mehr > Master-Shapes ein-/ausblenden               | Alle Shapes im Folienmaster ein- und ausblenden, um ungestört und vertraulich an Folien arbeiten zu können. |
+| Mehr > Template-Shapes ein-/ausblenden             | Alle Shapes im Folienmaster ein- und ausblenden, um ungestört und vertraulich an Folien arbeiten zu können. |
 | Mehr > Im Explorer öffnen                          | Ordner der aktuellen Präsentation im Explorer öffnen. |
 | Mehr > Im Fenster starten                          | Startet eine Bilschirmpräsentation im Fenster beginnend mit der aktuellen Folie und aktiviertem Laserpointer. |
 | Mehr > Im Vollbild starten                         | Startet eine Bilschirmpräsentation im Vollbild beginnend mit der aktuellen Folie und aktiviertem Laserpointer. |
@@ -138,17 +143,7 @@
 
 ### Schriftart
 
-<img src="documentation/groups/GroupFont.jpg">
-
-
-### Absatz
-
-<img src="documentation/groups/GroupParagraph.jpg">
-
-
-### Schriftart/Text
-
-<img src="documentation/groups/bkt_text_compact_group.jpg">
+<img src="documentation/groups/bkt_compact_font_group.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -165,6 +160,14 @@
 | *Schriftgrad verkleinern*                          | Ihren Text ein bisschen verkleinern.               |
 | *Hochgestellt*                                     | Geben Sie kleine Buchstaben oberhalb der Textzeile ein. |
 | *Tiefgestellt*                                     | Geben Sie kleine Buchstaben unterhalb der Textzeile ein. |
+
+
+### Absatz
+
+<img src="documentation/groups/bkt_compact_paragraph_group.jpg">
+
+| Name                                               | Beschreibung                                       |
+| -------------------------------------------------- | -------------------------------------------------- |
 | *Aufzählungszeichen*                               | Erstellen Sie eine Aufzählung.<br><br>Klicken Sie auf den Pfeil, um das Aussehen der Aufzählungszeichen zu ändern. |
 | *Nummerierung*                                     | Erstellen Sie eine nummerierte Liste.<br><br>Klicken Sie auf den Pfeil, um weitere Nummerierungsformate anzuzeigen. |
 | *Einzug verkleinern*                               | Den Einzug verkleinern.                            |
@@ -338,6 +341,7 @@
 | -------------------------------------------------- | -------------------------------------------------- |
 | *Höhe:*                                            | Die Höhe der Form oder des Bilds ändern.           |
 | *Breite:*                                          | Die Breite der Form oder des Bilds ändern.         |
+| Seitenverhält.                                     | Wenn das Kontrollkästchen Seitenverhältnis sperren aktiviert ist, ändern sich die Einstellungen von Höhe und Breite im Verhältnis zueinander. |
 
 
 ### Anordnen
@@ -352,14 +356,14 @@
 | Gleiche Höhe Menü > Gleiche Höhe wie niedrigstes Shape [Shift] | Normiere die Höhe der markierten Shapes, entsprechend der Höhe des niedrigsten Shapes. |
 | Gleiche Höhe Menü > Gleiche Höhe wie Median der Shape-Höhen | Normiere die Höhe der markierten Shapes, entsprechend des Medians der Höhen der Shapes. |
 | Gleiche Höhe Menü > Gleiche Höhe wie Mittelwert der Shape-Höhen | Normiere die Höhe der markierten Shapes, entsprechend des Mittelwers der Höhen der Shapes. |
-| Gleiche Höhe Menü > Gleiche Höhe wie Master-Shape [Strg] | Normiere die Höhe der markierten Shapes, entsprechend der Höhe des Master-Shapes (also zuletzt bzw. zuerst markiertes Shape). |
+| Gleiche Höhe Menü > Gleiche Höhe wie Referenzshape [Strg] | Normiere die Höhe der markierten Shapes, entsprechend der Höhe des Referenzshapes (also zuletzt bzw. zuerst markiertes Shape). |
 | Gleiche Breite                                     | Normiere die Breite der markierten Shapes, entsprechend der Breite des breitesten Shapes.<br>Bei gedrückter Shift-Taste entsprechend des schmalsten Shapes.<br>Bei gedrückter Strg-Taste entsprechend des zuletzt markierten Shapes. |
 | Gleiche Breite Menü                                | Mehrere Shapes auf verschiedene Weise auf die gleiche Breite setzen |
 | Gleiche Breite Menü > Gleiche Breite wie breitestes Shape | Normiere die Breite der markierten Shapes, entsprechend der Breite des breitesten Shapes. |
 | Gleiche Breite Menü > Gleiche Breite wie schmalstes Shape [Shift] | Normiere die Breite der markierten Shapes, entsprechend der Breite des schmalsten Shapes. |
 | Gleiche Breite Menü > Gleiche Breite wie Median der Shape-Breiten | Normiere die Breite der markierten Shapes, entsprechend des Medians der Breiten der Shapes. |
 | Gleiche Breite Menü > Gleiche Breite wie Mittelwert der Shape-Breiten | Normiere die Breite der markierten Shapes, entsprechend des Mittelwerts der Breiten der Shapes. |
-| Gleiche Breite Menü > Gleiche Breite wie Master-Shape [Strg] | Normiere die Breite der markierten Shapes, entsprechend der Breite des Master-Shapes (also zuletzt bzw. zuerst markiertes Shape). |
+| Gleiche Breite Menü > Gleiche Breite wie Referenzshape [Strg] | Normiere die Breite der markierten Shapes, entsprechend der Breite des Referenzshapes (also zuletzt bzw. zuerst markiertes Shape). |
 | Tauschen                                           | Tausche die Position (left/top) der markierten Shapes. |
 | Tauschen Menü                                      | Funktionen zum Tauschen von Shape-Position, -Größe oder Formatierung |
 | Tauschen Menü > Tausche Position                   | Tausche die Position (left/top) der markierten Shapes. |
@@ -369,7 +373,7 @@
 | Tauschen Menü > Tausche y-Position                 | Tausche die y-Position (Abstand vom oberen Folienrand) der markierten Shapes. |
 | Tauschen Menü > Tausche Z-Order                    | Tausche die Z-Order-Position der markierten Shapes. |
 | Tauschen Menü > Tausche Formatierung               | Tausche die Formatierung (Farbe, Rahmen, Schrift, ...) der markierten Shapes. |
-| Tauschen Menü > Ersetzen und Größe erhalten        | Zuletzt gewähltes Shape mit zuerst gewähltem Shape ersetzen und dabei die Größe vom Original-Shape erhalten. |
+| Tauschen Menü > Ersetzen und Größe erhalten        | Zuerst gewähltes Shape ersetzt alle anderen gewählten Shapes, wobei jeweils die Position und Größe der ersetzten Shapes erhalten bleibt. |
 | *Linksbündig*                                      |                                                    |
 | *Rechtsbündig*                                     |                                                    |
 | *Horizontal zentrieren*                            |                                                    |
@@ -406,6 +410,7 @@
 | Mehr > Shape auf Folgefolien kopieren und verknüpfen… | Dupliziert das aktuelle Shapes auf alle Folien hinter der aktuellen Folie und verknüpft diese für zukünftige Operationen. |
 | Mehr > Shape auf Folgefolien suchen und verknüpfen… | Sucht das aktuelle Shape auf allen Folien hinter der aktuellen Folie anhand Position und Größe und verknüpft diese miteinander. |
 | Mehr > Ausgewählte Shapes miteinander verknüpfen   | Die ausgewählten Shapes für zukünftige Operationen verknüpfen. Die Verknüpfung bleibt beim Kopieren der Shapes erhalten. |
+| Mehr > Ausgewählte Shapes einzeln in Verknüpfung umwandeln | Die ausgewählten Shapes bekommen jeweils eine interne Verknüpfungs-ID. Die Verknüpfung bleibt beim Kopieren der Shapes erhalten. |
 | Mehr > Bestehende Shape-Verknüpfung erweitern      | Um die bestehende Shape-Verknüpfung zu erweitern, wird die interne ID zwischengespeichert. Über 'Ausgewählte Shapes zur Verknüpfung hinzufügen' können dann weitere Shapes zur Verknüpfung hinzugefügt werden. |
 | Mehr > Ausgewählte Shapes zur Verknüpfung hinzufügen | Ausgewählte Shapes zur zwischengespeicherten ID hinzufügen. Vorher muss eine neue Verknüpfung angelegt oder eine bestehende erweitert werden. |
 | Mehr > Einzelne Shape-Verknüpfung entfernen        | Entfernt die ID zur Verknüpfung vom aktuellen Shape. Alle anderen Shapes mit der gleichen ID bleiben verknüpft. |
@@ -423,7 +428,7 @@
 | Hintergrund-Menü > *In den Hintergrund*            | Stellen Sie das ausgewählte Objekt hinter alle anderen Objekte in den Hintergrund. |
 | Hintergrund-Menü > *Ebene nach hinten*             | Verschieben Sie das ausgewählte Objekt eine Ebene nach hinten, sodass es von mehr Objekten verdeckt wird. |
 | Hintergrund-Menü > Vordere nach hinten             | Bringt alle vordere Shapes genau hinter das hinterste Shape |
-| Auf Tabelle/Absatz/Shapes anordnen                 | Bei Markierung von Tabellen und Shapes:<br>Ordne jedes Shape, das über einer (ebenfalls selektierten) Tabelle liegt, innerhalb der nächst-liegenden Tabellenzelle an. Die Zelle wird anhand des Shape-Mittelpunkts bestimmt.<br><br>Bei Markierung von Shapes:<br>Ordne jedes Shape, das vollständig über einem anderen (ebenfalls selektierten) Shapes (=Mastershape) liegt, in dem nächstliegenden Textabsatz im Mastershape an. Sind weniger as 2 Textabsätze vorhanden, wird innerhalb des gesamten Shapes angeordnet. |
+| Auf Tabelle/Absatz/Shapes anordnen                 | Bei Markierung von Tabellen und Shapes:<br>Ordne jedes Shape, das über einer (ebenfalls selektierten) Tabelle liegt, innerhalb der nächst-liegenden Tabellenzelle an. Die Zelle wird anhand des Shape-Mittelpunkts bestimmt.<br><br>Bei Markierung von Shapes:<br>Ordne jedes Shape, das vollständig über einem anderen (ebenfalls selektierten) Shapes (=Referenzshape) liegt, in dem nächstliegenden Textabsatz im Referenzshape an. Sind weniger as 2 Textabsätze vorhanden, wird innerhalb des gesamten Shapes angeordnet. |
 | Auf Tabelle/Absatz/Shapes anordnen Menü            | Einstellungen für das Anordnen auf Tabellen, Absätzen oder Shapes |
 | Auf Tabelle/Absatz/Shapes anordnen Menü > Automatisch anordnen | Automatische Auswahl der Anordnungsfunktionen (Tabellenzellen/Absätzen/Shapes) |
 | Auf Tabelle/Absatz/Shapes anordnen Menü > Anordnung anpassen | Auswahl der horizontalen und vertikalen Anordnung. |
@@ -438,27 +443,27 @@
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
-| Links an Links                                     | Ausrichtung der linken Kante an der linken Kante des Mastershapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Rechts an Rechts                                   | Ausrichtung der rechten Kante an der rechten Kante des Mastershapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Mitte an Mitte                                     | Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.<br>(kein Abstand)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Oben an Oben                                       | Ausrichtung der oberen Kante an der oberen Kante des Mastershapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Unten an Unten                                     | Ausrichtung der unteren Kante an der unteren Kante des Mastershapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Mitte an Mitte                                     | Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.<br>(kein Abstand)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Position                                           | Shapes erhalten die gleiche Position wie das Master-Shape. |
-| Größe                                              | Shapes erhalten die gleiche Größe wie das Master-Shape. |
-| Master                                             | Bei Aktivierung werden anschließend alle Shapes am selektierten Shape (Mastershape) ausgerichtet. Ist bei Aktivierung kein Shape selektiert, erfolgt die Ausrichtung am Inhaltsbereich. |
-| Master-Menü                                        | Festlegen an welchem Referenz-Objekt die Shapes ausgerichtet werden wollen |
-| Master-Menü > Automatische Masterwahl              | Macht das zuerst ausgewählte Shape zum Mastershape. Ist kein Shape markiert, wird der Inhaltsbereich als Master verwendet. |
-| Master-Menü > …an erstem Shape                     | Shapes werden am zuerst selektierten Shape in der Selektion ausgerichtet. |
-| Master-Menü > …an letztem Shape                    | Shapes werden am zuletzt selektierten Shape in der Selektion ausgerichtet. |
-| Master-Menü > …an äußerstem Shape (PPT-Standard)   | Shapes werden am äußersten selektierten Shape in der Selektion ausgerichtet. |
-| Master-Menü > Indikator an Master-Shape            | Werden mind. zwei Shapes ausgewählt wird ein kleiner Indikator mit dem Text 'Master' an der unteren linken Ecke des Master-Shape (erstes bzw. letztes) angezeigt. |
-| Master-Menü > Shape                                | Das selektierten Shape wird als Mastershape festgelegt. Shapes werden am Mastershape ausgerichtet.  |
-| Master-Menü > Folie                                | Shapes werden an der Folie ausgerichtet.           |
-| Master-Menü > Inhaltsbereich [STRG]                | Shapes werden am Inhaltsbereich ausgerichtet.<br><br>Der Inhaltsbereich entspricht der Fläche des Text-Platzhalters auf dem Master-Slide.<br><br>Mit STRG-Taste wird dieser Master temporär aktiviert. |
-| Master-Menü > Benutzerdef. Bereich                 | Shapes werden an einem festgelegten Bereich ausgerichtet, der zuvor durch den Benutzer definiert wird. |
-| Master-Menü > Benutzerdef. Bereich wählen          | Positioniere die ausgewählten Shapes auf eine Standardposition. |
-| Master-Menü > Benutzerdef. Bereich wählen > Benutzerdef. Bereich festlegen | Der benutzerdefinierte Bereich wird anhand des gewählten Shapes festgelegt. Dieser Bereich ist anschließend über die Gallery wählbar und wird dauerhaft in der aktuellen Prästentation vorgehalten. |
+| Links an Links                                     | Ausrichtung der linken Kante an der linken Kante des Referenzshapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Rechts an Rechts                                   | Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Mitte an Mitte                                     | Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.<br>(kein Abstand)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Oben an Oben                                       | Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Unten an Unten                                     | Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Mitte an Mitte                                     | Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.<br>(kein Abstand)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Position                                           | Shapes erhalten die gleiche Position wie das Referenzshape. |
+| Größe                                              | Shapes erhalten die gleiche Größe wie das Referenzshape. |
+| Referenz                                           | Bei Aktivierung werden anschließend alle Shapes am selektierten Shape (Referenzshape) ausgerichtet. Ist bei Aktivierung kein Shape selektiert, erfolgt die Ausrichtung am Inhaltsbereich. |
+| Referenz-Menü                                      | Festlegen an welchem Referenz-Objekt die Shapes ausgerichtet werden wollen |
+| Referenz-Menü > Automatische Referenzwahl          | Macht das zuerst ausgewählte Shape zum Referenzshape. Ist kein Shape markiert, wird der Inhaltsbereich als Referenz verwendet. |
+| Referenz-Menü > …an erstem Shape                   | Shapes werden am zuerst selektierten Shape in der Selektion ausgerichtet. |
+| Referenz-Menü > …an letztem Shape                  | Shapes werden am zuletzt selektierten Shape in der Selektion ausgerichtet. |
+| Referenz-Menü > …an äußerstem Shape (PPT-Standard) | Shapes werden am äußersten selektierten Shape in der Selektion ausgerichtet. |
+| Referenz-Menü > Indikator an Referenzshape         | Werden mind. zwei Shapes ausgewählt wird ein kleiner Indikator mit dem Text 'Referenz' an der unteren linken Ecke des Referenzshape (erstes bzw. letztes) angezeigt. |
+| Referenz-Menü > Shape                              | Das selektierten Shape wird als Referenzshape festgelegt. Shapes werden am Referenzshape ausgerichtet.  |
+| Referenz-Menü > Folie                              | Shapes werden an der Folie ausgerichtet.           |
+| Referenz-Menü > Inhaltsbereich [STRG]              | Shapes werden am Inhaltsbereich ausgerichtet.<br><br>Der Inhaltsbereich entspricht der Fläche des Text-Platzhalters auf dem Referenzfolie.<br><br>Mit STRG-Taste wird dieser Master temporär aktiviert. |
+| Referenz-Menü > Benutzerdef. Bereich               | Shapes werden an einem festgelegten Bereich ausgerichtet, der zuvor durch den Benutzer definiert wird. |
+| Referenz-Menü > Benutzerdef. Bereich wählen        | Positioniere die ausgewählten Shapes auf eine Standardposition. |
+| Referenz-Menü > Benutzerdef. Bereich wählen > Benutzerdef. Bereich festlegen | Der benutzerdefinierte Bereich wird anhand des gewählten Shapes festgelegt. Dieser Bereich ist anschließend über die Gallery wählbar und wird dauerhaft in der aktuellen Prästentation vorgehalten. |
 
 
 ### Abstand/Rotation
@@ -495,7 +500,7 @@
 | Rotation und Spiegelung Menü > Auf 180 Grad setzen | Shape-Rotation aller gewählten Shapes auf 180 Grad setzen |
 | Rotation und Spiegelung Menü > Horizontal gespiegelt an/aus | Aktiviert, wenn das erste gewählte Shape horizontal gespiegelt ist |
 | Rotation und Spiegelung Menü > Vertikal gespiegelt an/aus | Aktiviert, wenn das erste gewählte Shape vertikal gespiegelt ist |
-| Rotation und Spiegelung Menü > *Weitere Drehungsoptionen...* |                                                    |
+| Rotation und Spiegelung Menü > *Weitere Drehungsoptionen...* |                                                    |                                                    |
 
 
 ### Textfeld Innenabstand
@@ -608,13 +613,14 @@
 | Sperren                                            |                                                    |
 | Sperren > Seitenverhältnis sperren an/aus          | Wenn das Kontrollkästchen Seitenverhältnis sperren aktiviert ist, ändern sich die Einstellungen von Höhe und Breite im Verhältnis zueinander. |
 | Sperren > Setzen auf 1:1 (1)                       |                                                    |
-| Sperren > Setzen auf 3:2 (1,5)                     |                                                    |
-| Sperren > Setzen auf 4:3 (1,333)                   |                                                    |
-| Sperren > Setzen auf 13:9 (1,444)                  |                                                    |
-| Sperren > Setzen auf 15:10 (1,5)                   |                                                    |
-| Sperren > Setzen auf 16:9 (1,778)                  |                                                    |
+| Sperren > Setzen auf 3:2 (1.5)                     |                                                    |
+| Sperren > Setzen auf 4:3 (1.333)                   |                                                    |
+| Sperren > Setzen auf 13:9 (1.444)                  |                                                    |
+| Sperren > Setzen auf 15:10 (1.5)                   |                                                    |
+| Sperren > Setzen auf 16:9 (1.778)                  |                                                    |
 | Sperren > Tauschen                                 | Vertauscht Breite und Größe und dreht damit das Seitenverhältnis um. |
 | Sperren > Zurücksetzen                             | Setzt das Seitenverhältnis auf den Ursprungszustand zurück. |
+| Seitenv.                                           | Wenn das Kontrollkästchen Seitenverhältnis sperren aktiviert ist, ändern sich die Einstellungen von Höhe und Breite im Verhältnis zueinander. |
 | Position von oben                                  | Änderung der Position von oben.<br><br>Bei gedrückter STRG-Taste Veränderung um 0,1 cm statt 0,2 cm.<br><br>Bei gedrückter ALT-Taste Veränderung relativ je Shape (wenn mehrere Shapes ausgewählt sind). |
 | Position von oben                                  | Änderung der Position von oben.<br><br>Bei gedrückter STRG-Taste Veränderung um 0,1 cm statt 0,2 cm.<br><br>Bei gedrückter ALT-Taste Veränderung relativ je Shape (wenn mehrere Shapes ausgewählt sind). |
 | Position von oben > Visuelle Position              | Visuelle Position unter Berücksichtigung der Rotation verwenden |
@@ -631,6 +637,10 @@
 | Z-Order > *In den Hintergrund*                     | Stellen Sie das ausgewählte Objekt hinter alle anderen Objekte in den Hintergrund. |
 | Z-Order > Vordere nach hinten                      | Bringt alle vordere Shapes genau hinter das hinterste Shape |
 | Z-Order > Hintere nach vorne                       | Bringt alle hinteren Shapes genau vor das vorderste Shape |
+| Z-Order > Oben nach unten                          | Sortiert die Z-Order von oben nach unten, sodass das unterste Shape das vorderste wird |
+| Z-Order > Unten nach oben                          | Sortiert die Z-Order von unten nach oben, sodass das oberste Shape das vorderste wird |
+| Z-Order > Links nach rechts                        | Sortiert die Z-Order von links nach rechts, sodass das rechte Shape das vorderste wird |
+| Z-Order > Rechts nach links                        | Sortiert die Z-Order von rechts nach links, sodass das linke Shape das vorderste wird |
 
 
 ### Erweitertes Anordnen
@@ -639,42 +649,42 @@
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
-| Links an Links                                     | Ausrichtung der linken Kante an der linken Kante des Mastershapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Mitte an Links                                     | Ausrichtung der Shapemitte an der linken Kante des Mastershapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Rechts an Links                                    | Ausrichtung der rechten Kante an der linken Kante des Mastershapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Links an Mitte                                     | Ausrichtung der linken Kante an der Shapemitte des Mastershapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Mitte an Mitte                                     | Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.<br>(kein Abstand)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Rechts an Mitte                                    | Ausrichtung der rechten Kante an der Shapemitte des Mastershapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Links an Rechts                                    | Ausrichtung der linken Kante an der rechten Kante des Mastershapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Mitte an Rechts                                    | Ausrichtung der Shapemitte an der rechten Kante des Mastershapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Rechts an Rechts                                   | Ausrichtung der rechten Kante an der rechten Kante des Mastershapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Oben an oben                                       | Ausrichtung der oberen Kante an der oberen Kante des Mastershapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Mitte an Oben                                      | Ausrichtung der Shapemitte an der oberen Kante des Mastershapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Unten an Oben                                      | Ausrichtung der unteren Kante an der oberen Kante des Mastershapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Oben an Mitte                                      | Ausrichtung der oberen Kante an der Shapemitte des Mastershapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Mitte an Mitte                                     | Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.<br>(kein Abstand)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Unten an Mitte                                     | Ausrichtung der unteren Kante an der Shapemitte des Mastershapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Oben an Unten                                      | Ausrichtung der oberen Kante an der unteren Kante des Mastershapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Mitte an Unten                                     | Ausrichtung der Shapemitte an der unteren Kante des Mastershapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Unten an Unten                                     | Ausrichtung der unteren Kante an der unteren Kante des Mastershapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
-| Ausrichtungsabstand                                | Eingestellter Abstand wird bei der Ausrichtung von Shapes links/rechts berücksichtigt.<br><br>Der Abstand wird addiert: bei Ausrichtung der linken/oberen Kante (des zu verschiebenden Shapes) und bei Ausrichtung der Shape-Mitte an der linken/oberen Kante des Mastershapes.<br><br>Der Abstand wird subtrahiert: bei Ausrichtung der rechten/unteren Kante (des zu verschiebenden Shapes) und bei Ausrichtung der Shape-Mitte an der rechten/unteren Kante des Mastershapes. |
+| Links an Links                                     | Ausrichtung der linken Kante an der linken Kante des Referenzshapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Mitte an Links                                     | Ausrichtung der Shapemitte an der linken Kante des Referenzshapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Rechts an Links                                    | Ausrichtung der rechten Kante an der linken Kante des Referenzshapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Links an Mitte                                     | Ausrichtung der linken Kante an der Shapemitte des Referenzshapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Mitte an Mitte                                     | Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.<br>(kein Abstand)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Rechts an Mitte                                    | Ausrichtung der rechten Kante an der Shapemitte des Referenzshapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Links an Rechts                                    | Ausrichtung der linken Kante an der rechten Kante des Referenzshapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Mitte an Rechts                                    | Ausrichtung der Shapemitte an der rechten Kante des Referenzshapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Rechts an Rechts                                   | Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Oben an oben                                       | Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Mitte an Oben                                      | Ausrichtung der Shapemitte an der oberen Kante des Referenzshapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Unten an Oben                                      | Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Oben an Mitte                                      | Ausrichtung der oberen Kante an der Shapemitte des Referenzshapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Mitte an Mitte                                     | Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.<br>(kein Abstand)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Unten an Mitte                                     | Ausrichtung der unteren Kante an der Shapemitte des Referenzshapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Oben an Unten                                      | Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes.<br>(Abstand wird addiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Mitte an Unten                                     | Ausrichtung der Shapemitte an der unteren Kante des Referenzshapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Unten an Unten                                     | Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes.<br>(Abstand wird subtrahiert)<br><br>Mit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt. |
+| Ausrichtungsabstand                                | Eingestellter Abstand wird bei der Ausrichtung von Shapes links/rechts berücksichtigt.<br><br>Der Abstand wird addiert: bei Ausrichtung der linken/oberen Kante (des zu verschiebenden Shapes) und bei Ausrichtung der Shape-Mitte an der linken/oberen Kante des Referenzshapes.<br><br>Der Abstand wird subtrahiert: bei Ausrichtung der rechten/unteren Kante (des zu verschiebenden Shapes) und bei Ausrichtung der Shape-Mitte an der rechten/unteren Kante des Referenzshapes. |
 | Bewegen                                            | Gewünschte Shape-Anordnung wird durch Positionierung von Shapes erreicht |
 | Dehnen/Stauchen [SHIFT]                            | Gewünschte Shape-Anordnung wird durch Verkleinerung/Vergrößerung von Shapes erreicht |
-| Master                                             | Bei Aktivierung werden anschließend alle Shapes am selektierten Shape (Mastershape) ausgerichtet. Ist bei Aktivierung kein Shape selektiert, erfolgt die Ausrichtung am Inhaltsbereich. |
-| Master-Menü                                        | Festlegen an welchem Referenz-Objekt die Shapes ausgerichtet werden wollen |
-| Master-Menü > Automatische Masterwahl              | Macht das zuerst ausgewählte Shape zum Mastershape. Ist kein Shape markiert, wird der Inhaltsbereich als Master verwendet. |
-| Master-Menü > …an erstem Shape                     | Shapes werden am zuerst selektierten Shape in der Selektion ausgerichtet. |
-| Master-Menü > …an letztem Shape                    | Shapes werden am zuletzt selektierten Shape in der Selektion ausgerichtet. |
-| Master-Menü > …an äußerstem Shape (PPT-Standard)   | Shapes werden am äußersten selektierten Shape in der Selektion ausgerichtet. |
-| Master-Menü > Indikator an Master-Shape            | Werden mind. zwei Shapes ausgewählt wird ein kleiner Indikator mit dem Text 'Master' an der unteren linken Ecke des Master-Shape (erstes bzw. letztes) angezeigt. |
-| Master-Menü > Shape                                | Das selektierten Shape wird als Mastershape festgelegt. Shapes werden am Mastershape ausgerichtet.  |
-| Master-Menü > Folie                                | Shapes werden an der Folie ausgerichtet.           |
-| Master-Menü > Inhaltsbereich [STRG]                | Shapes werden am Inhaltsbereich ausgerichtet.<br><br>Der Inhaltsbereich entspricht der Fläche des Text-Platzhalters auf dem Master-Slide.<br><br>Mit STRG-Taste wird dieser Master temporär aktiviert. |
-| Master-Menü > Benutzerdef. Bereich                 | Shapes werden an einem festgelegten Bereich ausgerichtet, der zuvor durch den Benutzer definiert wird. |
-| Master-Menü > Benutzerdef. Bereich wählen          | Positioniere die ausgewählten Shapes auf eine Standardposition. |
-| Master-Menü > Benutzerdef. Bereich wählen > Benutzerdef. Bereich festlegen | Der benutzerdefinierte Bereich wird anhand des gewählten Shapes festgelegt. Dieser Bereich ist anschließend über die Gallery wählbar und wird dauerhaft in der aktuellen Prästentation vorgehalten. |
-| Position                                           | Shapes erhalten die gleiche Position wie das Master-Shape. |
-| Größe                                              | Shapes erhalten die gleiche Größe wie das Master-Shape. |
+| Referenz                                           | Bei Aktivierung werden anschließend alle Shapes am selektierten Shape (Referenzshape) ausgerichtet. Ist bei Aktivierung kein Shape selektiert, erfolgt die Ausrichtung am Inhaltsbereich. |
+| Referenz-Menü                                      | Festlegen an welchem Referenz-Objekt die Shapes ausgerichtet werden wollen |
+| Referenz-Menü > Automatische Referenzwahl          | Macht das zuerst ausgewählte Shape zum Referenzshape. Ist kein Shape markiert, wird der Inhaltsbereich als Referenz verwendet. |
+| Referenz-Menü > …an erstem Shape                   | Shapes werden am zuerst selektierten Shape in der Selektion ausgerichtet. |
+| Referenz-Menü > …an letztem Shape                  | Shapes werden am zuletzt selektierten Shape in der Selektion ausgerichtet. |
+| Referenz-Menü > …an äußerstem Shape (PPT-Standard) | Shapes werden am äußersten selektierten Shape in der Selektion ausgerichtet. |
+| Referenz-Menü > Indikator an Referenzshape         | Werden mind. zwei Shapes ausgewählt wird ein kleiner Indikator mit dem Text 'Referenz' an der unteren linken Ecke des Referenzshape (erstes bzw. letztes) angezeigt. |
+| Referenz-Menü > Shape                              | Das selektierten Shape wird als Referenzshape festgelegt. Shapes werden am Referenzshape ausgerichtet.  |
+| Referenz-Menü > Folie                              | Shapes werden an der Folie ausgerichtet.           |
+| Referenz-Menü > Inhaltsbereich [STRG]              | Shapes werden am Inhaltsbereich ausgerichtet.<br><br>Der Inhaltsbereich entspricht der Fläche des Text-Platzhalters auf dem Referenzfolie.<br><br>Mit STRG-Taste wird dieser Master temporär aktiviert. |
+| Referenz-Menü > Benutzerdef. Bereich               | Shapes werden an einem festgelegten Bereich ausgerichtet, der zuvor durch den Benutzer definiert wird. |
+| Referenz-Menü > Benutzerdef. Bereich wählen        | Positioniere die ausgewählten Shapes auf eine Standardposition. |
+| Referenz-Menü > Benutzerdef. Bereich wählen > Benutzerdef. Bereich festlegen | Der benutzerdefinierte Bereich wird anhand des gewählten Shapes festgelegt. Dieser Bereich ist anschließend über die Gallery wählbar und wird dauerhaft in der aktuellen Prästentation vorgehalten. |
+| Position                                           | Shapes erhalten die gleiche Position wie das Referenzshape. |
+| Größe                                              | Shapes erhalten die gleiche Größe wie das Referenzshape. |
 
 
 ### Einfaches Anordnen
@@ -683,24 +693,24 @@
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
-| Links an Links                                     | Ausrichtung der linken Kante an der linken Kante des Mastershapes. |
-| Rechts an Rechts                                   | Ausrichtung der rechten Kante an der rechten Kante des Mastershapes. |
-| Mitte an Mitte                                     | Ausrichtung der Shapemitte an der Shapemitte des Mastershapes. |
-| Oben an oben                                       | Ausrichtung der oberen Kante an der oberen Kante des Mastershapes. |
-| Unten an Unten                                     | Ausrichtung der unteren Kante an der unteren Kante des Mastershapes. |
-| Mitte an Mitte                                     | Ausrichtung der Shapemitte an der Shapemitte des Mastershapes. |
-| Links an Rechts                                    | Ausrichtung der linken Kante an der rechten Kante des Mastershapes. |
-| Rechts an Links                                    | Ausrichtung der rechten Kante an der linken Kante des Mastershapes. |
-| Unten an Oben                                      | Ausrichtung der unteren Kante an der oberen Kante des Mastershapes. |
-| Oben an Unten                                      | Ausrichtung der oberen Kante an der unteren Kante des Mastershapes. |
-| Links an Links                                     | Ausrichtung der linken Kante an der linken Kante des Mastershapes. |
-| Rechts an Rechts                                   | Ausrichtung der rechten Kante an der rechten Kante des Mastershapes. |
-| Oben an oben                                       | Ausrichtung der oberen Kante an der oberen Kante des Mastershapes. |
-| Unten an Unten                                     | Ausrichtung der unteren Kante an der unteren Kante des Mastershapes. |
-| Links an Rechts                                    | Ausrichtung der linken Kante an der rechten Kante des Mastershapes. |
-| Rechts an Links                                    | Ausrichtung der rechten Kante an der linken Kante des Mastershapes. |
-| Unten an Oben                                      | Ausrichtung der unteren Kante an der oberen Kante des Mastershapes. |
-| Oben an Unten                                      | Ausrichtung der oberen Kante an der unteren Kante des Mastershapes. |
+| Links an Links                                     | Ausrichtung der linken Kante an der linken Kante des Referenzshapes. |
+| Rechts an Rechts                                   | Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes. |
+| Mitte an Mitte                                     | Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes. |
+| Oben an oben                                       | Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes. |
+| Unten an Unten                                     | Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes. |
+| Mitte an Mitte                                     | Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes. |
+| Links an Rechts                                    | Ausrichtung der linken Kante an der rechten Kante des Referenzshapes. |
+| Rechts an Links                                    | Ausrichtung der rechten Kante an der linken Kante des Referenzshapes. |
+| Unten an Oben                                      | Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes. |
+| Oben an Unten                                      | Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes. |
+| Links an Links                                     | Ausrichtung der linken Kante an der linken Kante des Referenzshapes. |
+| Rechts an Rechts                                   | Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes. |
+| Oben an oben                                       | Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes. |
+| Unten an Unten                                     | Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes. |
+| Links an Rechts                                    | Ausrichtung der linken Kante an der rechten Kante des Referenzshapes. |
+| Rechts an Links                                    | Ausrichtung der rechten Kante an der linken Kante des Referenzshapes. |
+| Unten an Oben                                      | Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes. |
+| Oben an Unten                                      | Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes. |
 
 
 ### Erw. Pos.
@@ -734,6 +744,8 @@
 | Einzug links                                       | Ändere den linken Absatzeinzug auf das angegebene Maß (in cm). |
 | Einzug rechts                                      | Ändere den rechten Absatzeinzug auf das angegebene Maß (in cm). |
 | Zeilenabstand                                      | Ändere den Zeilenabstand (entweder in Abstand Zeilen oder in pt). |
+| WordWrap                                           | Konfiguriere die Textoption auf 'Text in Form umbrechen'. |
+| AutoSize                                           | Konfiguriere die Textoption auf 'Größe der Form dem Text anpassen' bzw. 'Größe nicht automatisch anpassen'. |
 
 
 ### Format
@@ -790,6 +802,7 @@
 | Farbe ändern > Farbe 1 (Hintergrund) ändern > Kein Hintergrund | Wechsel-Shape Hintergrundfarbe auf transparent setzen |
 | Farbe ändern > Farbe 2 (Vordergrund) ändern        | Passt die Vordergrundfarbe aller Shapes im Wechsel-Shape an. Die Vordergrundfarbe ist jede Farbe ungleich der Hintergrundfarbe. |
 | Farbe ändern > Linie ändern                        | Passt die Linienfarbe aller Shapes im Wechsel-Shape an, die der ersten gefundenen Linienfarbe entsprechen. |
+| Farbe ändern > Linie ändern > Keine Linie          | Wechsel-Shape Linie auf transparent setzen         |
 
 
 ### Icon-Suche
@@ -798,6 +811,7 @@
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
+| Alle Icons                                         | Zeigt Icons für verfügbare Icon-Fonts an, die als Textsymbol oder Grafik eingefügt werden können.<br><br>Hinweis: Die Icon-Fonts müssen auf dem Rechner installiert sein. |
 | Suchwort                                           | Suchwort eingeben und ENTER klicken                |
 | Suchergebnisse                                     | Zeigt die Suchergebnisse der Icon-Suche nach dem gewünschten Suchwort an |
 
@@ -827,7 +841,7 @@ Ermöglicht das Einfügen von aktualisierbaren Folien-Thumbnails. Das Feature `p
 | Aktualisieren-Menü > Thumbnails in Präsentation aktualisieren | Alle Folien-Thumbnails in der Präsentation. Das Thumbnail muss vorher mit dieser Funktion eingefügt worden sein. Stammt die Folie aus einer anderen Datei, wird diese automatisch kurzzeitig geöffnet. |
 
 
-### Notes
+### Folien-Notizen
 
 Ermöglicht das Einfügen von Bearbeitungsnotizen auf Folien. Das Feature `ppt_notes` muss installiert sein.
 
@@ -835,13 +849,13 @@ Ermöglicht das Einfügen von Bearbeitungsnotizen auf Folien. Das Feature `ppt_n
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
-| Notizen (+)                                        | Fügt eine Bearbeitungsnotiz oben rechts auf der Folie ein inkl. Autor und Datum. |
-| Notizen (I/O)                                      | Alle Notizen der aktuellen Folie temporär ausblenden und wieder einblenden. |
-| Notizen (-)                                        | Alle Notizen der aktuellen Folie entfernen.        |
-| Alle Notizen (I/O)                                 | Alle Notizen auf allen Folien temporär ausblenden und wieder einblenden. |
-| Alle Notizen (-)                                   | Alle Notizen auf allen Folien entfernen.           |
-| Farbe ändern                                       | Hintergrundfarbe für neue Bearbeitungsnotizen ändern. |
-| Farbe ändern > Standardfarbe                       | Hintergrundfarbe für Bearbeitungsnotizen auf Standard zurücksetzen. |
+| Erstellen                                          | Fügt eine Bearbeitungsnotiz oben rechts auf der Folie ein inkl. Autor und Datum. |
+| An/Aus                                             | Alle Notizen der aktuellen Folie temporär ausblenden und wieder einblenden. |
+| Löschen                                            | Alle Notizen der aktuellen Folie entfernen.        |
+| Alle an/aus                                        | Alle Notizen auf allen Folien temporär ausblenden und wieder einblenden. |
+| Alle löschen                                       | Alle Notizen auf allen Folien entfernen.           |
+| Farbe                                              | Hintergrundfarbe für neue Bearbeitungsnotizen ändern. |
+| Farbe > Standardfarbe                              | Hintergrundfarbe für Bearbeitungsnotizen auf Standard zurücksetzen. |
 
 
 ### Tabelle aus Shapes
@@ -941,15 +955,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
-| Anzahl Shapes                                      | Zählt die Anzahl der ausgewählten Shapes (inkl. Shapes innerhalb von Gruppen bzw. Zellen innerhalb von Tabellen). |
-| Ergebnis Anzahl Shapes                             |                                                    |
-| Neu laden                                          | Statistiken für aktuelle Auswahl neu berechnen     |
-| Anzahl Zahlen                                      | Zählt die Anzahl der erkennbaren Zahlen in der aktuellen Auswahl, die im Feld Summe aufsummiert angezeigt werden. |
-| Ergebnis für Anzahl Zahlen                         |                                                    |
-| Neu laden                                          | Statistiken für aktuelle Auswahl neu berechnen     |
-| Summe                                              | Summiert alle erkennbaren Zahlen in der aktuellen Auswahl. Je nach Sprache der Rechtschreibkorrektur wird Punkt oder Komma als Dezimaltrenner genommen. Negative Zahlen werden abgezogen. |
-| Ergebnis für Summe                                 |                                                    |
-| Neu laden                                          | Statistiken für aktuelle Auswahl neu berechnen     |
+| Statistik laden                                    | Öffnet einen Dialog zur Anzeige der Anzahl der markierten Shapes, Zahlen, Summe der Zahlen, Anzahl Zeichen, Wörter, Zeilen und Absätze. |
 
 
 
@@ -997,14 +1003,14 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
-| Agenda neu erstellen                               | Neue Agenda auf Basis des aktuellen Slides erstellen. Aktuelles Slide wird Master-Slide der Agenda. |
-| Agenda aktualisieren                               | Agenda aktualisieren und durch Agenda auf dem Agenda-Master-Slide ersetzen; Folien werden dabei neu erstellt. |
+| Agenda neu erstellen                               | Neue Agenda auf Basis des aktuellen Slides erstellen. Aktuelles Slide wird Hauptfolie der Agenda. |
+| Agenda aktualisieren                               | Agenda aktualisieren und durch Agenda auf dem Agenda-Hauptfolie ersetzen; Folien werden dabei neu erstellt. |
 | Optionen                                           | Verschiedene Agenda-Optionen ändern                |
 | Optionen > Agenda-Slides für Unterpunkte           | Für Unterpunkte eines Agendapunkts (Indent-Level>1) werden Agenda-Slides erstellt |
 | Optionen > Andere Agenda-Unterpunkte ausblenden    | Unterpunkte eines Agendapunkts (Indent-Level>1) werden in den anderen Abschnitten ausgeblendet |
 | Optionen > Abschnitte für Agenda-Punkte erstellen  | Einen neuen Abschnitt je Agenda-Folie beginnen.    |
 | Optionen > Hyperlinks für Agenda-Punkte erstellen  | Jeden Agenda-Punkt mit der zugehörigen Agenda-Folie verlinken. |
-| Agenda-Folien entfernen                            | Entfernt alle Agenda-Folien, die zur aktuellen Agenda gehören, außer der Master-Folie. Alle Meta-Informationen werden gelöscht. |
+| Agenda-Folien entfernen                            | Entfernt alle Agenda-Folien, die zur aktuellen Agenda gehören, außer der Hauptfolie. Alle Meta-Informationen werden gelöscht. |
 
 
 ### Agenda Selektor
@@ -1042,9 +1048,12 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
-| Verknüpfte Shapes zählen                           | Zählt die Anzahl der verknüpften Shapes auf allen Folien. |
-| Nächstes verknüpfte Shape finden                   | Sucht nach dem nächste verknüpften Shape. Sollte auf den Folgefolien kein Shape mehr kommen, wird das erste verknüpfte Shape der Präsentation gesucht. |
 | Erstes verknüpfte Shape finden                     | Sucht nach dem ersten verknüpften Shape.           |
+| Vorheriges verknüpfte Shape finden                 | Sucht nach dem vorherigen verknüpften Shape. Sollte auf den vorherigen Folien kein Shape mehr kommen, wird das letzte verknüpfte Shape der Präsentation gesucht. |
+| Nächstes verknüpfte Shape finden                   | Sucht nach dem nächste verknüpften Shape. Sollte auf den Folgefolien kein Shape mehr kommen, wird das erste verknüpfte Shape der Präsentation gesucht. |
+| Letztes verknüpfte Shape finden                    | Sucht nach dem letzten verknüpften Shape.          |
+| Shapes zählen                                      | Zählt die Anzahl der verknüpften Shapes auf allen Folien. |
+| Folien anzeigen                                    | Zeigt alle Foliennummern die zugehörige verknüpfte Shapes enthalten. |
 
 
 ### Verknüpfte Shapes angleichen
@@ -1053,6 +1062,11 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
+| Referenz wählen                                    | Auswählen, ob selektiertes, erstes oder letztes Shape als Referenz für alle Angleichungsfunktionen verwendet werden soll. Standard ist das aktuell ausgewählte Shape. |
+| Referenz wählen > Ausgewähltes Shapes (Standard)   | Referenz für alle verknüpften Shapes ist das aktuell gewählte Shape |
+| Referenz wählen > Erstes Shape im Foliensatz       | Die gesamte Präsentation wird nach verknüpften Shapes gescannt und das erste zugehörige Shape im Foliensatz wird als Referenz gesetzt. |
+| Referenz wählen > Letztes Shape im Foliensatz      | Die gesamte Präsentation wird nach verknüpften Shapes gescannt und das letzte zugehörige Shape im Foliensatz wird als Referenz gesetzt. |
+| Referenz wählen > Status-Overlays erstellen        | Legt über das markierte Shape ein Ampelstatus-Overlay welches anzeigt, ob die Operation erfolgreich war und Shapes aktualisiert wurden. Funktioniert für Größe, Position, Formatierung und Text angleichen. |
 | Alles angleichen                                   | Alle Eigenschaften aller verknüpfter Shapes wie ausgewähltes Shape setzen. |
 | Position angleichen                                | Position und Rotation aller verknüpfter Shapes auf Position wie ausgewähltes Shape setzen. |
 | Größe angleichen                                   | Größe aller verknüpfter Shapes auf Größe wie ausgewähltes Shape setzen. |
@@ -1084,7 +1098,7 @@ Ermöglicht die Anzeige einfacher Statistiken zur schnellen Überprüfung von za
 | Eigenschaft angleichen > Breite                    | Breite für alle verknüpften Shapes angleichen      |
 | Eigenschaft angleichen > Höhe                      | Höhe für alle verknüpften Shapes angleichen        |
 | Andere Shapes löschen                              | Alle verknüpften Shapes auf allen Folien löschen.  |
-| Andere mit diesem ersetzen                         | Alle verknüpften Shapes auf allen Folien mit ausgewähltem Shape ersetzen. |
+| Mit Referenz ersetzen                              | Alle verknüpften Shapes auf allen Folien mit Referenz-Shape (standardmäßig das ausgwählte Shape) ersetzen. |
 | Weitere Shapes suchen                              | Erneut nach Shapes anhand Position und Größe suche, um weitere Shapes zu dieser Verknüpfung hinzuzufügen. |
 
 
