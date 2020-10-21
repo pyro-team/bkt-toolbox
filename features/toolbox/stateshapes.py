@@ -453,10 +453,13 @@ class CheckBox(AbstractStateShape):
                 chars = d["chars"]
                 break
         else:
-            bkt.message.error("Fehler! Unbekanntes Checkbox-Symbol.")
+            bkt.message.error("Fehler! Unbekannter Checkbox-Font.")
             return
         if pos is None:
-            pos = chars.index(text)
+            try:
+                pos = chars.index(text)
+            except ValueError:
+                pos = 0
         pos = (pos + delta) % len(chars)
         textrange.Text = chars[pos]
         # shape.select(False)
