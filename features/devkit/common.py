@@ -135,7 +135,7 @@ class DevGroup(object):
 class AllControls(object):
     #TODO: save imagemso: Call SavePicture(Application.CommandBars.GetImageMso("CreateClassModule", 32, 32), "C:\test.bmp")
 
-    types_include = [bkt.ribbon.Button, bkt.ribbon.ToggleButton, bkt.ribbon.Gallery, bkt.ribbon.Menu, bkt.ribbon.DynamicMenu, bkt.ribbon.EditBox, bkt.ribbon.ComboBox, bkt.ribbon.SpinnerBox, bkt.ribbon.MSOControl]
+    types_include = [bkt.ribbon.Button, bkt.ribbon.ToggleButton, bkt.ribbon.Gallery, bkt.ribbon.Menu, bkt.ribbon.DynamicMenu, bkt.ribbon.EditBox, bkt.ribbon.ComboBox, bkt.ribbon.SpinnerBox, bkt.ribbon.MSOControl, bkt.ribbon.CheckBox]
     types_exclude = [bkt.ribbon.DialogBoxLauncher]
 
     types_haschildren = [bkt.ribbon.Menu, bkt.ribbon.SplitButton, bkt.ribbon.Box, bkt.ribbon.Gallery, bkt.ribbon.PrimaryItem, bkt.ribbon.MenuGroup]
