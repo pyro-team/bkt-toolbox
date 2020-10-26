@@ -1,4 +1,4 @@
-# Unreleased
+# Release 2020-10-29 (2.7.2)
 
   * Rename "Master" to "Reference" or "Main" across the whole UI
   * Added functions to linked shapes: Select reference shape, skip between linked shapes, set link ID for each individual selected shape
@@ -22,6 +22,7 @@
   * Fixed chartlib creating thumbnails for potx files that were not required
   * Fixed QuickEdit first-start popup showing up every time
   * Update FontAwesome5 definition to v5.15.0
+  * Known Issue: Random PPT restart after closing
 
 
 # Release 2020-07-30 (2.7.1)
