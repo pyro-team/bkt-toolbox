@@ -12,7 +12,7 @@
     <Grid Margin="0">
       <Border Grid.Row="0" Grid.Column="0" BorderBrush="Silver" BorderThickness="1" SnapsToDevicePixels="True" Background="#ffffff" CornerRadius="2">
         <!-- <TextBlock Text="MASTER" FontSize="8" Margin="2,1" /> -->
-        <Button Content="MASTER" Click="cancel">
+        <Button Content="REF" Click="cancel">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <TextBlock Text="{TemplateBinding Content}" FontSize="8" Margin="2,1" />

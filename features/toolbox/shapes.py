@@ -154,6 +154,34 @@ class PositionSize(object):
         target_zorder = shapes.pop(-1).ZOrderPosition
         for shape in shapes:
             pplib.set_shape_zorder(shape, value=target_zorder)
+
+    @staticmethod
+    def zorder_top2bottom(shapes, reverse=False):
+        shapes = sorted(shapes, key=lambda shape: shape.Top, reverse=reverse)
+        start = shapes[0].ZOrderPosition
+        for shape in shapes:
+            pplib.set_shape_zorder(shape, value=start)
+            start += 1
+        #update selection
+        pplib.shapes_to_range(shapes).select()
+
+    @classmethod
+    def zorder_bottom2top(cls, shapes):
+        cls.zorder_top2bottom(shapes, True)
+
+    @staticmethod
+    def zorder_left2right(shapes, reverse=False):
+        shapes = sorted(shapes, key=lambda shape: shape.Left, reverse=reverse)
+        start = shapes[0].ZOrderPosition
+        for shape in shapes:
+            pplib.set_shape_zorder(shape, value=start)
+            start += 1
+        #update selection
+        pplib.shapes_to_range(shapes).select()
+
+    @classmethod
+    def zorder_right2left(cls, shapes):
+        cls.zorder_left2right(shapes, True)
     
     @staticmethod
     def set_height_to_width(shapes):
@@ -433,7 +461,7 @@ spinner_zorder = bkt.ribbon.RoundingSpinnerBox(
         children=[
             bkt.mso.control.ObjectBringToFront,
             bkt.mso.control.ObjectSendToBack,
-            bkt.ribbon.MenuSeparator(),
+            bkt.ribbon.MenuSeparator(title="Anpassen"),
             bkt.ribbon.Button(
                 label="Vordere nach hinten",
                 supertip="Bringt alle vordere Shapes genau hinter das hinterste Shape",
@@ -447,6 +475,36 @@ spinner_zorder = bkt.ribbon.RoundingSpinnerBox(
                 image="zorder_back_to_front",
                 get_enabled=bkt.apps.ppt_shapes_min2_selected,
                 on_action=bkt.Callback(PositionSize.back_to_front, shapes=True),
+            ),
+            bkt.ribbon.MenuSeparator(title="Sortieren"),
+            bkt.ribbon.Button(
+                label="Oben nach unten",
+                supertip="Sortiert die Z-Order von oben nach unten, sodass das unterste Shape das vorderste wird",
+                image="zorder_top_to_bottom",
+                get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                on_action=bkt.Callback(PositionSize.zorder_top2bottom, shapes=True),
+            ),
+            bkt.ribbon.Button(
+                label="Unten nach oben",
+                supertip="Sortiert die Z-Order von unten nach oben, sodass das oberste Shape das vorderste wird",
+                image="zorder_bottom_to_top",
+                get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                on_action=bkt.Callback(PositionSize.zorder_bottom2top, shapes=True),
+            ),
+            bkt.ribbon.MenuSeparator(),
+            bkt.ribbon.Button(
+                label="Links nach rechts",
+                supertip="Sortiert die Z-Order von links nach rechts, sodass das rechte Shape das vorderste wird",
+                image="zorder_left_to_right",
+                get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                on_action=bkt.Callback(PositionSize.zorder_left2right, shapes=True),
+            ),
+            bkt.ribbon.Button(
+                label="Rechts nach links",
+                supertip="Sortiert die Z-Order von rechts nach links, sodass das linke Shape das vorderste wird",
+                image="zorder_right_to_left",
+                get_enabled=bkt.apps.ppt_shapes_min2_selected,
+                on_action=bkt.Callback(PositionSize.zorder_right2left, shapes=True),
             ),
         ],
     ),
@@ -765,6 +823,8 @@ class ShapeConnectors(object):
         shp_connector.Line.ForeColor.ObjectThemeColor = 15 #Text 2
         # shp_connector.Line.Weight = 0.75
         shp_connector.Line.Visible = -1 #msoTrue
+
+        shp_connector.Name = "[BKT] Connector %s" % shp_connector.id
 
         with ShapeConnectorTags(shp_connector.Tags) as tags:
             tags["shape1_id"]   = shape1.id
@@ -2203,6 +2263,7 @@ shapes_group = bkt.ribbon.Group(
                 bkt.mso.control.ClipArtInsertDialog,
                 bkt.mso.control.SmartArtInsert,
                 bkt.mso.control.ChartInsert,
+                # bkt.mso.control.IconInsertFromFile, #only available in Office 2016 with 365 subscription
                 bkt.ribbon.MenuSeparator(title="Text & Beschriftungen"),
                 bkt.mso.control.HeaderFooterInsert,
                 bkt.mso.control.DateAndTimeInsert,

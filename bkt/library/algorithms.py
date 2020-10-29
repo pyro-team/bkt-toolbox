@@ -10,6 +10,7 @@ from __future__ import absolute_import, division #always force float-division, f
 import math
 
 def median(values):
+    ''' calculate the median of the list of values '''
     v = sorted(values)
     if not v:
         raise ValueError
@@ -20,9 +21,11 @@ def median(values):
         return v[(n-1)//2]
 
 def mean(values):
+    ''' calculate the mean of the list of values '''
     return sum(values)/len(values)
 
 def mid_point(points):
+    ''' calculate the middle point of the list of points (tuple with x,y coordinates) '''
     sum_x = 0
     sum_y = 0
     
@@ -34,6 +37,7 @@ def mid_point(points):
     return (sum_x/len_points, sum_y/len_points)
 
 def mid_point_shapes(shapes):
+    ''' calculate the middle points of the list of shapes '''
     sum_x = 0
     sum_y = 0
     
@@ -45,6 +49,7 @@ def mid_point_shapes(shapes):
     return (sum_x/len_shapes, sum_y/len_shapes)
 
 def is_close(a, b, tolerence=1e-9):
+    ''' test if a and b are almost equal with given tolerance '''
     # refer to https://github.com/PythonCHB/close_pep/blob/master/is_close.py
     if a == b:
         return True
@@ -52,6 +57,7 @@ def is_close(a, b, tolerence=1e-9):
     return (diff <= abs(tolerence * b)) or (diff <= abs(tolerence * a))
 
 def get_bounds(points):
+    ''' get the outer bounds (x,y,width,height) of the given points (tuple with x,y coordinates) '''
     x = [p[0] for p in points]
     y = [p[1] for p in points]
     
@@ -63,13 +69,14 @@ def get_bounds(points):
     return left,top,width,height
 
 def get_bounds_shapes(shapes):
+    ''' get the outer bounds of the list of shapes '''
     def iter_points():
         for cell in shapes:
-            x0 = cell.Left
-            y0 = cell.Top
+            x0 = cell.left
+            y0 = cell.top
             yield (x0,y0)
-            x1 = x0 + cell.Width
-            y1 = y0 + cell.Height
+            x1 = x0 + cell.width
+            y1 = y0 + cell.height
             yield (x1,y1)
     
     points = list(iter_points())

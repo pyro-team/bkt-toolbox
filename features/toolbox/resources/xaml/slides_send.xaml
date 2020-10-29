@@ -41,7 +41,8 @@
             </GroupBox>
         </Grid>
 
-        <CheckBox Content="Alle Abschnitte entfernen" IsChecked="{Binding remove_sections, Mode=TwoWay}" IsEnabled="{Binding rm_se_enabled, UpdateSourceTrigger=PropertyChanged}" Margin="10,5" />
+        <CheckBox Content="Leere Abschnitte entfernen" IsChecked="{Binding remove_empty_sections, Mode=TwoWay}" IsEnabled="{Binding rm_se_enabled, UpdateSourceTrigger=PropertyChanged}" Margin="10,5" />
+        <CheckBox Content="Alle Abschnitte entfernen" IsChecked="{Binding remove_all_sections, Mode=TwoWay}" IsEnabled="{Binding rm_se_enabled, UpdateSourceTrigger=PropertyChanged}" Margin="10,5" />
         <CheckBox Content="Ungenutzte Folienmaster entfernen" IsChecked="{Binding remove_designs, Mode=TwoWay}" IsEnabled="{Binding rm_se_enabled, UpdateSourceTrigger=PropertyChanged}" Margin="10,5" />
         <CheckBox Content="Autor aus Dokumenteneigenschaften entfernen" IsChecked="{Binding remove_author, Mode=TwoWay}" Margin="10,5" />
 

@@ -18,55 +18,19 @@ from bkt import dotnet
 Drawing = dotnet.import_drawing()
 
 
-class StateShape(object):
-    BKT_DIALOG_TAG = 'BKT_DIALOG_STATESHAPE'
 
-    _special_stateshapes = dict()
-    
-    @classmethod
-    def register_special_stateshape(cls, name, switch_func):
-        cls._special_stateshapes[name] = switch_func
+class AbstractStateShape(object):
+    def switch_state(self, shape, delta=0, pos=None):
+        return shape
+    def set_color_fill1(self, shape, color=None):
+        pass
+    def set_color_fill2(self, shape, color=None):
+        pass
+    def set_color_line(self, shape, color=None):
+        pass
 
-    @classmethod
-    def is_convertable_to_state_shape(cls, shape):
-        try:
-            return shape.Type == pplib.MsoShapeType['msoGroup'] and not cls.is_state_shape(shape)
-        except:
-            return False
-
-    @classmethod
-    def convert_to_state_shape(cls, shapes, special_name=None):
-        for shape in shapes:
-            try:
-                shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
-                if special_name and special_name in cls._special_stateshapes:
-                    shape.Tags.Add(cls.BKT_DIALOG_TAG, special_name)
-                cls.switch_state(shape, pos=0)
-            except:
-                logging.exception("Error converting to state stape")
-                continue
-
-    @classmethod
-    def is_state_shape(cls, shape):
-        return pplib.TagHelper.has_tag(shape, bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
-        # return shape.Type == pplib.MsoShapeType['msoGroup']
-    
-    @classmethod
-    def are_state_shapes(cls, shapes):
-        return all(cls.is_state_shape(s) for s in shapes)
-    
-    @classmethod
-    def switch_state(cls, shape, delta=0, pos=None):
-        if not cls.is_state_shape(shape):
-            raise ValueError("Shape is not a state shape")
-
-        special_name = pplib.TagHelper.get_tag(shape, cls.BKT_DIALOG_TAG)
-        try:
-            return cls._special_stateshapes[special_name](shape, delta, pos)
-        except KeyError:
-            pass
-
-
+class DefaultStateShape(AbstractStateShape):
+    def switch_state(self, shape, delta=0, pos=None):
         # ungroup shape, to get list of groups inside grouped items
         # ungrouped_shapes = shape.Ungroup()
         # shapes = list(iter(ungrouped_shapes))
@@ -93,6 +57,108 @@ class StateShape(object):
         #     grp.Select(replace=False)
         # except:
         #     grp.Select()
+
+    def set_color_fill1(self, shape, color=None):
+        ref_shape = shape.GroupItems[1]
+        ref_color = ref_shape.Fill.ForeColor.RGB
+        ref_visible = ref_shape.Fill.Visible == -1
+        for s in shape.GroupItems:
+            if ref_visible and s.Fill.ForeColor.RGB == ref_color or not ref_visible and s.Fill.Visible == 0:
+                if color:
+                    s.Fill.Visible = -1
+                    color.apply_to_color_obj(s.Fill.ForeColor)
+                else:
+                    s.Fill.Visible = 0
+
+    def set_color_fill2(self, shape, color=None):
+        ref_shape = shape.GroupItems[1]
+        ref_color = ref_shape.Fill.ForeColor.RGB if ref_shape.Fill.Visible == -1 else None
+        for s in shape.GroupItems:
+            if s.Fill.Visible == -1 and s.Fill.ForeColor.RGB != ref_color:
+                if color:
+                    s.Fill.Visible = -1
+                    color.apply_to_color_obj(s.Fill.ForeColor)
+                else:
+                    s.Fill.Visible = 0
+
+    def set_color_line(self, shape, color=None):
+        ref_color = None
+        for s in shape.GroupItems:
+            if ref_color is None:
+                if s.Line.visible == -1:
+                    ref_color = s.Line.ForeColor.RGB
+                else:
+                    continue
+            if s.Line.visible == -1 and s.Line.ForeColor.RGB == ref_color:
+                if color:
+                    s.Line.Visible = -1
+                    color.apply_to_color_obj(s.Line.ForeColor)
+                else:
+                    s.Line.Visible = 0
+
+
+class StateShape(object):
+    BKT_DIALOG_TAG = 'BKT_DIALOG_STATESHAPE'
+
+    _default_stateshape = DefaultStateShape()
+    _special_stateshapes = dict()
+    
+    @classmethod
+    def register_special_stateshape(cls, name, special_object):
+        cls._special_stateshapes[name] = special_object
+
+    @classmethod
+    def is_convertable_to_state_shape(cls, shapes):
+        try:
+            if len(shapes) > 1:
+                return not any(cls.is_state_shape(s) for s in shapes)
+            else:
+                shape = shapes[0]
+                return shape.Type == pplib.MsoShapeType['msoGroup'] and not cls.is_state_shape(shape)
+        except:
+            return False
+
+    @classmethod
+    def convert_to_state_shape(cls, shapes, special_name=None):
+        if len(shapes) > 1:
+            shape = pplib.shapes_to_range(shapes).group()
+        else:
+            shape = shapes[0]
+        try:
+            shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
+            if special_name and special_name in cls._special_stateshapes:
+                shape.Tags.Add(cls.BKT_DIALOG_TAG, special_name)
+        except:
+            logging.exception("Error converting to state stape")
+        
+        cls.switch_states([shape], pos=0)
+
+    @classmethod
+    def is_state_shape(cls, shape):
+        return pplib.TagHelper.has_tag(shape, bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, cls.BKT_DIALOG_TAG)
+        # return shape.Type == pplib.MsoShapeType['msoGroup']
+    
+    @classmethod
+    def are_state_shapes(cls, shapes):
+        return all(cls.is_state_shape(s) for s in shapes)
+
+    @classmethod
+    def get_stateshape_object(cls, shape):
+        special_name = pplib.TagHelper.get_tag(shape, cls.BKT_DIALOG_TAG)
+        try:
+            return cls._special_stateshapes[special_name]
+        except KeyError:
+            return cls._default_stateshape
+
+    
+    @classmethod
+    def switch_state(cls, shape, delta=0, pos=None):
+        if not cls.is_state_shape(shape):
+            raise ValueError("Shape is not a state shape")
+    
+        stateshape_obj = cls.get_stateshape_object(shape)
+        return stateshape_obj.switch_state(shape, delta, pos)
+
     
     @classmethod
     def switch_states(cls, shapes, **kwargs):
@@ -103,7 +169,8 @@ class StateShape(object):
             except:
                 logging.exception("Statehape error swichting state")
                 continue
-        pplib.shapes_to_range(resulting_shapes).select()
+        if resulting_shapes:
+            pplib.shapes_to_range(resulting_shapes).select()
 
 
     @classmethod
@@ -135,102 +202,126 @@ class StateShape(object):
 
     @classmethod
     def show_all(cls, shape):
-        ungrouped_shapes = shape.Ungroup()
-        for s in list(iter(ungrouped_shapes)):
-            s.visible = True
-        ungrouped_shapes.Group().Select()
+        if shape.Type == pplib.MsoShapeType['msoGroup']:
+            ungrouped_shapes = shape.Ungroup()
+            for s in list(iter(ungrouped_shapes)):
+                s.visible = True
+            ungrouped_shapes.Group().Select()
 
 
     @classmethod
-    def set_color_fill1(cls, shapes, color_setter):
+    def set_color_fill1(cls, shapes, color=None):
         for shape in shapes:
-            ref_shape = shape.GroupItems[1]
-            ref_color = ref_shape.Fill.ForeColor.RGB
-            ref_visible = ref_shape.Fill.Visible == -1
-            for s in shape.GroupItems:
-                if ref_visible and s.Fill.ForeColor.RGB == ref_color or not ref_visible and s.Fill.Visible == 0:
-                    color_setter(s.Fill)
+            stateshape_obj = cls.get_stateshape_object(shape)
+            stateshape_obj.set_color_fill1(shape, color)
 
     @classmethod
-    def set_color_fill2(cls, shapes, color_setter):
+    def set_color_fill2(cls, shapes, color=None):
         for shape in shapes:
-            ref_shape = shape.GroupItems[1]
-            ref_color = ref_shape.Fill.ForeColor.RGB if ref_shape.Fill.Visible == -1 else None
-            for s in shape.GroupItems:
-                if s.Fill.Visible == -1 and s.Fill.ForeColor.RGB != ref_color:
-                    color_setter(s.Fill)
+            stateshape_obj = cls.get_stateshape_object(shape)
+            stateshape_obj.set_color_fill2(shape, color)
+
+    @classmethod
+    def set_color_line(cls, shapes, color=None):
+        for shape in shapes:
+            stateshape_obj = cls.get_stateshape_object(shape)
+            stateshape_obj.set_color_line(shape, color)
 
 
     @classmethod
     def set_color_fill_rgb1(cls, shapes, color):
-        def set_rgb_color(fill_obj):
-            fill_obj.Visible = -1
-            fill_obj.ForeColor.RGB = color
-        cls.set_color_fill1(shapes, set_rgb_color)
-
+        cls.set_color_fill1(shapes, pplib.PPTColor(pplib.PPTColor.COLOR_RGB, color_rgb=color))
     @classmethod
     def set_color_fill_theme1(cls, shapes, color_index, brightness):
-        def set_theme_color(fill_obj):
-            fill_obj.Visible = -1
-            fill_obj.ForeColor.ObjectThemeColor = color_index
-            fill_obj.ForeColor.Brightness = brightness
-        cls.set_color_fill1(shapes, set_theme_color)
-
+        cls.set_color_fill1(shapes, pplib.PPTColor(pplib.PPTColor.COLOR_THEME, color_index=color_index, brightness=brightness))
     @classmethod
     def set_color_fill_none1(cls, shapes):
-        def set_none_color(fill_obj):
-            fill_obj.Visible = 0
-        cls.set_color_fill1(shapes, set_none_color)
+        cls.set_color_fill1(shapes, pplib.PPTColor(pplib.PPTColor.COLOR_NONE))
 
 
     @classmethod
     def set_color_fill_rgb2(cls, shapes, color):
-        def set_rgb_color(fill_obj):
-            fill_obj.ForeColor.RGB = color
-        cls.set_color_fill2(shapes, set_rgb_color)
-
+        cls.set_color_fill2(shapes, pplib.PPTColor(pplib.PPTColor.COLOR_RGB, color_rgb=color))
     @classmethod
     def set_color_fill_theme2(cls, shapes, color_index, brightness):
-        def set_theme_color(fill_obj):
-            fill_obj.ForeColor.ObjectThemeColor = color_index
-            fill_obj.ForeColor.Brightness = brightness
-        cls.set_color_fill2(shapes, set_theme_color)
+        cls.set_color_fill2(shapes, pplib.PPTColor(pplib.PPTColor.COLOR_THEME, color_index=color_index, brightness=brightness))
 
 
     @classmethod
     def set_color_line_rgb(cls, shapes, color):
-        def set_rgb_color(line_obj):
-            line_obj.ForeColor.RGB = color
-        cls.set_color_line(shapes, set_rgb_color)
-
+        cls.set_color_line(shapes, pplib.PPTColor(pplib.PPTColor.COLOR_RGB, color_rgb=color))
     @classmethod
     def set_color_line_theme(cls, shapes, color_index, brightness):
-        def set_theme_color(line_obj):
-            line_obj.ForeColor.ObjectThemeColor = color_index
-            line_obj.ForeColor.Brightness = brightness
-        cls.set_color_line(shapes, set_theme_color)
-
+        cls.set_color_line(shapes, pplib.PPTColor(pplib.PPTColor.COLOR_THEME, color_index=color_index, brightness=brightness))
     @classmethod
-    def set_color_line(cls, shapes, color_setter):
-        for shape in shapes:
-            ref_color = None
-            for s in shape.GroupItems:
-                if ref_color is None:
-                    if s.Line.visible == -1:
-                        ref_color = s.Line.ForeColor.RGB
-                    else:
-                        continue
-                if s.Line.visible == -1 and s.Line.ForeColor.RGB == ref_color:
-                    color_setter(s.Line)
+    def set_color_line_none(cls, shapes):
+        cls.set_color_line(shapes, pplib.PPTColor(pplib.PPTColor.COLOR_NONE))
 
 
-    @staticmethod
-    def show_help():
-        #TODO
-        bkt.message("TODO: show help file, image, or something...")
 
 
-class LikertScale(bkt.ribbon.Gallery):
+class LikertScaleTags(pplib.BKTTag):
+    TAG_NAME = "BKT_LIKERT_CONFIG"
+
+class LikertScale(AbstractStateShape):
+    SHAPE_TAG = "BKT_LIKERT"
+
+    # def _determine_current_pos(self, shape):
+    #     scales = list(iter(shape.GroupItems))
+    #     colors = sum(1 for s in scales if s.Fill.ForeColor.RGB == scales[0].Fill.ForeColor.RGB)
+    #     return colors
+    
+    def _update_color_fills(self, shape):
+        with LikertScaleTags(shape.Tags) as tags:
+            pos = tags.get("position", 0)
+            try:
+                col1 = pplib.PPTColor.from_color_tuple( tags["color_fill1"] )
+            except KeyError:
+                col1 = pplib.PPTColor.new_theme(14)
+            try:
+                col2 = pplib.PPTColor.from_color_tuple( tags["color_fill2"] )
+            except KeyError:
+                col2 = pplib.PPTColor.new_theme(16)
+
+        for i,s in enumerate(iter(shape.GroupItems)):
+            color = col2 if i < pos else col1
+            if color:
+                s.Fill.Visible = -1
+                color.apply_to_color_obj(s.Fill.ForeColor)
+            else:
+                s.Fill.Visible = 0
+
+    def switch_state(self, shape, delta=0, pos=None):
+        scales = shape.GroupItems.Count+1
+        with LikertScaleTags(shape.Tags) as tags:
+            if pos is None:
+                pos = tags.get("position", 0)
+            pos = (pos + delta) % scales
+            tags["position"] = pos
+
+        self._update_color_fills(shape)
+        return shape
+
+    def set_color_fill1(self, shape, color=None):
+        with LikertScaleTags(shape.Tags) as tags:
+            tags["color_fill1"] = color.get_color_tuple()
+        self._update_color_fills(shape)
+
+    def set_color_fill2(self, shape, color=None):
+        with LikertScaleTags(shape.Tags) as tags:
+            tags["color_fill2"] = color.get_color_tuple()
+        self._update_color_fills(shape)
+
+    def set_color_line(self, shape, color=None):
+        for shape in shape.GroupItems:
+            if color:
+                shape.Line.Visible = -1
+                color.apply_to_color_obj(shape.Line.ForeColor)
+            else:
+                shape.Line.Visible = 0
+
+
+class LikertScaleGallery(bkt.ribbon.Gallery):
     #settings in powerpoint
     spacing = 5
     size = 20
@@ -239,13 +330,15 @@ class LikertScale(bkt.ribbon.Gallery):
     likert_sizes = [3,4,5]
     likert_columns = len(likert_sizes)
     likert_shapes = {1: "Quadratisch", 9: "Kreisförmig", 92: "Sternförmig"} #rectangle, oval, star
-    likert_buttons = [
-        [n,m]
-        for n in likert_shapes.keys()
-        for m in likert_sizes
-    ]
+    likert_buttons = []
     
     def __init__(self, **kwargs):
+        self.likert_buttons = [
+            [n,m]
+            for n in self.likert_shapes.keys()
+            for m in self.likert_sizes
+        ]
+
         # parent_id = kwargs.get('id') or ""
         my_kwargs = dict(
             label = 'Likert-Scale',
@@ -258,7 +351,7 @@ class LikertScale(bkt.ribbon.Gallery):
         )
         my_kwargs.update(kwargs)
 
-        super(LikertScale, self).__init__(**my_kwargs)
+        super(LikertScaleGallery, self).__init__(**my_kwargs)
 
     def get_item_count(self):
         return len(self.likert_buttons)
@@ -303,58 +396,112 @@ class LikertScale(bkt.ribbon.Gallery):
             left += 16*size_factor
         return img
 
-    def _create_single_scale(self, slide, shape_type=1, state=0, total=3):
-        # shapecount = slide.Shapes.Count
-        left = 90
-        for i in range(total):
-            left += self.size + self.spacing
-            s = slide.Shapes.AddShape( shape_type, left, 100, self.size, self.size )
-            # s.Line.Weight = 0.75
-            # s.Line.ForeColor.RGB = self.color_line
-            s.Line.Visible = -1
-            s.Line.ForeColor.ObjectThemeColor = 13 #msoThemeColorText1
-            s.Fill.Visible = -1
-            if i < state:
-                # s.Fill.ForeColor.RGB = self.color_filled
-                s.Fill.ForeColor.ObjectThemeColor = 16 #msoThemeColorBackground2
-            else:
-                # s.Fill.ForeColor.RGB = self.color_empty
-                s.Fill.ForeColor.ObjectThemeColor = 14 #msoThemeColorBackground1
+    # def _create_single_scale(self, slide, shape_type=1, state=0, total=3):
+    #     # shapecount = slide.Shapes.Count
+    #     left = 90
+    #     for i in range(total):
+    #         left += self.size + self.spacing
+    #         s = slide.Shapes.AddShape( shape_type, left, 100, self.size, self.size )
+    #         # s.Line.Weight = 0.75
+    #         # s.Line.ForeColor.RGB = self.color_line
+    #         s.Line.Visible = -1
+    #         s.Line.ForeColor.ObjectThemeColor = 13 #msoThemeColorText1
+    #         s.Fill.Visible = -1
+    #         if i < state:
+    #             # s.Fill.ForeColor.RGB = self.color_filled
+    #             s.Fill.ForeColor.ObjectThemeColor = 16 #msoThemeColorBackground2
+    #         else:
+    #             # s.Fill.ForeColor.RGB = self.color_empty
+    #             s.Fill.ForeColor.ObjectThemeColor = 14 #msoThemeColorBackground1
 
-        # grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total))).group()
-        grp = pplib.last_n_shapes_on_slide(slide, total).group()
-        return grp
+    #     # grp = slide.Shapes.Range(Array[int](range(shapecount+1, shapecount+1+total))).group()
+    #     grp = pplib.last_n_shapes_on_slide(slide, total).group()
+    #     return grp
 
     def _create_stateshape_scale(self, slide, shape_type, total):
-        for i in range(total+1):
-            self._create_single_scale(slide, shape_type, i, total)
+        left = 90
+        for _ in range(total):
+            # self._create_single_scale(slide, shape_type, i, total)
+            left += self.size + self.spacing
+            s = slide.Shapes.AddShape( shape_type, left, 100, self.size, self.size )
+            s.Line.Visible = -1
+            s.Line.ForeColor.ObjectThemeColor = 13 #msoThemeColorText1
         
-        grp = pplib.last_n_shapes_on_slide(slide, total+1).group()
+        grp = pplib.last_n_shapes_on_slide(slide, total).group()
         grp.LockAspectRatio = -1
-        StateShape.convert_to_state_shape([grp])
+        StateShape.convert_to_state_shape([grp], LikertScale.SHAPE_TAG)
 
 
 #Slider-Element
 #Progressbar
 
-class CheckBox(bkt.ribbon.Gallery):
+
+class CheckBox(AbstractStateShape):
     SHAPE_TAG = "BKT_CHECKBOX"
 
+    checkmark_groups = [
+        dict(font="Wingdings", chars=[u'\xfc', u'\xfb', u'\x6c', u'\x6e', '']),
+        dict(font="Arial Unicode", chars=[u'\u2713', u'\u2717', u'\u2715', '']),
+    ]
+
+    def switch_state(self, shape, delta=0, pos=None):
+        textrange = shape.TextFrame2.TextRange
+        font = textrange.Font.Name
+        text = textrange.Text
+        for d in self.checkmark_groups:
+            if d["font"] == font:
+                chars = d["chars"]
+                break
+        else:
+            bkt.message.error("Fehler! Unbekannter Checkbox-Font.")
+            return
+        if pos is None:
+            try:
+                pos = chars.index(text)
+            except ValueError:
+                pos = 0
+        pos = (pos + delta) % len(chars)
+        textrange.Text = chars[pos]
+        # shape.select(False)
+        return shape
+
+    def set_color_fill1(self, shape, color=None):
+        if color:
+            shape.Fill.Visible = -1
+            color.apply_to_color_obj(shape.Fill.ForeColor)
+        else:
+            shape.Fill.Visible = 0
+
+    def set_color_fill2(self, shape, color=None):
+        font_fill = shape.textframe2.textrange.font.fill
+        if color:
+            font_fill.Visible = -1
+            color.apply_to_color_obj(font_fill.ForeColor)
+        else:
+            font_fill.Visible = 0
+
+    def set_color_line(self, shape, color=None):
+        if color:
+            shape.Line.Visible = -1
+            color.apply_to_color_obj(shape.Line.ForeColor)
+        else:
+            shape.Line.Visible = 0
+
+
+class CheckBoxGallery(bkt.ribbon.Gallery):
     #settings in powerpoint
     size = 16
 
     #settings for gallery
     shape_types = {1:"Quadratisch", 9:"Kreisförmig"} #rectangle, oval
-    checkmark_groups = [
-        dict(font="Wingdings", chars=[u'\xfc', u'\xfb', u'\x6c', u'\x6e', '']),
-        dict(font="Arial Unicode", chars=[u'\u2713', u'\u2717', u'\u2715', '']),
-    ]
     checkmark_columns = 4
     checkmark_maxchars = 3
     item_size = 24
-    items = [ dict(shape_type=t, style=s, font_group=c) for c in checkmark_groups for t in shape_types.keys() for s in ['light', 'dark'] ]
+    items = []
     
     def __init__(self, **kwargs):
+        self.items = [ dict(shape_type=t, style=s, font_group=c) for c in CheckBox.checkmark_groups for t in self.shape_types.keys() for s in ['light', 'dark'] ]
+
         # parent_id = kwargs.get('id') or ""
         my_kwargs = dict(
             label="Checkbox",
@@ -367,7 +514,7 @@ class CheckBox(bkt.ribbon.Gallery):
         )
         my_kwargs.update(kwargs)
 
-        super(CheckBox, self).__init__(**my_kwargs)
+        super(CheckBoxGallery, self).__init__(**my_kwargs)
 
     def get_item_count(self):
         return len(self.items)
@@ -393,6 +540,7 @@ class CheckBox(bkt.ribbon.Gallery):
 
         grp = self._insert_single_box(slide, shape_type, style, (font_group["font"], font_group["chars"][0]))
         grp.LockAspectRatio = -1
+        grp.Name = "[BKT] Checkbox %s" % grp.id
         StateShape.convert_to_state_shape([grp], CheckBox.SHAPE_TAG)
     
     def _insert_single_box(self, slide, shape_type=1, style='light', font_char=None):
@@ -484,30 +632,13 @@ class CheckBox(bkt.ribbon.Gallery):
 
         return img
 
-    @classmethod
-    def switch_state(cls, shape, delta=0, pos=None):
-        textrange = shape.TextFrame2.TextRange
-        font = textrange.Font.Name
-        text = textrange.Text
-        for d in cls.checkmark_groups:
-            if d["font"] == font:
-                chars = d["chars"]
-                break
-        else:
-            bkt.message.error("Fehler! Unbekanntes Checkbox-Symbol.")
-            return
-        if pos is None:
-            pos = chars.index(text)
-        pos = (pos + delta) % len(chars)
-        textrange.Text = chars[pos]
-        shape.select(False)
 
 
+likert_button = LikertScaleGallery(id="likert_insert")
+checkbox_button = CheckBoxGallery(id="checkbox_insert")
 
-likert_button = LikertScale(id="likert_insert")
-checkbox_button = CheckBox(id="checkbox_insert")
-
-StateShape.register_special_stateshape(CheckBox.SHAPE_TAG, CheckBox.switch_state)
+StateShape.register_special_stateshape(CheckBox.SHAPE_TAG, CheckBox())
+StateShape.register_special_stateshape(LikertScale.SHAPE_TAG, LikertScale())
 
 
 stateshape_gruppe = bkt.ribbon.Group(
@@ -517,7 +648,7 @@ stateshape_gruppe = bkt.ribbon.Group(
     children = [
         bkt.ribbon.SplitButton(
             id="stateshape_convert_splitbutton",
-            size="large",
+            # size="large",
             children=[
                 bkt.ribbon.Button(
                     id="stateshape_convert",
@@ -558,7 +689,7 @@ stateshape_gruppe = bkt.ribbon.Group(
                 )
             ]
         ),
-        bkt.ribbon.Separator(),
+        # bkt.ribbon.Separator(),
         # bkt.ribbon.LabelControl(label="Wechsel: "),
         bkt.ribbon.Box(box_style="horizontal", children=[
             bkt.ribbon.Button(
@@ -646,6 +777,13 @@ stateshape_gruppe = bkt.ribbon.Group(
                     on_theme_color_change = bkt.Callback(StateShape.set_color_line_theme, shapes=True),
                     # get_selected_color    = bkt.Callback(StateShape.get_selected_line, shapes=True),
                     get_enabled           = bkt.Callback(StateShape.are_state_shapes),
+                    children=[
+                        bkt.ribbon.Button(
+                            label="Keine Linie",
+                            supertip="Wechsel-Shape Linie auf transparent setzen",
+                            on_action=bkt.Callback(StateShape.set_color_line_none, shapes=True),
+                        ),
+                    ]
                 ),
             ]
         ),

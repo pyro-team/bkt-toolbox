@@ -353,10 +353,10 @@ equal_height_button = bkt.ribbon.SplitButton(
             ),
             bkt.ribbon.Button(
                 id = 'equal_height_last_sel',
-                label="Gleiche Höhe wie Master-Shape [Strg]",
+                label="Gleiche Höhe wie Referenzshape [Strg]",
                 show_label=True,
                 #image_mso='ShapeWidth',
-                supertip="Normiere die Höhe der markierten Shapes, entsprechend der Höhe des Master-Shapes (also zuletzt bzw. zuerst markiertes Shape).",
+                supertip="Normiere die Höhe der markierten Shapes, entsprechend der Höhe des Referenzshapes (also zuletzt bzw. zuerst markiertes Shape).",
                 on_action=bkt.Callback(EqualSize.equal_height_master, shapes=True, shapes_min=2),
                 # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
             ),
@@ -417,10 +417,10 @@ equal_width_button = bkt.ribbon.SplitButton(
             ),
             bkt.ribbon.Button(
                 id = 'equal_width_last_sel',
-                label="Gleiche Breite wie Master-Shape [Strg]",
+                label="Gleiche Breite wie Referenzshape [Strg]",
                 show_label=True,
                 #image_mso='ShapeWidth',
-                supertip="Normiere die Breite der markierten Shapes, entsprechend der Breite des Master-Shapes (also zuletzt bzw. zuerst markiertes Shape).",
+                supertip="Normiere die Breite der markierten Shapes, entsprechend der Breite des Referenzshapes (also zuletzt bzw. zuerst markiertes Shape).",
                 on_action=bkt.Callback(EqualSize.equal_width_master, shapes=True, shapes_min=2),
                 # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
             ),
@@ -1965,19 +1965,19 @@ class ArrangeAdvanced(object):
             
             bkt.ribbon.ToggleButton(
                 id="arrange_use_master"+postfix,
-                label="Master",
+                label="Referenz",
                 image_mso="PositionAbsoluteMarks", on_toggle_action=bkt.Callback(self.specify_wiz), get_pressed=bkt.Callback(self.is_slide_or_shape_specified),
-                screentip="Ausrichtung an Master (Shape/Slide) ein-/ausschalten", 
-                supertip="Bei Aktivierung werden anschließend alle Shapes am selektierten Shape (Mastershape) ausgerichtet. Ist bei Aktivierung kein Shape selektiert, erfolgt die Ausrichtung am Inhaltsbereich."
+                screentip="Ausrichtung an Referenz (Shape/Slide) ein-/ausschalten", 
+                supertip="Bei Aktivierung werden anschließend alle Shapes am selektierten Shape (Referenzshape) ausgerichtet. Ist bei Aktivierung kein Shape selektiert, erfolgt die Ausrichtung am Inhaltsbereich."
             ),
             
-            bkt.ribbon.Menu(label='Master-Menü', screentip='Auswahl der Ausrichtung', supertip="Festlegen an welchem Referenz-Objekt die Shapes ausgerichtet werden wollen", children=[
+            bkt.ribbon.Menu(label='Referenz-Menü', screentip='Auswahl der Ausrichtung', supertip="Festlegen an welchem Referenz-Objekt die Shapes ausgerichtet werden wollen", children=[
                 
                 bkt.ribbon.Button(
                     id="arrange_master_auto"+postfix,
-                    label="Automatische Masterwahl",
+                    label="Automatische Referenzwahl",
                     image_mso="PositionAbsoluteMarks", 
-                    supertip="Macht das zuerst ausgewählte Shape zum Mastershape. Ist kein Shape markiert, wird der Inhaltsbereich als Master verwendet.",
+                    supertip="Macht das zuerst ausgewählte Shape zum Referenzshape. Ist kein Shape markiert, wird der Inhaltsbereich als Referenz verwendet.",
                     on_action=bkt.Callback(lambda context:self.specify_wiz(pressed=True, context=context))
                 ),
                 
@@ -2003,17 +2003,17 @@ class ArrangeAdvanced(object):
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.ToggleButton(
                     id="arrange_show_master_shape"+postfix,
-                    label="Indikator an Master-Shape", on_toggle_action=bkt.Callback(self.set_master_indicator),  get_pressed=bkt.Callback(self.get_master_indicator),
-                    screentip="Indikator an dem Master-Shape innerhalb der Selektion anzeigen",
-                    supertip="Werden mind. zwei Shapes ausgewählt wird ein kleiner Indikator mit dem Text 'Master' an der unteren linken Ecke des Master-Shape (erstes bzw. letztes) angezeigt."
+                    label="Indikator an Referenzshape", on_toggle_action=bkt.Callback(self.set_master_indicator),  get_pressed=bkt.Callback(self.get_master_indicator),
+                    screentip="Indikator an dem Referenzshape innerhalb der Selektion anzeigen",
+                    supertip="Werden mind. zwei Shapes ausgewählt wird ein kleiner Indikator mit dem Text 'Referenz' an der unteren linken Ecke des Referenzshape (erstes bzw. letztes) angezeigt."
                 ),
                 
-                bkt.ribbon.MenuSeparator(title="Ausrichtung an Master"),
+                bkt.ribbon.MenuSeparator(title="Ausrichtung an Referenz"),
                 bkt.ribbon.ToggleButton(
                     id="arrange_use_shape"+postfix,
                     label="Shape", on_toggle_action=bkt.Callback(self.specify_shape),         get_pressed=bkt.Callback(self.is_shape_specified), get_enabled=bkt.Callback(self.is_shape_specified_or_shape_specifiable),
-                    screentip="Ausrichtung am selektierten Shape (Mastershape)",
-                    supertip="Das selektierten Shape wird als Mastershape festgelegt. Shapes werden am Mastershape ausgerichtet. "
+                    screentip="Ausrichtung am selektierten Shape (Referenzshape)",
+                    supertip="Das selektierten Shape wird als Referenzshape festgelegt. Shapes werden am Referenzshape ausgerichtet. "
                 ),
                 bkt.ribbon.ToggleButton(
                     id="arrange_use_slide"+postfix,
@@ -2027,7 +2027,7 @@ class ArrangeAdvanced(object):
                     on_toggle_action=bkt.Callback(self.specify_master_contentarea),
                     get_pressed=bkt.Callback(self.is_contentarea_specified),
                     screentip="Ausrichtung an Inhaltsbereich",
-                    supertip="Shapes werden am Inhaltsbereich ausgerichtet.\n\nDer Inhaltsbereich entspricht der Fläche des Text-Platzhalters auf dem Master-Slide.\n\nMit STRG-Taste wird dieser Master temporär aktiviert.",
+                    supertip="Shapes werden am Inhaltsbereich ausgerichtet.\n\nDer Inhaltsbereich entspricht der Fläche des Text-Platzhalters auf dem Referenzfolie.\n\nMit STRG-Taste wird dieser Master temporär aktiviert.",
                 ),
                 bkt.ribbon.ToggleButton(
                     id="arrange_use_customarea"+postfix,
@@ -2069,24 +2069,24 @@ arrange_advanced_group = bkt.ribbon.Group(
     label=u'Erweitertes Anordnen',
     image='arrange_left_at_left',
     children=[
-        arrange_advaced.get_button('arrange_left_at_left',         label="Links an Links",   screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_middle_at_left',       label="Mitte an Links",   screentip='Ausrichtung Mitte an linke Kante',         supertip='Ausrichtung der Shapemitte an der linken Kante des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_right_at_left',        label="Rechts an Links",  screentip='Ausrichtung rechte Kante an linke Kante',  supertip='Ausrichtung der rechten Kante an der linken Kante des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_left_at_middle',       label="Links an Mitte",   screentip='Ausrichtung linke Kante an Shapemitte',    supertip='Ausrichtung der linken Kante an der Shapemitte des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_middle_at_middle',     label="Mitte an Mitte",   screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.\n(kein Abstand)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_right_at_middle',      label="Rechts an Mitte",  screentip='Ausrichtung rechte Kante an Shapemitte',   supertip='Ausrichtung der rechten Kante an der Shapemitte des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_left_at_right',        label="Links an Rechts",  screentip='Ausrichtung linke Kante an rechte Kante',  supertip='Ausrichtung der linken Kante an der rechten Kante des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_middle_at_right',      label="Mitte an Rechts",  screentip='Ausrichtung Shapemitte an rechte Kante',   supertip='Ausrichtung der Shapemitte an der rechten Kante des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_right_at_right',       label="Rechts an Rechts", screentip='Ausrichtung rechte Kante an rechte Kante', supertip='Ausrichtung der rechten Kante an der rechten Kante des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_top_at_top',           label="Oben an oben",     screentip='Ausrichtung obere Kante an obere Kante',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_middle_at_top',        label="Mitte an Oben",    screentip='Ausrichtung Shapemitte an obere Kante',    supertip='Ausrichtung der Shapemitte an der oberen Kante des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_bottom_at_top',        label="Unten an Oben",    screentip='Ausrichtung untere Kante an obere Kante',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_top_at_middle',        label="Oben an Mitte",    screentip='Ausrichtung obere Kante an Shapemitte',    supertip='Ausrichtung der oberen Kante an der Shapemitte des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_vmiddle_at_vmiddle',   label="Mitte an Mitte",   screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.\n(kein Abstand)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_bottom_at_middle',     label="Unten an Mitte",   screentip='Ausrichtung untere Kante an Shapemitte',   supertip='Ausrichtung der unteren Kante an der Shapemitte des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_top_at_bottom',        label="Oben an Unten",    screentip='Ausrichtung obere Kante an untere Kante',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_middle_at_bottom',     label="Mitte an Unten",   screentip='Ausrichtung Shapemitte an untere Kante',   supertip='Ausrichtung der Shapemitte an der unteren Kante des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button('arrange_bottom_at_bottom',     label="Unten an Unten",   screentip='Ausrichtung untere Kante an untere Kante', supertip='Ausrichtung der unteren Kante an der unteren Kante des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_left_at_left',         label="Links an Links",   screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Referenzshapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_middle_at_left',       label="Mitte an Links",   screentip='Ausrichtung Mitte an linke Kante',         supertip='Ausrichtung der Shapemitte an der linken Kante des Referenzshapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_right_at_left',        label="Rechts an Links",  screentip='Ausrichtung rechte Kante an linke Kante',  supertip='Ausrichtung der rechten Kante an der linken Kante des Referenzshapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_left_at_middle',       label="Links an Mitte",   screentip='Ausrichtung linke Kante an Shapemitte',    supertip='Ausrichtung der linken Kante an der Shapemitte des Referenzshapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_middle_at_middle',     label="Mitte an Mitte",   screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.\n(kein Abstand)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_right_at_middle',      label="Rechts an Mitte",  screentip='Ausrichtung rechte Kante an Shapemitte',   supertip='Ausrichtung der rechten Kante an der Shapemitte des Referenzshapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_left_at_right',        label="Links an Rechts",  screentip='Ausrichtung linke Kante an rechte Kante',  supertip='Ausrichtung der linken Kante an der rechten Kante des Referenzshapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_middle_at_right',      label="Mitte an Rechts",  screentip='Ausrichtung Shapemitte an rechte Kante',   supertip='Ausrichtung der Shapemitte an der rechten Kante des Referenzshapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_right_at_right',       label="Rechts an Rechts", screentip='Ausrichtung rechte Kante an rechte Kante', supertip='Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_top_at_top',           label="Oben an oben",     screentip='Ausrichtung obere Kante an obere Kante',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_middle_at_top',        label="Mitte an Oben",    screentip='Ausrichtung Shapemitte an obere Kante',    supertip='Ausrichtung der Shapemitte an der oberen Kante des Referenzshapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_bottom_at_top',        label="Unten an Oben",    screentip='Ausrichtung untere Kante an obere Kante',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_top_at_middle',        label="Oben an Mitte",    screentip='Ausrichtung obere Kante an Shapemitte',    supertip='Ausrichtung der oberen Kante an der Shapemitte des Referenzshapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_vmiddle_at_vmiddle',   label="Mitte an Mitte",   screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.\n(kein Abstand)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_bottom_at_middle',     label="Unten an Mitte",   screentip='Ausrichtung untere Kante an Shapemitte',   supertip='Ausrichtung der unteren Kante an der Shapemitte des Referenzshapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_top_at_bottom',        label="Oben an Unten",    screentip='Ausrichtung obere Kante an untere Kante',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_middle_at_bottom',     label="Mitte an Unten",   screentip='Ausrichtung Shapemitte an untere Kante',   supertip='Ausrichtung der Shapemitte an der unteren Kante des Referenzshapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button('arrange_bottom_at_bottom',     label="Unten an Unten",   screentip='Ausrichtung untere Kante an untere Kante', supertip='Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
         
         bkt.ribbon.Separator(),
 
@@ -2097,7 +2097,7 @@ arrange_advanced_group = bkt.ribbon.Group(
             round_cm=True, convert="pt_to_cm",
             image_mso="HorizontalSpacingIncrease", on_change=bkt.Callback(arrange_advaced.set_margin), get_text=bkt.Callback(arrange_advaced.get_margin),
             screentip="Abstand bei Ausrichtung",
-            supertip="Eingestellter Abstand wird bei der Ausrichtung von Shapes links/rechts berücksichtigt.\n\nDer Abstand wird addiert: bei Ausrichtung der linken/oberen Kante (des zu verschiebenden Shapes) und bei Ausrichtung der Shape-Mitte an der linken/oberen Kante des Mastershapes.\n\nDer Abstand wird subtrahiert: bei Ausrichtung der rechten/unteren Kante (des zu verschiebenden Shapes) und bei Ausrichtung der Shape-Mitte an der rechten/unteren Kante des Mastershapes."
+            supertip="Eingestellter Abstand wird bei der Ausrichtung von Shapes links/rechts berücksichtigt.\n\nDer Abstand wird addiert: bei Ausrichtung der linken/oberen Kante (des zu verschiebenden Shapes) und bei Ausrichtung der Shape-Mitte an der linken/oberen Kante des Referenzshapes.\n\nDer Abstand wird subtrahiert: bei Ausrichtung der rechten/unteren Kante (des zu verschiebenden Shapes) und bei Ausrichtung der Shape-Mitte an der rechten/unteren Kante des Referenzshapes."
         ),
         
         #bkt.ribbon.Menu(label="Optionen", children=[
@@ -2118,8 +2118,8 @@ arrange_advanced_group = bkt.ribbon.Group(
             image_mso="ControlAlignToGrid",
             on_action=bkt.Callback(arrange_advaced.arrange_quick_position),
             get_enabled=bkt.Callback(arrange_advaced.enabled),
-            screentip="Gleiche Position wie Master",
-            supertip="Shapes erhalten die gleiche Position wie das Master-Shape.",
+            screentip="Gleiche Position wie Referenz",
+            supertip="Shapes erhalten die gleiche Position wie das Referenzshape.",
         ),
         bkt.ribbon.Button(
             id="arrange_quick_size",
@@ -2127,8 +2127,8 @@ arrange_advanced_group = bkt.ribbon.Group(
             image_mso="SizeToControlHeightAndWidth",
             on_action=bkt.Callback(arrange_advaced.arrange_quick_size),
             get_enabled=bkt.Callback(arrange_advaced.enabled),
-            screentip="Gleiche Größe wie Master",
-            supertip="Shapes erhalten die gleiche Größe wie das Master-Shape.",
+            screentip="Gleiche Größe wie Referenz",
+            supertip="Shapes erhalten die gleiche Größe wie das Referenzshape.",
         ),
     ]
 )
@@ -2138,12 +2138,12 @@ arrange_advanced_small_group = bkt.ribbon.Group(
     label=u'Erw. Anordnen',
     image='arrange_left_at_left',
     children=[
-        arrange_advaced.get_button("arrange_left_at_left", "-small",        label="Links an Links",   screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button("arrange_right_at_right", "-small",      label="Rechts an Rechts", screentip='Ausrichtung rechte Kante an rechte Kante', supertip='Ausrichtung der rechten Kante an der rechten Kante des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button("arrange_middle_at_middle", "-small",    label="Mitte an Mitte",   screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.\n(kein Abstand)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button("arrange_top_at_top", "-small",          label="Oben an Oben",     screentip='Ausrichtung obere Kante an obere Kante',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Mastershapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button("arrange_bottom_at_bottom", "-small",    label="Unten an Unten",   screentip='Ausrichtung untere Kante an untere Kante', supertip='Ausrichtung der unteren Kante an der unteren Kante des Mastershapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
-        arrange_advaced.get_button("arrange_vmiddle_at_vmiddle", "-small",  label="Mitte an Mitte",   screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.\n(kein Abstand)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_left_at_left", "-small",        label="Links an Links",   screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Referenzshapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_right_at_right", "-small",      label="Rechts an Rechts", screentip='Ausrichtung rechte Kante an rechte Kante', supertip='Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_middle_at_middle", "-small",    label="Mitte an Mitte",   screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.\n(kein Abstand)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_top_at_top", "-small",          label="Oben an Oben",     screentip='Ausrichtung obere Kante an obere Kante',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_bottom_at_bottom", "-small",    label="Unten an Unten",   screentip='Ausrichtung untere Kante an untere Kante', supertip='Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes.\n(Abstand wird subtrahiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
+        arrange_advaced.get_button("arrange_vmiddle_at_vmiddle", "-small",  label="Mitte an Mitte",   screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.\n(kein Abstand)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
 
         bkt.ribbon.Button(
             id="arrange_quick_position-small",
@@ -2152,8 +2152,8 @@ arrange_advanced_small_group = bkt.ribbon.Group(
             image_mso="ControlAlignToGrid",
             on_action=bkt.Callback(arrange_advaced.arrange_quick_position),
             get_enabled=bkt.Callback(arrange_advaced.enabled),
-            screentip="Gleiche Position wie Master",
-            supertip="Shapes erhalten die gleiche Position wie das Master-Shape.",
+            screentip="Gleiche Position wie Referenz",
+            supertip="Shapes erhalten die gleiche Position wie das Referenzshape.",
         ),
         bkt.ribbon.Button(
             id="arrange_quick_size-small",
@@ -2162,8 +2162,8 @@ arrange_advanced_small_group = bkt.ribbon.Group(
             image_mso="SizeToControlHeightAndWidth",
             on_action=bkt.Callback(arrange_advaced.arrange_quick_size),
             get_enabled=bkt.Callback(arrange_advaced.enabled),
-            screentip="Gleiche Größe wie Master",
-            supertip="Shapes erhalten die gleiche Größe wie das Master-Shape.",
+            screentip="Gleiche Größe wie Referenz",
+            supertip="Shapes erhalten die gleiche Größe wie das Referenzshape.",
         ),
 
         arrange_advaced.get_master_button("-small", show_label=False)
@@ -2229,38 +2229,38 @@ arrange_adv_easy_group = bkt.ribbon.Group(
     image='arrange_left_at_left',
     children=[
         #POSITION
-        bkt.ribbon.Button(id='arrange_position_left',     on_action=bkt.Callback(arrange_adv_position.arrange_left_at_left),       get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_left',        label="Links an Links",   show_label=False, screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Mastershapes.'),
-        bkt.ribbon.Button(id='arrange_position_right',    on_action=bkt.Callback(arrange_adv_position.arrange_right_at_right),     get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_right',       label="Rechts an Rechts", show_label=False, screentip='Ausrichtung rechte Kante an rechte Kante', supertip='Ausrichtung der rechten Kante an der rechten Kante des Mastershapes.'),
-        bkt.ribbon.Button(id='arrange_position_middle',   on_action=bkt.Callback(arrange_adv_position.arrange_middle_at_middle),   get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_middle',      label="Mitte an Mitte",   show_label=False, screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.'),
+        bkt.ribbon.Button(id='arrange_position_left',     on_action=bkt.Callback(arrange_adv_position.arrange_left_at_left),       get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_left',        label="Links an Links",   show_label=False, screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Referenzshapes.'),
+        bkt.ribbon.Button(id='arrange_position_right',    on_action=bkt.Callback(arrange_adv_position.arrange_right_at_right),     get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_right',       label="Rechts an Rechts", show_label=False, screentip='Ausrichtung rechte Kante an rechte Kante', supertip='Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes.'),
+        bkt.ribbon.Button(id='arrange_position_middle',   on_action=bkt.Callback(arrange_adv_position.arrange_middle_at_middle),   get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_middle',      label="Mitte an Mitte",   show_label=False, screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.'),
 
-        bkt.ribbon.Button(id='arrange_position_top',      on_action=bkt.Callback(arrange_adv_position.arrange_top_at_top),         get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_top',        label="Oben an oben",     show_label=False, screentip='Ausrichtung obere Kante an obere Kante',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Mastershapes.'),
-        bkt.ribbon.Button(id='arrange_position_bottom',   on_action=bkt.Callback(arrange_adv_position.arrange_bottom_at_bottom),   get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_bottom',     label="Unten an Unten",   show_label=False, screentip='Ausrichtung untere Kante an untere Kante', supertip='Ausrichtung der unteren Kante an der unteren Kante des Mastershapes.'),
-        bkt.ribbon.Button(id='arrange_position_vmiddle',  on_action=bkt.Callback(arrange_adv_position.arrange_vmiddle_at_vmiddle), get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_vmiddle',    label="Mitte an Mitte",   show_label=False, screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Mastershapes.'),
+        bkt.ribbon.Button(id='arrange_position_top',      on_action=bkt.Callback(arrange_adv_position.arrange_top_at_top),         get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_top',        label="Oben an oben",     show_label=False, screentip='Ausrichtung obere Kante an obere Kante',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes.'),
+        bkt.ribbon.Button(id='arrange_position_bottom',   on_action=bkt.Callback(arrange_adv_position.arrange_bottom_at_bottom),   get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_bottom',     label="Unten an Unten",   show_label=False, screentip='Ausrichtung untere Kante an untere Kante', supertip='Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes.'),
+        bkt.ribbon.Button(id='arrange_position_vmiddle',  on_action=bkt.Callback(arrange_adv_position.arrange_vmiddle_at_vmiddle), get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_vmiddle',    label="Mitte an Mitte",   show_label=False, screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.'),
         bkt.ribbon.Separator(),
 
         #DOCK
         bkt.ribbon.Box(box_style="horizontal", children=[
-            bkt.ribbon.Button(id='arrange_dock_left',    on_action=bkt.Callback(arrange_adv_position.arrange_left_at_right),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_left',      label="Links an Rechts",  show_label=False, screentip='Ausrichtung linke Kante an rechte Kante',  supertip='Ausrichtung der linken Kante an der rechten Kante des Mastershapes.'),
-            bkt.ribbon.Button(id='arrange_dock_right',   on_action=bkt.Callback(arrange_adv_position.arrange_right_at_left),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_right',     label="Rechts an Links",  show_label=False, screentip='Ausrichtung rechte Kante an linke Kante',  supertip='Ausrichtung der rechten Kante an der linken Kante des Mastershapes.'),
-            bkt.ribbon.Button(id='arrange_dock_bottom',  on_action=bkt.Callback(arrange_adv_position.arrange_bottom_at_top),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_top',       label="Unten an Oben",    show_label=False, screentip='Ausrichtung untere Kante an obere Kante',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Mastershapes.'),
-            bkt.ribbon.Button(id='arrange_dock_top',     on_action=bkt.Callback(arrange_adv_position.arrange_top_at_bottom),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_bottom',    label="Oben an Unten",    show_label=False, screentip='Ausrichtung obere Kante an untere Kante',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Mastershapes.'),
+            bkt.ribbon.Button(id='arrange_dock_left',    on_action=bkt.Callback(arrange_adv_position.arrange_left_at_right),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_left',      label="Links an Rechts",  show_label=False, screentip='Ausrichtung linke Kante an rechte Kante',  supertip='Ausrichtung der linken Kante an der rechten Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_dock_right',   on_action=bkt.Callback(arrange_adv_position.arrange_right_at_left),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_right',     label="Rechts an Links",  show_label=False, screentip='Ausrichtung rechte Kante an linke Kante',  supertip='Ausrichtung der rechten Kante an der linken Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_dock_bottom',  on_action=bkt.Callback(arrange_adv_position.arrange_bottom_at_top),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_top',       label="Unten an Oben",    show_label=False, screentip='Ausrichtung untere Kante an obere Kante',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_dock_top',     on_action=bkt.Callback(arrange_adv_position.arrange_top_at_bottom),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_bottom',    label="Oben an Unten",    show_label=False, screentip='Ausrichtung obere Kante an untere Kante',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes.'),
         ]),
 
         #STRETCH
         bkt.ribbon.Box(box_style="horizontal", children=[
-            bkt.ribbon.Button(id='arrange_stretch_left',   on_action=bkt.Callback(arrange_adv_size.arrange_left_at_left),       get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_left',        label="Links an Links",   show_label=False, screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Mastershapes.'),
-            bkt.ribbon.Button(id='arrange_stretch_right',  on_action=bkt.Callback(arrange_adv_size.arrange_right_at_right),     get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_right',       label="Rechts an Rechts", show_label=False, screentip='Ausrichtung rechte Kante an rechte Kante', supertip='Ausrichtung der rechten Kante an der rechten Kante des Mastershapes.'),
+            bkt.ribbon.Button(id='arrange_stretch_left',   on_action=bkt.Callback(arrange_adv_size.arrange_left_at_left),       get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_left',        label="Links an Links",   show_label=False, screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_stretch_right',  on_action=bkt.Callback(arrange_adv_size.arrange_right_at_right),     get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_right',       label="Rechts an Rechts", show_label=False, screentip='Ausrichtung rechte Kante an rechte Kante', supertip='Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes.'),
 
-            bkt.ribbon.Button(id='arrange_stretch_top',    on_action=bkt.Callback(arrange_adv_size.arrange_top_at_top),         get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_top',         label="Oben an oben",     show_label=False, screentip='Ausrichtung obere Kante an obere Kante',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Mastershapes.'),
-            bkt.ribbon.Button(id='arrange_stretch_bottom', on_action=bkt.Callback(arrange_adv_size.arrange_bottom_at_bottom),   get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_bottom',      label="Unten an Unten",   show_label=False, screentip='Ausrichtung untere Kante an untere Kante', supertip='Ausrichtung der unteren Kante an der unteren Kante des Mastershapes.'),
+            bkt.ribbon.Button(id='arrange_stretch_top',    on_action=bkt.Callback(arrange_adv_size.arrange_top_at_top),         get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_top',         label="Oben an oben",     show_label=False, screentip='Ausrichtung obere Kante an obere Kante',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_stretch_bottom', on_action=bkt.Callback(arrange_adv_size.arrange_bottom_at_bottom),   get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_bottom',      label="Unten an Unten",   show_label=False, screentip='Ausrichtung untere Kante an untere Kante', supertip='Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes.'),
         ]),
 
         #FILL
         bkt.ribbon.Box(box_style="horizontal", children=[
-            bkt.ribbon.Button(id='arrange_fill_left',       on_action=bkt.Callback(arrange_adv_size.arrange_left_at_right),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_left',          label="Links an Rechts",  show_label=False, screentip='Ausrichtung linke Kante an rechte Kante',  supertip='Ausrichtung der linken Kante an der rechten Kante des Mastershapes.'),
-            bkt.ribbon.Button(id='arrange_fill_right',      on_action=bkt.Callback(arrange_adv_size.arrange_right_at_left),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_right',         label="Rechts an Links",  show_label=False, screentip='Ausrichtung rechte Kante an linke Kante',  supertip='Ausrichtung der rechten Kante an der linken Kante des Mastershapes.'),
-            bkt.ribbon.Button(id='arrange_fill_bottom',     on_action=bkt.Callback(arrange_adv_size.arrange_bottom_at_top),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_bottom',        label="Unten an Oben",    show_label=False, screentip='Ausrichtung untere Kante an obere Kante',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Mastershapes.'),
-            bkt.ribbon.Button(id='arrange_fill_top',        on_action=bkt.Callback(arrange_adv_size.arrange_top_at_bottom),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_top',           label="Oben an Unten",    show_label=False, screentip='Ausrichtung obere Kante an untere Kante',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Mastershapes.'),
+            bkt.ribbon.Button(id='arrange_fill_left',       on_action=bkt.Callback(arrange_adv_size.arrange_left_at_right),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_left',          label="Links an Rechts",  show_label=False, screentip='Ausrichtung linke Kante an rechte Kante',  supertip='Ausrichtung der linken Kante an der rechten Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_fill_right',      on_action=bkt.Callback(arrange_adv_size.arrange_right_at_left),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_right',         label="Rechts an Links",  show_label=False, screentip='Ausrichtung rechte Kante an linke Kante',  supertip='Ausrichtung der rechten Kante an der linken Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_fill_bottom',     on_action=bkt.Callback(arrange_adv_size.arrange_bottom_at_top),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_bottom',        label="Unten an Oben",    show_label=False, screentip='Ausrichtung untere Kante an obere Kante',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_fill_top',        on_action=bkt.Callback(arrange_adv_size.arrange_top_at_bottom),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_top',           label="Oben an Unten",    show_label=False, screentip='Ausrichtung obere Kante an untere Kante',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes.'),
         ]),
 
     ]
@@ -2671,7 +2671,7 @@ tablearrange_button = bkt.ribbon.SplitButton(
             label="Auf Tabelle/Absatz/Shapes anordnen",
             image='arrange_shape_table',
             screentip="Shape-Objekte in Tabellen/Absätzen/Shapes anordnen",
-            supertip="Bei Markierung von Tabellen und Shapes:\nOrdne jedes Shape, das über einer (ebenfalls selektierten) Tabelle liegt, innerhalb der nächst-liegenden Tabellenzelle an. Die Zelle wird anhand des Shape-Mittelpunkts bestimmt.\n\nBei Markierung von Shapes:\nOrdne jedes Shape, das vollständig über einem anderen (ebenfalls selektierten) Shapes (=Mastershape) liegt, in dem nächstliegenden Textabsatz im Mastershape an. Sind weniger as 2 Textabsätze vorhanden, wird innerhalb des gesamten Shapes angeordnet.",
+            supertip="Bei Markierung von Tabellen und Shapes:\nOrdne jedes Shape, das über einer (ebenfalls selektierten) Tabelle liegt, innerhalb der nächst-liegenden Tabellenzelle an. Die Zelle wird anhand des Shape-Mittelpunkts bestimmt.\n\nBei Markierung von Shapes:\nOrdne jedes Shape, das vollständig über einem anderen (ebenfalls selektierten) Shapes (=Referenzshape) liegt, in dem nächstliegenden Textabsatz im Referenzshape an. Sind weniger as 2 Textabsätze vorhanden, wird innerhalb des gesamten Shapes angeordnet.",
             on_action=bkt.Callback(TableArrange.arrange_overlay_shapes, shapes=True, shapes_min=2),
             # get_enabled = bkt.apps.ppt_shapes_min2_selected,
         ),
@@ -3362,6 +3362,15 @@ arrange_group = bkt.ribbon.Group(
                     screentip="Alle ausgewählte Shapes miteinander verknüpfen",
                     supertip="Die ausgewählten Shapes für zukünftige Operationen verknüpfen. Die Verknüpfung bleibt beim Kopieren der Shapes erhalten.",
                     on_action=bkt.Callback(LinkedShapes.link_shapes, shapes=True),
+                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                ),
+                bkt.ribbon.Button(
+                    id = 'each_link_shapes',
+                    label="Ausgewählte Shapes einzeln in Verknüpfung umwandeln",
+                    # image_mso="HyperlinkCreate",
+                    screentip="Alle ausgewählte Shapes einzeln verknüpfen",
+                    supertip="Die ausgewählten Shapes bekommen jeweils eine interne Verknüpfungs-ID. Die Verknüpfung bleibt beim Kopieren der Shapes erhalten.",
+                    on_action=bkt.Callback(LinkedShapes.each_link_shapes, shapes=True),
                     get_enabled = bkt.apps.ppt_shapes_or_text_selected,
                 ),
                 bkt.ribbon.Button(

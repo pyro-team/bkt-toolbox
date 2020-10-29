@@ -183,6 +183,14 @@ class ShapeSelector(object):
             for shp in all_shapes:
                 if not cls._is_ontop(shpMaster, shp) and cls._is_within(shpMaster, shp):
                     shp.Select(replace=False)
+    
+    @classmethod
+    def select_with_tags(cls, context):
+        all_shapes = cls._get_all_shapes(context)
+        for shp in all_shapes:
+            if shp.visible and shp.tags.count > 0:
+                shp.Select(replace=False)
+
 
 
 class SlidesMore(object):
@@ -236,6 +244,39 @@ class SlidesMore(object):
             shape.delete()
         
         pasted_shapes.select(False)
+
+    @staticmethod
+    def paste_and_distribute(slide, shapes):
+        from itertools import cycle
+
+        def par_iterator(selected_shapes):
+            for textframe in pplib.iterate_shape_textframes(selected_shapes, False):
+                for idx in range(1, textframe.TextRange.Paragraphs().Count+1):
+                    yield textframe.TextRange.Paragraphs(idx)
+        
+        pasted = slide.shapes.paste()
+        par_iter = cycle(par_iterator(pasted))
+        
+        try:
+            for textframe in pplib.iterate_shape_textframes(shapes):
+                textframe.DeleteText()
+                pplib.transfer_textrange(next(par_iter), textframe.textrange)
+        except:
+            logging.exception("error pasting texts")
+        finally:
+            pasted.Copy() #restore clipboard
+            pasted.Delete() #remove
+        
+        pplib.shapes_to_range(shapes).select()
+
+    @staticmethod
+    def copy_texts(shapes):
+        from bkt import dotnet
+        Forms = dotnet.import_forms()
+
+        txts = [textframe.TextRange.Text for textframe in pplib.iterate_shape_textframes(shapes) if textframe.HasText]
+        if txts:
+            Forms.Clipboard.SetText("\r".join(txts))
 
     @staticmethod
     def copy_in_highquality(slide):
@@ -444,6 +485,14 @@ selection_menu = bkt.ribbon.Menu(
             # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
             supertip="Invertiert die aktuelle Auswahl. Es werden alle Shapes (auch Platzhalter) markiert, die vorher nicht markiert waren.",
         ),
+        bkt.ribbon.Button(
+            id = 'shapes_select_tags',
+            image_mso = 'FindTag',
+            label='Shapes mit Tags',
+            on_action=bkt.Callback(ShapeSelector.select_with_tags, context=True),
+            # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+            supertip="Markiert alle Shapes auf der Folie mit Tags (Meta-Daten), die u.A. für diverse BKT-Funktionen verwendet werden.",
+        ),
     ]
 )
 
@@ -464,7 +513,8 @@ clipboard_group = bkt.ribbon.Group(
                     supertip="Menü mit verschiedenen Einfüge-Operationen",
                     children=[
                         bkt.mso.button.PasteSpecialDialog,
-                        bkt.ribbon.MenuSeparator(),
+                        bkt.mso.button.PasteAsPicture,
+                        bkt.ribbon.MenuSeparator(title="Einfügen-Spezial"),
                         bkt.ribbon.Button(
                             id='paste_to_slides',
                             label="Auf ausgewählte Folien einfügen",
@@ -487,6 +537,14 @@ clipboard_group = bkt.ribbon.Group(
                             on_action=bkt.Callback(SlidesMore.paste_and_replace_shapes, slide=True, shapes=True),
                             get_enabled=bkt.apps.ppt_shapes_or_text_selected,
                         ),
+                        bkt.ribbon.Button(
+                            id='paste_and_distribute',
+                            label="Text auf Auswahl verteilen",
+                            supertip="Jeden Paragraphen aus der Zwischenablage einzeln auf die markierten Shapes verteilen. Überflüssige Paragraphen werden verworfen.",
+                            image_mso='PasteMergeList',
+                            on_action=bkt.Callback(SlidesMore.paste_and_distribute, slide=True, shapes=True),
+                            get_enabled=bkt.apps.ppt_shapes_or_text_selected,
+                        ),
                         bkt.ribbon.MenuSeparator(),
                         bkt.mso.button.ShowClipboard,
                     ]
@@ -504,6 +562,14 @@ clipboard_group = bkt.ribbon.Group(
                     children=[
                         bkt.mso.button.Copy,
                         bkt.mso.button.PasteDuplicate,
+                        bkt.ribbon.Button(
+                            id="copy_texts",
+                            label="Shape-Text kopieren",
+                            supertip="Kopiert den Text aller markierten Shapes in die Zwischenablage.",
+                            image_mso='DrawTextBox',
+                            on_action=bkt.Callback(SlidesMore.copy_texts, shapes=True),
+                            get_enabled=bkt.get_enabled_auto
+                        ),
                         bkt.ribbon.Button(
                             id="copy_slide_hq",
                             label="Folie als HQ-Bild kopieren",

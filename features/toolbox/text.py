@@ -1796,9 +1796,9 @@ paragraph_indent_group = bkt.ribbon.Group(
 )
 
 
-text_compact_group = bkt.ribbon.Group(
-    id="bkt_text_compact_group",
-    label = u"Schriftart/Text",
+compact_font_group = bkt.ribbon.Group(
+    id="bkt_compact_font_group",
+    label = u"Schriftart",
     image_mso='GroupFont',
     children = [
         #NOTE: horizontal box layout leads to spacing between Font and FontSize ComboBox!
@@ -1825,9 +1825,15 @@ text_compact_group = bkt.ribbon.Group(
             bkt.mso.control.Superscript,
             bkt.mso.control.Subscript,
         ]),
+        bkt.ribbon.DialogBoxLauncher(idMso='FontDialogPowerPoint')
+    ]
+)
 
-        bkt.ribbon.Separator(),
-
+compact_paragraph_group = bkt.ribbon.Group(
+    id="bkt_compact_paragraph_group",
+    label = u"Absatz",
+    image_mso='GroupParagraph',
+    children = [
         bkt.ribbon.Box(box_style="horizontal", children=[
             bkt.mso.control.BulletsGallery,
             bkt.mso.control.NumberingGallery,
@@ -1854,6 +1860,6 @@ text_compact_group = bkt.ribbon.Group(
             bkt.mso.control.TextDirectionGallery,
             bkt.mso.control.TextAlignGallery,
         ]),
-        bkt.ribbon.DialogBoxLauncher(idMso='FontDialogPowerPoint')
+        bkt.ribbon.DialogBoxLauncher(idMso='PowerPointParagraphDialog')
     ]
 )

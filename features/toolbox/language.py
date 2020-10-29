@@ -121,7 +121,11 @@ class LangSetter(object):
     @classmethod
     def set_language_for_shapes(cls, shapes, lang_code, from_selection=True):
         for textframe in pplib.iterate_shape_textframes(shapes, from_selection):
-            textframe.TextRange.LanguageID = lang_code
+            try:
+                textframe.TextRange.LanguageID = lang_code
+            except:
+                #skip errors, e.g. for certain chart types
+                continue
     
     @classmethod
     def get_dynamicmenu_content(cls):

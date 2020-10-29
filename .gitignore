@@ -15,6 +15,7 @@ resources/**/*.dir
 #ignore config and log files
 config.txt
 bkt-debug.log
+bkt-debug-*.log
 bkt-debug-py.log*
 
 #ignore compiled python files, code editor files and windows temp files

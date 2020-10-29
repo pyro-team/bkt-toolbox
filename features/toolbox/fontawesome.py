@@ -11,7 +11,9 @@ import importlib
 from collections import namedtuple, deque
 
 import bkt
+from bkt import ribbon
 from bkt.library.powerpoint import PPTSymbolsGallery
+from bkt.ribbon import Separator
 
 
 FontSymbol = namedtuple("FontSymbol", "module fontlabel fontname unicode label keywords")
@@ -105,7 +107,13 @@ class Fontawesome(object):
                     cls.searchable_fonts.append(fontsymbolmodule.menu_title)
                 except AttributeError:
                     continue
-
+    @classmethod
+    def get_text_fontawesome(cls):
+        return bkt.ribbon.Menu(
+                xmlns="http://schemas.microsoft.com/office/2009/07/customui",
+                id=None,
+                children=cls.get_symbol_galleries()
+            )
 
 
 class FontSearch(object):
@@ -240,6 +248,15 @@ fontsearch_gruppe = bkt.ribbon.Group(
     label="Icon-Suche",
     image_mso='GroupSearch',
     children=[
+        bkt.ribbon.DynamicMenu(
+            id="fontsearch_all_symbols",
+            label="Alle Icons",
+            size="large",
+            supertip="Zeigt Icons für verfügbare Icon-Fonts an, die als Textsymbol oder Grafik eingefügt werden können.\n\nHinweis: Die Icon-Fonts müssen auf dem Rechner installiert sein.",
+            image_mso="Call",
+            get_content = bkt.Callback(Fontawesome.get_text_fontawesome)
+        ),
+        bkt.ribbon.Separator(),
         bkt.ribbon.Label(
             label="Suchwort:",
         ),

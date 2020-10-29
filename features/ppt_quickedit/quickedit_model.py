@@ -18,49 +18,20 @@ import bkt.library.powerpoint as pplib
 D = bkt.dotnet.import_drawing()
 
 
-COLOR_THEME = 1
-COLOR_RGB = 2
+COLOR_THEME = pplib.PPTColor.COLOR_THEME
+COLOR_RGB = pplib.PPTColor.COLOR_RGB
 
 BUTTON_THEME  = 4
 BUTTON_RECENT = 8
 BUTTON_USERDEFINED = 16
 
 
-class PPTColor(object):
+class PPTColor(pplib.PPTColor):
     '''
     This class represents a single color similar to the powerpoint color object.
     Helper methods provided to pickup or apply color from powerpoint color object, 
     to export color as tuple and to export color as html-code for WPF.
     '''
-
-    @classmethod
-    def from_color_obj(cls, color_obj):
-        return cls().pickup_from_color_obj(color_obj)
-
-    @classmethod
-    def new_rgb(cls, color_rgb):
-        return cls(COLOR_RGB, color_rgb=color_rgb)
-    
-    @classmethod
-    def new_theme(cls, color_index, brightness, color_rgb=None, shade_index=None):
-        return cls(COLOR_THEME, color_index, brightness, color_rgb, shade_index)
-
-
-    def __init__(self, color_type=COLOR_RGB, color_index=None, brightness=None, color_rgb=None, shade_index=None):
-        self.color_type  = color_type
-        self.color_index = color_index
-        self.brightness  = brightness
-        self.color_rgb   = color_rgb
-        self.shade_index = shade_index #-1=not yet defined, set index on next update_from_context; None=ignore, only use brightness
-    
-    def __eq__(self, other):
-        if isinstance(other, PPTColor):
-            return self.get_color_tuple() == other.get_color_tuple()
-        return False
-    
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
 
     def update_rgb(self, rgb):
         self.color_rgb = rgb
@@ -80,38 +51,6 @@ class PPTColor(object):
         else:
             color = pplib.ColorHelper.get_theme_color(context, self.color_index, brightness=self.brightness)
         self.color_rgb = color.rgb
-
-
-    def pickup_from_color_obj(self, color_obj):
-        if color_obj.Type == pplib.MsoColorType['msoColorTypeScheme']:
-            self.color_type  = COLOR_THEME
-            self.color_index = color_obj.ObjectThemeColor
-            # self.color_index = color_obj.SchemeColor
-            self.brightness  = color_obj.Brightness
-            self.color_rgb   = color_obj.RGB
-            self.shade_index = -1 #-1: shade index will be set on first update
-        else:
-            self.color_type  = COLOR_RGB
-            self.color_index = None
-            self.brightness  = None
-            self.color_rgb   = color_obj.RGB
-            self.shade_index = None
-        return self
-    
-    def apply_to_color_obj(self, color_obj):
-        if self.color_type == COLOR_THEME:
-            color_obj.ObjectThemeColor = self.color_index
-            # color_obj.SchemeColor = self.color_index
-            color_obj.Brightness = self.brightness
-        else:
-            color_obj.RGB = self.color_rgb
-
-
-    def get_color_tuple(self):
-        if self.color_type == COLOR_THEME:
-            return (COLOR_THEME, self.color_index, int(100*self.brightness)) #convert brightness to int to avoid floating point comparison problems
-        else:
-            return (COLOR_RGB, self.color_rgb)
     
     def get_color_html(self):
         if self.color_rgb is None:

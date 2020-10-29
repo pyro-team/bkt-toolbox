@@ -152,7 +152,7 @@ class SendOrSaveSlides(object):
             newPres.NewWindow()
 
     @classmethod
-    def send_slides(cls, application, slides, filename, fileformat="ppt", remove_sections=True, remove_author=False, remove_designs=False, remove_hidden=False):
+    def send_slides(cls, application, slides, filename, fileformat="ppt", remove_empty_sections=True, remove_all_sections=False, remove_author=False, remove_designs=False, remove_hidden=False):
         from bkt import dotnet
         Outlook = dotnet.import_outlook()
 
@@ -174,11 +174,18 @@ class SendOrSaveSlides(object):
                 cls._delete_unselected_slides(slides, newPres)
                 newPres.Save()
 
-            if remove_sections:
+            if remove_all_sections:
                 # Alle Abschnitte entfernen
                 sections = newPres.SectionProperties
                 for i in reversed(range(sections.count)):
                     sections.Delete(i+1, 0) #index, deleteSlides=False
+                newPres.Save()
+            elif remove_empty_sections:
+                # Leere Abschnitte entfernen
+                sections = newPres.SectionProperties
+                for i in reversed(range(sections.count)):
+                    if sections.SlidesCount(i+1) == 0:
+                        sections.Delete(i+1, 0) #index, deleteSlides=False
                 newPres.Save()
             
             if remove_author:
@@ -226,6 +233,11 @@ class SlideMenu(object):
     def send_slides_dialog(cls, context):
         from .dialogs.slides_send import SendWindow
         SendWindow.create_and_show_dialog(SendOrSaveSlides, context)
+
+    @classmethod
+    def sync_slides_dialog(cls, context):
+        from .dialogs.slides_sync import SlideSyncWindow
+        SlideSyncWindow.create_and_show_dialog(context)
 
 
     @classmethod
@@ -427,8 +439,10 @@ class SlideMenu(object):
         for design in context.presentation.Designs:
             for cl in list(iter(design.SlideMaster.CustomLayouts)): #list(iter()) required as delete function will not work on all elements otherwise!
                 try:
+                    name = cl.name
                     cl.Delete()
                     deleted_layouts += 1
+                    logging.info("deleted custom layout %s", name)
                 except EnvironmentError: #deletion fails if layout in use
                     #EnvironmentError: System.Runtime.InteropServices.COMException (0x80048240): Slide (unknown member) : Invalid request.  Can't delete master.
                     continue
@@ -443,7 +457,9 @@ class SlideMenu(object):
             if bkt.message.confirmation("Es wurden {} Folienlayouts gelöscht und {} Folienmaster sind nun ohne Layout. Sollen diese gelöscht werden?".format(deleted_layouts, unused_designs_len)):
                 for design in unused_designs:
                     try:
+                        name = design.name
                         design.Delete()
+                        logging.info("deleted design %s", name)
                     except:
                         logging.exception("error deleting design")
             bkt.message("Leere Folienmaster wurden gelöscht!")
@@ -466,8 +482,10 @@ class SlideMenu(object):
         #remove all remaining indices
         for i in reversed(unused_designs):
             try:
+                name = designs[i].name
                 designs[i].delete()
                 deleted_designs += 1
+                logging.info("deleted design %s", name)
             except:
                 logging.exception("error deleting design")
         
@@ -601,6 +619,13 @@ slides_group = bkt.ribbon.Group(
                     supertip="Sendet die ausgewählten Folien als Email-Anhang, wahlweise auch als PDF-Datei.",
                     on_action=bkt.Callback(SlideMenu.send_slides_dialog)
                 ),
+                bkt.ribbon.Button(
+                    id = 'sync_slides',
+                    label='Ausgewählte Folien angleichen',
+                    image_mso='SlideShowShowPresentationOnGallery',
+                    supertip="Gleicht alle Shapes auf den Folien der ersten selektierten Folie an anhand des Shape-Namens. Die Funktion ist nützlich wenn man ein Template erstellt, die mehrfach dupliziert und Änderungen danach synchronisieren möchte",
+                    on_action=bkt.Callback(SlideMenu.sync_slides_dialog)
+                ),
                 bkt.ribbon.SplitButton(children=[
                     bkt.ribbon.Button(
                         id = 'slide_remove_all',
@@ -722,7 +747,7 @@ slides_group = bkt.ribbon.Group(
                 bkt.ribbon.MenuSeparator(),
                 bkt.mso.control.GuidesShowHide(show_label=True),
                 bkt.ribbon.Button(
-                    label="Master-Shapes ein-/ausblenden",
+                    label="Template-Shapes ein-/ausblenden",
                     image_mso='SlideHide',
                     supertip="Alle Shapes im Folienmaster ein- und ausblenden, um ungestört und vertraulich an Folien arbeiten zu können.",
                     on_action=bkt.Callback(SlideMenu.toggle_hide_master_shapes)

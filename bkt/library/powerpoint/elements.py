@@ -61,7 +61,12 @@ class TextframeSpinnerBox(bkt.ribbon.RoundingSpinnerBox):
         Get attr for shapes
         '''
         for textframe in pplib.iterate_shape_textframes(shapes):
-            return self.get_attr_from_textframe(textframe)
+            try:
+                return self.get_attr_from_textframe(textframe)
+            except:
+                # produces error for certain chart types, e.g. Treemap
+                continue
+        return None
 
     def get_attr_from_textframe(self, textframe):
         return getattr(textframe, self.attr)
@@ -149,13 +154,18 @@ class ParagraphFormatSpinnerBox(bkt.ribbon.RoundingSpinnerBox):
         else:
             # shapes selected
             for textframe in pplib.iterate_shape_textframes(shapes):
-                value = self.get_attr_from_textrange(textframe.TextRange)
+                try:
+                    value = self.get_attr_from_textrange(textframe.TextRange)
+                except:
+                    # produces error for certain chart types, e.g. Treemap
+                    continue
                 try:
                     if int(value) == -2147483648: #different values for each paragraph, so get value from first paragraph
                         value = self._get_attr(textframe.TextRange.Paragraphs(1,1).ParagraphFormat)
                 except:
                     pass
                 return value
+        return None
 
     def get_attr_from_textrange(self, textrange):
         return self._get_attr(textrange.ParagraphFormat)

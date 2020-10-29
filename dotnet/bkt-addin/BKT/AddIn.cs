@@ -100,12 +100,13 @@ namespace BKT
             Debug.Listeners.Clear();
             if ( log_write_file ) {
                 string codebase = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-                string path = Path.Combine(codebase, "..", "bkt-debug.log");
+                string path = Path.Combine(codebase, "..", "bkt-debug-"+DateTime.Now.ToString("MMdd")+".log");
+                // string path = Path.Combine(codebase, "..", "bkt-debug.log");
                 try
                 {
-                    logFileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+                    logFileStream = new FileStream(path, FileMode.Append);
 
-                    TextWriterTraceListener listener;
+                    // TextWriterTraceListener listener;
                     listener = new TextWriterTraceListener(logFileStream);
                     Debug.Listeners.Add(listener);
                 }

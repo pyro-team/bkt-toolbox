@@ -5,8 +5,9 @@ Created on 02.11.2017
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
+import time
 import json # required for tags
 from collections import namedtuple # required for color class
 from contextlib import contextmanager # for locale helper
@@ -394,6 +395,18 @@ GlobalLocPin = LocPin(settings_key="bkt.global_loc_pin")
 # ============================
 
 
+def save_paste(obj, *args, **kwargs):
+    for _ in range(3):
+        try:
+            return obj.paste(*args, **kwargs)
+        except EnvironmentError:
+            #wait some time to avoid EnvironmentError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
+            time.sleep(.50)
+            #FIXME: maybe better way to check if clipboard actually contains "something"
+    else:
+        raise EnvironmentError("pasting not successfull")
+
+
 def shape_is_group_child(shape):
     '''
     Test if a shape is part of a group.
@@ -537,7 +550,8 @@ def transfer_textrange(from_textrange, to_textrange):
     So this function manually copies color values after copying the textrange.
     '''
     from_textrange.Copy()
-    to_textrange.Paste()
+    # to_textrange.Paste()
+    save_paste(to_textrange)
 
     def copy_color(from_obj, to_obj):
         if from_obj.ObjectThemeColor != 0:
@@ -750,6 +764,90 @@ class TagHelper(object):
 # = Color helper class =
 # ======================
 
+class PPTColor(object):
+    '''
+    This class represents a single color similar to the powerpoint color object.
+    Helper methods provided to pickup or apply color from powerpoint color object, 
+    and to export color as tuple.
+    '''
+
+    COLOR_NONE = 0 #convinience for visible=0
+    COLOR_THEME = 1
+    COLOR_RGB = 2
+
+    @classmethod
+    def from_color_obj(cls, color_obj):
+        return cls().pickup_from_color_obj(color_obj)
+
+    @classmethod
+    def from_color_tuple(cls, color_tuple):
+        if not color_tuple:
+            return cls(cls.COLOR_NONE)
+        elif color_tuple[0] == cls.COLOR_RGB:
+            return cls(cls.COLOR_RGB, color_rgb=color_tuple[1])
+        elif color_tuple[0] == cls.COLOR_THEME:
+            return cls(cls.COLOR_THEME, color_index=color_tuple[1], brightness=color_tuple[2]/100)
+
+    @classmethod
+    def new_rgb(cls, color_rgb):
+        return cls(cls.COLOR_RGB, color_rgb=color_rgb)
+    
+    @classmethod
+    def new_theme(cls, color_index, brightness=0, color_rgb=None, shade_index=None):
+        return cls(cls.COLOR_THEME, color_index, brightness, color_rgb, shade_index)
+
+
+    def __init__(self, color_type=COLOR_RGB, color_index=None, brightness=None, color_rgb=None, shade_index=None):
+        self.color_type  = color_type
+        self.color_index = color_index
+        self.brightness  = brightness
+        self.color_rgb   = color_rgb
+        self.shade_index = shade_index #-1=not yet defined, set index on next update_from_context; None=ignore, only use brightness
+    
+    def __eq__(self, other):
+        if isinstance(other, PPTColor):
+            return self.get_color_tuple() == other.get_color_tuple()
+        return False
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
+    
+    def __nonzero__(self):
+        return self.color_type != self.COLOR_NONE
+    __bool__ = __nonzero__
+
+    def pickup_from_color_obj(self, color_obj):
+        if color_obj.Type == MsoColorType['msoColorTypeScheme']:
+            self.color_type  = self.COLOR_THEME
+            self.color_index = color_obj.ObjectThemeColor
+            # self.color_index = color_obj.SchemeColor
+            self.brightness  = color_obj.Brightness
+            self.color_rgb   = color_obj.RGB
+            self.shade_index = -1 #-1: shade index will be set on first update
+        else:
+            self.color_type  = self.COLOR_RGB
+            self.color_index = None
+            self.brightness  = None
+            self.color_rgb   = color_obj.RGB
+            self.shade_index = None
+        return self
+    
+    def apply_to_color_obj(self, color_obj):
+        if self.color_type == self.COLOR_THEME:
+            color_obj.ObjectThemeColor = self.color_index
+            # color_obj.SchemeColor = self.color_index
+            color_obj.Brightness = self.brightness
+        elif self.color_type == self.COLOR_RGB:
+            color_obj.RGB = self.color_rgb
+
+    def get_color_tuple(self):
+        if self.color_type == self.COLOR_THEME:
+            return (self.COLOR_THEME, self.color_index, int(100*self.brightness)) #convert brightness to int to avoid floating point comparison problems
+        elif self.color_type == self.COLOR_RGB:
+            return (self.COLOR_RGB, self.color_rgb)
+        else:
+            return None
+
 
 class ColorHelper(object):
     '''
@@ -960,7 +1058,7 @@ class BKTTag(object):
         self.data = {}
 
     def get(self, arg, default=None):
-        self.data.get(arg, default)
+        return self.data.get(arg, default)
 
     def __enter__(self):
         self.load()
@@ -1198,8 +1296,14 @@ class TextframeIterator(SubShapeIterator):
             yield node.TextFrame2
     
     def _iter_chart(self, shape):
+        yield shape.Chart.Format.TextFrame2
         yield shape.Chart.ChartArea.Format.TextFrame2
-        yield shape.Chart.ChartTitle.Format.TextFrame2
+        if shape.Chart.HasTitle:
+            yield shape.Chart.ChartTitle.Format.TextFrame2
+        if shape.Chart.HasLegend:
+            yield shape.Chart.Legend.Format.TextFrame2
+        if shape.Chart.HasDataTable:
+            yield shape.Chart.DataTable.Format.TextFrame2
 
 
 def iterate_shape_textframes(shapes, from_selection=True):

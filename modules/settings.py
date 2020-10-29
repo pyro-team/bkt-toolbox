@@ -144,7 +144,7 @@ class BKTUpdates(object):
         from bkt import MessageBox
         bkt_branding = BKTInfos.get_branding_info()
         if bkt_branding.is_branded:
-            download_text = "Diese BKT-Version ist modifiziert für {}. Die Download-URL wurde überschreiben. Download-Seite {} jetzt aufrufen?".format(bkt_branding.brand_name, bkt_branding.download_url)
+            download_text = "Diese BKT-Version ist modifiziert für {}. Die Download-URL wurde überschrieben. Download-Seite {} jetzt aufrufen?".format(bkt_branding.brand_name, bkt_branding.download_url)
             download_url = bkt_branding.download_url
         else:
             download_text = "Download-Seite {} jetzt aufrufen?".format(latest_version.download_url)

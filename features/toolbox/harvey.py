@@ -70,6 +70,9 @@ class HarveyBalls(object):
         # Tag erstellen
         self._add_tags(grp, int(1./fill))
 
+        # Name
+        grp.Name = "[BKT] Harvey Ball %s" % grp.id
+
         # selektieren und contextual tab aktivieren
         grp.select()
         context.ribbon.ActivateTab('bkt_context_tab_harvey')

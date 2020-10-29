@@ -20,7 +20,8 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         self._fileformat = "ppt"
         self._slides = "sel"
         self._remove_author = False
-        self._remove_sections = True
+        self._remove_all_sections = False
+        self._remove_empty_sections = True
         self._remove_designs = True
         self._remove_hidden = False
 
@@ -87,11 +88,18 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
         self._remove_author = value
 
     @notify_property
-    def remove_sections(self):
-        return self._remove_sections
-    @remove_sections.setter
-    def remove_sections(self, value):
-        self._remove_sections = value
+    def remove_all_sections(self):
+        return self._remove_all_sections
+    @remove_all_sections.setter
+    def remove_all_sections(self, value):
+        self._remove_all_sections = value
+
+    @notify_property
+    def remove_empty_sections(self):
+        return self._remove_empty_sections
+    @remove_empty_sections.setter
+    def remove_empty_sections(self, value):
+        self._remove_empty_sections = value
 
     @notify_property
     def remove_hidden(self):
@@ -137,4 +145,4 @@ class SendWindow(bkt.ui.WpfWindowAbstract):
     def send_slides(self, sender, event):
         self.Close()
         slides = None if self._vm._slides == "all" else self._context.slides
-        self._model.send_slides(self._context.app, slides, self._vm._filename, self._vm._fileformat, self._vm._remove_sections, self._vm._remove_author, self._vm._remove_designs, self._vm._remove_hidden)
+        self._model.send_slides(self._context.app, slides, self._vm._filename, self._vm._fileformat, self._vm._remove_empty_sections, self._vm._remove_all_sections, self._vm._remove_author, self._vm._remove_designs, self._vm._remove_hidden)

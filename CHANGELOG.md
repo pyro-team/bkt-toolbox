@@ -1,3 +1,30 @@
+# Release 2020-10-29 (2.7.2)
+
+  * Rename "Master" to "Reference" or "Main" across the whole UI
+  * Added functions to linked shapes: Select reference shape, skip between linked shapes, set link ID for each individual selected shape
+  * Added function to select shapes with tags
+  * Added font-icon dropdown to search group
+  * Added option to remove empty sections when sending slides
+  * Added functions to sort Z-Order (and therefore selection) by position top-down or left-right
+  * Added compact font/paragraph group as new default also for 3-page layout
+  * Added slide synchronization function to equalize multiple slides at once (e.g. template slides)
+  * Added feature to copy shape texts and to paste and distribute paragraphs on all selected shapes
+  * Improved handlings of chart textframes
+  * Improved shape names of various BKT shapes
+  * Improved linked shapes functionalities now support multiple selected linked shapes at once
+  * Improved statistics: now shown in dialog window with additional data
+  * Improved UI settings editor with scroll-viewer
+  * Improved traffic light to recognize color changes
+  * Improved likert scale is now easier adoptable (not backwards compatible)
+  * Improved layout of ppt_notes group
+  * Fixed errors for certain chart types when changing language or showing paragraph spinners
+  * Fixed split by section (in consolidation-split feature)
+  * Fixed chartlib creating thumbnails for potx files that were not required
+  * Fixed QuickEdit first-start popup showing up every time
+  * Update FontAwesome5 definition to v5.15.0
+  * Known Issue: Random PPT restart after closing
+
+
 # Release 2020-07-30 (2.7.1)
 
   * Added quickedit dark theme

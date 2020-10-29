@@ -16,12 +16,12 @@ from bkt.library.table import TableRecognition
 
 class TableTestsEasy(unittest.TestCase):
     def setUp(self):
-        s0 = Shape(1, 1,1, 2,2)
-        s1 = Shape(1, 1,4, 2,2)
-        s2 = Shape(1, 4,1, 2,2)
-        s3 = Shape(1, 4,4, 2,2)
-        s4 = Shape(1, 1,7, 2,2)
-        s5 = Shape(1, 4,7, 2,2)
+        s0 = Shape(left=1,top=1, width=2,height=2)
+        s1 = Shape(left=1,top=4, width=2,height=2)
+        s2 = Shape(left=4,top=1, width=2,height=2)
+        s3 = Shape(left=4,top=4, width=2,height=2)
+        s4 = Shape(left=1,top=7, width=2,height=2)
+        s5 = Shape(left=4,top=7, width=2,height=2)
 
         self.shapes = [s0,s1,s2,s3,s4,s5]
         
