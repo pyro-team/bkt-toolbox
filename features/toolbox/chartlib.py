@@ -696,11 +696,14 @@ class ChartLib(object):
         if not name:
             return
         
+        if not name.endswith(".pptx"):
+            name += ".pptx"
+        
         file = os.path.join(self.fav_folder, name)
         if os.path.isfile(file):
             return bkt.message.error("Library existiert schon!")
         
-        self._add_files_to_config([file])
+        # self._add_files_to_config([file])
 
         pres = self.create_or_open_presentation(context, file)
         pres.NewWindow()
