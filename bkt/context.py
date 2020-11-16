@@ -468,7 +468,13 @@ class AppContextExcel(AppContext):
                 try:
                     #cells = list(iter(self.app.ActiveWindow.RangeSelection.Cells))  # crashs excel when too many cells are selected
                     #cells = iter(selection.Cells)  # incorrect loop for non-contiguous selection
-                    cells = _h.flatten(a.Cells for a in selection.Areas)
+                    if selection.columns.count >= 16384 or selection.rows.count >= 1048576:
+                        cells = self.app.intersect(selection, self.app.activesheet.usedrange)
+                        if not cells:
+                            self.fail()
+                        cells = _h.flatten(a.Cells for a in cells.Areas)
+                    else:
+                        cells = _h.flatten(a.Cells for a in selection.Areas)
                 except:
                     cells = None
                 if not cells:
