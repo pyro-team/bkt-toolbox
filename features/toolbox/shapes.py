@@ -1874,7 +1874,7 @@ class ShapeTableGallery(bkt.ribbon.Gallery):
     
     def get_rows_cols_from_index(self, index):
         n_cols = index%self._columns
-        n_rows = (index-n_cols)/self._columns + 1
+        n_rows = (index-n_cols)//self._columns + 1
         n_cols += 1
         return n_rows, n_cols
     
