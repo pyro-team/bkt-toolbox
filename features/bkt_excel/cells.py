@@ -853,6 +853,37 @@ class CellsOps(object):
             else:
                 bkt.message("Keine ausgeblendeten Zeilen im genutzten Bereich gefunden.")
 
+
+    @classmethod
+    def remove_hidden_cols(cls, sheet):
+        if not xllib.confirm_no_undo(): return
+
+        xllib.freeze_app()
+
+        deleted = 0
+        try:
+            area = sheet.UsedRange
+            for i in xrange(1,area.Columns.Count+1):
+                if area.Columns(i).EntireColumn.Hidden:
+                    area.Columns(i).EntireColumn.Delete()
+                    deleted += 1
+        finally:
+            xllib.unfreeze_app()
+        
+        bkt.message("Es wurden %s Spalten gelöscht" % deleted)
+
+
+
+    @classmethod
+    def remove_hidden_rows(cls, sheet):
+        area = sheet.UsedRange
+        deleted = 0
+        for i in xrange(1,area.Rows.Count+1):
+            if area.Rows(i).EntireRow.Hidden:
+                area.Rows(i).EntireRow.Delete()
+                deleted += 1
+        bkt.message("Es wurden %s Zeilen gelöscht" % deleted)
+
     @staticmethod
     def show_all_cells(sheet):
         sheet.Columns.EntireColumn.Hidden = False
@@ -1496,6 +1527,25 @@ zellen_format_gruppe = bkt.ribbon.Group(
                         #image_mso='ViewGridlinesToggleExcel',
                         supertip="Alle Spalten und Zeilen des nicht genutzten Bereichs ausblenden.",
                         on_action=bkt.Callback(CellsOps.hide_unused_areas, sheet=True, require_worksheet=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.MenuSeparator(),
+                    bkt.ribbon.Button(
+                        id = 'remove_hidden_cols',
+                        label="Ausgeblendete Spalten löschen",
+                        show_label=True,
+                        #image_mso='TableInsertMultidiagonalCell',
+                        supertip="Alle ausgeblendeten Spalten löschen.",
+                        on_action=bkt.Callback(CellsOps.remove_hidden_cols, sheet=True, require_worksheet=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'remove_hidden_rows',
+                        label="Ausgeblendete Zeilen löschen",
+                        show_label=True,
+                        #image_mso='TableInsertMultidiagonalCell',
+                        supertip="Alle ausgeblendeten Zeilen löschen.",
+                        on_action=bkt.Callback(CellsOps.remove_hidden_rows, sheet=True, require_worksheet=True),
                         get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                     ),
                 ])
