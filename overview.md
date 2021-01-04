@@ -28,7 +28,12 @@
 ---
 
 
-<div class="tables-overview">
+<style>
+	th:first-child,
+	td:first-child {
+		width: 40%;
+	}
+</style>
 
 
 ## Toolbox 1/3
@@ -1359,6 +1364,3 @@ Kontextmenü für sog. Freeform-Shapes, also Shape mit beliebiger selbst erstell
 | Verknüpftes Shape anlegen                          | Entweder ähnliche Shapes auf Folgefolien anhand Position oder Größe suchen, oder dieses Shape auf Folgefolien kopieren und verknüpfen. |
 | Verknüpftes Shape anlegen > Ähnliche Shapes suchen… |                                                    |
 | Verknüpftes Shape anlegen > Dieses Shape kopieren… |                                                    |
-
-
-</div>

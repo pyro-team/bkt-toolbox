@@ -27,9 +27,18 @@
 	table-layout: fixed;
 }
 
-.main-content th:first-child,
-.main-content td:first-child {
-	width: 40%;
+
+.tables-comparison th:first-child,
+.tables-comparison td:first-child {
+	width: 60%;
+}
+.tables-comparison th:nth-child(2),
+.tables-comparison td:nth-child(2) {
+	width: 20%;
+}
+.tables-comparison th:nth-child(3),
+.tables-comparison td:nth-child(3) {
+	width: 20%;
 }
 
 @media screen and (min-width: 88em) {
