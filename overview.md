@@ -29,8 +29,8 @@
 
 
 <style>
-	th:first-child,
-	td:first-child {
+	th:nth-of-type(1),
+	td:nth-of-type(1) {
 		width: 40%;
 	}
 </style>

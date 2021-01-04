@@ -26,6 +26,9 @@
 	font-size: 0.9rem;
 	table-layout: fixed;
 }
+.main-content thead {
+	background-color: grey;
+}
 
 @media screen and (min-width: 88em) {
 	.main-content {
