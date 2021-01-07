@@ -27,18 +27,18 @@ Hier ist ein Vergleich der wesentlichen Funktionen der [neueren BKT](readme.md) 
 | Ausgewählte Folien senden/speichern | :heavy_check_mark: | :heavy_check_mark: <br><sub>(Senden nur unter Windows)</sub> |
 | Agenda-Folien erstellen und aktualisieren | :heavy_check_mark: | :o: <br><sub>(rudimentär ohne Formatierung)</sub> |
 | Sprache ändern | :heavy_check_mark: | :o: <br><sub>(nur ganze Präsentation in DE/EN)</sub> |
-| Ähnliche Shapes auswählen | :heavy_check_mark: | :o: <br><sub>(nur Hintergrund, Linie, Typ)</sub> |
+| Ähnliche Shapes auswählen | :heavy_check_mark: | :o: <br><sub>(nur Hintergrund, Linie, Typ; nicht bei Selektion innerhalb einer Gruppe)</sub> |
 | &mdash;&mdash;&mdash; | | |
-| Ausrichten Basisfunktionen (Gleich Höhe/Breite, Tauschen) | :heavy_check_mark: | :heavy_check_mark: |
+| Ausrichten Basisfunktionen (Gleich Höhe/Breite, Tauschen) | :heavy_check_mark: | :heavy_check_mark: <sub>(nicht bei Selektion innerhalb einer Gruppe)</sub> |
 | Ausrichten Erweitert (Als Tabelle, Kreisförming, Auf Shapes, Anhand zuletzt gewählten Shape) | :heavy_check_mark: | :x: |
-| Innenabstand, Absatz-Abstand, Einzug | :heavy_check_mark: | :heavy_check_mark: <br><sub>(nicht für Tabellen-Zellen)</sub> |
+| Innenabstand, Absatz-Abstand, Einzug | :heavy_check_mark: | :heavy_check_mark: <br><sub>(nur für ganzes Shape/nicht für einzelne Absätze; nicht für Tabellen-Zellen)</sub> |
 | Textoperationen (Zerlegen, Löschen, Ersetzen) | :heavy_check_mark: | :heavy_check_mark: |
 | &mdash;&mdash;&mdash; | | |
 | Shape-Einfügehilfen (Kreissegmente, Prozess, Nummerierung, Verbindungsflächen) | :heavy_check_mark: | :o: <br><sub>(nur Verbindungsflächen)</sub> |
 | Interaktive Shapes (Ampel, Checkbox, Likert-Scale) | :heavy_check_mark: | :x: |
 | Shapes teilen/vervielfachen/skalieren | :heavy_check_mark: | :x: |
 | &mdash;&mdash;&mdash; | | |
-| Chart und Shape Library | :heavy_check_mark: | :x: |
+| Chart und Shape Library | :heavy_check_mark: | :o: <br><sub>(nur sehr rudimentär Template-Folien einfügen)</sub> |
 | Font Icons (mit Suche) | :heavy_check_mark: | :x: |
 | Aktualisierbare Folien-Thumbnails | :heavy_check_mark: | :x: |
 | Benutzerdefinierte Formatvorlagen (Custom Styles) | :heavy_check_mark: | :x: |

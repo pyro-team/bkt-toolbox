@@ -2,7 +2,7 @@
 
 ## Einführung
 
-Die Legacy-Toolbar ist der Vorläufer der [BKT](README.md). Sie ist in VBA geschrieben und hat daher diverse Einschränkungen im Vergleich zur BKT. Es findet keine weitere Entwicklung neuer Funktionen statt; lediglich Bugfix-Releases sind vorgesehen. Der Vorteil von VBA ist jedoch, dass die Toolbar größtenteils auch unter Mac funktioniert. Ein detallierter [Vergleich der BKT mit der Legacy-Toolbar ist hier](comparison.md).
+Die Legacy-Toolbar ist der Vorläufer der [BKT](README.md). Sie ist in VBA geschrieben und hat daher diverse Einschränkungen im Vergleich zur BKT. Es findet keine weitere Entwicklung neuer Funktionen statt; lediglich Bugfix-Releases sind vorgesehen. Der Vorteil von VBA ist jedoch, dass die Toolbar größtenteils auch unter Mac funktioniert. Ein detaillierter [Vergleich der BKT mit der Legacy-Toolbar ist hier](comparison.md).
 
 Wie auch für die BKT gibt es für die Legacy-Toolbar keinen Support.
 
@@ -12,7 +12,7 @@ Die Legacy-Toolbar läuft unter Windows ab Office 2010 und unter Mac ab Office 2
 
 ## Installation
 
-Die Legacy-Toolbar kann als [kompiliertes Addin (ppam-Datei)](https://github.com/pyro-team/bkt-toolbox/releases/latest) heruntergeladen werden, welche als PowerPoint-Addin eingebunden werden muss.
+Die Legacy-Toolbar kann als [kompiliertes Addin (ppam-Datei)](https://github.com/pyro-team/bkt-legacy/releases/latest) heruntergeladen werden, welche als PowerPoint-Addin eingebunden werden muss.
 
 ### Installation unter Windows
 
