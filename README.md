@@ -2,7 +2,7 @@
 
 ## Einführung
 
-Die BKT besteht aus 2 Teilen, dem BKT-Framework und der BKT-Toolbox. Das Framework bietet eine einfach Möglichkeit, um Office-Addins für PowerPoint, Excel, Word, Outlook oder Visio in Python zu schreiben. Die BKT-Toolbox gibt es aktuell für PowerPoint, Excel und Visio.
+Die BKT besteht aus 2 Teilen, dem **BKT-Framework** und der **BKT-Toolbox**. Das Framework bietet eine einfach Möglichkeit, um Office-Addins für PowerPoint, Excel, Word, Outlook oder Visio in Python zu schreiben. Die BKT-Toolbox gibt es aktuell für PowerPoint, Excel und Visio.
 
 Die PowerPoint-Toolbox fügt mehrere Tabs hinzu, die einen strukturierten Zugriff auf alle Standard-Funktionen von PowerPoint bieten, ergänzt um viele bisher fehlende Funktionen.
 
@@ -10,9 +10,9 @@ Die BKT wird von uns in der Freizeit entwickelt, daher können wir keinen Suppor
 
 ## Systemvoraussetzungen
 
-Die BKT läuft unter Windows ab Office 2010 in allen aktuellen Office-Versionen. Eine Mac-Version ist nicht verfügbar, da die entsprechende Office-Schnittstelle (COM-Addin) im Mac-Office nicht von Microsoft angeboten wird.
+Die BKT läuft unter **Windows ab Office 2010** in allen aktuellen Office-Versionen. Eine Mac-Version ist nicht verfügbar, da die entsprechende Office-Schnittstelle (COM-Addin) im Mac-Office nicht von Microsoft angeboten wird.
 
-Wir bieten den Vorgänger der BKT als [Legacy Toolbar](legacy.md) an, welche in VBA geschrieben ist und daher größtenteils auch unter Mac funktioniert. Ein detallierter [Vergleich der BKT mit der Legacy-Toolbar ist hier](comparison.md).
+Wir bieten den **Vorgänger der BKT** als [Legacy Toolbar](legacy.md) an, welche in VBA geschrieben ist und daher größtenteils **auch unter Mac** funktioniert. Ein detallierter [**Vergleich** der BKT mit der Legacy-Toolbar ist hier](comparison.md).
 
 ## Bekannte Probleme
 
@@ -34,7 +34,7 @@ Alternativ kann man das Repository klonen und die Datei `installer\install.bat` 
 
 ## Anwenderhandbuch
 
-Zur Dokumentation gibt eine [Übersicht aller BKT-Funktionen der *PowerPoint-Toolbar*](overview.md) sowie eine [Liste von **Quick-Tipps** als kleine Animationen](quicktipps.md), die euch einige ausgewählte der BKT-Funktionen näher erläutern.
+Zur Dokumentation gibt eine [Übersicht aller **BKT-Funktionen** der *PowerPoint-Toolbar*](overview.md) sowie eine [Liste von **Quick-Tipps** als kleine Animationen](quicktipps.md), die euch einige ausgewählte der BKT-Funktionen näher erläutern.
 
 ## Technische Dokumentation
 
