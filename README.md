@@ -12,6 +12,8 @@ Die BKT wird von uns in der Freizeit entwickelt, daher können wir keinen Suppor
 
 Die BKT läuft unter Windows ab Office 2010 in allen aktuellen Office-Versionen. Eine Mac-Version ist nicht verfügbar, da die entsprechende Office-Schnittstelle (COM-Addin) im Mac-Office nicht von Microsoft angeboten wird.
 
+Wir bieten den Vorgänger der BKT als [Legacy Toolbar](legacy.md) an, welche in VBA geschrieben ist und daher größtenteils auch unter Mac funktioniert. Ein detallierter [Vergleich der BKT mit der Legacy-Toolbar ist hier](comparison.md).
+
 ## Bekannte Probleme
 
  * Da die IronPython-Umgebung erst hochfahren muss, verzögert sich der PowerPoint-Start mit aktiviertem Addin. Wir arbeiten daran, diesen Effekt etwas zu minimieren.

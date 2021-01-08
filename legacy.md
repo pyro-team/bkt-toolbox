@@ -12,7 +12,7 @@ Die Legacy-Toolbar läuft unter Windows ab Office 2010 und unter Mac ab Office 2
 
 ## Installation
 
-Die Legacy-Toolbar kann als [kompiliertes Addin (ppam-Datei)](https://github.com/pyro-team/bkt-legacy/releases/latest) heruntergeladen werden, welche als PowerPoint-Addin eingebunden werden muss.
+Die Legacy-Toolbar kann als [kompiliertes Addin (ppam-Datei)](https://github.com/pyro-team/bkt-legacy/releases/latest) heruntergeladen werden, welche als PowerPoint-Addin eingebunden werden muss. Um die Funktion "Templatefolien einfügen" aus dem Folienmenü zu nutzen, muss außerdem die Datei `Templates.pptx` heruntergeladen und in den gleichen Ordner wie das Addin kopiert werden. Eigene Templates können natürlich ergänzt werden.
 
 ### Installation unter Windows
 
