@@ -22,7 +22,7 @@ Wir bieten den **Vorgänger der BKT** als [Legacy Toolbar](legacy.md) an, welche
 
 ## Installation
 
-Am einfachsten geht die Installation über das [*Setup*](https://github.com/pyro-team/bkt-toolbox/releases/latest) (nur für Office 2013+).
+Am einfachsten geht die Installation über das [**Setup**](https://github.com/pyro-team/bkt-toolbox/releases/latest) (nur für Office 2013+).
 
 Alternativ kann man das Repository klonen und die Datei `installer\install.bat` ausführen. Nach einem Update muss die Datei ggf. neu ausgeführt werden.
 

@@ -37,6 +37,7 @@ Hier ist ein Vergleich der wesentlichen Funktionen der [neueren BKT](readme.md) 
 | Shape-Einfügehilfen (Kreissegmente, Prozess, Nummerierung, Verbindungsflächen) | :heavy_check_mark: | :o: <br><sub>(nur einfache Verbindungsflächen)</sub> |
 | Interaktive Shapes (Ampel, Checkbox, Likert-Scale) | :heavy_check_mark: | :x: |
 | Shapes teilen/vervielfachen/skalieren | :heavy_check_mark: | :x: |
+| Funktionen in Kontextmenüs | :heavy_check_mark: | :x: |
 | &mdash;&mdash;&mdash; | | |
 | Chart und Shape Library | :heavy_check_mark: | :o: <br><sub>(nur sehr rudimentär Template-Folien einfügen)</sub> |
 | Font Icons (mit Suche) | :heavy_check_mark: | :x: |
