@@ -1,6 +1,6 @@
 ## Vergleich BKT vs. Legacy-Toolbar
 
-Hier ist ein Vergleich der wesentlichen Funktionen der [neueren BKT](readme.md) mit der [alten Legacy-Toolbar](legacy.md). Eine vollständige Funktionsübersicht der neuen BKT gibt es hier. Hier ist eine [vollständige Funktionsübersicht](overview.md) der neuen BKT.
+Hier ist ein Vergleich der wesentlichen Funktionen der [neueren BKT](README.md) mit der [alten Legacy-Toolbar](legacy.md). Eine vollständige Funktionsübersicht der neuen BKT gibt es hier. Hier ist eine [vollständige Funktionsübersicht](overview.md) der neuen BKT.
 
 
 <style>
