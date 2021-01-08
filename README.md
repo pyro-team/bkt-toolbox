@@ -22,13 +22,13 @@ Wir bieten den **Vorgänger der BKT** als [Legacy Toolbar](legacy.md) an, welche
 
 ## Installation
 
-Am einfachsten geht die Installation über das [Setup](https://github.com/pyro-team/bkt-toolbox/releases/latest) (nur für Office 2013+).
+Am einfachsten geht die Installation über das [*Setup*](https://github.com/pyro-team/bkt-toolbox/releases/latest) (nur für Office 2013+).
 
 Alternativ kann man das Repository klonen und die Datei `installer\install.bat` ausführen. Nach einem Update muss die Datei ggf. neu ausgeführt werden.
 
 ***Hinweise:***
 
- * Es gibt ein separates Setup for Office 2010. Beim Klonen des Repositories muss vor der Installation die Datei `dotnet\build2010.bat`  ausgeführt werden, damit das Addin für Office 2010 kompiliert wird.
+ * Für Office 2010 gibt es kein Setup. Dafür muss das Repository geklont und die Datei `dotnet\build2010.bat` ausgeführt werden, damit das Addin für Office 2010 kompiliert wird. Anschließend kann die Datei `installer\install.bat` ausgeführt werden.
  * Die Business Kasper Toolbox ist nach Installation standardmäßig nur in PowerPoint aktiv, jedoch auch in Excel, Outlook, Word und Visio verfügbar. Dort lässt sich die BKT über den Addin-Dialog aktivieren (Datei > Optionen > Add-Ins)
  * Über den Addin-Dialog lässt sich ferner das BKT-Dev-Plugin aktivieren. Dieses erlaubt Laden und Entladen des Addins zur Laufzeit der Office-Applikation
 
