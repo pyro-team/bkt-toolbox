@@ -21,20 +21,20 @@ Hier ist ein Vergleich der wesentlichen Funktionen der [neueren BKT](readme.md) 
 | :------------------ | :--------------- | :------------------- |
 | Wichtigste Funktionen auf einem Tab | :heavy_check_mark: | :heavy_check_mark: |
 | Selbst erweiterbar mit Python-Modulen | :heavy_check_mark: | :x: |
-| Update-Benachrichtigung | :heavy_check_mark: | :x: <br><sub>(keine Weiterentwicklung)</sub> |
-| Läuft unter Mac | :x: | :heavy_check_mark: |
+| Update-Benachrichtigung | :heavy_check_mark: | :x: <br><sub>(keine Weiterentwicklung/ nur Bugfixes)</sub> |
+| Läuft unter Mac Office | :x: | :heavy_check_mark: |
 | &mdash;&mdash;&mdash; | | |
 | Ausgewählte Folien senden/speichern | :heavy_check_mark: | :heavy_check_mark: <br><sub>(Senden nur unter Windows)</sub> |
 | Agenda-Folien erstellen und aktualisieren | :heavy_check_mark: | :o: <br><sub>(rudimentär ohne Formatierung)</sub> |
-| Sprache ändern | :heavy_check_mark: | :o: <br><sub>(nur ganze Präsentation in DE/EN)</sub> |
+| Sprache ändern | :heavy_check_mark: | :o: <br><sub>(nur ganze Präsentation in DE oder EN)</sub> |
 | Ähnliche Shapes auswählen | :heavy_check_mark: | :o: <br><sub>(nur Hintergrund, Linie, Typ; nicht bei Selektion innerhalb einer Gruppe)</sub> |
 | &mdash;&mdash;&mdash; | | |
-| Ausrichten Basisfunktionen (Gleich Höhe/Breite, Tauschen) | :heavy_check_mark: | :heavy_check_mark: <sub>(nicht bei Selektion innerhalb einer Gruppe)</sub> |
+| Ausrichten Basisfunktionen (Gleich Höhe/Breite, Tauschen) | :heavy_check_mark: | :heavy_check_mark: <br><sub>(nicht bei Selektion innerhalb einer Gruppe)</sub> |
 | Ausrichten Erweitert (Als Tabelle, Kreisförming, Auf Shapes, Anhand zuletzt gewählten Shape) | :heavy_check_mark: | :x: |
 | Innenabstand, Absatz-Abstand, Einzug | :heavy_check_mark: | :heavy_check_mark: <br><sub>(nur für ganzes Shape/nicht für einzelne Absätze; nicht für Tabellen-Zellen)</sub> |
 | Textoperationen (Zerlegen, Löschen, Ersetzen) | :heavy_check_mark: | :heavy_check_mark: |
 | &mdash;&mdash;&mdash; | | |
-| Shape-Einfügehilfen (Kreissegmente, Prozess, Nummerierung, Verbindungsflächen) | :heavy_check_mark: | :o: <br><sub>(nur Verbindungsflächen)</sub> |
+| Shape-Einfügehilfen (Kreissegmente, Prozess, Nummerierung, Verbindungsflächen) | :heavy_check_mark: | :o: <br><sub>(nur einfache Verbindungsflächen)</sub> |
 | Interaktive Shapes (Ampel, Checkbox, Likert-Scale) | :heavy_check_mark: | :x: |
 | Shapes teilen/vervielfachen/skalieren | :heavy_check_mark: | :x: |
 | &mdash;&mdash;&mdash; | | |
