@@ -1,6 +1,6 @@
-<img src="documentation/screenshot-legacy.png">
+# BKT Legacy-Toolbar
 
-## Einführung
+<img src="documentation/screenshot-legacy.png">
 
 Die Legacy-Toolbar ist der **Vorläufer der [BKT](README.md)**. Sie ist in VBA geschrieben und hat daher diverse Einschränkungen im Vergleich zur BKT. Es findet **keine weitere Entwicklung neuer Funktionen** statt; lediglich Bugfix-Releases sind vorgesehen. Der Vorteil von VBA ist jedoch, dass die Toolbar **größtenteils auch unter Mac** funktioniert. Ein detaillierter [**Vergleich** der BKT mit der Legacy-Toolbar ist hier](comparison.md).
 
