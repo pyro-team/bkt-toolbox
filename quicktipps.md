@@ -1,8 +1,9 @@
 # QuickTipps
+{:.no_toc}
 
 Auf diese Seite befinden sich diverse kleine Animationen, die Tipps im Umgang mit PowerPoint und der BKT geben. Da die Animationen zu unterschiedlichen Zeitpunkten und mit verschiedenen BKT-Versionen aufgezeichnet wurden, kann es im Vergleich zur aktuellsten Version zu kleineren Abweichungen kommen.
 
-* TOC
+1. TOC
 {:toc}
 
 
