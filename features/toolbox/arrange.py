@@ -140,7 +140,7 @@ swap_button = bkt.ribbon.SplitButton(
         bkt.ribbon.Button(
             id = 'swap',
             label="Tauschen",
-            image_mso='MailMergeMatchFields',
+            image_mso='CircularReferences',
             screentip="Shape-Position tauschen",
             supertip="Tausche die Position (left/top) der markierten Shapes.",
             on_action=bkt.Callback(Swap.multi_swap, shapes=True, shapes_min=2),
@@ -151,7 +151,7 @@ swap_button = bkt.ribbon.SplitButton(
             bkt.ribbon.Button(
                 id = 'swap2',
                 label="Tausche Position",
-                image_mso='MailMergeMatchFields',
+                image_mso='CircularReferences', #'MailMergeMatchFields'
                 screentip="Shape-Position tauschen",
                 supertip="Tausche die Position (left/top) der markierten Shapes.",
                 on_action=bkt.Callback(Swap.multi_swap, shapes=True, shapes_min=2),
