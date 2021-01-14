@@ -1,8 +1,8 @@
 name: PowerPoint Allgemein
 tipps:
-	- id: touchmodus
-	  name: Touchmodus zu Mausmodus ändern
-	  description: Standardmäßig ist Office nach der Installation für die Fingereingabe optimiert. Buttons sind größer und nicht alle Controls der BKT-Toolbox direkt sichtbar, z.B. verschwinden Schriftart und Absatz in Untermenüs. Hier zeige ich euch, wie ihr die Eingabe auf "Maus" umstellt. 
+  - id: touchmodus
+    name: Touchmodus zu Mausmodus ändern
+    description: Standardmäßig ist Office nach der Installation für die Fingereingabe optimiert. Buttons sind größer und nicht alle Controls der BKT-Toolbox direkt sichtbar, z.B. verschwinden Schriftart und Absatz in Untermenüs. Hier zeige ich euch, wie ihr die Eingabe auf "Maus" umstellt. 
 
   - id: formattab
     name: Fokus auf Kontext-Menüband Shape-Format verhindern
