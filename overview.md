@@ -1,3 +1,14 @@
+<style>
+	ol {
+		column-count: 2;
+	}
+	th:nth-of-type(1),
+	td:nth-of-type(1) {
+		width: 40%;
+	}
+</style>
+
+
 # Übersicht aller Funktionen für PowerPoint
 {:.no_toc}
 
@@ -8,40 +19,7 @@ Hier ist eine Übersicht aller Funktionen der BKT sortiert nach den jeweiligen T
 {:toc}
 
 
-<!-- **Tabs/Reiter**
-
-1. [Toolbox 1/3](#toolbox-13)
-1. [Toolbox 2/3](#toolbox-23)
-1. [Toolbox 3/3](#toolbox-33)
-1. [\[BKT\] Harvey Balls](#bkt-harvey-balls)
-1. [\[BKT\] Agenda](#bkt-agenda)
-1. [\[BKT\] Verknüpfte Shapes](#bkt-verknüpfte-shapes)
-1. [Bildtools](#bildtools)
-1. [Konsol./Teilen](#konsolteilen)
-
-**Kontextmenüs**
-
-1. [ContextMenuSpell](#contextmenuspell)
-1. [ContextMenuShape](#contextmenushape)
-1. [ContextMenuTextEdit](#contextmenutextedit)
-1. [ContextMenuFrame](#contextmenuframe)
-1. [ContextMenuPicture](#contextmenupicture)
-1. [ContextMenuObjectsGroup](#contextmenuobjectsgroup)
-1. [ContextMenuThumbnail](#contextmenuthumbnail)
-1. [ContextMenuShapeConnector](#contextmenushapeconnector)
-1. [ContextMenuShapeFreeform](#contextmenushapefreeform)
-
-*Kursiv = Standardfunktionen von PowerPoint* -->
-
 ---
-
-
-<style>
-	th:nth-of-type(1),
-	td:nth-of-type(1) {
-		width: 40%;
-	}
-</style>
 
 
 ## Toolbox 1/3

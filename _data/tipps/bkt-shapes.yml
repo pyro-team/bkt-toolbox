@@ -1,0 +1,6 @@
+name: Spezielle BKT-Shapes
+tipps:
+  - id: ampel
+    name: Ampel-Shape mit Popup zum schnellen Wechseln
+    description: Das Ampel-Shape ist eines der ersten "intelligenten" Shapes. Bei Selektion wird ein Dialog/Popup angezeigt, der ein schnelles Umschalten der Ampel ermöglicht. Man kann es einfügen in der Gruppe "Formen"->"Spezielle und Interaktive Formen"->"Ampel".
+

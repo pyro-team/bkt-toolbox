@@ -1,0 +1,6 @@
+name: Shape-Inhalte verändern (Text, Format)
+tipps:
+  - id: text_replace
+    name: Text mehrerer Shapes ersetzen und löschen
+    description: Der Text mehrerer Shapes kann sehr einfach auf einen Wert geändert oder komplett gelöscht werden. Außerdem werden mehrere Nummerierungsmöglichkeiten über [count] als Variable unterstützt. Dies geht über das Textbox-Untermenü oder im Kontextmenü bei Auswahl mehrerer Textshapes.
+    note: In neueren BKT-Versionen heißt die Variable $counter und nicht [counter].

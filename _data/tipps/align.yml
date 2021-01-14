@@ -1,0 +1,34 @@
+name: Shapes ausrichten oder angleichen
+tipps:
+  - id: linkedshapes
+    name: Shapes über mehrere Folien verknüpfen und angleichen
+    description: Die Funktion zum verknüpfen von Shapes ist super für Sticker oder auch Tracker. Bestehende Shapes können miteinander verknüpft werden, entweder automatisch (wenn Position und Größe bereits übereinstimmen), oder über eine manuelle Auswahl.
+    note: In der neuesten BKT-Version können verknüpfte Shapes auch über das Shape-Kontextmenü angelegt werden. Bei der Suche nach vorhandenen Shapes sind verschiedene Parameter und ein Toleranzwert einstellbar. Bei verknüpften Shapes kommt automatisch ein kleines Popup zur schnellen Aktualisierung.
+
+  - id: shapes_shapes_alignment
+    name: Shapes in Tabellen, Paragraphen, oder anderen Shapes anordnen
+    description: Es gibt eine sehr mächtige Funktion um Shapes innerhalb von Tabellenzellen, Paragraphen oder anderen Shapes auszurichten. Die Positionierung wird automatisch abhängig von den darunterliegenden Shapes bestimmt, kann aber auch manuell festgelegt werden. Funktioniert die automatische Erkennung nicht, kann die Shape-Anordnungs-Funktion auch manuell gewählt werden.
+
+  - id: shape-spacing
+    name: Shape-Abstand gezielt anpassen
+    description: Mit der BKT kann der horizontale und vertikale Abstand zwischen mehrere Shapes genau eingestellt werden. Außerdem kann der visuelle Abstand bei rotierten Shapes berechnet werden.
+
+  - id: shape-align-extended2
+    name: Erweitertes Anordnen nach Referenzshape
+    description: Mit dem erweiterten Anordnen können Shapes anhand des zuletzt gewählten Shapes ausgerichtet werden. Außerdem kann ein Referenzshape definiert werden, um folienübergreifend Shapes auszurichten.
+
+  - id: shape-align-extended5
+    name: Erweitertes Positionieren (Winkel und euklidischer Abstand)
+    description: Mit dem erweiterten Positionieren kann der Winkel zwischen Shapes geändert werden sowie der euklidische Abstand geändert werden. Außerdem können mehrere Shapes auf einem Vektor verteilt werden.
+
+  - id: shape-size-locpin2
+    name: Shape-Position und -Größe mit Fixpunkt
+    description: Die Shape-Größe und -Position kann pixelgenau eingestellt werden, wobei eine beliebige Shape-Ecke als Fixpunkt gewählt werden kann. Mit der `Alt`-Taste kann jedes Shape einzeln um das Delta angepasst werden.
+
+  - id: shape-align-table4
+    name: Shapes als Tabellen ausrichten
+    description: Wenn mehrere Shapes in Tabellenform ausgerichtet werden sollen, kann die BKT diese erkennt und die Abstände entsprechend angleichen. Außerdem kann die Tabelle angepasst werden, bspw. die Shape-Größen angeglichen oder die gesamte Tabelle transponiert.
+
+  - id: shape-align-circle2
+    name: Shapes kreisförmig ausrichten
+    description: Die BKT kann mehrere Shapes kreisförmig anordnen, wahlweise mit Zentrum und rotierten Shapes um das Zentrum.

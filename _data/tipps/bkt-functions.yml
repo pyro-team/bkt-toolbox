@@ -1,0 +1,14 @@
+name: Weitere BKT-Funktionen
+tipps:
+  - id: samesize
+    name: Tastenkombinationen beim Anordnen und Spinner-Boxen
+    description: Viele Buttons und Textboxen erlaubt mittels `Strg` oder `Shift` Taste schnellen Zugriff auf Unterfunktionen oder Variation der Schrittweite der Spinner-Boxen.
+
+  - id: customformats
+    name: Benutzerdefinierte Format
+    description: Seit Version 2.5.2 kann man eigene Formate speichern und anwenden. Dabei kann man auswählen, welche Bereiche angepasst werden sollen. Auch verschiedene Listen-Einrückungen werden berücksichtigt. Zu guter letzt werden mehrere Bibliotheken unterstützt und es gibt sogar eine Pickup-Apply Funktion. 
+    note: Das Feature muss bei der Installation aktiviert werden.
+
+  - id: quickedit
+    name: Schnellanleitung der QuickEdit Toolbar
+    description: Die BKT bietet eine multi-funktionale Toolbar mit Farb-Buttons an, genannt QuickEdit. Die Funktionen der Buttons können mit `Shift`, `Strg` und `Alt`-Taste variiert werden. Alle Details im Kontextmenü oben in der QuickEdit Toolbar unter Hilfe.
