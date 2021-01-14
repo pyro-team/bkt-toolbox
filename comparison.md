@@ -1,6 +1,6 @@
---
+---
 permalink: /legacy-toolbar/comparison.html
---
+---
 
 # Vergleich BKT vs. Legacy-Toolbar
 
