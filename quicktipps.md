@@ -7,22 +7,7 @@ Auf diese Seite befinden sich diverse kleine Animationen, die Tipps im Umgang mi
 {:toc}
 
 
-<!-- 1. [PowerPoint allgemein](#powerpoint-allgemein)
-   1. [Touchmodus zu Mausmodus ändern](#touchmodus-zu-mausmodus-ändern)
-   1. [Fokus auf Kontext-Menüband Shape-Format verhindern](#fokus-auf-kontext-menüband-shape-format-verhindern)
-   1. [Textzeichen in einzelne Shapes umwandeln](#textzeichen-in-einzelne-shapes-umwandeln)
-   1. [Fokusbereiche auf Bild mit Transparenz-Overlay erstellen](#fokusbereiche-auf-bild-mit-transparenz-overlay-erstellen)
-   1. Schnellzugriff mit Tastenkombination
-   1. Hintergrund-Typ Folienhintergrund nutzen
-1. [Shapes ausrichten oder angleichen](#shapes-ausrichten-oder-angleichen)
-   1. [Shapes über mehrere Folien verknüpfen und angleichen](#shapesüber-mehrere-folien-verknüpfen-und-angleichen)
-   1. [Shapes in Tabellen, Paragraphen, oder anderen Shapes anordnen](#shapes-in-tabellen-paragraphen-oder-anderen-shapes-anordnen)
-   1. Shape-Abstand gezielt anpassen
-   1. Erweitertes Anordnen nach Referenzshape
-   1. Erweitertes Positionieren (Winkel und euklidischer Abstand)
-   1. Shape-Position und -Größe mit Fixpunkt
-   1. Shapes als Tabellen ausrichten
-   1. Shapes kreisförmig ausrichten
+<!-- 
 1. [Shape-Inhalte verändern (Text, Format)](#shape-inhalte-verändern-text-format)
    1. [Text mehrerer Shapes ersetzen und löschen](#text-mehrerer-shapes-ersetzen-und-löschen)
    1. Sprache für Rechtschreibprüfung festlegen
@@ -51,45 +36,34 @@ Auf diese Seite befinden sich diverse kleine Animationen, die Tipps im Umgang mi
 
 ---
 
-## PowerPoint allgemein
+<style>
+	.quicktipp {
+		display:inline-block;
+		width: 50%;
+	}
+</style>
 
-### Touchmodus zu Mausmodus ändern
 
-<img loading="lazy" src="documentation/quicktipps/touchmodus.gif">
+{% for cat_hash in site.data.tipps %}
+{% assign cat = cat_hash[1] %}
+  <h2 id="{{ cat.name | slugify }}">{{ cat.name }}</h2>
 
-Standardmäßig ist Office nach der Installation für die Fingereingabe optimiert. Buttons sind größer und nicht alle Controls der BKT-Toolbox direkt sichtbar, z.B. verschwinden Schriftart und Absatz in Untermenüs. Hier zeige ich euch, wie ihr die Eingabe auf "Maus" umstellt.
-
-### Fokus auf Kontext-Menüband Shape-Format verhindern
-
-<img loading="lazy" src="documentation/quicktipps/formattab.gif">
-
-PowerPoint wechselt normalerweise bei Erstellung neuer Shapes immer in das Kontext-Menüband "Shape-Format". Wenn man das verhindern möchte und dieses Menüband auch grundsätzlich nicht verwendet, kann man es einfach vollständig ausblenden. Dadurch bleibt der Fokus auf dem BKT-Menüband.
-_Hinweis: In der neuesten BKT-Version geht dies auch in den BKT-Einstellungen (Button ganz rechts oben im Toolbar-Tab) unter "Format-Tab ausblenden"._
-
-### Textzeichen in einzelne Shapes umwandeln
-
-<img loading="lazy" src="documentation/quicktipps/zeichen2shape.gif">
-
-Mit der Funktion “In Einzelmengen zerlegen” kann man in PowerPoint Text-Zeichen in Shapes umwandeln. Das ist dann hilfreich, wenn der Adressat einen bestimmten Font nicht hat, oder wenn man ein Zeichen aus einem Symbolfont (z.B. Fontawesome) customizen möchte.
-_Hinweis: In der neuesten BKT-Version ist diese Funktion mit einem Button implementiert in der Gruppe "Formen" unter "Shape verändern"._
-
-### Fokusbereiche auf Bild mit Transparenz-Overlay erstellen
-
-<img loading="lazy" src="documentation/quicktipps/transparenz-overlay.gif">
-
-Oft möchte man auf einem bestehenden Slide oder Bild die Aufmerksamkeit auf bestimmte Teilausschnitte legen. PowerPoint bietet dazu die Möglichkeit Shapes in Einzelteile zu zerlegen, wodurch man “Löcher” in einem transparenten Shape erzeugen kann.
-
-### Schnellzugriff mit Tastenkombination
-
-<img loading="lazy" src="documentation/quicktipps/quickaccessbar-alt.gif">
-
-Für den schnellen Zugriff auf Funktionen kann man diese in die Symbolleiste für den Schnellzugriff legen und mit `Alt`-Taste und der angezeigten Ziffer aufrufen.
-
-### Hintergrund-Typ Folienhintergrund nutzen
-
-<img loading="lazy" src="documentation/quicktipps/shape-fill-background.gif">
-
-In manchen Situationen kann es sehr hilfreich sein, wenn ein Shape exakt dem Folienhintergrund entspricht und damit quasi unsichtbar ist.
+  {% for tipp in cat.tipps %}
+  <div class="quicktipp">
+    <h3 id="{{ tipp.id }}">{{ tipp.name }}</h3>
+    <video loop muted autoplay playsinline>
+      <source src="documentation/quicktipps/{{ tipp.id }}.webm" type="video/webm">
+      <source src="documentation/quicktipps/{{ tipp.id }}.mp4" type="video/mp4">
+    </video>
+    <p>
+      {{ tipp.description }}
+      {% if tipp.note %}
+        <em>{{ tipp.note }}</em>
+      {% endif %}
+    </p>
+  </div>
+  {% endfor %}
+{% endfor %}
 
 
 ## Shapes ausrichten oder angleichen
