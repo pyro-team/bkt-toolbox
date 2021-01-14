@@ -1,5 +1,5 @@
 <style>
-	ol {
+	#toc {
 		column-count: 2;
 	}
 	.quicktipps {
@@ -7,7 +7,6 @@
 	}
 	.quicktipp {
 		display:inline-block;
-		width: 50%;
 	}
 	video {
 		width: 100%;
@@ -20,7 +19,7 @@
 
 Auf diese Seite befinden sich diverse kleine Animationen, die Tipps im Umgang mit PowerPoint und der BKT geben. Da die Animationen zu unterschiedlichen Zeitpunkten und mit verschiedenen BKT-Versionen aufgezeichnet wurden, kann es im Vergleich zur aktuellsten Version zu kleineren Abweichungen kommen.
 
-<ol>
+<ol id="toc">
 {% for cat_hash in site.data.tipps %}
 {% assign cat = cat_hash[1] %}
   <li><a href="#{{ cat.name | slugify }}">{{ cat.name }}</a></li>

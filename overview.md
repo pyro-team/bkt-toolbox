@@ -1,5 +1,5 @@
 <style>
-	ol {
+	#markdown-toc {
 		column-count: 2;
 	}
 	th:nth-of-type(1),
