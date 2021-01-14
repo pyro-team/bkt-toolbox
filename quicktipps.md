@@ -62,7 +62,7 @@ Auf diese Seite befinden sich diverse kleine Animationen, die Tipps im Umgang mi
 ---
 
 
-{% for cat_hash in site.data.tipps %}
+{% for cat_hash in cats_sorted %}
 {% assign cat = cat_hash[1] %}
   <h2 id="{{ cat.name | slugify }}">{{ cat.name }}</h2>
 
