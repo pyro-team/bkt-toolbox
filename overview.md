@@ -1,6 +1,6 @@
 <style>
 	#markdown-toc {
-		column-count: 2;
+		column-count: 3;
 	}
 	th:nth-of-type(1),
 	td:nth-of-type(1) {

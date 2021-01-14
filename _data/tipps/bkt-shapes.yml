@@ -1,4 +1,5 @@
 name: Spezielle BKT-Shapes
+order: 4
 tipps:
   - id: ampel
     name: Ampel-Shape mit Popup zum schnellen Wechseln

@@ -20,8 +20,8 @@
 Auf diese Seite befinden sich diverse kleine Animationen, die Tipps im Umgang mit PowerPoint und der BKT geben. Da die Animationen zu unterschiedlichen Zeitpunkten und mit verschiedenen BKT-Versionen aufgezeichnet wurden, kann es im Vergleich zur aktuellsten Version zu kleineren Abweichungen kommen.
 
 <ol id="toc">
-{% for cat_hash in site.data.tipps %}
-{% assign cat = cat_hash[1] %}
+{% assign cats_sorted = site.data.tipps | sort: 'order' %}
+{% for cat in cats_sorted %}
   <li><a href="#{{ cat.name | slugify }}">{{ cat.name }}</a></li>
   <ol>
   {% for tipp in cat.tipps %}

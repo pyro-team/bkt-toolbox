@@ -1,4 +1,5 @@
 name: Shapes ausrichten oder angleichen
+order: 3
 tipps:
   - id: linkedshapes
     name: Shapes über mehrere Folien verknüpfen und angleichen

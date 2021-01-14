@@ -1,4 +1,5 @@
 name: Weitere BKT-Funktionen
+order: 5
 tipps:
   - id: samesize
     name: Tastenkombinationen beim Anordnen und Spinner-Boxen
