@@ -1,6 +1,13 @@
 # Übersicht aller Funktionen für PowerPoint
 
-**Tabs/Reiter**
+Hier ist eine Übersicht aller Funktionen der BKT sortiert nach den jeweiligen Tabs/Reitern und Gruppen, sowie eine Übersicht der Funktionen in Kontextmenüs.
+*Kursiv geschriebene Funktionen sind Standardfunktionen von PowerPoint, daher ist teilweise keine Beschreibung vorhanden.*
+
+1. TOC
+{:toc}
+
+
+<!-- **Tabs/Reiter**
 
 1. [Toolbox 1/3](#toolbox-13)
 1. [Toolbox 2/3](#toolbox-23)
@@ -23,7 +30,7 @@
 1. [ContextMenuShapeConnector](#contextmenushapeconnector)
 1. [ContextMenuShapeFreeform](#contextmenushapefreeform)
 
-*Kursiv = Standardfunktionen von PowerPoint*
+*Kursiv = Standardfunktionen von PowerPoint* -->
 
 ---
 

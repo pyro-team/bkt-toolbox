@@ -1,4 +1,4 @@
-<img src="documentation/screenshot.png">
+<img src="assets/img/screenshot2.png">
 
 ## Einführung
 
