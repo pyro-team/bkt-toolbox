@@ -21,7 +21,8 @@ Auf diese Seite befinden sich diverse kleine Animationen, die Tipps im Umgang mi
 
 <ol id="toc">
 {% assign cats_sorted = site.data.tipps | sort %}
-{% for cat in cats_sorted %}
+{% for cat_hash in cats_sorted %}
+{% assign cat = cat_hash[1] %}
   <li><a href="#{{ cat.name | slugify }}">{{ cat.name }}</a></li>
   <ol>
   {% for tipp in cat.tipps %}
