@@ -1,21 +1,28 @@
+# Quick-Tipps
+{:.no_toc}
+
 <style>
 	#toc {
+		list-style-type: upper-roman;
+	}
+	#toc li > ol {
 		column-count: 2;
 	}
 	.quicktipps {
 		column-count: 2;
+		counter-reset: section;
 	}
 	.quicktipp {
 		display:inline-block;
+	}
+	h3::before {
+		counter-increment: section;
+		content: counter(section) ". ";
 	}
 	video {
 		width: 100%;
 	}
 </style>
-
-
-# QuickTipps
-{:.no_toc}
 
 Auf diese Seite befinden sich diverse kleine Animationen, die Tipps im Umgang mit PowerPoint und der BKT geben. Da die Animationen zu unterschiedlichen Zeitpunkten und mit verschiedenen BKT-Versionen aufgezeichnet wurden, kann es im Vergleich zur aktuellsten Version zu kleineren Abweichungen kommen.
 
@@ -75,9 +82,9 @@ Auf diese Seite befinden sich diverse kleine Animationen, die Tipps im Umgang mi
       <source src="documentation/quicktipps/{{ tipp.id }}.mp4" type="video/mp4">
     </video>
     <p>
-      {{ tipp.description }}
+      {{ tipp.description | markdownify }}
       {% if tipp.note %}
-        <em>{{ tipp.note }}</em>
+        <br><em>{{ tipp.note | markdownify }}</em>
       {% endif %}
     </p>
   </div>

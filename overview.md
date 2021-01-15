@@ -1,5 +1,11 @@
+# Übersicht aller Funktionen für PowerPoint
+{:.no_toc}
+
 <style>
 	#markdown-toc {
+		list-style-type: upper-roman;
+	}
+	li > ol {
 		column-count: 3;
 	}
 	th:nth-of-type(1),
@@ -7,10 +13,6 @@
 		width: 40%;
 	}
 </style>
-
-
-# Übersicht aller Funktionen für PowerPoint
-{:.no_toc}
 
 Hier ist eine Übersicht aller Funktionen der BKT sortiert nach den jeweiligen Tabs/Reitern und Gruppen, sowie eine Übersicht der Funktionen in Kontextmenüs.
 *Kursiv geschriebene Funktionen sind Standardfunktionen von PowerPoint, daher ist teilweise keine Beschreibung vorhanden.*
