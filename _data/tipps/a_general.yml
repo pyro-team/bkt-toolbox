@@ -8,16 +8,16 @@ tipps:
   - id: formattab
     name: Fokus auf Kontext-Menüband Shape-Format verhindern
     description: PowerPoint wechselt normalerweise bei Erstellung neuer Shapes immer in das Kontext-Menüband "Shape-Format". Wenn man das verhindern möchte und dieses Menüband auch grundsätzlich nicht verwendet, kann man es einfach vollständig ausblenden. Dadurch bleibt der Fokus auf dem BKT-Menüband.
-    note: In der neuesten BKT-Version geht dies auch in den BKT-Einstellungen (Button ganz rechts oben im Toolbar-Tab) unter "Format-Tab ausblenden".
+    note: _In der neuesten BKT-Version geht dies auch in den BKT-Einstellungen (Button ganz rechts oben im Toolbar-Tab) unter "Format-Tab ausblenden"._
 
   - id: zeichen2shape
     name: Textzeichen in einzelne Shapes umwandeln
     description: Mit der Funktion “In Einzelmengen zerlegen” kann man in PowerPoint Text-Zeichen in Shapes umwandeln. Das ist dann hilfreich, wenn der Adressat einen bestimmten Font nicht hat, oder wenn man ein Zeichen aus einem Symbolfont (z.B. Fontawesome) customizen möchte.
-    note: In der neuesten BKT-Version ist diese Funktion mit einem Button implementiert in der Gruppe "Formen" unter "Shape verändern".
+    note: _In der neuesten BKT-Version ist diese Funktion mit einem Button implementiert in der Gruppe "Formen" unter "Shape verändern"._
 
   - id: transparenz-overlay
     name: Fokusbereiche auf Bild mit Transparenz-Overlay erstellen
-    description: Oft möchte man auf einem bestehenden Slide oder Bild die Aufmerksamkeit auf bestimmte Teilausschnitte legen. PowerPoint bietet dazu die Möglichkeit Shapes in Einzelteile zu zerlegen, wodurch man “Löcher” in einem transparenten Shape erzeugen kann.
+    description: Oft möchte man auf einem bestehenden Slide oder Bild die Aufmerksamkeit auf bestimmte Teilausschnitte legen. PowerPoint bietet dazu die Möglichkeit Shapes in Einzelteile zu zerlegen, wodurch man "Löcher" in einem transparenten Shape erzeugen kann.
 
   - id: quickaccessbar-alt
     name: Schnellzugriff mit Tastenkombination

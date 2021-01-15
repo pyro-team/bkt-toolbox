@@ -30,12 +30,11 @@ Auf diese Seite befinden sich diverse kleine Animationen, die Tipps im Umgang mi
 {% assign cats_sorted = site.data.tipps | sort %}
 {% for cat_hash in cats_sorted %}
 {% assign cat = cat_hash[1] %}
-  <li><a href="#{{ cat.name | slugify }}">{{ cat.name }}</a></li>
-  <ol>
+  <li><a href="#{{ cat.name | slugify }}">{{ cat.name }}</a><ol>
   {% for tipp in cat.tipps %}
     <li><a href="#{{ tipp.id }}">{{ tipp.name }}</a></li>
   {% endfor %}
-  </ol>
+  </ol></li>
 {% endfor %}
 </ol>
 
@@ -81,12 +80,10 @@ Auf diese Seite befinden sich diverse kleine Animationen, die Tipps im Umgang mi
       <source src="documentation/quicktipps/{{ tipp.id }}.webm" type="video/webm">
       <source src="documentation/quicktipps/{{ tipp.id }}.mp4" type="video/mp4">
     </video>
-    <p>
-      {{ tipp.description | markdownify }}
-      {% if tipp.note %}
-        <br><em>{{ tipp.note | markdownify }}</em>
-      {% endif %}
-    </p>
+    {{ tipp.description | markdownify }}
+    {% if tipp.note %}
+      {{ tipp.note | markdownify }}
+    {% endif %}
   </div>
   {% endfor %}
 </section>

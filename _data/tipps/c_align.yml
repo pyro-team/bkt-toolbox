@@ -4,7 +4,7 @@ tipps:
   - id: linkedshapes
     name: Shapes über mehrere Folien verknüpfen und angleichen
     description: Die Funktion zum verknüpfen von Shapes ist super für Sticker oder auch Tracker. Bestehende Shapes können miteinander verknüpft werden, entweder automatisch (wenn Position und Größe bereits übereinstimmen), oder über eine manuelle Auswahl.
-    note: In der neuesten BKT-Version können verknüpfte Shapes auch über das Shape-Kontextmenü angelegt werden. Bei der Suche nach vorhandenen Shapes sind verschiedene Parameter und ein Toleranzwert einstellbar. Bei verknüpften Shapes kommt automatisch ein kleines Popup zur schnellen Aktualisierung.
+    note: _In der neuesten BKT-Version können verknüpfte Shapes auch über das Shape-Kontextmenü angelegt werden. Bei der Suche nach vorhandenen Shapes sind verschiedene Parameter und ein Toleranzwert einstellbar. Bei verknüpften Shapes kommt automatisch ein kleines Popup zur schnellen Aktualisierung._
 
   - id: shapes_shapes_alignment
     name: Shapes in Tabellen, Paragraphen, oder anderen Shapes anordnen

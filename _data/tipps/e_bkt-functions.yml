@@ -8,7 +8,7 @@ tipps:
   - id: customformats
     name: Benutzerdefinierte Format
     description: Seit Version 2.5.2 kann man eigene Formate speichern und anwenden. Dabei kann man auswählen, welche Bereiche angepasst werden sollen. Auch verschiedene Listen-Einrückungen werden berücksichtigt. Zu guter letzt werden mehrere Bibliotheken unterstützt und es gibt sogar eine Pickup-Apply Funktion. 
-    note: Das Feature muss bei der Installation aktiviert werden.
+    note: _Das Feature muss bei der Installation aktiviert werden._
 
   - id: quickedit
     name: Schnellanleitung der QuickEdit Toolbar
