@@ -56,6 +56,9 @@
               <ColumnDefinition Width="*" />
               <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
+          <StackPanel Orientation="Horizontal" Grid.Column="0">
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Zurücksetzen" Click="reset"/>
+          </StackPanel>
           <StackPanel Orientation="Horizontal" Grid.Column="1">
               <Button Margin="5" MinWidth="80" Padding="5,4" Content="Skalieren" IsDefault="True" Click="scale"/>
               <Button Margin="5" MinWidth="80" Padding="5,4" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
