@@ -1,4 +1,4 @@
-<img src="assets/img/screenshot2.png">
+<img src="assets/img/screenshot2.png" alt="Screenshot der BKT Toolbar in PowerPoint">
 
 ## Einführung
 

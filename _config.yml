@@ -6,3 +6,5 @@ show_downloads: false
 lang: de
 plugins:
   - jemoji
+logo: /assets/img/bkt_logo_1.0.svg
+image: /assets/img/bkt-open-graph.png

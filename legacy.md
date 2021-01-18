@@ -4,7 +4,7 @@ permalink: /legacy-toolbar.html
 
 # BKT Legacy-Toolbar
 
-<img src="assets/img/screenshot-legacy.png">
+<img src="assets/img/screenshot-legacy.png" alt="Screenshot der BKT Legacy Toolbar in PowerPoint">
 
 Die Legacy-Toolbar ist eine einfache **Toolbar für PowerPoint** und der **Vorläufer der [BKT](README.md)**. Die Toolbar ist in VBA geschrieben und hat daher diverse Einschränkungen im [Vergleich zur BKT](comparison.md), funktioniert dafür jedoch **größtenteils auch unter Mac**. Es findet **keine weitere Entwicklung neuer Funktionen** statt; lediglich Bugfix-Releases sind vorgesehen. Ein detaillierter [**Vergleich** der BKT mit der Legacy-Toolbar ist hier](comparison.md).
 
