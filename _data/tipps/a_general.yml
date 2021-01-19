@@ -26,3 +26,7 @@ tipps:
   - id: shape-fill-background
     name: Hintergrund-Typ Folienhintergrund nutzen
     description: In manchen Situationen kann es sehr hilfreich sein, wenn ein Shape exakt dem Folienhintergrund entspricht und damit quasi unsichtbar ist.
+
+  - id: deactivate_ui_error
+    name: UI-Fehler deaktivieren
+    description: In bestimmten Situationen kann es zu "Fehlern bei der benutzerdefinierten Benutzeroberfläche" kommen. Dies kommt von kleinen Abweichungen in der XML-Struktur gegenüber der Spezifikation, die aber notwendig sind, um gewisse Verhaltensweisen zu erreichen. In den Optionen können diese Fehlermeldungen einfach deaktiviert werden.

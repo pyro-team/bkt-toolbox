@@ -5,12 +5,15 @@
 	#markdown-toc {
 		list-style-type: upper-roman;
 	}
-	li > ol {
-		column-count: 3;
-	}
 	th:nth-of-type(1),
 	td:nth-of-type(1) {
 		width: 40%;
+	}
+
+	@media screen and (min-width: 42em) {
+		li > ol {
+			column-count: 3;
+		}
 	}
 </style>
 

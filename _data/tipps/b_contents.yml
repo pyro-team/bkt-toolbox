@@ -5,3 +5,15 @@ tipps:
     name: Text mehrerer Shapes ersetzen und löschen
     description: Der Text mehrerer Shapes kann sehr einfach auf einen Wert geändert oder komplett gelöscht werden. Außerdem werden mehrere Nummerierungsmöglichkeiten über \[count\] als Variable unterstützt. Dies geht über das Textbox-Untermenü oder im Kontextmenü bei Auswahl mehrerer Textshapes.
     note: _In neueren BKT-Versionen heißt die Variable $counter und nicht \[count\]._
+
+  - id: language-setting2
+    name: Sprache für Rechtschreibprüfung festlegen
+    description: Mit der BKT kann die Sprache ganz einfach für die ganze Präsentation, einzelne Folien, oder einzelne Shapes geändert werden. Die Sprachauswahl lässt sicht ebenfalls anpassen.
+
+  - id: shape-format-align
+    name: Formate mehrerer Shapes angleichen
+    description: Das Format mehrerer Shapes kann ganz einfach angeglichen werden an das zuerst ausgewählte, oder über das Kontextmenü an das jeweils mit rechts angeklickte Shape.
+
+  - id: shape-scale3
+    name: Shapes skalieren
+    description: Mit der BKT können (gruppierte) Shapes so skaliert werden wie in Bild, d.h. es werden alle Eigenschaften wie Schriftgröße und Rahmenbreite angepasst.

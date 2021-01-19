@@ -13,3 +13,12 @@ tipps:
   - id: quickedit
     name: Schnellanleitung der QuickEdit Toolbar
     description: Die BKT bietet eine multi-funktionale Toolbar mit Farb-Buttons an, genannt QuickEdit. Die Funktionen der Buttons können mit `Shift`, `Strg` und `Alt`-Taste variiert werden. Alle Details im Kontextmenü oben in der QuickEdit Toolbar unter Hilfe.
+
+  - id: shape-multiply-split
+    name: Shapes teilen oder vervielfachen
+    description: Mit der BKT kann ein großes Shape ganz einfach in mehrere Spalten und Zeilen verteilt werden, oder ein Shape auf mehrere Spalten und Zeilen dupliziert werden.
+
+  - id: slide-clean-layouts
+    name: Ungenutzte Folienlayouts löschen
+    description: Beim Zusammenkopieren von Folien werden häufig neue Folienmaster mitkopiert, die die Dateigröße erhöhen. Über "Slidedeck aufräumen" können nicht genutzte Folienlayouts sowie Folienmaster ganz einfach gelöscht werden.
+    note: _Folienlayouts sind die einzelnen Templates wie "Titel", "Text und Bild". Ein Folienmaster ist eine Gruppe aller Layouts in einem Design und Farbschema._

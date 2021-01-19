@@ -5,11 +5,7 @@
 	#toc {
 		list-style-type: upper-roman;
 	}
-	#toc li > ol {
-		column-count: 2;
-	}
 	.quicktipps {
-		column-count: 2;
 		counter-reset: section;
 	}
 	.quicktipp {
@@ -21,6 +17,15 @@
 	}
 	video {
 		width: 100%;
+	}
+
+	@media screen and (min-width: 42em) {
+		#toc li > ol {
+			column-count: 2;
+		}
+		.quicktipps {
+			column-count: 2;
+		}
 	}
 </style>
 
@@ -39,27 +44,15 @@ Auf diese Seite befinden sich diverse kleine Animationen, die Tipps im Umgang mi
 </ol>
 
 <!-- 
-1. [Shape-Inhalte verändern (Text, Format)](#shape-inhalte-verändern-text-format)
-   1. [Text mehrerer Shapes ersetzen und löschen](#text-mehrerer-shapes-ersetzen-und-löschen)
-   1. Sprache für Rechtschreibprüfung festlegen
-   1. Formate mehrerer Shapes angleichen
-   1. Shapes skalieren
 1. [Spezielle BKT-Shapes](#spezielle-bkt-shapes)
-   1. [Ampel-Shape mit Popup zum schnellen Wechseln](#ampel-shape-mit-popup-zum-schnellen-wechseln)
-   1. Harvey-Balls einfügen
    1. Agenda einfügen und aktualisieren
    1. Shape-Tabelle anlegen
    1. Aktualisierbare Folien-Thumbnails anlegen
 1. [Weitere BKT-Funktionen](#weitere-bkt-funktionen)
-   1. [Tastenkombinationen beim Anordnen und Spinner-Boxen](#tastenkombinationen-beim-anordnen-und-spinner-boxen)
-   1. [Schnellanleitung der QuickEdit Toolbar](#schnellanleitung-der-quickedit-toolbar)
-   1. [Benutzerdefinierte Formate/Style](#benutzerdefinierte-formate)
-   1. Ungenutzte Folienlayouts löschen
    1. Eigene Shape-Library anlegen
    1. Chart-Library mit Folienmastern
    1. Shapes gezielt auswählen
    1. Icons mit Icon-Fonts
-   1. Shapes teilen oder vervielfachen
    1. Shape-Statistiken anzeigen
    1. Folien-Notizen anlegen und löschen
    1. Toolbar-Themes und Einstellungen

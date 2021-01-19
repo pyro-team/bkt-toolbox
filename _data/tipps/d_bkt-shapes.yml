@@ -5,3 +5,6 @@ tipps:
     name: Ampel-Shape mit Popup zum schnellen Wechseln
     description: Das Ampel-Shape ist eines der ersten "intelligenten" Shapes. Bei Selektion wird ein Dialog/Popup angezeigt, der ein schnelles Umschalten der Ampel ermöglicht. Man kann es einfügen in der Gruppe "Formen"->"Spezielle und Interaktive Formen"->"Ampel".
 
+  - id: harvey-ball
+    name: Harvey-Ball mit Popup einfügen
+    description: Das Harvey-Ball-Shape kann sehr einfach über den kontextsensitiven Tab, das Kontextmenü oder das Popup angepasst werden. So kann Füllgrad und Farben genau eingestellt werden.
