@@ -8,15 +8,14 @@ Created on 13.08.2015
 
 
 import bkt
+import bkt.console
 import bkt.library.powerpoint as powerpoint
-import bkt.library.bezier as bezier
 import bkt.library.algorithms
 import System
 import bkt.ui
 import json
-import math
 
-import ruben as toolbox_rd
+# import ruben as toolbox_rd
 
 
 
@@ -104,20 +103,22 @@ class ShapePoints(object):
     def display_points(cls, shape):
         
         if not shape.Type == powerpoint.MsoShapeType['msoFreeform']:
-            shape.Nodes.SetPosition(1, shape.Left, shape.Top)
+            #convert shape into freeform by adding and deleting node (not sure if this is required)
+            shape.Nodes.Insert(1, 0, 0, 0, 0) #msoSegmentLine, msoEditingAuto, x, y
+            shape.Nodes.Delete(2)
+            # shape.Nodes.SetPosition(1, shape.Left, shape.Top)
         
         pointlist = "["
-        first = True
-        for node in shape.nodes:
-            if not first:
+        for i,node in enumerate(shape.nodes, start=1):
+            if i > 1:
                 pointlist += ","
             pointlist += "\r\n"
-            pointlist += '  {"x":' + str(node.points[0,0])
+            pointlist += ' {"i":' + str(i)
+            pointlist += ', "x":' + str(node.points[0,0])
             pointlist += ', "y":' + str(node.points[0,1])
-            # pointlist += ', "segmentType": ' + str(node.segmentType)
-            # pointlist += ', "editingType": ' + str(node.editingType)
+            pointlist += ', "segmentType": ' + str(node.segmentType)
+            pointlist += ', "editingType": ' + str(node.editingType)
             pointlist += '}'
-            first = False
         pointlist += "\r\n]"
         #bkt.console.show_message(json)
         
@@ -162,7 +163,8 @@ group_shape_points = bkt.ribbon.Group(
     children=[
         bkt.ribbon.Button(
             label=u'Shape Points',
-            imageMso='ObjectEditPoints', show_label=False,
+            size="large",
+            imageMso='ObjectEditPoints',
             on_action=bkt.Callback(ShapePoints.display_points)
         )
     ]
@@ -356,7 +358,7 @@ class ShapeMetaStyle(object):
             # deserialize json
             self.settings = {}
             try:
-                self.settings = json.loads(get_tag_value(presentation, self.META_STYLE_SETTINGS, None)) or {}
+                self.settings = json.loads(self.get_tag_value(presentation, self.META_STYLE_SETTINGS, None)) or {}
             except:
                 pass
                         

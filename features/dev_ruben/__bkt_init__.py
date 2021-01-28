@@ -1,3 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import ruben_v2
+class BktFeature(object):
+    name            = "DEV Ruben"
+    relevant_apps   = ["Microsoft PowerPoint"]
+    
+    @staticmethod
+    def contructor():
+        import ruben_v2
