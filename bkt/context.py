@@ -14,7 +14,7 @@ import time #required for cache
 # from System.Runtime.InteropServices import Marshal
 
 import bkt.helpers as _h #for providing config and settings
-from bkt.library.comrelease import AutoReleasingComObject
+# from bkt.library.comrelease import AutoReleasingComObject
 
 
 class InappropriateContextError(Exception):
@@ -58,12 +58,21 @@ class AppContext(object):
         self.cache_last_refresh = 0
         
         # references with auto-release-effect
-        self.app = AutoReleasingComObject(dotnet_context.app, release_self=False)
+        if self.config.disable_comrelease:
+            logging.info("Com-Release disabled")
+            self.app = dotnet_context.app
+        else:
+            from bkt.library.comrelease import AutoReleasingComObject
+            logging.info("Com-Release enabled and loaded")
+            self.app = AutoReleasingComObject(dotnet_context.app, release_self=False)
     
     
     def release_com_references(self):
         logging.debug("Context.release_com_references")
-        self.app.dispose()
+        try:
+            self.app.dispose()
+        except AttributeError:
+            pass
     
     
     def refresh_cache(self, force=False):

@@ -95,6 +95,20 @@ class PopupConfig(object):
         bkt.config.set_smart("ppt_use_contextdialogs", not pressed)
 
 
+class ComreleaseConfig(object):
+    disable_comrelease = bkt.config.disable_comrelease is True
+
+    @classmethod
+    def get_config(cls):
+        return cls.disable_comrelease
+
+    @classmethod
+    def set_config(cls, pressed):
+        cls.disable_comrelease = pressed
+        bkt.config.set_smart("disable_comrelease", pressed)
+        bkt.message("Änderung wird nach einem Neustart wirksam!")
+
+
 
 class ToolbarVariations(object):
     #FIXME: very hard-coded, should be more flexible and allow multiple variations
@@ -155,6 +169,12 @@ settings.settings_menu.children.extend([
         get_pressed=bkt.Callback(PopupConfig.get_config),
         on_toggle_action=bkt.Callback(PopupConfig.set_config, context=True),
         supertip="Deaktiviert die Popup-Dialoge von BKT-Shapes wie Harvey-Balls, verknüpfte Shapes, etc.",
+    ),
+    bkt.ribbon.ToggleButton(
+        label="Com-Release deaktivieren",
+        get_pressed=bkt.Callback(ComreleaseConfig.get_config),
+        on_toggle_action=bkt.Callback(ComreleaseConfig.set_config),
+        supertip="Deaktiviert den Auto-Com-Release Mechanismus, der eine Verlangsamung von PowerPoint bei längerer Nutzung verhindern soll.",
     ),
     bkt.ribbon.Menu(
         label="Toolbox-Tabs anpassen",
