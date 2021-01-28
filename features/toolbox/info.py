@@ -212,7 +212,8 @@ info_group = bkt.ribbon.Group(
     get_visible=bkt.Callback(TabActivator.enable, context=True),
     children=[
         settings.settings_menu,
-        bkt.ribbon.Button(label=version_short, screentip="Toolbox", supertip=version_long + "\n" + bkt.__release__, on_action=bkt.Callback(settings.BKTInfos.show_version_dialog)),
+        bkt.ribbon.Button(label="BKT", screentip="Business Kasper Toolbox", on_action=bkt.Callback(settings.BKTInfos.show_version_dialog)),
+        bkt.ribbon.Button(label=version_short, screentip="BKT-Version", supertip=version_long + "\n" + bkt.__release__, on_action=bkt.Callback(settings.BKTInfos.show_version_dialog)),
         bkt.ribbon.Button(
             label="BKT Warning",
             size="large",
