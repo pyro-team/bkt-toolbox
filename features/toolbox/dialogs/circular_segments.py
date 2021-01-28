@@ -3,13 +3,15 @@
 from __future__ import absolute_import
 
 import logging
+import math
 
 import bkt.ui
 notify_property = bkt.ui.notify_property
 
 import bkt.library.bezier as bezier
-import bkt.library.algorithms as algorithms
 import bkt.library.powerpoint as pplib
+pt_to_cm = pplib.pt_to_cm
+cm_to_pt = pplib.cm_to_pt
 
 
 # ===================================================================
@@ -17,7 +19,50 @@ import bkt.library.powerpoint as pplib
 # ===================================================================
 
 class SegmentedCircle(object):
-    
+
+    @staticmethod
+    def is_segmented_circle(shape):
+        def test_shape(s):
+            return s.type == pplib.MsoShapeType["msoGraphic"] \
+                and s.autoshapetype == pplib.MsoAutoShapeType["msoShapeNotPrimitive"] \
+                and s.nodes.count >= 8
+        try:
+            return (shape.type == pplib.MsoShapeType["msoGroup"] and all(test_shape(s) for s in shape.GroupItems)) \
+                or test_shape(shape)
+        except:
+            return False
+
+    @staticmethod
+    def determine_from_shape(shape):
+        try:
+            num_segments = shape.GroupItems.Count
+            shp0 = shape.GroupItems[1]
+        except:
+            num_segments = 1
+            shp0 = shape
+        num_nodes = shp0.nodes.count
+
+        #arrow vs segment
+        use_arrow_shape = num_nodes in [28,10,16] #28 if 1 segment, 10 or 16 if >1 segment
+
+        #width
+        x1 = shp0.nodes[1].points[0,0]
+        y1 = shp0.nodes[1].points[0,1]
+        if use_arrow_shape:
+            x2 = shp0.nodes[num_nodes-1].points[0,0]
+            y2 = shp0.nodes[num_nodes-1].points[0,1]
+        else:
+            x2 = shp0.nodes[num_nodes].points[0,0]
+            y2 = shp0.nodes[num_nodes].points[0,1]
+
+        width = math.hypot(x1-x2,y1-y2)*2
+        width_percentage = round(width/shape.width *100)
+
+        size_outer = shape.width/2
+
+        return num_segments, width_percentage, size_outer, use_arrow_shape
+
+
     @staticmethod
     def create_segmented_circle(slide, num_segments, width_percentage, size_outer=100, use_arrow_shape=False):
         # aussenKurve = bezier.bezierKreisNRM(2,100,[100,100])
@@ -80,21 +125,66 @@ class SegmentedCircleViewModel(bkt.ui.ViewModelSingleton):
     def __init__(self):
         super(SegmentedCircleViewModel, self).__init__()
         
-        self.num_segments = 3
-        self.width = 25
-        self.use_arrow_shape = True
+        self._num_segments = 3
+        self._radius = 4.0
+        self._width = 25
+        self._use_arrow_shape = True
+
+    def set_values_based_on_shape(self, shape):
+        try:
+            if not SegmentedCircle.is_segmented_circle(shape):
+                return
+            self.num_segments, self.width, self._radius, arrow_shape = SegmentedCircle.determine_from_shape(shape)
+            self.radius = pt_to_cm(self._radius)
+            if arrow_shape:
+                self.use_arrow_shape = True
+            else:
+                self.use_segment_shape = True
+        except:
+            logging.exception("failed to determine segmented circle parameters")
     
+    
+    @notify_property
+    def num_segments(self):
+        return self._num_segments
+
+    @num_segments.setter
+    def num_segments(self, value):
+        self._num_segments = value
+    
+    @notify_property
+    def radius(self):
+        return self._radius
+
+    @radius.setter
+    def radius(self, value):
+        self._radius = value
+    
+    @notify_property
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, value):
+        self._width = value
     
     ## getters/setters for radio buttons
     
     @notify_property
+    def use_arrow_shape(self):
+        return self._use_arrow_shape
+
+    @use_arrow_shape.setter
+    def use_arrow_shape(self, value):
+        self._use_arrow_shape = True
+    
+    @notify_property
     def use_segment_shape(self):
-        return not self.use_arrow_shape
+        return not self._use_arrow_shape
 
     @use_segment_shape.setter
     def use_segment_shape(self, value):
-        self.use_arrow_shape = not value
-        self.OnPropertyChanged('use_arrow_shape')
+        self._use_arrow_shape = False
 
 
 
@@ -103,15 +193,21 @@ class SegmentedCircleWindow(bkt.ui.WpfWindowAbstract):
     _vm_class = SegmentedCircleViewModel
     
     def __init__(self, context, slide):
-        self.ref_slide = slide
         super(SegmentedCircleWindow, self).__init__(context)
+        
+        self.ref_slide = slide
+
+        try:
+            self._vm.set_values_based_on_shape(context.shape)
+        except:
+            pass #e.g. nothing selected
 
     def cancel(self, sender, event):
         self.Close()
     
     def create_segments(self, sender, event):
         try:
-            SegmentedCircle.create_segmented_circle(self.ref_slide, self._vm.num_segments, self._vm.width, use_arrow_shape=self._vm.use_arrow_shape)
+            SegmentedCircle.create_segmented_circle(self.ref_slide, self._vm.num_segments, self._vm.width, cm_to_pt(self._vm.radius), use_arrow_shape=self._vm.use_arrow_shape)
         except:
             logging.error("Dialog action failed")
         finally:

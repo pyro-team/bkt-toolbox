@@ -21,6 +21,7 @@
             <RowDefinition />
             <RowDefinition />
             <RowDefinition />
+            <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -30,11 +31,14 @@
         <Label      Grid.Column="0" Grid.Row="0" Content="Anzahl Segmente" />
         <fr:Spinner Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" InputWidth="60" Value="{Binding num_segments, UpdateSourceTrigger=PropertyChanged}" Format="0" Minimum="1" SelectAllTextOnFocus="True"/>
 
-        <Label      Grid.Column="0" Grid.Row="1" Content="Breite (in % vom Radius)" />
-        <fr:Spinner Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" InputWidth="60" Value="{Binding width, UpdateSourceTrigger=PropertyChanged}" Format="0 '%'" Minimum="0" Maximum="100" Increment="5" SelectAllTextOnFocus="True"/>
+        <Label      Grid.Column="0" Grid.Row="1" Content="Radius" />
+        <fr:Spinner Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" InputWidth="60" Value="{Binding radius, UpdateSourceTrigger=PropertyChanged}" Format="0.0 cm" Increment="0.2" Minimum="0.1" SelectAllTextOnFocus="True"/>
 
-        <Label      Grid.Column="0" Grid.Row="2" Content="Form" />
-        <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Vertical" Margin="10,0,0,0">
+        <Label      Grid.Column="0" Grid.Row="2" Content="Breite (in % vom Radius)" />
+        <fr:Spinner Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" InputWidth="60" Value="{Binding width, UpdateSourceTrigger=PropertyChanged}" Format="0 '%'" Minimum="0" Maximum="100" Increment="5" SelectAllTextOnFocus="True"/>
+
+        <Label      Grid.Column="0" Grid.Row="3" Content="Form" />
+        <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Vertical" Margin="10,0,0,0">
             <RadioButton Content="Segmente" IsChecked="{Binding use_segment_shape, Mode=TwoWay}" Margin="0,5" />
             <RadioButton Content="Pfeile"   IsChecked="{Binding use_arrow_shape, Mode=TwoWay}" Margin="0,5" />
         </StackPanel>
