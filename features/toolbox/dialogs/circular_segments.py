@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import logging
 import math
@@ -56,12 +56,13 @@ class SegmentedCircle(object):
             y2 = shp0.nodes[num_nodes].points[0,1]
 
         width = math.hypot(x1-x2,y1-y2)*2
-        width_percentage = round(width/shape.width *100)
+        width_percentage = min(100,max(1,round(width/shape.width *100)))
 
         size_outer = shape.width/2
 
         return num_segments, width_percentage, size_outer, use_arrow_shape
 
+#TODO: update_segmented_circle, consider flip_and_rotation_correction from processshapes
 
     @staticmethod
     def create_segmented_circle(slide, num_segments, width_percentage, size_outer=100, use_arrow_shape=False):

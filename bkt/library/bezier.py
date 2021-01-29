@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import division
+
 
 def _punktAufGerade(t, P, Q):
     '''Berechne (Px,Py) + t*(Qx-Px,Qy-Py)'''
@@ -41,11 +43,15 @@ def _bezierKurveNFachTeilen(bezier, n):
         return liste
 
 def _bezierKurvenEinheitskreis():
-    '''Einheitskreises als Liste von Bezierkurven'''
-    return [[[1,0],[1,0.5522],[0.5522,1],[0,1]],
-            [[0,1],[-0.5522,1],[-1,0.5522],[-1,0]],
-            [[-1,0],[-1,-0.5522],[-0.5522,-1],[0,-1]],
-            [[0,-1],[0.5522,-1],[1,-0.5522],[1,0]]]
+    '''Einheitskreises als Liste von Bezierkurven
+       https://stackoverflow.com/questions/1734745/how-to-create-circle-with-bézier-curves
+       https://spencermortensen.com/articles/bezier-circle/
+       https://stackoverflow.com/questions/734076/how-to-best-approximate-a-geometrical-arc-with-a-bezier-curve'''
+    c=0.552 #0.5522 or 0.5522847 or 0.551915
+    return [[[1,0],[1,c],[c,1],[0,1]],
+            [[0,1],[-c,1],[-1,c],[-1,0]],
+            [[-1,0],[-1,-c],[-c,-1],[0,-1]],
+            [[0,-1],[c,-1],[1,-c],[1,0]]]
 
 # # Bezierdarstellung des ersten Viertels vom Einheitskreis
 # def bezierKurveViertelkreis():
