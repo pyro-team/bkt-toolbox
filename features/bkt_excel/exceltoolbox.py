@@ -17,8 +17,8 @@ from . import cells
 from . import selection
 from . import books
 
-version_short = 'v0.6b'
-version_long  = 'Excel Toolbox v0.6 beta'
+version_short = 'v0.7b'
+version_long  = 'Excel Toolbox v0.7 beta'
 
 
 info_gruppe = bkt.ribbon.Group(
