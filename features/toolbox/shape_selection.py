@@ -246,7 +246,7 @@ class SlidesMore(object):
         pasted_shapes.select(False)
 
     @staticmethod
-    def paste_and_distribute(slide, shapes):
+    def paste_and_distribute(slide, shapes, sort_shapes=True):
         from itertools import cycle
 
         def par_iterator(selected_shapes):
@@ -256,6 +256,9 @@ class SlidesMore(object):
         
         pasted = slide.shapes.paste()
         par_iter = cycle(par_iterator(pasted))
+
+        if sort_shapes:
+            shapes = sorted(shapes, key=lambda s: (s.top, s.left))
         
         try:
             for textframe in pplib.iterate_shape_textframes(shapes):
@@ -540,7 +543,7 @@ clipboard_group = bkt.ribbon.Group(
                         bkt.ribbon.Button(
                             id='paste_and_distribute',
                             label="Text auf Auswahl verteilen",
-                            supertip="Jeden Paragraphen aus der Zwischenablage einzeln auf die markierten Shapes verteilen. Überflüssige Paragraphen werden verworfen.",
+                            supertip="Jeden Paragraphen (bzw. Zelle) aus der Zwischenablage einzeln auf die markierten Shapes verteilen (von links nach rechts, und von oben nach unten). Überflüssige Paragraphen werden verworfen.",
                             image_mso='PasteMergeList',
                             on_action=bkt.Callback(SlidesMore.paste_and_distribute, slide=True, shapes=True),
                             get_enabled=bkt.apps.ppt_shapes_or_text_selected,

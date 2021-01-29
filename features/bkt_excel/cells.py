@@ -226,36 +226,54 @@ class CellsOps(object):
 
     @classmethod
     def apply_formula(cls, cells, application):
+        from string import Template
+
         dec_sep = application.International(xlcon.XlApplicationInternational["xlDecimalSeparator"])
-        preview_cell_format = application.ActiveCell.NumberFormatLocal
-        preview_cell_formula = application.ActiveCell.FormulaLocal.lstrip("=")
+        active_cell = application.ActiveCell
+        preview_cell_format = active_cell.NumberFormatLocal
+        preview_cell_formula = active_cell.FormulaLocal.lstrip("=")
+        preview_cell_address = active_cell.AddressLocal(False, False)
         try:
-            preview_cell_value = str(application.ActiveCell.Value2).replace('.', dec_sep)
+            preview_cell_value = str(active_cell.Value2).replace('.', dec_sep)
         except:
             preview_cell_value = -2146826273 #"#Value!"
 
         def _preview(sender, e):
             try:
                 create_formulas = text.Text[0] == "="
-                formula = text.Text if create_formulas or "[cell]" in text.Text else "([cell])" + text.Text
+                formula = text.Text if create_formulas or "$cell" in text.Text else "$cell" + text.Text
+                template = Template(formula)
+                formula = template.safe_substitute({"cell": preview_cell_address, "cellvalue": preview_cell_value})
+
                 if create_formulas:
-                    formula = formula.replace("[cell]", preview_cell_formula)
-                    txt_preview.Text = formula
+                    formula = template.safe_substitute({"cell": preview_cell_formula, "cellvalue": preview_cell_value})
+                    # formula = formula.replace("[cell]", preview_cell_formula)
+                    formula = formula[1:]
                 else:
-                    formula = formula.replace("[cell]", preview_cell_value)
-                    txt_preview.Text = xllib.xls_evaluate(formula, dec_sep, preview_cell_format)
+                    formula = template.safe_substitute({"cell": preview_cell_address, "cellvalue": preview_cell_value})
+                    # formula = formula.replace("[cell]", preview_cell_value)
+                    # formula = formula.replace("[cell]", preview_cell_address)
+                    # formula = template.safe_substitute({"cell": preview_cell_address, "cellvalue": preview_cell_value})
+
+                txt_preview.Text = "=" + formula
+                txt_preview2.Text = str(xllib.xls_evaluate(formula, dec_sep, preview_cell_format))
 
             except:
                 txt_preview.Text = "FEHLER"
+                txt_preview2.Text = "FEHLER"
 
-        user_form = bkt.ui.UserInputBox("Hier kann eine Formel auf alle markierten Zellen angewendet werden. Soll der Zelleninhalt nicht am Anfang stehen, können Sie mit dem Platzhalter [cell] arbeiten. Standardmäßig wird der resultierende Wert eingefügt (sofern die Formel nicht fehlerhaft ist). Wenn Ihre Eingabe mit '=' beginnt, wird eine Formel erstellt. In der Auswahlbox finden Sie Beispiele für mögliche Eingaben.", "Formel anwenden")
-        text = user_form._add_combobox("formula", cls.last_formula, ["*100", "/100", "*(-1)", "+A1", "/SUMME(A1:A3)", "ABS([cell])", "RUNDEN([cell];2)", "ABRUNDEN([cell];2)", "AUFRUNDEN([cell];2)", "KÜRZEN([cell])", "1/[cell]", "=([cell])*100"])
+        user_form = bkt.ui.UserInputBox("Hier kann eine Formel auf alle markierten Zellen angewendet werden. Soll der Zelleninhalt nicht am Anfang stehen, können Sie mit dem Platzhalter $cell und $cellvalue arbeiten. Standardmäßig wird der resultierende Wert eingefügt (sofern die Formel nicht fehlerhaft ist). Wenn Ihre Eingabe mit '=' beginnt, wird eine Formel erstellt. In der Auswahlbox finden Sie Beispiele für mögliche Eingaben.", "Formel anwenden")
+        text = user_form._add_combobox("formula", cls.last_formula, ["*100", "/100", "*(-1)", "+A1", "/SUMME(A1:A3)", "ABS($cell)", "RUNDEN($cell;2)", "ABRUNDEN($cell;2)", "AUFRUNDEN($cell;2)", "KÜRZEN($cell)", "1/$cell", "=($cell)*100", "GROSS(\"$cellvalue\")"])
         text.TextChanged += _preview
         user_form._add_checkbox("skip_existing_formulas", "Bestehende Formeln überspringen und nicht verändern")
         
         user_form._add_label("Vorschau für aktive Zelle:")
         txt_preview = user_form._add_textbox("preview")
         txt_preview.ReadOnly = True
+
+        txt_preview2 = user_form._add_textbox("preview2")
+        txt_preview2.ReadOnly = True
+
         _preview(None, None)
 
         form_return = user_form.show()
@@ -269,27 +287,39 @@ class CellsOps(object):
         cls.last_formula = formula
 
         create_formulas = formula[0] == "="
-        formula = formula if create_formulas or "[cell]" in formula else "([cell])" + formula
+        formula = formula if create_formulas or "$cell" in formula else "($cell)" + formula
+        template = Template(formula)
 
         for cell in cells:
             if cell.Value2 is None or (cell.HasFormula and form_return["skip_existing_formulas"]):
                 continue
 
-            if cell.HasFormula:
-                new_formula = formula.replace("[cell]", cell.FormulaLocal[1:])
-            else:
-                new_formula = formula.replace("[cell]", cell.FormulaLocal)
+            try:
+                cell_value = str(cell.Value2).replace('.', dec_sep)
+            except:
+                cell_value = -2146826273 #"#Value!"
+
+            # if cell.HasFormula and create_formulas:
+            #     new_formula = formula.replace("[cell]", cell.FormulaLocal[1:])
+            # else:
+            #     new_formula = formula.replace("[cell]", cell.FormulaLocal)
 
             try:
                 if create_formulas:
-                    cell.FormulaLocal = new_formula
+                    if cell.HasFormula:
+                        cell.FormulaLocal = template.safe_substitute({"cell": cell.FormulaLocal[1:], "cellvalue": cell_value})
+                    else:
+                        cell.FormulaLocal = template.safe_substitute({"cell": cell.FormulaLocal, "cellvalue": cell_value})
                 else:
-                    cell.FormulaLocal = "=" + new_formula
-                    #On error do not replace with int value of error
-                    if not application.WorksheetFunction.IsError(cell):
-                        cell.Value = cell.Value()
+                    new_formula = template.safe_substitute({"cell": cell.AddressLocal(False, False), "cellvalue": cell_value})
+                    cell.FormulaLocal = application.Evaluate(new_formula)
+                    # cell.FormulaLocal = "=" + new_formula
+                    # #On error do not replace with int value of error
+                    # if not application.WorksheetFunction.IsError(cell):
+                    #     cell.Value = cell.Value()
             except:
                 err_counter += 1
+                cell.AddComment("Error applying formula")
                 #bkt.helpers.exception_as_message(str(cell.AddressLocal()))
 
         if err_counter > 0:
@@ -852,6 +882,37 @@ class CellsOps(object):
             
             else:
                 bkt.message("Keine ausgeblendeten Zeilen im genutzten Bereich gefunden.")
+
+
+    @classmethod
+    def remove_hidden_cols(cls, sheet):
+        if not xllib.confirm_no_undo(): return
+
+        xllib.freeze_app()
+
+        deleted = 0
+        try:
+            area = sheet.UsedRange
+            for i in xrange(1,area.Columns.Count+1):
+                if area.Columns(i).EntireColumn.Hidden:
+                    area.Columns(i).EntireColumn.Delete()
+                    deleted += 1
+        finally:
+            xllib.unfreeze_app()
+        
+        bkt.message("Es wurden %s Spalten gelöscht" % deleted)
+
+
+
+    @classmethod
+    def remove_hidden_rows(cls, sheet):
+        area = sheet.UsedRange
+        deleted = 0
+        for i in xrange(1,area.Rows.Count+1):
+            if area.Rows(i).EntireRow.Hidden:
+                area.Rows(i).EntireRow.Delete()
+                deleted += 1
+        bkt.message("Es wurden %s Zeilen gelöscht" % deleted)
 
     @staticmethod
     def show_all_cells(sheet):
@@ -1496,6 +1557,25 @@ zellen_format_gruppe = bkt.ribbon.Group(
                         #image_mso='ViewGridlinesToggleExcel',
                         supertip="Alle Spalten und Zeilen des nicht genutzten Bereichs ausblenden.",
                         on_action=bkt.Callback(CellsOps.hide_unused_areas, sheet=True, require_worksheet=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.MenuSeparator(),
+                    bkt.ribbon.Button(
+                        id = 'remove_hidden_cols',
+                        label="Ausgeblendete Spalten löschen",
+                        show_label=True,
+                        #image_mso='TableInsertMultidiagonalCell',
+                        supertip="Alle ausgeblendeten Spalten löschen.",
+                        on_action=bkt.Callback(CellsOps.remove_hidden_cols, sheet=True, require_worksheet=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'remove_hidden_rows',
+                        label="Ausgeblendete Zeilen löschen",
+                        show_label=True,
+                        #image_mso='TableInsertMultidiagonalCell',
+                        supertip="Alle ausgeblendeten Zeilen löschen.",
+                        on_action=bkt.Callback(CellsOps.remove_hidden_rows, sheet=True, require_worksheet=True),
                         get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                     ),
                 ])

@@ -14,7 +14,7 @@ import time #for cache invalidation and event throttling
 
 from bkt.context import InappropriateContextError
 from bkt.callbacks import Callback, CallbackTypes
-from bkt.library.comrelease import AutoReleasingComObject
+# from bkt.library.comrelease import AutoReleasingComObject
 
 
 

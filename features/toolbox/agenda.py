@@ -172,10 +172,10 @@ class ToolboxAgenda(object):
             if sections.count > 1:
                 text = ""
                 for i in range(sections.count):
-                    text += sections.Name(i+1) + "\r\n"
+                    text += sections.Name(i+1) + "\r"
                 shp.TextFrame.TextRange.text = text.strip()
             else:
-                shp.TextFrame.TextRange.text = "Abschnitt 1\r\nAbschnitt 2\r\nAbschnitt 3"
+                shp.TextFrame.TextRange.text = "Abschnitt 1\rAbschnitt 2\rAbschnitt 3"
             
             # Einrückung
             shp.TextFrame.VerticalAnchor = office.MsoVerticalAnchor.msoAnchorMiddle.value__

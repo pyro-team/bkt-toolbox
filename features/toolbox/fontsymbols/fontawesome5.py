@@ -144,17 +144,21 @@ def update_search_index(search_engine):
 
 
 # define the menu parts
-menu_settings = [
-    # menu label,          list of symbols,       icons per row
-    ('All Regular',            all_fonts['regular'],          16  ),
-    ('All Solid',              all_fonts['solid'],            16  ),
-    ('All Brands',             all_fonts['brands'],           16  ),
-]
+# menu_settings = [
+#     # menu label,          list of symbols,       icons per row
+#     ('All Regular',            all_fonts['regular'],          16  ),
+#     ('All Solid',              all_fonts['solid'],            16  ),
+#     ('All Brands',             all_fonts['brands'],           16  ),
+# ]
 
 menus = [
-    PPTSymbolsGallery(label="{} ({})".format(label, len(symbollist)), symbols=symbollist, columns=columns)
-    for (label, symbollist, columns) in menu_settings
-] + [
+#     PPTSymbolsGallery(label="{} ({})".format(label, len(symbollist)), symbols=symbollist, columns=columns)
+#     for (label, symbollist, columns) in menu_settings
+# ] + [
+    PPTSymbolsGallery(label="All Regular ({})".format(len(all_fonts['regular'])), symbols=all_fonts['regular'], columns=16),
+    PPTSymbolsGallery(label="All Solid 1/2 ({})".format(600), symbols=all_fonts['solid'][:600], columns=16),
+    PPTSymbolsGallery(label="All Solid 2/2 ({})".format(len(all_fonts['solid'])-600), symbols=all_fonts['solid'][600:], columns=16),
+    PPTSymbolsGallery(label="All Brands ({})".format(len(all_fonts['brands'])), symbols=all_fonts['brands'], columns=16),
     # submenu for categories
     bkt.ribbon.DynamicMenu(label="All Categories", get_content=bkt.Callback(get_content_categories))
 ]

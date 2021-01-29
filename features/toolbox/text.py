@@ -1204,6 +1204,7 @@ class TextOnShape(object):
                 shpTxt.TextFrame2.TextRange.Paste()
                 shp.TextFrame2.DeleteText()
                 # Größe wiederherstellen
+                shp.Top = shpTxt.Top
                 shp.Height = shpTxt.Height
                 shp.Width = shpTxt.Width
                 # Textfeld selektieren

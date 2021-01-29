@@ -120,14 +120,14 @@ class ViewModel(bkt.ui.ViewModelSingleton):
         self._orig_height = height
 
         if self._scale_target == "height":
-            self._target_percent = self._target_height/height
-            self._target_width = width * self._target_percent
+            self._target_percent = round(self._target_height/height,3)
+            self._target_width = round(width * self._target_percent,2)
         elif self._scale_target == "width":
-            self._target_percent = self._target_width/width
-            self._target_height = height * self._target_percent
+            self._target_percent = round(self._target_width/width,3)
+            self._target_height = round(height * self._target_percent,2)
         else:
-            self._target_width = width * self._target_percent
-            self._target_height = height * self._target_percent
+            self._target_width = round(width * self._target_percent,2)
+            self._target_height = round(height * self._target_percent,2)
 
         self.OnPropertyChanged('target_percent')
         self.OnPropertyChanged('target_height')
@@ -164,9 +164,9 @@ class ViewModel(bkt.ui.ViewModelSingleton):
     @target_percent.setter
     def target_percent(self, value):
         value = value/100
-        self._target_percent = value
-        self._target_width = self._orig_width*value
-        self._target_height = self._orig_height*value
+        self._target_percent = round(value,3)
+        self._target_width = round(self._orig_width*value,2)
+        self._target_height = round(self._orig_height*value,2)
         self.OnPropertyChanged('target_height')
         self.OnPropertyChanged('target_width')
         self.scale_percent = True
@@ -177,8 +177,8 @@ class ViewModel(bkt.ui.ViewModelSingleton):
     @target_width.setter
     def target_width(self, value):
         self._target_width = value
-        self._target_percent = value/self._orig_width
-        self._target_height = self._target_percent*self._orig_height
+        self._target_percent = round(value/self._orig_width,3)
+        self._target_height = round(value/self._orig_width*self._orig_height,2)
         self.OnPropertyChanged('target_percent')
         self.OnPropertyChanged('target_height')
         self.scale_width = True
@@ -189,8 +189,8 @@ class ViewModel(bkt.ui.ViewModelSingleton):
     @target_height.setter
     def target_height(self, value):
         self._target_height = value
-        self._target_percent = value/self._orig_height
-        self._target_width = self._target_percent*self._orig_width
+        self._target_percent = round(value/self._orig_height,3)
+        self._target_width = round(value/self._orig_height*self._orig_width,2)
         self.OnPropertyChanged('target_percent')
         self.OnPropertyChanged('target_width')
         self.scale_height = True
@@ -267,7 +267,7 @@ class ShapeScaleWindow(bkt.ui.WpfWindowAbstract):
         self._vm.set_dimensions(pplib.pt_to_cm(shapes[0].width), pplib.pt_to_cm(shapes[0].height))
 
     def reset(self, sender, event):
-        self._vm.target_percent = 1.0
+        self._vm.target_percent = 100
     
     def scale(self, sender, event):
         vm = self._vm

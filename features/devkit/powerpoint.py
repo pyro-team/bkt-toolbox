@@ -148,6 +148,8 @@ class ShapeNodes(object):
                 node[0]-size/2, node[1]-size/2,
                 size,size
             )
+            s.textframe.AutoSize = 0
+            s.textframe.WordWrap = 0
             s.textframe.textrange.text = str(i)
             s.textframe.textrange.font.size=8
             s.tags.add("BKT_DEVKIT_NODE", tag)

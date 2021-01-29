@@ -163,11 +163,6 @@ def xls_evaluate(input_text, dec_sep=None, numberformat=None):
         return unicode(dec).replace('.', dec_sep)
 
     res = application.Evaluate(input_text)
-    #Test if result is iterable
-    try:
-        res = list(iter(res))
-    except:
-        pass
     type_res = type(res)
 
     #Error values are int
@@ -182,21 +177,30 @@ def xls_evaluate(input_text, dec_sep=None, numberformat=None):
     elif type_res == float:
         return _conv_dec(res)
     
+    #"Normal" results
+    elif type_res in (int, str, unicode):
+        return unicode(res)
+    
     #Any iterable object, can be range of cells or System.Array
-    elif type_res == list:
+    else:
+        #Test if result is iterable
         try:
-            ret = [_conv_dec(cell.Value2) for cell in res]
+            try:
+                ret = (_conv_dec(cell.Value2) for cell in iter(res))
+            except:
+                ret = (_conv_dec(value) for value in iter(res))
         except:
-            ret = [_conv_dec(value) for value in res]
-        if len(ret) > 1:
-            return "{" + ";".join(ret) + "}"
+            pass
+        
         else:
-            return ret[0]
+            if len(ret) > 1:
+                return "{" + ";".join(ret) + "}"
+            else:
+                return ret[0]
     
     #Fallback
-    else:
-        return unicode(res)
-        #return "{0!r}".format(res).replace('.', dec_sep)
+    return unicode(res)
+    #return "{0!r}".format(res).replace('.', dec_sep)
 
 
 directions = {
