@@ -122,7 +122,7 @@ Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --add_folde
 Filename: "{app}\documentation\Changelog.pptx"; Description: "Neue Funktionen und Änderungen anzeigen"; Flags: postinstall shellexec skipifsilent
   
 [UninstallRun]
-Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install uninstall"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn entfernen..."; Flags: runhidden
+Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install uninstall"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn entfernen..."; Flags: runhidden; RunOnceId: "BktUninstall"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\resources\cache"
