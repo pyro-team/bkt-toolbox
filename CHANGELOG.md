@@ -1,3 +1,19 @@
+# Release 2021-01-29 (2.7.3)
+
+  * Added option switch for auto-com-release (potential workaround for PPT restart bug)
+  * Added function in Excel toolbar to remove all hidden columns or rows
+  * Improved circula segments dialog, now radius can be defined
+  * Improved usability of shape scale dialog
+  * Improved "Paste and Distribute" by ordering selected shapes top-left to bottom-right
+  * Improved Excel "Apply formula" function with better preview and text function support (e.g. UPPER)
+  * Fixed bug in ChartLib creating new libraries
+  * Fixed FontAwesome gallery not loading (split gallery as more than 1000 gallery items not supported by PPT)
+  * Fixed error inserting shape tables
+  * Fixed top position when using "Text out of shape" function
+  * Fixed crash in Excel when whole row or column is selected and certain functions are applied
+  * Known Issue: Random PPT restart after closing
+
+
 # Release 2020-10-29 (2.7.2)
 
   * Rename "Master" to "Reference" or "Main" across the whole UI
