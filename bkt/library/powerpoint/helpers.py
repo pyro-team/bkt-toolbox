@@ -1388,7 +1388,9 @@ class GroupManager(object):
 
         self._name = group.name
         self._tags = TagHelper.get_dict_from_tags(group.tags)
-        self._rotation      = group.rotation
+        self._rotation      = group.Rotation
+        self._fliph         = group.HorizontalFlip
+        self._flipv         = group.VerticalFlip
         self._zorder        = group.ZOrderPosition
         self._aspectratio   = group.LockAspectRatio
 
@@ -1453,6 +1455,10 @@ class GroupManager(object):
         Method is executed right before ungroup action in order to set rotation to 0.
         '''
         self._group.rotation = 0
+        if self._fliph and self._group.HorizontalFlip: #avoid double flip if function if called twice
+            self._group.Flip(0) #msoFlipHorizontal
+        if self._flipv and self._group.VerticalFlip:
+            self._group.Flip(1) #msoFlipVertical
         self._ungroup_prepared = True
 
     def post_regroup(self):
@@ -1460,6 +1466,10 @@ class GroupManager(object):
         Method is executed right after regroup action in order to set rotation to original rotation.
         '''
         self._group.rotation = self._rotation
+        if self._fliph != self._group.HorizontalFlip:
+            self._group.Flip(0) #msoFlipHorizontal
+        if self._flipv != self._group.VerticalFlip:
+            self._group.Flip(1) #msoFlipVertical
         self._ungroup_prepared = False
 
     def ungroup(self, prepare=True):
@@ -1469,7 +1479,7 @@ class GroupManager(object):
         if not self._group:
             raise SystemError("not a group")
 
-        if prepare:
+        if prepare and not self._ungroup_prepared:
             self.prepare_ungroup()
         self._ungroup = self._group.ungroup()
         self._group = None
