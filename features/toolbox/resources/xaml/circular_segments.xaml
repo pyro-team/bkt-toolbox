@@ -22,6 +22,7 @@
             <RowDefinition />
             <RowDefinition />
             <RowDefinition />
+            <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -37,10 +38,17 @@
         <Label      Grid.Column="0" Grid.Row="2" Content="Breite (in % vom Radius)" />
         <fr:Spinner Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" InputWidth="60" Value="{Binding width, UpdateSourceTrigger=PropertyChanged}" Format="0 '%'" Minimum="0" Maximum="100" Increment="5" SelectAllTextOnFocus="True"/>
 
-        <Label      Grid.Column="0" Grid.Row="3" Content="Form" />
-        <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Vertical" Margin="10,0,0,0">
-            <RadioButton Content="Segmente" IsChecked="{Binding use_segment_shape, Mode=TwoWay}" Margin="0,5" />
-            <RadioButton Content="Pfeile"   IsChecked="{Binding use_arrow_shape, Mode=TwoWay}" Margin="0,5" />
+        <Label      Grid.Column="0" Grid.Row="3" Content="Abstand" />
+        <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal">
+            <RadioButton Content="ohne"  IsChecked="{Binding spacing_none, Mode=TwoWay}" Margin="10,0,0,0" />
+            <RadioButton Content="klein" IsChecked="{Binding spacing_small, Mode=TwoWay}" Margin="10,0,0,0" />
+            <RadioButton Content="groß"  IsChecked="{Binding spacing_big, Mode=TwoWay}" Margin="10,0,0,0" />
+        </StackPanel>
+
+        <Label      Grid.Column="0" Grid.Row="4" Content="Form" />
+        <StackPanel Grid.Column="1" Grid.Row="4" Orientation="Horizontal">
+            <RadioButton Content="Segmente" IsChecked="{Binding use_segment_shape, Mode=TwoWay}" Margin="10,0,0,0" />
+            <RadioButton Content="Pfeile"   IsChecked="{Binding use_arrow_shape, Mode=TwoWay}" Margin="10,0,0,0" />
         </StackPanel>
       </Grid>
             
@@ -50,6 +58,7 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <StackPanel Orientation="Horizontal" Grid.Column="1">
+            <Button Margin="5" MinWidth="80" Padding="5,4" Content="Ändern"                     Click="update_segments" IsEnabled="{Binding update_enabled}"/>
             <Button Margin="5" MinWidth="80" Padding="5,4" Content="Erstellen" IsDefault="True" Click="create_segments"/>
             <Button Margin="5" MinWidth="80" Padding="5,4" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
         </StackPanel>

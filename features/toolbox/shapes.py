@@ -997,9 +997,8 @@ class ShapeDialogs(object):
 
     @staticmethod
     def show_process_chevrons_dialog(context, slide):
-        from .processshapes import ProcessChevrons
         from .dialogs.shape_process import ProcessWindow
-        ProcessWindow.create_and_show_dialog(context, slide, ProcessChevrons)
+        ProcessWindow.create_and_show_dialog(context, slide)
 
     ### DIRECT CREATE ###
 
