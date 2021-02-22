@@ -250,10 +250,11 @@ class ShapeAdjustments(object):
     @classmethod
     def reset_adjustments(cls, shapes):
         for shape in shapes:
-            shape_db = pplib.GlobalShapeDb.get_by_shape(shape)
-            default_adj = shape_db["adjustments"]
-            for i in range(shape.adjustments.count):
-                shape.adjustments.item[i+1] = default_adj[i]["default"]
+            shape.autoshapetype = shape.autoshapetype
+            # shape_db = pplib.GlobalShapeDb.get_by_shape(shape)
+            # default_adj = shape_db["adjustments"]
+            # for i in range(shape.adjustments.count):
+            #     shape.adjustments.item[i+1] = default_adj[i]["default"]
 
 
     @classmethod
