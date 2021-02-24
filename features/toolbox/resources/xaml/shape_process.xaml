@@ -21,6 +21,7 @@
               <RowDefinition />
               <RowDefinition />
               <RowDefinition />
+              <RowDefinition />
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
               <ColumnDefinition />
@@ -52,13 +53,16 @@
           </StackPanel>
           
           <Label      Grid.Column="0" Grid.Row="1" Content="Anzahl Schritte" />
-          <fr:Spinner Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" InputWidth="60" Value="{Binding num_steps, UpdateSourceTrigger=PropertyChanged}" Format="0" Minimum="1"/>
+          <fr:Spinner Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" InputWidth="60" Value="{Binding num_steps, UpdateSourceTrigger=PropertyChanged}" Format="0" Minimum="2" SelectAllTextOnFocus="True"/>
 
           <Label      Grid.Column="0" Grid.Row="2" Content="Abstand" />
-          <fr:Spinner Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" InputWidth="60" Value="{Binding spacing, UpdateSourceTrigger=PropertyChanged}" Format="0.0 cm" Increment="0.2" Minimum="-1000"/>
+          <fr:Spinner Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" InputWidth="60" Value="{Binding spacing, UpdateSourceTrigger=PropertyChanged}" Format="0.0 cm" Increment="0.2" Minimum="-1000" SelectAllTextOnFocus="True"/>
 
-          <Label      Grid.Column="0" Grid.Row="3" Content="Zeilen unterhalb Prozess" />
-          <fr:Spinner Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" InputWidth="60" Value="{Binding num_rows, UpdateSourceTrigger=PropertyChanged}" Format="0" Increment="1" Minimum="0"/>
+          <Label      Grid.Column="0" Grid.Row="3" Content="Höhe" />
+          <fr:Spinner Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" InputWidth="60" Value="{Binding height, UpdateSourceTrigger=PropertyChanged}" Format="0.0 cm" Increment="0.2" Minimum="0" SelectAllTextOnFocus="True"/>
+
+          <Label      Grid.Column="0" Grid.Row="4" Content="Zeilen unterhalb Prozess" />
+          <fr:Spinner Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left" InputWidth="60" Value="{Binding num_rows, UpdateSourceTrigger=PropertyChanged}" Format="0" Increment="1" Minimum="0" SelectAllTextOnFocus="True"/>
         </Grid>
         
         <Grid Margin="0">
@@ -67,6 +71,7 @@
               <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <StackPanel Orientation="Horizontal" Grid.Column="1">
+              <Button Margin="5" MinWidth="80" Padding="5,4" Content="Ändern"                     Click="update_process" IsEnabled="{Binding update_enabled}"/>
               <Button Margin="5" MinWidth="80" Padding="5,4" Content="Erstellen" IsDefault="True" Click="create_process"/>
               <Button Margin="5" MinWidth="80" Padding="5,4" Content="Abbrechen" IsCancel="True"  Click="cancel"/>
           </StackPanel>
