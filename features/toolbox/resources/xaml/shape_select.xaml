@@ -58,6 +58,10 @@
             <StackPanel Orientation="Vertical" Margin="5">
                 <CheckBox Content="Links" IsChecked="{Binding sk_pos_left, Mode=TwoWay}" Margin="5,1"/>
                 <CheckBox Content="Oben" IsChecked="{Binding sk_pos_top, Mode=TwoWay}" Margin="5,1" />
+
+                <CheckBox Content="Rechts" IsChecked="{Binding sk_pos_right, Mode=TwoWay}" Margin="5,1" />
+                <CheckBox Content="Unten" IsChecked="{Binding sk_pos_bottom, Mode=TwoWay}" Margin="5,1" />
+
                 <CheckBox Content="Rotation" IsChecked="{Binding sk_pos_rotation, Mode=TwoWay}" Margin="5,1" />
             </StackPanel>
         </GroupBox>
