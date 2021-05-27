@@ -339,7 +339,7 @@ class RibbonControl(object):
             else:
                 raise ValueError('unexpected callback w/o callback_type: ' + str(callback))
         else:
-            raise ValueError('unexpected type in add_callback: ' + str(type(callback)))
+            raise ValueError('unexpected type in add_callback: ' + str(type(original_callback)))
     
     
     def collect_callbacks(self):
@@ -797,8 +797,8 @@ class RoundingSpinnerBox(SpinnerBox):
     def convert_pt_to_cm_B(self, cm):
         ''' convert cm-value to pt-value '''
         return float(cm) / self.pt_to_cm_factor
-   
-    
+
+
 
 
 class ColorGallery(Gallery):
