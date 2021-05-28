@@ -16,7 +16,7 @@ import bkt.library.powerpoint as pplib
 pt_to_cm = pplib.pt_to_cm
 cm_to_pt = pplib.cm_to_pt
 
-from ..processshapes import ProcessChevrons
+from ..models.processshapes import ProcessChevrons
 
 
 class ProcessChevronsModel(object):

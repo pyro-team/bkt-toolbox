@@ -1004,12 +1004,12 @@ class ShapeDialogs(object):
 
     @staticmethod
     def create_headered_pentagon(slide):
-        from .processshapes import Pentagon
+        from .models.processshapes import Pentagon
         Pentagon.create_headered_pentagon(slide)
 
     @staticmethod
     def create_headered_chevron(slide):
-        from .processshapes import Pentagon
+        from .models.processshapes import Pentagon
         Pentagon.create_headered_chevron(slide)
     
     @staticmethod
