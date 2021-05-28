@@ -179,7 +179,7 @@ class ToolboxUi(object):
 
     def render_contextmenus(self):
         # define context-menus and context-tabs
-        from . import context_menus
+        from .contextmenus import common
 
 
     def get_page(self, index):
