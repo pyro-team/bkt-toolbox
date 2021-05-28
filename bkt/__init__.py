@@ -43,7 +43,7 @@ locale.setlocale(locale.LC_ALL, '') #auto detect locale
 # import modules with less dependencies first
 from bkt.helpers import config, settings #no internal dependencies
 
-from bkt.callbacks import CallbackTypes, Callback #imports helpers
+from bkt.callbacks import CallbackTypes, Callback, CallbackLazy #imports helpers
 get_enabled_auto = CallbackTypes.get_enabled.dotnet_name #convenience name
 
 from bkt.apps import AppEvents #imports callbacks and context (imports helpers)

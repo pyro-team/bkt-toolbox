@@ -8,6 +8,7 @@ Created on 13.11.2014
 
 from __future__ import absolute_import
 
+import importlib
 import logging
 from functools import wraps
 
@@ -269,6 +270,55 @@ class Callback(object):
         else:
             return self.__class__.__name__
     
+
+
+class CallbackLazy(Callback):
+    '''
+    Same as Callback, but imports module only on first use
+    '''
+
+    def __init__(self, *args, **kwargs):
+        # super(CallbackLazy, self).__init__(*args, **kwargs)
+
+        if len(args) == 3:
+            self.module_name, self.container, self.method_name = args
+        elif len(args) == 2:
+            self.module_name, self.method_name = args
+            self.container = None
+
+        self.control = None
+
+        self._module = None
+        self._method = None
+
+        self.init_method(self._load_and_execute, **kwargs)
+    
+    def _load_and_execute(self, **kwargs):
+        ''' create window for the context dialog, without showing it '''
+        logging.debug('ContextDialog.create_window')
+        try:
+            if not self._method:
+                self._import_module()
+                if self.container is None:
+                    self._method = getattr(self.container, self.method_name)
+                else:
+                    class_ = getattr(self._module, self.container)
+                    self._method = getattr(class_, self.method_name)
+            
+            return self._method(**kwargs)
+            
+        except:
+            logging.exception("error in contextdialog window creation")
+
+    def _import_module(self):
+        '''
+        equivalent to: import <<module_name>>
+        will not reload if module was already loaded
+        '''
+        if not self._module:
+            logging.debug('ContextDialog.import_module importing %s' % self.module_name)
+            #do an import equivalent to:  import <<module_name>>
+            self._module = importlib.import_module(self.module_name)
 
 
 
