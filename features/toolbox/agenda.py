@@ -316,7 +316,12 @@ class ToolboxAgenda(object):
         shp = sld.shapes.AddShape(office.MsoAutoShapeType.msoShapeRectangle.value__, 0, 0, 100, 20)
         cls.set_tags_for_selector(shp)
         shp.Name = "[BKT] Agenda-Selektor %s" % shp.id
-        shp.ZOrder(office.MsoZOrderCmd.msoSendToBack.value__)
+        try:
+            #try to set selector right behind textbox (better for fancy agenda formatting)
+            textbox = cls.get_agenda_textbox_on_slide(sld)
+            pplib.set_shape_zorder(shp, textbox.ZOrderPosition)
+        except:
+            shp.ZOrder(office.MsoZOrderCmd.msoSendToBack.value__)
         # Grauer Hintergrund/Rand
         cls.set_selector_fill(shp.Fill, cls.selectorFillColor)
         cls.set_selector_line(shp.Line, cls.selectorLineColor)
@@ -1310,6 +1315,9 @@ class ToolboxAgenda(object):
         # settings[key] = value
         for agenda_item in agenda_items:
             cls.update_agenda_settings_on_slide(agenda_item.slide, {key: value})
+        
+        if bkt.message.confirmation("Agenda jetzt aktualisieren?", title="Toolbox: Agenda"):
+            cls.update_agenda_slides_by_slide(slide)
     
     
     
