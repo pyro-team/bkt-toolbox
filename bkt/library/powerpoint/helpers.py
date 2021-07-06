@@ -654,6 +654,8 @@ def convert_text_into_shape(shape):
 
     #total shapes
     shape_count = slide.shapes.count
+    #original shape name
+    orig_name = shape.Name
 
     #convert actual text into shape
     if shape.Fill.visible == 0:
@@ -699,6 +701,7 @@ def convert_text_into_shape(shape):
 
     new_shape = shape_indices_on_slide(slide, [shape_index])[1]
     new_shape.LockAspectRatio = -1
+    new_shape.Name = orig_name
     return new_shape
 
 
