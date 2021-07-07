@@ -23,9 +23,9 @@ BKT_BASE = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
 
 
 
-# ==============================
+# ===============================
 # = Typical programming helpers =
-# ==============================
+# ===============================
 
 def memoize(func):
     ''' Memoize a functions return value for each set of args (kwargs not supported) '''
@@ -55,6 +55,10 @@ def snake_to_upper_camelcase(string):
         return ''.join(x.title() for x in string.split('_'))
     else:
         return string[0].upper() + string[1:]
+
+def key_by_value(mydict, search):
+    "Returns dict key for given value"
+    return next((key for key, value in mydict.items() if value == search), None)
 
 #Source: https://docs.python.org/2/library/itertools.html#recipes
 def all_equal(iterable, key=None):
