@@ -246,6 +246,7 @@ def get_next_visible_cell(cell, direction='bottom'):
 
 
 def range_union(range1, range2):
+    "union function that considers None-range"
     if not range1:
         return range2
     if not range2:
@@ -253,16 +254,23 @@ def range_union(range1, range2):
 
     return application.Union(range1, range2)
 
+def range_intersect(range1, range2):
+    "intersect function that considers None-range"
+    if not range1 or not range2:
+        return None
+
+    return application.Intersect(range1, range2)
 
 # Original function: http://dailydoseofexcel.com/archives/2007/08/17/two-new-range-functions-union-and-subtract/
 def range_substract(main_range, diff_range):
     #application = main_range.Application
 
+
     def _range_subtract_one_area(main_area, diff_area):
         if main_area.Areas.Count > 1 or diff_area.Areas.Count > 1:
             raise ValueError("Range consists of more than one area")
 
-        int_area = application.Intersect(main_area, diff_area)
+        int_area = range_intersect(main_area, diff_area)
         if not int_area:
             # print "only main area: " + main_area.Address()
             return main_area
@@ -286,7 +294,7 @@ def range_substract(main_range, diff_range):
         return int_selected
 
     #Begin of main function
-    if not application.Intersect(main_range, diff_range):
+    if not range_intersect(main_range, diff_range):
         # print "only main range: " + main_range.Address()
         return main_range
 
@@ -298,7 +306,7 @@ def range_substract(main_range, diff_range):
         area_selected = _range_subtract_one_area(m_area, next(diff_areas)) #First area
         for d_area in diff_areas:
             # print "diff area iteration: " + d_area.Address()
-            area_selected = application.Intersect(area_selected, _range_subtract_one_area(m_area, d_area))
+            area_selected = range_intersect(area_selected, _range_subtract_one_area(m_area, d_area))
 
         cells_selected = range_union(cells_selected, area_selected)
 
