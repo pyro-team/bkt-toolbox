@@ -542,6 +542,7 @@ class BooksOps(object):
 
 
 mappen_gruppe = bkt.ribbon.Group(
+    id="group_workbook",
     label="Arbeitsmappe",
     image_mso="ExportExcel",
     auto_scale=True,

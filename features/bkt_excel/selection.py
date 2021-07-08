@@ -249,6 +249,7 @@ class SelectionOps(object):
 
 
 selektion_gruppe = bkt.ribbon.Group(
+    id="group_selection",
     label="Selektion",
     image_mso="SelectCurrentRegion",
     #auto_scale=True,
@@ -447,6 +448,7 @@ selektion_gruppe = bkt.ribbon.Group(
                     show_label=False,
                     image_mso='ObjectNudgeDown',
                     screentip="Reihen oberhalb der Selektion",
+                    supertip="Selektion nach oben verschieben",
                     on_change = bkt.Callback(SelectionOps.set_selection_top, selection=True, areas=True, areas_min=1),
                     get_text  = bkt.Callback(SelectionOps.get_selection_top, selection=True, areas=True, areas_min=1),
                     get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
@@ -461,6 +463,7 @@ selektion_gruppe = bkt.ribbon.Group(
                     show_label=False,
                     image_mso='TableRowsDistribute',
                     screentip="Anzahl der selektierten Reihen",
+                    supertip="Selektion um Reihen erweitern",
                     on_change = bkt.Callback(SelectionOps.set_selection_height, areas=True, areas_min=1, areas_max=1),
                     get_text  = bkt.Callback(SelectionOps.get_selection_height, areas=True, areas_min=1, areas_max=1),
                     get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
@@ -479,6 +482,7 @@ selektion_gruppe = bkt.ribbon.Group(
                     show_label=False,
                     image_mso='ObjectNudgeRight',
                     screentip="Spalten links der Selektion",
+                    supertip="Selektion nach links verschieben",
                     on_change = bkt.Callback(SelectionOps.set_selection_left, selection=True, areas=True, areas_min=1),
                     get_text  = bkt.Callback(SelectionOps.get_selection_left, selection=True, areas=True, areas_min=1),
                     get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
@@ -493,6 +497,7 @@ selektion_gruppe = bkt.ribbon.Group(
                     show_label=False,
                     image_mso='TableColumnsDistribute',
                     screentip="Anzahl der selektierten Spalten",
+                    supertip="Selektion um Spalten erweitern",
                     on_change = bkt.Callback(SelectionOps.set_selection_width, areas=True, areas_min=1, areas_max=1),
                     get_text  = bkt.Callback(SelectionOps.get_selection_width, areas=True, areas_min=1, areas_max=1),
                     get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
@@ -508,7 +513,7 @@ selektion_gruppe = bkt.ribbon.Group(
             label=u"Verschieben ändert Größe",
             show_label=True,
             image_mso='SizeToControlHeightAndWidth',
-            screentip="Verschieben der Selektion verändert auch die Größe",
+            supertip="Verschieben der Selektion verändert auch die Größe",
             on_toggle_action=bkt.Callback(SelectionOps.toggle_move_resize),
             get_pressed=bkt.Callback(lambda: SelectionOps.move_resize),
             get_enabled = bkt.Callback(lambda areas: True, areas=True, areas_min=1, areas_max=1),

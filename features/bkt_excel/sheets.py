@@ -679,6 +679,7 @@ class FileListOps(object):
 
 
 blatt_gruppe = bkt.ribbon.Group(
+    id="group_sheets",
     label="Blätter",
     image_mso="SheetInsert",
     auto_scale=True,
