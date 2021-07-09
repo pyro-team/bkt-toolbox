@@ -1,4 +1,4 @@
-# Übersicht aller Funktionen für Excel
+# Übersicht aller Funktionen für Excel | [PowerPoint](overview.md)
 {:.no_toc}
 
 <style>
@@ -13,6 +13,7 @@
 	@media screen and (min-width: 42em) {
 		li > ol {
 			column-count: 3;
+			margin-bottom:10px;
 		}
 	}
 </style>
@@ -31,7 +32,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Ablage
 
-<img src="documentation/groups/group_clipboard.png">
+<img src="documentation/groups_excel/group_clipboard.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -42,12 +43,12 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Schriftart
 
-<img src="documentation/groups/GroupFont.png">
+<img src="documentation/groups_excel/GroupFont.png">
 
 
 ### Sonst.
 
-<img src="documentation/groups/group_misc.png">
+<img src="documentation/groups_excel/group_misc.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -58,32 +59,32 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Ausrichtung
 
-<img src="documentation/groups/GroupAlignmentExcel.png">
+<img src="documentation/groups_excel/GroupAlignmentExcel.png">
 
 
 ### Zahl
 
-<img src="documentation/groups/GroupNumber.png">
+<img src="documentation/groups_excel/GroupNumber.png">
 
 
 ### Formatvorlagen
 
-<img src="documentation/groups/GroupStyles.png">
+<img src="documentation/groups_excel/GroupStyles.png">
 
 
 ### Zellen
 
-<img src="documentation/groups/GroupCells.png">
+<img src="documentation/groups_excel/GroupCells.png">
 
 
 ### Bearbeiten
 
-<img src="documentation/groups/GroupEditingExcel.png">
+<img src="documentation/groups_excel/GroupEditingExcel.png">
 
 
 ### Gliederung
 
-<img src="documentation/groups/group_outline.png">
+<img src="documentation/groups_excel/group_outline.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -96,7 +97,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Settings
 
-<img src="documentation/groups/group_settings.png">
+<img src="documentation/groups_excel/group_settings.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -127,7 +128,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Zellen-Inhalte
 
-<img src="documentation/groups/group_cell_contents.png">
+<img src="documentation/groups_excel/group_cell_contents.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -179,7 +180,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Zellen-Formate
 
-<img src="documentation/groups/group_cell_formats.png">
+<img src="documentation/groups_excel/group_cell_formats.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -206,7 +207,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Kommentare
 
-<img src="documentation/groups/group_cell_comments.png">
+<img src="documentation/groups_excel/group_cell_comments.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -221,7 +222,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Rahmen
 
-<img src="documentation/groups/group_borders.png">
+<img src="documentation/groups_excel/group_borders.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -238,7 +239,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Definierte Namen
 
-<img src="documentation/groups/group_names.png">
+<img src="documentation/groups_excel/group_names.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -249,7 +250,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Datentools
 
-<img src="documentation/groups/group_tools.jpg">
+<img src="documentation/groups_excel/group_tools.jpg">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -261,7 +262,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Fenster
 
-<img src="documentation/groups/group_window.png">
+<img src="documentation/groups_excel/group_window.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -272,7 +273,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Drucken
 
-<img src="documentation/groups/group_print.png">
+<img src="documentation/groups_excel/group_print.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -288,7 +289,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Selektion
 
-<img src="documentation/groups/group_selection.png">
+<img src="documentation/groups_excel/group_selection.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -322,7 +323,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Blätter
 
-<img src="documentation/groups/group_sheets.png">
+<img src="documentation/groups_excel/group_sheets.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |
@@ -358,7 +359,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in Excel sortiert nach den jew
 
 ### Arbeitsmappe
 
-<img src="documentation/groups/group_workbook.png">
+<img src="documentation/groups_excel/group_workbook.png">
 
 | Name                                               | Beschreibung                                       |
 | -------------------------------------------------- | -------------------------------------------------- |

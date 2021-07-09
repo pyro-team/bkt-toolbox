@@ -13,6 +13,7 @@
 	@media screen and (min-width: 42em) {
 		li > ol {
 			column-count: 3;
+			margin-bottom:10px;
 		}
 	}
 </style>
