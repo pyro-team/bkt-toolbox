@@ -17,7 +17,7 @@
 	}
 </style>
 
-Hier ist eine Übersicht aller Funktionen der BKT sortiert nach den jeweiligen Tabs/Reitern und Gruppen, sowie eine Übersicht der Funktionen in Kontextmenüs.
+Hier ist eine Übersicht aller Funktionen der BKT in PowerPoint sortiert nach den jeweiligen Tabs/Reitern und Gruppen, sowie eine Übersicht der Funktionen in Kontextmenüs.
 *Kursiv geschriebene Funktionen sind Standardfunktionen von PowerPoint, daher ist teilweise keine Beschreibung vorhanden.*
 
 1. TOC
