@@ -22,6 +22,7 @@
 	@media screen and (min-width: 42em) {
 		#toc li > ol {
 			column-count: 2;
+      margin-bottom:10px;
 		}
 		.quicktipps {
 			column-count: 2;
