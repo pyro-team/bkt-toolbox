@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>BKT.Dev</RootNamespace>
     <AssemblyName>BKT.Dev</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <NoWin32Manifest>False</NoWin32Manifest>
     <SignAssembly>True</SignAssembly>
