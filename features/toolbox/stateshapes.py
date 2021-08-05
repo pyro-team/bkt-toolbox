@@ -641,6 +641,61 @@ StateShape.register_special_stateshape(CheckBox.SHAPE_TAG, CheckBox())
 StateShape.register_special_stateshape(LikertScale.SHAPE_TAG, LikertScale())
 
 
+def stateshape_fill1_gallery(**kwargs):
+    return bkt.ribbon.ColorGallery(
+                    label = 'Farbe 1 (Hintergrund) ändern',
+                    image_mso = 'ShapeFillColorPicker',
+                    screentip="Hintergrundfarbe eines Wechsel-Shapes ändern",
+                    supertip="Passt die Hintergrundfarbe aller Shapes im Wechsel-Shape an. Die Hintergrundfarbe ist die Farbe des zuerst gefundenen Shapes.",
+                    on_rgb_color_change   = bkt.Callback(StateShape.set_color_fill_rgb1, shapes=True),
+                    on_theme_color_change = bkt.Callback(StateShape.set_color_fill_theme1, shapes=True),
+                    # get_selected_color    = bkt.Callback(StateShape.get_selected_color1, shapes=True),
+                    get_enabled           = bkt.Callback(StateShape.are_state_shapes),
+                    children=[
+                        bkt.ribbon.Button(
+                            label="Kein Hintergrund",
+                            supertip="Wechsel-Shape Hintergrundfarbe auf transparent setzen",
+                            on_action=bkt.Callback(StateShape.set_color_fill_none1, shapes=True),
+                        ),
+                    ],
+                    **kwargs
+                )
+
+def stateshape_fill2_gallery(**kwargs):
+    return bkt.ribbon.ColorGallery(
+                    label = 'Farbe 2 (Vordergrund) ändern',
+                    image_mso = 'ShapeFillColorPicker',
+                    screentip="Vordergrundfarbe eines Wechsel-Shapes ändern",
+                    supertip="Passt die Vordergrundfarbe aller Shapes im Wechsel-Shape an. Die Vordergrundfarbe ist jede Farbe ungleich der Hintergrundfarbe.",
+                    on_rgb_color_change   = bkt.Callback(StateShape.set_color_fill_rgb2, shapes=True),
+                    on_theme_color_change = bkt.Callback(StateShape.set_color_fill_theme2, shapes=True),
+                    # get_selected_color    = bkt.Callback(StateShape.get_selected_color2, shapes=True),
+                    get_enabled           = bkt.Callback(StateShape.are_state_shapes),
+                    **kwargs
+                )
+
+def stateshape_line_gallery(**kwargs):
+    return bkt.ribbon.ColorGallery(
+                    label = 'Linie ändern',
+                    image_mso = 'ShapeOutlineColorPicker',
+                    screentip="Linie eines Wechsel-Shapes ändern",
+                    supertip="Passt die Linienfarbe aller Shapes im Wechsel-Shape an, die der ersten gefundenen Linienfarbe entsprechen.",
+                    on_rgb_color_change   = bkt.Callback(StateShape.set_color_line_rgb, shapes=True),
+                    on_theme_color_change = bkt.Callback(StateShape.set_color_line_theme, shapes=True),
+                    # get_selected_color    = bkt.Callback(StateShape.get_selected_line, shapes=True),
+                    get_enabled           = bkt.Callback(StateShape.are_state_shapes),
+                    children=[
+                        bkt.ribbon.Button(
+                            label="Keine Linie",
+                            supertip="Wechsel-Shape Linie auf transparent setzen",
+                            on_action=bkt.Callback(StateShape.set_color_line_none, shapes=True),
+                        ),
+                    ],
+                    **kwargs
+                )
+
+
+
 stateshape_gruppe = bkt.ribbon.Group(
     id="bkt_stateshape_group",
     label='Wechsel-Shapes',
@@ -738,53 +793,9 @@ stateshape_gruppe = bkt.ribbon.Group(
             supertip="Die Farben von Wechselshapes anpassen",
             image_mso="RecolorColorPicker",
             children=[
-                bkt.ribbon.ColorGallery(
-                    id="stateshape_color_fill1",
-                    label = 'Farbe 1 (Hintergrund) ändern',
-                    image_mso = 'ShapeFillColorPicker',
-                    screentip="Hintergrundfarbe eines Wechsel-Shapes ändern",
-                    supertip="Passt die Hintergrundfarbe aller Shapes im Wechsel-Shape an. Die Hintergrundfarbe ist die Farbe des zuerst gefundenen Shapes.",
-                    on_rgb_color_change   = bkt.Callback(StateShape.set_color_fill_rgb1, shapes=True),
-                    on_theme_color_change = bkt.Callback(StateShape.set_color_fill_theme1, shapes=True),
-                    # get_selected_color    = bkt.Callback(StateShape.get_selected_color1, shapes=True),
-                    get_enabled           = bkt.Callback(StateShape.are_state_shapes),
-                    children=[
-                        bkt.ribbon.Button(
-                            label="Kein Hintergrund",
-                            supertip="Wechsel-Shape Hintergrundfarbe auf transparent setzen",
-                            on_action=bkt.Callback(StateShape.set_color_fill_none1, shapes=True),
-                        ),
-                    ]
-                ),
-                bkt.ribbon.ColorGallery(
-                    id="stateshape_color_fill2",
-                    label = 'Farbe 2 (Vordergrund) ändern',
-                    image_mso = 'ShapeFillColorPicker',
-                    screentip="Vordergrundfarbe eines Wechsel-Shapes ändern",
-                    supertip="Passt die Vordergrundfarbe aller Shapes im Wechsel-Shape an. Die Vordergrundfarbe ist jede Farbe ungleich der Hintergrundfarbe.",
-                    on_rgb_color_change   = bkt.Callback(StateShape.set_color_fill_rgb2, shapes=True),
-                    on_theme_color_change = bkt.Callback(StateShape.set_color_fill_theme2, shapes=True),
-                    # get_selected_color    = bkt.Callback(StateShape.get_selected_color2, shapes=True),
-                    get_enabled           = bkt.Callback(StateShape.are_state_shapes),
-                ),
-                bkt.ribbon.ColorGallery(
-                    id="stateshape_color_line",
-                    label = 'Linie ändern',
-                    image_mso = 'ShapeOutlineColorPicker',
-                    screentip="Linie eines Wechsel-Shapes ändern",
-                    supertip="Passt die Linienfarbe aller Shapes im Wechsel-Shape an, die der ersten gefundenen Linienfarbe entsprechen.",
-                    on_rgb_color_change   = bkt.Callback(StateShape.set_color_line_rgb, shapes=True),
-                    on_theme_color_change = bkt.Callback(StateShape.set_color_line_theme, shapes=True),
-                    # get_selected_color    = bkt.Callback(StateShape.get_selected_line, shapes=True),
-                    get_enabled           = bkt.Callback(StateShape.are_state_shapes),
-                    children=[
-                        bkt.ribbon.Button(
-                            label="Keine Linie",
-                            supertip="Wechsel-Shape Linie auf transparent setzen",
-                            on_action=bkt.Callback(StateShape.set_color_line_none, shapes=True),
-                        ),
-                    ]
-                ),
+                stateshape_fill1_gallery(id="stateshape_color_fill1"),
+                stateshape_fill2_gallery(id="stateshape_color_fill2"),
+                stateshape_line_gallery(id="stateshape_color_line"),
             ]
         ),
         # bkt.ribbon.Button(

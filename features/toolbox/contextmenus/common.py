@@ -104,7 +104,7 @@ bkt.powerpoint.add_context_menu(
             supertip="Verschiedene BKT-Funktionen, die dynamisch für die gewählten Shapes geladen werden.",
             insertBeforeMso='Cut',
             image="bkt_logo",
-            get_content=bkt.CallbackLazy("toolbox.contextmenus.dynamic", "ObjectsGroup", "get_children"),
+            get_content=bkt.CallbackLazy("toolbox.contextmenus.dynamic", "ObjectsGroup", "get_children", shapes=True),
         ),
         ### Any shapes format sync
         bkt.ribbon.Button(id='context-format-sync', label="Format angleichen", insertBeforeMso='Cut', image_mso="FormatPainter",
@@ -210,6 +210,14 @@ bkt.powerpoint.add_context_menu(
 
 bkt.powerpoint.add_context_menu(
     bkt.ribbon.ContextMenu(id_mso='ContextMenuShape', children=[
+        ### Lazy called BKT functions
+        bkt.ribbon.DynamicMenu(
+            label="BKT Funktionen",
+            supertip="Verschiedene BKT-Funktionen, die dynamisch für die gewählten Shapes geladen werden.",
+            insertBeforeMso='Cut',
+            image="bkt_logo",
+            get_content=bkt.CallbackLazy("toolbox.contextmenus.dynamic", "Shape", "get_children"),
+        ),
         ### Language setting
         ContextMenuRecurring.change_lang_menu('ctx-shp'),
         ### Clipboard operations
