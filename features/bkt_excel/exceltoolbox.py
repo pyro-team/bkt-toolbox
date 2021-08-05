@@ -156,7 +156,7 @@ bkt.excel.add_tab(bkt.ribbon.Tab(
             label="Datentools",
             image_mso="RemoveDuplicates",
             children=[
-                bkt.mso.control.PivotTableInsertMenu(size="large"),
+                bkt.mso.control.PivotTableInsert(size="large"),
                 bkt.mso.control.ConvertTextToTable(show_label=True),
                 bkt.mso.control.RemoveDuplicates(show_label=True),
                 bkt.mso.control.DataValidationMenu(show_label=True)

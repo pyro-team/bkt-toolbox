@@ -11,9 +11,7 @@ import importlib
 from collections import namedtuple, deque
 
 import bkt
-from bkt import ribbon
 from bkt.library.powerpoint import PPTSymbolsGallery
-from bkt.ribbon import Separator
 
 
 FontSymbol = namedtuple("FontSymbol", "module fontlabel fontname unicode label keywords")
