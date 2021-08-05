@@ -282,11 +282,6 @@ class SheetsOps(object):
 
     @classmethod
     def list_cond_formats(cls, sheet, workbook):
-        def _dict_by_value(input_dict, search_value):
-            for key, value in input_dict.iteritems():
-                if value == search_value:
-                    return key
-
         def _getattr(obj, name, default=None):
             try:
                 return getattr(obj, name, default)
@@ -309,14 +304,14 @@ class SheetsOps(object):
 
         for fcond in iter(sheet.Cells.FormatConditions):
             list_sheet.Cells(cur_row,1).Value = fcond.Priority
-            list_sheet.Cells(cur_row,2).Value = _dict_by_value(xlcon.XlFormatConditionType, fcond.Type)
+            list_sheet.Cells(cur_row,2).Value = bkt.helpers.key_by_value(xlcon.XlFormatConditionType, fcond.Type)
             
             list_sheet.Cells(cur_row,3).Value = "'" + _getattr(fcond, "Formula1", '')
             list_sheet.Cells(cur_row,4).Value = "'" + _getattr(fcond, "Formula2", '')
             list_sheet.Cells(cur_row,5).Value = "'" + _getattr(fcond, "Text", '')
 
             operator = _getattr(fcond, "Operator", None)
-            list_sheet.Cells(cur_row,6).Value = None if operator is None else _dict_by_value(xlcon.XlFormatConditionOperator, operator)
+            list_sheet.Cells(cur_row,6).Value = None if operator is None else bkt.helpers.key_by_value(xlcon.XlFormatConditionOperator, operator)
             
             #Format
             list_sheet.Cells(cur_row,7).Value = "AaBbCcYyZz"
@@ -330,6 +325,68 @@ class SheetsOps(object):
         
         list_sheet.Activate()
         list_sheet.UsedRange.Columns.AutoFit()
+
+
+    @classmethod
+    def list_validations(cls, sheet, workbook):
+        def _getattr(obj, name, default=None):
+            try:
+                return getattr(obj, name, default)
+            except:
+                return default
+
+        list_sheet = workbook.Worksheets.Add()
+        xllib.rename_sheet(list_sheet, "BKT LISTE DATENÜBERPRÜF.")
+        cls._create_list_header(list_sheet, ["Typ", "Formel 1", "Formel 2", "Operator", "Gültigkeitswarnung", "Leere Zellen ignorieren", "Zellendropdown", "Bereich"])
+        cur_row = 2
+
+        try:
+            range_all = sheet.Cells.SpecialCells(xlcon.XlCellType["xlCellTypeAllValidation"])
+        except:
+            list_sheet.Activate()
+            list_sheet.UsedRange.Columns.AutoFit()
+            return
+            
+        with range_all:
+            max_iter = 255
+            while max_iter > 0 and range_all and range_all.areas.count > 0 and range_all.areas[1].cells.count > 0:
+            # for valid_areas in iter(range_all.Areas):
+            #     for cell in iter(valid_areas.Cells):
+                max_iter -= 1
+                cell = range_all.areas[1].cells[1]
+
+                valid = cell.validation
+                list_sheet.Cells(cur_row,1).Value = bkt.helpers.key_by_value(xlcon.XlDVType, valid.Type)
+            
+                list_sheet.Cells(cur_row,2).Value = "'" + _getattr(valid, "Formula1", '')
+                list_sheet.Cells(cur_row,3).Value = "'" + _getattr(valid, "Formula2", '')
+
+                operator = _getattr(valid, "Operator", None)
+                list_sheet.Cells(cur_row,4).Value = None if operator is None else bkt.helpers.key_by_value(xlcon.XlFormatConditionOperator, operator)
+
+                alert = _getattr(valid, "AlertStyle", None)
+                list_sheet.Cells(cur_row,5).Value = None if alert is None else bkt.helpers.key_by_value(xlcon.XlDVAlertStyle, alert)
+
+                list_sheet.Cells(cur_row,6).Value = "X" if valid.IgnoreBlank else None
+                list_sheet.Cells(cur_row,7).Value = "X" if valid.InCellDropdown else None
+
+                range_same = cell.SpecialCells(xlcon.XlCellType["xlCellTypeSameValidation"])
+
+                list_sheet.Cells(cur_row,8).Value = "'=" + xllib.get_address_external(range_same, True, True)
+                # list_sheet.Cells(cur_row,9).Value = "'=" + xllib.get_address_external(range_all, True, True)
+                
+                range_all = xllib.range_substract(range_all, range_same)
+                try:
+                    #Important: avoid premature com-release by manually setting within_context to new range com object!
+                    range_all._within_context = True
+                except:
+                    logging.warning("Setting within_context failed for: %s", range_all)
+
+                cur_row += 1
+        
+        list_sheet.Activate()
+        list_sheet.UsedRange.Columns.AutoFit()
+
 
     @classmethod
     def list_sheets(cls, workbook, sheets):
@@ -622,6 +679,7 @@ class FileListOps(object):
 
 
 blatt_gruppe = bkt.ribbon.Group(
+    id="group_sheets",
     label="Blätter",
     image_mso="SheetInsert",
     auto_scale=True,
@@ -736,6 +794,15 @@ blatt_gruppe = bkt.ribbon.Group(
                     #image_mso='SheetInsert',
                     supertip="Erstellt Liste aller bedingten Formatierungen des aktuellen Blatts in neuem Blatt.",
                     on_action=bkt.Callback(SheetsOps.list_cond_formats, sheet=True, workbook=True),
+                    get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                ),
+                bkt.ribbon.Button(
+                    id = 'list_validations',
+                    label="Liste aller Datenüberprüfungen",
+                    show_label=True,
+                    #image_mso='SheetInsert',
+                    supertip="Erstellt Liste aller Datenüberprüfungen des aktuellen Blatts in neuem Blatt.",
+                    on_action=bkt.Callback(SheetsOps.list_validations, sheet=True, workbook=True),
                     get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                 ),
                 bkt.ribbon.MenuSeparator(title="Listen zur Mappe"),

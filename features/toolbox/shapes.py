@@ -1902,7 +1902,8 @@ class ShapeTableGallery(bkt.ribbon.Gallery):
         g = Drawing.Graphics.FromImage(img)
         # color_black = Drawing.ColorTranslator.FromOle(0)
         #color_light_grey  = Drawing.ColorTranslator.FromOle(14540253)
-        color_grey  = Drawing.ColorTranslator.FromHtml('#666')
+        # color_grey  = Drawing.ColorTranslator.FromHtml('#666')
+        color_grey  = Drawing.Brushes.Gray
         pen = Drawing.Pen(color_grey,1)
         #brush = Drawing.SolidBrush(color_black)
         

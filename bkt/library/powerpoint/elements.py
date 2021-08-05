@@ -338,6 +338,7 @@ class PPTSymbolsGallery(bkt.ribbon.SymbolsGallery):
         shape.TextFrame2.MarginTop    = 0
         shape.TextFrame2.MarginLeft   = 0
         shape.TextFrame2.MarginRight  = 0
+        shape.Name = "[BKT] Symbol %s" % shape.id
         self.insert_symbol_into_text(shape.TextFrame2.TextRange, item)
         # if item[0]:
         #     shape.TextFrame.TextRange.Font.Name = item[0] #font name

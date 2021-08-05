@@ -87,6 +87,22 @@ XlFormatConditionOperator = {
     "xlNotEqual":       4,      #Not equal.
 }
 
+XlDVType = {
+    "xlValidateCustom":         7,  #Data is validated using an arbitrary formula.
+    "xlValidateDate":           4,  #Date values.
+    "xlValidateDecimal":        2,  #Numeric values.
+    "xlValidateInputOnly":      0,  #Validate only when user changes the value.
+    "xlValidateList":           3,  #Value must be present in a specified list.
+    "xlValidateTextLength":     6,  #Length of text.
+    "xlValidateTime":           5,  #Time values.
+    "xlValidateWholeNumber":    1,  #Whole numeric values.
+}
+
+XlDVAlertStyle = {
+    "xlValidAlertInformation":  3,  #Information icon.
+    "xlValidAlertStop":         1,  #Stop icon.
+    "xlValidAlertWarning":      2,  #Warning icon.
+}
 
 subtotalFunction = {
     "AVERAGE":  101,

@@ -1036,7 +1036,8 @@ class ColorGallery(Gallery):
             color = Drawing.ColorTranslator.FromOle(rgb)
             g.Clear(color)
 
-        color_grey = Drawing.Color.FromArgb(230,230,230)
+        # color_grey = Drawing.Color.FromArgb(230,230,230)
+        color_grey = Drawing.Brushes.Gray
         pen = Drawing.Pen(color_grey,1)
         # pen.Alignment = Drawing.Drawing2D.PenAlignment.Inset
         g.DrawRectangle(pen, 0,0, size-1, size-1) #left, top, width, height
@@ -1135,10 +1136,9 @@ class SymbolsGallery(Gallery):
             return -1
         
     @staticmethod
-    def create_symbol_image(font, text, fontsize=54, size=64):
+    def create_symbol_image(font, text, fontsize=54, size=64, text_brush=Drawing.Brushes.Gray):
         # define font and pen/brush
         font = Drawing.Font(font, fontsize, Drawing.GraphicsUnit.Pixel)
-        text_brush = Drawing.Brushes.Black
         # estimate size
         if size is None:
             g = Drawing.Graphics.FromImage(Bitmap(1, 1))
