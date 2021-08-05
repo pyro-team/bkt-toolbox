@@ -263,6 +263,11 @@ class ShapeTables(object):
         from .table_dialog import ShapesAsTableWindow
         ShapesAsTableWindow.create_and_show_dialog(context, shapes)
 
+    @staticmethod
+    def show_dialog_staple(context, shapes):
+        from .staple_dialog import ShapesAsStaples
+        ShapesAsStaples.create_and_show_dialog(context, shapes)
+
 
 shape_tables = ShapeTables()
 
@@ -319,6 +324,7 @@ tabellen_gruppe = bkt.ribbon.Group(
                         on_action=bkt.Callback(shape_tables.align_table_zero, shapes=True, shapes_min=2),
                         # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                     ),
+                    bkt.ribbon.MenuSeparator(),
                     bkt.ribbon.Button(
                         id = 'align_table_dialog',
                         label="Tabellen-Dialog",
@@ -327,6 +333,16 @@ tabellen_gruppe = bkt.ribbon.Group(
                         # image='align_table_zero',
                         # supertip="Richtet die ausgewählten Shapes als Tabelle ohne Abstand aus.",
                         on_action=bkt.Callback(ShapeTables.show_dialog, context=True, shapes=True, shapes_min=2),
+                        # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'staple_dialog',
+                        label="Stapel-Dialog",
+                        # description="Shapes als Tabelle ohne Abstand ausrichten.",
+                        # show_label=True,
+                        # image='align_table_zero',
+                        # supertip="Richtet die ausgewählten Shapes als Tabelle ohne Abstand aus.",
+                        on_action=bkt.Callback(ShapeTables.show_dialog_staple, context=True, shapes=True, shapes_min=2),
                         # get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                     ),
                     # bkt.ribbon.MenuSeparator(),
