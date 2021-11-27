@@ -66,7 +66,7 @@ class ObjectsGroup(object):
             label="Shape-Texte ersetzen…",
             supertip="Text aller gewählten Shapes mit im Dialogfeld eingegebenen Text ersetzen.",
             image_mso='ReplaceDialog',
-            on_action=bkt.Callback(text.TextPlaceholder.text_replace, shapes=True),
+            on_action=bkt.Callback(text.TextPlaceholder.text_replace, shapes=True, presentation=True),
             get_enabled = bkt.Callback(text.SplitTextShapes.is_joinable, shapes=True), #reuse callback from SplitTextShapes
         ),
         # Grouping functions
