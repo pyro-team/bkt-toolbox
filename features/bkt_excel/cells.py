@@ -1078,7 +1078,7 @@ zellen_inhalt_gruppe = bkt.ribbon.Group(
             show_label=True,
             size='large',
             image_mso='Formula',
-            supertip="Eine Formel auf alle ausgwählten Zellen anwenden.",
+            supertip="Eine Formel auf alle ausgewählten Zellen anwenden.",
             on_action=bkt.Callback(CellsOps.apply_formula, cells=True, application=True),
             get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
         ),
@@ -1088,7 +1088,7 @@ zellen_inhalt_gruppe = bkt.ribbon.Group(
             show_label=True,
             size='large',
             image_mso='ApplyFilter',
-            supertip="Einen regulären Ausdruck auf alle ausgwählten Zellen anwenden.",
+            supertip="Einen regulären Ausdruck auf alle ausgewählten Zellen anwenden.",
             children=[
                 bkt.ribbon.Button(
                     id = 'regex_match',
