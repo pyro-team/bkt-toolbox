@@ -1197,7 +1197,7 @@ class SubShapeIterator(object):
                         otherwise not all table cells are iterated at least in the rare case that a table is the only shape on a slide.
     '''
 
-    def __init__(self, shapes, from_selection=True):
+    def __init__(self, shapes, from_selection=True, exclude=None):
         #Ensure list
         if type(shapes) != list:
             shapes = list(iter(shapes))
@@ -1210,13 +1210,17 @@ class SubShapeIterator(object):
             self.only_selected_table_cells = True
 
         self.shapes = shapes
+        self.exclude = exclude or []
     
     def __iter__(self):
         for shape in self.shapes:
             shp_type = self._get_shp_type(shape)
 
             # Iterate each group item
-            if shp_type == MsoShapeType['msoGroup']:
+            if shp_type in self.exclude:
+                generator = self._iter_default(shape)
+            
+            elif shp_type == MsoShapeType['msoGroup']:
                 generator = self._iter_group(shape)
             
             # Iterate each smart art node
@@ -1268,9 +1272,9 @@ class SubShapeIterator(object):
                     yield cell.Shape
 
 
-def iterate_shape_subshapes(shapes, from_selection=True, filter_method=lambda shp: True, getter_method=lambda shp: shp):
+def iterate_shape_subshapes(shapes, from_selection=True, exclude=None):
     ''' Function to create sub shape iterator '''
-    return SubShapeIterator(shapes, from_selection)
+    return SubShapeIterator(shapes, from_selection, exclude)
 
 
 class TextframeIterator(SubShapeIterator):
@@ -1309,9 +1313,9 @@ class TextframeIterator(SubShapeIterator):
             yield shape.Chart.DataTable.Format.TextFrame2
 
 
-def iterate_shape_textframes(shapes, from_selection=True):
+def iterate_shape_textframes(shapes, from_selection=True, exclude=None):
     ''' Function to create textframe iterator '''
-    return TextframeIterator(shapes, from_selection)
+    return TextframeIterator(shapes, from_selection, exclude)
 
 
 
