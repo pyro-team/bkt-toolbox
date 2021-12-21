@@ -1576,7 +1576,8 @@ class ShapeFormats(object):
 
     @classmethod
     def get_line_transparency(cls, shapes):
-        shapes = pplib.iterate_shape_subshapes(shapes)
+        shapes = pplib.iterate_shape_subshapes(shapes, exclude=[pplib.MsoShapeType['msoTable']])
+        #IMPORTANT: if tables are not excluded, Powerpoint will crash if a table is selected and this function is executed
         for shape in shapes:
             try:
                 return max(0, round(shape.line.transparency*100))
@@ -1596,7 +1597,8 @@ class ShapeFormats(object):
 
     @classmethod
     def get_line_weight(cls, shapes):
-        shapes = pplib.iterate_shape_subshapes(shapes)
+        shapes = pplib.iterate_shape_subshapes(shapes, exclude=[pplib.MsoShapeType['msoTable']])
+        #IMPORTANT: if tables are not excluded, Powerpoint will crash if a table is selected and this function is executed
         for shape in shapes:
             try:
                 return max(0, shape.line.weight)
