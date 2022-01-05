@@ -192,7 +192,8 @@ class AutoReleasingComObject(object):
         '''
         if hasattr(self._comobj, 'Item') and hasattr(self._comobj, 'Count'):
             for i in range(self._comobj.Count):
-                yield AutoReleasingComObject(self._comobj.Item(i+1))
+                # yield AutoReleasingComObject(self._comobj.Item(i+1))
+                yield self.create_and_register_auto_release_com_object(self._comobj.Item(i+1))
             
         else:
             raise TypeError('iteration over non-sequence of type %s' % type(self._comobj))
