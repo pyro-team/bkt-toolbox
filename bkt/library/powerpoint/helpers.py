@@ -395,6 +395,17 @@ GlobalLocPin = LocPin(settings_key="bkt.global_loc_pin")
 # ============================
 
 
+def save_copy(obj, *args, **kwargs):
+    for _ in range(3):
+        try:
+            return obj.copy(*args, **kwargs)
+        except EnvironmentError:
+            #wait some time to avoid EnvironmentError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
+            time.sleep(.50)
+            #FIXME: maybe better way to "open" the clipboard
+    else:
+        raise EnvironmentError("copying not successfull")
+
 def save_paste(obj, *args, **kwargs):
     for _ in range(3):
         try:
@@ -549,8 +560,10 @@ def transfer_textrange(from_textrange, to_textrange):
     but the textrange.paste() via code does replace ThemeColors with RGB values (Note: via GUI this works fine).
     So this function manually copies color values after copying the textrange.
     '''
-    from_textrange.Copy()
+
+    # from_textrange.Copy()
     # to_textrange.Paste()
+    save_copy(from_textrange)
     save_paste(to_textrange)
 
     def copy_color(from_obj, to_obj):

@@ -118,7 +118,7 @@ class ShapeFreeform(object):
             label = "Text auf Shape zerlegen",
             supertip="Überführe jeweils den Textinhalt der markierten Shapes in ein separates Text-Shape.",
             image_mso = "TableCellCustomMarginsDialog",
-            on_action=bkt.Callback(text.TextOnShape.textOutOfShape, shapes=True, context=True),
+            on_action=bkt.Callback(text.TextOnShape.textOutOfShape, shapes=True, slide=True),
             get_enabled = bkt.Callback(text.TextOnShape.is_outable, shape=True),
         ),
                     ]
