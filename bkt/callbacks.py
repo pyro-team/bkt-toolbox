@@ -279,23 +279,38 @@ class CallbackLazy(Callback):
 
     def __init__(self, *args, **kwargs):
         # super(CallbackLazy, self).__init__(*args, **kwargs)
+        
+        self.container = None
+        self.control = None
+        self.callback_type = None
+
+        self.module_name = None
+        self.method_name = None
 
         if len(args) == 3:
             self.module_name, self.container, self.method_name = args
         elif len(args) == 2:
             self.module_name, self.method_name = args
             self.container = None
-
-        self.control = None
+        else:
+            raise AttributeError('not enough arguments')
 
         self._module = None
         self._method = None
 
         self.init_method(self._load_and_execute, **kwargs)
+
+    def __repr__(self):
+        return '<%s container=%s, method=%s, invocation_context=%s, callback=%s, control=%s>' % (type(self).__name__,
+                                                                  self.container,
+                                                                  self.method_name,
+                                                                  self.invocation_context,
+                                                                  self.callback_type,
+                                                                  self.control)
     
     def _load_and_execute(self, **kwargs):
-        ''' create window for the context dialog, without showing it '''
-        logging.debug('ContextDialog.create_window')
+        ''' load module and requested method in module '''
+        logging.debug('CallbackLazy._load_and_execute')
         try:
             if not self._method:
                 self._import_module()
@@ -316,7 +331,7 @@ class CallbackLazy(Callback):
         will not reload if module was already loaded
         '''
         if not self._module:
-            logging.debug('ContextDialog.import_module importing %s' % self.module_name)
+            logging.debug('CallbackLazy._import_module importing %s' % self.module_name)
             #do an import equivalent to:  import <<module_name>>
             self._module = importlib.import_module(self.module_name)
 
