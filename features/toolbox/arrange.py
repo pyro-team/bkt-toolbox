@@ -2874,8 +2874,8 @@ class ChartShapes(object):
         # return shape.Type == pplib.MsoShapeType['msoChart'] or shape.Type == pplib.MsoShapeType['msoDiagram']
 
     @classmethod
-    def is_paste_enabled(cls, shape):
-        return cls.is_chart_shape(shape) and cls.chart_dimensions[0] is not None
+    def is_paste_enabled(cls, shapes):
+        return cls.chart_dimensions[0] is not None and all(cls.is_chart_shape(shape) for shape in shapes)
 
     @classmethod
     def copy_dimensions(cls, shape):
@@ -2884,10 +2884,11 @@ class ChartShapes(object):
         cls.plotarea_dimensions = [plotarea.Top, plotarea.Left, plotarea.Height, plotarea.Width]
 
     @classmethod
-    def paste_dimensions(cls, shape):
-        plotarea = shape.Chart.PlotArea
-        shape.Height, shape.Width = cls.chart_dimensions
-        plotarea.Top, plotarea.Left, plotarea.Height, plotarea.Width = cls.plotarea_dimensions
+    def paste_dimensions(cls, shapes):
+        for shape in shapes:
+            plotarea = shape.Chart.PlotArea
+            shape.Height, shape.Width = cls.chart_dimensions
+            plotarea.Top, plotarea.Left, plotarea.Height, plotarea.Width = cls.plotarea_dimensions
 
 
 
@@ -2904,8 +2905,8 @@ class PictureFormat(object):
             return False
 
     @classmethod
-    def is_paste_enabled(cls, shape):
-        return cls.is_pic_shape(shape) and cls.shape_dimensions[0] is not None
+    def is_paste_enabled(cls, shapes):
+        return cls.shape_dimensions[0] is not None and all(cls.is_pic_shape(shape) for shape in shapes)
 
     @classmethod
     def copy_dimensions(cls, shape):
@@ -2914,10 +2915,11 @@ class PictureFormat(object):
         cls.pic_dimensions   = [croparea.PictureHeight, croparea.PictureWidth, croparea.PictureOffsetX, croparea.PictureOffsetY]
 
     @classmethod
-    def paste_dimensions(cls, shape):
-        croparea = shape.PictureFormat.crop
-        croparea.ShapeHeight, croparea.ShapeWidth = cls.shape_dimensions
-        croparea.PictureHeight, croparea.PictureWidth, croparea.PictureOffsetX, croparea.PictureOffsetY = cls.pic_dimensions
+    def paste_dimensions(cls, shapes):
+        for shape in shapes:
+            croparea = shape.PictureFormat.crop
+            croparea.ShapeHeight, croparea.ShapeWidth = cls.shape_dimensions
+            croparea.PictureHeight, croparea.PictureWidth, croparea.PictureOffsetX, croparea.PictureOffsetY = cls.pic_dimensions
 
 
 class TableFormat(object):
@@ -2933,8 +2935,8 @@ class TableFormat(object):
             return False
 
     @classmethod
-    def is_paste_enabled(cls, shape):
-        return cls.is_table_shape(shape) and len(cls.col_widths) > 0
+    def is_paste_enabled(cls, shapes):
+        return len(cls.col_widths) > 0 and all(cls.is_table_shape(shape) for shape in shapes)
 
     @classmethod
     def copy_dimensions(cls, shape):
@@ -2942,16 +2944,17 @@ class TableFormat(object):
         cls.row_heights = [row.height for row in shape.table.rows]
 
     @classmethod
-    def paste_dimensions(cls, shape):
-        for i, col_width in enumerate(cls.col_widths):
-            if shape.table.columns.count-1 < i:
-                break
-            shape.table.columns(i+1).width = col_width
-        
-        for i, row_height in enumerate(cls.row_heights):
-            if shape.table.rows.count-1 < i:
-                break
-            shape.table.rows(i+1).height = row_height
+    def paste_dimensions(cls, shapes):
+        for shape in shapes:
+            for i, col_width in enumerate(cls.col_widths):
+                if shape.table.columns.count-1 < i:
+                    break
+                shape.table.columns(i+1).width = col_width
+            
+            for i, row_height in enumerate(cls.row_heights):
+                if shape.table.rows.count-1 < i:
+                    break
+                shape.table.rows(i+1).height = row_height
 
 
 class EdgeAutoFixer(object):
@@ -3175,8 +3178,8 @@ arrange_group = bkt.ribbon.Group(
                             image_mso="PasteWithColumnWidths",
                             screentip="Größe und Position vom Diagrammbereich einfügen",
                             supertip="Überträgt die kopierte Größe und Position des Diagramms bzw. der Zeichnungsfläche auf das ausgewählte Diagramm.",
-                            on_action=bkt.Callback(ChartShapes.paste_dimensions, shape=True),
-                            get_enabled = bkt.Callback(ChartShapes.is_paste_enabled, shape=True),
+                            on_action=bkt.Callback(ChartShapes.paste_dimensions, shapes=True),
+                            get_enabled = bkt.Callback(ChartShapes.is_paste_enabled, shapes=True),
                         ),
                         bkt.ribbon.MenuSeparator(),
                         bkt.ribbon.Button(
@@ -3194,8 +3197,8 @@ arrange_group = bkt.ribbon.Group(
                             image_mso="PasteWithColumnWidths",
                             screentip="Größe und Position des Bildausschnitts einfügen",
                             supertip="Überträgt die kopierte Größe und Position des Bilde-Ausschnitts auf das ausgewählte Bild.",
-                            on_action=bkt.Callback(PictureFormat.paste_dimensions, shape=True),
-                            get_enabled = bkt.Callback(PictureFormat.is_paste_enabled, shape=True),
+                            on_action=bkt.Callback(PictureFormat.paste_dimensions, shapes=True),
+                            get_enabled = bkt.Callback(PictureFormat.is_paste_enabled, shapes=True),
                         ),
                         bkt.ribbon.MenuSeparator(),
                         bkt.ribbon.Button(
@@ -3213,8 +3216,8 @@ arrange_group = bkt.ribbon.Group(
                             image_mso="PasteWithColumnWidths",
                             screentip="Breite/Höhe der Tabellenspalten/-zeilen einfügen",
                             supertip="Überträgt die kopierten Tabellen-Dimensionen auf die ausgewählte Tabelle.",
-                            on_action=bkt.Callback(TableFormat.paste_dimensions, shape=True),
-                            get_enabled = bkt.Callback(TableFormat.is_paste_enabled, shape=True),
+                            on_action=bkt.Callback(TableFormat.paste_dimensions, shapes=True),
+                            get_enabled = bkt.Callback(TableFormat.is_paste_enabled, shapes=True),
                         ),
                     ]
                 ),
