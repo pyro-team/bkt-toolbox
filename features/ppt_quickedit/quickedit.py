@@ -124,6 +124,14 @@ class QuickEditPanelManager(object):
         if windowid in cls.panel_windows and cls.panel_windows[windowid].IsLoaded:
                 cls.panel_windows[windowid].update_docking(window=window)
 
+    @classmethod
+    def update_panel_position2(cls, slide_range, context):
+        logging.debug("update panel position for active window")
+
+        windowid = context.addin.GetWindowHandle()
+        if windowid in cls.panel_windows and cls.panel_windows[windowid].IsLoaded:
+                cls.panel_windows[windowid].update_docking()
+
 
 bkt.AppEvents.after_new_presentation  += bkt.Callback(QuickEditPanelManager.autoshow_panel_for_active_window, context=True)
 bkt.AppEvents.after_presentation_open += bkt.Callback(QuickEditPanelManager.autoshow_panel_for_active_window, context=True)
@@ -132,6 +140,7 @@ bkt.AppEvents.presentation_close += bkt.Callback(QuickEditPanelManager.close_pan
 bkt.AppEvents.bkt_unload         += bkt.Callback(QuickEditPanelManager.close_all_panels)
 
 bkt.AppEvents.window_activate    += bkt.Callback(QuickEditPanelManager.update_panel_position, context=True)
+bkt.AppEvents.slide_selection_changed    += bkt.Callback(QuickEditPanelManager.update_panel_position2, context=True)
 
 
 color_selector_gruppe = bkt.ribbon.Group(
