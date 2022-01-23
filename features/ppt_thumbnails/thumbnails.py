@@ -78,7 +78,7 @@ class Thumbnailer(object):
             logging.debug("Thumbnails: return current presentation")
         else:
             #convert relative to absolute paths
-            if not os.path.isabs(path):
+            if not path.startswith("https://") and not os.path.isabs(path):
                 path = os.path.normpath(os.path.join(application.ActivePresentation.Path, path))
                 logging.debug("Thumbnails: relative path converted to %s", path)
             try:
@@ -479,12 +479,16 @@ class Thumbnailer(object):
 
     @classmethod
     def _prepare_path(cls, application, path):
-        #FIXME: if presentation is stored in OneDriver a url is returned, refer to https://stackoverflow.com/questions/33734706/excels-fullname-property-with-onedrive
+        #NOTE: if presentation is stored in OneDriver a url is returned, refer to https://stackoverflow.com/questions/33734706/excels-fullname-property-with-onedrive
+
+        if path == application.ActivePresentation.FullName:
+            return "CURRENT"
+        elif path.startswith("https://"): #OneDrive or SharePoint
+            return path
+        
         drive1, _ = os.path.splitdrive(path)
         drive2, _ = os.path.splitdrive(application.ActivePresentation.FullName)
-        if path == application.ActivePresentation.FullName:
-            path = "CURRENT"
-        elif USE_RELATIVE_PATHS and drive1 != '' and drive1 == drive2: #same drive -> use relative path
+        if USE_RELATIVE_PATHS and drive1 != '' and drive1 == drive2: #same drive -> use relative path
             path = os.path.relpath(path, application.ActivePresentation.Path)
         else:
             path = os.path.normpath(path)
