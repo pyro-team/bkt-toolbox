@@ -287,10 +287,12 @@ class UserInputBox(object):
         self.input.append((input_id, checkBox, "Checked"))
         return checkBox
 
-    def _add_listbox(self, input_id, lb_list, lb_return="Items"):
+    def _add_listbox(self, input_id, lb_list, lb_return="SelectedItems", multiselect=False):
         listBox = F.ListBox()
         listBox.Width = self.prompt.Width - 40
         listBox.HorizontalScrollbar = True
+        if multiselect:
+            listBox.SelectionMode = F.SelectionMode.MultiExtended
         for item_name in lb_list:
             listBox.Items.Add(item_name)
         self.superPanel.Controls.Add(listBox)

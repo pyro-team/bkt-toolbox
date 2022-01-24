@@ -245,7 +245,7 @@ class BooksOps(object):
         #sel_workbooks = list(form_return["sel_workbooks"].Item)
         sel_workbooks = form_return["sel_workbooks"]
         if len(sel_workbooks) == 0:
-            bkt.message("Keine Arbeitsmappen ausgwählt.")
+            bkt.message("Keine Arbeitsmappen ausgewählt.")
             return
 
         if form_return["exclude_sheets"] == '':

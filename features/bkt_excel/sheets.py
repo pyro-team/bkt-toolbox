@@ -84,6 +84,28 @@ class SheetsOps(object):
     def show_all_sheets(sheets):
         for sheet in sheets:
             sheet.Visible = -1 #xlSheetVisible
+    
+    @staticmethod
+    def show_sheets_dialog(workbook, sheets):
+        hidden_sheets = [sheet.Name for sheet in sheets if sheet.Visible != -1]
+        if len(hidden_sheets) == 0:
+            bkt.message("Keine ausgeblendeten und versteckten Blätter.")
+            return
+
+        user_form = bkt.ui.UserInputBox("Ein oder mehrere Blätter auswählen:", "Blätter anzeigen")
+        lb = user_form._add_listbox("sel_sheets", hidden_sheets, multiselect=True)
+        lb.SetSelected(0,True)
+        form_return = user_form.show()
+        if len(form_return) == 0:
+            return
+        sel_sheets = form_return["sel_sheets"]
+        
+        if len(sel_sheets) == 0:
+            bkt.message("Keine Blätter ausgewählt.")
+            return
+
+        for sheet_name in sel_sheets:
+            workbook.Sheets[sheet_name].Visible = -1 #xlSheetVisible
 
     @classmethod
     def sheets_base_list(cls, workbook, sheets):
@@ -738,6 +760,15 @@ blatt_gruppe = bkt.ribbon.Group(
                             get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                         ),
                     bkt.ribbon.MenuSeparator(title="Einblenden"),
+                    bkt.ribbon.Button(
+                        id = 'show_sheets_dialog',
+                        label="Blätter anzeigen…",
+                        show_label=True,
+                        #image_mso='CreateQueryFromWizard',
+                        supertip="Zeigt eine Auswahl aller ausgeblendeten und versteckten Blätter, die zum Anzeigen ausgewählt werden können.",
+                        on_action=bkt.Callback(SheetsOps.show_sheets_dialog, workbook=True, sheets=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
                     bkt.ribbon.Button(
                         id = 'show_hidden_sheets',
                         label="Alle ausgeblendeten Blätter einblenden",

@@ -198,3 +198,27 @@ bkt.excel.add_tab(bkt.ribbon.Tab(
         books.mappen_gruppe,
     ]
 ))
+
+
+
+bkt.excel.add_context_menu(
+    bkt.ribbon.ContextMenu(id_mso='ContextMenuWorkbookPly', children=[
+        bkt.ribbon.Button(
+            insertBeforeMso='SelectAllSheets',
+            id = 'ctx-hide_sheets_veryhidden',
+            label="Verstecken (xlVeryHidden)",
+            # supertip="Aktuelles Blatt bzw. ausgewählte Blätter verstecken (xlVeryHidden), sodass diese nur über die Toolbox oder ein Makro wieder sichtbar gemacht werden können.",
+            on_action=bkt.Callback(sheets.SheetsOps.hide_sheets_veryhidden, selected_sheets=True),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+        ),
+        bkt.ribbon.Button(
+            insertBeforeMso='SelectAllSheets',
+            id = 'ctx-show_sheets',
+            label="Anzeigen…",
+            # supertip="Aktuelles Blatt bzw. ausgewählte Blätter verstecken (xlVeryHidden), sodass diese nur über die Toolbox oder ein Makro wieder sichtbar gemacht werden können.",
+            on_action=bkt.Callback(sheets.SheetsOps.show_sheets_dialog, workbook=True, sheets=True),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+        ),
+        bkt.ribbon.MenuSeparator(insertBeforeMso='SelectAllSheets'),
+    ])
+)
