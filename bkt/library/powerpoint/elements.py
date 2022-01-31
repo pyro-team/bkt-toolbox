@@ -614,13 +614,20 @@ class PositionGallery(bkt.ribbon.Gallery):
     
     ## userdefined area
     
-    def set_userdefined_area(self, presentation, shapes):
-        if len(shapes) == 1:
-            pplib.ContentArea.define_contentarea(presentation, shapes[0])
-        else:
-            frame = pplib.BoundingFrame.from_shapes(shapes)
-            pplib.ContentArea.define_contentarea(presentation, frame)
+    def set_userdefined_area(self, context, shapes):
+        presentation = context.presentation
+        # if len(shapes) == 1:
+        #     pplib.ContentArea.define_contentarea(presentation, shapes[0])
+        # else:
+        #     frame = pplib.BoundingFrame.from_shapes(shapes)
+        #     pplib.ContentArea.define_contentarea(presentation, frame)
+        frame = pplib.BoundingFrame.from_shapes(shapes)
+        pplib.ContentArea.define_contentarea(presentation, frame)
         self.init_userdefined_area_item(presentation)
+        
+        if 'on_userdefined_area_change' in self._callbacks:
+            if context:
+                return context.invoke_callback(self._callbacks['on_userdefined_area_change'], target_frame=frame)
     
     
     def init_userdefined_area_item(self, presentation):
