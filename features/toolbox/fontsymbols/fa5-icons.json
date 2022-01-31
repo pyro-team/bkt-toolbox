@@ -216,7 +216,8 @@
   },
   "air-freshener": {
     "changes": [
-      "5.2.0"
+      "5.2.0",
+      "5.15.3"
     ],
     "label": "Air Freshener",
     "search": {
@@ -2826,7 +2827,8 @@
   },
   "bootstrap": {
     "changes": [
-      "5.8.0"
+      "5.8.0",
+      "5.15.4"
     ],
     "label": "Bootstrap",
     "search": {
@@ -3211,7 +3213,8 @@
   "bug": {
     "changes": [
       "3.2",
-      "5.0.0"
+      "5.0.0",
+      "5.15.4"
     ],
     "label": "Bug",
     "search": {
@@ -3278,7 +3281,8 @@
       "3.1",
       "5.0.0",
       "5.3.0",
-      "5.10.1"
+      "5.10.1",
+      "5.15.4"
     ],
     "label": "Bullseye",
     "search": {
@@ -7585,7 +7589,8 @@
   },
   "discord": {
     "changes": [
-      "5.0.0"
+      "5.0.0",
+      "5.15.4"
     ],
     "label": "Discord",
     "search": {
@@ -9393,7 +9398,8 @@
     "changes": [
       "5.6.0",
       "5.7.0",
-      "5.8.0"
+      "5.8.0",
+      "5.15.4"
     ],
     "label": "Figma",
     "search": {
@@ -10520,7 +10526,8 @@
   "font-awesome": {
     "changes": [
       "4.6",
-      "5.0.0"
+      "5.0.0",
+      "5.15.4"
     ],
     "label": "Font Awesome",
     "search": {
@@ -10536,7 +10543,8 @@
   },
   "font-awesome-alt": {
     "changes": [
-      "5.0.0"
+      "5.0.0",
+      "5.15.4"
     ],
     "label": "Alternate Font Awesome",
     "search": {
@@ -10553,7 +10561,8 @@
   "font-awesome-flag": {
     "changes": [
       "5.0.0",
-      "5.0.1"
+      "5.0.1",
+      "5.15.4"
     ],
     "label": "Font Awesome Flag",
     "search": {
@@ -10569,7 +10578,8 @@
   },
   "font-awesome-logo-full": {
     "changes": [
-      "5.0.11"
+      "5.0.11",
+      "5.15.4"
     ],
     "label": "Font Awesome Full Logo",
     "ligatures": [
@@ -13814,7 +13824,8 @@
   },
   "hospital-user": {
     "changes": [
-      "5.7.0"
+      "5.7.0",
+      "5.13.0"
     ],
     "label": "Hospital with User",
     "search": {
@@ -20541,7 +20552,8 @@
   "ravelry": {
     "changes": [
       "4.7",
-      "5.0.0"
+      "5.0.0",
+      "5.15.1"
     ],
     "label": "Ravelry",
     "search": {
@@ -26382,25 +26394,6 @@
     "unicode": "f181",
     "voted": false
   },
-  "tripadvisor": {
-    "changes": [
-      "4.4",
-      "5.0.0",
-      "5.13.1",
-      "5.14.0"
-    ],
-    "label": "TripAdvisor",
-    "search": {
-      "terms": [
-
-      ]
-    },
-    "styles": [
-      "brands"
-    ],
-    "unicode": "f262",
-    "voted": false
-  },
   "trophy": {
     "changes": [
       "1",
@@ -27865,7 +27858,8 @@
   },
   "vest": {
     "changes": [
-      "5.15.0"
+      "5.15.0",
+      "5.15.1"
     ],
     "label": "vest",
     "search": {
@@ -27883,7 +27877,8 @@
   },
   "vest-patches": {
     "changes": [
-      "5.15.0"
+      "5.15.0",
+      "5.15.1"
     ],
     "label": "vest-patches",
     "search": {
@@ -27921,7 +27916,7 @@
       "4.6",
       "5.0.0"
     ],
-    "label": "Video",
+    "label": "Viadeo",
     "search": {
       "terms": [
 
@@ -27939,7 +27934,7 @@
       "5.0.0",
       "5.7.0"
     ],
-    "label": "Video Square",
+    "label": "Viadeo Square",
     "search": {
       "terms": [
 
