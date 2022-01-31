@@ -464,6 +464,13 @@ class ToolboxAgenda(object):
             master_slide = cls.restore_master_slide_by_agenda_slide(agenda_slides[0].slide)
             if not master_slide:
                 return
+
+        master_textbox = cls.get_agenda_textbox_on_slide(master_slide)
+        if master_textbox == None:
+            master_textbox = cls.restore_master_textbox(master_slide, agenda_slides)
+            if not master_textbox:
+                return
+            
         
         # get old settings
         old_settings = cls.get_agenda_settings_from_slide(master_slide)
@@ -570,9 +577,40 @@ class ToolboxAgenda(object):
             return None
 
 
+    @classmethod
+    def restore_master_textbox(cls, master_slide, agenda_slides=None):
+        settings = cls.get_agenda_settings(master_slide)
+        # agenda entries from agenda_slides
+        if not agenda_slides:
+            agenda_slides = cls.find_agenda_items_by_id(master_slide.parent, settings[SETTING_AGENDA_ID])
+        
+        for item in agenda_slides:
+            textbox = cls.get_agenda_textbox_on_slide(item.slide)
+            if textbox:
+                break
+        else:
+            bkt.message.error("Keine Agenda-Textbox gefunden", "Toolbox: Agenda")
+            return None
+        
+        textbox.Copy()
+        master_textbox = master_slide.Shapes.Paste()
 
-    
-    
+        textrange = master_textbox.TextFrame.TextRange
+        last_paragraph = textrange.Paragraphs(textrange.Paragraphs().Count)
+        if last_paragraph.Font.Color.ObjectThemeColor == 0:
+            textrange.Font.Color.RGB = last_paragraph.Font.Color.RGB
+        else:
+            textrange.Font.Color.ObjectThemeColor = last_paragraph.Font.Color.ObjectThemeColor
+            textrange.Font.Color.Brightness = last_paragraph.Font.Color.Brightness
+        textrange.Font.Bold = last_paragraph.Font.Bold
+        textrange.Font.Italic = last_paragraph.Font.Italic
+        textrange.Font.Underline = last_paragraph.Font.Underline
+
+        return master_textbox
+
+
+
+
     @classmethod
     def update_agenda_slides(cls, master_textbox, agenda_slides=None):
         '''
