@@ -1772,8 +1772,24 @@ class ArrangeAdvanced(object):
         ArrangeAdvanced.master = "FIXED-CUSTOMAREA"
         self.ref_frame = target_frame
             
-    def specify_master_customarea_toggle(self, pressed):
-        ArrangeAdvanced.master = self.fallback_first_last
+    def specify_master_customarea_toggle(self, pressed, context):
+        ''' set master to previous target-frame if defined, otherwise defined content area, otherwise set userdefined by shapes '''
+        if pressed:
+            self.specify_master_customarea(self.ref_frame)
+            # if self.ref_frame:
+            #     frame = self.ref_frame
+            # elif pplib.ContentArea.isset_contentarea(context.presentation):
+            #     frame = pplib.BoundingFrame.from_rect(*pplib.ContentArea.read_contentarea(context.presentation))
+            # else:
+            #     shapes = context.shapes
+            #     if len(shapes) > 0:
+            #         frame = pplib.BoundingFrame.from_shapes(shapes)
+            #         pplib.ContentArea.define_contentarea(context.presentation, frame)
+            #     else:
+            #         frame = pplib.BoundingFrame(context.slide, contentarea=True)
+            # self.specify_master_customarea(frame)
+        else:
+            ArrangeAdvanced.master = self.fallback_first_last
     
     
     def specify_wiz(self, pressed, context):
@@ -1816,6 +1832,10 @@ class ArrangeAdvanced(object):
     def is_customarea_specified(self):
         ''' returns whether master is set to custom area '''
         return ArrangeAdvanced.master == "FIXED-CUSTOMAREA"
+
+    def is_customarea_specifiable(self):
+        ''' returns whether master is set to custom area '''
+        return self.ref_frame is not None
     
     def is_shape_specified_or_shape_specifiable(self, context):
         ''' callback: returns whether master can be changed to fixed shape.
@@ -2013,7 +2033,7 @@ class ArrangeAdvanced(object):
                     id="arrange_use_shape"+postfix,
                     label="Shape", on_toggle_action=bkt.Callback(self.specify_shape),         get_pressed=bkt.Callback(self.is_shape_specified), get_enabled=bkt.Callback(self.is_shape_specified_or_shape_specifiable),
                     screentip="Ausrichtung am selektierten Shape (Referenzshape)",
-                    supertip="Das selektierten Shape wird als Referenzshape festgelegt. Shapes werden am Referenzshape ausgerichtet. "
+                    supertip="Das selektierte Shape wird als Referenzshape festgelegt. Shapes werden an der jeweils aktuellen Position des Referenzshape ausgerichtet."
                 ),
                 bkt.ribbon.ToggleButton(
                     id="arrange_use_slide"+postfix,
@@ -2034,7 +2054,7 @@ class ArrangeAdvanced(object):
                     label="Benutzerdef. Bereich",
                     on_toggle_action=bkt.Callback(self.specify_master_customarea_toggle),
                     get_pressed=bkt.Callback(self.is_customarea_specified),
-                    get_enabled=bkt.Callback(self.is_customarea_specified),
+                    get_enabled=bkt.Callback(self.is_customarea_specifiable),
                     screentip="Ausrichtung an benutzerdefiniertem Bereich",
                     supertip="Shapes werden an einem festgelegten Bereich ausgerichtet, der zuvor durch den Benutzer definiert wird.",
                 ),
@@ -2043,6 +2063,7 @@ class ArrangeAdvanced(object):
                     id="arrange_set_customarea"+postfix,
                     label="Benutzerdef. Bereich wählen",
                     on_position_change = bkt.Callback(self.specify_master_customarea),
+                    on_userdefined_area_change = bkt.Callback(self.specify_master_customarea),
                     get_item_supertip = bkt.Callback(self.get_item_supertip)
                 ),
             ])
