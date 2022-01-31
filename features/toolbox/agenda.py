@@ -221,7 +221,7 @@ class ToolboxAgenda(object):
             connector.Line.Weight = 0.75
             connector.Line.DashStyle = 1 #straight line
             
-            #cls.set_tags_for_slide(slide, 0)
+            cls.set_tags_for_slide(slide)
             cls.set_tags_for_textbox(shp)
 
             # select shape (to show popup)
@@ -1233,10 +1233,11 @@ class ToolboxAgenda(object):
     # ========================
     
     @staticmethod
-    def set_tags_for_slide(sld, slideNo):
+    def set_tags_for_slide(sld, slideNo=None):
         ''' Meta-Informationen für Slide einstellen '''
         sld.Tags.Add(TOOLBOX_AGENDA, "1")
-        sld.Tags.Add(TOOLBOX_AGENDA_SLIDENO, str(slideNo))
+        if slideNo is not None:
+            sld.Tags.Add(TOOLBOX_AGENDA_SLIDENO, str(slideNo))
 
     @staticmethod
     def set_tags_for_textbox(textbox):
@@ -1275,7 +1276,12 @@ class ToolboxAgenda(object):
     def is_agenda_slide(cls, slide):
         ''' check if current slide is agenda-slide '''
         try:
-            return slide.Tags.Item(TOOLBOX_AGENDA) != ""
+            return slide.Tags.Item(TOOLBOX_AGENDA_SLIDENO) != ""
+        #     if slide.Tags.Item(TOOLBOX_AGENDA_SLIDENO) != "":
+        #         textbox = cls.get_agenda_textbox_on_slide(slide)
+        #         return textbox != None
+        #     else:
+        #         return False
         except: #AttributeError
             return False
         # settings = cls.get_agenda_settings_from_slide(slide)
@@ -1284,8 +1290,14 @@ class ToolboxAgenda(object):
     @classmethod
     def can_create_agenda_from_slide(cls, slide):
         ''' check if agenda textbox is on slide in order to create agenda from textbox '''
-        textbox = cls.get_agenda_textbox_on_slide(slide)
-        return textbox != None
+        try:
+            if slide.Tags.Item(TOOLBOX_AGENDA) != "":
+                textbox = cls.get_agenda_textbox_on_slide(slide)
+                return textbox != None
+            else:
+                return False
+        except: #AttributeError
+            return False
     
     @classmethod
     def set_hide_subitems(cls, slide, pressed):
