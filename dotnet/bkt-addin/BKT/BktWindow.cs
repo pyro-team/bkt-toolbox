@@ -32,7 +32,7 @@ namespace BKT
 
         protected override void OnInitialized(EventArgs e)
         {
-            DebugMessage("BKT Window: Initialized");
+            DebugMessage("Initialized");
             base.OnInitialized(e);
 
             //Store interop helper for later operations
@@ -46,12 +46,12 @@ namespace BKT
 
         protected override void OnSourceInitialized(EventArgs e)
         {
-            DebugMessage("BKT Window: Source Initialized");
+            DebugMessage("Source Initialized");
             base.OnSourceInitialized(e);
 
             if (IsPopup || IsToolbar)
             {
-                DebugMessage("BKT Window: Apply Popup Style");
+                DebugMessage("Apply Popup Style");
                 //Never activate window
                 var source = HwndSource.FromHwnd(_helper.EnsureHandle());
                 // var source = PresentationSource.FromVisual(this) as HwndSource;
@@ -76,7 +76,7 @@ namespace BKT
 
         // public void SetOwner(IntPtr handle)
         // {
-        //     DebugMessage("BKT Window: Setting owner");
+        //     DebugMessage("Setting owner");
         //     var helper = new WindowInteropHelper(this);
         //     helper.Owner = handle;
         // }
@@ -88,13 +88,13 @@ namespace BKT
 
         public void SetOwner(int windowID)
         {
-            DebugMessage(string.Format("BKT Window: Set new owner: {0}", windowID));
+            DebugMessage(string.Format("Set new owner: {0}", windowID));
             _helper.Owner = new IntPtr(windowID);
         }
 
         public void SetDevicePosition(double? deviceLeft=null, double? deviceTop=null, double? deviceRight=null, double? deviceBottom=null)
         {
-            DebugMessage("BKT Window: Setting device position");
+            DebugMessage("Setting device position");
             try {
                 var source = HwndSource.FromHwnd(_helper.EnsureHandle());
                 // var source = PresentationSource.FromVisual(this);
@@ -134,7 +134,7 @@ namespace BKT
 
         public void SetDeviceSize(double? deviceWidth=null, double? deviceHeight=null)
         {
-            DebugMessage("BKT Window: Setting device size");
+            DebugMessage("Setting device size");
             try {
                 var source = HwndSource.FromHwnd(_helper.EnsureHandle());
                 var transform = source.CompositionTarget.TransformFromDevice;
@@ -151,7 +151,7 @@ namespace BKT
 
         public Rect GetDeviceRect()
         {
-            DebugMessage("BKT Window: Getting device rect");
+            DebugMessage("Getting device rect");
             try {
                 var source = HwndSource.FromHwnd(_helper.EnsureHandle());
                 var ltPhysicalUnits = source.CompositionTarget.TransformToDevice.Transform(new Point(this.Left, this.Top));
@@ -165,7 +165,7 @@ namespace BKT
 
         public void ShiftWindowOntoScreen()
         {
-            DebugMessage("BKT Window: Shift window back onto screen");
+            DebugMessage("Shift window back onto screen");
             double VsTop = SystemParameters.VirtualScreenTop;
             double VsLeft = SystemParameters.VirtualScreenLeft;
             double VsRight = VsLeft + SystemParameters.VirtualScreenWidth;
@@ -199,7 +199,7 @@ namespace BKT
 
         private void DebugMessage(string message)
         {
-            Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + ": " + message);
+            Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + ": [BKT Window " + this.Title + "] " + message);
         }
 
         [DllImport("user32.dll")]
