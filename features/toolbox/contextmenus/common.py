@@ -369,6 +369,6 @@ bkt.powerpoint.context_dialogs.register("BKT_DIALOG_AMPEL3", "toolbox.popups.tra
 bkt.powerpoint.context_dialogs.register("BKT_DIALOG_STATESHAPE", "toolbox.popups.stateshapes") #stateshapes, e.g. likert scale
 
 bkt.powerpoint.context_dialogs.register("BKT_PROCESS_CHEVRONS", "toolbox.popups.processshapes") #process chevrons - processshapes.ProcessChevrons.BKT_DIALOG_TAG
-bkt.powerpoint.context_dialogs.register("BKT_HARVEY_DIALOG_TAG", "toolbox.popups.harvey") #harvey balls - harvey.HarveyBalls.BKT_HARVEY_DIALOG_TAG
+bkt.powerpoint.context_dialogs.register("BKT_SHAPE_HARVEY", "toolbox.popups.harvey") #harvey balls - harvey.HarveyBalls.BKT_HARVEY_DIALOG_TAG
 bkt.powerpoint.context_dialogs.register("BKT_LINK_UUID", "toolbox.popups.linkshapes") #linked shapes - linkshapes.BKT_LINK_UUID
-bkt.powerpoint.context_dialogs.register("TOOLBOX_AGENDA_POPUP", "toolbox.popups.agenda") #agenda textbox - agenda.TOOLBOX_AGENDA_POPUP
+bkt.powerpoint.context_dialogs.register("TOOLBOX-AGENDA-POPUP", "toolbox.popups.agenda") #agenda textbox - agenda.TOOLBOX_AGENDA_POPUP
