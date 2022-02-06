@@ -68,8 +68,8 @@ class WpfWindowAbstract(bkt_addin.BktWindow):
         return wnd
     
     def show_dialog(self, modal=True):
-        if self._context is not None:
-            self.SetOwner(self._context.addin.GetWindowHandle())
+        # if self._context is not None:
+        #     self.SetOwner(self._context.addin.GetWindowHandle())
         # System.Windows.Interop.WindowInteropHelper(self).Owner = self.get_main_window_handle()
         if modal:
             return self.ShowDialog()
@@ -77,12 +77,14 @@ class WpfWindowAbstract(bkt_addin.BktWindow):
             return self.Show()
 
     def __init__(self, context=None):
+        if context is not None:
+            self._context = context
+            self.addin = context.addin
+        
         if not self._filename:
             self._filename = Resources.xaml.locate(self._xamlname)
         wpf.LoadComponent(self, self._filename)
 
-        if context is not None:
-            self._context = context
         if self._vm_class is not None:
             self._vm = self._vm_class()
         if self._vm is not None:
