@@ -459,7 +459,7 @@ class BooksOps(object):
         insert_column = 1 if not form_return["insert_sheet_names"] else 2
         insert_row = 1 if insert_skip_rows else skip_rows+1
 
-        xllib.freeze_app(disable_display_alerts=True)
+        xllib.freeze_app(disable_display_alerts=True, disable_events=True)
         application.StatusBar = "Konsolidiere Blätter"
 
         paste_types =  pastemode_values[form_return["pastemode"]]
