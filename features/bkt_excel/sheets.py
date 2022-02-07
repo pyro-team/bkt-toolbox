@@ -106,6 +106,8 @@ class SheetsOps(object):
 
         for sheet_name in sel_sheets:
             workbook.Sheets[sheet_name].Visible = -1 #xlSheetVisible
+        
+        workbook.Sheets[sel_sheets[0]].Activate()
 
     @classmethod
     def sheets_base_list(cls, workbook, sheets):
