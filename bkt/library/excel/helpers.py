@@ -34,14 +34,16 @@ def confirm_no_undo(text="Dies kann nicht rückgängig gemacht werden. Ausführe
 restore_screen_updating = True
 restore_display_alerts = True
 restore_interactive = True
+restore_events = True
 restore_calculation = constants.XlCalculation["xlCalculationAutomatic"]
 
-def freeze_app(disable_screen_updating=True, disable_display_alerts=False, disable_interactive=False, disable_calculation=False):
+def freeze_app(disable_screen_updating=True, disable_display_alerts=False, disable_interactive=False, disable_calculation=False, disable_events=False):
     global restore_screen_updating, restore_display_alerts, restore_interactive, restore_calculation
     restore_screen_updating = application.ScreenUpdating
     restore_display_alerts = application.DisplayAlerts
     restore_interactive = application.Interactive
     restore_calculation = application.Calculation
+    restore_events = application.EnableEvents
     
     if disable_screen_updating:
         application.ScreenUpdating = False
@@ -51,11 +53,14 @@ def freeze_app(disable_screen_updating=True, disable_display_alerts=False, disab
         application.Interactive = False
     if disable_calculation:
         application.Calculation = constants.XlCalculation["xlCalculationManual"]
+    if disable_events:
+        application.EnableEvents = False
 
 def unfreeze_app(force=False):
     application.ScreenUpdating = force or restore_screen_updating
     application.DisplayAlerts = force or restore_display_alerts
     application.Interactive = force or restore_interactive
+    application.EnableEvents = force or restore_events
     application.Calculation = constants.XlCalculation["xlCalculationAutomatic"] if force else restore_calculation
     application.CutCopyMode = False
 
