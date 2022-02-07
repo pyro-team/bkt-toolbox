@@ -388,7 +388,7 @@ class BooksOps(object):
 
     @classmethod
     def consolidate_worksheets(cls, workbook, sheet, sheets, selected_sheets, application):
-        dropdown = ["[UsedRange]", "[Selection]", sheet.UsedRange.AddressLocal(False, False)]
+        dropdown = ["[UsedRange]", "[TableRange]", "[Selection]", sheet.UsedRange.AddressLocal(False, False)]
         #TODO: [TableRange] einfügen mit automatischer Erkennung der Tabellen in einem Sheet inkl. Kopfzeile und Ergebniszeile
 
         #if area selected, take address address as default
@@ -404,7 +404,10 @@ class BooksOps(object):
         #Add ranges of defined names to dropdown
         for name in list(iter(workbook.Names)):
             try:
-                dropdown.append(name.RefersToRange.AddressLocal(False, False))
+                if name.Visible:
+                    # dropdown.append(name.RefersToRange.AddressLocal(False, False))
+                    _ = name.RefersToRange #test if name is refering to a range (and not a function)
+                    dropdown.append(name.NameLocal)
             except:
                 pass
 
@@ -487,6 +490,8 @@ class BooksOps(object):
                 form_range = form_return["range"]
                 if form_range == "[UsedRange]":
                     rng_to_copy = sheet.UsedRange
+                elif form_range == "[TableRange]":
+                    rng_to_copy = sheet.ListObjects[1].Range
                 elif form_range == "[Selection]":
                     sheet.Activate()
                     rng_to_copy = application.ActiveWindow.RangeSelection
