@@ -264,17 +264,19 @@ class SheetsOps(object):
         list_sheet = workbook.Worksheets.Add()
         #list_sheet.Name = "BKT LISTE NAMEN"
         xllib.rename_sheet(list_sheet, "BKT LISTE NAMEN")
-        cls._create_list_header(list_sheet, ["Typ", "Name", "Bezug", "Bereich"])
+        cls._create_list_header(list_sheet, ["Typ", "Name", "Bezug", "Bereich", "Kommentar"])
         #list_sheet.Range("A2").ListNames()
         cur_row = 2
         for name in iter(workbook.Names):
             if not name.Visible:
+                #invisible names are added by Excel, e.g. for backwards compatibility
                 continue
             ident = name.NameLocal.split("!",1)
             list_sheet.Cells(cur_row,1).Value = "Name"
             list_sheet.Cells(cur_row,2).Value = "'" + ident[-1] #last element
             list_sheet.Cells(cur_row,3).Value = "'" + name.RefersToLocal
             list_sheet.Cells(cur_row,4).Value = "Arbeitsmappe" if len(ident) == 1 else ident[0].strip("'")
+            list_sheet.Cells(cur_row,5).Value = "'" + name.Comment
             cur_row += 1
 
         for sheet in sheets:
@@ -283,6 +285,7 @@ class SheetsOps(object):
                 list_sheet.Cells(cur_row,2).Value = "'" + obj.Name #FIXME: use DisplayName instead???
                 list_sheet.Cells(cur_row,3).Value = "'=" + xllib.get_address_external(obj.Range, True, True)
                 list_sheet.Cells(cur_row,4).Value = "Arbeitsmappe"
+                list_sheet.Cells(cur_row,5).Value = "'" + obj.Comment
                 cur_row += 1
 
         list_sheet.UsedRange.Columns.AutoFit()
