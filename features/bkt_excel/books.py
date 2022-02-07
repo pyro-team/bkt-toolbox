@@ -145,7 +145,7 @@ class BooksOps(object):
         sel_worksheets = []
         for sheet in sheets:
             #exclude strange worksheet types and very hidden sheets
-            if sheet.Type != xlcon.XlSheetType["xlWorksheet"] or sheet.Visible == xlcon.XlSheetVisibility["xlSheetVeryHidden"]:
+            if getattr(sheet, "Type", None) != xlcon.XlSheetType["xlWorksheet"] or sheet.Visible == xlcon.XlSheetVisibility["xlSheetVeryHidden"]:
                 continue
             if len(selected_sheets) == 1:
                 if sheet.Visible == xlcon.XlSheetVisibility["xlSheetVisible"]:

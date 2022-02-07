@@ -121,7 +121,7 @@ class SheetsOps(object):
         cls._create_list_header(list_sheet, ["#", "Alter Name", "Neuer Name"], row=1)
         cur_row = 2
         for i, sheet in enumerate(sheets, start=1):
-            if sheet.Visible != xlcon.XlSheetVisibility["xlSheetVisible"] or sheet.Type != xlcon.XlSheetType["xlWorksheet"]:
+            if sheet.Visible != xlcon.XlSheetVisibility["xlSheetVisible"] or getattr(sheet, "Type", None) != xlcon.XlSheetType["xlWorksheet"]:
                 continue
             list_sheet.Cells(cur_row,1).Value = i
             list_sheet.Cells(cur_row,2).Value = sheet.Name
@@ -423,6 +423,7 @@ class SheetsOps(object):
             if sheet.Visible == xlcon.XlSheetVisibility["xlSheetVeryHidden"]:
                 continue
             if sheet.Type == xlcon.XlSheetType["xlWorksheet"]:
+            if getattr(sheet, "Type", None) == xlcon.XlSheetType["xlWorksheet"]:
                 list_sheet.Hyperlinks.Add(list_sheet.Cells(cur_row,1), "", "'" + sheet.Name + "'!A1", "", sheet.Name) #anchor, address, subaddress, screentip, texttodisplay
                 list_sheet.Cells(cur_row,2).Value = "'=" + xllib.get_address_external(sheet.UsedRange, True, True)
                 list_sheet.Cells(cur_row,3).Value = sheet.UsedRange.Rows.Count
