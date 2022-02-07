@@ -8,6 +8,7 @@ from __future__ import absolute_import
 
 import os.path #required to split filenames
 import tempfile #required to copy color scheme
+import logging
 
 import System.Array #required to copy sheets
 
@@ -288,6 +289,7 @@ class BooksOps(object):
                     err_counter +=1
                     report.append((wb_name, "", "", "FEHLER BEIM ÖFFNEN"))
                     #bkt.helpers.exception_as_message()
+                    logging.exception("error opening workbook")
                     continue
 
             err_counter_sheets = 0
@@ -347,6 +349,7 @@ class BooksOps(object):
                     err_counter_sheets += 1
                     report.append((cur_wb.Name, "", "", "FEHLER BEIM KOPIEREN"))
                     #bkt.helpers.exception_as_message()
+                    logging.exception("error copying workbook")
 
             if err_counter_sheets > 0:
                 err_counter +=1
@@ -405,6 +408,7 @@ class BooksOps(object):
             except:
                 pass
 
+        consol_mode_list = ["Untereinander (Zeilen)", "Nebeneinander (Spalten)"]
         pastemode_list = ["Alles einfügen", "Werte", "Werte und Zahlenformate", "Werte und Quellformatierung", "Formeln", "Formeln und Zahlenformate", "Formeln und Quellformatierung", "Referenzen", "Referenzen und Quellformatierung"]
         pastemode_values = [
             [xlcon.XlPasteType["xlPasteAll"]], 
@@ -424,14 +428,15 @@ class BooksOps(object):
 
         user_form = bkt.ui.UserInputBox("Diese Funktion kopiert die Zellen mehrerer Arbeitsblätter in ein Blatt. Bitte die Arbeitsblätter zur Konsolidierung auswählen:", "Arbeitsblätter konsolidieren")
         user_form._add_checked_listbox("sel_worksheets", sel_worksheets)
+        user_form._add_radio_buttons("consolidate_columns", "Konsolidierungs-Modus", consol_mode_list)
         user_form._add_label("Bereich zum Konsolidieren eingeben, d.h. eine benannter Bereich oder eine Adresse wie A1:D5. [UsedRange] ermittelt automatisch den genutzten Bereich je Arbeitsblatt. [Selection] nimmt den jeweils im Sheet ausgewählten Bereich.")
-        user_form._add_combobox("range", default_range, dropdown)
-        user_form._add_label("Zeilen überspringen, z.B. für Titelzeilen:")
+        user_form._add_combobox("range", default_range, sorted(set(dropdown)))
+        user_form._add_label("Zeilen/Spalten überspringen, z.B. für Titelzeilen:")
         user_form._add_spinner("skip_rows", default_skip, max_value=sheet.Cells.Rows.Count-1)
-        user_form._add_checkbox("insert_skip_rows", "Übersprungene Zeilen aus erstem Blatt einfügen (bspw. Überschriften)", True)
-        user_form._add_label("Zeilen abtrennen, z.B. für Ergebnis-/Summenzeilen:")
+        user_form._add_checkbox("insert_skip_rows", "Übersprungene Zeilen/Spalten aus erstem Blatt einfügen (bspw. Überschriften)", True)
+        user_form._add_label("Zeilen/Spalten abtrennen, z.B. für Ergebnis-/Summenzeilen:")
         user_form._add_spinner("cut_rows", 0, max_value=sheet.Cells.Rows.Count-1)
-        user_form._add_checkbox("insert_sheet_names", "Jeweiligen Blattnamen als erste Spalte einfügen")
+        user_form._add_checkbox("insert_sheet_names", "Jeweiligen Blattnamen als erste Spalte/Zeile einfügen")
         user_form._add_label("Einfügemodus:")
         user_form._add_combobox("pastemode", dropdown=pastemode_list, selected_index=0, editable=False, return_value="SelectedIndex")
         form_return = user_form.show()
@@ -462,28 +467,38 @@ class BooksOps(object):
         xllib.freeze_app(disable_display_alerts=True, disable_events=True)
         application.StatusBar = "Konsolidiere Blätter"
 
+        consolidate_columns = form_return["consolidate_columns"] == consol_mode_list[1]
         paste_types =  pastemode_values[form_return["pastemode"]]
         new_sheet = workbook.Worksheets.Add()
         #new_sheet.Name = "BKT KONSOLIDIERUNG"
         xllib.rename_sheet(new_sheet, "BKT KONSOLIDIERUNG")
-        cur_cell = new_sheet.Cells(insert_row, insert_column)
-        for sheet in sheets:
-            if sheet.Name not in sel_worksheets:
-                continue
-            application.StatusBar = "Konsolidiere Blatt " + sheet.Name
+        if consolidate_columns:
+            cur_cell = new_sheet.Cells(insert_column, insert_row)
+        else:
+            cur_cell = new_sheet.Cells(insert_row, insert_column)
+        # for sheet in sheets:
+        for sheet_name in sel_worksheets:
             try:
+                sheet = workbook.Worksheets[sheet_name]
+                application.StatusBar = "Konsolidiere Blatt " + sheet.Name
+                # if sheet.Name not in sel_worksheets:
+                #     continue
                 #Determine range to copy
-                if form_return["range"] == "[UsedRange]":
+                form_range = form_return["range"]
+                if form_range == "[UsedRange]":
                     rng_to_copy = sheet.UsedRange
-                elif form_return["range"] == "[Selection]":
+                elif form_range == "[Selection]":
                     sheet.Activate()
                     rng_to_copy = application.ActiveWindow.RangeSelection
                     new_sheet.Activate()
                 else:
-                    rng_to_copy = sheet.Range(form_return["range"])
+                    rng_to_copy = sheet.Range(form_range)
                 
                 #FIXME: Rows.Count does not return correct value for multiple areas (max of all area rows)
-                rows_to_insert = rng_to_copy.Rows.Count
+                if consolidate_columns:
+                    rows_to_insert = rng_to_copy.Columns.Count
+                else:
+                    rows_to_insert = rng_to_copy.Rows.Count
                 rows_to_skip = skip_rows
 
                 #Reduce rows if rows should be cut
@@ -505,7 +520,10 @@ class BooksOps(object):
 
                 #FIXME: Resize does not work for multiple areas! This is a workaround until method can handle multiple areas.
                 if rng_to_copy.Areas.Count == 1:
-                    rng_to_copy = rng_to_copy.Offset(rows_to_skip,0).Resize(rows_to_insert)
+                    if consolidate_columns:
+                        rng_to_copy = rng_to_copy.Offset(0,rows_to_skip).Resize(ColumnSize=rows_to_insert)
+                    else:
+                        rng_to_copy = rng_to_copy.Offset(rows_to_skip,0).Resize(RowSize=rows_to_insert)
                 
                 #Copy action
                 rng_to_copy.Copy()
@@ -518,16 +536,26 @@ class BooksOps(object):
                     else:
                         cur_cell.PasteSpecial(ptype)
                 
-                rows_pasted = new_sheet.UsedRange.Row + new_sheet.UsedRange.Rows.Count - cur_cell.Row
+                if consolidate_columns:
+                    rows_pasted = new_sheet.UsedRange.Column + new_sheet.UsedRange.Columns.Count - cur_cell.Column
+                else:
+                    rows_pasted = new_sheet.UsedRange.Row + new_sheet.UsedRange.Rows.Count - cur_cell.Row
 
                 #Insert sheet name as first column
                 if form_return["insert_sheet_names"]:
-                    cur_cell.Offset(0,-1).Resize(rows_pasted).Value = sheet.Name
+                    if consolidate_columns:
+                        cur_cell.Offset(-1,0).Resize(ColumnSize=rows_pasted).Value = sheet.Name
+                    else:
+                        cur_cell.Offset(0,-1).Resize(RowSize=rows_pasted).Value = sheet.Name
                     #cur_cell.Offset(0,-1).Resize(rng_to_copy.Rows.Count).Value = sheet.Name
 
-                cur_cell = new_sheet.Cells(cur_cell.Row + rows_pasted, insert_column)
+                if consolidate_columns:
+                    cur_cell = new_sheet.Cells(insert_column, cur_cell.Column + rows_pasted)
+                else:
+                    cur_cell = new_sheet.Cells(cur_cell.Row + rows_pasted, insert_column)
             except:
                 #bkt.helpers.exception_as_message()
+                logging.exception("error consolidating sheet %s", sheet_name)
                 err_counter += 1
         
         new_sheet.UsedRange.Columns.AutoFit()
