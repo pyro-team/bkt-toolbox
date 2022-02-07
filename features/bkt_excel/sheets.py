@@ -420,23 +420,31 @@ class SheetsOps(object):
         list_sheet = workbook.Worksheets.Add()
         #list_sheet.Name = "BKT LISTE BLÄTTER"
         xllib.rename_sheet(list_sheet, "BKT LISTE BLÄTTER")
-        cls._create_list_header(list_sheet, ["Name", "Genutzter Bereich", "Zeilen", "Spalten", "Tab-Farbe", "Sichtbar", "Geschützt"])
+        visibilities = {-1: "eingeblendet", 0: "ausgeblendet", 2: "versteckt"}
+        cls._create_list_header(list_sheet, ["Name", "Genutzter Bereich", "Zeilen", "Spalten", "Tabellen", "Tab-Farbe", "Sichtbar", "Geschützt"])
         cur_row = 2
         for sheet in sheets:
-            if sheet.Visible == xlcon.XlSheetVisibility["xlSheetVeryHidden"]:
-                continue
-            if sheet.Type == xlcon.XlSheetType["xlWorksheet"]:
+            # if sheet.Visible == xlcon.XlSheetVisibility["xlSheetVeryHidden"]:
+            #     continue
             if getattr(sheet, "Type", None) == xlcon.XlSheetType["xlWorksheet"]:
                 list_sheet.Hyperlinks.Add(list_sheet.Cells(cur_row,1), "", "'" + sheet.Name + "'!A1", "", sheet.Name) #anchor, address, subaddress, screentip, texttodisplay
                 list_sheet.Cells(cur_row,2).Value = "'=" + xllib.get_address_external(sheet.UsedRange, True, True)
                 list_sheet.Cells(cur_row,3).Value = sheet.UsedRange.Rows.Count
                 list_sheet.Cells(cur_row,4).Value = sheet.UsedRange.Columns.Count
+                list_sheet.Cells(cur_row,5).Value = sheet.ListObjects.Count
                 if sheet.Tab.Color:
-                    list_sheet.Cells(cur_row,5).Interior.Color = sheet.Tab.Color
-                list_sheet.Cells(cur_row,6).Value = "X" if sheet.Visible == xlcon.XlSheetVisibility["xlSheetVisible"] else None
-                list_sheet.Cells(cur_row,7).Value = "X" if sheet.ProtectContents else None
+                    list_sheet.Cells(cur_row,6).Interior.Color = sheet.Tab.Color
+                list_sheet.Cells(cur_row,7).Value = visibilities[sheet.Visible]
+                # list_sheet.Cells(cur_row,7).Value = "X" if sheet.Visible == xlcon.XlSheetVisibility["xlSheetVisible"] else None
+                list_sheet.Cells(cur_row,8).Value = "X" if sheet.ProtectContents else None
             else:
-                list_sheet.Cells(cur_row,1).Value = sheet.Name
+                try:
+                    list_sheet.Cells(cur_row,1).Value = sheet.Name
+                    if sheet.Tab.Color:
+                        list_sheet.Cells(cur_row,6).Interior.Color = sheet.Tab.Color
+                    list_sheet.Cells(cur_row,7).Value = visibilities[sheet.Visible]
+                except:
+                    pass
             cur_row += 1
         list_sheet.UsedRange.Columns.AutoFit()
 
