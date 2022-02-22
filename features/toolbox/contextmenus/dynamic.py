@@ -149,11 +149,12 @@ class ShapeFreeform(object):
 
 class Shape(object):
     @staticmethod
-    def get_children():
+    def get_children(shape):
+        shapes = [shape]
         return bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
                 id=None, 
-                children= ContextStateShapes.get_buttons() + ContextLinkedShapes.get_buttons() + [
+                children= ContextStateShapes.get_buttons(shapes) + ContextLinkedShapes.get_buttons(shapes) + [
                     bkt.ribbon.MenuSeparator(),
                 ]
         )

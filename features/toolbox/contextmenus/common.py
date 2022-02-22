@@ -28,6 +28,8 @@ from .. import linkshapes
 # =================
 
 class ContextMenuRecurring(object):
+    ''' Collection of functions/buttons that appear in multiple context menus '''
+
     ### Paste replace ###
     cb_pastereplace_enabled = bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True)
     cb_pastereplace_action = bkt.CallbackLazy("toolbox.shape_selection", "SlidesMore","paste_and_replace", slide=True, shape=True)
@@ -216,7 +218,7 @@ bkt.powerpoint.add_context_menu(
             supertip="Verschiedene BKT-Funktionen, die dynamisch für die gewählten Shapes geladen werden.",
             insertBeforeMso='Cut',
             image="bkt_logo",
-            get_content=bkt.CallbackLazy("toolbox.contextmenus.dynamic", "Shape", "get_children"),
+            get_content=bkt.CallbackLazy("toolbox.contextmenus.dynamic", "Shape", "get_children", shape=True),
         ),
         ### Language setting
         ContextMenuRecurring.change_lang_menu('ctx-shp'),
