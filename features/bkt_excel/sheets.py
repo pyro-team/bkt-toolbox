@@ -26,7 +26,7 @@ class SheetsOps(object):
             for sheet in selected_sheets:
                 sheet.Visible = visibility
         except:
-            bkt.message("Fehler beim Ausblenden. Es muss mind. ein sichtbares Blatt geben.")
+            bkt.message("Fehler beim Ausblenden. Die Arbeitsmappe darf nicht geschützt sein und es muss mind. ein sichtbares Blatt geben.")
 
     @classmethod
     def hide_sheets_veryhidden(cls, selected_sheets):
@@ -90,6 +90,9 @@ class SheetsOps(object):
         hidden_sheets = [sheet.Name for sheet in sheets if sheet.Visible != -1]
         if len(hidden_sheets) == 0:
             bkt.message("Keine ausgeblendeten und versteckten Blätter.")
+            return
+        elif workbook.ProtectStructure:
+            bkt.message("Arbeitsmappen-Struktur ist geschützt.")
             return
 
         user_form = bkt.ui.UserInputBox("Ein oder mehrere Blätter auswählen:", "Blätter anzeigen")
