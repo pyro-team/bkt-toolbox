@@ -193,7 +193,7 @@ class AutoReleasingComObject(object):
         if hasattr(self._comobj, 'Item') and hasattr(self._comobj, 'Count'):
             count = self._comobj.Count
             if type(count).__name__ == 'DispCallable':
-                count = self._comobj.Count()
+                count = count()
             for i in range(count):
                 # yield AutoReleasingComObject(self._comobj.Item(i+1))
                 yield self.create_and_register_auto_release_com_object(self._comobj.Item(i+1))
