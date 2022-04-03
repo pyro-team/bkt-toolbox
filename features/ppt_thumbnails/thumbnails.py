@@ -326,37 +326,58 @@ class Thumbnailer(object):
 
     @classmethod
     def slide_refresh(cls, application, slides):
-        thumbs = []
+        total = 0
+        err_counter = 0
         for sld in slides:
-            for shp in sld.shapes:
-                if cls.is_thumbnail(shp):
-                    thumbs.append(shp)
+            #NOTE: first collect all shapes within a slide as refresh will add and remove shapes which crashes the iteration
+            thumbs_on_slide = []
+            for shp in pplib.iterate_shape_subshapes( sld.shapes ):
+                try:
+                    if cls.is_thumbnail(shp):
+                        thumbs_on_slide.append(shp)
+                        total += 1
+                except:
+                    logging.exception("Thumbnails: Could not determine if shape is thumbnail")
+            for shp in thumbs_on_slide:
+                try:
+                    cls._shape_refresh(shp, application) #FIXME: currently file is opened for each thumbnail, can be improved for better performance
+                except:
+                    logging.exception("Thumbnails: Failed to update slide")
+                    cls._mark_erroneous_shape(shp)
+                    err_counter += 1
 
-        if len(thumbs) == 0:
+        if total == 0:
             bkt.message.warning("Keine Folien-Thumbnails gefunden.", "BKT: Thumbnails")
-            return
+        elif err_counter > 0:
+            bkt.message.warning("Es wurde/n %r Folien-Thumbnail/s aktualisiert, aber %r Folien-Thumbnail/s konnten wegen eines Fehlers nicht aktualisiert werden. Die fehlerhaften Thumbnails wurden mit dem Text 'BKT THUMB UPDATE FAILED' markiert." % (total-err_counter, err_counter), "BKT: Thumbnails")
+        else:
+            bkt.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert." % total, "BKT: Thumbnails")
 
-        cls.shapes_refresh(thumbs, application)
 
     @classmethod
     def shapes_refresh(cls, shapes, application):
         err_counter = 0
+        new_shapes = []
         for shp in shapes:
             try:
-                cls._shape_refresh(shp, application) #FIXME: currently file is opened for each thumbnail, can be improved for better performance
+                new_shapes.append( cls._shape_refresh(shp, application) ) #FIXME: currently file is opened for each thumbnail, can be improved for better performance
             except:
                 cls._mark_erroneous_shape(shp)
                 err_counter += 1
                 # bkt.helpers.exception_as_message()
+        pplib.shapes_to_range(new_shapes).select()
+
         if err_counter > 0:
             bkt.message.warning("Es wurde/n %r Folien-Thumbnail/s aktualisiert, aber %r Folien-Thumbnail/s konnten wegen eines Fehlers nicht aktualisiert werden. Die fehlerhaften Thumbnails wurden mit dem Text 'BKT THUMB UPDATE FAILED' markiert." % (len(shapes)-err_counter, err_counter), "BKT: Thumbnails")
-        else:
-            bkt.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert." % len(shapes), "BKT: Thumbnails")
+        # else:
+        #     bkt.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert." % len(shapes), "BKT: Thumbnails")
 
     @classmethod
     def shape_refresh(cls, shape, application):
         try:
-            return cls._shape_refresh(shape, application)
+            shp = cls._shape_refresh(shape, application)
+            shp.select()
+            return shp
         except IndexError:
             bkt.message.error("Fehler! Folien-Referenz nicht gefunden.")
         except ValueError:
@@ -411,15 +432,19 @@ class Thumbnailer(object):
 
         #handle thumbnail in group (part 2)
         if group:
-            group.select()
+            # group.select()
+            # shape.Delete()
+            # new_shp.Select(False)
+            # group.regroup(application.ActiveWindow.Selection.ShapeRange)
+            # new_shp.Select()
+            group.add_child_items([new_shp])
+            group.regroup()
             shape.Delete()
-            new_shp.Select(False)
-            group.regroup(application.ActiveWindow.Selection.ShapeRange)
-            new_shp.Select()
         else:
             shape.Delete()
             new_shp.Name = shape_name
-            new_shp.Select()
+            # new_shp.Select()
+        #NOTE: selecting here is not a good idea as view might not be active (e.g. refresh whole presentation)
 
         return new_shp
 
