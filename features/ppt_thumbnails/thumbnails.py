@@ -519,6 +519,7 @@ class Thumbnailer(object):
     def unset_thumbnail(cls, shape):
         if bkt.message.confirmation("Dies löscht dauerhaft die Folien-Referenz und damit die Möglichkeit der Aktualisierung des Thumbnails.", "BKT: Thumbnails"):
             shape.Tags.Delete(BKT_THUMBNAIL)
+            shape.Tags.Delete(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY)
 
     @classmethod
     def get_quality(cls, shape):
