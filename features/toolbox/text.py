@@ -1129,17 +1129,14 @@ class TextShapes(object):
         if cls.sticker_custom and not bkt.get_key_state(bkt.KeyCodes.SHIFT):
             cls.add_sticker_to_slides(slides, presentation, cls.sticker_custom)
         else:
-            res = cls.own_sticker_edit()
-            if res:
-                cls.add_sticker_to_slides(slides, presentation, res)
+            res = cls.own_sticker_edit(slides, presentation)
     
     @classmethod
-    def own_sticker_edit(cls):
+    def own_sticker_edit(cls, slides, presentation):
         res = bkt.ui.show_user_input("Selbst definierten Sticker-Text eingeben:", "Sticker bearbeiten", cls.sticker_custom)
         if res:
             cls.sticker_custom = bkt.settings["toolbox.sticker_custom"] = res
-            return res
-        return None
+            cls.add_sticker_to_slides(slides, presentation, res)
 
 
 class TextOnShape(object):
@@ -1471,8 +1468,8 @@ text_menu = bkt.ribbon.Menu(
                         id="sticker_own_edit",
                         label = u"Sticker-Text ändern",
                         screentip="Selbst definierten Sticker bearbeiten",
-                        supertip="Ändere des Text des selbst definierten Stickers.",
-                        on_action=bkt.Callback(TextShapes.own_sticker_edit)
+                        supertip="Ändere den Text des selbst definierten Stickers und füge diesen sofort ein.",
+                        on_action=bkt.Callback(TextShapes.own_sticker_edit, slides=True, presentation=True)
                     ),
                     bkt.ribbon.MenuSeparator(),
                     bkt.ribbon.Menu(
