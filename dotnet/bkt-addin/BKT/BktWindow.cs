@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using System.Drawing;
 
 /// <summary>
 /// Popup with code to not be the topmost control
@@ -54,12 +55,18 @@ namespace BKT
             _helper.Owner = windowID;
             DebugMessage(string.Format("Set owner: {0}", windowID));
             // _helper.Owner = GetForegroundWindow();
+
+            // DPIHelper.SetDpiAwareness(DPIHelper.PROCESS_DPI_AWARENESS.Process_Per_Monitor_DPI_Aware);
+            DPIHelper.SetThreadDpiAwareness(DPIHelper.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+            DebugMessage("DPI Awareness changed");
         }
 
         protected override void OnSourceInitialized(EventArgs e)
         {
             DebugMessage("Source Initialized");
             base.OnSourceInitialized(e);
+
+            double scaling = GetScalingForWindow(_helper.Owner);
 
             if (IsPopup || IsToolbar)
             {
@@ -122,11 +129,18 @@ namespace BKT
                 } else if (deviceBottom != null) {
                     y = (double)deviceBottom;
                 }
+                
+                DebugMessage(string.Format("SetDevicePosition x={0}, y={1}", x, y));
+
+                // var p = this.PointToScreen(new System.Windows.Point(x, y));
+                // DebugMessage(string.Format("PointToScreen x={0}, y={1}", p.X, p.Y));
 
                 double VsTop = SystemParameters.VirtualScreenTop;
                 double VsLeft = SystemParameters.VirtualScreenLeft;
                 double VsRight = VsLeft + SystemParameters.VirtualScreenWidth;
                 double VsBottom = VsTop + SystemParameters.VirtualScreenHeight;
+
+                DebugMessage(string.Format("VirtualScreen top {0}, left {1}, right {2}, bottom {3}", VsTop, VsLeft, VsRight, VsBottom));
 
                 // var transform = source.CompositionTarget.TransformFromDevice;
                 // var ptLogicalUnits = transform.Transform(new Point(x, y));
@@ -141,9 +155,18 @@ namespace BKT
                 //     this.Top  = Math.Min(Math.Max(ptLogicalUnits.Y - this.Height, VsTop), VsBottom - this.Height);
                 // }
 
-                double scaling = 96.0 / GetDpiForWindow(_helper.Owner);
+                double scaling = GetScalingForWindow(_helper.Owner);
+                DebugMessage(string.Format("Scaling x={0}, y={1}", x*scaling, y*scaling));
+
+                // this.TranslatePoint()
+                // var p = this.PointToScreen(new System.Windows.Point(x,y));
+                // x = p.X;
+                // y = p.Y;
+                // double scaling = 0.5;
+
                 if (deviceLeft != null) {
                     this.Left = Math.Min(Math.Max(x*scaling, VsLeft), VsRight - this.Width);
+                    // this.Left = x;
                 } else if (deviceRight != null) {
                     this.Left = Math.Min(Math.Max(x*scaling - this.Width, VsLeft), VsRight - this.Width);
                 }
@@ -152,6 +175,8 @@ namespace BKT
                 } else if (deviceBottom != null) {
                     this.Top  = Math.Min(Math.Max(y*scaling - this.Height, VsTop), VsBottom - this.Height);
                 }
+
+                // MoveWindow(_helper.EnsureHandle(), (int) x, (int) y, (int) this.Width, (int) this.Height, true);
 
             } catch (Exception e) {
                 DebugMessage(e.ToString());
@@ -171,7 +196,7 @@ namespace BKT
                 //     this.Height = Math.Min(SystemParameters.VirtualScreenHeight, transform.M22 * (double)deviceHeight);
                 // }
 
-                double scaling = 96.0 / GetDpiForWindow(_helper.Owner);
+                double scaling = GetScalingForWindow(_helper.Owner);
                 if (deviceWidth != null) {
                     this.Width = Math.Min(SystemParameters.VirtualScreenWidth, scaling * (double)deviceWidth);
                 }
@@ -180,6 +205,80 @@ namespace BKT
                 }
             } catch (Exception e) {
                 DebugMessage(e.ToString());
+            }
+        }
+
+        public System.Windows.Point GetTransformFrom(double x, double y)
+        {
+                // var source = HwndSource.FromHwnd(_helper.EnsureHandle());
+                var source = PresentationSource.FromVisual(this);
+                var transform = source.CompositionTarget.TransformFromDevice;
+                DebugMessage(string.Format("GetTransformFrom: transform.M11 is {0}", transform.M11));
+                DebugMessage(string.Format("GetTransformFrom: transform.M22 is {0}", transform.M22));
+                return transform.Transform(new System.Windows.Point(x, y));
+        }
+
+        public System.Windows.Point GetTransformTo(double x, double y)
+        {
+                // var source = HwndSource.FromHwnd(_helper.EnsureHandle());
+                var source = PresentationSource.FromVisual(this);
+                var transform = source.CompositionTarget.TransformToDevice;
+                DebugMessage(string.Format("GetTransformTo: transform.M11 is {0}", transform.M11));
+                DebugMessage(string.Format("GetTransformTo: transform.M22 is {0}", transform.M22));
+                return transform.Transform(new System.Windows.Point(x, y));
+        }
+
+        public void ApplyScaleTransform(uint dpi)
+        {
+            DebugMessage("ApplyScaleTransform");
+            var source = PresentationSource.FromVisual(this);
+            // if (source == null) return;
+            var wpfDpi = 96 * source.CompositionTarget.TransformToDevice.M11;
+            var scaleFactor = dpi / wpfDpi;
+            System.Windows.Media.VisualTreeHelper.SetRootDpi(this, new DpiScale(scaleFactor,scaleFactor));
+            DebugMessage(string.Format("ApplyScaleTransform: scaleFactor is {0}", scaleFactor));
+            var scaleTransform = 
+                Math.Abs(scaleFactor - 1.0) < 0.001 ? null : new System.Windows.Media.ScaleTransform(scaleFactor, scaleFactor);
+            this.SetValue(FrameworkElement.LayoutTransformProperty, scaleTransform);
+            // this.LayoutTransform = scaleTransform;
+            this.OnDpiChanged(new DpiScale(1.0, 1.0), new DpiScale(scaleFactor,scaleFactor));
+        }
+
+        public double GetScalingForWindow(IntPtr hWnd)
+        {
+            try {
+#if DEBUG
+                // var source = HwndSource.FromHwnd(_helper.EnsureHandle());
+                var source = PresentationSource.FromVisual(this);
+                var transform = source.CompositionTarget.TransformFromDevice;
+                DebugMessage(string.Format("GetWindowDpi: transform.M11 is {0}", transform.M11));
+                DebugMessage(string.Format("GetWindowDpi: transform.M22 is {0}", transform.M22));
+                DebugMessage(string.Format("GetWindowDpi: transform.OffsetX is {0}", transform.OffsetX));
+                DebugMessage(string.Format("GetWindowDpi: transform.OffsetY is {0}", transform.OffsetY));
+
+                Graphics g = Graphics.FromHwnd(IntPtr.Zero);
+                DebugMessage(string.Format("GetWindowDpi: g.DpiX is {0}", g.DpiX));
+                DebugMessage(string.Format("GetWindowDpi: g.DpiY is {0}", g.DpiY));
+
+                var dpiscale = System.Windows.Media.VisualTreeHelper.GetDpi(this);
+                DebugMessage(string.Format("VisualTreeHelper: DpiScaleX is {0}", dpiscale.DpiScaleX));
+                DebugMessage(string.Format("VisualTreeHelper: DpiScaleY is {0}", dpiscale.DpiScaleY));
+                DebugMessage(string.Format("VisualTreeHelper: PixelsPerDip is {0}", dpiscale.PixelsPerDip));
+                DebugMessage(string.Format("VisualTreeHelper: PixelsPerInchX is {0}", dpiscale.PixelsPerInchX));
+                DebugMessage(string.Format("VisualTreeHelper: PixelsPerInchY is {0}", dpiscale.PixelsPerInchY));
+
+                DebugMessage(DPIHelper.GetThreadDpiAwareness().ToString());
+                DebugMessage(DPIHelper.GetProcessDpiAwareness().ToString());
+                DebugMessage(DPIHelper.GetWindowDpiAwareness(_helper.EnsureHandle()).ToString());
+#endif
+
+                uint dpi = GetDpiForWindow(_helper.Owner);
+                DebugMessage(string.Format("GetWindowDpi: DPI is {0}, scaling {1}, for window {2}", dpi, 96.0 / dpi, _helper.Owner));
+                ApplyScaleTransform(dpi);
+                return 96.0 / dpi;
+            } catch (Exception e) {
+                DebugMessage(e.ToString());
+                return 1.0;
             }
         }
 
@@ -192,8 +291,8 @@ namespace BKT
                 // var brPhysicalUnits = source.CompositionTarget.TransformToDevice.Transform(new Point(this.Left+this.Width, this.Top+this.Height));
                 // return new Rect(ltPhysicalUnits, brPhysicalUnits);
 
-                double scaling = 96.0 / GetDpiForWindow(_helper.Owner);
-                return new Rect(this.Left/scaling, this.Top/scaling, this.Width/scaling, this.Height/scaling);
+                double scaling = GetScalingForWindow(_helper.Owner);
+                return new Rect(this.Left*scaling, this.Top*scaling, this.Width*scaling, this.Height*scaling);
             } catch (Exception e) {
                 DebugMessage(e.ToString());
                 return new Rect(0,0,0,0);
@@ -250,6 +349,9 @@ namespace BKT
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
+
+        [DllImport( "user32.dll", SetLastError = true )]
+        private static extern bool MoveWindow( IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint );
 
         private const int GWL_STYLE = (-16);
         private const int GWL_EXSTYLE = (-20);

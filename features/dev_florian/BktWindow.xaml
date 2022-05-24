@@ -2,7 +2,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     WindowStartupLocation="CenterScreen"
     Title="BKT Test Window"
-    ShowInTaskbar="False" Width="300" Height="300">
+    ShowInTaskbar="False" Width="300" Height="400">
 
     <StackPanel x:Name="DataPanel" Orientation="Vertical" Margin="5">
 
@@ -10,16 +10,18 @@
         <Button Margin="5" Content="Slide position top-left" Click="set_pos_tl" />
         <Button Margin="5" Content="Slide position bottom-right" Click="set_pos_br" />
         <Button Margin="5" Content="Slide size" Click="set_size" />
+        <Button Margin="5" Content="Set position 0,0" Click="set_pos_0" />
+        <Button Margin="5" Content="Set device position 100,100" Click="set_pos_device_100" />
+        <Button Margin="5" Content="Set window position 100,100" Click="set_pos_window_100" />
 
-        <Grid Margin="0">
+        <!-- <Grid Margin="0">
           <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*" />
               <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <StackPanel Orientation="Horizontal" Grid.Column="1">
               <Button Margin="5" MinWidth="80" Padding="5,2" Content="OK"        IsDefault="True" Click="cancel" />
-              <Button Margin="5" MinWidth="80" Padding="5,2" Content="Abbrechen" IsCancel="True"  Click="cancel" />
           </StackPanel>
-        </Grid>
+        </Grid> -->
     </StackPanel>
 </Window>

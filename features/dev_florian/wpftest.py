@@ -104,15 +104,42 @@ class BktWindow(bkt.ui.WpfWindowAbstract):
         self.Close()
     
     def get_rect(self, sender, event):
+        import bkt.console
+
         window = self._context.app.ActiveWindow
         slidem = window.View.Slide.Master
 
         left, top = window.PointsToScreenPixelsX(0), window.PointsToScreenPixelsY(0)
         right, bottom = window.PointsToScreenPixelsX(slidem.Width), window.PointsToScreenPixelsY(slidem.Height)
-        bkt.message("X {}, Y {}\nW {}, H {}".format(left, top, right-left, bottom-top))
+        message = "ActiveWindow Slide Dimensions:\r\nX {}, Y {}\r\nW {}, H {}\r\n\r\n".format(left, top, right-left, bottom-top)
+
+        message += "WPF-Window:\r\nX {}, Y {}\r\nW {}, H {}\r\n\r\n".format(self.Left, self.Top, self.Width, self.Height)
 
         rect = self.GetDeviceRect()
-        bkt.message("X {}, Y {}\nW {}, H {}".format(rect.X, rect.Y, rect.Width, rect.Height))
+        message += "GetDeviceRect:\r\nX {}, Y {}\r\nW {}, H {}\r\n\r\n".format(rect.X, rect.Y, rect.Width, rect.Height)
+
+        point = self.PointFromScreen(System.Windows.Point(left, top))
+        message += "PointFromScreen:\r\nX {}, Y {}\r\n\r\n".format(point.X, point.Y)
+
+        pf = self.GetTransformFrom(left, top)
+        message += "GetTransformFrom:\r\nX {}, Y {}\r\n\r\n".format(pf.X, pf.Y)
+
+        pt = self.GetTransformTo(left, top)
+        message += "GetTransformTo:\r\nX {}, Y {}\r\n\r\n".format(pf.X, pf.Y)
+
+        bkt.console.show_message(message)
+
+    def set_pos_0(self, sender, event):
+        self.SetDevicePosition(0, 0)
+
+    def set_pos_device_100(self, sender, event):
+        # self.SetDevicePosition(-100, 100)
+        self.Left += 100
+        self.Top = 100
+
+    def set_pos_window_100(self, sender, event):
+        self.Left -= 100
+        self.Top = 100
 
     def set_pos_tl(self, sender, event):
         window = self._context.app.ActiveWindow
