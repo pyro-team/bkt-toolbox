@@ -315,7 +315,7 @@ class BKTShelf(shelve.DbfilenameShelf):
             logging.error("EOF-Error in shelf file %s for getting key %s. Reset to default value: %s", self._filename, key, default)
             if config.show_exception and not key.startswith("bkt.console."):
                 #if key starts with bkt.console its not possible to show exception in console as error happended during console initialization
-                exception_as_message("Shelf file {} corrupt for key {}. Trying to repair now.".format(self._filename, key))
+                exception_as_message("Shelf file {} corrupt for key {}. Trying to repair now.\n".format(self._filename, key))
 
             #shelf database corrupt, trying to fix it
             if default is None:
@@ -349,7 +349,7 @@ class BKTSettings(BKTShelf):
             self.dict = anydbm.open(self._filename, 'c')
         except:
             logging.exception("error reading bkt settings")
-            exception_as_message()
+            exception_as_message("Critical error opening settings-file '{}'. Settings will not be saved. Manual deletion of settings-file required.\n\n".format(self._filename)) #FIXME: bessere fehlermeldung mit pfad zur datei
             self.dict = dict() #fallback to empty dict
 
 #load global setting database
