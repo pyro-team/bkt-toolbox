@@ -3095,10 +3095,20 @@ class GroupsMore(object):
             master.add_child_items(shapes).select()
         else:
             pplib.shapes_to_range(shapes).group().select()
+
+    @staticmethod
+    def remove_from_group(shapes):
+        master = pplib.GroupManager(shapes[0].ParentGroup)
+        master.remove_child_items(shapes)
+        pplib.shapes_to_range(shapes).select()
     
     @classmethod
     def visible_add_into_group(cls, shapes):
         return len(shapes) > 1 and cls.contains_group(shapes)
+
+    @staticmethod
+    def visible_remove_from_group(shapes):
+        return all(pplib.shape_is_group_child(shape) for shape in shapes)
     
     @staticmethod
     def contains_group(shapes):
@@ -3358,6 +3368,15 @@ arrange_group = bkt.ribbon.Group(
                     supertip="Markiert alle Elemente innerhalb der Gruppe.",
                     on_action=bkt.Callback(GroupsMore.select_all_groupitems, shape=True),
                     get_enabled = bkt.Callback(GroupsMore.is_or_within_group, shape=True),
+                ),
+                bkt.ribbon.Button(
+                    id = 'remove_from_group',
+                    label="Aus Gruppe lösen",
+                    image_mso="ObjectsUngroup",
+                    screentip="Shapes aus Gruppe herauslösen",
+                    supertip="Die markierten Shapes werden aus der aktuelle Gruppe herausgelöst, ohne die Gruppe dabei zu verändern.",
+                    on_action=bkt.Callback(GroupsMore.remove_from_group, shapes=True),
+                    get_enabled = bkt.Callback(GroupsMore.visible_remove_from_group, shapes=True),
                 ),
                 bkt.ribbon.MenuSeparator(title="Verknüpfte Shapes"),
                 bkt.ribbon.Button(
