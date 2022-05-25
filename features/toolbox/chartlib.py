@@ -100,7 +100,7 @@ class ChartLib(object):
             subfolder = "shapelib"
             self.slide_action = self.copy_shapes_callback
 
-            self.library_folders.extend( bkt.config.shape_library_folders or [] )
+            library_folders = bkt.config.shape_library_folders or []
             self.library_files.extend( bkt.config.shape_libraries or [] )
 
         else:
@@ -108,8 +108,12 @@ class ChartLib(object):
             subfolder = "chartlib"
             self.slide_action = self.copy_slide_callback
 
-            self.library_folders.extend( bkt.config.chart_library_folders or [] )
+            library_folders = bkt.config.chart_library_folders or []
             self.library_files.extend( bkt.config.chart_libraries or [] )
+
+        # add from library_folders
+        for folder in library_folders:
+            self.library_folders.append( {'title':os.path.basename(os.path.realpath(folder)), 'folder':folder} )
 
         # add from feature-folders
         for folder in bkt.config.feature_folders:
@@ -117,6 +121,10 @@ class ChartLib(object):
             if os.path.exists(chartlib_folder):
                 self.library_folders.append( {'title':os.path.basename(os.path.realpath(folder)), 'folder':chartlib_folder} )
         
+        # sort by name
+        self.library_files.sort()
+        self.library_folders.sort(key=lambda f:f['title'])
+
         # add favorite folder as first folder
         self.fav_folder = bkt.helpers.get_fav_folder(subfolder)
         self.library_folders.insert(0, {'title': "Favoriten", 'folder': self.fav_folder} )
