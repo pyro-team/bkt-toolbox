@@ -414,10 +414,10 @@ class Thumbnailer(object):
 
         new_shp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_THUMBNAIL)
 
-        new_shp.PictureFormat.crop.ShapeHeight = shape.PictureFormat.crop.ShapeHeight 
-        new_shp.PictureFormat.crop.ShapeWidth  = shape.PictureFormat.crop.ShapeWidth  
-        new_shp.PictureFormat.crop.ShapeTop    = shape.PictureFormat.crop.ShapeTop    
-        new_shp.PictureFormat.crop.ShapeLeft   = shape.PictureFormat.crop.ShapeLeft   
+        new_shp.PictureFormat.crop.ShapeHeight = shape.PictureFormat.crop.ShapeHeight
+        new_shp.PictureFormat.crop.ShapeWidth  = shape.PictureFormat.crop.ShapeWidth
+        new_shp.PictureFormat.crop.ShapeTop    = shape.PictureFormat.crop.ShapeTop
+        new_shp.PictureFormat.crop.ShapeLeft   = shape.PictureFormat.crop.ShapeLeft
     
         new_shp.PictureFormat.crop.PictureHeight  = shape.PictureFormat.crop.PictureHeight
         new_shp.PictureFormat.crop.PictureWidth   = shape.PictureFormat.crop.PictureWidth
@@ -572,6 +572,10 @@ class Thumbnailer(object):
         new_shp = cls.shape_refresh(shape, application)
         if new_shp:
             cls.reset_aspect_ratio(new_shp)
+
+    @classmethod
+    def toggle_content_only(cls, shape, application):
+        cls.set_content_only(shape, application, not cls.get_content_only(shape))
 
 
 thumbnail_gruppe = bkt.ribbon.Group(
@@ -873,6 +877,22 @@ class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
             Thumbnailer.goto_ref(self._context.shape, self._context.app)
         except:
             bkt.message.error("Fehler beim Öffnen der Folienreferenz.", "BKT: Thumbnails")
+            logging.exception("Thumbnails: Error in popup!")
+
+    @WpfActionCallback
+    def btntoggleco(self, sender, event):
+        try:
+            Thumbnailer.toggle_content_only(self._context.shape, self._context.app)
+        except:
+            bkt.message.error("Fehler beim Wechsel des Thumbnail-Inhalts.", "BKT: Thumbnails")
+            logging.exception("Thumbnails: Error in popup!")
+
+    @WpfActionCallback
+    def btnfixar(self, sender, event):
+        try:
+            Thumbnailer.reset_aspect_ratio(self._context.shape)
+        except:
+            bkt.message.error("Fehler beim Zurücksetzen des Seitenverhältnisses.", "BKT: Thumbnails")
             logging.exception("Thumbnails: Error in popup!")
 
 
