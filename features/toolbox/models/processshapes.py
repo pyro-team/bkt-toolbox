@@ -154,6 +154,9 @@ class ProcessChevrons(object):
     @classmethod
     def _distribute_row_shapes(cls, slide, process_shape, ref_height=None):
         rows = sorted(cls._find_row_shapes_for_process(slide, process_shape), key=lambda r:r.top)
+
+        if not rows:
+            return
         
         if not ref_height:
             # ref_height = rows[-1].top+rows[-1].height-rows[0].top
