@@ -737,6 +737,10 @@ class ChartLib(object):
 
     @classmethod
     def add_slides_to_lib(cls, context, presentation):
+        for slide in context.slides:
+            if not slide.shapes.hastitle:
+                bkt.message.warning("Folien ohne Titel können nicht hinzugefügt werden!", "BKT: ChartLib")
+                return
         #Copy slides
         context.selection.SlideRange.Copy()
         # pres.Slides.Paste()
@@ -1371,7 +1375,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
             os.makedirs(directory)
         
         for slide in presentation.slides:
-            if slide.shapes.hastitle != False:
+            if slide.shapes.hastitle:
                 image_filename = self.get_image_filename(slide.SlideIndex)
                 try:
                     #NOTE: slide.Export() closes the chartlib menu, so every time the images are generated, the user needs to re-open the chartlib. As workaround we use the clipboard.
