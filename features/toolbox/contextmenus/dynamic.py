@@ -24,15 +24,6 @@ from .process import ContextProcessShapes
 class ObjectsGroup(object):
     @staticmethod
     def get_children(shapes):
-        '''
-        TODO:
-        if   State Shape
-        else Process Shape
-        else Circular Segments
-        else Harvey
-        else Linked Shapes (Create or Align)
-        else Text Functions+Add to group
-        '''
 
         return bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
