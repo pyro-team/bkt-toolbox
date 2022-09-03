@@ -1068,6 +1068,7 @@ class Format(object):
 
 
 zellen_inhalt_gruppe = bkt.ribbon.Group(
+    id="group_cell_contents",
     label="Zellen-Inhalte",
     image_mso="Formula",
     children=[
@@ -1077,7 +1078,7 @@ zellen_inhalt_gruppe = bkt.ribbon.Group(
             show_label=True,
             size='large',
             image_mso='Formula',
-            supertip="Eine Formel auf alle ausgwählten Zellen anwenden.",
+            supertip="Eine Formel auf alle ausgewählten Zellen anwenden.",
             on_action=bkt.Callback(CellsOps.apply_formula, cells=True, application=True),
             get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
         ),
@@ -1087,7 +1088,7 @@ zellen_inhalt_gruppe = bkt.ribbon.Group(
             show_label=True,
             size='large',
             image_mso='ApplyFilter',
-            supertip="Einen regulären Ausdruck auf alle ausgwählten Zellen anwenden.",
+            supertip="Einen regulären Ausdruck auf alle ausgewählten Zellen anwenden.",
             children=[
                 bkt.ribbon.Button(
                     id = 'regex_match',
@@ -1506,6 +1507,7 @@ zellen_inhalt_gruppe = bkt.ribbon.Group(
 
 
 zellen_format_gruppe = bkt.ribbon.Group(
+    id="group_cell_formats",
     label="Zellen-Formate",
     image_mso="TableColumnsInsertLeftExcel",
     children=[
@@ -1712,6 +1714,7 @@ zellen_format_gruppe = bkt.ribbon.Group(
 )
 
 comments_gruppe = bkt.ribbon.Group(
+    id="group_cell_comments",
     label="Kommentare",
     image_mso="ReviewNewComment",
     children=[

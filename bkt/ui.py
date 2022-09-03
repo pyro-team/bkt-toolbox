@@ -68,8 +68,8 @@ class WpfWindowAbstract(bkt_addin.BktWindow):
         return wnd
     
     def show_dialog(self, modal=True):
-        if self._context is not None:
-            self.SetOwner(self._context.addin.GetWindowHandle())
+        # if self._context is not None:
+        #     self.SetOwner(self._context.addin.GetWindowHandle())
         # System.Windows.Interop.WindowInteropHelper(self).Owner = self.get_main_window_handle()
         if modal:
             return self.ShowDialog()
@@ -77,12 +77,14 @@ class WpfWindowAbstract(bkt_addin.BktWindow):
             return self.Show()
 
     def __init__(self, context=None):
+        if context is not None:
+            self._context = context
+            self.addin = context.addin
+        
         if not self._filename:
             self._filename = Resources.xaml.locate(self._xamlname)
         wpf.LoadComponent(self, self._filename)
 
-        if context is not None:
-            self._context = context
         if self._vm_class is not None:
             self._vm = self._vm_class()
         if self._vm is not None:
@@ -287,10 +289,12 @@ class UserInputBox(object):
         self.input.append((input_id, checkBox, "Checked"))
         return checkBox
 
-    def _add_listbox(self, input_id, lb_list, lb_return="Items"):
+    def _add_listbox(self, input_id, lb_list, lb_return="SelectedItems", multiselect=False):
         listBox = F.ListBox()
         listBox.Width = self.prompt.Width - 40
         listBox.HorizontalScrollbar = True
+        if multiselect:
+            listBox.SelectionMode = F.SelectionMode.MultiExtended
         for item_name in lb_list:
             listBox.Items.Add(item_name)
         self.superPanel.Controls.Add(listBox)

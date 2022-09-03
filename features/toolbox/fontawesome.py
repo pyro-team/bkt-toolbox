@@ -11,9 +11,7 @@ import importlib
 from collections import namedtuple, deque
 
 import bkt
-from bkt import ribbon
 from bkt.library.powerpoint import PPTSymbolsGallery
-from bkt.ribbon import Separator
 
 
 FontSymbol = namedtuple("FontSymbol", "module fontlabel fontname unicode label keywords")
@@ -25,6 +23,7 @@ class Fontawesome(object):
             ('fabricmdl2',      'Fabric MDL2 Assets',           True),
             ('fontawesome4',    'FontAwesome',                  True),
             ('fontawesome5',    'Font Awesome 5 Free Regular',  False),
+            ('fontawesome6',    'Font Awesome 6 Free Regular',  False),
             ('icomoon',         'IcoMoon-Free',                 False),
             ('materialicons',   'Material Icons',               False),
             ('segoemdl2',       'Segoe MDL2 Assets',            True),

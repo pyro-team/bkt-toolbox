@@ -17,11 +17,12 @@ from . import cells
 from . import selection
 from . import books
 
-version_short = 'v0.7b'
-version_long  = 'Excel Toolbox v0.7 beta'
+version_short = 'v0.9b'
+version_long  = 'Excel Toolbox v0.9 beta'
 
 
 info_gruppe = bkt.ribbon.Group(
+    id='group_settings',
     label="Settings",
     children=[
         settings.settings_menu,
@@ -43,6 +44,7 @@ bkt.excel.add_tab(bkt.ribbon.Tab(
     children = [
         #bkt.mso.group.GroupClipboard,
         bkt.ribbon.Group(
+            id='group_clipboard',
             label="Ablage",
             image_mso="GroupClipboard",
             children=[
@@ -53,6 +55,7 @@ bkt.excel.add_tab(bkt.ribbon.Tab(
         ),
         bkt.mso.group.GroupFont,
         bkt.ribbon.Group(
+            id='group_misc',
             label="Sonst.",
             children=[
                 bkt.ribbon.ToggleButton(
@@ -87,6 +90,7 @@ bkt.excel.add_tab(bkt.ribbon.Tab(
         bkt.mso.group.GroupEditingExcel,
         #bkt.mso.group.GroupOutline,
         bkt.ribbon.Group(
+            id='group_outline',
             label="Gliederung",
             image_mso="GroupOutline",
             children=[
@@ -114,6 +118,7 @@ bkt.excel.add_tab(bkt.ribbon.Tab(
         cells.zellen_format_gruppe,
         cells.comments_gruppe,
         bkt.ribbon.Group(
+            id='group_borders',
             label="Rahmen",
             image_mso="BorderDrawMenu",
             children=[
@@ -136,6 +141,7 @@ bkt.excel.add_tab(bkt.ribbon.Tab(
             ]
         ),
         bkt.ribbon.Group(
+            id='group_names',
             label="Definierte Namen",
             image_mso="NameManager",
             children=[
@@ -146,16 +152,18 @@ bkt.excel.add_tab(bkt.ribbon.Tab(
             ]
         ),
         bkt.ribbon.Group(
+            id='group_tools',
             label="Datentools",
             image_mso="RemoveDuplicates",
             children=[
-                bkt.mso.control.PivotTableInsertMenu(size="large"),
+                bkt.mso.control.PivotTableInsert(size="large"),
                 bkt.mso.control.ConvertTextToTable(show_label=True),
                 bkt.mso.control.RemoveDuplicates(show_label=True),
                 bkt.mso.control.DataValidationMenu(show_label=True)
             ]
         ),
         bkt.ribbon.Group(
+            id='group_window',
             label="Fenster",
             image_mso="WindowNew",
             children=[
@@ -165,6 +173,7 @@ bkt.excel.add_tab(bkt.ribbon.Tab(
             ]
         ),
         bkt.ribbon.Group(
+            id='group_print',
             label="Drucken",
             image_mso="PrintAreaMenu",
             children=[
@@ -189,3 +198,27 @@ bkt.excel.add_tab(bkt.ribbon.Tab(
         books.mappen_gruppe,
     ]
 ))
+
+
+
+bkt.excel.add_context_menu(
+    bkt.ribbon.ContextMenu(id_mso='ContextMenuWorkbookPly', children=[
+        bkt.ribbon.Button(
+            insertBeforeMso='SelectAllSheets',
+            id = 'ctx-hide_sheets_veryhidden',
+            label="Verstecken (xlVeryHidden)",
+            # supertip="Aktuelles Blatt bzw. ausgewählte Blätter verstecken (xlVeryHidden), sodass diese nur über die Toolbox oder ein Makro wieder sichtbar gemacht werden können.",
+            on_action=bkt.Callback(sheets.SheetsOps.hide_sheets_veryhidden, selected_sheets=True),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+        ),
+        bkt.ribbon.Button(
+            insertBeforeMso='SelectAllSheets',
+            id = 'ctx-show_sheets',
+            label="Anzeigen…",
+            # supertip="Aktuelles Blatt bzw. ausgewählte Blätter verstecken (xlVeryHidden), sodass diese nur über die Toolbox oder ein Makro wieder sichtbar gemacht werden können.",
+            on_action=bkt.Callback(sheets.SheetsOps.show_sheets_dialog, workbook=True, sheets=True),
+            get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+        ),
+        bkt.ribbon.MenuSeparator(insertBeforeMso='SelectAllSheets'),
+    ])
+)

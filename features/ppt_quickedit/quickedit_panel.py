@@ -309,7 +309,7 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
                 window.Panes(2).Activate() #active ppViewSlide pane
                 #remove current setting to trigger determine edge
                 self._vm.docking_edge = None
-                self.update_docking(window=window)
+                self.update_docking(window=window, force=True)
             else:
                 bkt.message("Docking funktioniert nur bei maximiertem Fenster und bei normaler Folienansicht!")
         except:
@@ -317,9 +317,9 @@ class QuickEditPanel(bkt.ui.WpfWindowAbstract):
             logging.exception("QUICKEDIT DOCKINGERROR")
 
 
-    def update_docking(self, sender=None, event=None, window=None):
+    def update_docking(self, sender=None, event=None, window=None, force=False):
         try:
-            if not self._vm.docking_to_slide:
+            if not force and not self._vm.docking_to_slide:
                 return
             if not window:
                 window = self._context.app.ActiveWindow #exception: no active window when in slideshow mode

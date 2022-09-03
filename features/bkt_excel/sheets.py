@@ -26,7 +26,7 @@ class SheetsOps(object):
             for sheet in selected_sheets:
                 sheet.Visible = visibility
         except:
-            bkt.message("Fehler beim Ausblenden. Es muss mind. ein sichtbares Blatt geben.")
+            bkt.message("Fehler beim Ausblenden. Die Arbeitsmappe darf nicht geschützt sein und es muss mind. ein sichtbares Blatt geben.")
 
     @classmethod
     def hide_sheets_veryhidden(cls, selected_sheets):
@@ -84,6 +84,33 @@ class SheetsOps(object):
     def show_all_sheets(sheets):
         for sheet in sheets:
             sheet.Visible = -1 #xlSheetVisible
+    
+    @staticmethod
+    def show_sheets_dialog(workbook, sheets):
+        hidden_sheets = [sheet.Name for sheet in sheets if sheet.Visible != -1]
+        if len(hidden_sheets) == 0:
+            bkt.message("Keine ausgeblendeten und versteckten Blätter.")
+            return
+        elif workbook.ProtectStructure:
+            bkt.message("Arbeitsmappen-Struktur ist geschützt.")
+            return
+
+        user_form = bkt.ui.UserInputBox("Ein oder mehrere Blätter auswählen:", "Blätter anzeigen")
+        lb = user_form._add_listbox("sel_sheets", hidden_sheets, multiselect=True)
+        lb.SetSelected(0,True)
+        form_return = user_form.show()
+        if len(form_return) == 0:
+            return
+        sel_sheets = form_return["sel_sheets"]
+        
+        if len(sel_sheets) == 0:
+            bkt.message("Keine Blätter ausgewählt.")
+            return
+
+        for sheet_name in sel_sheets:
+            workbook.Sheets[sheet_name].Visible = -1 #xlSheetVisible
+        
+        workbook.Sheets[sel_sheets[0]].Activate()
 
     @classmethod
     def sheets_base_list(cls, workbook, sheets):
@@ -97,7 +124,7 @@ class SheetsOps(object):
         cls._create_list_header(list_sheet, ["#", "Alter Name", "Neuer Name"], row=1)
         cur_row = 2
         for i, sheet in enumerate(sheets, start=1):
-            if sheet.Visible != xlcon.XlSheetVisibility["xlSheetVisible"] or sheet.Type != xlcon.XlSheetType["xlWorksheet"]:
+            if sheet.Visible != xlcon.XlSheetVisibility["xlSheetVisible"] or getattr(sheet, "Type", None) != xlcon.XlSheetType["xlWorksheet"]:
                 continue
             list_sheet.Cells(cur_row,1).Value = i
             list_sheet.Cells(cur_row,2).Value = sheet.Name
@@ -240,17 +267,19 @@ class SheetsOps(object):
         list_sheet = workbook.Worksheets.Add()
         #list_sheet.Name = "BKT LISTE NAMEN"
         xllib.rename_sheet(list_sheet, "BKT LISTE NAMEN")
-        cls._create_list_header(list_sheet, ["Typ", "Name", "Bezug", "Bereich"])
+        cls._create_list_header(list_sheet, ["Typ", "Name", "Bezug", "Bereich", "Kommentar"])
         #list_sheet.Range("A2").ListNames()
         cur_row = 2
         for name in iter(workbook.Names):
             if not name.Visible:
+                #invisible names are added by Excel, e.g. for backwards compatibility
                 continue
             ident = name.NameLocal.split("!",1)
             list_sheet.Cells(cur_row,1).Value = "Name"
             list_sheet.Cells(cur_row,2).Value = "'" + ident[-1] #last element
             list_sheet.Cells(cur_row,3).Value = "'" + name.RefersToLocal
             list_sheet.Cells(cur_row,4).Value = "Arbeitsmappe" if len(ident) == 1 else ident[0].strip("'")
+            list_sheet.Cells(cur_row,5).Value = "'" + name.Comment
             cur_row += 1
 
         for sheet in sheets:
@@ -259,6 +288,7 @@ class SheetsOps(object):
                 list_sheet.Cells(cur_row,2).Value = "'" + obj.Name #FIXME: use DisplayName instead???
                 list_sheet.Cells(cur_row,3).Value = "'=" + xllib.get_address_external(obj.Range, True, True)
                 list_sheet.Cells(cur_row,4).Value = "Arbeitsmappe"
+                list_sheet.Cells(cur_row,5).Value = "'" + obj.Comment
                 cur_row += 1
 
         list_sheet.UsedRange.Columns.AutoFit()
@@ -282,11 +312,6 @@ class SheetsOps(object):
 
     @classmethod
     def list_cond_formats(cls, sheet, workbook):
-        def _dict_by_value(input_dict, search_value):
-            for key, value in input_dict.iteritems():
-                if value == search_value:
-                    return key
-
         def _getattr(obj, name, default=None):
             try:
                 return getattr(obj, name, default)
@@ -309,14 +334,14 @@ class SheetsOps(object):
 
         for fcond in iter(sheet.Cells.FormatConditions):
             list_sheet.Cells(cur_row,1).Value = fcond.Priority
-            list_sheet.Cells(cur_row,2).Value = _dict_by_value(xlcon.XlFormatConditionType, fcond.Type)
+            list_sheet.Cells(cur_row,2).Value = bkt.helpers.key_by_value(xlcon.XlFormatConditionType, fcond.Type)
             
             list_sheet.Cells(cur_row,3).Value = "'" + _getattr(fcond, "Formula1", '')
             list_sheet.Cells(cur_row,4).Value = "'" + _getattr(fcond, "Formula2", '')
             list_sheet.Cells(cur_row,5).Value = "'" + _getattr(fcond, "Text", '')
 
             operator = _getattr(fcond, "Operator", None)
-            list_sheet.Cells(cur_row,6).Value = None if operator is None else _dict_by_value(xlcon.XlFormatConditionOperator, operator)
+            list_sheet.Cells(cur_row,6).Value = None if operator is None else bkt.helpers.key_by_value(xlcon.XlFormatConditionOperator, operator)
             
             #Format
             list_sheet.Cells(cur_row,7).Value = "AaBbCcYyZz"
@@ -331,27 +356,98 @@ class SheetsOps(object):
         list_sheet.Activate()
         list_sheet.UsedRange.Columns.AutoFit()
 
+
+    @classmethod
+    def list_validations(cls, sheet, workbook):
+        def _getattr(obj, name, default=None):
+            try:
+                return getattr(obj, name, default)
+            except:
+                return default
+
+        list_sheet = workbook.Worksheets.Add()
+        xllib.rename_sheet(list_sheet, "BKT LISTE DATENÜBERPRÜF.")
+        cls._create_list_header(list_sheet, ["Typ", "Formel 1", "Formel 2", "Operator", "Gültigkeitswarnung", "Leere Zellen ignorieren", "Zellendropdown", "Bereich"])
+        cur_row = 2
+
+        try:
+            range_all = sheet.Cells.SpecialCells(xlcon.XlCellType["xlCellTypeAllValidation"])
+        except:
+            list_sheet.Activate()
+            list_sheet.UsedRange.Columns.AutoFit()
+            return
+            
+        with range_all:
+            max_iter = 255
+            while max_iter > 0 and range_all and range_all.areas.count > 0 and range_all.areas[1].cells.count > 0:
+            # for valid_areas in iter(range_all.Areas):
+            #     for cell in iter(valid_areas.Cells):
+                max_iter -= 1
+                cell = range_all.areas[1].cells[1]
+
+                valid = cell.validation
+                list_sheet.Cells(cur_row,1).Value = bkt.helpers.key_by_value(xlcon.XlDVType, valid.Type)
+            
+                list_sheet.Cells(cur_row,2).Value = "'" + _getattr(valid, "Formula1", '')
+                list_sheet.Cells(cur_row,3).Value = "'" + _getattr(valid, "Formula2", '')
+
+                operator = _getattr(valid, "Operator", None)
+                list_sheet.Cells(cur_row,4).Value = None if operator is None else bkt.helpers.key_by_value(xlcon.XlFormatConditionOperator, operator)
+
+                alert = _getattr(valid, "AlertStyle", None)
+                list_sheet.Cells(cur_row,5).Value = None if alert is None else bkt.helpers.key_by_value(xlcon.XlDVAlertStyle, alert)
+
+                list_sheet.Cells(cur_row,6).Value = "X" if valid.IgnoreBlank else None
+                list_sheet.Cells(cur_row,7).Value = "X" if valid.InCellDropdown else None
+
+                range_same = cell.SpecialCells(xlcon.XlCellType["xlCellTypeSameValidation"])
+
+                list_sheet.Cells(cur_row,8).Value = "'=" + xllib.get_address_external(range_same, True, True)
+                # list_sheet.Cells(cur_row,9).Value = "'=" + xllib.get_address_external(range_all, True, True)
+                
+                range_all = xllib.range_substract(range_all, range_same)
+                try:
+                    #Important: avoid premature com-release by manually setting within_context to new range com object!
+                    range_all._within_context = True
+                except:
+                    logging.warning("Setting within_context failed for: %s", range_all)
+
+                cur_row += 1
+        
+        list_sheet.Activate()
+        list_sheet.UsedRange.Columns.AutoFit()
+
+
     @classmethod
     def list_sheets(cls, workbook, sheets):
         list_sheet = workbook.Worksheets.Add()
         #list_sheet.Name = "BKT LISTE BLÄTTER"
         xllib.rename_sheet(list_sheet, "BKT LISTE BLÄTTER")
-        cls._create_list_header(list_sheet, ["Name", "Genutzter Bereich", "Zeilen", "Spalten", "Tab-Farbe", "Sichtbar", "Geschützt"])
+        visibilities = {-1: "eingeblendet", 0: "ausgeblendet", 2: "versteckt"}
+        cls._create_list_header(list_sheet, ["Name", "Genutzter Bereich", "Zeilen", "Spalten", "Tabellen", "Tab-Farbe", "Sichtbar", "Geschützt"])
         cur_row = 2
         for sheet in sheets:
-            if sheet.Visible == xlcon.XlSheetVisibility["xlSheetVeryHidden"]:
-                continue
-            if sheet.Type == xlcon.XlSheetType["xlWorksheet"]:
+            # if sheet.Visible == xlcon.XlSheetVisibility["xlSheetVeryHidden"]:
+            #     continue
+            if getattr(sheet, "Type", None) == xlcon.XlSheetType["xlWorksheet"]:
                 list_sheet.Hyperlinks.Add(list_sheet.Cells(cur_row,1), "", "'" + sheet.Name + "'!A1", "", sheet.Name) #anchor, address, subaddress, screentip, texttodisplay
                 list_sheet.Cells(cur_row,2).Value = "'=" + xllib.get_address_external(sheet.UsedRange, True, True)
                 list_sheet.Cells(cur_row,3).Value = sheet.UsedRange.Rows.Count
                 list_sheet.Cells(cur_row,4).Value = sheet.UsedRange.Columns.Count
+                list_sheet.Cells(cur_row,5).Value = sheet.ListObjects.Count
                 if sheet.Tab.Color:
-                    list_sheet.Cells(cur_row,5).Interior.Color = sheet.Tab.Color
-                list_sheet.Cells(cur_row,6).Value = "X" if sheet.Visible == xlcon.XlSheetVisibility["xlSheetVisible"] else None
-                list_sheet.Cells(cur_row,7).Value = "X" if sheet.ProtectContents else None
+                    list_sheet.Cells(cur_row,6).Interior.Color = sheet.Tab.Color
+                list_sheet.Cells(cur_row,7).Value = visibilities[sheet.Visible]
+                # list_sheet.Cells(cur_row,7).Value = "X" if sheet.Visible == xlcon.XlSheetVisibility["xlSheetVisible"] else None
+                list_sheet.Cells(cur_row,8).Value = "X" if sheet.ProtectContents else None
             else:
-                list_sheet.Cells(cur_row,1).Value = sheet.Name
+                try:
+                    list_sheet.Cells(cur_row,1).Value = sheet.Name
+                    if sheet.Tab.Color:
+                        list_sheet.Cells(cur_row,6).Interior.Color = sheet.Tab.Color
+                    list_sheet.Cells(cur_row,7).Value = visibilities[sheet.Visible]
+                except:
+                    pass
             cur_row += 1
         list_sheet.UsedRange.Columns.AutoFit()
 
@@ -622,6 +718,7 @@ class FileListOps(object):
 
 
 blatt_gruppe = bkt.ribbon.Group(
+    id="group_sheets",
     label="Blätter",
     image_mso="SheetInsert",
     auto_scale=True,
@@ -681,6 +778,15 @@ blatt_gruppe = bkt.ribbon.Group(
                         ),
                     bkt.ribbon.MenuSeparator(title="Einblenden"),
                     bkt.ribbon.Button(
+                        id = 'show_sheets_dialog',
+                        label="Blätter anzeigen…",
+                        show_label=True,
+                        #image_mso='CreateQueryFromWizard',
+                        supertip="Zeigt eine Auswahl aller ausgeblendeten und versteckten Blätter, die zum Anzeigen ausgewählt werden können.",
+                        on_action=bkt.Callback(SheetsOps.show_sheets_dialog, workbook=True, sheets=True),
+                        get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                    ),
+                    bkt.ribbon.Button(
                         id = 'show_hidden_sheets',
                         label="Alle ausgeblendeten Blätter einblenden",
                         show_label=True,
@@ -736,6 +842,15 @@ blatt_gruppe = bkt.ribbon.Group(
                     #image_mso='SheetInsert',
                     supertip="Erstellt Liste aller bedingten Formatierungen des aktuellen Blatts in neuem Blatt.",
                     on_action=bkt.Callback(SheetsOps.list_cond_formats, sheet=True, workbook=True),
+                    get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
+                ),
+                bkt.ribbon.Button(
+                    id = 'list_validations',
+                    label="Liste aller Datenüberprüfungen",
+                    show_label=True,
+                    #image_mso='SheetInsert',
+                    supertip="Erstellt Liste aller Datenüberprüfungen des aktuellen Blatts in neuem Blatt.",
+                    on_action=bkt.Callback(SheetsOps.list_validations, sheet=True, workbook=True),
                     get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
                 ),
                 bkt.ribbon.MenuSeparator(title="Listen zur Mappe"),

@@ -62,7 +62,7 @@ class Shapetags(object):
 
     @staticmethod
     def remove_all_tags(obj):
-        for idx in range(obj.Tags.Count+1,0,-1):
+        for idx in range(obj.Tags.Count,0,-1):
             obj.tags.delete(obj.Tags.Name(idx))
         
     @classmethod

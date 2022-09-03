@@ -191,8 +191,12 @@ class AutoReleasingComObject(object):
         The iterator will wrap each ComObject as AutoReleasingComObject, before they are returned.
         '''
         if hasattr(self._comobj, 'Item') and hasattr(self._comobj, 'Count'):
-            for i in range(self._comobj.Count):
-                yield AutoReleasingComObject(self._comobj.Item(i+1))
+            count = self._comobj.Count
+            if type(count).__name__ == 'DispCallable':
+                count = count()
+            for i in range(count):
+                # yield AutoReleasingComObject(self._comobj.Item(i+1))
+                yield self.create_and_register_auto_release_com_object(self._comobj.Item(i+1))
             
         else:
             raise TypeError('iteration over non-sequence of type %s' % type(self._comobj))

@@ -8,6 +8,7 @@ Created on 13.11.2014
 
 from __future__ import absolute_import
 
+import importlib
 import logging
 from functools import wraps
 
@@ -159,15 +160,17 @@ CallbackTypes.decrement = CallbackType(custom=True, transactional=True)
 
 
 # WPF general callback
-CallbackType.wpf_event = callback_type(xml_name=None, dotnet_name='WPFEvent')
-CallbackType.wpf_action = tx_callback_type(xml_name=None, dotnet_name='WPFAction')
+CallbackTypes.wpf_event = callback_type(xml_name=None, dotnet_name='WPFEvent')
+CallbackTypes.wpf_action = tx_callback_type(xml_name=None, dotnet_name='WPFAction')
 
 # BKT general events
-CallbackType.bkt_event = callback_type(xml_name=None, dotnet_name='BKTEvent')
+CallbackTypes.bkt_event = callback_type(xml_name=None, dotnet_name='BKTEvent')
 
 
 
 class Callback(object):
+    CALLBACK_KEYS = set(('python_name', 'dotnet_name', 'xml_name', 'pos_args', 'custom', 'transactional', 'cacheable'))
+
     ''' Represents a callback-method with information about the method-arguments which need to be passed to invoke the method. '''
     def __init__(self, *args, **kwargs):
         ''' Initialization method, use on of the following options
@@ -178,7 +181,7 @@ class Callback(object):
                     The invocation_context is then build from **kwargs
              4) Callback( method, **kwargs)
                     The invocation_context and the callback_type are then build from **kwargs.
-                    callback_type uses the arguments: python_name, dotnet_name, xml_name, pos_args, custom, transactional
+                    callback_type uses the arguments: python_name, dotnet_name, xml_name, pos_args, custom, transactional, cacheable
                     All other arguments are used for the invocation_context
              5) Callback( method)
                     The invocation_context ist build from method params.
@@ -186,8 +189,6 @@ class Callback(object):
         '''
         self.container = None
         self.method = None
-        
-        # FIXME: this is new, used?
         self.control = None
         self.callback_type = None
         
@@ -220,7 +221,7 @@ class Callback(object):
         if callback_type is None:
             # Fallback, if method_name is a known callback
             if CallbackTypes.has_callback_type(method_name):
-                callback_type = CallbackTypes.get_callback_type(method_name)        
+                callback_type = CallbackTypes.get_callback_type(method_name)
         self.callback_type = callback_type
         self.invocation_context = invocation_context
     
@@ -233,9 +234,9 @@ class Callback(object):
     def init_method(self, method, **kwargs):
         ''' initialization method. Builds callback_type and invocation_context from keyword-arguments  '''
         # split kwargs for callback_type and invocation_context
-        callback_keys = set(('python_name', 'dotnet_name', 'xml_name', 'pos_args', 'custom', 'transactional', 'cacheable'))
-        callback_args = { key:value for key, value in kwargs.items() if key in callback_keys }
-        kwargs        = { key:value for key, value in kwargs.items() if key not in callback_keys }
+        callback_args = { key:kwargs.pop(key) for key in kwargs.keys() if key in self.CALLBACK_KEYS }
+        # callback_args = { key:value for key, value in kwargs.items() if key in self.CALLBACK_KEYS }
+        # kwargs        = { key:value for key, value in kwargs.items() if key not in self.CALLBACK_KEYS }
         callback_type = CallbackType(**callback_args)
         self.method = method
         self.callback_type = callback_type
@@ -271,6 +272,70 @@ class Callback(object):
     
 
 
+class CallbackLazy(Callback):
+    '''
+    Same as Callback, but imports module only on first use
+    '''
+
+    def __init__(self, *args, **kwargs):
+        # super(CallbackLazy, self).__init__(*args, **kwargs)
+        
+        self.container = None
+        self.control = None
+        self.callback_type = None
+
+        self.module_name = None
+        self.method_name = None
+
+        if len(args) == 3:
+            self.module_name, self.container, self.method_name = args
+        elif len(args) == 2:
+            self.module_name, self.method_name = args
+            self.container = None
+        else:
+            raise AttributeError('not enough arguments')
+
+        self._module = None
+        self._method = None
+
+        self.init_method(self._load_and_execute, **kwargs)
+
+    def __repr__(self):
+        return '<%s container=%s, method=%s, invocation_context=%s, callback=%s, control=%s>' % (type(self).__name__,
+                                                                  self.container,
+                                                                  self.method_name,
+                                                                  self.invocation_context,
+                                                                  self.callback_type,
+                                                                  self.control)
+    
+    def _load_and_execute(self, **kwargs):
+        ''' load module and requested method in module '''
+        logging.debug('CallbackLazy._load_and_execute')
+        try:
+            if not self._method:
+                self._import_module()
+                if self.container is None:
+                    self._method = getattr(self.container, self.method_name)
+                else:
+                    class_ = getattr(self._module, self.container)
+                    self._method = getattr(class_, self.method_name)
+            
+            return self._method(**kwargs)
+            
+        except:
+            logging.exception("error in contextdialog window creation")
+
+    def _import_module(self):
+        '''
+        equivalent to: import <<module_name>>
+        will not reload if module was already loaded
+        '''
+        if not self._module:
+            logging.debug('CallbackLazy._import_module importing %s' % self.module_name)
+            #do an import equivalent to:  import <<module_name>>
+            self._module = importlib.import_module(self.module_name)
+
+
 
 def WpfActionCallback(function):
     '''
@@ -282,7 +347,7 @@ def WpfActionCallback(function):
     def wrapper(self,*args,**kwargs):
         if hasattr(self, "_context") and self._context is not None:
             # print "Doing something with self.var1==%s" % self.var1
-            method = Callback(lambda: function(self,*args,**kwargs), CallbackType.wpf_action)
+            method = Callback(lambda: function(self,*args,**kwargs), CallbackTypes.wpf_action)
             return_value = self._context.app_callbacks.invoke_callback(self._context, method)
             self._context.python_addin.invalidate_ribbon()
             return return_value

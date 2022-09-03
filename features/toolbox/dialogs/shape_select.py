@@ -14,7 +14,7 @@ notify_property = bkt.ui.notify_property
 class ViewModel(bkt.ui.ViewModelSingleton):
     selectors = {
         'shape_all':    ["shape_type", "shape_width", "shape_height"],
-        'pos_all':      ["pos_left", "pos_top", "pos_rotation"],
+        'pos_all':      ["pos_left", "pos_top", "pos_right", "pos_bottom", "pos_rotation"],
         'fill_all':     ["fill_type", "fill_color", "fill_transp"],
         'line_all':     ["line_weight", "line_style", "line_color", "line_begin", "line_end"],
         'font_all':     ["font_name", "font_size", "font_color", "font_style"],

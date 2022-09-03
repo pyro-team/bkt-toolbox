@@ -24,6 +24,20 @@
                         </Canvas>
                     </Viewbox>
                 </Button>
+                <Button x:Name="btntoggleco" Click="btntoggleco" BorderThickness="0" Background="#ffffff" Width="24" Height="24" ToolTip="Wechsel Ganze Folie/Nur Inhalt">
+                    <Viewbox Width="18" Height="18">
+                        <Canvas Width="24" Height="24">
+                            <Path Data="M12 5.5L10 8H14L12 5.5M18 10V14L20.5 12L18 10M6 10L3.5 12L6 14V10M14 16H10L12 18.5L14 16M21 3H3C1.9 3 1 3.9 1 5V19C1 20.1 1.9 21 3 21H21C22.1 21 23 20.1 23 19V5C23 3.9 22.1 3 21 3M21 19H3V5H21V19Z" Fill="Black" />
+                        </Canvas>
+                    </Viewbox>
+                </Button>
+                <Button x:Name="btnfixar" Click="btnfixar" BorderThickness="0" Background="#ffffff" Width="24" Height="24" ToolTip="Seitenverhältnis zurücksetzen">
+                    <Viewbox Width="18" Height="18">
+                        <Canvas Width="24" Height="24">
+                            <Path Data="M19,12H17V15H14V17H19V12M7,9H10V7H5V12H7V9M21,3H3A2,2 0 0,0 1,5V19A2,2 0 0,0 3,21H21A2,2 0 0,0 23,19V5A2,2 0 0,0 21,3M21,19H3V5H21V19Z" Fill="Black" />
+                        </Canvas>
+                    </Viewbox>
+                </Button>
                 <Button x:Name="btngoto" Click="btngoto" BorderThickness="0" Background="#ffffff" Width="24" Height="24" ToolTip="Folienreferenz öffnen">
                     <Viewbox Width="18" Height="18">
                         <Canvas Width="24" Height="24">

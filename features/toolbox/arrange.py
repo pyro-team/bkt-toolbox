@@ -1772,8 +1772,24 @@ class ArrangeAdvanced(object):
         ArrangeAdvanced.master = "FIXED-CUSTOMAREA"
         self.ref_frame = target_frame
             
-    def specify_master_customarea_toggle(self, pressed):
-        ArrangeAdvanced.master = self.fallback_first_last
+    def specify_master_customarea_toggle(self, pressed, context):
+        ''' set master to previous target-frame if defined, otherwise defined content area, otherwise set userdefined by shapes '''
+        if pressed:
+            self.specify_master_customarea(self.ref_frame)
+            # if self.ref_frame:
+            #     frame = self.ref_frame
+            # elif pplib.ContentArea.isset_contentarea(context.presentation):
+            #     frame = pplib.BoundingFrame.from_rect(*pplib.ContentArea.read_contentarea(context.presentation))
+            # else:
+            #     shapes = context.shapes
+            #     if len(shapes) > 0:
+            #         frame = pplib.BoundingFrame.from_shapes(shapes)
+            #         pplib.ContentArea.define_contentarea(context.presentation, frame)
+            #     else:
+            #         frame = pplib.BoundingFrame(context.slide, contentarea=True)
+            # self.specify_master_customarea(frame)
+        else:
+            ArrangeAdvanced.master = self.fallback_first_last
     
     
     def specify_wiz(self, pressed, context):
@@ -1816,6 +1832,10 @@ class ArrangeAdvanced(object):
     def is_customarea_specified(self):
         ''' returns whether master is set to custom area '''
         return ArrangeAdvanced.master == "FIXED-CUSTOMAREA"
+
+    def is_customarea_specifiable(self):
+        ''' returns whether master is set to custom area '''
+        return self.ref_frame is not None
     
     def is_shape_specified_or_shape_specifiable(self, context):
         ''' callback: returns whether master can be changed to fixed shape.
@@ -2013,7 +2033,7 @@ class ArrangeAdvanced(object):
                     id="arrange_use_shape"+postfix,
                     label="Shape", on_toggle_action=bkt.Callback(self.specify_shape),         get_pressed=bkt.Callback(self.is_shape_specified), get_enabled=bkt.Callback(self.is_shape_specified_or_shape_specifiable),
                     screentip="Ausrichtung am selektierten Shape (Referenzshape)",
-                    supertip="Das selektierten Shape wird als Referenzshape festgelegt. Shapes werden am Referenzshape ausgerichtet. "
+                    supertip="Das selektierte Shape wird als Referenzshape festgelegt. Shapes werden an der jeweils aktuellen Position des Referenzshape ausgerichtet."
                 ),
                 bkt.ribbon.ToggleButton(
                     id="arrange_use_slide"+postfix,
@@ -2034,7 +2054,7 @@ class ArrangeAdvanced(object):
                     label="Benutzerdef. Bereich",
                     on_toggle_action=bkt.Callback(self.specify_master_customarea_toggle),
                     get_pressed=bkt.Callback(self.is_customarea_specified),
-                    get_enabled=bkt.Callback(self.is_customarea_specified),
+                    get_enabled=bkt.Callback(self.is_customarea_specifiable),
                     screentip="Ausrichtung an benutzerdefiniertem Bereich",
                     supertip="Shapes werden an einem festgelegten Bereich ausgerichtet, der zuvor durch den Benutzer definiert wird.",
                 ),
@@ -2043,6 +2063,7 @@ class ArrangeAdvanced(object):
                     id="arrange_set_customarea"+postfix,
                     label="Benutzerdef. Bereich wählen",
                     on_position_change = bkt.Callback(self.specify_master_customarea),
+                    on_userdefined_area_change = bkt.Callback(self.specify_master_customarea),
                     get_item_supertip = bkt.Callback(self.get_item_supertip)
                 ),
             ])
@@ -2240,27 +2261,27 @@ arrange_adv_easy_group = bkt.ribbon.Group(
 
         #DOCK
         bkt.ribbon.Box(box_style="horizontal", children=[
-            bkt.ribbon.Button(id='arrange_dock_left',    on_action=bkt.Callback(arrange_adv_position.arrange_left_at_right),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_left',      label="Links an Rechts",  show_label=False, screentip='Ausrichtung linke Kante an rechte Kante',  supertip='Ausrichtung der linken Kante an der rechten Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_dock_right',   on_action=bkt.Callback(arrange_adv_position.arrange_right_at_left),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_right',     label="Rechts an Links",  show_label=False, screentip='Ausrichtung rechte Kante an linke Kante',  supertip='Ausrichtung der rechten Kante an der linken Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_dock_bottom',  on_action=bkt.Callback(arrange_adv_position.arrange_bottom_at_top),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_top',       label="Unten an Oben",    show_label=False, screentip='Ausrichtung untere Kante an obere Kante',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_dock_top',     on_action=bkt.Callback(arrange_adv_position.arrange_top_at_bottom),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_bottom',    label="Oben an Unten",    show_label=False, screentip='Ausrichtung obere Kante an untere Kante',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_dock_left',    on_action=bkt.Callback(arrange_adv_position.arrange_left_at_right),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_left',      label="Links an Rechts",  show_label=False, screentip='Rechts andocken',  supertip='Ausrichtung der linken Kante an der rechten Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_dock_right',   on_action=bkt.Callback(arrange_adv_position.arrange_right_at_left),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_right',     label="Rechts an Links",  show_label=False, screentip='Links andocken',  supertip='Ausrichtung der rechten Kante an der linken Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_dock_bottom',  on_action=bkt.Callback(arrange_adv_position.arrange_bottom_at_top),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_top',       label="Unten an Oben",    show_label=False, screentip='Oben andocken',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_dock_top',     on_action=bkt.Callback(arrange_adv_position.arrange_top_at_bottom),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_bottom',    label="Oben an Unten",    show_label=False, screentip='Unten andocken',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes.'),
         ]),
 
         #STRETCH
         bkt.ribbon.Box(box_style="horizontal", children=[
-            bkt.ribbon.Button(id='arrange_stretch_left',   on_action=bkt.Callback(arrange_adv_size.arrange_left_at_left),       get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_left',        label="Links an Links",   show_label=False, screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_stretch_right',  on_action=bkt.Callback(arrange_adv_size.arrange_right_at_right),     get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_right',       label="Rechts an Rechts", show_label=False, screentip='Ausrichtung rechte Kante an rechte Kante', supertip='Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_stretch_left',   on_action=bkt.Callback(arrange_adv_size.arrange_left_at_left),       get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_left',        label="Links an Links",   show_label=False, screentip='Nach links strecken',   supertip='Ausrichtung der linken Kante an der linken Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_stretch_right',  on_action=bkt.Callback(arrange_adv_size.arrange_right_at_right),     get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_right',       label="Rechts an Rechts", show_label=False, screentip='Nach rechts strecken', supertip='Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes.'),
 
-            bkt.ribbon.Button(id='arrange_stretch_top',    on_action=bkt.Callback(arrange_adv_size.arrange_top_at_top),         get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_top',         label="Oben an oben",     show_label=False, screentip='Ausrichtung obere Kante an obere Kante',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_stretch_bottom', on_action=bkt.Callback(arrange_adv_size.arrange_bottom_at_bottom),   get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_bottom',      label="Unten an Unten",   show_label=False, screentip='Ausrichtung untere Kante an untere Kante', supertip='Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_stretch_top',    on_action=bkt.Callback(arrange_adv_size.arrange_top_at_top),         get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_top',         label="Oben an oben",     show_label=False, screentip='Nach oben strecken',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_stretch_bottom', on_action=bkt.Callback(arrange_adv_size.arrange_bottom_at_bottom),   get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_bottom',      label="Unten an Unten",   show_label=False, screentip='Nach unten strecken', supertip='Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes.'),
         ]),
 
         #FILL
         bkt.ribbon.Box(box_style="horizontal", children=[
-            bkt.ribbon.Button(id='arrange_fill_left',       on_action=bkt.Callback(arrange_adv_size.arrange_left_at_right),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_left',          label="Links an Rechts",  show_label=False, screentip='Ausrichtung linke Kante an rechte Kante',  supertip='Ausrichtung der linken Kante an der rechten Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_fill_right',      on_action=bkt.Callback(arrange_adv_size.arrange_right_at_left),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_right',         label="Rechts an Links",  show_label=False, screentip='Ausrichtung rechte Kante an linke Kante',  supertip='Ausrichtung der rechten Kante an der linken Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_fill_bottom',     on_action=bkt.Callback(arrange_adv_size.arrange_bottom_at_top),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_bottom',        label="Unten an Oben",    show_label=False, screentip='Ausrichtung untere Kante an obere Kante',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_fill_top',        on_action=bkt.Callback(arrange_adv_size.arrange_top_at_bottom),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_top',           label="Oben an Unten",    show_label=False, screentip='Ausrichtung obere Kante an untere Kante',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_fill_left',       on_action=bkt.Callback(arrange_adv_size.arrange_left_at_right),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_left',          label="Links an Rechts",  show_label=False, screentip='Linke Lücke füllen',  supertip='Ausrichtung der linken Kante an der rechten Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_fill_right',      on_action=bkt.Callback(arrange_adv_size.arrange_right_at_left),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_right',         label="Rechts an Links",  show_label=False, screentip='Rechte Lücke füllen',  supertip='Ausrichtung der rechten Kante an der linken Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_fill_bottom',     on_action=bkt.Callback(arrange_adv_size.arrange_bottom_at_top),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_bottom',        label="Unten an Oben",    show_label=False, screentip='Obere Lücke füllen',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_fill_top',        on_action=bkt.Callback(arrange_adv_size.arrange_top_at_bottom),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_top',           label="Oben an Unten",    show_label=False, screentip='Untere Lücke füllen',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes.'),
         ]),
 
     ]
@@ -2874,8 +2895,8 @@ class ChartShapes(object):
         # return shape.Type == pplib.MsoShapeType['msoChart'] or shape.Type == pplib.MsoShapeType['msoDiagram']
 
     @classmethod
-    def is_paste_enabled(cls, shape):
-        return cls.is_chart_shape(shape) and cls.chart_dimensions[0] is not None
+    def is_paste_enabled(cls, shapes):
+        return cls.chart_dimensions[0] is not None and all(cls.is_chart_shape(shape) for shape in shapes)
 
     @classmethod
     def copy_dimensions(cls, shape):
@@ -2884,10 +2905,11 @@ class ChartShapes(object):
         cls.plotarea_dimensions = [plotarea.Top, plotarea.Left, plotarea.Height, plotarea.Width]
 
     @classmethod
-    def paste_dimensions(cls, shape):
-        plotarea = shape.Chart.PlotArea
-        shape.Height, shape.Width = cls.chart_dimensions
-        plotarea.Top, plotarea.Left, plotarea.Height, plotarea.Width = cls.plotarea_dimensions
+    def paste_dimensions(cls, shapes):
+        for shape in shapes:
+            plotarea = shape.Chart.PlotArea
+            shape.Height, shape.Width = cls.chart_dimensions
+            plotarea.Top, plotarea.Left, plotarea.Height, plotarea.Width = cls.plotarea_dimensions
 
 
 
@@ -2904,8 +2926,8 @@ class PictureFormat(object):
             return False
 
     @classmethod
-    def is_paste_enabled(cls, shape):
-        return cls.is_pic_shape(shape) and cls.shape_dimensions[0] is not None
+    def is_paste_enabled(cls, shapes):
+        return cls.shape_dimensions[0] is not None and all(cls.is_pic_shape(shape) for shape in shapes)
 
     @classmethod
     def copy_dimensions(cls, shape):
@@ -2914,10 +2936,11 @@ class PictureFormat(object):
         cls.pic_dimensions   = [croparea.PictureHeight, croparea.PictureWidth, croparea.PictureOffsetX, croparea.PictureOffsetY]
 
     @classmethod
-    def paste_dimensions(cls, shape):
-        croparea = shape.PictureFormat.crop
-        croparea.ShapeHeight, croparea.ShapeWidth = cls.shape_dimensions
-        croparea.PictureHeight, croparea.PictureWidth, croparea.PictureOffsetX, croparea.PictureOffsetY = cls.pic_dimensions
+    def paste_dimensions(cls, shapes):
+        for shape in shapes:
+            croparea = shape.PictureFormat.crop
+            croparea.ShapeHeight, croparea.ShapeWidth = cls.shape_dimensions
+            croparea.PictureHeight, croparea.PictureWidth, croparea.PictureOffsetX, croparea.PictureOffsetY = cls.pic_dimensions
 
 
 class TableFormat(object):
@@ -2933,8 +2956,8 @@ class TableFormat(object):
             return False
 
     @classmethod
-    def is_paste_enabled(cls, shape):
-        return cls.is_table_shape(shape) and len(cls.col_widths) > 0
+    def is_paste_enabled(cls, shapes):
+        return len(cls.col_widths) > 0 and all(cls.is_table_shape(shape) for shape in shapes)
 
     @classmethod
     def copy_dimensions(cls, shape):
@@ -2942,16 +2965,17 @@ class TableFormat(object):
         cls.row_heights = [row.height for row in shape.table.rows]
 
     @classmethod
-    def paste_dimensions(cls, shape):
-        for i, col_width in enumerate(cls.col_widths):
-            if shape.table.columns.count-1 < i:
-                break
-            shape.table.columns(i+1).width = col_width
-        
-        for i, row_height in enumerate(cls.row_heights):
-            if shape.table.rows.count-1 < i:
-                break
-            shape.table.rows(i+1).height = row_height
+    def paste_dimensions(cls, shapes):
+        for shape in shapes:
+            for i, col_width in enumerate(cls.col_widths):
+                if shape.table.columns.count-1 < i:
+                    break
+                shape.table.columns(i+1).width = col_width
+            
+            for i, row_height in enumerate(cls.row_heights):
+                if shape.table.rows.count-1 < i:
+                    break
+                shape.table.rows(i+1).height = row_height
 
 
 class EdgeAutoFixer(object):
@@ -3071,10 +3095,20 @@ class GroupsMore(object):
             master.add_child_items(shapes).select()
         else:
             pplib.shapes_to_range(shapes).group().select()
+
+    @staticmethod
+    def remove_from_group(shapes):
+        master = pplib.GroupManager(shapes[0].ParentGroup)
+        master.remove_child_items(shapes)
+        pplib.shapes_to_range(shapes).select()
     
     @classmethod
     def visible_add_into_group(cls, shapes):
         return len(shapes) > 1 and cls.contains_group(shapes)
+
+    @staticmethod
+    def visible_remove_from_group(shapes):
+        return all(pplib.shape_is_group_child(shape) for shape in shapes)
     
     @staticmethod
     def contains_group(shapes):
@@ -3175,8 +3209,8 @@ arrange_group = bkt.ribbon.Group(
                             image_mso="PasteWithColumnWidths",
                             screentip="Größe und Position vom Diagrammbereich einfügen",
                             supertip="Überträgt die kopierte Größe und Position des Diagramms bzw. der Zeichnungsfläche auf das ausgewählte Diagramm.",
-                            on_action=bkt.Callback(ChartShapes.paste_dimensions, shape=True),
-                            get_enabled = bkt.Callback(ChartShapes.is_paste_enabled, shape=True),
+                            on_action=bkt.Callback(ChartShapes.paste_dimensions, shapes=True),
+                            get_enabled = bkt.Callback(ChartShapes.is_paste_enabled, shapes=True),
                         ),
                         bkt.ribbon.MenuSeparator(),
                         bkt.ribbon.Button(
@@ -3194,8 +3228,8 @@ arrange_group = bkt.ribbon.Group(
                             image_mso="PasteWithColumnWidths",
                             screentip="Größe und Position des Bildausschnitts einfügen",
                             supertip="Überträgt die kopierte Größe und Position des Bilde-Ausschnitts auf das ausgewählte Bild.",
-                            on_action=bkt.Callback(PictureFormat.paste_dimensions, shape=True),
-                            get_enabled = bkt.Callback(PictureFormat.is_paste_enabled, shape=True),
+                            on_action=bkt.Callback(PictureFormat.paste_dimensions, shapes=True),
+                            get_enabled = bkt.Callback(PictureFormat.is_paste_enabled, shapes=True),
                         ),
                         bkt.ribbon.MenuSeparator(),
                         bkt.ribbon.Button(
@@ -3213,8 +3247,8 @@ arrange_group = bkt.ribbon.Group(
                             image_mso="PasteWithColumnWidths",
                             screentip="Breite/Höhe der Tabellenspalten/-zeilen einfügen",
                             supertip="Überträgt die kopierten Tabellen-Dimensionen auf die ausgewählte Tabelle.",
-                            on_action=bkt.Callback(TableFormat.paste_dimensions, shape=True),
-                            get_enabled = bkt.Callback(TableFormat.is_paste_enabled, shape=True),
+                            on_action=bkt.Callback(TableFormat.paste_dimensions, shapes=True),
+                            get_enabled = bkt.Callback(TableFormat.is_paste_enabled, shapes=True),
                         ),
                     ]
                 ),
@@ -3334,6 +3368,15 @@ arrange_group = bkt.ribbon.Group(
                     supertip="Markiert alle Elemente innerhalb der Gruppe.",
                     on_action=bkt.Callback(GroupsMore.select_all_groupitems, shape=True),
                     get_enabled = bkt.Callback(GroupsMore.is_or_within_group, shape=True),
+                ),
+                bkt.ribbon.Button(
+                    id = 'remove_from_group',
+                    label="Aus Gruppe lösen",
+                    image_mso="ObjectsUngroup",
+                    screentip="Shapes aus Gruppe herauslösen",
+                    supertip="Die markierten Shapes werden aus der aktuelle Gruppe herausgelöst, ohne die Gruppe dabei zu verändern.",
+                    on_action=bkt.Callback(GroupsMore.remove_from_group, shapes=True),
+                    get_enabled = bkt.Callback(GroupsMore.visible_remove_from_group, shapes=True),
                 ),
                 bkt.ribbon.MenuSeparator(title="Verknüpfte Shapes"),
                 bkt.ribbon.Button(

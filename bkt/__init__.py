@@ -12,8 +12,8 @@ from __future__ import absolute_import
 __author__ = "Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann"
 __copyright__ = "Copyright 2019 Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann"
 __license__ = "MIT"
-__version__ = "2.7.3"
-__release__ = "BKT r21-01-29"
+__version__ = "2.7.4"
+__release__ = "BKT r22-09-03"
 
 
 # NOTE: Use StandardLib.dll as alternative to /bin/Lib, but seems to have problems with wpf/fluent
@@ -43,7 +43,7 @@ locale.setlocale(locale.LC_ALL, '') #auto detect locale
 # import modules with less dependencies first
 from bkt.helpers import config, settings #no internal dependencies
 
-from bkt.callbacks import CallbackTypes, Callback #imports helpers
+from bkt.callbacks import CallbackTypes, Callback, CallbackLazy #imports helpers
 get_enabled_auto = CallbackTypes.get_enabled.dotnet_name #convenience name
 
 from bkt.apps import AppEvents #imports callbacks and context (imports helpers)

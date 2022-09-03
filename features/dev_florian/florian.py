@@ -385,6 +385,65 @@ ampersand_gruppe = bkt.ribbon.Group(
     ]
 )
 
+
+class ShapesMore(object):
+    @classmethod
+    def convert_to_architecture_shape(cls, shapes):
+        bkt.message("Gewinkelte Konnektoren funktioniert leider nicht mit benutzerdefinierten Shape-Punkten.")
+        for shp in shapes:
+            cls._convert_to_architecture_shape(shp)
+    
+    @staticmethod
+    def _convert_to_architecture_shape(shape, n=5):
+        # from math import atan2
+        shape_nodes = algos.get_bounding_nodes(shape)
+
+        #convert shape into freeform by adding and deleting node (not sure if this is required)
+        shape.Nodes.Insert(1, 0, 0, 0, 0) #msoSegmentLine, msoEditingAuto, x, y
+        shape.Nodes.Delete(2)
+
+        if shape.nodes.count != 5:
+            return bkt.message.error("Diese Funktion steht nur bei Rechtecken zur Verfügung.")
+
+        # set nodes (rectangle has 5 nodes as start and end node are the same)
+        num_points = n-1
+        x_dis = (shape_nodes[3][0] - shape_nodes[0][0]) / num_points
+        y_dis = (shape_nodes[1][1] - shape_nodes[0][1]) / num_points
+
+        for i in range(1,num_points):
+            f = num_points-i
+            shape.nodes.insert(1, 0, 0, shape_nodes[0][0] + x_dis*f, shape_nodes[0][1])
+            shape.nodes.insert(2+i, 0, 0, shape_nodes[3][0], shape_nodes[3][1] + y_dis*f)
+            shape.nodes.insert(3+2*i, 0, 0, shape_nodes[1][0] + x_dis*f, shape_nodes[1][1])
+            shape.nodes.insert(4+3*i, 0, 0, shape_nodes[0][0], shape_nodes[0][1] + y_dis*f)
+
+        # shape.nodes.insert(1+0, 0, 0, shape_nodes[0][0] + x_dis*2, shape_nodes[0][1])
+        # shape.nodes.insert(2+1, 0, 0, shape_nodes[3][0], shape_nodes[3][1] + y_dis*2)
+        # shape.nodes.insert(3+2, 0, 0, shape_nodes[1][0] + x_dis*2, shape_nodes[1][1])
+        # shape.nodes.insert(4+3, 0, 0, shape_nodes[0][0], shape_nodes[0][1] + y_dis*2)
+
+        # shape.nodes.insert(1+0, 0, 0, shape_nodes[0][0] + x_dis*1, shape_nodes[0][1])
+        # shape.nodes.insert(2+2, 0, 0, shape_nodes[3][0], shape_nodes[3][1] + y_dis*1)
+        # shape.nodes.insert(3+4, 0, 0, shape_nodes[1][0] + x_dis*1, shape_nodes[1][1])
+        # shape.nodes.insert(4+6, 0, 0, shape_nodes[0][0], shape_nodes[0][1] + y_dis*1)
+
+architecture_gruppe = bkt.ribbon.Group(
+    label='Shapes',
+    image_mso='HappyFace',
+    children = [
+        bkt.ribbon.Button(
+            label="3 zusätzliche Punkte je Rechtecktseite",
+            size="large",
+            image_mso="ObjectEditPoints",
+            screentip="Jeder Rechteck-Seite 3 zusätzliche Punkte für Konnektoren hinzufügen",
+            supertip="Fügt jeder Seite 3 zusätzliche Shape-Punkte hinzu, die für Konntektoren genutzt werden können. Funktioniert nur mit Rechtecken.",
+            on_action=bkt.Callback(ShapesMore.convert_to_architecture_shape),
+            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+        ),
+    ]
+)
+
+
 bkt.powerpoint.add_tab(bkt.ribbon.Tab(
     id="FlorianTab",
     label=u'DEV FST',
@@ -393,6 +452,7 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
         testfenster_gruppe,
         testformatting_gruppe,
         wpftest.xamltest_gruppe,
+        architecture_gruppe,
     ]
 ))
 

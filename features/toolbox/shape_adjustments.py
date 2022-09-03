@@ -17,6 +17,7 @@ cm_to_pt = pplib.cm_to_pt
 class ShapeAdjustments(object):
     adjustment_nums_all = [(1,2), (3,4), (5,6), (7,8)]
     adjustment_nums = (1,2)
+    adjustment_convert = True
 
     @classmethod
     def set_adjustment_nums(cls, value, context):
@@ -33,6 +34,9 @@ class ShapeAdjustments(object):
         cur_index = cls.adjustment_nums_all.index(cls.adjustment_nums)
         cls.set_adjustment_nums(cls.adjustment_nums_all[cur_index-1], context)
 
+    @classmethod
+    def set_adjustment_convert(cls, pressed):
+        cls.adjustment_convert = pressed
 
 
     allowed_shape_types = [
@@ -176,6 +180,11 @@ class ShapeAdjustments(object):
             if type(value) == str:
                 value = float(value.replace(',', '.'))
             # if cls.get_shape_autotype(shape) in cls.auto_shape_type_settings.keys():
+
+            if not cls.adjustment_convert:
+                shape.adjustments.item[num] = value
+                return
+
             try:
                 ref, minimum, maximum = cls.get_ref_min_max(shape, num)
                 pt_value = cm_to_pt(value)
@@ -194,6 +203,9 @@ class ShapeAdjustments(object):
         ''' returns n's adjustment of shape, transformed to cm '''
         if cls.get_shape_type(shape) in cls.allowed_shape_types and shape.adjustments.count >= num:
             # if cls.get_shape_autotype(shape) in cls.auto_shape_type_settings.keys():
+            if not cls.adjustment_convert:
+                return round( shape.adjustments.item[num], 2)
+
             try:
                 ref, _, _ = cls.get_ref_min_max(shape, num)
                 return round(pt_to_cm( shape.adjustments.item[num] * ref ), 2)
@@ -250,10 +262,11 @@ class ShapeAdjustments(object):
     @classmethod
     def reset_adjustments(cls, shapes):
         for shape in shapes:
-            shape_db = pplib.GlobalShapeDb.get_by_shape(shape)
-            default_adj = shape_db["adjustments"]
-            for i in range(shape.adjustments.count):
-                shape.adjustments.item[i+1] = default_adj[i]["default"]
+            shape.autoshapetype = shape.autoshapetype
+            # shape_db = pplib.GlobalShapeDb.get_by_shape(shape)
+            # default_adj = shape_db["adjustments"]
+            # for i in range(shape.adjustments.count):
+            #     shape.adjustments.item[i+1] = default_adj[i]["default"]
 
 
     @classmethod
@@ -347,6 +360,13 @@ adjustments_group = bkt.ribbon.Group(
                             get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_nums == (7,8)),
                         ),
                         bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.ToggleButton(
+                            label="Umrechnung an/aus",
+                            # image_mso='ResetCurrentView',
+                            supertip="Relative Shape-Anfasser-Werte in absolute Werte umrechnen, oder Original-Werte anzeigen.",
+                            on_toggle_action=bkt.Callback(ShapeAdjustments.set_adjustment_convert),
+                            get_pressed=bkt.Callback(lambda: ShapeAdjustments.adjustment_convert),
+                        ),
                         bkt.ribbon.Button(
                             label="Alle Shapes zurücksetzen",
                             image_mso='ResetCurrentView',

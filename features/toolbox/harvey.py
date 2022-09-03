@@ -355,19 +355,20 @@ class HarveyBalls(object):
     def get_harvey_item_image(self, index):
         return self.get_harvey_image(self.harvey_buttons[index][0]*1. / self.harvey_buttons[index][1] )
 
-    def get_harvey_image(self, percent, size=32):
+    def get_harvey_image(self, percent, size=32, color=Drawing.Brushes.Gray):
         if percent < 0 or percent > 1:
             return glib.empty_image(size, size)
 
         img = Drawing.Bitmap(size, size)
-        color = Drawing.ColorTranslator.FromOle(0)
+        # color = Drawing.ColorTranslator.FromOle(0)
         g = Drawing.Graphics.FromImage(img)
         
         #Draw smooth rectangle/ellipse
         g.SmoothingMode = Drawing.Drawing2D.SmoothingMode.AntiAlias
 
         g.DrawEllipse(Drawing.Pen(color,2), 2,2, size-5, size-5)
-        g.FillPie(Drawing.SolidBrush(color), Drawing.Rectangle(1,1,size-3,size-3), -90, percent*360. )
+        # g.FillPie(Drawing.SolidBrush(color), Drawing.Rectangle(1,1,size-3,size-3), -90, percent*360. )
+        g.FillPie(color, Drawing.Rectangle(1,1,size-3,size-3), -90, percent*360. )
         return img
     
 

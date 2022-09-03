@@ -78,7 +78,7 @@ class Thumbnailer(object):
             logging.debug("Thumbnails: return current presentation")
         else:
             #convert relative to absolute paths
-            if not os.path.isabs(path):
+            if not path.startswith("https://") and not os.path.isabs(path):
                 path = os.path.normpath(os.path.join(application.ActivePresentation.Path, path))
                 logging.debug("Thumbnails: relative path converted to %s", path)
             try:
@@ -326,37 +326,58 @@ class Thumbnailer(object):
 
     @classmethod
     def slide_refresh(cls, application, slides):
-        thumbs = []
+        total = 0
+        err_counter = 0
         for sld in slides:
-            for shp in sld.shapes:
-                if cls.is_thumbnail(shp):
-                    thumbs.append(shp)
+            #NOTE: first collect all shapes within a slide as refresh will add and remove shapes which crashes the iteration
+            thumbs_on_slide = []
+            for shp in pplib.iterate_shape_subshapes( sld.shapes ):
+                try:
+                    if cls.is_thumbnail(shp):
+                        thumbs_on_slide.append(shp)
+                        total += 1
+                except:
+                    logging.exception("Thumbnails: Could not determine if shape is thumbnail")
+            for shp in thumbs_on_slide:
+                try:
+                    cls._shape_refresh(shp, application) #FIXME: currently file is opened for each thumbnail, can be improved for better performance
+                except:
+                    logging.exception("Thumbnails: Failed to update slide")
+                    cls._mark_erroneous_shape(shp)
+                    err_counter += 1
 
-        if len(thumbs) == 0:
+        if total == 0:
             bkt.message.warning("Keine Folien-Thumbnails gefunden.", "BKT: Thumbnails")
-            return
+        elif err_counter > 0:
+            bkt.message.warning("Es wurde/n %r Folien-Thumbnail/s aktualisiert, aber %r Folien-Thumbnail/s konnten wegen eines Fehlers nicht aktualisiert werden. Die fehlerhaften Thumbnails wurden mit dem Text 'BKT THUMB UPDATE FAILED' markiert." % (total-err_counter, err_counter), "BKT: Thumbnails")
+        else:
+            bkt.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert." % total, "BKT: Thumbnails")
 
-        cls.shapes_refresh(thumbs, application)
 
     @classmethod
     def shapes_refresh(cls, shapes, application):
         err_counter = 0
+        new_shapes = []
         for shp in shapes:
             try:
-                cls._shape_refresh(shp, application) #FIXME: currently file is opened for each thumbnail, can be improved for better performance
+                new_shapes.append( cls._shape_refresh(shp, application) ) #FIXME: currently file is opened for each thumbnail, can be improved for better performance
             except:
                 cls._mark_erroneous_shape(shp)
                 err_counter += 1
                 # bkt.helpers.exception_as_message()
+        pplib.shapes_to_range(new_shapes).select()
+
         if err_counter > 0:
             bkt.message.warning("Es wurde/n %r Folien-Thumbnail/s aktualisiert, aber %r Folien-Thumbnail/s konnten wegen eines Fehlers nicht aktualisiert werden. Die fehlerhaften Thumbnails wurden mit dem Text 'BKT THUMB UPDATE FAILED' markiert." % (len(shapes)-err_counter, err_counter), "BKT: Thumbnails")
-        else:
-            bkt.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert." % len(shapes), "BKT: Thumbnails")
+        # else:
+        #     bkt.message("Es wurde/n %r Folien-Thumbnail/s aktualisiert." % len(shapes), "BKT: Thumbnails")
 
     @classmethod
     def shape_refresh(cls, shape, application):
         try:
-            return cls._shape_refresh(shape, application)
+            shp = cls._shape_refresh(shape, application)
+            shp.select()
+            return shp
         except IndexError:
             bkt.message.error("Fehler! Folien-Referenz nicht gefunden.")
         except ValueError:
@@ -393,10 +414,10 @@ class Thumbnailer(object):
 
         new_shp.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_THUMBNAIL)
 
-        new_shp.PictureFormat.crop.ShapeHeight = shape.PictureFormat.crop.ShapeHeight 
-        new_shp.PictureFormat.crop.ShapeWidth  = shape.PictureFormat.crop.ShapeWidth  
-        new_shp.PictureFormat.crop.ShapeTop    = shape.PictureFormat.crop.ShapeTop    
-        new_shp.PictureFormat.crop.ShapeLeft   = shape.PictureFormat.crop.ShapeLeft   
+        new_shp.PictureFormat.crop.ShapeHeight = shape.PictureFormat.crop.ShapeHeight
+        new_shp.PictureFormat.crop.ShapeWidth  = shape.PictureFormat.crop.ShapeWidth
+        new_shp.PictureFormat.crop.ShapeTop    = shape.PictureFormat.crop.ShapeTop
+        new_shp.PictureFormat.crop.ShapeLeft   = shape.PictureFormat.crop.ShapeLeft
     
         new_shp.PictureFormat.crop.PictureHeight  = shape.PictureFormat.crop.PictureHeight
         new_shp.PictureFormat.crop.PictureWidth   = shape.PictureFormat.crop.PictureWidth
@@ -411,15 +432,19 @@ class Thumbnailer(object):
 
         #handle thumbnail in group (part 2)
         if group:
-            group.select()
+            # group.select()
+            # shape.Delete()
+            # new_shp.Select(False)
+            # group.regroup(application.ActiveWindow.Selection.ShapeRange)
+            # new_shp.Select()
+            group.add_child_items([new_shp])
+            group.regroup()
             shape.Delete()
-            new_shp.Select(False)
-            group.regroup(application.ActiveWindow.Selection.ShapeRange)
-            new_shp.Select()
         else:
             shape.Delete()
             new_shp.Name = shape_name
-            new_shp.Select()
+            # new_shp.Select()
+        #NOTE: selecting here is not a good idea as view might not be active (e.g. refresh whole presentation)
 
         return new_shp
 
@@ -479,12 +504,16 @@ class Thumbnailer(object):
 
     @classmethod
     def _prepare_path(cls, application, path):
-        #FIXME: if presentation is stored in OneDriver a url is returned, refer to https://stackoverflow.com/questions/33734706/excels-fullname-property-with-onedrive
+        #NOTE: if presentation is stored in OneDriver a url is returned, refer to https://stackoverflow.com/questions/33734706/excels-fullname-property-with-onedrive
+
+        if path == application.ActivePresentation.FullName:
+            return "CURRENT"
+        elif path.startswith("https://"): #OneDrive or SharePoint
+            return path
+        
         drive1, _ = os.path.splitdrive(path)
         drive2, _ = os.path.splitdrive(application.ActivePresentation.FullName)
-        if path == application.ActivePresentation.FullName:
-            path = "CURRENT"
-        elif USE_RELATIVE_PATHS and drive1 != '' and drive1 == drive2: #same drive -> use relative path
+        if USE_RELATIVE_PATHS and drive1 != '' and drive1 == drive2: #same drive -> use relative path
             path = os.path.relpath(path, application.ActivePresentation.Path)
         else:
             path = os.path.normpath(path)
@@ -515,6 +544,7 @@ class Thumbnailer(object):
     def unset_thumbnail(cls, shape):
         if bkt.message.confirmation("Dies löscht dauerhaft die Folien-Referenz und damit die Möglichkeit der Aktualisierung des Thumbnails.", "BKT: Thumbnails"):
             shape.Tags.Delete(BKT_THUMBNAIL)
+            shape.Tags.Delete(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY)
 
     @classmethod
     def get_quality(cls, shape):
@@ -542,6 +572,10 @@ class Thumbnailer(object):
         new_shp = cls.shape_refresh(shape, application)
         if new_shp:
             cls.reset_aspect_ratio(new_shp)
+
+    @classmethod
+    def toggle_content_only(cls, shape, application):
+        cls.set_content_only(shape, application, not cls.get_content_only(shape))
 
 
 thumbnail_gruppe = bkt.ribbon.Group(
@@ -843,6 +877,22 @@ class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
             Thumbnailer.goto_ref(self._context.shape, self._context.app)
         except:
             bkt.message.error("Fehler beim Öffnen der Folienreferenz.", "BKT: Thumbnails")
+            logging.exception("Thumbnails: Error in popup!")
+
+    @WpfActionCallback
+    def btntoggleco(self, sender, event):
+        try:
+            Thumbnailer.toggle_content_only(self._context.shape, self._context.app)
+        except:
+            bkt.message.error("Fehler beim Wechsel des Thumbnail-Inhalts.", "BKT: Thumbnails")
+            logging.exception("Thumbnails: Error in popup!")
+
+    @WpfActionCallback
+    def btnfixar(self, sender, event):
+        try:
+            Thumbnailer.reset_aspect_ratio(self._context.shape)
+        except:
+            bkt.message.error("Fehler beim Zurücksetzen des Seitenverhältnisses.", "BKT: Thumbnails")
             logging.exception("Thumbnails: Error in popup!")
 
 

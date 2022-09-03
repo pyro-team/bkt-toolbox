@@ -7,7 +7,7 @@ Created on 2017-08-16
 from __future__ import absolute_import
 
 #for caching
-import time
+# import time
 
 import bkt
 # import bkt.library.powerpoint as pplib
@@ -62,12 +62,16 @@ class ShapeTables(object):
     def get_item_supertip(self, index):
         return 'Die ausgewählten Shapes werden als Tabelle in den Bereich eingepasst.'
 
-    def _prepare_table(self, shapes):
+    def clear_cache(self):
+        self.tr_cache = None
+
+    def _prepare_table(self, shapes, force=False):
         # Run table recognition only one time in 500ms
-        if self.tr_cache is None or time.time() - self.last_time_tr_cache_changed > 0.5:
+        #NOTE: timing-based cache not compatible with comrelease
+        if force or self.tr_cache is None: #or time.time() - self.last_time_tr_cache_changed > 0.5:
             self.tr_cache = TableRecognition(shapes)
             self.tr_cache.run()
-            self.last_time_tr_cache_changed = time.time()
+            # self.last_time_tr_cache_changed = time.time()
         return self.tr_cache
 
 
@@ -77,7 +81,7 @@ class ShapeTables(object):
         if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             self.align_table_zero(shapes)
         else:
-            tr = self._prepare_table(shapes)
+            tr = self._prepare_table(shapes, force=True)
             spac_rows = max(0,tr.min_spacing_rows(max_rows=2))
             spac_cols = max(0,tr.min_spacing_cols(max_cols=2))
             if self.equal_spacing:
@@ -87,15 +91,15 @@ class ShapeTables(object):
             tr.align(spacing=spacing, fit_cells=self.fit_cells, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
 
     def align_table_default(self, shapes):
-        tr = self._prepare_table(shapes)
+        tr = self._prepare_table(shapes, force=True)
         tr.align(fit_cells=self.fit_cells, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
 
     def align_table_median(self, shapes):
-        tr = self._prepare_table(shapes)
+        tr = self._prepare_table(shapes, force=True)
         tr.align(tr.median_spacing(), fit_cells=self.fit_cells, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
 
     def align_table_zero(self, shapes):
-        tr = self._prepare_table(shapes)
+        tr = self._prepare_table(shapes, force=True)
         tr.align(0, fit_cells=self.fit_cells, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
 
 
@@ -150,7 +154,7 @@ class ShapeTables(object):
         else:
             spacing = (value, None)
 
-        tr = self._prepare_table(shapes)
+        tr = self._prepare_table(shapes, force=True)
         if self.get_resize_cells():
             bounds = tr.get_bounds()
             tr.fit_content(*bounds, spacing=spacing, fit_cells=self.fit_cells)
@@ -180,7 +184,7 @@ class ShapeTables(object):
         else:
             spacing = (None, value)
 
-        tr = self._prepare_table(shapes)
+        tr = self._prepare_table(shapes, force=True)
         if self.get_resize_cells():
             bounds = tr.get_bounds()
             tr.fit_content(*bounds, spacing=spacing, fit_cells=self.fit_cells)
@@ -191,13 +195,13 @@ class ShapeTables(object):
     ### SPECIAL FUNCTIONS / separate method for resizing ###
 
     def table_transpose_destructive(self,shapes):
-        tr = self._prepare_table(shapes)
+        tr = self._prepare_table(shapes, force=True)
         spacing = tr.median_spacing()
         tr.transpose()
         tr.align(spacing=spacing, fit_cells=self.fit_cells, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
 
     def table_transpose_in_bounds(self,shapes):
-        tr = self._prepare_table(shapes)
+        tr = self._prepare_table(shapes, force=True)
         spacing = tr.median_spacing()
         bounds = tr.get_bounds()
         tr.transpose()
@@ -205,7 +209,7 @@ class ShapeTables(object):
         tr.fit_content(*bounds, spacing=spacing, fit_cells=self.fit_cells)
 
     def table_info(self,shapes):
-        tr = self._prepare_table(shapes)
+        tr = self._prepare_table(shapes, force=True)
         msg = u""
         msg += "Tabellengröße: Zeilen=%d, Spalten=%d\r\n" % tr.dimension
         msg += "Median-Abstand: %s cm" % round(pt_to_cm(tr.median_spacing()),2)
@@ -225,12 +229,12 @@ class ShapeTables(object):
     ### FIT CELLS ###
 
     def table_fit_cells_destructive(self,shapes):
-        tr = self._prepare_table(shapes)
+        tr = self._prepare_table(shapes, force=True)
         spacing = tr.median_spacing()
         tr.align(spacing=spacing, fit_cells=True, align_x=self.alignment_horizontal, align_y=self.alignment_vertical)
 
     def table_fit_cells_in_bounds(self,shapes):
-        tr = self._prepare_table(shapes)
+        tr = self._prepare_table(shapes, force=True)
         spacing = tr.median_spacing()
         bounds = tr.get_bounds()
         tr.fit_content(*bounds, spacing=spacing, fit_cells=True)
@@ -238,21 +242,21 @@ class ShapeTables(object):
     def table_contentarea_fit(self,target_frame,shapes):
         if len(shapes) < 2:
             return
-        tr = self._prepare_table(shapes)
+        tr = self._prepare_table(shapes, force=True)
         spacing = tr.median_spacing()
         tr.fit_content(target_frame.left, target_frame.top, target_frame.width, target_frame.height, spacing)
 
     ### DISTRIBUTE CELLS ###
 
     def table_distribute_cols(self, shapes):
-        tr = self._prepare_table(shapes)
+        tr = self._prepare_table(shapes, force=True)
         spacing = tr.min_spacing_cols()
         bounds = tr.get_bounds()
         tr.fit_content(*bounds, spacing=(None, spacing), fit_cells=True) #equalize spacing in first run
         tr.fit_content(*bounds, spacing=(None, spacing), fit_cells=True, distribute_cols=True) #distribute in second run
 
     def table_distribute_rows(self, shapes):
-        tr = self._prepare_table(shapes)
+        tr = self._prepare_table(shapes, force=True)
         spacing = tr.min_spacing_rows()
         bounds = tr.get_bounds()
         tr.fit_content(*bounds, spacing=(spacing, None), fit_cells=True) #equalize spacing in first run
@@ -260,6 +264,8 @@ class ShapeTables(object):
 
 
 shape_tables = ShapeTables()
+
+bkt.AppEvents.selection_changed       += bkt.Callback(shape_tables.clear_cache)
 
 
 tabellen_gruppe = bkt.ribbon.Group(

@@ -73,13 +73,15 @@ def bezierKreisNRM(n,r,M):
     return [ [ [P[0]+M[0], P[1]+M[1]] for P in k] for k in kurven]
 
 
-def kreisSegmente(n,r,M):
-    '''Kreis mit Radius r um Punkt M=[x,y], aufgeteilt in n Segmente, welche jeweils
+def kreisSegmente(n,r,M,s=0):
+    '''Kreis mit Radius r um Punkt M=[x,y], aufgeteilt in n Segmente mit Abstand s, welche jeweils
      aus Bezierkurven zusammengesetzt sind. Liefert Liste dieser n Segmente.'''
     viertelKreise = bezierKreisNRM(1,r,M)
     
+    segmentAbstand = s/2*n/r
     viertelKreisRest = 0
     segmente = []
+    restVomViertelKreis = [] #only to avoid "potentially unbound" warning
     
     # segmente nacheinander aufbauen
     for i in range(0,n):
@@ -100,8 +102,22 @@ def kreisSegmente(n,r,M):
             x = min(viertelKreisRest, segmentRest)
             # --> Parameter bezieht sich auf Laenge von Viertelkreis-Restkurve
             t = x*1./viertelKreisRest # \in[0,1]
-            # restVomVierteilkreis wird bei t\in[0,1] aufgeteilt
-            bezierFuerSegment, restVomViertelKreis = _bezierKurveAnPunktTeilen(restVomViertelKreis, t)
+            # Berechnung der Segmente mit Abstand
+            # --> Abstand wird gleichmäßig aufgeteilt in Anfang und Ende von Segment
+            if segmentAbstand > 0:
+                # --> Entfernen von Abstand am Anfang des Segments
+                if segmentRest == 4:
+                    # Anfang abschneiden
+                    _, restVomViertelKreis = _bezierKurveAnPunktTeilen(restVomViertelKreis, segmentAbstand/viertelKreisRest)
+                # --> Anpassung t bei letztem Segmentteil
+                if segmentRest-x == 0:
+                    bezierFuerSegment, _ = _bezierKurveAnPunktTeilen(restVomViertelKreis, max(0,t-segmentAbstand/viertelKreisRest))
+                    _, restVomViertelKreis = _bezierKurveAnPunktTeilen(restVomViertelKreis, t)
+                else:
+                    bezierFuerSegment, restVomViertelKreis = _bezierKurveAnPunktTeilen(restVomViertelKreis, t)
+            else:
+                # restVomVierteilkreis wird bei t\in[0,1] aufgeteilt
+                bezierFuerSegment, restVomViertelKreis = _bezierKurveAnPunktTeilen(restVomViertelKreis, t)
             # x Teile fuer aktuelles Segment
             segmente[i].append(bezierFuerSegment)
             segmentRest = segmentRest-x

@@ -395,6 +395,17 @@ GlobalLocPin = LocPin(settings_key="bkt.global_loc_pin")
 # ============================
 
 
+def save_copy(obj, *args, **kwargs):
+    for _ in range(3):
+        try:
+            return obj.copy(*args, **kwargs)
+        except EnvironmentError:
+            #wait some time to avoid EnvironmentError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
+            time.sleep(.50)
+            #FIXME: maybe better way to "open" the clipboard
+    else:
+        raise EnvironmentError("copying not successfull")
+
 def save_paste(obj, *args, **kwargs):
     for _ in range(3):
         try:
@@ -549,8 +560,10 @@ def transfer_textrange(from_textrange, to_textrange):
     but the textrange.paste() via code does replace ThemeColors with RGB values (Note: via GUI this works fine).
     So this function manually copies color values after copying the textrange.
     '''
-    from_textrange.Copy()
+
+    # from_textrange.Copy()
     # to_textrange.Paste()
+    save_copy(from_textrange)
     save_paste(to_textrange)
 
     def copy_color(from_obj, to_obj):
@@ -654,6 +667,8 @@ def convert_text_into_shape(shape):
 
     #total shapes
     shape_count = slide.shapes.count
+    #original shape name
+    orig_name = shape.Name
 
     #convert actual text into shape
     if shape.Fill.visible == 0:
@@ -699,6 +714,7 @@ def convert_text_into_shape(shape):
 
     new_shape = shape_indices_on_slide(slide, [shape_index])[1]
     new_shape.LockAspectRatio = -1
+    new_shape.Name = orig_name
     return new_shape
 
 
@@ -1194,7 +1210,7 @@ class SubShapeIterator(object):
                         otherwise not all table cells are iterated at least in the rare case that a table is the only shape on a slide.
     '''
 
-    def __init__(self, shapes, from_selection=True):
+    def __init__(self, shapes, from_selection=True, exclude=None):
         #Ensure list
         if type(shapes) != list:
             shapes = list(iter(shapes))
@@ -1207,13 +1223,17 @@ class SubShapeIterator(object):
             self.only_selected_table_cells = True
 
         self.shapes = shapes
+        self.exclude = exclude or []
     
     def __iter__(self):
         for shape in self.shapes:
             shp_type = self._get_shp_type(shape)
 
             # Iterate each group item
-            if shp_type == MsoShapeType['msoGroup']:
+            if shp_type in self.exclude:
+                generator = self._iter_default(shape)
+            
+            elif shp_type == MsoShapeType['msoGroup']:
                 generator = self._iter_group(shape)
             
             # Iterate each smart art node
@@ -1265,9 +1285,9 @@ class SubShapeIterator(object):
                     yield cell.Shape
 
 
-def iterate_shape_subshapes(shapes, from_selection=True, filter_method=lambda shp: True, getter_method=lambda shp: shp):
+def iterate_shape_subshapes(shapes, from_selection=True, exclude=None):
     ''' Function to create sub shape iterator '''
-    return SubShapeIterator(shapes, from_selection)
+    return SubShapeIterator(shapes, from_selection, exclude)
 
 
 class TextframeIterator(SubShapeIterator):
@@ -1306,9 +1326,9 @@ class TextframeIterator(SubShapeIterator):
             yield shape.Chart.DataTable.Format.TextFrame2
 
 
-def iterate_shape_textframes(shapes, from_selection=True):
+def iterate_shape_textframes(shapes, from_selection=True, exclude=None):
     ''' Function to create textframe iterator '''
-    return TextframeIterator(shapes, from_selection)
+    return TextframeIterator(shapes, from_selection, exclude)
 
 
 
@@ -1388,7 +1408,9 @@ class GroupManager(object):
 
         self._name = group.name
         self._tags = TagHelper.get_dict_from_tags(group.tags)
-        self._rotation      = group.rotation
+        self._rotation      = group.Rotation
+        self._fliph         = group.HorizontalFlip
+        self._flipv         = group.VerticalFlip
         self._zorder        = group.ZOrderPosition
         self._aspectratio   = group.LockAspectRatio
 
@@ -1453,6 +1475,10 @@ class GroupManager(object):
         Method is executed right before ungroup action in order to set rotation to 0.
         '''
         self._group.rotation = 0
+        if self._fliph and self._group.HorizontalFlip: #avoid double flip if function if called twice
+            self._group.Flip(0) #msoFlipHorizontal
+        if self._flipv and self._group.VerticalFlip:
+            self._group.Flip(1) #msoFlipVertical
         self._ungroup_prepared = True
 
     def post_regroup(self):
@@ -1460,6 +1486,10 @@ class GroupManager(object):
         Method is executed right after regroup action in order to set rotation to original rotation.
         '''
         self._group.rotation = self._rotation
+        if self._fliph != self._group.HorizontalFlip:
+            self._group.Flip(0) #msoFlipHorizontal
+        if self._flipv != self._group.VerticalFlip:
+            self._group.Flip(1) #msoFlipVertical
         self._ungroup_prepared = False
 
     def ungroup(self, prepare=True):
@@ -1469,7 +1499,7 @@ class GroupManager(object):
         if not self._group:
             raise SystemError("not a group")
 
-        if prepare:
+        if prepare and not self._ungroup_prepared:
             self.prepare_ungroup()
         self._ungroup = self._group.ungroup()
         self._group = None
@@ -1502,32 +1532,72 @@ class GroupManager(object):
         if self._ungroup_prepared:
             self.post_regroup()
         return self
+
+    def remove_child_items(self, shapes): #:TESTME:
+        '''
+        Remove shape(s) from group (without deleting the shape)
+        '''
+        shape_ids = [shp.id for shp in shapes]
+
+        regroup = False
+        if self._group:
+            regroup = True
+            self.ungroup()
+
+        new_shapes = []
+        for shp in self.child_items:
+            if shp.id not in shape_ids:
+                new_shapes.append(shp)
+        
+        if len(shapes) > 1:
+            tmp_grp_removed = shapes_to_range(shapes).group()
+        else:
+            tmp_grp_removed = shapes[0]
+        tmp_grp_remains = shapes_to_range(new_shapes).group()
+
+        self.regroup(new_shape_range=shapes_to_range([tmp_grp_removed, tmp_grp_remains]))
+        self._group.ungroup()
+
+        self._group = tmp_grp_remains
+        self.ungroup()
+        
+        if len(shapes) > 1:
+            tmp_grp_removed.ungroup()
+        
+        if regroup:
+            self.regroup()
+        
+        return self
+
+
     
     def add_child_items(self, shapes):
         '''
         Add shape(s) to group without modifying the group.
         '''
         if not self._group:
-            raise SystemError("not a group")
+            # raise SystemError("not a group")
+            self._ungroup = shapes_to_range(self.child_items+shapes)
         
-        #store position of first shape in group
-        shape_to_restore_pos = self.shape.GroupItems[1]
-        orig_left, orig_top = shape_to_restore_pos.left, shape_to_restore_pos.top
-        #add shapes to temporary group
-        temp_grp = shapes_to_range([self.shape]+shapes).group()
-        #rotate original group to 0
-        temp_grp.rotation = - self._rotation
-        temp_grp.ungroup()
-        #create new group and reset rotation
-        self.ungroup()
-        self.regroup(new_shape_range=shapes_to_range(self.child_items+shapes))
-        #restore position
-        self.shape.left -= shape_to_restore_pos.left-orig_left
-        self.shape.top  -= shape_to_restore_pos.top-orig_top
+        else:
+            #store position of first shape in group
+            shape_to_restore_pos = self.shape.GroupItems[1]
+            orig_left, orig_top = shape_to_restore_pos.left, shape_to_restore_pos.top
+            #add shapes to temporary group
+            temp_grp = shapes_to_range([self.shape]+shapes).group()
+            #rotate original group to 0
+            temp_grp.rotation = - self._rotation
+            temp_grp.ungroup()
+            #create new group and reset rotation
+            self.ungroup()
+            self.regroup(new_shape_range=shapes_to_range(self.child_items+shapes))
+            #restore position
+            self.shape.left -= shape_to_restore_pos.left-orig_left
+            self.shape.top  -= shape_to_restore_pos.top-orig_top
 
-        ### Simple method without considering rotation:
-        # self.ungroup(prepare=False)
-        # self.regroup(new_shape_range=shapes_to_range(self.child_items+shapes))
+            ### Simple method without considering rotation:
+            # self.ungroup(prepare=False)
+            # self.regroup(new_shape_range=shapes_to_range(self.child_items+shapes))
         return self
 
     def recursive_ungroup(self):

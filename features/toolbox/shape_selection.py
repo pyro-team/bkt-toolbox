@@ -25,6 +25,8 @@ class ShapeSelector(object):
     
     key_functions["pos_left"] =       lambda shp: shp.Left
     key_functions["pos_top"]  =       lambda shp: shp.Top
+    key_functions["pos_right"]  =     lambda shp: shp.Left+shp.Width
+    key_functions["pos_bottom"]  =    lambda shp: shp.Top+shp.Height
     key_functions["pos_rotation"] =   lambda shp: shp.Rotation
     
     key_functions["fill_type"] =      lambda shp: (shp.Fill.Visible, shp.Fill.Type)

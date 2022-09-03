@@ -997,20 +997,19 @@ class ShapeDialogs(object):
 
     @staticmethod
     def show_process_chevrons_dialog(context, slide):
-        from .processshapes import ProcessChevrons
         from .dialogs.shape_process import ProcessWindow
-        ProcessWindow.create_and_show_dialog(context, slide, ProcessChevrons)
+        ProcessWindow.create_and_show_dialog(context, slide)
 
     ### DIRECT CREATE ###
 
     @staticmethod
     def create_headered_pentagon(slide):
-        from .processshapes import Pentagon
+        from .models.processshapes import Pentagon
         Pentagon.create_headered_pentagon(slide)
 
     @staticmethod
     def create_headered_chevron(slide):
-        from .processshapes import Pentagon
+        from .models.processshapes import Pentagon
         Pentagon.create_headered_chevron(slide)
     
     @staticmethod
@@ -1577,7 +1576,8 @@ class ShapeFormats(object):
 
     @classmethod
     def get_line_transparency(cls, shapes):
-        shapes = pplib.iterate_shape_subshapes(shapes)
+        shapes = pplib.iterate_shape_subshapes(shapes, exclude=[pplib.MsoShapeType['msoTable']])
+        #IMPORTANT: if tables are not excluded, Powerpoint will crash if a table is selected and this function is executed
         for shape in shapes:
             try:
                 return max(0, round(shape.line.transparency*100))
@@ -1597,7 +1597,8 @@ class ShapeFormats(object):
 
     @classmethod
     def get_line_weight(cls, shapes):
-        shapes = pplib.iterate_shape_subshapes(shapes)
+        shapes = pplib.iterate_shape_subshapes(shapes, exclude=[pplib.MsoShapeType['msoTable']])
+        #IMPORTANT: if tables are not excluded, Powerpoint will crash if a table is selected and this function is executed
         for shape in shapes:
             try:
                 return max(0, shape.line.weight)
@@ -1903,7 +1904,8 @@ class ShapeTableGallery(bkt.ribbon.Gallery):
         g = Drawing.Graphics.FromImage(img)
         # color_black = Drawing.ColorTranslator.FromOle(0)
         #color_light_grey  = Drawing.ColorTranslator.FromOle(14540253)
-        color_grey  = Drawing.ColorTranslator.FromHtml('#666')
+        # color_grey  = Drawing.ColorTranslator.FromHtml('#666')
+        color_grey  = Drawing.Brushes.Gray
         pen = Drawing.Pen(color_grey,1)
         #brush = Drawing.SolidBrush(color_black)
         
@@ -1931,6 +1933,7 @@ class ShapeTableGallery(bkt.ribbon.Gallery):
 class ChessTableGallery(ShapeTableGallery):
     
     def __init__(self, **kwargs):
+        parent_id = kwargs.get('id') or ""
         my_kwargs = dict(
             label = 'Shape-Schachbrett einfügen',
             image = 'shapechessboard',
@@ -1940,8 +1943,14 @@ class ChessTableGallery(ShapeTableGallery):
         )
         my_kwargs.update(kwargs)
         super(ChessTableGallery, self).__init__(**my_kwargs)
+
         #overwrite attributes
         self._margin = 10
+        #new attributes
+        self._insert_textboxes = True
+        self.children.append(
+            bkt.ribbon.Button(id=parent_id + "_txtboxes", label="Textboxen in Zellen", supertip="Abstand bei Shape-Tabelle auf groß setzen", on_action=bkt.Callback(lambda: setattr(self, "_insert_textboxes", not self._insert_textboxes)), get_image=bkt.Callback(lambda: self.get_check_image(self._insert_textboxes)))
+            )
     
     def create_shape_table(self, slide, rows, columns):
         
@@ -1965,8 +1974,22 @@ class ChessTableGallery(ShapeTableGallery):
                 ref_left, ref_top+self._margin+r*shape_height,
                 target_width, shape_height-self._margin)
             shp.Fill.Transparency = 0.5
+        
+        num_to_sel = rows+columns
 
-        shapes = pplib.last_n_shapes_on_slide(slide, rows+columns)
+        if self._insert_textboxes:
+            for r in range(rows):
+                for c in range(columns):
+                    shpTxt = slide.shapes.AddTextbox(
+                        1, #msoTextOrientationHorizontal
+                        ref_left+self._margin+c*shape_width, ref_top+self._margin+r*shape_height,
+                        shape_width-self._margin, shape_height-self._margin)
+                    shpTxt.TextFrame2.AutoSize = 0 #ppAutoSizeNone
+                    shpTxt.TextFrame2.WordWrap = -1 #msoTrue
+                    shpTxt.TextFrame2.TextRange.Text = "tbd"
+            num_to_sel += rows*columns
+
+        shapes = pplib.last_n_shapes_on_slide(slide, num_to_sel)
         shapes.select()
 
 
@@ -2038,8 +2061,8 @@ shapes_group = bkt.ribbon.Group(
                 bkt.ribbon.MenuSeparator(title="PowerPoint-Tabelle"),
                 bkt.mso.control.TableInsertGallery,
                 bkt.ribbon.MenuSeparator(title="Shape-Tabelle"),
-                ShapeTableGallery(id="inesrt_shape_table"),
-                ChessTableGallery(id="inesrt_shape_chessboard")
+                ShapeTableGallery(id="insert_shape_table"),
+                ChessTableGallery(id="insert_shape_chessboard")
             ]
         ),
         

@@ -29,12 +29,12 @@ Forms = dotnet.import_forms() #required for clipboard functions
 
 
 @contextmanager
-def open_presentation_without_window(context, filename):
+def open_presentation_without_window(context, filename, readonly=True):
     ''' opens and returns presentation file '''
     logging.debug("open_presentation_without_window: %s", filename)
     presentation = None
     try:
-        presentation = context.app.Presentations.Open(filename, True, False, False) #readonly, untitled, withwindow
+        presentation = context.app.Presentations.Open(filename, readonly, False, False) #readonly, untitled, withwindow
         yield presentation
     finally:
         if presentation:
@@ -100,7 +100,7 @@ class ChartLib(object):
             subfolder = "shapelib"
             self.slide_action = self.copy_shapes_callback
 
-            self.library_folders.extend( bkt.config.shape_library_folders or [] )
+            library_folders = bkt.config.shape_library_folders or []
             self.library_files.extend( bkt.config.shape_libraries or [] )
 
         else:
@@ -108,8 +108,12 @@ class ChartLib(object):
             subfolder = "chartlib"
             self.slide_action = self.copy_slide_callback
 
-            self.library_folders.extend( bkt.config.chart_library_folders or [] )
+            library_folders = bkt.config.chart_library_folders or []
             self.library_files.extend( bkt.config.chart_libraries or [] )
+
+        # add from library_folders
+        for folder in library_folders:
+            self.library_folders.append( {'title':os.path.basename(os.path.realpath(folder)), 'folder':folder} )
 
         # add from feature-folders
         for folder in bkt.config.feature_folders:
@@ -117,6 +121,10 @@ class ChartLib(object):
             if os.path.exists(chartlib_folder):
                 self.library_folders.append( {'title':os.path.basename(os.path.realpath(folder)), 'folder':chartlib_folder} )
         
+        # sort by name
+        self.library_files.sort()
+        self.library_folders.sort(key=lambda f:f['title'])
+
         # add favorite folder as first folder
         self.fav_folder = bkt.helpers.get_fav_folder(subfolder)
         self.library_folders.insert(0, {'title': "Favoriten", 'folder': self.fav_folder} )
@@ -350,7 +358,7 @@ class ChartLib(object):
                 screentip="Aktuelle Auswahl zu Favoriten-Library hinzufügen",
                 supertip="Ausgewählte Slides/Shapes zu Standard-Favoriten-Library hinzufügen. Falls diese Library noch nicht existiert, wird diese neu angelegt.",
                 image_mso='AddToFavorites',
-                on_action=bkt.Callback(self.add_chart_to_lib)
+                on_action=bkt.Callback(self.add_chart_to_lib, context=True)
             ),
             bkt.ribbon.Button(label="Library erneut indizieren",
                 screentip="Library erneut indizieren",
@@ -727,51 +735,72 @@ class ChartLib(object):
     #             self.library_folders.insert(0, self.fav_folder)
     #         bkt.config.set_smart("shape_library_folders", folders)
 
+    @classmethod
+    def add_slides_to_lib(cls, context, presentation):
+        for slide in context.slides:
+            if not slide.shapes.hastitle:
+                bkt.message.warning("Folien ohne Titel können nicht hinzugefügt werden!", "BKT: ChartLib")
+                return
+        #Copy slides
+        context.selection.SlideRange.Copy()
+        # pres.Slides.Paste()
+        cls._save_paste(presentation.Slides)
+
+    @classmethod
+    def add_shapes_to_lib(cls, context, presentation):
+        #Copy each shape individually
+        for shape in context.shapes:
+            title = bkt.ui.show_user_input("Bitte Shape-Titel eingeben:", "Shape-Titel", shape.Name)
+            if title is None:
+                break
+            shape.Copy()
+            slide = presentation.Slides.Add(presentation.Slides.Count+1, 11) #11=ppTitleOnly
+            
+            #set slide background color
+            slide.FollowMasterBackground = False
+            orig_bg = context.slides[0].Background.Fill.ForeColor
+            if orig_bg.Type == pplib.MsoColorType['msoColorTypeScheme'] and orig_bg.ObjectThemeColor > 0:
+                slide.Background.Fill.ForeColor.ObjectThemeColor = orig_bg.ObjectThemeColor
+                slide.Background.Fill.ForeColor.Brightness = orig_bg.Brightness
+            else:
+                slide.Background.Fill.ForeColor.RGB = orig_bg.RGB
+            
+            # new_shp = slide.Shapes.Paste()
+            new_shp = cls._save_paste(slide.Shapes)
+            new_shp.Left = (presentation.PageSetup.SlideWidth - new_shp.Width)*0.5
+            new_shp.Top  = (presentation.PageSetup.SlideHeight - new_shp.Height)*0.5
+            slide.Shapes.Title.Textframe.TextRange.Text = title
+
+
+    # def add_chart_to_file(self, context, current_control):
+    #     '''Add current shape/slide to selected library'''
+    #     if self.copy_shapes_setting and len(context.shapes) == 0:
+    #         return bkt.message("Keine Shapes ausgewählt!")
+
+    #     filename = current_control['tag']
+    #     self.add_chart_to_lib(context, filename)
+
     def add_chart_to_lib(self, context):
+        '''Add current shape/slide to favorites library'''
         if self.copy_shapes_setting and len(context.shapes) == 0:
             return bkt.message("Keine Shapes ausgewählt!")
 
         #Open default file
         #FIXME: read list of files in fav folder and ask user to select file
         file = os.path.join(self.fav_folder, "Favorites.pptx")
+        
         pres = self.create_or_open_presentation(context, file)
-        #Ensure fav folder is in config
-        # self.add_fav_to_config()
         
         try:
             if not self.copy_shapes_setting:
-                #Copy slides
-                context.selection.SlideRange.Copy()
-                # pres.Slides.Paste()
-                self._save_paste(pres.Slides)
+                self.add_slides_to_lib(context, pres)
             else:
-                #Copy each shape individually
-                for shape in context.shapes:
-                    title = bkt.ui.show_user_input("Bitte Shape-Titel eingeben:", "Shape-Titel", shape.Name)
-                    if title is None:
-                        break
-                    shape.Copy()
-                    slide = pres.Slides.Add(pres.Slides.Count+1, 11) #11=ppTitleOnly
-                    
-                    #set slide background color
-                    slide.FollowMasterBackground = False
-                    orig_bg = context.slides[0].Background.Fill.ForeColor
-                    if orig_bg.Type == pplib.MsoColorType['msoColorTypeScheme'] and orig_bg.ObjectThemeColor > 0:
-                        slide.Background.Fill.ForeColor.ObjectThemeColor = orig_bg.ObjectThemeColor
-                        slide.Background.Fill.ForeColor.Brightness = orig_bg.Brightness
-                    else:
-                        slide.Background.Fill.ForeColor.RGB = orig_bg.RGB
-                    
-                    # new_shp = slide.Shapes.Paste()
-                    new_shp = self._save_paste(slide.Shapes)
-                    new_shp.Left = (pres.PageSetup.SlideWidth - new_shp.Width)*0.5
-                    new_shp.Top  = (pres.PageSetup.SlideHeight - new_shp.Height)*0.5
-                    slide.Shapes.Title.Textframe.TextRange.Text = title
+                self.add_shapes_to_lib(context, pres)
 
             pres.Save()
         except:
             logging.exception("error adding chart to library")
-            bkt.message.error("Fehler beim Hinzufügen zu Favoriten", "BKT: ChartLib")
+            bkt.message.error("Fehler beim Hinzufügen zur Library", "BKT: ChartLib")
             # bkt.helpers.exception_as_message()
         finally:
             pres.Saved = True
@@ -1169,11 +1198,35 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                 tag=self.filename,
                 on_action=bkt.Callback(ChartLib.open_file, context=True, current_control=True)
             ),
-            bkt.ribbon.Button(label="Datei erneut indizieren und Thumbnails aktualisieren",
+            bkt.ribbon.Button(label="Markierte Shapes zu Datei hinzufügen" if self.copy_shapes else "Markierte Folien zu Datei hinzufügen",
+                image_mso='AddToFavorites',
+                on_action=bkt.Callback(self.add_charts, context=True)
+            ),
+            bkt.ribbon.Button(label="Datei neu indizieren und Thumbnails aktualisieren",
                 image_mso='AccessRefreshAllLists',
                 on_action=bkt.Callback(self.reset_gallery_items, context=True)
             )
         ]
+    
+    def add_charts(self, context):
+        '''Add selected slides/shapes to this gallery'''
+        if self.copy_shapes and len(context.shapes) == 0:
+            return bkt.message("Keine Shapes ausgewählt!")
+
+        with open_presentation_without_window(context, self.filename, False) as presentation:
+            try:
+                if not self.copy_shapes:
+                    ChartLib.add_slides_to_lib(context, presentation)
+                else:
+                    ChartLib.add_shapes_to_lib(context, presentation)
+
+                presentation.Save()
+            except:
+                logging.exception("error adding chart to library")
+                bkt.message.error("Fehler beim Hinzufügen zur Library", "BKT: ChartLib")
+
+        #Regenerate thumbnails
+        self.reset_gallery_items(context)
     
     def reset_gallery_items(self, context):
         '''Forces Gallery to re-initialize and generate thumbnail-images'''
@@ -1322,7 +1375,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
             os.makedirs(directory)
         
         for slide in presentation.slides:
-            if slide.shapes.hastitle != False:
+            if slide.shapes.hastitle:
                 image_filename = self.get_image_filename(slide.SlideIndex)
                 try:
                     #NOTE: slide.Export() closes the chartlib menu, so every time the images are generated, the user needs to re-open the chartlib. As workaround we use the clipboard.

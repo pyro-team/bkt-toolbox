@@ -18,6 +18,8 @@ namespace BKT
 
         private WindowInteropHelper _helper;
 
+        protected AddIn addin;
+
         //TODO: Make this property available in XAML, but how?
         public bool IsPopup
         {
@@ -32,26 +34,36 @@ namespace BKT
 
         protected override void OnInitialized(EventArgs e)
         {
-            DebugMessage("BKT Window: Initialized");
+            DebugMessage("Initialized");
             base.OnInitialized(e);
 
             //Store interop helper for later operations
             _helper = new WindowInteropHelper(this);
 
             //Set window owner
+            IntPtr windowID;
+            if (addin != null)
+            {
+                windowID = new IntPtr(addin.GetWindowHandle());
+            } else {
+                windowID = Process.GetCurrentProcess().MainWindowHandle;
+            }
+
             //FIXME: Process.MainWindowHandle is not always reliable, better to pass context and use activewindow from app
-            _helper.Owner = Process.GetCurrentProcess().MainWindowHandle;
+            // IntPtr windowID = Process.GetCurrentProcess().MainWindowHandle;
+            _helper.Owner = windowID;
+            DebugMessage(string.Format("Set owner: {0}", windowID));
             // _helper.Owner = GetForegroundWindow();
         }
 
         protected override void OnSourceInitialized(EventArgs e)
         {
-            DebugMessage("BKT Window: Source Initialized");
+            DebugMessage("Source Initialized");
             base.OnSourceInitialized(e);
 
             if (IsPopup || IsToolbar)
             {
-                DebugMessage("BKT Window: Apply Popup Style");
+                DebugMessage("Apply Popup Style");
                 //Never activate window
                 var source = HwndSource.FromHwnd(_helper.EnsureHandle());
                 // var source = PresentationSource.FromVisual(this) as HwndSource;
@@ -76,7 +88,7 @@ namespace BKT
 
         // public void SetOwner(IntPtr handle)
         // {
-        //     DebugMessage("BKT Window: Setting owner");
+        //     DebugMessage("Setting owner");
         //     var helper = new WindowInteropHelper(this);
         //     helper.Owner = handle;
         // }
@@ -88,15 +100,15 @@ namespace BKT
 
         public void SetOwner(int windowID)
         {
-            DebugMessage(string.Format("BKT Window: Set new owner: {0}", windowID));
+            DebugMessage(string.Format("Set new owner: {0}", windowID));
             _helper.Owner = new IntPtr(windowID);
         }
 
         public void SetDevicePosition(double? deviceLeft=null, double? deviceTop=null, double? deviceRight=null, double? deviceBottom=null)
         {
-            DebugMessage("BKT Window: Setting device position");
+            DebugMessage("Setting device position");
             try {
-                var source = HwndSource.FromHwnd(_helper.EnsureHandle());
+                // var source = HwndSource.FromHwnd(_helper.EnsureHandle());
                 // var source = PresentationSource.FromVisual(this);
                 double x = 0;
                 double y = 0;
@@ -116,17 +128,31 @@ namespace BKT
                 double VsRight = VsLeft + SystemParameters.VirtualScreenWidth;
                 double VsBottom = VsTop + SystemParameters.VirtualScreenHeight;
 
-                var ptLogicalUnits = source.CompositionTarget.TransformFromDevice.Transform(new Point(x, y));
+                // var transform = source.CompositionTarget.TransformFromDevice;
+                // var ptLogicalUnits = transform.Transform(new Point(x, y));
+                // if (deviceLeft != null) {
+                //     this.Left = Math.Min(Math.Max(ptLogicalUnits.X, VsLeft), VsRight - this.Width);
+                // } else if (deviceRight != null) {
+                //     this.Left = Math.Min(Math.Max(ptLogicalUnits.X - this.Width, VsLeft), VsRight - this.Width);
+                // }
+                // if (deviceTop != null) {
+                //     this.Top  = Math.Min(Math.Max(ptLogicalUnits.Y, VsTop), VsBottom - this.Height);
+                // } else if (deviceBottom != null) {
+                //     this.Top  = Math.Min(Math.Max(ptLogicalUnits.Y - this.Height, VsTop), VsBottom - this.Height);
+                // }
+
+                double scaling = 96.0 / GetDpiForWindow(_helper.Owner);
                 if (deviceLeft != null) {
-                    this.Left = Math.Min(Math.Max(ptLogicalUnits.X, VsLeft), VsRight - this.Width);
+                    this.Left = Math.Min(Math.Max(x*scaling, VsLeft), VsRight - this.Width);
                 } else if (deviceRight != null) {
-                    this.Left = Math.Min(Math.Max(ptLogicalUnits.X - this.Width, VsLeft), VsRight - this.Width);
+                    this.Left = Math.Min(Math.Max(x*scaling - this.Width, VsLeft), VsRight - this.Width);
                 }
                 if (deviceTop != null) {
-                    this.Top  = Math.Min(Math.Max(ptLogicalUnits.Y, VsTop), VsBottom - this.Height);
+                    this.Top  = Math.Min(Math.Max(y*scaling, VsTop), VsBottom - this.Height);
                 } else if (deviceBottom != null) {
-                    this.Top  = Math.Min(Math.Max(ptLogicalUnits.Y - this.Height, VsTop), VsBottom - this.Height);
+                    this.Top  = Math.Min(Math.Max(y*scaling - this.Height, VsTop), VsBottom - this.Height);
                 }
+
             } catch (Exception e) {
                 DebugMessage(e.ToString());
             }
@@ -134,15 +160,23 @@ namespace BKT
 
         public void SetDeviceSize(double? deviceWidth=null, double? deviceHeight=null)
         {
-            DebugMessage("BKT Window: Setting device size");
+            DebugMessage("Setting device size");
             try {
-                var source = HwndSource.FromHwnd(_helper.EnsureHandle());
-                var transform = source.CompositionTarget.TransformFromDevice;
+                // var source = HwndSource.FromHwnd(_helper.EnsureHandle());
+                // var transform = source.CompositionTarget.TransformFromDevice;
+                // if (deviceWidth != null) {
+                //     this.Width = Math.Min(SystemParameters.VirtualScreenWidth, transform.M11 * (double)deviceWidth);
+                // }
+                // if (deviceHeight != null) {
+                //     this.Height = Math.Min(SystemParameters.VirtualScreenHeight, transform.M22 * (double)deviceHeight);
+                // }
+
+                double scaling = 96.0 / GetDpiForWindow(_helper.Owner);
                 if (deviceWidth != null) {
-                    this.Width = Math.Min(SystemParameters.VirtualScreenWidth, transform.M11 * (double)deviceWidth);
+                    this.Width = Math.Min(SystemParameters.VirtualScreenWidth, scaling * (double)deviceWidth);
                 }
                 if (deviceHeight != null) {
-                    this.Height = Math.Min(SystemParameters.VirtualScreenHeight, transform.M22 * (double)deviceHeight);
+                    this.Height = Math.Min(SystemParameters.VirtualScreenHeight, scaling * (double)deviceHeight);
                 }
             } catch (Exception e) {
                 DebugMessage(e.ToString());
@@ -151,12 +185,15 @@ namespace BKT
 
         public Rect GetDeviceRect()
         {
-            DebugMessage("BKT Window: Getting device rect");
+            DebugMessage("Getting device rect");
             try {
-                var source = HwndSource.FromHwnd(_helper.EnsureHandle());
-                var ltPhysicalUnits = source.CompositionTarget.TransformToDevice.Transform(new Point(this.Left, this.Top));
-                var brPhysicalUnits = source.CompositionTarget.TransformToDevice.Transform(new Point(this.Left+this.Width, this.Top+this.Height));
-                return new Rect(ltPhysicalUnits, brPhysicalUnits);
+                // var source = HwndSource.FromHwnd(_helper.EnsureHandle());
+                // var ltPhysicalUnits = source.CompositionTarget.TransformToDevice.Transform(new Point(this.Left, this.Top));
+                // var brPhysicalUnits = source.CompositionTarget.TransformToDevice.Transform(new Point(this.Left+this.Width, this.Top+this.Height));
+                // return new Rect(ltPhysicalUnits, brPhysicalUnits);
+
+                double scaling = 96.0 / GetDpiForWindow(_helper.Owner);
+                return new Rect(this.Left/scaling, this.Top/scaling, this.Width/scaling, this.Height/scaling);
             } catch (Exception e) {
                 DebugMessage(e.ToString());
                 return new Rect(0,0,0,0);
@@ -165,7 +202,7 @@ namespace BKT
 
         public void ShiftWindowOntoScreen()
         {
-            DebugMessage("BKT Window: Shift window back onto screen");
+            DebugMessage("Shift window back onto screen");
             double VsTop = SystemParameters.VirtualScreenTop;
             double VsLeft = SystemParameters.VirtualScreenLeft;
             double VsRight = VsLeft + SystemParameters.VirtualScreenWidth;
@@ -199,7 +236,7 @@ namespace BKT
 
         private void DebugMessage(string message)
         {
-            Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + ": " + message);
+            Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + ": [BKT Window " + this.Title + "] " + message);
         }
 
         [DllImport("user32.dll")]
@@ -207,6 +244,9 @@ namespace BKT
 
         [DllImport("user32.dll")]
         private static extern uint GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll")]
+        private static extern uint GetDpiForWindow(IntPtr hWnd);
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();

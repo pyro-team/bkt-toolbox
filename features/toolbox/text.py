@@ -6,6 +6,7 @@ Created on 06.07.2016
 '''
 
 from __future__ import absolute_import
+from threading import Thread
 
 import bkt
 import bkt.library.powerpoint as pplib
@@ -1128,12 +1129,14 @@ class TextShapes(object):
         if cls.sticker_custom and not bkt.get_key_state(bkt.KeyCodes.SHIFT):
             cls.add_sticker_to_slides(slides, presentation, cls.sticker_custom)
         else:
-            cls.own_sticker_edit()
+            res = cls.own_sticker_edit(slides, presentation)
     
     @classmethod
-    def own_sticker_edit(cls):
+    def own_sticker_edit(cls, slides, presentation):
         res = bkt.ui.show_user_input("Selbst definierten Sticker-Text eingeben:", "Sticker bearbeiten", cls.sticker_custom)
-        cls.sticker_custom = bkt.settings["toolbox.sticker_custom"] = res
+        if res:
+            cls.sticker_custom = bkt.settings["toolbox.sticker_custom"] = res
+            cls.add_sticker_to_slides(slides, presentation, res)
 
 
 class TextOnShape(object):
@@ -1163,52 +1166,90 @@ class TextOnShape(object):
 
     @classmethod
     def textIntoShape(cls, shapes):
-        if len(shapes) == 2 and shapes[0].Type == pplib.MsoShapeType['msoTextBox']:
-            cls.merge_shapes(shapes[1], shapes[0])
-        elif len(shapes) == 2 and shapes[1].Type == pplib.MsoShapeType['msoTextBox']:
-            cls.merge_shapes(shapes[0], shapes[1])
-        else:
-            shapes = sorted(shapes, key=lambda s: s.ZOrderPosition) #important due to removal of items in for loops
-            for shape in shapes:
-                inner_shp = cls.find_shape_on_shape(shape, shapes)
-                if inner_shp is not None:
-                    cls.merge_shapes(shape, inner_shp)
-                    shapes.remove(inner_shp)
+        def loop(worker=None):
+            if len(shapes) == 2 and shapes[0].Type == pplib.MsoShapeType['msoTextBox']:
+                cls.merge_shapes(shapes[1], shapes[0])
+            elif len(shapes) == 2 and shapes[1].Type == pplib.MsoShapeType['msoTextBox']:
+                cls.merge_shapes(shapes[0], shapes[1])
+            else:
+                sorted_shapes = sorted(shapes, key=lambda s: s.ZOrderPosition) #important due to removal of items in for loops
+                for shape in sorted_shapes:
+                    inner_shp = cls.find_shape_on_shape(shape, sorted_shapes)
+                    if inner_shp is not None:
+                        cls.merge_shapes(shape, inner_shp)
+                        sorted_shapes.remove(inner_shp)
 
+        # IMPORTANT: many copy-paste operations lead to EnvironmentError. Putting all in a thread solves this issue.
+        t = Thread(target=loop)
+        t.start()
+        t.join()
+
+        # Alternative way:
+        # bkt.ui.execute_with_progress_bar(loop, indeterminate=True)
 
     @staticmethod
-    def textOutOfShape(shapes, context):
-        for shp in shapes:
-            #if shp.TextFrame.TextRange.text != "":
-            if shp.HasTextFrame == -1 and shp.TextFrame.HasText == -1:
-                shpTxt = context.slide.shapes.AddTextbox(
-                    1, #msoTextOrientationHorizontal
-                    shp.Left, shp.Top, shp.Width, shp.Height)
-                # WordWrap / AutoSize
-                # shpTxt.TextFrame2.WordWrap = -1 #msoTrue
-                shpTxt.TextFrame2.WordWrap = shp.TextFrame2.WordWrap
-                shpTxt.TextFrame2.AutoSize = 0 #ppAutoSizeNone
-                shpTxt.Height   = shp.Height
-                shpTxt.Rotation = shp.Rotation
-                # Seitenraender
-                shpTxt.TextFrame2.MarginBottom = shp.TextFrame2.MarginBottom
-                shpTxt.TextFrame2.MarginTop    = shp.TextFrame2.MarginTop
-                shpTxt.TextFrame2.MarginLeft   = shp.TextFrame2.MarginLeft
-                shpTxt.TextFrame2.MarginRight  = shp.TextFrame2.MarginRight
-                # Ausrichtung
-                shpTxt.TextFrame2.Orientation      = shp.TextFrame2.Orientation
-                shpTxt.TextFrame2.HorizontalAnchor = shp.TextFrame2.HorizontalAnchor
-                shpTxt.TextFrame2.VerticalAnchor   = shp.TextFrame2.VerticalAnchor
-                # Text kopieren
-                shp.TextFrame2.TextRange.Copy()
-                shpTxt.TextFrame2.TextRange.Paste()
-                shp.TextFrame2.DeleteText()
-                # Größe wiederherstellen
-                shp.Top = shpTxt.Top
-                shp.Height = shpTxt.Height
-                shp.Width = shpTxt.Width
-                # Textfeld selektieren
-                shpTxt.Select(0)
+    def create_txt_shape_onto_shape(shp, slide):
+        shpTxt = slide.shapes.AddTextbox(
+            1, #msoTextOrientationHorizontal
+            shp.Left, shp.Top, shp.Width, shp.Height)
+        # WordWrap / AutoSize
+        # shpTxt.TextFrame2.WordWrap = -1 #msoTrue
+        shpTxt.TextFrame2.WordWrap = shp.TextFrame2.WordWrap
+        shpTxt.TextFrame2.AutoSize = 0 #ppAutoSizeNone
+        shpTxt.Height   = shp.Height
+        shpTxt.Rotation = shp.Rotation
+        shpTxt.Name     = shp.Name + " Text"
+        # Seitenraender
+        shpTxt.TextFrame2.MarginBottom = shp.TextFrame2.MarginBottom
+        shpTxt.TextFrame2.MarginTop    = shp.TextFrame2.MarginTop
+        shpTxt.TextFrame2.MarginLeft   = shp.TextFrame2.MarginLeft
+        shpTxt.TextFrame2.MarginRight  = shp.TextFrame2.MarginRight
+        # Ausrichtung
+        shpTxt.TextFrame2.Orientation      = shp.TextFrame2.Orientation
+        shpTxt.TextFrame2.HorizontalAnchor = shp.TextFrame2.HorizontalAnchor
+        shpTxt.TextFrame2.VerticalAnchor   = shp.TextFrame2.VerticalAnchor
+        # Text kopieren
+        pplib.transfer_textrange(shp.TextFrame2.TextRange, shpTxt.TextFrame2.TextRange)
+        # shp.TextFrame2.TextRange.Copy()
+        # shpTxt.TextFrame2.TextRange.Paste()
+        shp.TextFrame2.DeleteText()
+        # Größe wiederherstellen
+        shp.Top = shpTxt.Top
+        shp.Height = shpTxt.Height
+        shp.Width = shpTxt.Width
+        # Textfeld selektieren
+        shpTxt.Select(0)
+
+    @classmethod
+    def textOutOfShape(cls, shapes, slide):
+        def loop(worker=None):
+            errors = 0
+            # shapes_len = len(shapes)
+            # i = 1.
+            for shp in shapes:
+                # worker.ReportProgress(i/shapes_len*100)
+                # i += 1
+
+                #if shp.TextFrame.TextRange.text != "":
+                if not shp.HasTextFrame or not shp.TextFrame.HasText:
+                    continue
+                try:
+                    # bkt.Clipboard.clear()
+
+                    cls.create_txt_shape_onto_shape(shp, slide)
+                    # cls.duplicate_txt_shape_onto_shape(shp, slide)
+                except EnvironmentError:
+                    errors += 1
+            if errors > 0:
+                bkt.message.error("Kopierfehler bei %s Shape(s)." % errors)
+
+        # IMPORTANT: many copy-paste operations lead to EnvironmentError. Putting all in a thread solves this issue.
+        t = Thread(target=loop)
+        t.start()
+        t.join()
+
+        # Alternative way:
+        # bkt.ui.execute_with_progress_bar(loop, context, indeterminate=True)
     
     ### context menu callbacks ###
 
@@ -1427,8 +1468,8 @@ text_menu = bkt.ribbon.Menu(
                         id="sticker_own_edit",
                         label = u"Sticker-Text ändern",
                         screentip="Selbst definierten Sticker bearbeiten",
-                        supertip="Ändere des Text des selbst definierten Stickers.",
-                        on_action=bkt.Callback(TextShapes.own_sticker_edit)
+                        supertip="Ändere den Text des selbst definierten Stickers und füge diesen sofort ein.",
+                        on_action=bkt.Callback(TextShapes.own_sticker_edit, slides=True, presentation=True)
                     ),
                     bkt.ribbon.MenuSeparator(),
                     bkt.ribbon.Menu(
@@ -1559,7 +1600,7 @@ text_menu = bkt.ribbon.Menu(
             image_mso = "TableCellCustomMarginsDialog",
             screentip="Text auf Shape zerlegen",
             supertip="Überführe jeweils den Textinhalt der markierten Shapes in ein separates Text-Shape.",
-            on_action=bkt.Callback(TextOnShape.textOutOfShape, shapes=True, context=True),
+            on_action=bkt.Callback(TextOnShape.textOutOfShape, shapes=True, slide=True),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
         ),
         bkt.ribbon.MenuSeparator(),

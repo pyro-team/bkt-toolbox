@@ -221,7 +221,7 @@ class ToolboxAgenda(object):
             connector.Line.Weight = 0.75
             connector.Line.DashStyle = 1 #straight line
             
-            #cls.set_tags_for_slide(slide, 0)
+            cls.set_tags_for_slide(slide)
             cls.set_tags_for_textbox(shp)
 
             # select shape (to show popup)
@@ -316,7 +316,12 @@ class ToolboxAgenda(object):
         shp = sld.shapes.AddShape(office.MsoAutoShapeType.msoShapeRectangle.value__, 0, 0, 100, 20)
         cls.set_tags_for_selector(shp)
         shp.Name = "[BKT] Agenda-Selektor %s" % shp.id
-        shp.ZOrder(office.MsoZOrderCmd.msoSendToBack.value__)
+        try:
+            #try to set selector right behind textbox (better for fancy agenda formatting)
+            textbox = cls.get_agenda_textbox_on_slide(sld)
+            pplib.set_shape_zorder(shp, textbox.ZOrderPosition)
+        except:
+            shp.ZOrder(office.MsoZOrderCmd.msoSendToBack.value__)
         # Grauer Hintergrund/Rand
         cls.set_selector_fill(shp.Fill, cls.selectorFillColor)
         cls.set_selector_line(shp.Line, cls.selectorLineColor)
@@ -459,6 +464,13 @@ class ToolboxAgenda(object):
             master_slide = cls.restore_master_slide_by_agenda_slide(agenda_slides[0].slide)
             if not master_slide:
                 return
+
+        master_textbox = cls.get_agenda_textbox_on_slide(master_slide)
+        if master_textbox == None:
+            master_textbox = cls.restore_master_textbox(master_slide, agenda_slides)
+            if not master_textbox:
+                return
+            
         
         # get old settings
         old_settings = cls.get_agenda_settings_from_slide(master_slide)
@@ -565,9 +577,40 @@ class ToolboxAgenda(object):
             return None
 
 
+    @classmethod
+    def restore_master_textbox(cls, master_slide, agenda_slides=None):
+        settings = cls.get_agenda_settings(master_slide)
+        # agenda entries from agenda_slides
+        if not agenda_slides:
+            agenda_slides = cls.find_agenda_items_by_id(master_slide.parent, settings[SETTING_AGENDA_ID])
+        
+        for item in agenda_slides:
+            textbox = cls.get_agenda_textbox_on_slide(item.slide)
+            if textbox:
+                break
+        else:
+            bkt.message.error("Keine Agenda-Textbox gefunden", "Toolbox: Agenda")
+            return None
+        
+        textbox.Copy()
+        master_textbox = master_slide.Shapes.Paste()
 
-    
-    
+        textrange = master_textbox.TextFrame.TextRange
+        last_paragraph = textrange.Paragraphs(textrange.Paragraphs().Count)
+        if last_paragraph.Font.Color.ObjectThemeColor == 0:
+            textrange.Font.Color.RGB = last_paragraph.Font.Color.RGB
+        else:
+            textrange.Font.Color.ObjectThemeColor = last_paragraph.Font.Color.ObjectThemeColor
+            textrange.Font.Color.Brightness = last_paragraph.Font.Color.Brightness
+        textrange.Font.Bold = last_paragraph.Font.Bold
+        textrange.Font.Italic = last_paragraph.Font.Italic
+        textrange.Font.Underline = last_paragraph.Font.Underline
+
+        return master_textbox
+
+
+
+
     @classmethod
     def update_agenda_slides(cls, master_textbox, agenda_slides=None):
         '''
@@ -1228,10 +1271,11 @@ class ToolboxAgenda(object):
     # ========================
     
     @staticmethod
-    def set_tags_for_slide(sld, slideNo):
+    def set_tags_for_slide(sld, slideNo=None):
         ''' Meta-Informationen für Slide einstellen '''
         sld.Tags.Add(TOOLBOX_AGENDA, "1")
-        sld.Tags.Add(TOOLBOX_AGENDA_SLIDENO, str(slideNo))
+        if slideNo is not None:
+            sld.Tags.Add(TOOLBOX_AGENDA_SLIDENO, str(slideNo))
 
     @staticmethod
     def set_tags_for_textbox(textbox):
@@ -1270,7 +1314,12 @@ class ToolboxAgenda(object):
     def is_agenda_slide(cls, slide):
         ''' check if current slide is agenda-slide '''
         try:
-            return slide.Tags.Item(TOOLBOX_AGENDA) != ""
+            return slide.Tags.Item(TOOLBOX_AGENDA_SLIDENO) != ""
+        #     if slide.Tags.Item(TOOLBOX_AGENDA_SLIDENO) != "":
+        #         textbox = cls.get_agenda_textbox_on_slide(slide)
+        #         return textbox != None
+        #     else:
+        #         return False
         except: #AttributeError
             return False
         # settings = cls.get_agenda_settings_from_slide(slide)
@@ -1279,8 +1328,14 @@ class ToolboxAgenda(object):
     @classmethod
     def can_create_agenda_from_slide(cls, slide):
         ''' check if agenda textbox is on slide in order to create agenda from textbox '''
-        textbox = cls.get_agenda_textbox_on_slide(slide)
-        return textbox != None
+        try:
+            if slide.Tags.Item(TOOLBOX_AGENDA) != "":
+                textbox = cls.get_agenda_textbox_on_slide(slide)
+                return textbox != None
+            else:
+                return False
+        except: #AttributeError
+            return False
     
     @classmethod
     def set_hide_subitems(cls, slide, pressed):
@@ -1310,6 +1365,9 @@ class ToolboxAgenda(object):
         # settings[key] = value
         for agenda_item in agenda_items:
             cls.update_agenda_settings_on_slide(agenda_item.slide, {key: value})
+        
+        if bkt.message.confirmation("Agenda jetzt aktualisieren?", title="Toolbox: Agenda"):
+            cls.update_agenda_slides_by_slide(slide)
     
     
     
