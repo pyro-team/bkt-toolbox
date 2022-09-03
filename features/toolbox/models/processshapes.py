@@ -445,6 +445,11 @@ class Pentagon(object):
     
     
     @classmethod
+    def update_pentagon_groups(cls, shapes):
+        for shp in shapes:
+            cls.update_pentagon_group(shp)
+    
+    @classmethod
     def update_pentagon_group(cls, shape):
         ''' updates the header of a group-shape (header + pentagon-body) '''
         body, header = cls.get_body_and_header_from_group(shape)
@@ -484,6 +489,10 @@ class Pentagon(object):
             header.Nodes.SetPosition(4, chevron.left + ( header.height/(chevron.height/2) * offset), chevron.top + header.height)
         
         
+
+    @classmethod
+    def are_headered_groups(cls, shapes):
+        return all(cls.is_headered_group(shp) for shp in shapes)
 
     @classmethod
     def is_headered_group(cls, shape):

@@ -28,6 +28,8 @@ from .. import linkshapes
 # =================
 
 class ContextMenuRecurring(object):
+    ''' Collection of functions/buttons that appear in multiple context menus '''
+
     ### Paste replace ###
     cb_pastereplace_enabled = bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True)
     cb_pastereplace_action = bkt.CallbackLazy("toolbox.shape_selection", "SlidesMore","paste_and_replace", slide=True, shape=True)
@@ -46,36 +48,6 @@ class ContextMenuRecurring(object):
             get_visible=bkt.apps.ppt_shapes_exactly1_selected,
             **kwargs
         )
-
-    ### Linked shapes ###
-    cb_linkshapes_align = bkt.CallbackLazy("toolbox.contextmenus.linkshapes", "ContextLinkedShapes", "get_children_align")
-    cb_linkshapes_create = bkt.CallbackLazy("toolbox.contextmenus.linkshapes", "ContextLinkedShapes", "get_children_create")
-
-    @classmethod
-    def linked_shapes_align(cls, prefix, **kwargs):
-        return bkt.ribbon.DynamicMenu(
-                id=prefix+'-linked-shapes',
-                label="Verknüpfte Shapes angleichen",
-                supertip="Alle Eigenschaften aller verknüpfter Shapes wie ausgewähltes Shape setzen.",
-                image_mso='HyperlinkCreate',
-                insertBeforeMso='ObjectsGroupMenu',
-                get_visible=bkt.Callback(linkshapes.LinkedShapes.is_linked_shape, shape=True),
-                get_content=cls.cb_linkshapes_align,
-                **kwargs
-            )
-
-    @classmethod
-    def linked_shapes_create(cls, prefix, **kwargs):
-        return bkt.ribbon.DynamicMenu(
-                id=prefix+'-not-linked-shapes',
-                label="Verknüpftes Shape anlegen",
-                supertip="Entweder ähnliche Shapes auf Folgefolien anhand Position oder Größe suchen, oder dieses Shape auf Folgefolien kopieren und verknüpfen.",
-                image_mso='HyperlinkCreate',
-                insertBeforeMso='ObjectsGroupMenu',
-                get_visible=bkt.Callback(linkshapes.LinkedShapes.not_is_linked_shape, shape=True),
-                get_content=cls.cb_linkshapes_create,
-                **kwargs
-            )
     
     ### Change language ###
     cb_lang_change = bkt.CallbackLazy("toolbox.language", "LangSetter", "get_dynamicmenu_content")
@@ -104,24 +76,12 @@ bkt.powerpoint.add_context_menu(
             supertip="Verschiedene BKT-Funktionen, die dynamisch für die gewählten Shapes geladen werden.",
             insertBeforeMso='Cut',
             image="bkt_logo",
-            get_content=bkt.CallbackLazy("toolbox.contextmenus.dynamic", "ObjectsGroup", "get_children"),
+            get_content=bkt.CallbackLazy("toolbox.contextmenus.dynamic", "ObjectsGroup", "get_children", shapes=True),
         ),
         ### Any shapes format sync
         bkt.ribbon.Button(id='context-format-sync', label="Format angleichen", insertBeforeMso='Cut', image_mso="FormatPainter",
             supertip="Alle Shapes so formatieren wie das Shape, welches beim Öffnen des Kontextmenüs unter dem Cursor ist",
             on_action=bkt.CallbackLazy("toolbox.shape_selection", "FormatPainter", "cm_sync_shapes", shapes=True, context=True),
-        ),
-        bkt.ribbon.MenuSeparator(insertBeforeMso='Cut'),
-        ### Harvey
-        harvey.harvey_size_gallery(
-            insert_before_mso='Cut',
-            id='ctx_harvey_ball_size_gallery',
-            get_visible=bkt.Callback(harvey.harvey_balls.change_harvey_enabled, shapes=True)
-        ),
-        harvey.harvey_color_gallery(
-            insert_before_mso='Cut',
-            id='ctx_harvey_ball_color_gallery',
-            get_visible=bkt.Callback(harvey.harvey_balls.change_harvey_enabled, shapes=True)
         ),
         bkt.ribbon.MenuSeparator(insertBeforeMso='Cut'),
         ### Connector functions (basically "copy" standard functions to multi-selection of connectors)
@@ -177,9 +137,6 @@ bkt.powerpoint.add_context_menu(
         ContextMenuRecurring.change_lang_menu('ctx-shapes'),
         ### Clipboard operations
         ContextMenuRecurring.paste_replace_button('ctx-shapes'),
-        ### Linked shapes
-        ContextMenuRecurring.linked_shapes_align('ctx-shapes'),
-        ContextMenuRecurring.linked_shapes_create('ctx-shapes'),
     ])
 )
 
@@ -194,14 +151,11 @@ bkt.powerpoint.add_context_menu(
             supertip="Verschiedene BKT-Funktionen, die dynamisch für die gewählten Shapes geladen werden.",
             insertBeforeMso='Cut',
             image="bkt_logo",
-            get_content=bkt.CallbackLazy("toolbox.contextmenus.dynamic", "ShapeFreeform", "get_children"),
+            get_content=bkt.CallbackLazy("toolbox.contextmenus.dynamic", "ShapeFreeform", "get_children", shape=True),
         ),
         bkt.ribbon.MenuSeparator(insertBeforeMso='Cut'),
         ### Clipboard operations
         ContextMenuRecurring.paste_replace_button('ctx-freeform'),
-        ### Linked shapes
-        ContextMenuRecurring.linked_shapes_align('ctx-freeform'),
-        ContextMenuRecurring.linked_shapes_create('ctx-freeform'),
     ])
 )
 
@@ -210,13 +164,18 @@ bkt.powerpoint.add_context_menu(
 
 bkt.powerpoint.add_context_menu(
     bkt.ribbon.ContextMenu(id_mso='ContextMenuShape', children=[
+        ### Lazy called BKT functions
+        bkt.ribbon.DynamicMenu(
+            label="BKT Funktionen",
+            supertip="Verschiedene BKT-Funktionen, die dynamisch für die gewählten Shapes geladen werden.",
+            insertBeforeMso='Cut',
+            image="bkt_logo",
+            get_content=bkt.CallbackLazy("toolbox.contextmenus.dynamic", "Shape", "get_children", shape=True),
+        ),
         ### Language setting
         ContextMenuRecurring.change_lang_menu('ctx-shp'),
         ### Clipboard operations
         ContextMenuRecurring.paste_replace_button('ctx-shp'),
-        ### Linked shapes
-        ContextMenuRecurring.linked_shapes_align('ctx-shp'),
-        ContextMenuRecurring.linked_shapes_create('ctx-shp'),
     ])
 )
 
@@ -245,11 +204,16 @@ bkt.powerpoint.add_context_menu(
 
 bkt.powerpoint.add_context_menu(
     bkt.ribbon.ContextMenu(id_mso='ContextMenuPicture', children=[
+        ### Lazy called BKT functions
+        bkt.ribbon.DynamicMenu(
+            label="BKT Funktionen",
+            supertip="Verschiedene BKT-Funktionen, die dynamisch für die gewählten Shapes geladen werden.",
+            insertBeforeMso='Cut',
+            image="bkt_logo",
+            get_content=bkt.CallbackLazy("toolbox.contextmenus.dynamic", "Picture", "get_children", shape=True),
+        ),
         ### Clipboard operations
         ContextMenuRecurring.paste_replace_button('ctx-pic'),
-        ### Linked shapes
-        ContextMenuRecurring.linked_shapes_align('ctx-pic'),
-        ContextMenuRecurring.linked_shapes_create('ctx-pic'),
     ])
 )
 
@@ -292,8 +256,8 @@ bkt.powerpoint.add_context_menu(
             supertip="Zwischenablage auf allen ausgewählten Folien einfügen",
             insertAfterMso='PasteGalleryMini',
             image_mso='Paste',
-            on_action=bkt.CallbackLazy("toolbox.shape_selection", "SlidesMore","paste_and_replace", slide=True, shape=True),
-            get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
+            on_action=ContextMenuRecurring.cb_pastereplace_action,
+            get_enabled=ContextMenuRecurring.cb_pastereplace_enabled,
         ),
         ### Language setting
         ContextMenuRecurring.change_lang_menu('ctx-slides', insertAfterMso='SlideBackgroundFormatDialog'),

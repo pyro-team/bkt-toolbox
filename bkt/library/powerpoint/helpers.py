@@ -1532,6 +1532,44 @@ class GroupManager(object):
         if self._ungroup_prepared:
             self.post_regroup()
         return self
+
+    def remove_child_items(self, shapes): #:TESTME:
+        '''
+        Remove shape(s) from group (without deleting the shape)
+        '''
+        shape_ids = [shp.id for shp in shapes]
+
+        regroup = False
+        if self._group:
+            regroup = True
+            self.ungroup()
+
+        new_shapes = []
+        for shp in self.child_items:
+            if shp.id not in shape_ids:
+                new_shapes.append(shp)
+        
+        if len(shapes) > 1:
+            tmp_grp_removed = shapes_to_range(shapes).group()
+        else:
+            tmp_grp_removed = shapes[0]
+        tmp_grp_remains = shapes_to_range(new_shapes).group()
+
+        self.regroup(new_shape_range=shapes_to_range([tmp_grp_removed, tmp_grp_remains]))
+        self._group.ungroup()
+
+        self._group = tmp_grp_remains
+        self.ungroup()
+        
+        if len(shapes) > 1:
+            tmp_grp_removed.ungroup()
+        
+        if regroup:
+            self.regroup()
+        
+        return self
+
+
     
     def add_child_items(self, shapes):
         '''
