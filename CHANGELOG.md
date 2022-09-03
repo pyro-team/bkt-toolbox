@@ -1,3 +1,23 @@
+# Release 2022-09-03 (2.7.4)
+
+  * Restructuring of context menus to load various function dynamically based on selected shape
+  * Added support to edit parameters of process shapes and circular segments
+  * Added support for Font Awesome 6 font icons
+  * Added toggle to disable conversion of shape adjustment values
+  * Added function to add current slide/shape to any chart/shape library
+  * Improved "copy-paste dimensions of table/pictures" to work with multiple shapes at once
+  * Improved various icons to be better visible in dark Office themes
+  * Fixed update of multiple thumbnails (e.g. all thumbnails in the presentation)
+  * Fixed some errors when updating an agenda (e.g. when deleting textbox or file is read-only)
+  * Fixed PowerPoint crash when table is selected
+  * Fixed some issues in functions using the clipboard (e.g. split paragraphs)
+  * Updated IronPython to 2.7.12
+  * Excel: Added function to list all data validations
+  * Excel: Added function to consolidate sheets by column (extension of row-consolidation function)
+  * Excel: Added small dialog to show hidden and very hidden sheets
+  * Excel: Fixed Excel workbook and sheet consolidation
+
+
 # Release 2021-01-29 (2.7.3)
 
   * Added option switch for auto-com-release (potential workaround for PPT restart bug)
