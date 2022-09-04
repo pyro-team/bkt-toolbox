@@ -748,28 +748,42 @@ class ChartLib(object):
 
     @classmethod
     def add_shapes_to_lib(cls, context, presentation):
-        #Copy each shape individually
+        #Name each shape individually before starting the thread (show_user_input does not work in threads)
+        shapes_titles = []
         for shape in context.shapes:
             title = bkt.ui.show_user_input("Bitte Shape-Titel eingeben:", "Shape-Titel", shape.Name)
             if title is None:
                 break
-            shape.Copy()
-            slide = presentation.Slides.Add(presentation.Slides.Count+1, 11) #11=ppTitleOnly
-            
-            #set slide background color
-            slide.FollowMasterBackground = False
-            orig_bg = context.slides[0].Background.Fill.ForeColor
-            if orig_bg.Type == pplib.MsoColorType['msoColorTypeScheme'] and orig_bg.ObjectThemeColor > 0:
-                slide.Background.Fill.ForeColor.ObjectThemeColor = orig_bg.ObjectThemeColor
-                slide.Background.Fill.ForeColor.Brightness = orig_bg.Brightness
-            else:
-                slide.Background.Fill.ForeColor.RGB = orig_bg.RGB
-            
-            # new_shp = slide.Shapes.Paste()
-            new_shp = cls._save_paste(slide.Shapes)
-            new_shp.Left = (presentation.PageSetup.SlideWidth - new_shp.Width)*0.5
-            new_shp.Top  = (presentation.PageSetup.SlideHeight - new_shp.Height)*0.5
-            slide.Shapes.Title.Textframe.TextRange.Text = title
+            shapes_titles.append((shape, title))
+        
+        orig_bg = context.slides[0].Background.Fill.ForeColor
+
+        def _start_process():
+            try:
+                #Copy each shape individually
+                for shape, title in shapes_titles:
+                    shape.Copy()
+                    slide = presentation.Slides.Add(presentation.Slides.Count+1, 11) #11=ppTitleOnly
+                    
+                    #set slide background color
+                    slide.FollowMasterBackground = False
+                    if orig_bg.Type == pplib.MsoColorType['msoColorTypeScheme'] and orig_bg.ObjectThemeColor > 0:
+                        slide.Background.Fill.ForeColor.ObjectThemeColor = orig_bg.ObjectThemeColor
+                        slide.Background.Fill.ForeColor.Brightness = orig_bg.Brightness
+                    else:
+                        slide.Background.Fill.ForeColor.RGB = orig_bg.RGB
+                    
+                    # new_shp = slide.Shapes.Paste()
+                    new_shp = cls._save_paste(slide.Shapes)
+                    new_shp.Left = (presentation.PageSetup.SlideWidth - new_shp.Width)*0.5
+                    new_shp.Top  = (presentation.PageSetup.SlideHeight - new_shp.Height)*0.5
+                    slide.Shapes.Title.Textframe.TextRange.Text = title
+            except:
+                logging.exception("Error adding shapes to shape library")
+        
+        t = Thread(target=_start_process)
+        t.start()
+        t.join()
 
 
     # def add_chart_to_file(self, context, current_control):
