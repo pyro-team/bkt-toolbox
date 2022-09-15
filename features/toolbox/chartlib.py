@@ -51,7 +51,7 @@ def open_presentation_without_window(context, filename, readonly=True):
 THUMBNAIL_POSTFIX = '_thumbnails'
 FILETYPES_PPT = ('.pptx', '.ppt')
 FILETYPES_POT = ('.potx', '.pot')
-
+FOLDER_ICON = '.folder.png'
 
 
 class ChartLib(object):
@@ -446,7 +446,17 @@ class ChartLib(object):
     def get_dynamic_folder_menu(self, folder):
         ''' returns dynamic menu for folder. if menu unfolds, menu content is obtained by get_folder_menu '''
         basename = os.path.basename(folder)
-        return bkt.ribbon.DynamicMenu(label=basename, tag=folder, get_content=bkt.Callback(self.get_folder_menu_callback, current_control=True))
+        return bkt.ribbon.DynamicMenu(label=basename, tag=folder, get_content=bkt.Callback(self.get_folder_menu_callback, current_control=True), get_image=bkt.Callback(self.get_get_dynamic_folder_icon, current_control=True))
+    
+    def get_get_dynamic_folder_icon(self, current_control):
+        ''' callback for getting folder icon '''
+        folder = current_control['tag']
+        folder_icon = os.path.join(folder, FOLDER_ICON)
+        if os.path.exists(folder_icon):
+            return glib.open_bitmap_nonblocking(folder_icon)
+        else:
+            # return empty white image
+            return glib.empty_image(50,50)
     
     def get_dynamic_file_menu(self, filename):
         ''' returns dynamic menu for file. if menu unfolds, menu content is obtained by get_chartlib_menu_from_file '''
