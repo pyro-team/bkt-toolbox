@@ -45,13 +45,16 @@ class ThumbnailerTags(pplib.BKTTag):
     def is_thumbnail(self):
         return "slide_id" in self.data
 
-    def set_thumbnail(self, slide_id, slide_path, data_type=PASTE_DATATYPE_PNG, content_only=False, shape_id=None):
+    def set_thumbnail(self, slide_id, slide_path, data_type=PASTE_DATATYPE_PNG, content_only=False, shape_id=None, **kwargs):
         self.data["slide_id"] = slide_id
         self.data["slide_path"] = slide_path
         self.data["data_type"] = data_type
         self.data["content_only"] = content_only #=exclude placeholder shapes
         if shape_id is not None:
             self.data["shape_id"] = shape_id
+        
+        # for future compatibility
+        self.data.update(kwargs)
 
 
 class Thumbnailer(object):
@@ -105,7 +108,8 @@ class Thumbnailer(object):
 
     @classmethod
     @contextmanager
-    def find_and_export_object(cls, application, slide_id, slide_path, content_only=False, shape_id=None, data_type=None):
+    def find_and_export_object(cls, application, slide_id, slide_path, content_only=False, shape_id=None, data_type=None, **kwargs):
+        #kwargs added for for future compatibility
         #avoid referenced before assignment error in finally clause
         close = None
         tmpfile = None
