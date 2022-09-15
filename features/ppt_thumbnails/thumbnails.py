@@ -230,6 +230,9 @@ class Thumbnailer(object):
                 with ThumbnailerTags(shape.Tags) as tags:
                     tags.set_thumbnail(slide_id, data["slide_path"], data_type, content_only, shape_id)
                 shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_THUMBNAIL)
+
+                # add hyperlink
+                cls._update_hyperlink(shape, application)
             except Exception as e:
                 #bkt.helpers.exception_as_message()
                 bkt.message.error("Fehler! Thumbnail konnte nicht im gewählten Format eingefügt werden.\n\n{}".format(e), "BKT: Thumbnails")
@@ -424,6 +427,8 @@ class Thumbnailer(object):
         new_shp.PictureFormat.crop.PictureOffsetX = shape.PictureFormat.crop.PictureOffsetX
         new_shp.PictureFormat.crop.PictureOffsetY = shape.PictureFormat.crop.PictureOffsetY
 
+        cls._update_hyperlink(new_shp, application)
+
         cls.remain_position_and_zorder(shape, new_shp)
         shape.PickUp()
         new_shp.Apply()
@@ -447,6 +452,19 @@ class Thumbnailer(object):
         #NOTE: selecting here is not a good idea as view might not be active (e.g. refresh whole presentation)
 
         return new_shp
+    
+    @classmethod
+    def _update_hyperlink(cls, shape, application):
+        with ThumbnailerTags(shape.Tags) as tags:
+            slide_id = tags["slide_id"]
+            slide_path = tags["slide_path"]
+
+        if slide_path == "CURRENT" or slide_path == application.ActivePresentation.FullName:
+            try:
+                slide = application.ActivePresentation.Slides.FindBySlideId(slide_id)
+                shape.ActionSettings(1).Hyperlink.SubAddress = "{},{},{}".format(slide.SlideId,slide.SlideIndex,slide.Name)
+            except EnvironmentError:
+                logging.warning("Thumbnails: Update of hyperlink failed!")
 
     @classmethod
     def _mark_erroneous_shape(cls, shape):
