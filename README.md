@@ -40,6 +40,10 @@ Zur Dokumentation gibt eine [Übersicht aller **BKT-Funktionen** der *PowerPoint
 
 Die Dokumentation für Experimentierfreudige und Entwickler ist verfügbar im [Wiki auf GitHub](https://github.com/pyro-team/bkt-toolbox/wiki).
 
+## Kontakt
+
+Bei Feature-Vorschläge und Problemen, erstellt gerne ein [GitHub-Ticket](https://github.com/pyro-team/bkt-toolbox/issues) oder kontaktiert uns unter [info@bkt-toolbox.de](mailto:info@bkt-toolbox.de).
+
 ## Contributions
 
  * [IronPython](https://github.com/IronLanguages/ironpython2)
