@@ -326,6 +326,20 @@ class Thumbnailer(object):
                 shp.Select()
             except IndexError:
                 bkt.message.error("Fehler! Shape in der referenzierten Präsentation nicht gefunden.", "BKT: Thumbnails")
+    
+    @classmethod
+    def presentation_unset(cls, presentation):
+        if bkt.message.confirmation("Dies löscht dauerhaft die Folien-Referenz und damit die Möglichkeit der Aktualisierung aller Thumbnails in der Präsentation.", "BKT: Thumbnails"):
+            total = 0
+            for sld in presentation.slides:
+                for shp in pplib.iterate_shape_subshapes( sld.shapes ):
+                    try:
+                        if cls.is_thumbnail(shp):
+                            shp.Tags.Delete(BKT_THUMBNAIL)
+                            shp.Tags.Delete(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY)
+                            total += 1
+                    except:
+                        logging.exception("Thumbnails: Could not determine if shape is thumbnail")
 
     @classmethod
     def presentation_refresh(cls, application, presentation):
@@ -692,8 +706,17 @@ thumbnail_gruppe = bkt.ribbon.Group(
                         description="Alle Thumbnails in der gesamten Präsentation aktualisieren",
                         # show_label=True,
                         #image_mso='PictureChange',
-                        supertip="Alle Folien-Thumbnails in der Präsentation. Das Thumbnail muss vorher mit dieser Funktion eingefügt worden sein. Stammt die Folie aus einer anderen Datei, wird diese automatisch kurzzeitig geöffnet.",
+                        supertip="Alle Folien-Thumbnails in der Präsentation aktualisieren. Das Thumbnail muss vorher mit dieser Funktion eingefügt worden sein. Stammt die Folie aus einer anderen Datei, wird diese automatisch kurzzeitig geöffnet.",
                         on_action=bkt.Callback(Thumbnailer.presentation_refresh, application=True, presentation=True),
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'presentation_unset',
+                        label="Thumbnails in Präsentation umwandeln",
+                        description="Folien-Referenz aller Thumbnails in der Präsentation löschen und Thumbnails in Bilder konvertieren",
+                        # show_label=True,
+                        #image_mso='PictureChange',
+                        supertip="Alle Folien-Thumbnails in der Präsentation in normale Bilder konvertieren, die sich nicht mehr aktualisieren lassen.",
+                        on_action=bkt.Callback(Thumbnailer.presentation_unset, presentation=True),
                     ),
                 ])
             ]
