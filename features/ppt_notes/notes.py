@@ -65,6 +65,11 @@ class EditModeShapes(object):
         shp.TextFrame.TextRange.Characters(len(new_text)-3, 4).Select()
     
     
+    @classmethod
+    def toogleNotesOnSlides(cls, slides, context):
+        for slide in slides:
+            cls.toogleNotesOnSlide(slide)
+    
     @staticmethod
     def toogleNotesOnSlide(slide, context):
         visible = None
@@ -85,6 +90,10 @@ class EditModeShapes(object):
                         visible = 1 if cShp.Visible == 0 else 0
                     cShp.Visible = visible
     
+    @classmethod
+    def removeNotesOnSlides(cls, slides, context):
+        for slide in slides:
+            cls.removeNotesOnSlide(slide)
     
     @staticmethod
     def removeNotesOnSlide(slide, context):
@@ -160,14 +169,14 @@ notes_gruppe = bkt.ribbon.Group(
             label='An/Aus', screentip='Notizen auf Folie ein-/ausblenden',
             supertip="Alle Notizen der aktuellen Folie temporär ausblenden und wieder einblenden.",
             image='noteToggle',
-            on_action=bkt.Callback(EditModeShapes.toogleNotesOnSlide)
+            on_action=bkt.Callback(EditModeShapes.toogleNotesOnSlides)
         ),
         bkt.ribbon.Button(
             id = 'notes_remove',
             label='Löschen', screentip='Notizen auf Folie löschen',
             supertip="Alle Notizen der aktuellen Folie entfernen.",
             image='noteRemove',
-            on_action=bkt.Callback(EditModeShapes.removeNotesOnSlide)
+            on_action=bkt.Callback(EditModeShapes.removeNotesOnSlides)
         ),
         bkt.ribbon.Button(
             id = 'notes_toggle_all',
