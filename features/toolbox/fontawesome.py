@@ -27,6 +27,7 @@ class Fontawesome(object):
             ('icomoon',         'IcoMoon-Free',                 False),
             ('materialicons',   'Material Icons',               False),
             ('segoemdl2',       'Segoe MDL2 Assets',            True),
+            ('segoefluent',     'Segoe Fluent Icons',           True),
             ('segoeui',         'Segoe UI',                     False),
             ('wingdings',       'Wingdings',                    True),
             # ('foobar', 'Non-existing test font', True),
