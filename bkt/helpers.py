@@ -10,6 +10,7 @@ Created on 10.09.2013
 from __future__ import absolute_import, print_function
 
 import os.path
+import io
 import logging
 import traceback
 
@@ -235,15 +236,19 @@ class BKTConfigParser(ConfigParser.ConfigParser):
             self.set('BKT', option, str(value)) #always transform to string, otherwise cannot access the value in same session anymore
 
         # write config file
-        with open(self.config_filename, "wb") as configfile:
+        with io.open(self.config_filename, "w", encoding='utf-8') as configfile:
             self.write(configfile)
+
+    def read_unicode(self):
+        with io.open(self.config_filename, encoding='utf-8') as configfile:
+            self.readfp(configfile)
 
 
 # load config
 config_filename=bkt_base_path_join("config.txt")
 config = BKTConfigParser(config_filename)
 if os.path.exists(config_filename):
-    config.read(config_filename)
+    config.read_unicode()
 else:
     config.add_section('BKT')
 
