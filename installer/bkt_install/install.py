@@ -6,7 +6,7 @@ Refactored on 25.02.2017
 @author: cschmitt
 '''
 
-from __future__ import absolute_import, division, print_function
+
 
 import os
 from collections import OrderedDict
@@ -136,7 +136,7 @@ class RegistryInfoService(object):
             )
     
     def iter_addin_assembly_infos(self):
-        for addin in self.addins.values():
+        for addin in list(self.addins.values()):
             yield self.get_addin_assembly_info(addin)
                 
     def get_application_addin_info(self, app, addin):
@@ -221,7 +221,7 @@ class Installer(object):
         
         # change config
         # write default config values
-        for key,value in default_config.items():
+        for key,value in list(default_config.items()):
             existing_value = getattr(config, key)
             if existing_value == None or existing_value == '':
                 new_value = value
@@ -232,7 +232,7 @@ class Installer(object):
             config.set_smart(key, new_value, False)
         
         # write fixed config values
-        for key,value in install_config.items():
+        for key,value in list(install_config.items()):
             config.set_smart(key, value, False)
         
         # remove example section (incl. all contents) as it is re-created later
@@ -309,8 +309,8 @@ dummy_option = dummy_value
 	#
 """
         # append config example
-        with open(config_filename, 'a') as fd:
-            fd.write(config_example.encode('utf-8'))
+        with open(config_filename, 'a', encoding='utf-8') as fd:
+            fd.write(config_example)
 
 
     

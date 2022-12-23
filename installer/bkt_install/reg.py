@@ -5,7 +5,7 @@ Created on 19.02.2017
 @author: chschmitt
 '''
 
-from __future__ import absolute_import, division, print_function
+
 
 import os.path
 
@@ -68,7 +68,7 @@ class AssemblyRegService(object):
     def load_assembly_attributes(self):
         assembly = Assembly.ReflectionOnlyLoadFrom(self.assembly_path)
         assembly_name = AssemblyName(assembly.FullName)
-        assembly_uri = u'file:///' + self.assembly_path.replace(os.path.sep, u'/')
+        assembly_uri = 'file:///' + self.assembly_path.replace(os.path.sep, '/')
 
         p = Properties()
         p.full_name = assembly.FullName
