@@ -5,7 +5,7 @@ Created on 26.02.2020
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import json
@@ -76,7 +76,7 @@ class DevGroup(object):
         import sys
         import bkt.console
         
-        bkt.console.show_message('\r\n'.join( sorted(sys.modules.iterkeys()) ))
+        bkt.console.show_message('\r\n'.join( sorted(sys.modules.keys()) ))
     
     @staticmethod
     def show_clipboard():
@@ -241,7 +241,7 @@ class AllControls(object):
 
     def add_all_standard_tabs(self):
         #standard tabs
-        for tab_id, tab in self.python_addin.app_ui.tabs.iteritems():
+        for tab_id, tab in self.python_addin.app_ui.tabs.items():
             tab_label = self._getattr(tab, "label")
             #if no label is given try getting standard idmso label
             if tab_label is None:
@@ -266,7 +266,7 @@ class AllControls(object):
 
     def add_all_contextual_tabs(self):
         #contextual_tabs
-        for tab_id, tablist in self.python_addin.app_ui.contextual_tabs.iteritems():
+        for tab_id, tablist in self.python_addin.app_ui.contextual_tabs.items():
             for tab in tablist:
                 tab_control = OrderedDict()
                 tab_control["id"]       = tab_id
@@ -310,7 +310,7 @@ class AllControls(object):
         context_menus["name"]     = "Kontextmenüs"
         context_menus["children"] = []
         #context menu controls
-        for _, contextmenu in self.python_addin.app_ui.context_menus.iteritems():
+        for _, contextmenu in self.python_addin.app_ui.context_menus.items():
             try:
                 cm_control = self._get_control_dict(contextmenu)
                 cm_control["children"] = []
@@ -352,10 +352,10 @@ class AllControls(object):
                                 description = ""
                             name = control["name"]
                             if control["is_standard"]:
-                                name = u"*{}*".format(name)
+                                name = "*{}*".format(name)
                             if control["submenu"]:
-                                name = u"{} > {}".format(control["submenu"], name)
-                            md_file.write(u"| {:50} | {:50} |\n".format(name, description))
+                                name = "{} > {}".format(control["submenu"], name)
+                            md_file.write("| {:50} | {:50} |\n".format(name, description))
                         md_file.write("\n")
                     md_file.write("\n")
                 md_file.write("\n\n\n")
