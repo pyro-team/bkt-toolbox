@@ -21,13 +21,13 @@ import System.Drawing.Bitmap as Bitmap
 class SpecialButton(bkt.FeatureContainer):
     @bkt.callback()
     def on_action(self):
-        print 'button action from container'
+        print('button action from container')
 
 @bkt.control(bkt.ribbon.Button)
 class SpecialButton2(bkt.FeatureContainer):
     @bkt.callback(context=True, shapes=True)
     def on_action(self, context, shapes):
-        print 'button action from container with context'
+        print('button action from container with context')
 
 
 
@@ -40,14 +40,14 @@ class SomeGroup(bkt.FeatureContainer):
     #@bkt.uuid('3777a1e0-58cf-40b9-acba-10ced84340b3')
     @bkt.configure(label='Test', size='large', image_mso='HappyFace')
     def test_button(self):
-        print 'hello world'
+        print('hello world')
 
     paste = bkt.mso.control.PasteSpecialDialog
     
     @bkt.button
     @bkt.arg_context
     def button_with_context(self, context):
-        print 'hello world'
+        print('hello world')
 
     cut   = bkt.mso.control.Cut
     copy  = bkt.mso.control.CopySplitButton
@@ -61,14 +61,14 @@ class SomeGroup(bkt.FeatureContainer):
 
     @bkt.large_button("I'm large")
     def a_large_button(self):
-        print 'hello large button'
+        print('hello large button')
     
     bkt.use(SpecialButton)
     bkt.use(SpecialButton2)
     
     @bkt.edit_box
     def some_textbox(self, value):
-        print 'text changed: ' + str(value)
+        print('text changed: ' + str(value))
     
     @some_textbox.get_text
     def some_textbox_get_text(self):
@@ -173,25 +173,25 @@ class TestSpinnerInGroup(bkt.FeatureContainer):
     #FIXME: UI-Parameter erlauben, z.B. label
     @bkt.control(bkt.ribbon.Button, label='a button')
     def button(self):
-        print 'a button'
+        print('a button')
 
     @bkt.configure(label='text', size_string='#######')
     @bkt.control(bkt.ribbon.SpinnerBox, label='text', size_string='#######')
     def change_method(self, value):
-        print 'text changed: ' + value
+        print('text changed: ' + value)
     
     # @change_method.callback('get_text')
     @change_method.get_text
     def get_method(self):
-        print 'return text'
+        print('return text')
 
     @change_method.increment
     def inc_method(self):
-        print 'increment!'
+        print('increment!')
 
     @change_method.decrement
     def dec_method(self):
-        print 'decrement!'
+        print('decrement!')
 
     # @change_method.callback('increment')
     # def inc_method(self):
@@ -238,7 +238,7 @@ class TestGalleryGroup(bkt.FeatureContainer):
     @bkt.control(bkt.ribbon.Gallery)
     def the_action(self, selected_item, index):
         self._selected = index
-        print 'action: selected=' + str(selected_item) + ' index=' + str(index)
+        print('action: selected=' + str(selected_item) + ' index=' + str(index))
         
     # mandatory
     @the_action.get_item_count
@@ -265,11 +265,11 @@ class TestGalleryGroup(bkt.FeatureContainer):
     
     @bkt.control(bkt.ribbon.ColorGallery)
     def the_color_action(self):
-        print 'color action'
+        print('color action')
 
     @the_color_action.on_theme_color_change
     def the_color_action_theme(self, color_index, brightness):
-        print 'theme-color action ' + str(color_index) + ' ' + str(brightness)
+        print('theme-color action ' + str(color_index) + ' ' + str(brightness))
     
     
 
@@ -278,7 +278,7 @@ class TestGalleryGroup(bkt.FeatureContainer):
 
 class foo(object):
     def bar(self):
-        print 'foo bar'
+        print('foo bar')
 
 aFoo = foo()
 

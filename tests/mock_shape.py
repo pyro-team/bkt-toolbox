@@ -5,7 +5,7 @@ Created on 14.07.2020
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 from .mock import OfficeMock
 

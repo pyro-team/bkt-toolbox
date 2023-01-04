@@ -5,7 +5,7 @@ Created on 07.08.2015
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import unittest
 
@@ -28,8 +28,8 @@ class SpinnerBox(Box):
     #
     def __init__(self, **kwargs):
         self.txt_box = EditBox(size_string='###', **kwargs)
-        self.inc_button = Button(label=u"»")
-        self.dec_button = Button(label=u"«")
+        self.inc_button = Button(label="»")
+        self.dec_button = Button(label="«")
         super(SpinnerBox, self).__init__(children = [self.txt_box, self.dec_button, self.inc_button])
         #self._local_callbacks = {}
         #
@@ -119,7 +119,7 @@ class UIDefinitionTest(unittest.TestCase):
         
         self.maxDiff = None
         ctrl = SpinnerBox()
-        self.assertEqual(ctrl_to_str(ctrl), u'<box>\n<editBox sizeString="###" />\n<button label="\xab" />\n<button label="\xbb" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box>\n<editBox sizeString="###" />\n<button label="\xab" />\n<button label="\xbb" />\n</box>')
 
         def my_gettext():
             return 10
@@ -139,10 +139,10 @@ class UIDefinitionTest(unittest.TestCase):
         ctrl.add_callback( cb_onchange )
         ctrl.add_callback( cb_gettext )
         ctrl.add_callback( cb_inc )
-        self.assertEqual(ctrl_to_str(ctrl), u'<box>\n<editBox getText="PythonGetText" onChange="PythonOnChange" sizeString="###" />\n<button label="\xab" />\n<button label="\xbb" onAction="PythonOnAction" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box>\n<editBox getText="PythonGetText" onChange="PythonOnChange" sizeString="###" />\n<button label="\xab" />\n<button label="\xbb" onAction="PythonOnAction" />\n</box>')
 
         ctrl.add_callback( cb_dec )
-        self.assertEqual(ctrl_to_str(ctrl), u'<box>\n<editBox getText="PythonGetText" onChange="PythonOnChange" sizeString="###" />\n<button label="\xab" onAction="PythonOnAction" />\n<button label="\xbb" onAction="PythonOnAction" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box>\n<editBox getText="PythonGetText" onChange="PythonOnChange" sizeString="###" />\n<button label="\xab" onAction="PythonOnAction" />\n<button label="\xbb" onAction="PythonOnAction" />\n</box>')
 
 
 
@@ -183,7 +183,7 @@ class UIDefinitionTest(unittest.TestCase):
         
         ctrl = WorkingSpinner()
         
-        self.assertEqual(ctrl_to_str(ctrl), u'<box>\n<editBox sizeString="###" />\n<button label="\xab" onAction="PythonOnAction" />\n<button label="\xbb" onAction="PythonOnAction" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box>\n<editBox sizeString="###" />\n<button label="\xab" onAction="PythonOnAction" />\n<button label="\xbb" onAction="PythonOnAction" />\n</box>')
         
         def my_gettext():
             return 10
