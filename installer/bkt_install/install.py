@@ -136,7 +136,7 @@ class RegistryInfoService(object):
             )
     
     def iter_addin_assembly_infos(self):
-        for addin in list(self.addins.values()):
+        for addin in self.addins.values():
             yield self.get_addin_assembly_info(addin)
                 
     def get_application_addin_info(self, app, addin):
@@ -221,18 +221,18 @@ class Installer(object):
         
         # change config
         # write default config values
-        for key,value in list(default_config.items()):
+        for key,value in default_config.items():
             existing_value = getattr(config, key)
             if existing_value == None or existing_value == '':
                 new_value = value
-            elif type(existing_value) == list and type(value) == list:
+            elif isinstance(existing_value, list) and isinstance(value, list):
                 new_value = existing_value + [v for v in value if not v in existing_value]
             else:
                 new_value = existing_value
             config.set_smart(key, new_value, False)
         
         # write fixed config values
-        for key,value in list(install_config.items()):
+        for key,value in install_config.items():
             config.set_smart(key, value, False)
         
         # remove example section (incl. all contents) as it is re-created later

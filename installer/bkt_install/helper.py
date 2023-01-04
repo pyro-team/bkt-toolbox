@@ -122,7 +122,7 @@ class BKTConfigParser(configparser.ConfigParser):
         to '\n'-seperated strings. List-values can be read from the config file
         using attribute notation (e.g. config.my_list_option).
         '''
-        if type(value) == list:
+        if isinstance(value, list):
             if value:
                 self.set('BKT', option, "\n" + "\n".join(str(v) for v in value))
             else:
