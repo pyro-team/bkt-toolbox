@@ -5,7 +5,7 @@ Created on 02.11.2017
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 from collections import deque
 
@@ -462,20 +462,20 @@ class PositionGallery(bkt.ribbon.Gallery):
     #   reference: CONTENTE / SLIDE / ABS 
     #       values are converted according to reference
     items = [
-        [u"Volle Fläche",  [ 0, 0, 1, 1],       'CONTENT'],
-        [u"2/3 Links",     [   0,  0, 2./3, 1], 'CONTENT'],
-        [u"2/3 Rechts",    [1./3,  0, 2./3, 1], 'CONTENT'],
+        ["Volle Fläche",  [ 0, 0, 1, 1],       'CONTENT'],
+        ["2/3 Links",     [   0,  0, 2./3, 1], 'CONTENT'],
+        ["2/3 Rechts",    [1./3,  0, 2./3, 1], 'CONTENT'],
         
-        [u"1/2 Links",     [  0, 0, .5, 1], 'CONTENT'],
-        [u"1/2 Mitte",     [.25, 0, .5, 1], 'CONTENT'],
-        [u"1/2 Rechts",    [ .5, 0, .5, 1], 'CONTENT'],
+        ["1/2 Links",     [  0, 0, .5, 1], 'CONTENT'],
+        ["1/2 Mitte",     [.25, 0, .5, 1], 'CONTENT'],
+        ["1/2 Rechts",    [ .5, 0, .5, 1], 'CONTENT'],
         
-        [u"1/3 Links",     [  0,  0, 1./3, 1], 'CONTENT'],
-        [u"1/3 Mitte",     [1./3, 0, 1./3, 1], 'CONTENT'],
-        [u"1/3 Rechts",    [2./3, 0, 1./3, 1], 'CONTENT'],
+        ["1/3 Links",     [  0,  0, 1./3, 1], 'CONTENT'],
+        ["1/3 Mitte",     [1./3, 0, 1./3, 1], 'CONTENT'],
+        ["1/3 Rechts",    [2./3, 0, 1./3, 1], 'CONTENT'],
         
-        [u"1/6 Oben",      [ 0,    0, 1, 1./6], 'CONTENT'],
-        [u"1/6 Unten",     [ 0, 5./6, 1, 1./6], 'CONTENT']
+        ["1/6 Oben",      [ 0,    0, 1, 1./6], 'CONTENT'],
+        ["1/6 Unten",     [ 0, 5./6, 1, 1./6], 'CONTENT']
     ]
     
     def __init__(self, positions=None, label="Standardpositionen", columns=3, **kwargs):
@@ -484,7 +484,7 @@ class PositionGallery(bkt.ribbon.Gallery):
             label = label,
             columns = columns,
             image_mso='PositionAnchoringGallery',
-            supertip=u"Positioniere die ausgewählten Shapes auf eine Standardposition.",
+            supertip="Positioniere die ausgewählten Shapes auf eine Standardposition.",
             children=[
                 bkt.ribbon.Button(
                     label="Benutzerdef. Bereich festlegen",
@@ -589,14 +589,14 @@ class PositionGallery(bkt.ribbon.Gallery):
         
         
     def length_from_definition(self, length_definition, reference):
-        if type(length_definition) == list:
+        if isinstance(length_definition, list):
             # allow [150, 50%]
             l = 0
             for ldef in length_definition:
                 l += self.length_from_definition(ldef, reference)
             return l
             
-        elif type(length_definition) in [int, float, long]:
+        elif type(length_definition) in [int, float, int]:
             if length_definition < 0:
                 # negative values specify distance 'from right'
                 return reference - self.length_from_definition(-length_definition, reference)
@@ -636,4 +636,4 @@ class PositionGallery(bkt.ribbon.Gallery):
             left, top, width, height = pplib.ContentArea.read_contentarea(presentation)
             if len(self.items) == 12:
                 self.items.pop()
-            self.items.append([u"Benutzerdef. Bereich", [left, top, width, height], 'ABS'])
+            self.items.append(["Benutzerdef. Bereich", [left, top, width, height], 'ABS'])

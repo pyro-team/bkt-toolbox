@@ -5,7 +5,7 @@ Created on 02.11.2017
 @author: fstallmann
 '''
 
-from __future__ import absolute_import, division
+
 
 import time
 import json # required for tags
@@ -13,6 +13,7 @@ from collections import namedtuple # required for color class
 from contextlib import contextmanager # for locale helper
 
 import System.Array # to create int/str-Arrays
+import System.Int32
 
 from bkt import settings, dotnet # required to save global locpin setting
 from bkt.library import algorithms # required for color helper
@@ -424,17 +425,17 @@ def shape_is_group_child(shape):
     '''
     try:
         return shape.ParentGroup.Id != ""
-    except SystemError:
+    except (SystemError, PermissionError):
         return False
 
 
 def shape_indices_on_slide(slide, indices):
     ''' return shape-range in slide by indices '''
-    return slide.Shapes.Range(System.Array[int](indices))
+    return slide.Shapes.Range(System.Array[System.Int32](indices)) #NOTE: In IPY3 [int] needs to be [System.Int32]
 
 def last_n_shapes_on_slide(slide, n):
     ''' return last n shapes in slide as range'''
-    return shape_indices_on_slide(slide, range(slide.shapes.Count + 1 -n, slide.shapes.Count + 1))
+    return shape_indices_on_slide(slide, list(range(slide.shapes.Count + 1 -n, slide.shapes.Count + 1)))
 
 def shape_names_on_slide(slide, names):
     ''' return shape-range in slide by names '''
@@ -467,10 +468,10 @@ def shapes_to_range(shapes):
     for s in shapes:
         try:
             indices.append(shape_id2idx[s.id])
-        except (KeyError, EnvironmentError):
+        except (KeyError, EnvironmentError, SystemError): #NOTE: EnvironmentError in IPY2 is likely SystemError now in IPY3 in this case
             pass #just ignore missing shapes
     #return range
-    return all_shapes.Range(System.Array[int](indices))
+    return all_shapes.Range(System.Array[System.Int32](indices)) #NOTE: In IPY3 [int] needs to be [System.Int32]
 
     ###############
     ### Approach 1:
@@ -742,7 +743,7 @@ class TagHelper(object):
         '''
         Set shape tags based on a python dictionary.
         '''
-        for k,v in tags_dict.items():
+        for k,v in list(tags_dict.items()):
             obj_tags.add(k,v)
 
     @staticmethod
@@ -768,7 +769,7 @@ class TagHelper(object):
             value = obj.Tags(tag_name)
             if value == '':
                 return default
-            if type(attr_type) == type:
+            if isinstance(attr_type, type):
                 return attr_type(value)
             return value
         except:
@@ -828,9 +829,8 @@ class PPTColor(object):
     def __ne__(self, other):
         return not self.__eq__(other)
     
-    def __nonzero__(self):
+    def __bool__(self):
         return self.color_type != self.COLOR_NONE
-    __bool__ = __nonzero__
 
     def pickup_from_color_obj(self, color_obj):
         if color_obj.Type == MsoColorType['msoColorTypeScheme']:
@@ -892,9 +892,9 @@ class ColorHelper(object):
         # depending on HSL-Luminosity, different brightness-values are used
         # brightness-values = percentage brighter  (darker if negative)
         [[0],           [ 50,   35,  25,  15,   5] ],
-        [range(1,20),   [ 90,   75,  50,  25,  10] ],
-        [range(20,80),  [ 80,   60,  40, -25, -50] ],
-        [range(80,100), [-10,  -25, -50, -75, -90] ],
+        [list(range(1,20)),   [ 90,   75,  50,  25,  10] ],
+        [list(range(20,80)),  [ 80,   60,  40, -25, -50] ],
+        [list(range(80,100)), [-10,  -25, -50, -75, -90] ],
         [[100],         [ -5,  -15, -25, -35, -50] ]
     ] #using int values to avoid floating point comparison problems
 
@@ -1212,7 +1212,7 @@ class SubShapeIterator(object):
 
     def __init__(self, shapes, from_selection=True, exclude=None):
         #Ensure list
-        if type(shapes) != list:
+        if not isinstance(shapes, list):
             shapes = list(iter(shapes))
         
         self.only_selected_table_cells = False
@@ -1456,7 +1456,7 @@ class GroupManager(object):
                 self._group.select(replace=replace)
             else:
                 self._ungroup.select(replace=replace)
-        except EnvironmentError:
+        except (EnvironmentError, SystemError): #NOTE: EnvironmentError in IPY2 is likely SystemError now in IPY3 in this case
             # Select(replace=False) sometimes throws "Invalid request.  To select a shape, its view must be active.", e.g. right after duplicating the shape
             if self._group:
                 self._group.select()

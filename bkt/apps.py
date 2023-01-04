@@ -6,7 +6,7 @@ Created on 11.07.2014
 @authors: cschmitt, rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 

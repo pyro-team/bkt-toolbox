@@ -6,7 +6,7 @@ Created on 09.03.2020
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 ### Search should be compatible to Whoosh
 import logging
@@ -44,22 +44,20 @@ class SearchResults(object):
         #create list from normal forward iteration and then use reversed function
         return reversed(list(self))
 
-    def next(self):
+    def __next__(self):
         try:
             return next(self._iterator)
         except StopIteration as e:
             #after iterator is exhausted, reset chained-iterators to start over again
             self._chained_iterators = None
             raise e
-
-    __next__ = next #for python 3
     
     def _get_default_iterator(self):
         if self._reversed_order:
             iterator = reversed(self._doc_db) #OrderedDict supports reversed()
             #python3: iterator = reversed(self._doc_db.keys())
         else:
-            iterator = self._doc_db.iterkeys()
+            iterator = iter(self._doc_db.keys())
         
         for doc_hash in iterator:
                 if doc_hash in self._result_hashes:

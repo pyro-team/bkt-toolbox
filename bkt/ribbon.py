@@ -6,10 +6,11 @@ Created on 17.11.2014
 @author: cschmitt
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import uuid #for getting random id
+import collections #for callable
 
 from itertools import count
 
@@ -85,13 +86,13 @@ class RibbonControl(object):
         
         # init callbacks from kwargs, fallback is empty dict
         self._callbacks = {}
-        if kwargs.has_key('callbacks'):
+        if 'callbacks' in kwargs:
             self._callbacks = kwargs.pop('callbacks', {})
         else:
             # auto-identify callbacks
-            for ct in CallbackTypes.callback_map().keys():
+            for ct in list(CallbackTypes.callback_map().keys()):
                 if hasattr(self, ct):
-                    if callable(getattr(self, ct)):
+                    if isinstance(getattr(self, ct), collections.Callable):
                         cb = Callback(getattr(self, ct))
                         cb.callback_type = getattr(CallbackTypes, ct)
                         self.add_callback(cb)
@@ -139,12 +140,12 @@ class RibbonControl(object):
     
     def set_attributes(self, **kwargs):
         ''' sets class-attributes, control-attributes and callbacks '''
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             if isinstance(value, Callback):
                 # add callback
                 if value.callback_type is None or value.callback_type.python_name is None:
                     # use fallback callback-type
-                   value.callback_type = getattr(CallbackTypes, key)
+                    value.callback_type = getattr(CallbackTypes, key)
                 self.add_callback(value)
                 
             elif hasattr(self, key):
@@ -158,7 +159,7 @@ class RibbonControl(object):
     
     def set_control_attributes(self, **kwargs):
         ''' set attributes of ribbon control '''
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             self._attributes[key] = value
     
     
@@ -236,7 +237,7 @@ class RibbonControl(object):
         
     def __getattr__(self, attr):
         ''' access callbacks as properties, e.g. button.on_action '''
-        if self._callbacks.has_key(attr):
+        if attr in self._callbacks:
             return self._callbacks[attr]
         else:
             raise AttributeError(attr)
@@ -287,7 +288,7 @@ class RibbonControl(object):
             objects x to x.xml() or str(x)
         '''
         
-        return {key:value for key, value in self._attributes.iteritems() if value != None}
+        return {key:value for key, value in self._attributes.items() if value != None}
         
         
         
@@ -324,6 +325,7 @@ class RibbonControl(object):
     
     def add_callback(self, original_callback, callback_type=None):
         ''' adds a callback to the element'''
+        logging.debug("adding callback %s", original_callback)
         if isinstance(original_callback, CallbackType):
             # FIXME: is this ever used? should fail in xml-method
             callback = original_callback
@@ -491,7 +493,7 @@ class Gallery(GalleryMso):
         strFormat.Alignment = Drawing.StringAlignment.Center
         strFormat.LineAlignment = Drawing.StringAlignment.Center
         g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
-        g.DrawString(u"\uE10B",
+        g.DrawString("\uE10B",
                     Drawing.Font("Segoe UI Symbol", 24, Drawing.GraphicsUnit.Pixel), text_brush,
                     # Drawing.RectangleF(2, 3, size, size),
                     Drawing.RectangleF(1, 2, size, size-1), 
@@ -509,8 +511,8 @@ class SpinnerBox(Box):
         # initialize children
         self.image_element = user_kwargs.pop('image_element', None) #image can be user defined element (e.g. button); otherwise image is given to textbox
         self.txt_box = EditBox()
-        self.inc_button = Button(label=u"»")
-        self.dec_button = Button(label=u"«")
+        self.inc_button = Button(label="»")
+        self.dec_button = Button(label="«")
 
         # default attributes
 
@@ -539,7 +541,7 @@ class SpinnerBox(Box):
         if self.image_element is not None:
             image_args = { key: kwargs.pop(key) for key in ['label', 'show_label', 'image', 'image_mso', 'show_image'] if key in kwargs }
             image_args.update(button_args)
-            if type(self.image_element) == SplitButton:
+            if isinstance(self.image_element, SplitButton):
                 self.image_element.children[0].set_control_attributes(**image_args)
             else:
                 self.image_element.set_control_attributes(**image_args)
@@ -680,7 +682,7 @@ class RoundingSpinnerBox(SpinnerBox):
         ''' initializes the increment- and decrement-callback, if the editbox's on_change- and get_text-callback are defined.
             adds self._inc and self._dec as callbacks to the inc/dec-button
         '''
-        if not ( self.txt_box._callbacks.has_key('get_text') and self.txt_box._callbacks.has_key('on_change') ):
+        if not ( 'get_text' in self.txt_box._callbacks and 'on_change' in self.txt_box._callbacks ):
             return
 
         invocation_context = self.txt_box._callbacks['on_change'].invocation_context.copy()
@@ -691,7 +693,7 @@ class RoundingSpinnerBox(SpinnerBox):
         super(RoundingSpinnerBox, self).add_callback( Callback(self._inc, CallbackTypes.increment, invocation_context) )
 
         # add reset-Callback is image_element is button and does not have on_action-Callback already
-        if self.image_element is not None and type(self.image_element) == Button and not self.image_element._callbacks.has_key('on_action'):
+        if self.image_element is not None and isinstance(self.image_element, Button) and 'on_action' not in self.image_element._callbacks:
             super(RoundingSpinnerBox, self).add_callback( Callback(self._res, CallbackTypes.on_action, invocation_context) )
 
 
@@ -746,11 +748,11 @@ class RoundingSpinnerBox(SpinnerBox):
         
         if value is None:
             return None
-        elif type(value) is tuple:
+        elif isinstance(value, tuple):
             #tuple with 2 values ambiguous bool and fallback value
             assert len(value) == 2, "Ambiguity tuple must have exactly two values"
             ambiguous, value = value
-        elif type(value) is list:
+        elif isinstance(value, list):
             # list means ambiguous values
             value_0 = value[0]
             if not value or value_0 is None:
@@ -775,7 +777,7 @@ class RoundingSpinnerBox(SpinnerBox):
         ''' general convert-function using the control's convert-setting.
             converts the value before calling on_change-callback
         '''
-        if type(value) == str:
+        if isinstance(value, str):
             try:
                 value = float(value.replace(',', '.'))
             except:
@@ -1251,7 +1253,7 @@ def convert_value_to_string(v, key=None):
         return 'true'
     elif v is False:
         return 'false'
-    elif isinstance(v, (str, unicode)):
+    elif isinstance(v, str):
         return escape_field(v, key)
     else:
         try:
@@ -1280,6 +1282,6 @@ def convert_value_to_string(v, key=None):
     # return ''.join(parts_new)
 
 def convert_dict_to_ribbon_xml_style(d):
-    return {_h.snake_to_lower_camelcase(k):convert_value_to_string(v, k) for k, v in d.iteritems()}
+    return {_h.snake_to_lower_camelcase(k):convert_value_to_string(v, k) for k, v in d.items()}
 
 

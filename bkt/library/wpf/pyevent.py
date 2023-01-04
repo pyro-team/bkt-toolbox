@@ -1,3 +1,4 @@
+import collections
 #####################################################################################
 #
 #  Copyright (c) Microsoft Corporation. All rights reserved.
@@ -27,8 +28,8 @@ class event(object):
         elif isinstance(other, event_caller):
             self.handlers.extend(other.event.handlers)
         else:
-            if not callable(other):
-                raise TypeError, "cannot assign to event unless value is callable"
+            if not isinstance(other, collections.Callable):
+                raise TypeError("cannot assign to event unless value is callable")
             self.handlers.append(other)
         return self
         
@@ -66,10 +67,10 @@ class event_caller(object):
             ev(*args)
 
     def __set__(self, val):
-        raise ValueError, "cannot assign to an event, can only add or remove handlers"
+        raise ValueError("cannot assign to an event, can only add or remove handlers")
     
     def __delete__(self, val):
-        raise ValueError, "cannot delete an event, can only add or remove handlers"
+        raise ValueError("cannot delete an event, can only add or remove handlers")
 
     def __get__(self, instance, owner):
         return self

@@ -6,7 +6,7 @@ Created on 23.11.2014
 @author: cschmitt
 '''
 
-from __future__ import absolute_import
+
 
 import types
 import logging
@@ -574,14 +574,13 @@ class ContainerUsage(AbstractAnnotationObject):
         self.attribute = None
 
 
-class FeatureContainer(object):
+class FeatureContainer(object, metaclass=AnnotatedType):
     '''
     Intended as the parent class of all implementation classes which organize addin logic via annotated
     (decorated) methods. The decorators to be used may add various types of meta information,
     e.g. the context necessary for invocation (see @arg_ decorators) and the type/appearance of
     the associated UI element.
     '''
-    __metaclass__ = AnnotatedType
 
 
 

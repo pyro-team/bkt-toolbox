@@ -7,7 +7,7 @@ Created on 10.09.2013
 @author: cschmitt, rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 __author__ = "Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann"
 __copyright__ = "Copyright 2019 Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann"

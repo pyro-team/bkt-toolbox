@@ -6,7 +6,7 @@ Created on 23.11.2014
 @author: cschmitt
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import sys, inspect
@@ -71,7 +71,7 @@ class ControlFactory(object):
         ### Annotations-Baum auflösen
         
         # Root-Control erstellen
-        if type(annotation.ui_info.node_type) == str:
+        if isinstance(annotation.ui_info.node_type, str):
             instance = RIBBON_CONTROL_CLASSES[annotation.ui_info.node_type](id_tag=self.id_tag, **annotation.ui_info.control_args)
         else:
             instance = annotation.ui_info.node_type(id_tag=self.id_tag, **annotation.ui_info.control_args)

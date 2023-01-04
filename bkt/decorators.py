@@ -6,7 +6,7 @@ Created on 11.11.2014
 @author: cschmitt
 '''
 
-from __future__ import absolute_import, print_function
+
 
 from bkt.annotation import (require_ui,
                          ensure_callback_nfo,
@@ -97,7 +97,7 @@ def _configure(annotation, *args, **kwargs):
     # args erlauben, aus kwargs['posargs'] lesen, welche Parameter damit gesetzt werden
     ui_nfo = annotation.ui_info
     if len(args) > 0:
-        if kwargs.has_key('pos_args') and len(kwargs['pos_args']) >= len(args):
+        if 'pos_args' in kwargs and len(kwargs['pos_args']) >= len(args):
             for i in range(0,len(args)):
                 kwargs[kwargs['pos_args'][i]] = args[i]
             del kwargs['pos_args']
@@ -105,7 +105,7 @@ def _configure(annotation, *args, **kwargs):
             print('args=%s, kwargs=%s', (args, kwargs))
             raise ValueError('Too many non-keyword-arguments for configure-annotation, args=%s, kwargs=%s' % (args, kwargs))
     
-    if kwargs.has_key('pos_args'):
+    if 'pos_args' in kwargs:
         del kwargs['pos_args']
     
     for k, v in kwargs.items():

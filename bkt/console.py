@@ -6,10 +6,10 @@ Created on 23.01.2014
 @author: cschmitt
 '''
 
-from __future__ import absolute_import
+
 
 # import code
-from cStringIO import StringIO
+from io import StringIO
 import sys
 import traceback
 import re
@@ -196,7 +196,7 @@ class InteractiveConsole(F.Form):
         sys.stdout._callbacks.add(self.stdout_callback)
         #self.interpreter = code.InteractiveInterpreter()
         self._globals = {}
-        exec "import clr" in self._globals
+        exec("import clr", self._globals)
         
         self.output = create_console_textbox()
         self.output.Dock = F.DockStyle.Fill 
@@ -222,7 +222,7 @@ class InteractiveConsole(F.Form):
         execute.Click += self.execute
         
         def print_help(*args):
-            print CONSOLE_HELP_TEXT.strip()
+            print(CONSOLE_HELP_TEXT.strip())
         
         help.Click += print_help
         
@@ -245,8 +245,8 @@ class InteractiveConsole(F.Form):
             self.input.SelectionStart = 0
             self.input.SelectionLength = self.input.Text.Length
         elif keys == F.Keys.Control | F.Keys.C and self.input.SelectionLength == 0:
-            print endings_to_windows(self.input.Text.strip(), prepend='... ', prepend_first='>>> ')
-            print "KeyboardInterrupt"
+            print(endings_to_windows(self.input.Text.strip(), prepend='... ', prepend_first='>>> '))
+            print("KeyboardInterrupt")
             self.input.Text = ""
         elif keys == F.Keys.Tab:
             self.tab_complete()
@@ -323,7 +323,7 @@ class InteractiveConsole(F.Form):
         col_width = max(len(o) for o in options) + 1
         num_cols = max_width/col_width
         num_rows = int(math.ceil(float(len(options))/float(num_cols)))
-        rows = ['' for row in xrange(num_rows)]
+        rows = ['' for row in range(num_rows)]
         
         def pad(s):
             return s + ((col_width-len(s))*' ')
@@ -342,7 +342,7 @@ class InteractiveConsole(F.Form):
         if min_len == 0:
             return ''
         
-        for i in xrange(min_len):
+        for i in range(min_len):
             # check whether character at position i is equal
             if len(set([item[i] for item in items])) > 1:
                 # if not, return prefix (without i'th character)
@@ -424,7 +424,7 @@ class InteractiveConsole(F.Form):
 
         except (SyntaxError, NameError, AttributeError):
             pass
-        except  Exception, e:
+        except  Exception as e:
             print(e)
     
     def execute(self, *args):
@@ -446,7 +446,7 @@ class InteractiveConsole(F.Form):
         self.history_cursor = None
 
         # print input
-        print endings_to_windows(source.strip(), prepend='... ', prepend_first='>>> ')
+        print(endings_to_windows(source.strip(), prepend='... ', prepend_first='>>> '))
         
         # save input
         if not self.history or source_orig != self.history[-1]:
@@ -456,14 +456,14 @@ class InteractiveConsole(F.Form):
         # compile code
         try:
             code = compile(source, '<input>', 'single')
-        except BaseException, ex:
-            print ex
+        except BaseException as ex:
+            print(ex)
             restore_input()
             return
         
         # execute code
         try:
-            exec code in self._globals
+            exec(code, self._globals)
             self.last_input = None
             #if not self.history or source_orig != self.history[-1]:
             #    self.history.append(source_orig)

@@ -6,7 +6,7 @@ Created on 13.11.2014
 @authors: cschmitt, rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import importlib
 import logging
@@ -90,7 +90,7 @@ class CallbackTypesCatalog(object):
             super(CallbackTypesCatalog, self).__setattr__(attr, value)
     
     def has_callback_type(self, name):
-        return self._callback_types.has_key(name)
+        return name in self._callback_types
 
     def get_callback_type(self, name):
         return self._callback_types[name]
@@ -234,7 +234,7 @@ class Callback(object):
     def init_method(self, method, **kwargs):
         ''' initialization method. Builds callback_type and invocation_context from keyword-arguments  '''
         # split kwargs for callback_type and invocation_context
-        callback_args = { key:kwargs.pop(key) for key in kwargs.keys() if key in self.CALLBACK_KEYS }
+        callback_args = { key:kwargs.pop(key) for key in list(kwargs.keys()) if key in self.CALLBACK_KEYS }
         # callback_args = { key:value for key, value in kwargs.items() if key in self.CALLBACK_KEYS }
         # kwargs        = { key:value for key, value in kwargs.items() if key not in self.CALLBACK_KEYS }
         callback_type = CallbackType(**callback_args)

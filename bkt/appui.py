@@ -6,7 +6,7 @@ Created on 11.11.2019
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 
@@ -298,7 +298,7 @@ class AppUI(object):
                             for tab in tablist
                         ]
                     )
-                    for id_mso, tablist in custom_ribbon.contextual_tabs.iteritems()
+                    for id_mso, tablist in custom_ribbon.contextual_tabs.items()
                 ]
             )]
         
@@ -327,7 +327,7 @@ class AppUI(object):
         tabs = []
         if len(custom_ribbon.tabs) > 0:
             tabs = [mod_ribbon.Tabs(
-                    children = [self.create_control(tab, ribbon_id)  for _, tab in custom_ribbon.tabs.iteritems()]
+                    children = [self.create_control(tab, ribbon_id)  for _, tab in custom_ribbon.tabs.items()]
             )]
 
         # Ribbon

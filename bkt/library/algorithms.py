@@ -5,7 +5,7 @@ Created on 11.09.2013
 @author: cschmitt
 '''
 
-from __future__ import absolute_import, division #always force float-division, for int divison use //
+
 
 import math
 
