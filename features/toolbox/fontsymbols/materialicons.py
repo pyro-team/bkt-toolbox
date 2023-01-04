@@ -2,7 +2,7 @@
 
 # https://fontawesome.com/v4.7.0/
 
-from __future__ import absolute_import
+
 
 import os.path
 import io
@@ -18,18 +18,18 @@ from bkt.library.powerpoint import PPTSymbolsGallery
 menu_title = 'Material Icons'
 
 symbols_common = [
-    ("Material Icons", u"\uE853", "account circle", "Material Icons > Wichtige"),
-    ("Material Icons", u"\uE897", "lock", "Material Icons > Wichtige"),
-    ("Material Icons", u"\uE8DC", "thumbs up", "Material Icons > Wichtige"),
-    ("Material Icons", u"\uE8DB", "thumbs down", "Material Icons > Wichtige"),
-    ("Material Icons", u"\uE0B0", "call", "Material Icons > Wichtige"),
-    ("Material Icons", u"\uE0B7", "chat", "Material Icons > Wichtige"),
-    ("Material Icons", u"\uE0BE", "email", "Material Icons > Wichtige"),
-    ("Material Icons", u"\uE2BD", "cloud", "Material Icons > Wichtige"),
-    ("Material Icons", u"\uE7EF", "group", "Material Icons > Wichtige"),
-    ("Material Icons", u"\uE7FD", "person", "Material Icons > Wichtige"),
-    ("Material Icons", u"\uE55F", "place", "Material Icons > Wichtige"),
-    ("Material Icons", u"\uE80B", "public", "Material Icons > Wichtige"),
+    ("Material Icons", "\uE853", "account circle", "Material Icons > Wichtige"),
+    ("Material Icons", "\uE897", "lock", "Material Icons > Wichtige"),
+    ("Material Icons", "\uE8DC", "thumbs up", "Material Icons > Wichtige"),
+    ("Material Icons", "\uE8DB", "thumbs down", "Material Icons > Wichtige"),
+    ("Material Icons", "\uE0B0", "call", "Material Icons > Wichtige"),
+    ("Material Icons", "\uE0B7", "chat", "Material Icons > Wichtige"),
+    ("Material Icons", "\uE0BE", "email", "Material Icons > Wichtige"),
+    ("Material Icons", "\uE2BD", "cloud", "Material Icons > Wichtige"),
+    ("Material Icons", "\uE7EF", "group", "Material Icons > Wichtige"),
+    ("Material Icons", "\uE7FD", "person", "Material Icons > Wichtige"),
+    ("Material Icons", "\uE55F", "place", "Material Icons > Wichtige"),
+    ("Material Icons", "\uE80B", "public", "Material Icons > Wichtige"),
 ]
 
 menu_settings = [
@@ -49,7 +49,7 @@ def get_content_categories():
         for ico in char['icons']:
             t=(
                 "Material Icons",
-                unichr(int(ico['codepoint'], 16)),
+                chr(int(ico['codepoint'], 16)),
                 ico['name'],
                 "Material Icons > {}\n{}".format(char['name'].capitalize(), ico.get('keywords', [""])[0])
             )
@@ -78,7 +78,7 @@ def update_search_index(search_engine):
                     module="materialicons",
                     fontlabel="Material Icons",
                     fontname="Material Icons",
-                    unicode=unichr(int(ico['codepoint'], 16)),
+                    unicode=chr(int(ico['codepoint'], 16)),
                     label=ico['name'],
                     keywords=ico.get('keywords', [""])[0].replace(",", " ").split()
                 )

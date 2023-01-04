@@ -2,7 +2,7 @@
 
 # https://fontawesome.com
 
-from __future__ import absolute_import
+
 
 import os.path
 import io
@@ -39,11 +39,11 @@ file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fa6-icons.json
 with io.open(file, 'r', encoding='utf-8') as json_file:
     all_icons = json.load(json_file, object_pairs_hook=OrderedDict)
 
-    for _, icon in all_icons.iteritems():
+    for _, icon in all_icons.items():
         for font in icon["styles"]:
             symbol = (
                 font_name_hash[font],
-                unichr(int(icon['unicode'], 16)),
+                chr(int(icon['unicode'], 16)),
                 icon["label"],
                 "{}\n{}".format(font_name_hash[font], ", ".join(icon["search"]["terms"]))
             )
@@ -63,7 +63,7 @@ def get_content_categories():
     with io.open(file, 'r', encoding='utf-8') as json_file:
         cats = json.load(json_file, object_pairs_hook=OrderedDict)
 
-        for _, value in cats.iteritems():
+        for _, value in cats.items():
             catname = value["label"]
             symbols = []
             for ico in value["icons"]:
@@ -71,7 +71,7 @@ def get_content_categories():
                 for font in icon["styles"]:
                     symbol = (
                         font_name_hash[font],
-                        unichr(int(icon['unicode'], 16)),
+                        chr(int(icon['unicode'], 16)),
                         icon["label"],
                         "{} > {}\n{}".format(font_name_hash[font], catname, ", ".join(icon["search"]["terms"]))
                     )
@@ -100,18 +100,18 @@ def update_search_index(search_engine):
         'brands': OrderedDict(),
     }
 
-    def _add_icon(ident, font, unicode, label, keywords):
+    def _add_icon(ident, font, str, label, keywords):
         full_icon_infos[font][ident] = {
             "module":    "fontawesome5",
             "fontlabel": font_name_hash[font],
             "fontname":  font_name_hash[font],
-            "unicode":   unichr(int(unicode, 16)),
+            "unicode":   chr(int(str, 16)),
             "label":     label,
             "keywords":  set(keywords+label.lower().split()),
         }
     
     #first add all icons, as not all icons are part of a category
-    for ident, icon in all_icons.iteritems():
+    for ident, icon in all_icons.items():
         for font in icon["styles"]:
             _add_icon(ident, font, icon['unicode'], icon["label"], icon["search"]["terms"])
 
@@ -120,16 +120,16 @@ def update_search_index(search_engine):
     with io.open(file, 'r', encoding='utf-8') as json_file:
         cats = json.load(json_file, object_pairs_hook=OrderedDict)
 
-        for _, value in cats.iteritems():
+        for _, value in cats.items():
             for ident in value["icons"]:
                 for font in all_icons[ident]["styles"]:
                     full_icon_infos[font][ident]["keywords"].update( value["label"].lower().replace("+", " ").split() )
 
-    for icon in full_icon_infos['regular'].itervalues():
+    for icon in full_icon_infos['regular'].values():
         search_writer.add_document(**icon)
-    for icon in full_icon_infos['solid'].itervalues():
+    for icon in full_icon_infos['solid'].values():
         search_writer.add_document(**icon)
-    for icon in full_icon_infos['brands'].itervalues():
+    for icon in full_icon_infos['brands'].values():
         search_writer.add_document(**icon)
     search_writer.commit()
 

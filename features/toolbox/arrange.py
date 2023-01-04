@@ -5,7 +5,7 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import math
 from heapq import nsmallest, nlargest
@@ -901,7 +901,7 @@ distance_rotation_group = bkt.ribbon.Group(
             id = 'shape_sep_v',
             image_mso='VerticalSpacingIncrease',
             # image_button=True,
-            label=u"Objektabstand vertikal",
+            label="Objektabstand vertikal",
             show_label=False,
             screentip="Vertikalen Objektabstand",
             supertip="Ändere den vertikalen Objektabstand auf das angegebene Maß (in cm).\n\nIcon-Klick für 0 Abstand.\nShift-Klick für 0,2cm Abstand.\nStrg-Klick für Abstand angleichen.",
@@ -977,7 +977,7 @@ distance_rotation_group = bkt.ribbon.Group(
             id = 'shape_sep_h',
             image_mso='HorizontalSpacingIncrease',
             # image_button=True,
-            label=u"Objektabstand horizontal",
+            label="Objektabstand horizontal",
             show_label=False,
             screentip="Horizontalen Objektabstand",
             supertip="Ändere den horizontalen Objektabstand auf das angegebene Maß (in cm).\n\nIcon-Klick für 0 Abstand.\nShift-Klick für 0,2cm Abstand.\nStrg-Klick für Abstand angleichen.",
@@ -1128,7 +1128,7 @@ euclid_angle_group = bkt.ribbon.Group(
             id = 'shape_sep_euclid',
             image='shape_euclid_distance',
             #image_button=True,
-            label=u"Objektabstand euklidisch",
+            label="Objektabstand euklidisch",
             show_label=False,
             screentip="Euklidischer Objektabstand",
             supertip="Ändert den euklidischen Objektabstand auf das angegebene Maß (in cm). Gemessen wird jeweils vom definierten Referenzpunkt der beiden zuerst selektierten Shapes.\n\nMit ALT-Taste wird jedes Shapes im gleichen Delta-Abstand zum ersten Shape ausgerichtet.",
@@ -1142,7 +1142,7 @@ euclid_angle_group = bkt.ribbon.Group(
             id = 'shape_angle',
             image='shape_angle',
             #image_button=True,
-            label=u"Winkel",
+            label="Winkel",
             show_label=False,
             screentip="Winkel der Shapes zueinander",
             supertip="Ändert den Winkel der Shapes zur X-Achse (in Grad). Gemessen wird jeweils vom definierten Referenzpunkt der beiden zuerst selektierten Shapes.\n\nMit ALT-Taste wird jedes Shapes um den gleichen Delta-Winkel zum ersten Shape verschoben.",
@@ -2087,7 +2087,7 @@ arrange_advaced = ArrangeAdvanced()
 
 arrange_advanced_group = bkt.ribbon.Group(
     id="bkt_arrage_adv_group",
-    label=u'Erweitertes Anordnen',
+    label='Erweitertes Anordnen',
     image='arrange_left_at_left',
     children=[
         arrange_advaced.get_button('arrange_left_at_left',         label="Links an Links",   screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Referenzshapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
@@ -2156,7 +2156,7 @@ arrange_advanced_group = bkt.ribbon.Group(
 
 arrange_advanced_small_group = bkt.ribbon.Group(
     id="bkt_arrage_adv_small_group",
-    label=u'Erw. Anordnen',
+    label='Erw. Anordnen',
     image='arrange_left_at_left',
     children=[
         arrange_advaced.get_button("arrange_left_at_left", "-small",        label="Links an Links",   screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Referenzshapes.\n(Abstand wird addiert)\n\nMit SHIFT-Taste wird auf Dehnen/Stauchen umgestellt.'),
@@ -2246,7 +2246,7 @@ arrange_adv_size     = ArrangeAdvancedEasy(True)
 
 arrange_adv_easy_group = bkt.ribbon.Group(
     id="bkt_arrage_adv_easy_group",
-    label=u'Einfaches Anordnen',
+    label='Einfaches Anordnen',
     image='arrange_left_at_left',
     children=[
         #POSITION

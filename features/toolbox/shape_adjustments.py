@@ -5,7 +5,7 @@ Created on 06.02.2018
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 
@@ -177,7 +177,7 @@ class ShapeAdjustments(object):
     def set_adjustment(cls, shape, num, value):
         ''' sets n's adjustment of shape, where value is assumed to be cm-value '''
         if cls.get_shape_type(shape) in cls.allowed_shape_types and shape.adjustments.count >= num:
-            if type(value) == str:
+            if isinstance(value, str):
                 value = float(value.replace(',', '.'))
             # if cls.get_shape_autotype(shape) in cls.auto_shape_type_settings.keys():
 
@@ -273,7 +273,7 @@ class ShapeAdjustments(object):
     def get_shape_details(cls, shape):
         def _get_key_by_value(search_dict, value):
             try:
-                return search_dict.keys()[search_dict.values().index(value)]
+                return list(search_dict.keys())[list(search_dict.values()).index(value)]
             except:
                 return "?"
 
@@ -316,7 +316,7 @@ class ShapeAdjustments(object):
 
 adjustments_group = bkt.ribbon.Group(
     id="bkt_adjustments_group",
-    label = u"Fine-Tuning",
+    label = "Fine-Tuning",
     image_mso='ShapeArc',
     children=[
         # bkt.ribbon.Label(label="Rund./Spitzen"),
@@ -398,8 +398,8 @@ adjustments_group = bkt.ribbon.Group(
             ]
         ),
         bkt.ribbon.RoundingSpinnerBox(
-            id=u"anfasser1",
-            label=u"Anfasser 1",
+            id="anfasser1",
+            label="Anfasser 1",
             show_label=False,
             image_mso='ShapeArc',
             screentip="Breite von Rundung/Pfeilspitzen/Ecken/etc.",
@@ -411,8 +411,8 @@ adjustments_group = bkt.ribbon.Group(
             size_string = '####',
         ),
         bkt.ribbon.RoundingSpinnerBox(
-            id=u"anfasser2",
-            label=u"Anfasser 2",
+            id="anfasser2",
+            label="Anfasser 2",
             show_label=False,
             image_mso='ShapeCurve',
             screentip="Breite von Rundung/Pfeilspitzen/Ecken/etc.",

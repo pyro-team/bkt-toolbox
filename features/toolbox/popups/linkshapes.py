@@ -5,7 +5,7 @@ Created on 21.12.2017
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 

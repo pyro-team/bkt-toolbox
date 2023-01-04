@@ -5,7 +5,7 @@ Created on 18.05.2016
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import json
@@ -1189,11 +1189,11 @@ class ToolboxAgenda(object):
         settings = json.loads( value ) or {}
 
         #convert old settings with rgb color to new color format (but remain old settings)
-        if SETTING_SELECTOR_STYLE_FILL not in settings and type(settings.get(SETTING_SELECTOR_FILL_COLOR)) == int:
+        if SETTING_SELECTOR_STYLE_FILL not in settings and isinstance(settings.get(SETTING_SELECTOR_FILL_COLOR), int):
             settings[SETTING_SELECTOR_STYLE_FILL] = cls.default_selectorFillColor.copy()
             settings[SETTING_SELECTOR_STYLE_FILL]['color'] = [0, 0, settings.get(SETTING_SELECTOR_FILL_COLOR)]
         
-        if SETTING_SELECTOR_STYLE_LINE not in settings and type(settings.get(SETTING_SELECTOR_LINE_COLOR)) == int:
+        if SETTING_SELECTOR_STYLE_LINE not in settings and isinstance(settings.get(SETTING_SELECTOR_LINE_COLOR), int):
             settings[SETTING_SELECTOR_STYLE_LINE] = cls.default_selectorLineColor.copy()
             settings[SETTING_SELECTOR_STYLE_LINE]['color'] = [0, 0, settings.get(SETTING_SELECTOR_LINE_COLOR)]
 

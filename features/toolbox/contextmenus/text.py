@@ -5,7 +5,7 @@ Created on 01.08.2022
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 
@@ -41,7 +41,7 @@ class ContextTextShapes(object):
                 bkt.ribbon.MenuSeparator(title="Textoperationen"),
                 bkt.ribbon.Button(
                     id = 'text_in_shape-context',
-                    label = u"Text in Shape kombinieren",
+                    label = "Text in Shape kombinieren",
                     supertip="Kopiere den Text eines Text-Shapes in das zweite markierte Shape und löscht das Text-Shape.",
                     image_mso = "TextBoxInsert",
                     on_action=bkt.Callback(text.TextOnShape.textIntoShape, shapes=True, shapes_min=2),
@@ -68,7 +68,7 @@ class ContextTextShapes(object):
                 ),
                 bkt.ribbon.Button(
                     id = 'compose_text-context',
-                    label = u"Shape-Text zusammenführen",
+                    label = "Shape-Text zusammenführen",
                     supertip="Führe die markierten Shapes in ein Shape zusammen. Der Text aller Shapes wird übernommen und aneinandergehängt.",
                     image_mso = "TracePrecedents",
                     on_action=bkt.Callback(text.SplitTextShapes.joinShapesWithText, shapes=True, shapes_min=2),

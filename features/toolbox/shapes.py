@@ -5,7 +5,7 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import, division
+
 
 import logging
 import locale
@@ -1434,7 +1434,7 @@ split_shapes_group = bkt.ribbon.Group(
         ),
         bkt.ribbon.RoundingSpinnerBox(
             id = 'shape_slit_rows',
-            label=u"Anzahl Zeilen/Spalten",
+            label="Anzahl Zeilen/Spalten",
             supertip="Angestrebte Shapeanzahl für das Teilen/Vervielfachen von Shapes.",
             show_label=False,
             imageMso="TableRowsDistribute",
@@ -1447,7 +1447,7 @@ split_shapes_group = bkt.ribbon.Group(
         ),
         bkt.ribbon.RoundingSpinnerBox(
             id = 'shape_slit_row_sep',
-            label=u"Zeilen-/Spaltenabstand",
+            label="Zeilen-/Spaltenabstand",
             supertip="Abstand zwischen Shapes zur Berücksichtigung beim Teilen/Vervielfachen von Shapes.\n\nBei Kreisanordnung wird hiermit der vertikale/horizontale Abstand zum Mittelpunkt angegeben.",
             show_label=False,
             image_mso="RowHeight",
@@ -1505,7 +1505,7 @@ class CtxVerbinder(object):
 
 
 class ShapeFormats(object):
-    transparencies = range(0, 110, 10)
+    transparencies = list(range(0, 110, 10))
 
     @classmethod
     def _attr_setter(cls, shape, value, shp_object, attribute):
@@ -1666,7 +1666,7 @@ format_group = bkt.ribbon.Group(
     children=[
         bkt.ribbon.RoundingSpinnerBox(
             id = 'fill_transparency',
-            label=u"Transparenz Hintergrund",
+            label="Transparenz Hintergrund",
             supertip="Ändere die Transparenz vom Hintergrund",
             show_label=False,
             round_int = True,
@@ -1677,7 +1677,7 @@ format_group = bkt.ribbon.Group(
         ),
         bkt.ribbon.RoundingSpinnerBox(
             id = 'line_transparency',
-            label=u"Transparenz Linie/Rahmen",
+            label="Transparenz Linie/Rahmen",
             supertip="Ändere die Transparenz vom Rahmen bzw. der Linie",
             show_label=False,
             round_int = True,
@@ -1688,7 +1688,7 @@ format_group = bkt.ribbon.Group(
         ),
         bkt.ribbon.RoundingSpinnerBox(
             id = 'line_weight',
-            label=u"Dicke Linie/Rahmen",
+            label="Dicke Linie/Rahmen",
             supertip="Ändere die Dicke vom Rahmen bzw. der Linie",
             show_label=False,
             round_pt = True,
@@ -2079,7 +2079,7 @@ shapes_group = bkt.ribbon.Group(
                 bkt.ribbon.MenuSeparator(title="Einfügehilfen"),
                 bkt.ribbon.Button(
                     id = 'segmented_circle',
-                    label = u"Kreissegmente…",
+                    label = "Kreissegmente…",
                     image = "segmented_circle",
                     screentip="Kreissegmente einfügen",
                     supertip="Erstelle Kreis mit Segmenten oder Chevrons.",
@@ -2102,7 +2102,7 @@ shapes_group = bkt.ribbon.Group(
                     children = [
                         bkt.ribbon.Button(
                             id = 'tracker',
-                            label = u"Tracker aus Auswahl erstellen",
+                            label = "Tracker aus Auswahl erstellen",
                             #image = "Tracker",
                             screentip="Tracker aus Auswahl erstellen",
                             supertip="Erstelle aus den markierten Shapes einen Tracker.\nDer Shape-Stil für Highlights wird aus dem zuerst markierten Shape (in der Regel oben links) bestimmt. Der Shape-Stil für alle anderen Shapes wird aus dem als zweites markierten Shape bestimmt.",
@@ -2111,7 +2111,7 @@ shapes_group = bkt.ribbon.Group(
                         ),
                         bkt.ribbon.Button(
                             id = 'tracker_distribute',
-                            label = u"Tracker auf Folien verteilen",
+                            label = "Tracker auf Folien verteilen",
                             #image = "Tracker",
                             screentip="Alle Tracker verteilen",
                             supertip="Verteilen der ausgewählten Tracker auf die Folgefolien und ausrichten.",
@@ -2121,7 +2121,7 @@ shapes_group = bkt.ribbon.Group(
                         bkt.ribbon.MenuSeparator(),
                         bkt.ribbon.Button(
                             id = 'tracker_align',
-                            label = u"Alle Tracker ausrichten",
+                            label = "Alle Tracker ausrichten",
                             #image = "Tracker",
                             screentip="Alle Tracker ausrichten",
                             supertip="Ausrichten (Position, Größe, Rotation) aller Tracker (auf allen Folien) anhand des ausgewählten Tracker.",
@@ -2130,7 +2130,7 @@ shapes_group = bkt.ribbon.Group(
                         ),
                         bkt.ribbon.Button(
                             id = 'tracker_remove',
-                            label = u"Alle Tracker löschen",
+                            label = "Alle Tracker löschen",
                             #image = "Tracker",
                             screentip="Alle Tracker löschen",
                             supertip="Löschen aller Tracker (auf allen Folien) anhand des ausgewählten Tracker.",
@@ -2142,7 +2142,7 @@ shapes_group = bkt.ribbon.Group(
                 bkt.ribbon.MenuSeparator(title="Interaktive Formen"),
                 bkt.ribbon.Button(
                     id = 'standard_process',
-                    label = u"Prozesspfeile…",
+                    label = "Prozesspfeile…",
                     image = "process_chevrons",
                     screentip="Prozess-Pfeile einfügen",
                     supertip="Erstelle Standard Prozess-Pfeile.",
@@ -2150,7 +2150,7 @@ shapes_group = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.Button(
                     id = 'headered_pentagon',
-                    label = u"Prozessschritt mit Kopfzeile",
+                    label = "Prozessschritt mit Kopfzeile",
                     image = "headered_pentagon",
                     screentip="Prozess-Schritt-Shape mit Kopfzeile erstellen",
                     supertip="Erstelle einen Prozess-Pfeil mit Header-Shape. Das Header-Shape kann im Prozess-Pfeil über Kontext-Menü des Header-Shapes passend angeordnet werden.",
@@ -2158,7 +2158,7 @@ shapes_group = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.Button(
                     id = 'headered_chevron',
-                    label = u"2. Prozessschritt mit Kopfzeile",
+                    label = "2. Prozessschritt mit Kopfzeile",
                     image = "headered_chevron",
                     screentip="Prozess-Schritt-Shape mit Kopfzeile erstellen",
                     supertip="Erstelle einen Prozess-Pfeil mit Header-Shape. Das Header-Shape kann im Prozess-Pfeil über Kontext-Menü des Header-Shapes passend angeordnet werden.",
@@ -2200,7 +2200,7 @@ shapes_group = bkt.ribbon.Group(
                 bkt.ribbon.MenuSeparator(title="Verbindungsflächen"),
                 bkt.ribbon.Button(
                     id = 'connector_h',
-                    label = u"Horizontale Verbindungsfläche",
+                    label = "Horizontale Verbindungsfläche",
                     image = "ConnectorHorizontal",
                     supertip="Erstelle eine horizontale Verbindungsfläche zwischen den vertikalen Seiten (links/rechts) von zwei Shapes.",
                     on_action=bkt.Callback(ShapeConnectors.addHorizontalConnector, context=True, shapes=True, shapes_min=2, shapes_max=2),
@@ -2208,7 +2208,7 @@ shapes_group = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.Button(
                     id = 'connector_v',
-                    label = u"Vertikale Verbindungsfläche",
+                    label = "Vertikale Verbindungsfläche",
                     image = "ConnectorVertical",
                     supertip="Erstelle eine vertikale Verbindungsfläche zwischen den horizontalen Seiten (oben/unten) von zwei Shapes.",
                     on_action=bkt.Callback(ShapeConnectors.addVerticalConnector, context=True, shapes=True, shapes_min=2, shapes_max=2),
@@ -2217,7 +2217,7 @@ shapes_group = bkt.ribbon.Group(
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
                     id = 'connector_update',
-                    label = u"Verbindungsfläche neu verbinden",
+                    label = "Verbindungsfläche neu verbinden",
                     image = "ConnectorUpdate",
                     supertip="Aktualisiere die Verbindungsfläche nachdem sich die verbundenen Shapes geändert haben.",
                     on_action=bkt.Callback(ShapeConnectors.update_connector_shape, context=True, shape=True),
@@ -2295,7 +2295,7 @@ shapes_group = bkt.ribbon.Group(
                 bkt.ribbon.MenuSeparator(title="Ein-/Ausblenden"),
                 bkt.ribbon.Button(
                     id = 'toggle_shapes_visibility',
-                    label = u"Shapes vertecken/einblenden",
+                    label = "Shapes vertecken/einblenden",
                     image_mso="ShapesSubtract",
                     supertip="Wenn Shapes ausgewählt sind, verstecke alle markierten Shapes (visible=False), anderen falls mache Shapes wieder sichtbar (visible=True). Gibt es keine unsichtbaren Shapes, werden die zuletzt versteckten Shapes erneut versteckt.",
                     on_action=bkt.Callback(ShapesMore.toggle_shapes_visibility),
@@ -2311,7 +2311,7 @@ shapes_group = bkt.ribbon.Group(
                 # ),
                 bkt.ribbon.Button(
                     id = 'show_shapes',
-                    label = u"Alle versteckten Shapes einblenden",
+                    label = "Alle versteckten Shapes einblenden",
                     image_mso="VisibilityVisible",
                     supertip="Mache alle versteckten Shapes (visible=False) wieder sichtbar.",
                     on_action=bkt.Callback(ShapesMore.show_invisible_shapes)

@@ -5,7 +5,7 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import os.path
@@ -25,8 +25,7 @@ from .chartlib import chartlib_button
 class SendOrSaveSlides(object):
     @classmethod
     def _slide_range_identifier(cls, slides):
-        indices = [slide.SlideNumber for slide in slides]
-        indices.sort()
+        indices = sorted([slide.SlideNumber for slide in slides])
         ind_str = str(indices[0])
         last_index = indices[0]
         range_from = last_index
@@ -471,7 +470,7 @@ class SlideMenu(object):
         deleted_designs = 0
         designs = context.presentation.designs
         #list incides of all designs
-        unused_designs = range(1,designs.count+1)
+        unused_designs = list(range(1,designs.count+1))
         for slide in context.presentation.slides:
             try:
                 #remove indices of used designs

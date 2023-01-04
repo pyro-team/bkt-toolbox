@@ -5,7 +5,7 @@ Created on 06.02.2018
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import sys
 

@@ -5,7 +5,7 @@ Created on 21.12.2017
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 
@@ -444,8 +444,8 @@ class CheckBox(AbstractStateShape):
     SHAPE_TAG = "BKT_CHECKBOX"
 
     checkmark_groups = [
-        dict(font="Wingdings", chars=[u'\xfc', u'\xfb', u'\x6c', u'\x6e', '']),
-        dict(font="Arial Unicode", chars=[u'\u2713', u'\u2717', u'\u2715', '']),
+        dict(font="Wingdings", chars=['\xfc', '\xfb', '\x6c', '\x6e', '']),
+        dict(font="Arial Unicode", chars=['\u2713', '\u2717', '\u2715', '']),
     ]
 
     def switch_state(self, shape, delta=0, pos=None):
@@ -711,7 +711,7 @@ stateshape_gruppe = bkt.ribbon.Group(
             children=[
                 bkt.ribbon.Button(
                     id="stateshape_convert",
-                    label=u"Konvertieren",
+                    label="Konvertieren",
                     image_mso='GroupSmartArtQuickStyles',
                     screentip="Gruppierte Shapes in ein Wechselshape konvertieren",
                     supertip="Bei gruppierten Shapes (Wechsel-Shapes) kann zwischen den Shapes innerhalb der Gruppe gewechselt werden, d.h. es ist immer nur ein Shape der Gruppe sichtbar. Dies ist bspw. nützlich für Ampeln, Skalen, etc.",
@@ -724,7 +724,7 @@ stateshape_gruppe = bkt.ribbon.Group(
                     children=[
                         bkt.ribbon.Button(
                             id="stateshape_convert2",
-                            label=u"In Wechselshape konvertieren",
+                            label="In Wechselshape konvertieren",
                             image_mso='GroupSmartArtQuickStyles',
                             screentip="Gruppierte Shapes in ein Wechselshape konvertieren",
                             supertip="Bei gruppierten Shapes (Wechsel-Shapes) kann zwischen den Shapes innerhalb der Gruppe gewechselt werden, d.h. es ist immer nur ein Shape der Gruppe sichtbar. Dies ist bspw. nützlich für Ampeln, Skalen, etc.",
@@ -735,7 +735,7 @@ stateshape_gruppe = bkt.ribbon.Group(
                         # bkt.ribbon.ToggleButton(
                         bkt.ribbon.Button(
                             id="stateshape_show_all",
-                            label=u"Alle Shapes wieder anzeigen",
+                            label="Alle Shapes wieder anzeigen",
                             screentip="Alle Shapes sichtbar machen",
                             supertip="Mit diesem Button können die Shapes innerhalb der Wechselshape-Gruppe eingeblendet werden.",
                             # image_mso='GroupSmartArtQuickStyles',
@@ -754,7 +754,7 @@ stateshape_gruppe = bkt.ribbon.Group(
             bkt.ribbon.Button(
                 id="stateshape_reset",
                 image_mso="Undo",
-                label=u"Zurücksetzen",
+                label="Zurücksetzen",
                 show_label=False,
                 screentip="Auf erstes Shape zurücksetzen",
                 supertip="Setzt alle Wechsel-Shapes auf den ersten Status, d.h. das erste Shape der Gruppe zurück.",
@@ -764,7 +764,7 @@ stateshape_gruppe = bkt.ribbon.Group(
             bkt.ribbon.Button(
                 id="stateshape_prev",
                 image_mso="PreviousResource",
-                label=u'Vorheriges',
+                label='Vorheriges',
                 show_label=False,
                 screentip="Vorheriges Shape",
                 supertip="Wechselt zum vorherigen Status (d.h. Shape in der Gruppe) des Wechsel-Shapes.",
@@ -783,7 +783,7 @@ stateshape_gruppe = bkt.ribbon.Group(
             bkt.ribbon.Button(
                 id="stateshape_next",
                 image_mso="NextResource",
-                label=u"Nächstes",
+                label="Nächstes",
                 # show_label=False,
                 screentip="Nächstes Shape",
                 supertip="Wechselt zum nächsten Status (d.h. Shape in der Gruppe) des Wechsel-Shapes.",

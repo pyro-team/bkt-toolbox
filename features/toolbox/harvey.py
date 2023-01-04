@@ -5,7 +5,7 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 import bkt.library.powerpoint as powerpoint
@@ -467,7 +467,7 @@ class HarveyBalls(object):
     harvey_buttons = [
         [n, n_max]
         for n_max in harvey_denominators
-        for n in range(0,harvey_columns)
+        for n in range(0,9) #9=harvey_columns, stopped working in ipy3 and I don't know why
     ]
     harvey_labels = [
         '%s/%s' % (n,n_max) if n<=n_max else ' '

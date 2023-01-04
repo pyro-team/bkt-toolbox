@@ -5,7 +5,7 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 from threading import Thread
 
 import bkt
@@ -25,7 +25,7 @@ class TextPlaceholder(object):
     @staticmethod
     def set_text_for_shape(textframe, text=None): #None=delete text
         if text is not None:
-            if type(text) == list:
+            if isinstance(text, list):
                 if text[0] != '':
                     textframe.TextRange.InsertBefore( text[0] )
                 if text[1] != '':
@@ -167,111 +167,111 @@ class Characters(object):
     ### TYPOGRAPHY ###
     @staticmethod
     def add_protected_hyphen(selection):
-        selection.TextRange2.text=u'\xad'
+        selection.TextRange2.text='\xad'
 
     @staticmethod
     def add_protected_space(selection):
-        selection.TextRange2.text=u'\xa0'
+        selection.TextRange2.text='\xa0'
 
     @staticmethod
     def add_protected_narrow_space(selection):
-        selection.TextRange2.text=u'\u202F'
+        selection.TextRange2.text='\u202F'
 
     ### TYPOGRAPHY ###
     typography = [
-        (None, u'\xbb', "Linkes Guillemets"),
-        (None, u'\xab', "Rechtes Guillemets"),
-        (None, u'\xb6', "Paragraph"),
-        (None, u'\u2026', "Auslassungspunkte (Ellipse)", "Auslassungspunkte sind drei kurz aufeinanderfolgende Punkte. Meistens zeigen diese eine Ellipse (Auslassung eines Textteils) an."),
-        (None, u'\u2013', "Gedankenstrich (Halbgeviertstrich/En-Dash)", "Ein Gedankenstrich (sog. Halbgeviertstrich) wie er von Office teilweise automatisch gesetzt wird. Verwendet als Bis-Strich oder Streckenstrich."),
-        (None, u'\u2014', "Waagerechter Strich (Geviertstrich/Em-Dash)"),
-        (None, u'\u2020', "Kreuz"),
-        (None, u'\u2021', "Doppelkreuz"),
-        (None, u'\u25A0', "Schwarzes Quadrat"),
-        (None, u'\u25A1', "Weißes Quadrat"),
-        (None, u'\u2423', "Leerzeichen-Symbol"),
-        (None, u'\xa9',   "Copyright"),
-        (None, u'\xae',   "Registered Trade Mark"),
-        (None, u'\u2122', "Trade Mark"),
-        (None, u'\u2030', "Per mil"),
-        (None, u'\u20AC', "Euro"),
-        (None, u'\u1E9E', "Großes Eszett"),
+        (None, '\xbb', "Linkes Guillemets"),
+        (None, '\xab', "Rechtes Guillemets"),
+        (None, '\xb6', "Paragraph"),
+        (None, '\u2026', "Auslassungspunkte (Ellipse)", "Auslassungspunkte sind drei kurz aufeinanderfolgende Punkte. Meistens zeigen diese eine Ellipse (Auslassung eines Textteils) an."),
+        (None, '\u2013', "Gedankenstrich (Halbgeviertstrich/En-Dash)", "Ein Gedankenstrich (sog. Halbgeviertstrich) wie er von Office teilweise automatisch gesetzt wird. Verwendet als Bis-Strich oder Streckenstrich."),
+        (None, '\u2014', "Waagerechter Strich (Geviertstrich/Em-Dash)"),
+        (None, '\u2020', "Kreuz"),
+        (None, '\u2021', "Doppelkreuz"),
+        (None, '\u25A0', "Schwarzes Quadrat"),
+        (None, '\u25A1', "Weißes Quadrat"),
+        (None, '\u2423', "Leerzeichen-Symbol"),
+        (None, '\xa9',   "Copyright"),
+        (None, '\xae',   "Registered Trade Mark"),
+        (None, '\u2122', "Trade Mark"),
+        (None, '\u2030', "Per mil"),
+        (None, '\u20AC', "Euro"),
+        (None, '\u1E9E', "Großes Eszett"),
     ]
 
     ### MATH ###
     math = [
-        (None, u'\xb1',   "Plus-Minus-Zeichen", "Ein Plus-Minus-Zeichen einfügen."),
-        (None, u'\u2212', "Echtes Minuszeichen", "Ein echtes Minuszeichen (kein Bindestrich) einfügen."),
-        (None, u'\xd7',   "Echtes Malzeichen (Kreuz)", "Ein echtes Kreuz-Multiplikatorzeichen einfügen."),
-        (None, u'\u22c5', "Echtes Malzeichen (Punkt)", "Ein echtes Punkt-Multiplikatorzeichen einfügen."),
-        (None, u'\u2044', "Echter Bruchstrich", "Einen echten Bruchstrich (ähnlich Schrägstrich) einfügen."),
-        (None, u'\u2248', "Ungefähr Gleich", "Ein Ungefähr Gleich Zeichen einfügen."),
-        (None, u'\u2260', "Ungleich", "Ein Ungleich-Zeichen einfügen."),
-        (None, u'\u2206', "Delta", "Ein Deltazeichen einfügen."), #alt: \u0394 griechisches Delta
-        (None, u'\u2300', "Mittelwert/Durchmesser", "Ein Durchmesserzeichen bzw. Durchschnittszeichen einfügen."), #alt: \xD8 leere menge
-        (None, u'\u2211', "Summenzeichen", "Ein Summenzeichen einfügen."),
-        (None, u'\u221A', "Wurzelzeichen", "Ein Wurzelzeichen einfügen."),
-        (None, u'\u221E', "Unendlich-Zeichen", "Ein Unendlich-Zeichen (liegende Acht) einfügen."),
-        (None, u'\u2264', "Kleiner-Gleich", "Ein kleiner oder gleich Zeichen einfügen."),
-        (None, u'\u2265', "Größer-Gleich", "Ein größer oder gleich Zeichen einfügen."),
+        (None, '\xb1',   "Plus-Minus-Zeichen", "Ein Plus-Minus-Zeichen einfügen."),
+        (None, '\u2212', "Echtes Minuszeichen", "Ein echtes Minuszeichen (kein Bindestrich) einfügen."),
+        (None, '\xd7',   "Echtes Malzeichen (Kreuz)", "Ein echtes Kreuz-Multiplikatorzeichen einfügen."),
+        (None, '\u22c5', "Echtes Malzeichen (Punkt)", "Ein echtes Punkt-Multiplikatorzeichen einfügen."),
+        (None, '\u2044', "Echter Bruchstrich", "Einen echten Bruchstrich (ähnlich Schrägstrich) einfügen."),
+        (None, '\u2248', "Ungefähr Gleich", "Ein Ungefähr Gleich Zeichen einfügen."),
+        (None, '\u2260', "Ungleich", "Ein Ungleich-Zeichen einfügen."),
+        (None, '\u2206', "Delta", "Ein Deltazeichen einfügen."), #alt: \u0394 griechisches Delta
+        (None, '\u2300', "Mittelwert/Durchmesser", "Ein Durchmesserzeichen bzw. Durchschnittszeichen einfügen."), #alt: \xD8 leere menge
+        (None, '\u2211', "Summenzeichen", "Ein Summenzeichen einfügen."),
+        (None, '\u221A', "Wurzelzeichen", "Ein Wurzelzeichen einfügen."),
+        (None, '\u221E', "Unendlich-Zeichen", "Ein Unendlich-Zeichen (liegende Acht) einfügen."),
+        (None, '\u2264', "Kleiner-Gleich", "Ein kleiner oder gleich Zeichen einfügen."),
+        (None, '\u2265', "Größer-Gleich", "Ein größer oder gleich Zeichen einfügen."),
     ]
 
     ### LIST ###
     lists = [
-        (None, u'\u2022', "Aufzählungszeichen (Kreis)", "Ein Aufzählungszeichen (schwarzer Punkt) einfügen."),
-        (None, u'\u2023', "Aufzählungszeichen (Dreieck)", "Ein Aufzählungszeichen (schwarzes Dreieck) einfügen."),
-        (None, u'\u25AA', "Aufzählungszeichen (Quadrat)", "Ein Aufzählungszeichen (schwarzes Quadrat) einfügen."),
-        (None, u'\u2043', "Aufzählungszeichen (Strich)", "Ein Aufzählungszeichen (Bindestrich) einfügen."),
-        (None, u'\u2212', "Echtes Minuszeichen", "Ein echtes Minuszeichen (kein Bindestrich) einfügen."),
-        (None, u'\x2b',   "Pluszeichen", "Ein Pluszeichen einfügen."),
-        (None, u'\u2610', "Box leer"),
-        (None, u'\u2611', "Box Häkchen"),
-        (None, u'\u2612', "Box Kreuzchen"),
-        ("Wingdings", u'J', "Wingdings Smiley gut"),
-        ("Wingdings", u'K', "Wingdings Smiley neutral"),
-        ("Wingdings", u'L', "Wingdings Smiley schlecht"),
-        (None, u'\u2713', "Häkchen", "Ein Häkchen-Symbol einfügen."),
-        (None, u'\u2714', "Häkchen fett", "Ein fettes Häkchen-Symbol einfügen."),
-        (None, u'\u2717', "Kreuzchen geschwungen", "Ein geschwungenes Kreuzchen (passend zu Häkchen) einfügen."),
-        (None, u'\u2718', "Kreuzchen geschwungen fett", "Ein fettes geschwungenes Kreuzchen (passend zu Häkchen) einfügen."),
-        (None, u'\u2715', "Kreuzchen symmetrisch", "Ein symmetrisches Kreuzchen (ähnlich Malzeichen) einfügen."),
-        (None, u'\u2716', "Kreuzchen symmetrisch fett", "Ein fettes symmetrisches Kreuzchen (ähnlich Malzeichen) einfügen."),
-        (None, u'\u2605', "Stern schwarz"),
-        (None, u'\u2606', "Stern weiß"),
-        (None, u'\u261B', "Zeigefinger schwarz"),
-        (None, u'\u261E', "Zeigefinger weiß"),
-        ("Wingdings", u'C', "Wingdings Thumbs-Up"),
-        ("Wingdings", u'D', "Wingdings Thumbs-Down"),
+        (None, '\u2022', "Aufzählungszeichen (Kreis)", "Ein Aufzählungszeichen (schwarzer Punkt) einfügen."),
+        (None, '\u2023', "Aufzählungszeichen (Dreieck)", "Ein Aufzählungszeichen (schwarzes Dreieck) einfügen."),
+        (None, '\u25AA', "Aufzählungszeichen (Quadrat)", "Ein Aufzählungszeichen (schwarzes Quadrat) einfügen."),
+        (None, '\u2043', "Aufzählungszeichen (Strich)", "Ein Aufzählungszeichen (Bindestrich) einfügen."),
+        (None, '\u2212', "Echtes Minuszeichen", "Ein echtes Minuszeichen (kein Bindestrich) einfügen."),
+        (None, '\x2b',   "Pluszeichen", "Ein Pluszeichen einfügen."),
+        (None, '\u2610', "Box leer"),
+        (None, '\u2611', "Box Häkchen"),
+        (None, '\u2612', "Box Kreuzchen"),
+        ("Wingdings", 'J', "Wingdings Smiley gut"),
+        ("Wingdings", 'K', "Wingdings Smiley neutral"),
+        ("Wingdings", 'L', "Wingdings Smiley schlecht"),
+        (None, '\u2713', "Häkchen", "Ein Häkchen-Symbol einfügen."),
+        (None, '\u2714', "Häkchen fett", "Ein fettes Häkchen-Symbol einfügen."),
+        (None, '\u2717', "Kreuzchen geschwungen", "Ein geschwungenes Kreuzchen (passend zu Häkchen) einfügen."),
+        (None, '\u2718', "Kreuzchen geschwungen fett", "Ein fettes geschwungenes Kreuzchen (passend zu Häkchen) einfügen."),
+        (None, '\u2715', "Kreuzchen symmetrisch", "Ein symmetrisches Kreuzchen (ähnlich Malzeichen) einfügen."),
+        (None, '\u2716', "Kreuzchen symmetrisch fett", "Ein fettes symmetrisches Kreuzchen (ähnlich Malzeichen) einfügen."),
+        (None, '\u2605', "Stern schwarz"),
+        (None, '\u2606', "Stern weiß"),
+        (None, '\u261B', "Zeigefinger schwarz"),
+        (None, '\u261E', "Zeigefinger weiß"),
+        ("Wingdings", 'C', "Wingdings Thumbs-Up"),
+        ("Wingdings", 'D', "Wingdings Thumbs-Down"),
         ### Default list symbol:
         # ("Arial",       u'\u2022', "Arial Bullet"),
-        ("Courier New", u'o', "Courier New Kreis"),
-        ("Wingdings",   u'\xa7', "Wingdings Rechteck"),
-        ("Symbol",      u'-', "Symbol Strich"),
-        ("Wingdings",   u'v', "Wingdings Stern"),
-        ("Wingdings",   u'\xd8', "Wingdings Pfeil"),
-        ("Wingdings",   u'\xfc', "Wingdings Häckchen"),
+        ("Courier New", 'o', "Courier New Kreis"),
+        ("Wingdings",   '\xa7', "Wingdings Rechteck"),
+        ("Symbol",      '-', "Symbol Strich"),
+        ("Wingdings",   'v', "Wingdings Stern"),
+        ("Wingdings",   '\xd8', "Wingdings Pfeil"),
+        ("Wingdings",   '\xfc', "Wingdings Häckchen"),
     ]
 
     ### ARROWS ###
     arrows = [
-        (None, u'\u2192', "Pfeil rechts"),
-        (None, u'\u2190', "Pfeil links"),
-        (None, u'\u2191', "Pfeil oben"),
-        (None, u'\u2193', "Pfeil unten"),
-        (None, u'\u2194', "Pfeil links und rechts"),
-        (None, u'\u21C4', "Pfeil links und rechts"),
-        (None, u'\u2197', "Pfeil rechts oben"),
-        (None, u'\u2196', "Pfeil links oben"),
-        (None, u'\u2198', "Pfeil rechts unten"),
-        (None, u'\u2199', "Pfeil links unten"),
-        (None, u'\u2195', "Pfeil oben und unten"),
-        (None, u'\u21C5', "Pfeil oben und unten"),
-        (None, u'\u21E8', "Weißer Pfeil rechts"),
-        (None, u'\u21E6', "Weißer Pfeil links"),
-        (None, u'\u21E7', "Weißer Pfeil oben"),
-        (None, u'\u21E9', "Weißer Pfeil unten"),
-        (None, u'\u21AF', "Blitz"),
-        (None, u'\u21BA', "Kreispfeil gegen den Uhrzeigersinn"),
+        (None, '\u2192', "Pfeil rechts"),
+        (None, '\u2190', "Pfeil links"),
+        (None, '\u2191', "Pfeil oben"),
+        (None, '\u2193', "Pfeil unten"),
+        (None, '\u2194', "Pfeil links und rechts"),
+        (None, '\u21C4', "Pfeil links und rechts"),
+        (None, '\u2197', "Pfeil rechts oben"),
+        (None, '\u2196', "Pfeil links oben"),
+        (None, '\u2198', "Pfeil rechts unten"),
+        (None, '\u2199', "Pfeil links unten"),
+        (None, '\u2195', "Pfeil oben und unten"),
+        (None, '\u21C5', "Pfeil oben und unten"),
+        (None, '\u21E8', "Weißer Pfeil rechts"),
+        (None, '\u21E6', "Weißer Pfeil links"),
+        (None, '\u21E7', "Weißer Pfeil oben"),
+        (None, '\u21E9', "Weißer Pfeil unten"),
+        (None, '\u21AF', "Blitz"),
+        (None, '\u21BA', "Kreispfeil gegen den Uhrzeigersinn"),
     ]
 
     @staticmethod
@@ -300,7 +300,7 @@ class Characters(object):
                 supertip=font+" als Unicode-Schriftart verwenden.",
                 on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(font)),
                 get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font == font),
-                get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image(font, u"\u2192"))
+                get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image(font, "\u2192"))
             )
 
         recent_symbols = pplib.PPTSymbolsGalleryRecent(
@@ -338,7 +338,7 @@ class Characters(object):
                         supertip='Ein geschütztes Leerzeichen erlaubt keinen Zeilenumbruch.',
                         on_action=bkt.Callback(cls.add_protected_space, selection=True),
                         get_enabled = bkt.Callback(cls.text_selection, selection=True),
-                        get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", u"\u23B5")) #alt: 2423
+                        get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", "\u23B5")) #alt: 2423
                     ),
                     bkt.ribbon.Button(
                         id='symbols_add_protected_narrow_space',
@@ -346,7 +346,7 @@ class Characters(object):
                         supertip='Ein schmales geschütztes Leerzeichen erlaubt keinen Zeilenumbruch und ist bspw. zwischen Buchstaben von Abkürzungen zu verwenden.',
                         on_action=bkt.Callback(cls.add_protected_narrow_space, selection=True),
                         get_enabled = bkt.Callback(cls.text_selection, selection=True),
-                        get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", u"\u02FD"))
+                        get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", "\u02FD"))
                     ),
 
                     pplib.PPTSymbolsGallery(
@@ -523,13 +523,13 @@ innenabstand_gruppe = bkt.ribbon.Group(
     image_mso='ObjectNudgeRight',
     children=[
     bkt.ribbon.Box(id='textFrameMargin-box-top', children=[
-        bkt.ribbon.LabelControl(id='textFrameMargin-label-top', label=u'         \u200b'),
+        bkt.ribbon.LabelControl(id='textFrameMargin-label-top', label='         \u200b'),
         #create_margin_spinner('MarginTop', imageMso='ObjectNudgeDown'),
         inner_margin_top,
-        bkt.ribbon.LabelControl(label=u'   \u200b'),
+        bkt.ribbon.LabelControl(label='   \u200b'),
         bkt.ribbon.Button(
             id='textFrameMargin-zero',
-            label=u"=\u202F0",
+            label="=\u202F0",
             screentip="Innenabstand auf Null",
             supertip="Ändere in Innenabstand des Textfelds an allen Seiten auf Null.",
             on_action=bkt.Callback( InnerMargin.set_to_0 )
@@ -543,10 +543,10 @@ innenabstand_gruppe = bkt.ribbon.Group(
         inner_margin_right,
     ]),
     bkt.ribbon.Box(id='textFrameMargin-box-bottom', children=[
-        bkt.ribbon.LabelControl(id='textFrameMargin-label-bottom', label=u'         \u200b'),
+        bkt.ribbon.LabelControl(id='textFrameMargin-label-bottom', label='         \u200b'),
         #create_margin_spinner('MarginBottom', imageMso='ObjectNudgeUp'),
         inner_margin_bottom,
-        bkt.ribbon.LabelControl(label=u'   \u200b'),
+        bkt.ribbon.LabelControl(label='   \u200b'),
         bkt.ribbon.ToggleButton(
             id='textFrameMargin-equal',
             label="==",
@@ -566,7 +566,7 @@ innenabstand_gruppe = bkt.ribbon.Group(
 class ParSpaceBefore(pplib.ParagraphFormatSpinnerBox):
     attr = 'SpaceBefore'
     _attributes = dict(
-        label=u"Absatzabstand oben",
+        label="Absatzabstand oben",
         image_mso='WordOpenParaAbove',
         screentip="Oberen Absatzabstand",
         supertip="Ändere den Absatzabstand vor dem Absatz auf das angegebene Maß (entweder in Abstand Zeilen oder in pt).",
@@ -575,7 +575,7 @@ class ParSpaceBefore(pplib.ParagraphFormatSpinnerBox):
 class ParSpaceAfter(pplib.ParagraphFormatSpinnerBox):
     attr = 'SpaceAfter'
     _attributes = dict(
-        label=u"Absatzabstand unten",
+        label="Absatzabstand unten",
         image_mso='WordOpenParaBelow',
         screentip="Unteren Absatzabstand",
         supertip="Ändere den Absatzabstand hinter dem Absatz auf das angegebene Maß (entweder in Abstand Zeilen oder in pt).",
@@ -584,7 +584,7 @@ class ParSpaceAfter(pplib.ParagraphFormatSpinnerBox):
 class ParSpaceWithin(pplib.ParagraphFormatSpinnerBox):
     attr = 'SpaceWithin'
     _attributes = dict(
-        label=u"Zeilenabstand",
+        label="Zeilenabstand",
         image_mso='LineSpacing',
         screentip="Zeilenabstand",
         supertip="Ändere den Zeilenabstand (entweder in Abstand Zeilen oder in pt).",
@@ -594,7 +594,7 @@ class ParSpaceWithin(pplib.ParagraphFormatSpinnerBox):
 class ParFirstLineIndent(pplib.ParagraphFormatSpinnerBox):
     attr = 'FirstLineIndent'
     _attributes = dict(
-        label=u"Einzug 1. Zeile",
+        label="Einzug 1. Zeile",
         image='first_line_indent',
         screentip="Sondereinzug",
         supertip="Ändere den Sondereinzug (1. Zeile, hängend) auf das angegebene Maß (in cm).",
@@ -603,7 +603,7 @@ class ParFirstLineIndent(pplib.ParagraphFormatSpinnerBox):
 class ParLeftIndent(pplib.ParagraphFormatSpinnerBox):
     attr = 'LeftIndent'
     _attributes = dict(
-        label=u"Einzug links",
+        label="Einzug links",
         image_mso='ParagraphIndentLeft',
         screentip="Absatzeinzug links",
         supertip="Ändere den linken Absatzeinzug auf das angegebene Maß (in cm).",
@@ -612,7 +612,7 @@ class ParLeftIndent(pplib.ParagraphFormatSpinnerBox):
 class ParRightIndent(pplib.ParagraphFormatSpinnerBox):
     attr = 'RightIndent'
     _attributes = dict(
-        label=u"Einzug rechts",
+        label="Einzug rechts",
         image_mso='ParagraphIndentRight',
         screentip="Absatzeinzug rechts",
         supertip="Ändere den rechten Absatzeinzug auf das angegebene Maß (in cm).",
@@ -872,7 +872,7 @@ class BulletStyle(object):
     @classmethod
     def _get_bullet_symbol_from_par(cls, par_format):
         if par_format.Bullet.Visible:
-            return unichr(par_format.Bullet.Character)
+            return chr(par_format.Bullet.Character)
         return None
 
     
@@ -1412,7 +1412,7 @@ text_menu = bkt.ribbon.Menu(
             children=[
                 bkt.ribbon.Button(
                     id = 'sticker',
-                    label = u"Sticker",
+                    label = "Sticker",
                     image = "Sticker",
                     screentip="Sticker einfügen",
                     supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide ein.",
@@ -1421,7 +1421,7 @@ text_menu = bkt.ribbon.Menu(
                 bkt.ribbon.Menu(label="Sticker Menü", supertip="Verschiedene Sticker einfügen", children=[
                     bkt.ribbon.Button(
                         id="sticker_draft",
-                        label = u"DRAFT-Sticker",
+                        label = "DRAFT-Sticker",
                         image = "Sticker",
                         screentip="DRAFT-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text DRAFT ein.",
@@ -1429,28 +1429,28 @@ text_menu = bkt.ribbon.Menu(
                     ),
                     bkt.ribbon.Button(
                         id="sticker_backup",
-                        label = u"BACKUP-Sticker",
+                        label = "BACKUP-Sticker",
                         screentip="BACKUP-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text BACKUP ein.",
                         on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "BACKUP"), slides=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_discussion",
-                        label = u"FOR DISCUSSION-Sticker",
+                        label = "FOR DISCUSSION-Sticker",
                         screentip="FOR DISCUSSION-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text FOR DISCUSSION ein.",
                         on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "FOR DISCUSSION"), slides=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_illustrative",
-                        label = u"ILLUSTRATIVE-Sticker",
+                        label = "ILLUSTRATIVE-Sticker",
                         screentip="ILLUSTRATIVE-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text ILLUSTRATIVE ein.",
                         on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "ILLUSTRATIVE"), slides=True, presentation=True)
                     ),
                     bkt.ribbon.Button(
                         id="sticker_confidential",
-                        label = u"CONFIDENTIAL-Sticker",
+                        label = "CONFIDENTIAL-Sticker",
                         screentip="CONFIDENTIAL-Sticker einfügen",
                         supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text CONFIDENTIAL ein.",
                         on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "CONFIDENTIAL"), slides=True, presentation=True)
@@ -1466,7 +1466,7 @@ text_menu = bkt.ribbon.Menu(
                     ),
                     bkt.ribbon.Button(
                         id="sticker_own_edit",
-                        label = u"Sticker-Text ändern",
+                        label = "Sticker-Text ändern",
                         screentip="Selbst definierten Sticker bearbeiten",
                         supertip="Ändere den Text des selbst definierten Stickers und füge diesen sofort ein.",
                         on_action=bkt.Callback(TextShapes.own_sticker_edit, slides=True, presentation=True)
@@ -1538,7 +1538,7 @@ text_menu = bkt.ribbon.Menu(
         ),
         bkt.ribbon.Button(
             id = 'underlined_textbox',
-            label = u"Unterstrichene Textbox",
+            label = "Unterstrichene Textbox",
             image = "underlined_textbox",
             screentip="Unterstrichene Textbox einfügen",
             supertip="Füge eine Textbox mit Linie unten am Shape auf dem aktuellen Slide ein.",
@@ -1547,8 +1547,8 @@ text_menu = bkt.ribbon.Menu(
         bkt.ribbon.MenuSeparator(title="Aufzählungszeichen"),
         bkt.ribbon.Button(
             id="bullet_fixing",
-            label=u"Aufzählungszeichen korrigieren",
-            supertip=u"Aufzählungszeichen werden korrigiert. Der Stil wird vom Textplatzhalter auf dem Masterslide übernommen. Betrifft: Symbol, Symbol-/Textfarbe, Absatzeinzug/-abstand",
+            label="Aufzählungszeichen korrigieren",
+            supertip="Aufzählungszeichen werden korrigiert. Der Stil wird vom Textplatzhalter auf dem Masterslide übernommen. Betrifft: Symbol, Symbol-/Textfarbe, Absatzeinzug/-abstand",
             image_mso='MultilevelListGallery',
             on_action=bkt.Callback(BulletStyle.fix_bullet_style),
             get_enabled = bkt.apps.ppt_shapes_or_text_selected,
@@ -1556,7 +1556,7 @@ text_menu = bkt.ribbon.Menu(
         bkt.ribbon.MenuSeparator(),
         bkt.ribbon.ColorGallery(
             id = 'bullet_color',
-            label=u'Farbe ändern',
+            label='Farbe ändern',
             screentip="Bullet Point Farbe ändern",
             supertip="Ändert die Farbe der gewählten Bullet Points.",
             on_rgb_color_change = bkt.Callback(BulletStyle.set_bullet_color_rgb, selection=True, shapes=True),
@@ -1576,7 +1576,7 @@ text_menu = bkt.ribbon.Menu(
         ),
         bkt.ribbon.SymbolsGallery(
             id="bullet_symbol",
-            label=u"Symbol ändern",
+            label="Symbol ändern",
             screentip="Bullet Point Symbol ändern",
             supertip="Ändert das Symbol der gewählten Bullet Points.",
             symbols = Characters.lists,
@@ -1587,7 +1587,7 @@ text_menu = bkt.ribbon.Menu(
         bkt.ribbon.MenuSeparator(title="Textoperationen"),
         bkt.ribbon.Button(
             id = 'text_in_shape',
-            label = u"Text in Shape",
+            label = "Text in Shape",
             image_mso = "TextBoxInsert",
             screentip="Text in Shape kombinieren",
             supertip="Kopiere den Text eines Text-Shapes in das zweite markierte Shape und löscht das Text-Shape.",
@@ -1596,7 +1596,7 @@ text_menu = bkt.ribbon.Menu(
         ),
         bkt.ribbon.Button(
             id = 'text_on_shape',
-            label = u"Text auf Shape",
+            label = "Text auf Shape",
             image_mso = "TableCellCustomMarginsDialog",
             screentip="Text auf Shape zerlegen",
             supertip="Überführe jeweils den Textinhalt der markierten Shapes in ein separates Text-Shape.",
@@ -1606,7 +1606,7 @@ text_menu = bkt.ribbon.Menu(
         bkt.ribbon.MenuSeparator(),
         bkt.ribbon.Button(
             id = 'decompose_text',
-            label = u"Shape-Text zerlegen",
+            label = "Shape-Text zerlegen",
             image_mso = "TraceDependents",
             supertip="Zerlege die markierten Shapes anhand der Text-Absätze in mehrere Shapes. Pro Absatz wird ein Shape mit dem entsprechenden Text angelegt.",
             on_action=bkt.Callback(SplitTextShapes.splitShapesByParagraphs, shapes=True, context=True),
@@ -1614,7 +1614,7 @@ text_menu = bkt.ribbon.Menu(
         ),
         bkt.ribbon.Button(
             id = 'compose_text',
-            label = u"Shape-Text zusammenführen",
+            label = "Shape-Text zusammenführen",
             image_mso = "TracePrecedents",
             supertip="Führe die markierten Shapes in ein Shape zusammen. Der Text aller Shapes wird übernommen und aneinandergehängt.",
             on_action=bkt.Callback(SplitTextShapes.joinShapesWithText, shapes=True, shapes_min=2),
@@ -1703,11 +1703,11 @@ text_splitbutton = bkt.ribbon.SplitButton(
 
 paragraph_group = bkt.ribbon.Group(
     id="bkt_paragraph_group",
-    label = u"Absatz",
+    label = "Absatz",
     image_mso='FormattingMarkDropDown',
     children = [
         bkt.ribbon.Menu(
-            label=u"Textbox",
+            label="Textbox",
             imageMso="FormattingMarkDropDown",
             supertip="Einstellungen für die Textbox ändern",
             children = [
@@ -1759,7 +1759,7 @@ paragraph_group = bkt.ribbon.Group(
 
 paragraph_indent_group = bkt.ribbon.Group(
     id="bkt_paragraph_adv_group",
-    label = u"Absatzeinzug",
+    label = "Absatzeinzug",
     image_mso='ViewRulerPowerPoint',
     #ViewRulerPowerPoint
     children = [
@@ -1840,7 +1840,7 @@ paragraph_indent_group = bkt.ribbon.Group(
 
 compact_font_group = bkt.ribbon.Group(
     id="bkt_compact_font_group",
-    label = u"Schriftart",
+    label = "Schriftart",
     image_mso='GroupFont',
     children = [
         #NOTE: horizontal box layout leads to spacing between Font and FontSize ComboBox!
@@ -1873,7 +1873,7 @@ compact_font_group = bkt.ribbon.Group(
 
 compact_paragraph_group = bkt.ribbon.Group(
     id="bkt_compact_paragraph_group",
-    label = u"Absatz",
+    label = "Absatz",
     image_mso='GroupParagraph',
     children = [
         bkt.ribbon.Box(box_style="horizontal", children=[

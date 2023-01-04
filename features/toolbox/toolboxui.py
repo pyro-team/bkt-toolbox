@@ -5,7 +5,7 @@ Created on 29.08.2019
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 
@@ -81,7 +81,7 @@ class ToolboxUi(object):
         ToolboxUi._instance = self
     
     def get_all_keys(self):
-        return self.theme_settings.keys()
+        return list(self.theme_settings.keys())
 
     def get_theme_setting(self, key):
         return self.theme_settings[key]

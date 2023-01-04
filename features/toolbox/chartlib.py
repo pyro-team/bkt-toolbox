@@ -5,7 +5,7 @@ Created on 04.05.2016
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import os #for os.path, listdir and makedirs
 import time
@@ -14,7 +14,6 @@ import logging
 
 from threading import Thread #used for non-blocking gallery thumbnails refresh
 from contextlib import contextmanager #used for opening and closing presentations
-from string import maketrans #for cleansing names
 
 from System import Array
 
@@ -178,7 +177,7 @@ class ChartLib(object):
 
     def _check_folder_in_lib(self, folder):
         for f in self.library_folders:
-            if type(f) is dict:
+            if isinstance(f, dict):
                 f = f["folder"]
             if folder.startswith(f):
                 return True
@@ -189,7 +188,7 @@ class ChartLib(object):
         if file in self.library_files:
             return True
         for f in self.library_folders:
-            if type(f) is dict:
+            if isinstance(f, dict):
                 f = f["folder"]
             if file.startswith(f):
                 return True
@@ -304,7 +303,7 @@ class ChartLib(object):
         elif len(self.library_folders) == 1:
             # create menu with contents of directory
             folder = self.library_folders[0]
-            if type(folder) is dict:
+            if isinstance(folder, dict):
                 folder = folder['folder']
             menu = self.get_folder_menu(folder, id=None)
             menu.label=None
@@ -312,7 +311,7 @@ class ChartLib(object):
             # create menu with sections for each directory
             children = []
             for folder in self.library_folders:
-                if type(folder) is dict:
+                if isinstance(folder, dict):
                     title = folder['title']
                     directory = folder['folder']
                 else:
@@ -385,7 +384,7 @@ class ChartLib(object):
     def get_folder_menu_callback(self, current_control):
         ''' callback for dynamic menu, returns menu-control for folder represented by control '''
         folder = current_control['tag']
-        if not self.cached_presentation_menus.has_key(folder):
+        if folder not in self.cached_presentation_menus:
             folder_menu = self.get_folder_menu(folder, id=None)
             self.cached_presentation_menus[folder] = folder_menu
         # else:
@@ -523,7 +522,7 @@ class ChartLib(object):
                 for folder in self.library_folders:
                     if worker.CancellationPending:
                         break
-                    if type(folder) is dict:
+                    if isinstance(folder, dict):
                         folder = folder["folder"]
                     for root, _, files in os.walk(folder):
                         if root.endswith(THUMBNAIL_POSTFIX):
@@ -583,7 +582,7 @@ class ChartLib(object):
             folders_lib = []
             folder_feat = []
             for folder in self.library_folders:
-                if type(folder) is dict:
+                if isinstance(folder, dict):
                     folder_feat.append(
                         bkt.ribbon.Button(
                             label=folder["title"],
@@ -857,7 +856,7 @@ class ChartLib(object):
     
     def get_chartlib_menu_from_file(self, context, filename):
         ''' returns static menu for presentation-file. uses cached menu or generates menu using get_chartlib_menu_from_presentation '''
-        if not self.cached_presentation_menus.has_key(filename):
+        if filename not in self.cached_presentation_menus:
             # presentation = self.open_presentation_file(context, filename)
             with open_presentation_without_window(context, filename) as presentation:
                 menu = self.get_chartlib_menu_from_presentation(presentation)
@@ -914,7 +913,7 @@ class ChartLib(object):
     
     def get_chartlib_gallery_from_file(self, filename):
         ''' returns dynamic gallery for presentation-file. uses cached gallery or generates gallery using ChartLibGallery class '''
-        if not self.cached_presentation_galleries.has_key(filename):
+        if filename not in self.cached_presentation_galleries:
             gallery = ChartLibGallery(filename, copy_shapes=self.copy_shapes_setting)
             self.cached_presentation_galleries[filename] = gallery
         return self.cached_presentation_galleries[filename]
@@ -1059,7 +1058,7 @@ class ChartLib(object):
                 new_shape_count = cur_slide.shapes.count
                 # group+select shapes
                 if new_shape_count - shape_count > 1:
-                    shape = cur_slide.shapes.Range(Array[int](range(shape_count+1, new_shape_count+1))).group()
+                    shape = cur_slide.shapes.Range(Array[int](list(range(shape_count+1, new_shape_count+1)))).group()
                     shape.select()
                 elif do_select:
                     cur_slide.shapes.item(new_shape_count).select()
@@ -1083,9 +1082,9 @@ class ChartLibGallery(bkt.ribbon.Gallery):
         ''' creates customui-id from filename by removing unsupported characters '''
         if not cls.transtab:
             # characters to remove
-            chr_numbers = range(45) + range(46,48) + range(58,65) + range(91,95) + [96] + range(123,256)
+            chr_numbers = list(range(45)) + list(range(46,48)) + list(range(58,65)) + list(range(91,95)) + [96] + list(range(123,256))
             # translation tab
-            cls.transtab = maketrans("".join( chr(i) for i in chr_numbers ), '|'*len(chr_numbers))
+            cls.transtab = str.maketrans("".join( chr(i) for i in chr_numbers ), '|'*len(chr_numbers))
         
         return 'id_' + filename.translate(cls.transtab).replace('|', '__')
     
