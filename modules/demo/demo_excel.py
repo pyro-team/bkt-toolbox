@@ -37,7 +37,7 @@ testgruppe = bkt.ribbon.Group(
 bkt.excel.add_tab(bkt.ribbon.Tab(
     id='bkt_excel_demo',
     #id_q='nsBKT:excel_toolbox_advanced',
-    label=u'BKT DEMO',
+    label='BKT DEMO',
     insert_before_mso="TabHome",
     get_visible=bkt.Callback(lambda: True),
     children = [

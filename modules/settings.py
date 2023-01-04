@@ -5,7 +5,7 @@ Created on 08.12.2016
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import os.path
@@ -110,15 +110,15 @@ class BKTUpdates(object):
     @staticmethod
     def _get_latest_version():
         import json
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
 
         LatestVersion = namedtuple("LatestVersion", "version_string, download_url")
 
         # FOR TESTING:
         # return LatestVersion("999.0.0", "www.bkt-toolbox.de")
 
-        response = urllib2.urlopen(UPDATE_URL.format(current_version=bkt.__version__), timeout=5).read()
-        data = json.loads(response)
+        response = urllib.request.urlopen(UPDATE_URL.format(current_version=bkt.__version__), timeout=5).read()
+        data = json.loads(response.decode('utf-8'))
 
         return LatestVersion(data["tag_name"], data["html_url"])
 
@@ -192,6 +192,7 @@ class BKTUpdates(object):
                 else:
                     bkt.message("Keine Aktualisierung verfügbar. Aktuelle Version ist v{}.".format(latest_version.version_string), "BKT: Aktualisierung")
             except Exception as e:
+                logging.exception("BKT Update Error")
                 bkt.message.error("Fehler im Aufruf der Aktualisierungs-URL: {}".format(e), "BKT: Aktualisierung")
         
         bkt.ui.execute_with_progress_bar(loop, context, indeterminate=True)
