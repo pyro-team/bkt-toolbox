@@ -35,11 +35,13 @@ class SpinnerBox(Box):
         #
     
     def add_callback(self, rc):
-        if rc.callback_type.python_name == 'increment':
-            self.inc_button.add_callback(rc, callback_type=CallbackTypes.on_action)
-        elif rc.callback_type.python_name == 'decrement':
-            self.dec_button.add_callback(rc, callback_type=CallbackTypes.on_action)
-        elif rc.callback_type.python_name in ['get_enabled', 'get_visible']:
+        if rc.callback_type == CallbackTypes.increment:
+            rc.callback_type=CallbackTypes.on_action
+            self.inc_button.add_callback(rc)
+        elif rc.callback_type == CallbackTypes.decrement:
+            rc.callback_type=CallbackTypes.on_action
+            self.dec_button.add_callback(rc)
+        elif rc.callback_type in [CallbackTypes.get_enabled, CallbackTypes.get_visible]:
             self.inc_button.add_callback(rc)
             self.dec_button.add_callback(rc)
             self.txt_box.add_callback(rc)
@@ -66,8 +68,8 @@ class WorkingSpinner(SpinnerBox):
         
         # inc_rc = Callback( self.increment, CallbackTypes.increment, {'context': True} )
         # dec_rc = Callback( self.decrement, CallbackTypes.decrement, {'context': True} )
-        inc_rc = Callback( self.increment, python_name='increment', context=True )
-        dec_rc = Callback( self.decrement, python_name='decrement', context=True )
+        inc_rc = Callback( self.increment, CallbackTypes.increment, context=True )
+        dec_rc = Callback( self.decrement, CallbackTypes.decrement, context=True )
         self.add_callback( inc_rc )
         self.add_callback( dec_rc )
         self.step = 1

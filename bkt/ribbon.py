@@ -93,9 +93,7 @@ class RibbonControl(object):
             for ct in list(CallbackTypes.callback_map().keys()):
                 if hasattr(self, ct):
                     if isinstance(getattr(self, ct), collections.Callable):
-                        cb = Callback(getattr(self, ct))
-                        cb.callback_type = getattr(CallbackTypes, ct)
-                        self.add_callback(cb)
+                        self.add_callback( Callback(getattr(self, ct), getattr(CallbackTypes, ct)) )
                     
         
         # class attributes
@@ -143,9 +141,9 @@ class RibbonControl(object):
         for key, value in kwargs.items():
             if isinstance(value, Callback):
                 # add callback
-                if value.callback_type is None or value.callback_type.python_name is None:
+                if not value.callback_type or value.callback_type.python_name is None:
                     # use fallback callback-type
-                    value.callback_type = getattr(CallbackTypes, key)
+                    value.set_callback_type(getattr(CallbackTypes, key))
                 self.add_callback(value)
                 
             elif hasattr(self, key):
@@ -323,18 +321,10 @@ class RibbonControl(object):
         return '<%s uuid=%s, id=%s>' % (type(self).__name__, self.uuid, self.id)
     
     
-    def add_callback(self, original_callback, callback_type=None):
+    def add_callback(self, original_callback):
         ''' adds a callback to the element'''
-        logging.debug("adding callback %s", original_callback)
-        if isinstance(original_callback, CallbackType):
-            # FIXME: is this ever used? should fail in xml-method
-            callback = original_callback
-            callback = callback_type or callback
-            self._callbacks[callback.python_name] = callback
-            callback.control = self
-        elif isinstance(original_callback, Callback):
+        if isinstance(original_callback, Callback):
             callback = original_callback.copy()
-            callback.callback_type = callback_type or callback.callback_type
             if not callback.callback_type is None:
                 self._callbacks[callback.callback_type.python_name] = callback
                 callback.control = self
@@ -573,20 +563,22 @@ class SpinnerBox(Box):
         self.dec_button['id'] = box_id + '_decrement'
 
     def add_callback(self, callback):
-        if callback.callback_type.python_name == 'increment':
+        if callback.callback_type == CallbackTypes.increment:
             # pass increment-callback to button
-            self.inc_button.add_callback(callback, callback_type=CallbackTypes.on_action)
-        elif callback.callback_type.python_name == 'decrement':
+            callback.set_callback_type(CallbackTypes.on_action)
+            self.inc_button.add_callback(callback)
+        elif callback.callback_type == CallbackTypes.decrement:
             # pass decrement-callback to button
-            self.dec_button.add_callback(callback, callback_type=CallbackTypes.on_action)
-        elif callback.callback_type.python_name in ['get_enabled', 'get_visible']:
+            callback.set_callback_type(CallbackTypes.on_action)
+            self.dec_button.add_callback(callback)
+        elif callback.callback_type in [CallbackTypes.get_enabled, CallbackTypes.get_visible]:
             # pass enabled/visible-callback to all children
             self.inc_button.add_callback(callback)
             self.dec_button.add_callback(callback)
             self.txt_box.add_callback(callback)
             if self.image_element is not None:
                 self.image_element.add_callback(callback)
-        elif self.image_element is not None and callback.callback_type.python_name in ['on_action', 'on_toggle_action']:
+        elif self.image_element is not None and callback.callback_type in [CallbackTypes.on_action, CallbackTypes.on_toggle_action]:
             # pass on_action to image element
             self.image_element.add_callback(callback)
         else:

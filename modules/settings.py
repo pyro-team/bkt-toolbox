@@ -387,7 +387,7 @@ class SettingsMenu(bkt.ribbon.Menu):
                     label="Über {} v{}".format(bkt.__release__, bkt.__version__),
                     image_mso="Info",
                     supertip="Erweiterte Versionsinformationen anzeigen",
-                    on_action=bkt.Callback(BKTInfos.show_version_dialog, context=True, transaction=False)
+                    on_action=bkt.Callback(BKTInfos.show_version_dialog, context=True, transactional=False)
                 ),
                 bkt.ribbon.SplitButton(
                     id="settings-updatesplitbutton" + postfix,
@@ -453,14 +453,14 @@ class SettingsMenu(bkt.ribbon.Menu):
                     label="Website: bkt-toolbox.de",
                     supertip="BKT-Webseite im Browser öffnen",
                     image_mso="ContactWebPage",
-                    on_action=bkt.Callback(BKTInfos.open_website, transaction=False)
+                    on_action=bkt.Callback(BKTInfos.open_website, transactional=False)
                 ),
                 bkt.ribbon.Button(
                     id='settings-changelog' + postfix,
                     label="Versionsänderungen anzeigen",
                     supertip="Präsentation mit den Versionsänderungen anzeigen",
                     image_mso="ReviewHighlightChanges",
-                    on_action=bkt.Callback(BKTInfos.open_changelog, transaction=False)
+                    on_action=bkt.Callback(BKTInfos.open_changelog, transactional=False)
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.DynamicMenu(
@@ -475,14 +475,14 @@ class SettingsMenu(bkt.ribbon.Menu):
                     label="Addin neu laden",
                     supertip="BKT-Addin beenden und neu laden (ähnlich PowerPoint-Neustart)",
                     image_mso="AccessRefreshAllLists",
-                    on_action=bkt.Callback(BKTReload.reload_bkt, context=True, transaction=False)
+                    on_action=bkt.Callback(BKTReload.reload_bkt, context=True, transactional=False)
                 ),
                 bkt.ribbon.Button(
                     id='settings-invalidate' + postfix,
                     label="Ribbon aktualisieren",
                     supertip="Oberfläche aktualisieren und alle Werte neu laden (sog. Invalidate ausführen)",
                     image_mso="AccessRefreshAllLists",
-                    on_action=bkt.Callback(BKTReload.invalidate, context=True, transaction=False)
+                    on_action=bkt.Callback(BKTReload.invalidate, context=True, transactional=False)
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
@@ -490,14 +490,14 @@ class SettingsMenu(bkt.ribbon.Menu):
                     label="Öffne BKT-Ordner",
                     supertip="Öffne Ordner mit BKT-Framework und Konfigurationsdatei",
                     image_mso="Folder",
-                    on_action=bkt.Callback(BKTInfos.open_folder, transaction=False)
+                    on_action=bkt.Callback(BKTInfos.open_folder, transactional=False)
                 ),
                 bkt.ribbon.Button(
                     id='settings-open-config' + postfix,
                     label="Öffne config.txt",
                     supertip="Öffne Konfigurationsdatei im Standardeditor",
                     image_mso="NewNotepadTool",
-                    on_action=bkt.Callback(BKTInfos.open_config, transaction=False)
+                    on_action=bkt.Callback(BKTInfos.open_config, transactional=False)
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.ToggleButton(

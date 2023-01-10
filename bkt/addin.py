@@ -249,7 +249,7 @@ class AddIn(object):
             self.context.customui_control = control
             #kwargs.update(self.context.resolve_callback.resolve_arguments(callback.invocation_context))
             #return_value= self.app_callbacks.invoke_callback(callback, *args, **kwargs)
-            return_value= self.context.invoke_callback(callback, *args, **kwargs)
+            return_value = self.context.invoke_callback(callback, *args, **kwargs)
             logging.debug("return value=%s", return_value)
             
             if callback.callback_type == bkt.CallbackTypes.get_content:
@@ -289,7 +289,7 @@ class AddIn(object):
             #     bkt.callbacks.CallbackTypes.on_action_repurposed,
             #     bkt.callbacks.CallbackTypes.on_toggle_action,
             #     bkt.callbacks.CallbackTypes.on_change]:
-            if callback_type.transactional:
+            if callback.is_transactional:
                 self.invalidate_ribbon()
         
         return return_value
