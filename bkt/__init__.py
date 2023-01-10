@@ -12,8 +12,8 @@ Created on 10.09.2013
 __author__ = "Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann"
 __copyright__ = "Copyright 2019 Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann"
 __license__ = "MIT"
-__version__ = "2.7.5"
-__release__ = "BKT r23-08-30"
+__version__ = "3.0.0b"
+__release__ = "BKT r22-09-03"
 
 
 # NOTE: Use StandardLib.dll as alternative to /bin/Lib, but seems to have problems with wpf/fluent
