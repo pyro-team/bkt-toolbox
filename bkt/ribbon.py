@@ -697,7 +697,7 @@ class RoundingSpinnerBox(SpinnerBox):
         if self.rounding_factor != None:
             return round(float(value) / self.rounding_factor) * self.rounding_factor
         elif self.round_at != None:
-            return round(value, self.round_at)
+            return round(float(value), self.round_at)
         else:
             return value
 
