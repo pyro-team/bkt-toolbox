@@ -15,7 +15,7 @@ import logging
 from threading import Thread #used for non-blocking gallery thumbnails refresh
 from contextlib import contextmanager #used for opening and closing presentations
 
-from System import Array
+from System import Array, Int32
 
 import bkt
 import bkt.library.powerpoint as pplib
@@ -1046,7 +1046,7 @@ class ChartLib(object):
                     shape_indices.append(shape_index)
                 shape_index+=1
             # select and copy shapes
-            template_slide.shapes.Range(Array[int](shape_indices)).copy()
+            template_slide.shapes.Range(Array[Int32](shape_indices)).copy()
             # current slide
             # cur_slide = context.app.activeWindow.View.Slide
             cur_slides = context.slides
@@ -1058,7 +1058,7 @@ class ChartLib(object):
                 new_shape_count = cur_slide.shapes.count
                 # group+select shapes
                 if new_shape_count - shape_count > 1:
-                    shape = cur_slide.shapes.Range(Array[int](list(range(shape_count+1, new_shape_count+1)))).group()
+                    shape = cur_slide.shapes.Range(Array[Int32](list(range(shape_count+1, new_shape_count+1)))).group()
                     shape.select()
                 elif do_select:
                     cur_slide.shapes.item(new_shape_count).select()
@@ -1438,7 +1438,7 @@ class ChartLibGallery(bkt.ribbon.Gallery):
                         shape_indices.append(shape_index)
                     shape_index+=1
                 # select shapes
-                shape_range = slide.shapes.Range(Array[int](shape_indices))
+                shape_range = slide.shapes.Range(Array[Int32](shape_indices))
                 image_filename = self.get_image_filename(slide.SlideIndex)
                 # WAS: image_filename = os.path.join(os.path.splitext(self.filename)[0], str(slide.SlideIndex) + '.png')
                 
