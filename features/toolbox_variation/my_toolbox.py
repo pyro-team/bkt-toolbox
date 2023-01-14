@@ -58,7 +58,7 @@ styles_group = bkt.ribbon.Group(
 
 bkt.powerpoint.add_tab(bkt.ribbon.Tab(
     id="bkt_powerpoint_toolbox",
-    label=u'My-Toolbox 1/3',
+    label='My-Toolbox 1/3',
     insert_before_mso="TabHome",
     # get_visible defaults to False during async-startup
     get_visible=bkt.Callback(lambda:True),
@@ -84,7 +84,7 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
 
 bkt.powerpoint.add_tab(bkt.ribbon.Tab(
     id="bkt_powerpoint_toolbox_advanced",
-    label=u'My-Toolbox 2/3',
+    label='My-Toolbox 2/3',
     insert_before_mso="TabHome",
     # get_visible defaults to False during async-startup
     get_visible=bkt.Callback(lambda:True),

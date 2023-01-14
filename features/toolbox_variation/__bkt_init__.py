@@ -9,4 +9,4 @@ class BktFeature(object):
     
     @staticmethod
     def contructor():
-        import my_toolbox
+        from . import my_toolbox
