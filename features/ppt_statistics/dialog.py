@@ -4,7 +4,7 @@ Created on 2020-08-24
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import re #regex
@@ -174,7 +174,7 @@ class Statistics(object):
     @classmethod
     def get_numbers_from_textframe(cls, textframe):
         try:
-            if textframe.TextRange.LanguageID in cls.comma_langs.keys():
+            if textframe.TextRange.LanguageID in cls.comma_langs:
                 regex = r'[^\-0-9,]'
             else: #EN, US, others
                 regex = r'[^\-0-9.]'

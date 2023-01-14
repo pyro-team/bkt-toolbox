@@ -5,7 +5,7 @@ Created on 29.03.2017
 @author: tweuffel
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 
@@ -194,8 +194,8 @@ notes_gruppe = bkt.ribbon.Group(
         ),
         bkt.ribbon.ColorGallery(
             id = 'notes_color',
-            label=u'Farbe',
-            screentip=u'Notizen-Farbe ändern',
+            label='Farbe',
+            screentip='Notizen-Farbe ändern',
             supertip="Hintergrundfarbe für neue Bearbeitungsnotizen ändern.",
             on_rgb_color_change = bkt.Callback(EditModeShapes.set_color_rgb),
             on_theme_color_change = bkt.Callback(EditModeShapes.set_color_theme),
@@ -219,7 +219,7 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
     #id_q="nsBKT:powerpoint_toolbox_extensions",
     #insert_after_q="nsBKT:powerpoint_toolbox_advanced",
     insert_before_mso="TabHome",
-    label=u'Toolbox 3/3',
+    label='Toolbox 3/3',
     # get_visible defaults to False during async-startup
     get_visible=bkt.Callback(lambda:True),
     children = [

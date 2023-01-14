@@ -317,7 +317,7 @@ class CalcForm(object):
         try:
             cell = self.application.ActiveCell
             if cell.Value2 is not None:
-                self.inputbox.Paste( unicode(self.application.ActiveCell.Value2).replace('.', self.dec_sep) )
+                self.inputbox.Paste( str(self.application.ActiveCell.Value2).replace('.', self.dec_sep) )
             self.inputbox.Focus()
             self._add_to_history()
         except:
@@ -389,7 +389,7 @@ rechner_gruppe = bkt.ribbon.Group(
 bkt.excel.add_tab(bkt.ribbon.Tab(
     id='bkt_excel_toolbox_advanced',
     #id_q='nsBKT:excel_toolbox_advanced',
-    label=u'Toolbox 3/3 BETA',
+    label='Toolbox 3/3 BETA',
     insert_before_mso="TabHome",
     get_visible=bkt.Callback(lambda: True),
     children = [

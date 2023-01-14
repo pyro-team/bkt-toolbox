@@ -4,13 +4,12 @@ Created on 2017-11-09
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import os
 
-from string import maketrans
-from System import Array #SlideRange
+from System import Array, Int32 #SlideRange
 
 import bkt
 import bkt.library.powerpoint as pplib
@@ -19,7 +18,7 @@ from bkt import dotnet
 Forms = dotnet.import_forms()
 
 class ConsolSplit(object):
-    trans_table = maketrans('\t\n\r\f\v', '     ') #\t\n\r\x0b\x0c
+    trans_table = str.maketrans('\t\n\r\f\v', '     ') #\t\n\r\x0b\x0c
 
     @classmethod
     def consolidate_ppt_slides(cls, application, presentation):
@@ -59,7 +58,7 @@ class ConsolSplit(object):
         slideIndices = [slide.SlideIndex for slide in slides]
         removeIndices = list(set(range(1,newPres.Slides.Count+1)) - set(slideIndices))
         if len(removeIndices) > 0:
-            newPres.Slides.Range(Array[int](removeIndices)).Delete()
+            newPres.Slides.Range(Array[Int32](removeIndices)).Delete()
 
         #old method remove slide by slide
         # slideIds = [slide.SlideIndex for slide in slides]
@@ -133,7 +132,7 @@ class ConsolSplit(object):
             for slide in presentation.Slides:
                 if worker.CancellationPending:
                     break
-                worker.ReportProgress(slides_current/slides_total*100)
+                worker.ReportProgress(round(slides_current/slides_total*100))
                 slides_current += 1.0
                 try:
                     cls.export_slide(application, [slide], _get_name(slide))
@@ -205,14 +204,14 @@ class ConsolSplit(object):
             for i in range(sections.count):
                 if worker.CancellationPending:
                     break
-                worker.ReportProgress(sections_current/sections_total*100)
+                worker.ReportProgress(round(sections_current/sections_total*100))
                 sections_current += 1.0
                 try:
                     start = sections.FirstSlide(i+1)
                     if start == -1:
                         continue #empty section
                     count = sections.SlidesCount(i+1)
-                    slides = list(iter( presentation.Slides.Range( Array[int](range(start, start+count)) ) ))
+                    slides = list(iter( presentation.Slides.Range( Array[Int32](list(range(start, start+count))) ) ))
                     cls.export_slide(application, slides, _get_name(sections, i+1))
                 except:
                     logging.exception("split_sections_to_ppt error")

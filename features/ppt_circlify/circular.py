@@ -4,7 +4,7 @@
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import math
 # import logging
@@ -247,7 +247,7 @@ class CircularArrangement(object):
 
 group_circlify = bkt.ribbon.Group(
     id="bkt_circlify_group",
-    label=u"Kreisanordnung",
+    label="Kreisanordnung",
     image="circlify",
     supertip="Ermöglicht die kreisförmige Anordnung von Shapes. Das Feature `ppt_circlify` muss installiert sein.",
     children=[
@@ -344,7 +344,7 @@ group_circlify = bkt.ribbon.Group(
 bkt.powerpoint.add_tab(bkt.ribbon.Tab(
     id="bkt_powerpoint_toolbox_extensions",
     insert_before_mso="TabHome",
-    label=u'Toolbox 3/3',
+    label='Toolbox 3/3',
     # get_visible defaults to False during async-startup
     get_visible=bkt.Callback(lambda:True),
     children = [

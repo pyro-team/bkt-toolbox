@@ -4,7 +4,7 @@
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 import bkt.library.powerpoint as pplib
@@ -40,7 +40,7 @@ statistik_gruppe = bkt.ribbon.Group(
 bkt.powerpoint.add_tab(bkt.ribbon.Tab(
     id="bkt_powerpoint_toolbox_extensions",
     insert_before_mso="TabHome",
-    label=u'Toolbox 3/3',
+    label='Toolbox 3/3',
     # get_visible defaults to False during async-startup
     get_visible=bkt.Callback(lambda:True),
     children = [

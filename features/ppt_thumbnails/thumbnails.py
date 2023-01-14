@@ -4,7 +4,7 @@ Created on 2017-07-24
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import os #required for relative paths and tempfile removal
 import tempfile
@@ -206,7 +206,7 @@ class Thumbnailer(object):
         # cur_shapes = cur_slide.Shapes.Count
         pasted_shapes = 0
         for slide_id in data["slide_ids"]:
-            if type(slide_id) == tuple:
+            if isinstance(slide_id, tuple):
                 shape_id = slide_id[1]
                 slide_id = slide_id[0]
             else:
@@ -256,7 +256,7 @@ class Thumbnailer(object):
         with ThumbnailerTags(shape.Tags) as tags:
             tags["slide_path"] = data["slide_path"]
 
-            if type(data["slide_ids"][0]) == tuple: #tuple of (slide_id, shape_id)
+            if isinstance(data["slide_ids"][0], tuple): #tuple of (slide_id, shape_id)
                 tags["slide_id"] = data["slide_ids"][0][0]
                 tags["shape_id"] = data["slide_ids"][0][1]
             else:
@@ -508,7 +508,7 @@ class Thumbnailer(object):
                 data = Forms.Clipboard.GetData(BKT_THUMBNAIL)
                 #bruteforce method to convert data into correct type
                 data = tuple(data)
-                data = (list(data[0]), unicode(data[1]))
+                data = (list(data[0]), str(data[1]))
             except:
                 raise ValueError("Invalid clipboard format")
         
@@ -730,7 +730,7 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
     #id_q="nsBKT:powerpoint_toolbox_extensions",
     #insert_after_q="nsBKT:powerpoint_toolbox_advanced",
     insert_before_mso="TabHome",
-    label=u'Toolbox 3/3',
+    label='Toolbox 3/3',
     # get_visible defaults to False during async-startup
     get_visible=bkt.Callback(lambda:True),
     children = [

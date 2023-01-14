@@ -4,7 +4,7 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 
@@ -442,8 +442,8 @@ class CustomFormatCatalog(object):
                 if k in style:
                     customformat.add_format(k, style[k])
             if "IndentLevels" in style:
-                customformat.add_format("ParagraphFormat", OrderedDict([(k, v["ParagraphFormat"])for k,v in style["IndentLevels"].items()]) )
-                customformat.add_format("Font", OrderedDict([(k, v["Font"])for k,v in style["IndentLevels"].items()]) )
+                customformat.add_format("ParagraphFormat", OrderedDict([(k, v["ParagraphFormat"]) for k,v in style["IndentLevels"].items()]) )
+                customformat.add_format("Font", OrderedDict([(k, v["Font"]) for k,v in style["IndentLevels"].items()]) )
 
             # move thumbnails
             new_file = "{}_{}.png".format( i+1, uuid.uuid4().hex )
@@ -801,7 +801,7 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
     #id_q="nsBKT:powerpoint_toolbox_extensions",
     #insert_after_q="nsBKT:powerpoint_toolbox_advanced",
     insert_before_mso="TabHome",
-    label=u'Toolbox 3/3',
+    label='Toolbox 3/3',
     # get_visible defaults to False during async-startup
     get_visible=bkt.Callback(lambda:True),
     children = [
