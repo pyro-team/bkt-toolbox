@@ -6,4 +6,4 @@ class BktFeature(object):
     
     @staticmethod
     def contructor():
-        import florian
+        from . import florian

@@ -29,7 +29,7 @@ class Adjustments(object):
             sizeString = '#######',
             
             on_change   = bkt.Callback(
-                lambda shapes, value: map( lambda shape: Adjustments.set_adjustment(shape, num, value), shapes),
+                lambda shapes, value: [Adjustments.set_adjustment(shape, num, value) for shape in shapes],
                 shapes=True),
             
             get_text    = bkt.Callback(
@@ -159,10 +159,10 @@ class ShapePoints(object):
         #     shape.nodes.delete(shape.nodes.count)
         
 group_shape_points = bkt.ribbon.Group(
-    label=u"Shape Points",
+    label="Shape Points",
     children=[
         bkt.ribbon.Button(
-            label=u'Shape Points',
+            label='Shape Points',
             size="large",
             imageMso='ObjectEditPoints',
             on_action=bkt.Callback(ShapePoints.display_points)
@@ -263,7 +263,7 @@ class CopyPasteStyle(object):
 copy_paste_style = CopyPasteStyle()
 
 group_copy_paste_style = bkt.ribbon.Group(
-    label=u"Copy Style",
+    label="Copy Style",
     children=[
         bkt.ribbon.Button(label='copy', screentip='copy image settings: Zuschneideposition, ...', 
             on_action=bkt.Callback(copy_paste_style.copy_style),
@@ -321,7 +321,7 @@ class ShapeMetaStyle(object):
 
 
     def get_meta_style(self, shapes):
-        shapetypes = map( lambda shape: self.get_tag_value(shape, self.META_STYLE_NAME, ''), shapes )
+        shapetypes = [self.get_tag_value(shape, self.META_STYLE_NAME, '') for shape in shapes]
         shapetypes = list(set(shapetypes))
         if len(shapetypes) == 1:
             return shapetypes[0]
@@ -363,7 +363,7 @@ class ShapeMetaStyle(object):
                 pass
                         
         else:
-            if self.settings.has_key(stylename):
+            if stylename in self.settings:
                 return self.settings[stylename]
             else:
                 return self.default_style
@@ -442,7 +442,7 @@ class ShapeMetaStyle(object):
 
 shape_meta_style = ShapeMetaStyle()
 group_meta_style = bkt.ribbon.Group(
-	label=u'Master Styles',
+	label='Master Styles',
 	children=[
 		bkt.ribbon.ComboBox(
 			label='Name', size_string='###############', show_label=True,
@@ -625,13 +625,13 @@ class SolidShadow(object):
 
 
 group_diverses = bkt.ribbon.Group(
-    label=u"Div.",
+    label="Div.",
     children=[
-        bkt.ribbon.Button(label=u"Schwarz/weiß", show_label=True, on_action=bkt.Callback(Diverses.make_black_white)),
+        bkt.ribbon.Button(label="Schwarz/weiß", show_label=True, on_action=bkt.Callback(Diverses.make_black_white)),
         # bkt.ribbon.Button(label='circ w connectors', show_label=True, on_action=bkt.Callback(Diverses.circ_w_connectors)),
         # bkt.ribbon.Button(label='box w connectors', show_label=True, on_action=bkt.Callback(Diverses.box_w_connectors)),
-        bkt.ribbon.Button(label=u"Replace by emf-image", show_label=True, on_action=bkt.Callback(EnhancedMetaFile.convert_selection_to_emf)),
-        bkt.ribbon.Button(label=u"Weißer Schatten", show_label=True, on_action=bkt.Callback(SolidShadow.solid_white_shadow)),
+        bkt.ribbon.Button(label="Replace by emf-image", show_label=True, on_action=bkt.Callback(EnhancedMetaFile.convert_selection_to_emf)),
+        bkt.ribbon.Button(label="Weißer Schatten", show_label=True, on_action=bkt.Callback(SolidShadow.solid_white_shadow)),
         
     ]
 )
@@ -640,7 +640,7 @@ group_diverses = bkt.ribbon.Group(
 
 bkt.powerpoint.add_tab(
     bkt.ribbon.Tab(
-        label=u'Toolbox RD2',
+        label='Toolbox RD2',
         id='RubensTab',
         # get_visible defaults to False during async-startup
         get_visible=bkt.Callback(lambda:True),
@@ -657,14 +657,14 @@ bkt.powerpoint.add_tab(
                     bkt.ribbon.Box(children =[
                         bkt.ribbon.Button(
                             id="rd_change_state_prev",
-                            label=u'Status wechseln   «',
+                            label='Status wechseln   «',
                             image_mso='GroupSmartArtQuickStyles', #'ScreenNavigatorForward', # GroupSmartArtQuickStyles, GroupShow, GroupDiagramStylesClassic
                             on_action=bkt.Callback(StateShape.previous_state),
                             get_enabled=bkt.Callback(StateShape.is_state_shape),
                         ),
                         bkt.ribbon.Button(
                             id="rd_change_state_next",
-                            label=u"»",
+                            label="»",
                             on_action=bkt.Callback(StateShape.next_state),
                             get_enabled=bkt.Callback(StateShape.is_state_shape),
                         )

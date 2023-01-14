@@ -4,7 +4,7 @@ Created on 2017-07-24
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 from collections import OrderedDict
@@ -119,7 +119,7 @@ class FormattingTestFunctions(object):
 
         def _get_key_by_value(search_dict, value):
             try:
-                return search_dict.keys()[search_dict.values().index(value)]
+                return list(search_dict.keys())[list(search_dict.values()).index(value)]
             except:
                 return "?"
         
@@ -198,13 +198,13 @@ class FormattingTestFunctions(object):
     def control_position(cls, context, current_control, customui_control):
         cls.current_control = current_control
         cls.customui_control = customui_control
-        print(current_control.id)
+        print((current_control.id))
         try:
-            print("test1: %s" % context.app.CommandBars.ActionControl)
+            print(("test1: %s" % context.app.CommandBars.ActionControl))
         except:
             pass
         try:
-            print("test2: %s" % context.app.Caller)
+            print(("test2: %s" % context.app.Caller))
         except:
             pass
 
@@ -446,7 +446,7 @@ architecture_gruppe = bkt.ribbon.Group(
 
 bkt.powerpoint.add_tab(bkt.ribbon.Tab(
     id="FlorianTab",
-    label=u'DEV FST',
+    label='DEV FST',
     children = [
         ampersand_gruppe,
         testfenster_gruppe,

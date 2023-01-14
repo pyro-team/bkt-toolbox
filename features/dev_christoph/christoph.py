@@ -144,7 +144,7 @@ class TableGroup(PPTContainer):
         tr = TableRecognition(shapes)
         tr.run()
         res = tr.median_spacing()
-        print res
+        print(res)
         return str(res)
     
     @bkt.arg_shapes_limited(2)
@@ -255,7 +255,7 @@ class MiscGroup(PPTContainer):
     def dev_table_info(self,shapes):
         tr = TableRecognition(shapes)
         tr.run()
-        msg = u""
+        msg = ""
         msg += "dimension: rows=%d, cols=%d\r\n" % tr.dimension
         msg += "median spacing: %r\r\n" % tr.median_spacing()
              
@@ -287,7 +287,7 @@ class MiscGroup(PPTContainer):
     @bkt.image('Swap Shapes 32')
     @bkt.large_button('Swap Shapes')
     def devswap(self, shapes):
-        print "Test"
+        print("Test")
         s1, s2 = shapes
         s1.Left, s2.Left = s2.Left, s1.Left
         s1.Top, s2.Top = s2.Top, s1.Top
