@@ -4,7 +4,7 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 # import System.Convert as Converter #required for convert to double
 # import System.DateTime as DateTime #required for parse as date and time
@@ -831,7 +831,7 @@ class CellsOps(object):
         #Show hidden columns and store them
         else:
             #hidden_cols = None
-            for i in xrange(1,area.Columns.Count+1):
+            for i in range(1,area.Columns.Count+1):
                 if area.Columns(i).EntireColumn.Hidden:
                     hidden_cols = xllib.range_union(hidden_cols, area.Columns(i).EntireColumn)
 
@@ -866,7 +866,7 @@ class CellsOps(object):
         #Show hidden rows and store them
         else:
             #hidden_rows = None
-            for i in xrange(1,area.Rows.Count+1):
+            for i in range(1,area.Rows.Count+1):
                 if area.Rows(i).EntireRow.Hidden:
                     hidden_rows = xllib.range_union(hidden_rows, area.Rows(i).EntireRow)
 
@@ -893,7 +893,7 @@ class CellsOps(object):
         deleted = 0
         try:
             area = sheet.UsedRange
-            for i in xrange(1,area.Columns.Count+1):
+            for i in range(1,area.Columns.Count+1):
                 if area.Columns(i).EntireColumn.Hidden:
                     area.Columns(i).EntireColumn.Delete()
                     deleted += 1
@@ -908,7 +908,7 @@ class CellsOps(object):
     def remove_hidden_rows(cls, sheet):
         area = sheet.UsedRange
         deleted = 0
-        for i in xrange(1,area.Rows.Count+1):
+        for i in range(1,area.Rows.Count+1):
             if area.Rows(i).EntireRow.Hidden:
                 area.Rows(i).EntireRow.Delete()
                 deleted += 1

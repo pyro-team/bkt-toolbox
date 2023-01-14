@@ -4,7 +4,7 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 import bkt.library.excel.helpers as xllib
@@ -45,7 +45,7 @@ info_gruppe = bkt.ribbon.Group(
 bkt.excel.add_tab(bkt.ribbon.Tab(
     id='bkt_excel_toolbox',
     #id_q='nsBKT:excel_toolbox',
-    label=u'Toolbox 1/3',
+    label='Toolbox 1/3',
     insert_before_mso="TabHome",
     get_visible=bkt.Callback(lambda: True),
     children = [
@@ -117,7 +117,7 @@ bkt.excel.add_tab(bkt.ribbon.Tab(
 bkt.excel.add_tab(bkt.ribbon.Tab(
     id='bkt_excel_toolbox_p2',
     #id_q='nsBKT:excel_toolbox',
-    label=u'Toolbox 2/3 BETA',
+    label='Toolbox 2/3 BETA',
     insert_before_mso="TabHome",
     get_visible=bkt.Callback(lambda: True),
     children = [
@@ -196,7 +196,7 @@ bkt.excel.add_tab(bkt.ribbon.Tab(
 bkt.excel.add_tab(bkt.ribbon.Tab(
     id='bkt_excel_toolbox_advanced',
     #id_q='nsBKT:excel_toolbox_advanced',
-    label=u'Toolbox 3/3 BETA',
+    label='Toolbox 3/3 BETA',
     insert_before_mso="TabHome",
     get_visible=bkt.Callback(lambda: True),
     children = [

@@ -4,7 +4,7 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import os #for filelist
