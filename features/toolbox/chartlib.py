@@ -539,9 +539,9 @@ class ChartLib(object):
                         break
                     logging.info("Updating library %s", gal.filename)
                     if len(gal.filename) > 50:
-                        worker.ReportProgress(current/total*100, "..." + gal.filename[-50:])
+                        worker.ReportProgress(round(current/total*100), "..." + gal.filename[-50:])
                     else:
-                        worker.ReportProgress(current/total*100, gal.filename)
+                        worker.ReportProgress(round(current/total*100), gal.filename)
                     
                     gal.reset_gallery_items(context)
                     current += 1.0
