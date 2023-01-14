@@ -115,10 +115,6 @@ class DevGroup(object):
     @staticmethod
     def toggle_log_write_file(pressed):
         bkt.config.set_smart("log_write_file", pressed)
-        
-    @staticmethod
-    def toggle_legacy_syntax(pressed):
-        bkt.config.set_smart("enable_legacy_syntax", pressed)
     
     @staticmethod
     def change_log_level(pressed, current_control):
@@ -452,11 +448,6 @@ common_group = bkt.ribbon.Group(
                             on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transactional=False)
                         ),
                     ]
-                ),
-                bkt.ribbon.ToggleButton(
-                    label="Legacy Syntax on/off",
-                    get_pressed=bkt.Callback(lambda: bkt.config.enable_legacy_syntax or False),
-                    on_toggle_action=bkt.Callback(DevGroup.toggle_legacy_syntax, transactional=False)
                 ),
             ]
         ),

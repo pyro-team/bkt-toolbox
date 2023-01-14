@@ -236,18 +236,6 @@ class AppUI(object):
             element.children = [self.create_control(c, ribbon_id=ribbon_id) for c in element.children]
             return element
         
-        elif bkt.config.enable_legacy_syntax or False:
-            from bkt.annotation import ContainerUsage #@deprecated
-            from bkt.factory import ControlFactory #@deprecated
-            
-            if isinstance(element, ContainerUsage):
-                logging.debug("create_control for ContainerUsage: %s", element.container)
-                return ControlFactory(element.container, ribbon_info=None).create_control()
-            
-            else:
-                logging.warning("FeatureContainer used where instance of ContainerUsage was expected: %s", element)
-                return ControlFactory(element, ribbon_info=None).create_control()
-        
         else:
             logging.warning("create_control for element %s skipped", element)
     

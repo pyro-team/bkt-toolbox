@@ -20,9 +20,6 @@ import bkt.library.system as lib_sys #for getting key-states in spinner
 from bkt.callbacks import CallbackTypes, CallbackType, Callback
 from bkt.xml import RibbonXMLFactory, linq
 
-# Abhängigkeit zu annotation nicht gewünscht, siehe RibbonControl-Klasse
-# from .annotation import AbstractAnnotationObject
-
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
 Bitmap = Drawing.Bitmap
@@ -43,12 +40,6 @@ class ArgAccessor(object):
     def __contains__(self, key):
         return key in self._attributes
 
-
-#FIXME: Nutzung von AbstractAnnotationObject führt zu Abhängigkeit vom annotation-Modul.
-#       Aktuell ist diese Abhängigkeit notwendig, damit RibbonControl-Instanzen in Klassenattributen bei der Control-Erstellung einer
-#       FeatureContainer-Klasse berücksichtigt werden.
-#       Sauberer wäre, die Logik vom AbstractAnnotationObject von außerhalb zu injezieren; diese Logik wird hier nicht weiter verwendet.
-# class RibbonControl(AbstractAnnotationObject):
 class RibbonControl(object):
     ''' Base class to represent any element from MSCustomUI.
         Holds attributes of the xml-element and callbacks associated to the element.
@@ -62,14 +53,9 @@ class RibbonControl(object):
     _id_attribute_key = "id"
     _auto_id_counter = count()
     _predefined_ids = set(["id_mso", "idMso", "id_q", "idQ"])
-
-    #NOTE: DEPRECATED: this counter is only used to set target_order for legacy annotations syntax
-    _order_counter = count()
     
     #def __init__(self, node_type, xml_name, id_tag=None, attributes=None, **kwargs):
     def __init__(self, xml_name, id_tag=None, attributes={}, **kwargs):
-        # AbstractAnnotationObject.__init__(self)
-        self.target_order = next(RibbonControl._order_counter)
         
         #self.node_type = node_type
         self.xml_name = xml_name

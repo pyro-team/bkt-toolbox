@@ -265,7 +265,6 @@ dummy_option = dummy_value
 	#  async_startup = False
 	#  task_panes = False
 	#  use_keymouse_hooks = True
-	#  enable_legacy_syntax = False
 	#  updates_auto_check_frequency = fridays-only
 	#  
 	#  ### Optional path settings
