@@ -238,7 +238,7 @@ class FolderToSlides(object):
         master_slide_new = False
         try:
             master_slide = context.slide
-        except EnvironmentError:
+        except SystemError:
             #nothing appropriate selected
             master_slide = context.presentation.slides.add(1, 11) #ppLayoutTitleOnly
             master_slide_new = True

@@ -122,7 +122,7 @@ class Thumbnailer(object):
         
             try:
                 slide = pres.Slides.FindBySlideId(slide_id)
-            except EnvironmentError:
+            except SystemError:
                 logging.exception("slide id not found")
                 raise IndexError("slide id not found")
 
@@ -316,7 +316,7 @@ class Thumbnailer(object):
         try:
             slide = pres.Slides.FindBySlideId(slide_id)
             slide.Select()
-        except EnvironmentError:
+        except SystemError:
             bkt.message.error("Fehler! Folie in der referenzierten Präsentation nicht gefunden.", "BKT: Thumbnails")
             return
 
@@ -481,7 +481,7 @@ class Thumbnailer(object):
             try:
                 slide = application.ActivePresentation.Slides.FindBySlideId(slide_id)
                 shape.ActionSettings(1).Hyperlink.SubAddress = "{},{},{}".format(slide.SlideId,slide.SlideIndex,slide.Name)
-            except EnvironmentError:
+            except SystemError:
                 logging.warning("Thumbnails: Update of hyperlink failed!")
 
     @classmethod

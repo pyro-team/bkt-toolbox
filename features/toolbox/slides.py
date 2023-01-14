@@ -158,7 +158,7 @@ class SendOrSaveSlides(object):
         try:
             oApp = Outlook.ApplicationClass()
             oMail = oApp.CreateItem(Outlook.OlItemType.olMailItem)
-        except EnvironmentError:
+        except:
             bkt.message.error("Fehler beim Erstellen der E-Mail in Outlook!")
             return
 
@@ -390,8 +390,8 @@ class SlideMenu(object):
                     if shape.PlaceholderFormat.type == 2: 
                         # ppt.PpPlaceholderType.ppPlaceholderBody.value__
                         shape.TextFrame.TextRange.Text = ""
-                except EnvironmentError:
-                    # EnvironmentError: System.Runtime.InteropServices.COMException (0x80048240): PlaceholderFormat.Type : Invalid request.  Shape is not a placeholder.
+                except SystemError:
+                    # SystemError: System.Runtime.InteropServices.COMException (0x80048240): PlaceholderFormat.Type : Invalid request.  Shape is not a placeholder.
                     pass
 
     @classmethod
@@ -442,8 +442,8 @@ class SlideMenu(object):
                     cl.Delete()
                     deleted_layouts += 1
                     logging.info("deleted custom layout %s", name)
-                except EnvironmentError: #deletion fails if layout in use
-                    #EnvironmentError: System.Runtime.InteropServices.COMException (0x80048240): Slide (unknown member) : Invalid request.  Can't delete master.
+                except SystemError: #deletion fails if layout in use
+                    #SystemError: System.Runtime.InteropServices.COMException (0x80048240): Slide (unknown member) : Invalid request.  Can't delete master.
                     continue
             if design.SlideMaster.CustomLayouts.Count == 0:
                 unused_designs.append(design)
