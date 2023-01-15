@@ -83,7 +83,10 @@ class AutoReleasingComObject(object):
         self._comobj += other
     def __isub__(self, other):
         self._comobj -= other
-        
+    
+    # hash is also relevant for creating sets
+    def __hash__(self):
+        return hash(self._comobj)
     
     
     ##### CLASS REPRESENTATION #####
