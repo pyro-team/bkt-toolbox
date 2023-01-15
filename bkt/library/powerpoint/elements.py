@@ -549,15 +549,15 @@ class PositionGallery(bkt.ribbon.Gallery):
     def create_image(self, position, reference, presentation):
         # create bitmap, define pen/brush
         height = 40
-        width = height*16./9
+        width = round(height*16/9)
         img = Drawing.Bitmap(width, height)
         g = Drawing.Graphics.FromImage(img)
         
         
         # reference size
         if reference == 'CONTENT':
-            v_offset = height/5
-            v_ref = (height*4)/5
+            v_offset = height//5
+            v_ref = (height*4)//5
             left,top,fill_width,fill_height = self.rect_from_definition(position, ref_frame=[0,v_offset,width, v_ref])
             
         else: # SLIDE / ABS
@@ -570,11 +570,11 @@ class PositionGallery(bkt.ribbon.Gallery):
         
         color = Drawing.ColorTranslator.FromHtml('#ffdd0000')
         brush = Drawing.SolidBrush(color)
-        g.FillRectangle(brush, Drawing.Rectangle(round(left),round(top), round(fill_width), round(fill_height)))
+        g.FillRectangle(brush, Drawing.Rectangle(round(left), round(top), round(fill_width), round(fill_height)))
         
         color = Drawing.ColorTranslator.FromHtml('#ff999999')
         pen = Drawing.Pen(color,1)
-        g.DrawRectangle(pen, Drawing.Rectangle(0,0, width-1, height/5-1))
+        g.DrawRectangle(pen, Drawing.Rectangle(0,0, width-1, height//5-1))
         g.DrawRectangle(pen, Drawing.Rectangle(0,0, width-1, height-1))
         
         return img

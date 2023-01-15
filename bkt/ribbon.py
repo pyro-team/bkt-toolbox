@@ -890,18 +890,18 @@ class ColorGallery(Gallery):
         brightness = 0
 
         # get rgb-value and brightness
-        if index/10 == 0:
+        if index//10 == 0:
             # theme colors
             color = self.get_theme_color(context, index)
             rgb, themecolor = color.rgb, color.theme_index
-        elif index/10 < 6:
+        elif index//10 < 6:
             # theme color shades
-            color = self.get_theme_color_shade(context, index, index/10-1)
+            color = self.get_theme_color_shade(context, index, index//10-1)
             rgb, themecolor, brightness = color.rgb, color.theme_index, color.brightness
-        elif index/10 == 6:
+        elif index//10 == 6:
             # standard colors
             rgb = self.get_standard_color(index % 10)
-        elif index/10 == 7:
+        elif index//10 == 7:
             # recent colors
             rgb = self.get_recent_color(context, index % 10)
 
@@ -917,13 +917,13 @@ class ColorGallery(Gallery):
         '''
             Returns the label for the given gallery-item-index.
         '''
-        if index/10 == 0:
+        if index//10 == 0:
             return self.get_theme_color_name(context, index)
-        elif index/10 < 6:
-            return self.get_theme_color_shade_name(context, index, index/10-1)
-        elif index/10 == 6:
+        elif index//10 < 6:
+            return self.get_theme_color_shade_name(context, index, index//10-1)
+        elif index//10 == 6:
             return self.get_standard_color_name(index % 10)
-        elif index/10 == 7:
+        elif index//10 == 7:
             return 'recently used color'
         else:
             return ''
