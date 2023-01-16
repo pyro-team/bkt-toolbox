@@ -66,12 +66,12 @@ class EditModeShapes(object):
     
     
     @classmethod
-    def toogleNotesOnSlides(cls, slides, context):
+    def toogleNotesOnSlides(cls, slides):
         for slide in slides:
             cls.toogleNotesOnSlide(slide)
     
     @staticmethod
-    def toogleNotesOnSlide(slide, context):
+    def toogleNotesOnSlide(slide):
         visible = None
         for cShp in slide.shapes:
             if cShp.Tags.Item(TOOLBOX_NOTE) != "":
@@ -81,7 +81,7 @@ class EditModeShapes(object):
     
     
     @staticmethod
-    def toggleNotesOnAllSlides(slide, context):
+    def toggleNotesOnAllSlides(slide):
         visible = None
         for sld in slide.parent.slides:            
             for cShp in sld.shapes:
@@ -91,12 +91,12 @@ class EditModeShapes(object):
                     cShp.Visible = visible
     
     @classmethod
-    def removeNotesOnSlides(cls, slides, context):
+    def removeNotesOnSlides(cls, slides):
         for slide in slides:
             cls.removeNotesOnSlide(slide)
     
     @staticmethod
-    def removeNotesOnSlide(slide, context):
+    def removeNotesOnSlide(slide):
         shapesToRemove = []
         
         for cShp in slide.shapes:
@@ -108,7 +108,7 @@ class EditModeShapes(object):
     
     
     @staticmethod
-    def removeNotesOnAllSlides(slide, context):
+    def removeNotesOnAllSlides(slide):
         for sld in slide.parent.slides:
             shapesToRemove = []
             
