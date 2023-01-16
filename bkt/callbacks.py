@@ -464,10 +464,12 @@ class InvocationContext(object):
     @staticmethod
     def from_method(method):
         ''' Alternative constructor. Derives InvocationContext-settings from methods's parameter-names  '''
-        kwargs = {}
-        for var_name in list(method.__code__.co_varnames)[:method.__code__.co_argcount]:
-            if var_name != "self":
-                kwargs[var_name] = True
+        kwargs = dict.fromkeys(list(method.__code__.co_varnames)[:method.__code__.co_argcount], True)
+        kwargs.pop("self", None)
+        # kwargs = {}
+        # for var_name in list(method.__code__.co_varnames)[:method.__code__.co_argcount]:
+        #     if var_name != "self":
+        #         kwargs[var_name] = True
         
         return InvocationContext(raise_error=False, **kwargs)
         
