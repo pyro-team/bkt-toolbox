@@ -465,10 +465,10 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
         #app.WindowSelectionChange += dump
         
         #event available in PPT2013
-        if float(app.Version) >= 15.0:
-            app.AfterShapeSizeChange += self.after_shape_size_changed
-            #app.AfterShapeSizeChange += self.invalidate
-            #app.AfterShapeSizeChange += dump
+        # if float(app.Version) >= 15.0:
+        app.AfterShapeSizeChange += self.after_shape_size_changed
+        #app.AfterShapeSizeChange += self.invalidate
+        #app.AfterShapeSizeChange += dump
         
     
         app.AfterPresentationOpen  += self.after_presentation_open
@@ -492,8 +492,8 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
             app.WindowActivate -= self.window_activate 
             # app.WindowSelectionChange -= self.window_selection_changed
             #event available in PPT2013
-            if float(app.Version) >= 15.0:
-                app.AfterShapeSizeChange -= self.after_shape_size_changed
+            # if float(app.Version) >= 15.0:
+            app.AfterShapeSizeChange -= self.after_shape_size_changed
     
             app.AfterPresentationOpen  -= self.after_presentation_open
             app.AfterNewPresentation   -= self.after_new_presentation
