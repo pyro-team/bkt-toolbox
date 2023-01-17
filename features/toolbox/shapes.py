@@ -1224,7 +1224,7 @@ class NumberShapesGallery(bkt.ribbon.Gallery):
         elif item['shape_type'] == 'diamond':
             diamond_points = [(0,1),(1,2),(2,1),(1,0)]
             size_factor = size/2
-            points = Array[Drawing.Point]([Drawing.Point(l*size_factor,t*size_factor) for t,l in diamond_points])
+            points = Array[Drawing.Point]([Drawing.Point(round(l*size_factor),round(t*size_factor)) for t,l in diamond_points])
             g.FillPolygon(brush_fill, points)
             g.DrawPolygon(pen_border, points)
         else: #fallback shape=1 rectangle
@@ -1899,7 +1899,7 @@ class ShapeTableGallery(bkt.ribbon.Gallery):
         
         # create bitmap, define pen/brush
         size_w = 60 #16*3
-        size_h = size_w/16*9 #9*3
+        size_h = round(size_w/16*9) #9*3
         img = Drawing.Bitmap(size_w, size_h)
         g = Drawing.Graphics.FromImage(img)
         # color_black = Drawing.ColorTranslator.FromOle(0)
@@ -1915,11 +1915,11 @@ class ShapeTableGallery(bkt.ribbon.Gallery):
         #square
         #g.DrawRectangle(pen, Drawing.Rectangle(0,0, size-1, size-1))
         
-        width = size_w/n_cols-1
-        height = size_h/n_rows-1
+        width = round(size_w/n_cols-1)
+        height = round(size_h/n_rows-1)
         for r in range(n_rows):
             for c in range(n_cols):
-                g.DrawRectangle(pen, Drawing.Rectangle(0+c*width,0+r*height, width, height))
+                g.DrawRectangle(pen, Drawing.Rectangle(c*width,r*height, width, height))
         
         return img
     
