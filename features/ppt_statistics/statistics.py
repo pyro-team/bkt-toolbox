@@ -7,7 +7,6 @@
 
 
 import bkt
-import bkt.library.powerpoint as pplib
 
 
 class Statistics(object):
