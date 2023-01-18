@@ -206,7 +206,7 @@ class Callback(object):
             self.init_container_method(container, method_name, callback_type, invocation_context)
             
         elif len_args == 3:
-            # no logic, alls objects as arguments
+            # no logic, all objects as arguments
             self.method, self.callback_type, self.invocation_context = args
             
         elif len_args == 2:
@@ -305,13 +305,16 @@ class CallbackLazy(Callback):
     '''
 
     def __init__(self, *args, **kwargs):
-        super().__init__(self._load_and_execute, **kwargs)
+        ''' Initialization method, use on of the following options
+             1) Callback( module_name, container, method_name, **kwargs)
+                The invocation_context is then build from **kwargs. Without kwargs, invocation_context remains empty.
+             2) Callback( module_name, method_name, **kwargs)
+                The invocation_context is then build from **kwargs. Without kwargs, invocation_context remains empty.
+        '''
+        super().__init__(**kwargs)
         
-        # self.container = None
-        # self.control = None
-        # self.callback_type = None
-
-        # self._callback_args = { key:kwargs.pop(key) for key in list(kwargs.keys()) if key in self.CALLBACK_KEYS }
+        self.method = self._load_and_execute
+        self.invocation_context = InvocationContext(raise_error=False, **kwargs)
 
         self.module_name = None
         self.method_name = None
