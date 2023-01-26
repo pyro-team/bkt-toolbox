@@ -10,7 +10,7 @@ Created on 21.12.2017
 import bkt
 
 from bkt.callbacks import WpfActionCallback
-from ..agenda import ToolboxAgenda
+from ..models.agenda import ToolboxAgenda
 
 
 class AgendaPopup(bkt.ui.WpfWindowAbstract):

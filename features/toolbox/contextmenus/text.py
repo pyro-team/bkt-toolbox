@@ -9,7 +9,7 @@ Created on 01.08.2022
 
 import bkt
 
-from .. import text
+from ..models import text_menu as text
 
 class ContextTextShapes(object):
     @staticmethod

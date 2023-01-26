@@ -8,7 +8,7 @@ Created on 10.02.2017
 
 
 import importlib
-from collections import namedtuple, deque
+from collections import namedtuple
 
 import bkt
 from bkt.library.powerpoint import PPTSymbolsGallery
