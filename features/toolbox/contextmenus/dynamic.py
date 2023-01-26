@@ -10,10 +10,11 @@ Created on 29.04.2021
 import bkt
 
 # from .. import arrange
-from .. import shapes as mod_shapes
+# from .. import shapes as mod_shapes
 
 # from ..models import processshapes
 from ..models import arrange_menu
+from ..models import shapes_menu
 
 from .stateshapes import ContextStateShapes
 from .linkshapes import ContextLinkedShapes
@@ -70,8 +71,8 @@ class ShapeFreeform(object):
             label = "Verbindungsfläche neu verbinden",
             supertip="Aktualisiere die Verbindungsfläche nachdem sich die verbundenen Shapes geändert haben.",
             image = "ConnectorUpdate",
-            on_action=bkt.Callback(mod_shapes.ShapeConnectors.update_connector_shape, context=True, shape=True),
-            get_enabled = bkt.Callback(mod_shapes.ShapeConnectors.is_connector, shape=True),
+            on_action=bkt.Callback(shapes_menu.ShapeConnectors.update_connector_shape, context=True, shape=True),
+            get_enabled = bkt.Callback(shapes_menu.ShapeConnectors.is_connector, shape=True),
         ),
         ] + ContextLinkedShapes.get_buttons(shapes) + 
             ContextProcessShapes.get_buttons(shapes) + 
