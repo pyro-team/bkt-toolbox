@@ -54,7 +54,6 @@ class ToolboxUi(object):
         "text_parindent_group": 2, #page no 2
 
         "format_group": 2, #page no 2
-        "split_group": 0, #off
         "language_group": 0, #off
         "adjustments_group": 1, #page no 1
         "stateshape_group": 2, #page no 2
@@ -170,7 +169,6 @@ class ToolboxUi(object):
     def _render_pages_others(self):
         #others
         self.toolboxui_pages[self.toolboxui_settings["format_group"]].append(mod_shapes.format_group)
-        self.toolboxui_pages[self.toolboxui_settings["split_group"]].append(mod_shapes.split_shapes_group)
         self.toolboxui_pages[self.toolboxui_settings["language_group"]].append(language.sprachen_gruppe)
         self.toolboxui_pages[self.toolboxui_settings["adjustments_group"]].append(shape_adjustments.adjustments_group)
         self.toolboxui_pages[self.toolboxui_settings["stateshape_group"]].append(stateshapes.stateshape_gruppe)

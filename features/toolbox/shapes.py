@@ -8,9 +8,9 @@ Created on 06.07.2016
 
 
 import logging
-import locale
+# import locale
 
-from System import Array
+# from System import Array
 
 import bkt
 import bkt.library.powerpoint as pplib
@@ -30,9 +30,6 @@ from .chartlib import shapelib_button
 from . import text
 # from . import harvey
 # from . import stateshapes
-
-
-
 
 
 
@@ -615,173 +612,6 @@ pos_size_group = bkt.ribbon.Group(
 )
 
 
-class SplitShapes(object):
-    default_row_sep = cm_to_pt(0.2)
-    default_col_sep = cm_to_pt(0.2)
-    default_rows = 6
-    default_cols = 6
-    
-    @classmethod
-    def split_shapes(cls, shapes, rows, cols, row_sep, col_sep):
-        for shape in shapes:
-            cls.split_shape(shape, rows, cols, row_sep, col_sep)
-    
-    @classmethod
-    def split_shape(cls, shape, rows, cols, row_sep, col_sep):
-        shape_width = (shape.width - (cols-1)*col_sep)/cols
-        shape_height = (shape.height - (rows-1)*row_sep)/rows
-        
-        #shape.width = shape_width
-        #shape.height = shape_height
-        
-        for row_idx in range(rows):
-            for col_idx in range(cols):
-                if row_idx == 0 and col_idx == 0:
-                    shape_copy = shape
-                else:
-                    shape_copy = shape.duplicate()
-                shape_copy.left = shape.left + col_idx*(shape_width+col_sep)
-                shape_copy.top = shape.top + row_idx*(shape_height+row_sep)
-                shape_copy.width = shape_width
-                shape_copy.height = shape_height
-                shape_copy.select(False)
-        #shape.Delete()
-
-
-class MultiplyShapes(object):
-    
-    @classmethod
-    def multiply_shapes(cls, shapes, rows, cols, row_sep, col_sep):
-        for shape in shapes:
-            cls.multiply_shape(shape, rows, cols, row_sep, col_sep)
-    
-    @classmethod
-    def multiply_shape(cls, shape, rows, cols, row_sep, col_sep):
-        shape_width = shape.width
-        shape_height = shape.height
-        
-        for row_idx in range(rows):
-            for col_idx in range(cols):
-                if row_idx == 0 and col_idx == 0:
-                    continue
-                shape_copy = shape.duplicate()
-                shape_copy.left = shape.left + col_idx*(shape_width+col_sep)
-                shape_copy.top = shape.top + row_idx*(shape_height+row_sep)
-                shape_copy.width = shape_width
-                shape_copy.height = shape_height
-                shape_copy.select(False)
-    
-    # @classmethod
-    # def multiply_shapes_cyclic(cls, shapes, number, sep):
-    #     for shape in shapes:
-    #         cls.multiply_shaps_cyclic(shape, number, sep)
-    #
-    # @classmethod
-    # def multiply_shaps_cyclic(cls, shape, number, sep):
-    #     shapes = [shape]
-    #
-    #     # distance circle-midpoint to shape-midpoint is given by sep
-    #     height = 2*(max(shape.height, shape.width)/2 + sep)
-    #     width = height
-    #
-    #     midpoint = [ shape.left + shape.width/2 , shape.top + shape.height/2 + height/2 ]
-    #
-    #     # generate shapes and arrange
-    #     for row_idx in range(number-1):
-    #         shape_copy = shape.duplicate()
-    #         shape_copy.select(False)
-    #         shapes.append(shape_copy)
-    #     CircularArrangement.arrange_circular_wargs(shapes, midpoint, width, height)
-        
-
-
-split_shapes_group = bkt.ribbon.Group(
-    id="bkt_splitshapes_group",
-    label="Teilen/Vervielfachen",
-    image_mso='TableRowsDistribute',
-    children=[
-        #bkt.ribbon.Label(label="Zeilen"),
-        bkt.ribbon.Box(
-            box_style="horizontal",
-            children = [
-                bkt.ribbon.Button(
-                    id='shape_split_horizontal',
-                    label="Horizontal teilen",
-                    show_label=False,
-                    image="split_horizontal",
-                    screentip="Horizontal teilen",
-                    supertip="Shape horizontal in mehrere Shapes teilen, entsprechend der angegebenen Anzahl und mit angegebenem Abstand zwischen den Shapes.",
-                    on_action = bkt.Callback(lambda shapes: SplitShapes.split_shapes(shapes, SplitShapes.default_rows, 1, SplitShapes.default_row_sep, 0 )),
-                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
-                ),
-                bkt.ribbon.Button(
-                    id='shape_split_vertical',
-                    label="Vertikal teilen",
-                    show_label=False,
-                    image="split_vertical",
-                    screentip="Vertikal teilen",
-                    supertip="Shape vertikal in mehrere Shapes teilen, entsprechend der angegebenen Anzahl und mit angegebenem Abstand zwischen den Shapes.",
-                    on_action = bkt.Callback(lambda shapes: SplitShapes.split_shapes(shapes, 1, SplitShapes.default_cols, 0, SplitShapes.default_col_sep )),
-                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
-                ),
-                bkt.ribbon.Button(
-                    id='shape_mult_vertical',
-                    label="Vertikal vervielfachen",
-                    show_label=False,
-                    image="multiply_vertical",
-                    screentip="Vertikal vervielfachen",
-                    supertip="Shape mehrfach dublizieren, entsprechend der angegebenen Anzahl. Shapes werden untereinander angeordnet mit dem angegebenem Abstand zwischen den Shapes.",
-                    on_action = bkt.Callback(lambda shapes: MultiplyShapes.multiply_shapes(shapes, SplitShapes.default_rows, 1, SplitShapes.default_row_sep, 0 )),
-                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
-                ),
-                bkt.ribbon.Button(
-                    id='shape_mult_horizontal',
-                    label="Horizontal vervielfachen",
-                    show_label=False,
-                    image="multiply_horizontal",
-                    screentip="Horizontal vervielfachen",
-                    supertip="Shape mehrfach dublizieren, entsprechend der angegebenen Anzahl. Shapes werden nebeneinander angeordnet mit dem angegebenem Abstand zwischen den Shapes.",
-                    on_action = bkt.Callback(lambda shapes: MultiplyShapes.multiply_shapes(shapes, 1, SplitShapes.default_cols, 0, SplitShapes.default_col_sep )),
-                    get_enabled = bkt.apps.ppt_shapes_or_text_selected,
-                ),
-            ]
-        ),
-        bkt.ribbon.RoundingSpinnerBox(
-            id = 'shape_slit_rows',
-            label="Anzahl Zeilen/Spalten",
-            supertip="Angestrebte Shapeanzahl für das Teilen/Vervielfachen von Shapes.",
-            show_label=False,
-            imageMso="TableRowsDistribute",
-            #TableRowsDistribute, TableStyleBandedRowsWord, TableRowsSelect
-            on_change = bkt.Callback(lambda value: [setattr(SplitShapes, 'default_rows', max(0, int(value))), setattr(SplitShapes, 'default_cols', max(0, int(value)))]),
-            get_text  = bkt.Callback(lambda: SplitShapes.default_rows),
-            big_step = 1,
-            small_step = 1,
-            round_at = 0
-        ),
-        bkt.ribbon.RoundingSpinnerBox(
-            id = 'shape_slit_row_sep',
-            label="Zeilen-/Spaltenabstand",
-            supertip="Abstand zwischen Shapes zur Berücksichtigung beim Teilen/Vervielfachen von Shapes.\n\nBei Kreisanordnung wird hiermit der vertikale/horizontale Abstand zum Mittelpunkt angegeben.",
-            show_label=False,
-            image_mso="RowHeight",
-            on_change = bkt.Callback(lambda value: [setattr(SplitShapes, 'default_row_sep', cm_to_pt(value)), setattr(SplitShapes, 'default_col_sep', cm_to_pt(value))]),
-            get_text  = bkt.Callback(lambda: round(pt_to_cm(SplitShapes.default_row_sep),2)),
-            round_cm = True
-        ),
-        # bkt.ribbon.Button(
-        #     id='shape_mult_circular',
-        #     #label="mult.",
-        #     image="multiply_circular",
-        #     screentip="Shape kreisförmig vervielfachen",
-        #     supertip="Shape vervielfachen und kreisförmig anordnen.",
-        #     on_action = bkt.Callback(lambda shapes: MultiplyShapes.multiply_shapes_cyclic(shapes, SplitShapes.default_rows, SplitShapes.default_row_sep )),
-        #     get_enabled = bkt.CallbackTypes.get_enabled.dotnet_name,
-        # )
-    ]
-)
-
-
 
 class ShapeFormats(object):
     transparencies = list(range(0, 110, 10))
@@ -952,7 +782,7 @@ format_group = bkt.ribbon.Group(
             image="fill_transparency",
             on_change = bkt.Callback(ShapeFormats.set_fill_transparency, shapes=True),
             get_text  = bkt.Callback(ShapeFormats.get_fill_transparency, shapes=True),
-            get_enabled = bkt.Callback(ShapeFormats.get_fill_enabled),
+            get_enabled = bkt.Callback(ShapeFormats.get_fill_enabled, context=True),
         ),
         bkt.ribbon.RoundingSpinnerBox(
             id = 'line_transparency',
@@ -963,7 +793,7 @@ format_group = bkt.ribbon.Group(
             image="line_transparency",
             on_change = bkt.Callback(ShapeFormats.set_line_transparency, shapes=True),
             get_text  = bkt.Callback(ShapeFormats.get_line_transparency, shapes=True),
-            get_enabled = bkt.Callback(ShapeFormats.get_line_enabled),
+            get_enabled = bkt.Callback(ShapeFormats.get_line_enabled, context=True),
         ),
         bkt.ribbon.RoundingSpinnerBox(
             id = 'line_weight',
@@ -978,7 +808,7 @@ format_group = bkt.ribbon.Group(
             image_mso="LineThickness",
             on_change = bkt.Callback(ShapeFormats.set_line_weight, shapes=True),
             get_text  = bkt.Callback(ShapeFormats.get_line_weight, shapes=True),
-            get_enabled = bkt.Callback(ShapeFormats.get_line_enabled),
+            get_enabled = bkt.Callback(ShapeFormats.get_line_enabled, context=True),
         ),
         bkt.ribbon.DialogBoxLauncher(idMso='ObjectFormatDialog')
     ]
@@ -992,7 +822,7 @@ fill_transparency_gallery = bkt.ribbon.Gallery(
     show_item_label=True,
     image="fill_transparency",
     columns="1",
-    get_enabled = bkt.Callback(ShapeFormats.get_fill_enabled),
+    get_enabled = bkt.Callback(ShapeFormats.get_fill_enabled, context=True),
     on_action_indexed = bkt.Callback(ShapeFormats.fill_on_action_indexed, shapes=True),
     get_selected_item_index = bkt.Callback(ShapeFormats.fill_get_selected_item_index, context=True),
     item_height="16",
@@ -1015,7 +845,7 @@ line_transparency_gallery = bkt.ribbon.Gallery(
     show_item_label=True,
     image="line_transparency",
     columns="1",
-    get_enabled = bkt.Callback(ShapeFormats.get_line_enabled),
+    get_enabled = bkt.Callback(ShapeFormats.get_line_enabled, context=True),
     on_action_indexed = bkt.Callback(ShapeFormats.line_on_action_indexed, shapes=True),
     get_selected_item_index = bkt.Callback(ShapeFormats.line_get_selected_item_index, context=True),
     item_height="16",
@@ -1052,7 +882,6 @@ styles_group = bkt.ribbon.Group(
         bkt.ribbon.DialogBoxLauncher(idMso='ObjectFormatDialog')
     ]
 )
-
 
 
 shapes_group = bkt.ribbon.Group(

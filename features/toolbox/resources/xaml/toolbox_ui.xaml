@@ -88,7 +88,6 @@
                 <RowDefinition Height="13*" />
                 <!--30-->
                 <RowDefinition Height="13*" />
-                <RowDefinition Height="13*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -303,22 +302,7 @@
             <RadioButton Grid.Row="27" Grid.Column="2" GroupName="adjustments_group" IsChecked="{Binding adjustments_group[1], Mode=TwoWay}" Content="{Binding adjustments_group_header[1]}" />
             <RadioButton Grid.Row="27" Grid.Column="3" GroupName="adjustments_group" IsChecked="{Binding adjustments_group[2], Mode=TwoWay}" Content="{Binding adjustments_group_header[2]}" />
 
-            <Label Grid.Row="28" Grid.Column="0" Content="Teilen/Vervielfachen" Style="{StaticResource lblGroup}">
-                <Label.ToolTip>
-                    <StackPanel Orientation="Vertical">
-                        <Image Source="{Binding split_group_url}" />
-                        <AccessText FontStyle="Italic" TextWrapping="WrapWithOverflow" Width="120">
-                            Auch verfügbar über Gruppe "Formen" > "Shape verändern".
-                        </AccessText>
-                    </StackPanel>
-                </Label.ToolTip>
-            </Label>
-            <RadioButton Grid.Row="28" Grid.Column="1" GroupName="split_group" IsChecked="{Binding split_group[0], Mode=TwoWay}" Content="{Binding split_group_header[0]}" />
-            <RadioButton Grid.Row="28" Grid.Column="2" GroupName="split_group" IsChecked="{Binding split_group[1], Mode=TwoWay}" Content="{Binding split_group_header[1]}" />
-            <RadioButton Grid.Row="28" Grid.Column="3" GroupName="split_group" IsChecked="{Binding split_group[2], Mode=TwoWay}" Content="{Binding split_group_header[2]}" />
-
-
-            <Label Grid.Row="29" Grid.Column="0" Content="Sprache" Style="{StaticResource lblGroup}">
+            <Label Grid.Row="28" Grid.Column="0" Content="Sprache" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
                     <StackPanel Orientation="Vertical">
                         <Image Source="{Binding language_group_url}" />
@@ -328,29 +312,29 @@
                     </StackPanel>
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="29" Grid.Column="1" GroupName="language_group" IsChecked="{Binding language_group[0], Mode=TwoWay}" Content="{Binding language_group_header[0]}" />
-            <RadioButton Grid.Row="29" Grid.Column="2" GroupName="language_group" IsChecked="{Binding language_group[1], Mode=TwoWay}" Content="{Binding language_group_header[1]}" />
-            <RadioButton Grid.Row="29" Grid.Column="3" GroupName="language_group" IsChecked="{Binding language_group[2], Mode=TwoWay}" Content="{Binding language_group_header[2]}" />
+            <RadioButton Grid.Row="28" Grid.Column="1" GroupName="language_group" IsChecked="{Binding language_group[0], Mode=TwoWay}" Content="{Binding language_group_header[0]}" />
+            <RadioButton Grid.Row="28" Grid.Column="2" GroupName="language_group" IsChecked="{Binding language_group[1], Mode=TwoWay}" Content="{Binding language_group_header[1]}" />
+            <RadioButton Grid.Row="28" Grid.Column="3" GroupName="language_group" IsChecked="{Binding language_group[2], Mode=TwoWay}" Content="{Binding language_group_header[2]}" />
 
 
-            <Label Grid.Row="30" Grid.Column="0" Content="Wechsel-Shapes" Style="{StaticResource lblGroup}">
+            <Label Grid.Row="29" Grid.Column="0" Content="Wechsel-Shapes" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
                     <Image Source="{Binding stateshape_group_url}" />
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="30" Grid.Column="1" GroupName="stateshape_group" IsChecked="{Binding stateshape_group[0], Mode=TwoWay}" Content="{Binding stateshape_group_header[0]}" />
-            <RadioButton Grid.Row="30" Grid.Column="2" GroupName="stateshape_group" IsChecked="{Binding stateshape_group[1], Mode=TwoWay}" Content="{Binding stateshape_group_header[1]}" />
-            <RadioButton Grid.Row="30" Grid.Column="3" GroupName="stateshape_group" IsChecked="{Binding stateshape_group[2], Mode=TwoWay}" Content="{Binding stateshape_group_header[2]}" />
+            <RadioButton Grid.Row="29" Grid.Column="1" GroupName="stateshape_group" IsChecked="{Binding stateshape_group[0], Mode=TwoWay}" Content="{Binding stateshape_group_header[0]}" />
+            <RadioButton Grid.Row="29" Grid.Column="2" GroupName="stateshape_group" IsChecked="{Binding stateshape_group[1], Mode=TwoWay}" Content="{Binding stateshape_group_header[1]}" />
+            <RadioButton Grid.Row="29" Grid.Column="3" GroupName="stateshape_group" IsChecked="{Binding stateshape_group[2], Mode=TwoWay}" Content="{Binding stateshape_group_header[2]}" />
 
 
-            <Label Grid.Row="31" Grid.Column="0" Content="Icon-Suche" Style="{StaticResource lblGroup}">
+            <Label Grid.Row="30" Grid.Column="0" Content="Icon-Suche" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
                     <Image Source="{Binding iconsearch_group_url}" />
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="31" Grid.Column="1" GroupName="iconsearch_group" IsChecked="{Binding iconsearch_group[0], Mode=TwoWay}" Content="{Binding iconsearch_group_header[0]}" />
-            <RadioButton Grid.Row="31" Grid.Column="2" GroupName="iconsearch_group" IsChecked="{Binding iconsearch_group[1], Mode=TwoWay}" Content="{Binding iconsearch_group_header[1]}" />
-            <RadioButton Grid.Row="31" Grid.Column="3" GroupName="iconsearch_group" IsChecked="{Binding iconsearch_group[2], Mode=TwoWay}" Content="{Binding iconsearch_group_header[2]}" />
+            <RadioButton Grid.Row="30" Grid.Column="1" GroupName="iconsearch_group" IsChecked="{Binding iconsearch_group[0], Mode=TwoWay}" Content="{Binding iconsearch_group_header[0]}" />
+            <RadioButton Grid.Row="30" Grid.Column="2" GroupName="iconsearch_group" IsChecked="{Binding iconsearch_group[1], Mode=TwoWay}" Content="{Binding iconsearch_group_header[1]}" />
+            <RadioButton Grid.Row="30" Grid.Column="3" GroupName="iconsearch_group" IsChecked="{Binding iconsearch_group[2], Mode=TwoWay}" Content="{Binding iconsearch_group_header[2]}" />
 
         </Grid>
       </ScrollViewer>

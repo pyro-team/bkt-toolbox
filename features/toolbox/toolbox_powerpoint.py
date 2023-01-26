@@ -16,7 +16,6 @@ from . import toolboxui
 
 ### default settings
 default_settings = {
-    "split_group": 2, #page no 2
     "language_group": 2, #page no 2
 }
 

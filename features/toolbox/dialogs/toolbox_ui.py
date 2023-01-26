@@ -102,7 +102,6 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
 
         self._model.set_setting("adjustments_group", self._value2key(self._vm.adjustments_group))
         self._model.set_setting("format_group", self._value2key(self._vm.format_group))
-        self._model.set_setting("split_group", self._value2key(self._vm.split_group))
         self._model.set_setting("language_group", self._value2key(self._vm.language_group))
         self._model.set_setting("stateshape_group", self._value2key(self._vm.stateshape_group))
         self._model.set_setting("iconsearch_group", self._value2key(self._vm.iconsearch_group))
