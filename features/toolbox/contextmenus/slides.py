@@ -9,7 +9,7 @@ Created on 29.04.2021
 
 import bkt
 
-from .. import slides
+from ..models import slides_menu
 
 
 class ContextSlides(object):
@@ -23,13 +23,13 @@ class ContextSlides(object):
                 label='Speichern',
                 image_mso='SaveSelectionToTextBoxGallery',
                 supertip="Speichert die ausgewählten Folien in einer neuen Präsentation.",
-                on_action=bkt.Callback(slides.SlideMenu.save_slides_dialog)
+                on_action=bkt.Callback(slides_menu.SlideMenu.save_slides_dialog)
             ),
             bkt.ribbon.Button(
                 label='Senden',
                 image_mso='FileSendAsAttachment',
                 supertip="Sendet die ausgewählten Folien als E-Mail Anhang.",
-                on_action=bkt.Callback(slides.SlideMenu.send_slides_dialog)
+                on_action=bkt.Callback(slides_menu.SlideMenu.send_slides_dialog)
             ),
                     ]
             )
