@@ -10,7 +10,7 @@ import bkt.library.algorithms as algos
 import bkt.library.powerpoint as pplib
 
 
-from ..linkshapes import LinkedShapes
+from .linkshapes import LinkedShapes
 
 
 class RepositionGallery(pplib.PositionGallery):

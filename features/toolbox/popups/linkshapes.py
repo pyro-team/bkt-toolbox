@@ -10,7 +10,7 @@ Created on 21.12.2017
 import bkt
 
 from bkt.callbacks import WpfActionCallback
-from ..linkshapes import LinkedShapes
+from ..models.linkshapes import LinkedShapes
 
 
 

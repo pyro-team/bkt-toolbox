@@ -9,7 +9,7 @@ Created on 29.04.2021
 
 import bkt
 
-from ..linkshapes import LinkedShapes
+from ..models.linkshapes import LinkedShapes
 
 
 class ContextLinkedShapes(object):
