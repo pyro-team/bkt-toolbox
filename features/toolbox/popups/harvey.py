@@ -12,7 +12,7 @@ import logging
 import bkt
 
 from bkt.callbacks import WpfActionCallback
-from ..harvey import harvey_balls
+from ..models.harvey import harvey_balls
 
 
 
