@@ -26,7 +26,7 @@ office = dotnet.import_officecore()
 
 # other toolbox modules
 from .chartlib import shapelib_button
-from .agenda import ToolboxAgenda
+# from .agenda import ToolboxAgenda
 from . import text
 from . import harvey
 from . import stateshapes
@@ -1330,10 +1330,6 @@ class SplitShapes(object):
 
 
 
-#FIXME: no dependency to circular wanted here
-#from circular import CircularArrangement
-
-
 class MultiplyShapes(object):
     
     @classmethod
@@ -2090,7 +2086,7 @@ shapes_group = bkt.ribbon.Group(
                     label="Agenda-Textbox einfügen",
                     supertip="Standard Agenda-Textbox einfügen, um daraus eine aktualisierbare Agenda zu generieren.",
                     imageMso="TextBoxInsert",
-                    on_action=bkt.Callback(ToolboxAgenda.create_agenda_textbox_on_slide)
+                    on_action=bkt.CallbackLazy("toolbox.models.agenda", "ToolboxAgenda", "create_agenda_textbox_on_slide", slide=True, context=True)
                 ),
                 NumberShapesGallery(id='number-labels-gallery'),
                 bkt.ribbon.Menu(
