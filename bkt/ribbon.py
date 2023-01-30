@@ -85,8 +85,8 @@ class RibbonControl(object):
         # class attributes
         # initialize attributes from all attributes defined in class hierarchy
         attributes_from_classes = [ t.__dict__.get('_attributes') for t in type(self).mro()]
-        attributes_from_classes.reverse()
-        for cls_attr in attributes_from_classes:
+        # attributes_from_classes.reverse()
+        for cls_attr in reversed(attributes_from_classes):
             if cls_attr:
                 self.set_attributes(**cls_attr)
         
