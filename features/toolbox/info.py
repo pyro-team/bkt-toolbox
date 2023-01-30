@@ -157,7 +157,7 @@ class ToolbarVariations(object):
         ToolboxUi.get_instance().show_settings_editor(context)
 
 
-settings.settings_menu.children.extend([
+settings.settings_menu.additional_children.extend([
     bkt.ribbon.ToggleButton(
         label="Format-Tab ausblenden",
         get_pressed=bkt.Callback(FormatTab.get_config),

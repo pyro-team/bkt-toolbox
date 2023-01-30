@@ -128,8 +128,12 @@ class BKTUpdates(object):
 
         cls.config.latest_version = latest_version.version_string #also sets last_check
 
-        latest_version_tuple = tuple(int(x) for x in latest_version.version_string.split("."))
-        current_version_tuple = tuple(int(x) for x in bkt.__version__.split("."))
+        #split prelease string from version number
+        latestv = latest_version.version_string.split("-", maxsplit=1)
+        currentv = bkt.__version__.split("-", maxsplit=1)
+
+        latest_version_tuple = tuple(int(x) for x in latestv[0].split("."))
+        current_version_tuple = tuple(int(x) for x in currentv[0].split("."))
 
         if latest_version_tuple > current_version_tuple:
             cls.update_available = True
@@ -357,14 +361,15 @@ Temp-Dir:               {}
 
 
 
-class SettingsMenu(bkt.ribbon.Menu):
+class SettingsMenu(bkt.ribbon.DynamicMenu):
     def __init__(self, idtag="", **kwargs):
-        postfix = ("-" if idtag else "") + idtag
+        self.postfix = ("-" if idtag else "") + idtag
+        self.additional_children = []
 
         if ((bkt.config.task_panes or False)):
-            taskpanebutton = [
+            self.additional_children.append(
                 bkt.ribbon.ToggleButton(
-                id='setting-toggle-bkttaskpane' + postfix,
+                id='setting-toggle-bkttaskpane' + self.postfix,
                 label='Task Pane',
                 show_label=False,
                 image_mso='MenuToDoBar',
@@ -372,28 +377,34 @@ class SettingsMenu(bkt.ribbon.Menu):
                 tag='BKT Task Pane',
                 get_pressed='GetPressed_TaskPaneToggler',
                 on_action='OnAction_TaskPaneToggler')
-            ]
-        else:
-            taskpanebutton = []
+            )
         
         super(SettingsMenu, self).__init__(
-            id='bkt-settings' + postfix,
+            id='bkt-settings' + self.postfix,
             # image='bkt_logo', 
             get_image=bkt.Callback(BKTUpdates.get_image, context=True),
             supertip="BKT-Einstellungen verwalten, BKT neu laden, Website aufrufen, etc.",
-            children=[
+            **kwargs
+        )
+
+
+    def get_content(self):
+        return bkt.ribbon.Menu(
+                xmlns="http://schemas.microsoft.com/office/2009/07/customui",
+                id=None, 
+                children=[
                 bkt.ribbon.Button(
-                    id='settings-version' + postfix,
+                    id='settings-version' + self.postfix,
                     label="Über {} v{}".format(bkt.__release__, bkt.__version__),
                     image_mso="Info",
                     supertip="Erweiterte Versionsinformationen anzeigen",
                     on_action=bkt.Callback(BKTInfos.show_version_dialog, context=True, transactional=False)
                 ),
                 bkt.ribbon.SplitButton(
-                    id="settings-updatesplitbutton" + postfix,
+                    id="settings-updatesplitbutton" + self.postfix,
                     children=[
                         bkt.ribbon.Button(
-                            id='settings-updatecheck' + postfix,
+                            id='settings-updatecheck' + self.postfix,
                             get_label=bkt.Callback(BKTUpdates.get_label_update),
                             screentip="Auf neue Version prüfen",
                             supertip="Überprüfen, ob neue BKT-Version verfügbar ist",
@@ -449,14 +460,14 @@ class SettingsMenu(bkt.ribbon.Menu):
                     ]
                 ),
                 bkt.ribbon.Button(
-                    id='settings-website' + postfix,
+                    id='settings-website' + self.postfix,
                     label="Website: bkt-toolbox.de",
                     supertip="BKT-Webseite im Browser öffnen",
                     image_mso="ContactWebPage",
                     on_action=bkt.Callback(BKTInfos.open_website, transactional=False)
                 ),
                 bkt.ribbon.Button(
-                    id='settings-changelog' + postfix,
+                    id='settings-changelog' + self.postfix,
                     label="Versionsänderungen anzeigen",
                     supertip="Präsentation mit den Versionsänderungen anzeigen",
                     image_mso="ReviewHighlightChanges",
@@ -467,18 +478,18 @@ class SettingsMenu(bkt.ribbon.Menu):
                     label='Feature-Ordner',
                     supertip="Feature-Ordner hinzufügen oder entfernen",
                     image_mso='ModuleInsert',
-                    get_content = bkt.Callback(lambda context: self.get_folder_menu(context, postfix), context=True)
+                    get_content = bkt.Callback(self.get_folder_menu, context=True)
                 ),
                 #bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
-                    id='settings-reload-addin' + postfix,
+                    id='settings-reload-addin' + self.postfix,
                     label="Addin neu laden",
                     supertip="BKT-Addin beenden und neu laden (ähnlich PowerPoint-Neustart)",
                     image_mso="AccessRefreshAllLists",
                     on_action=bkt.Callback(BKTReload.reload_bkt, context=True, transactional=False)
                 ),
                 bkt.ribbon.Button(
-                    id='settings-invalidate' + postfix,
+                    id='settings-invalidate' + self.postfix,
                     label="Ribbon aktualisieren",
                     supertip="Oberfläche aktualisieren und alle Werte neu laden (sog. Invalidate ausführen)",
                     image_mso="AccessRefreshAllLists",
@@ -486,14 +497,14 @@ class SettingsMenu(bkt.ribbon.Menu):
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
-                    id='settings-open-folder' + postfix,
+                    id='settings-open-folder' + self.postfix,
                     label="Öffne BKT-Ordner",
                     supertip="Öffne Ordner mit BKT-Framework und Konfigurationsdatei",
                     image_mso="Folder",
                     on_action=bkt.Callback(BKTInfos.open_folder, transactional=False)
                 ),
                 bkt.ribbon.Button(
-                    id='settings-open-config' + postfix,
+                    id='settings-open-config' + self.postfix,
                     label="Öffne config.txt",
                     supertip="Öffne Konfigurationsdatei im Standardeditor",
                     image_mso="NewNotepadTool",
@@ -501,16 +512,15 @@ class SettingsMenu(bkt.ribbon.Menu):
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.ToggleButton(
-                    id='key-mouse-hook-toggle' + postfix,
+                    id='key-mouse-hook-toggle' + self.postfix,
                     label='Key-/Mouse-Hooks an/aus',
                     supertip="Tastatur-/Maus-Events für aktuelle Sitzung ein- oder ausschalten",
                     get_pressed='GetMouseKeyHookActivated',
                     on_action='ToggleMouseKeyHookActivation'
                 )
-            ] + taskpanebutton,
-            **kwargs
+            ] + self.additional_children
         )
-        
+    
     def info_delete_button_for_folder(self, label, folder):
         return bkt.ribbon.Button(
             label=label,
@@ -519,7 +529,7 @@ class SettingsMenu(bkt.ribbon.Menu):
             on_action=bkt.Callback(lambda context: FolderSetup.delete_folder(context, folder))
         )
 
-    def get_folder_menu(self, context, postfix):
+    def get_folder_menu(self, context):
         import importlib
         
         buttons = []
@@ -541,11 +551,11 @@ class SettingsMenu(bkt.ribbon.Menu):
             id=None,
             children=[
                 bkt.ribbon.Button(
-                    id='setting_add_folder' + postfix,
+                    id='setting_add_folder' + self.postfix,
                     label='Feature-Ordner hinzufügen',
                     supertip="Einen BKT Feature-Ordner auswählen und hinzufügen",
                     image_mso='ModuleInsert',
-                    on_action=bkt.Callback(FolderSetup.add_folder_by_dialog)
+                    on_action=bkt.Callback(FolderSetup.add_folder_by_dialog, context=True, transactional=False)
                 ),
                 bkt.ribbon.MenuSeparator()
             ] + buttons

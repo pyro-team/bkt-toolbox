@@ -127,7 +127,7 @@ clipboard_group = bkt.ribbon.Group(
             image_mso="ShapeFillEffectMoreTexturesDialogClassic",
             show_label=False,
             get_enabled=bkt.apps.ppt_shapes_min2_selected,
-            on_action=bkt.CallbackLazy("toolbox.models.copy_paste_format", "FormatPainter" "sync_shapes", shapes=True)
+            on_action=bkt.CallbackLazy("toolbox.models.copy_paste_format", "FormatPainter", "sync_shapes", shapes=True)
         ),
         bkt.ribbon.Button(
             id="select_by_border",

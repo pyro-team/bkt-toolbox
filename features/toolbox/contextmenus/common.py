@@ -154,7 +154,7 @@ bkt.powerpoint.add_context_menu(
         ### Any shapes format sync
         bkt.ribbon.Button(id='context-format-sync', label="Format angleichen", insertBeforeMso='Cut', image_mso="FormatPainter",
             supertip="Alle Shapes so formatieren wie das Shape, welches beim Öffnen des Kontextmenüs unter dem Cursor ist",
-            on_action=bkt.CallbackLazy("toolbox.shape_selection", "FormatPainter", "cm_sync_shapes", shapes=True, context=True),
+            on_action=bkt.CallbackLazy("toolbox.models.copy_paste_format", "FormatPainter", "cm_sync_shapes", shapes=True, context=True),
         ),
         bkt.ribbon.MenuSeparator(insertBeforeMso='Cut'),
         ### Connector functions (basically "copy" standard functions to multi-selection of connectors)
