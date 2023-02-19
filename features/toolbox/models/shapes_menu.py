@@ -7,7 +7,7 @@ Created on 06.07.2016
 
 
 
-# import logging
+import logging
 import locale
 
 from System import Array
@@ -29,7 +29,7 @@ office = dotnet.import_officecore()
 # from .agenda import ToolboxAgenda
 # from . import text
 from .. import harvey
-from .. import stateshapes
+from . import stateshapes
 
 
 class ShapeDialogs(object):
