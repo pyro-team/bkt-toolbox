@@ -162,13 +162,13 @@ class ChartLib(object):
         for _ in range(3):
             try:
                 return obj.paste(*args, **kwargs)
-            except EnvironmentError:
+            except SystemError:
                 logging.debug("chartlib pasting error, waiting for 50ms")
                 #wait some time to avoid EnvironmentError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
                 time.sleep(.50)
                 #FIXME: maybe better way to check if clipboard actually contains "something"
         else:
-            raise EnvironmentError("pasting not successfull")
+            raise SystemError("pasting not successfull")
 
     def _open_in_explorer(self, path):
         from os import startfile

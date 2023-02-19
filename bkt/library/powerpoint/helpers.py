@@ -400,23 +400,23 @@ def save_copy(obj, *args, **kwargs):
     for _ in range(3):
         try:
             return obj.copy(*args, **kwargs)
-        except EnvironmentError:
-            #wait some time to avoid EnvironmentError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
+        except SystemError:
+            #wait some time to avoid SystemError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
             time.sleep(.50)
             #FIXME: maybe better way to "open" the clipboard
     else:
-        raise EnvironmentError("copying not successfull")
+        raise SystemError("copying not successfull")
 
 def save_paste(obj, *args, **kwargs):
     for _ in range(3):
         try:
             return obj.paste(*args, **kwargs)
-        except EnvironmentError:
-            #wait some time to avoid EnvironmentError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
+        except SystemError:
+            #wait some time to avoid SystemError (run ahead bug if clipboard is busy, see https://stackoverflow.com/questions/54028910/vba-copy-paste-issues-pptx-creation)
             time.sleep(.50)
             #FIXME: maybe better way to check if clipboard actually contains "something"
     else:
-        raise EnvironmentError("pasting not successfull")
+        raise SystemError("pasting not successfull")
 
 
 def shape_is_group_child(shape):
