@@ -2073,8 +2073,8 @@ class ArrangeAdvanced(object):
     def get_button(self, arrange_id, postfix="", **kwargs):
         return bkt.ribbon.Button(
             id=arrange_id+postfix,
-            on_action=bkt.Callback(getattr(self, arrange_id)),
-            get_enabled=bkt.Callback(self.enabled),
+            on_action=bkt.Callback(getattr(self, arrange_id), shapes=True),
+            get_enabled=bkt.apps.ppt_shapes_or_text_selected,
             image=arrange_id,
             show_label=False,
         **kwargs)
@@ -2137,8 +2137,8 @@ arrange_advanced_group = bkt.ribbon.Group(
             id="arrange_quick_position",
             label="Position",
             image_mso="ControlAlignToGrid",
-            on_action=bkt.Callback(arrange_advaced.arrange_quick_position),
-            get_enabled=bkt.Callback(arrange_advaced.enabled),
+            on_action=bkt.Callback(arrange_advaced.arrange_quick_position, shapes=True),
+            get_enabled=bkt.apps.ppt_shapes_or_text_selected,
             screentip="Gleiche Position wie Referenz",
             supertip="Shapes erhalten die gleiche Position wie das Referenzshape.",
         ),
@@ -2146,8 +2146,8 @@ arrange_advanced_group = bkt.ribbon.Group(
             id="arrange_quick_size",
             label="Größe",
             image_mso="SizeToControlHeightAndWidth",
-            on_action=bkt.Callback(arrange_advaced.arrange_quick_size),
-            get_enabled=bkt.Callback(arrange_advaced.enabled),
+            on_action=bkt.Callback(arrange_advaced.arrange_quick_size, shapes=True),
+            get_enabled=bkt.apps.ppt_shapes_or_text_selected,
             screentip="Gleiche Größe wie Referenz",
             supertip="Shapes erhalten die gleiche Größe wie das Referenzshape.",
         ),
@@ -2171,8 +2171,8 @@ arrange_advanced_small_group = bkt.ribbon.Group(
             label="Position",
             show_label=False,
             image_mso="ControlAlignToGrid",
-            on_action=bkt.Callback(arrange_advaced.arrange_quick_position),
-            get_enabled=bkt.Callback(arrange_advaced.enabled),
+            on_action=bkt.Callback(arrange_advaced.arrange_quick_position, shapes=True),
+            get_enabled=bkt.apps.ppt_shapes_or_text_selected,
             screentip="Gleiche Position wie Referenz",
             supertip="Shapes erhalten die gleiche Position wie das Referenzshape.",
         ),
@@ -2181,8 +2181,8 @@ arrange_advanced_small_group = bkt.ribbon.Group(
             label="Größe",
             show_label=False,
             image_mso="SizeToControlHeightAndWidth",
-            on_action=bkt.Callback(arrange_advaced.arrange_quick_size),
-            get_enabled=bkt.Callback(arrange_advaced.enabled),
+            on_action=bkt.Callback(arrange_advaced.arrange_quick_size, shapes=True),
+            get_enabled=bkt.apps.ppt_shapes_or_text_selected,
             screentip="Gleiche Größe wie Referenz",
             supertip="Shapes erhalten die gleiche Größe wie das Referenzshape.",
         ),
@@ -2250,38 +2250,38 @@ arrange_adv_easy_group = bkt.ribbon.Group(
     image='arrange_left_at_left',
     children=[
         #POSITION
-        bkt.ribbon.Button(id='arrange_position_left',     on_action=bkt.Callback(arrange_adv_position.arrange_left_at_left),       get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_left',        label="Links an Links",   show_label=False, screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Referenzshapes.'),
-        bkt.ribbon.Button(id='arrange_position_right',    on_action=bkt.Callback(arrange_adv_position.arrange_right_at_right),     get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_right',       label="Rechts an Rechts", show_label=False, screentip='Ausrichtung rechte Kante an rechte Kante', supertip='Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes.'),
-        bkt.ribbon.Button(id='arrange_position_middle',   on_action=bkt.Callback(arrange_adv_position.arrange_middle_at_middle),   get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_middle',      label="Mitte an Mitte",   show_label=False, screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.'),
+        bkt.ribbon.Button(id='arrange_position_left',     on_action=bkt.Callback(arrange_adv_position.arrange_left_at_left, shapes=True),       get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_position_left',        label="Links an Links",   show_label=False, screentip='Ausrichtung linke Kante an linke Kante',   supertip='Ausrichtung der linken Kante an der linken Kante des Referenzshapes.'),
+        bkt.ribbon.Button(id='arrange_position_right',    on_action=bkt.Callback(arrange_adv_position.arrange_right_at_right, shapes=True),     get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_position_right',       label="Rechts an Rechts", show_label=False, screentip='Ausrichtung rechte Kante an rechte Kante', supertip='Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes.'),
+        bkt.ribbon.Button(id='arrange_position_middle',   on_action=bkt.Callback(arrange_adv_position.arrange_middle_at_middle, shapes=True),   get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_position_middle',      label="Mitte an Mitte",   show_label=False, screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.'),
 
-        bkt.ribbon.Button(id='arrange_position_top',      on_action=bkt.Callback(arrange_adv_position.arrange_top_at_top),         get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_top',        label="Oben an oben",     show_label=False, screentip='Ausrichtung obere Kante an obere Kante',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes.'),
-        bkt.ribbon.Button(id='arrange_position_bottom',   on_action=bkt.Callback(arrange_adv_position.arrange_bottom_at_bottom),   get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_bottom',     label="Unten an Unten",   show_label=False, screentip='Ausrichtung untere Kante an untere Kante', supertip='Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes.'),
-        bkt.ribbon.Button(id='arrange_position_vmiddle',  on_action=bkt.Callback(arrange_adv_position.arrange_vmiddle_at_vmiddle), get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_position_vmiddle',    label="Mitte an Mitte",   show_label=False, screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.'),
+        bkt.ribbon.Button(id='arrange_position_top',      on_action=bkt.Callback(arrange_adv_position.arrange_top_at_top, shapes=True),         get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_position_top',        label="Oben an oben",     show_label=False, screentip='Ausrichtung obere Kante an obere Kante',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes.'),
+        bkt.ribbon.Button(id='arrange_position_bottom',   on_action=bkt.Callback(arrange_adv_position.arrange_bottom_at_bottom, shapes=True),   get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_position_bottom',     label="Unten an Unten",   show_label=False, screentip='Ausrichtung untere Kante an untere Kante', supertip='Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes.'),
+        bkt.ribbon.Button(id='arrange_position_vmiddle',  on_action=bkt.Callback(arrange_adv_position.arrange_vmiddle_at_vmiddle, shapes=True), get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_position_vmiddle',    label="Mitte an Mitte",   show_label=False, screentip='Ausrichtung Shapemitte an Shapemitte',     supertip='Ausrichtung der Shapemitte an der Shapemitte des Referenzshapes.'),
         bkt.ribbon.Separator(),
 
         #DOCK
         bkt.ribbon.Box(box_style="horizontal", children=[
-            bkt.ribbon.Button(id='arrange_dock_left',    on_action=bkt.Callback(arrange_adv_position.arrange_left_at_right),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_left',      label="Links an Rechts",  show_label=False, screentip='Rechts andocken',  supertip='Ausrichtung der linken Kante an der rechten Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_dock_right',   on_action=bkt.Callback(arrange_adv_position.arrange_right_at_left),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_right',     label="Rechts an Links",  show_label=False, screentip='Links andocken',  supertip='Ausrichtung der rechten Kante an der linken Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_dock_bottom',  on_action=bkt.Callback(arrange_adv_position.arrange_bottom_at_top),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_bottom',    label="Unten an Oben",    show_label=False, screentip='Oben andocken',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_dock_top',     on_action=bkt.Callback(arrange_adv_position.arrange_top_at_bottom),      get_enabled=bkt.Callback(arrange_adv_position.enabled), image='arrange_dock_top',       label="Oben an Unten",    show_label=False, screentip='Unten andocken',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_dock_left',    on_action=bkt.Callback(arrange_adv_position.arrange_left_at_right, shapes=True),      get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_dock_left',      label="Links an Rechts",  show_label=False, screentip='Rechts andocken',  supertip='Ausrichtung der linken Kante an der rechten Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_dock_right',   on_action=bkt.Callback(arrange_adv_position.arrange_right_at_left, shapes=True),      get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_dock_right',     label="Rechts an Links",  show_label=False, screentip='Links andocken',  supertip='Ausrichtung der rechten Kante an der linken Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_dock_bottom',  on_action=bkt.Callback(arrange_adv_position.arrange_bottom_at_top, shapes=True),      get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_dock_bottom',       label="Unten an Oben",    show_label=False, screentip='Oben andocken',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_dock_top',     on_action=bkt.Callback(arrange_adv_position.arrange_top_at_bottom, shapes=True),      get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_dock_top',    label="Oben an Unten",    show_label=False, screentip='Unten andocken',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes.'),
         ]),
 
         #STRETCH
         bkt.ribbon.Box(box_style="horizontal", children=[
-            bkt.ribbon.Button(id='arrange_stretch_left',   on_action=bkt.Callback(arrange_adv_size.arrange_left_at_left),       get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_left',        label="Links an Links",   show_label=False, screentip='Nach links strecken',   supertip='Ausrichtung der linken Kante an der linken Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_stretch_right',  on_action=bkt.Callback(arrange_adv_size.arrange_right_at_right),     get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_right',       label="Rechts an Rechts", show_label=False, screentip='Nach rechts strecken', supertip='Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_stretch_left',   on_action=bkt.Callback(arrange_adv_size.arrange_left_at_left, shapes=True),       get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_stretch_left',        label="Links an Links",   show_label=False, screentip='Nach links strecken',   supertip='Ausrichtung der linken Kante an der linken Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_stretch_right',  on_action=bkt.Callback(arrange_adv_size.arrange_right_at_right, shapes=True),     get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_stretch_right',       label="Rechts an Rechts", show_label=False, screentip='Nach rechts strecken', supertip='Ausrichtung der rechten Kante an der rechten Kante des Referenzshapes.'),
 
-            bkt.ribbon.Button(id='arrange_stretch_top',    on_action=bkt.Callback(arrange_adv_size.arrange_top_at_top),         get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_top',         label="Oben an oben",     show_label=False, screentip='Nach oben strecken',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_stretch_bottom', on_action=bkt.Callback(arrange_adv_size.arrange_bottom_at_bottom),   get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_stretch_bottom',      label="Unten an Unten",   show_label=False, screentip='Nach unten strecken', supertip='Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_stretch_top',    on_action=bkt.Callback(arrange_adv_size.arrange_top_at_top, shapes=True),         get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_stretch_top',         label="Oben an oben",     show_label=False, screentip='Nach oben strecken',   supertip='Ausrichtung der oberen Kante an der oberen Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_stretch_bottom', on_action=bkt.Callback(arrange_adv_size.arrange_bottom_at_bottom, shapes=True),   get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_stretch_bottom',      label="Unten an Unten",   show_label=False, screentip='Nach unten strecken', supertip='Ausrichtung der unteren Kante an der unteren Kante des Referenzshapes.'),
         ]),
 
         #FILL
         bkt.ribbon.Box(box_style="horizontal", children=[
-            bkt.ribbon.Button(id='arrange_fill_left',       on_action=bkt.Callback(arrange_adv_size.arrange_left_at_right),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_left',          label="Links an Rechts",  show_label=False, screentip='Linke Lücke füllen',  supertip='Ausrichtung der linken Kante an der rechten Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_fill_right',      on_action=bkt.Callback(arrange_adv_size.arrange_right_at_left),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_right',         label="Rechts an Links",  show_label=False, screentip='Rechte Lücke füllen',  supertip='Ausrichtung der rechten Kante an der linken Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_fill_bottom',     on_action=bkt.Callback(arrange_adv_size.arrange_bottom_at_top),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_bottom',        label="Unten an Oben",    show_label=False, screentip='Obere Lücke füllen',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes.'),
-            bkt.ribbon.Button(id='arrange_fill_top',        on_action=bkt.Callback(arrange_adv_size.arrange_top_at_bottom),      get_enabled=bkt.Callback(arrange_adv_size.enabled), image='arrange_fill_top',           label="Oben an Unten",    show_label=False, screentip='Untere Lücke füllen',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_fill_left',       on_action=bkt.Callback(arrange_adv_size.arrange_left_at_right, shapes=True),      get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_fill_left',          label="Links an Rechts",  show_label=False, screentip='Linke Lücke füllen',  supertip='Ausrichtung der linken Kante an der rechten Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_fill_right',      on_action=bkt.Callback(arrange_adv_size.arrange_right_at_left, shapes=True),      get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_fill_right',         label="Rechts an Links",  show_label=False, screentip='Rechte Lücke füllen',  supertip='Ausrichtung der rechten Kante an der linken Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_fill_bottom',     on_action=bkt.Callback(arrange_adv_size.arrange_bottom_at_top, shapes=True),      get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_fill_bottom',        label="Unten an Oben",    show_label=False, screentip='Obere Lücke füllen',  supertip='Ausrichtung der unteren Kante an der oberen Kante des Referenzshapes.'),
+            bkt.ribbon.Button(id='arrange_fill_top',        on_action=bkt.Callback(arrange_adv_size.arrange_top_at_bottom, shapes=True),      get_enabled=bkt.apps.ppt_shapes_or_text_selected, image='arrange_fill_top',           label="Oben an Unten",    show_label=False, screentip='Untere Lücke füllen',  supertip='Ausrichtung der oberen Kante an der unteren Kante des Referenzshapes.'),
         ]),
 
     ]
@@ -2362,7 +2362,6 @@ class TAGallery(bkt.ribbon.Gallery):
             return context.python_addin.load_image(self.items[self.locpin.index][0])
         else:
             return context.python_addin.load_image(self.items[index][0])
-
 
 
 tablearrange_button = bkt.ribbon.SplitButton(
@@ -2519,7 +2518,6 @@ tablearrange_button = bkt.ribbon.SplitButton(
         ])
     ]
 )
-
 
 
 arrange_group = bkt.ribbon.Group(
