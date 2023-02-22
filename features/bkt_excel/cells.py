@@ -4,7 +4,7 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
-
+import logging
 
 # import System.Convert as Converter #required for convert to double
 # import System.DateTime as DateTime #required for parse as date and time
@@ -935,46 +935,48 @@ class CellsOps(object):
         temporary_sheet = xllib.create_temp_sheet()
 
         try:
-            temporary_sheet.Cells(cell.Row, cell.Column).PasteSpecial(pasteType)
-            rows = temporary_sheet.UsedRange.Rows.Count
-            cols = temporary_sheet.UsedRange.Columns.Count
+            with cell: #otherwise SystemError: Ein COM-Objekt, das vom zugrunde liegenden RCW getrennt wurde, kann nicht verwendet werden.
+                temporary_sheet.Cells(cell.Row, cell.Column).PasteSpecial(pasteType)
+                rows = temporary_sheet.UsedRange.Rows.Count
+                cols = temporary_sheet.UsedRange.Columns.Count
+                
+                ### METHOD 1: COPY CELL BY CELL ###
+                #FIXME: cache area of visible columns once determined in first loop
+                # cur_cell = cell
+                # for i in range(1,rows+1):
+                #     for j in range(1,cols+1):
+                #         temporary_sheet.UsedRange.Cells(i, j).Copy()
+                #         cur_cell.PasteSpecial(pasteType)
+                #         if j < cols:
+                #             cur_cell = xllib.get_next_visible_cell(cur_cell, 'right')
+                #     if i < rows:
+                #         cur_cell = sheet.Cells(cur_cell.Row, cell.Column)
+                #         cur_cell = xllib.get_next_visible_cell(cur_cell, 'bottom')
+                # sheet.Range(cell, cur_cell).Select()
             
-            ### METHOD 1: COPY CELL BY CELL ###
-            #FIXME: cache area of visible columns once determined in first loop
-            # cur_cell = cell
-            # for i in range(1,rows+1):
-            #     for j in range(1,cols+1):
-            #         temporary_sheet.UsedRange.Cells(i, j).Copy()
-            #         cur_cell.PasteSpecial(pasteType)
-            #         if j < cols:
-            #             cur_cell = xllib.get_next_visible_cell(cur_cell, 'right')
-            #     if i < rows:
-            #         cur_cell = sheet.Cells(cur_cell.Row, cell.Column)
-            #         cur_cell = xllib.get_next_visible_cell(cur_cell, 'bottom')
-            # sheet.Range(cell, cur_cell).Select()
-        
-            ### METHOD 2: INSERT BLANKS AND PASTE USING SKIP BLANKS ###
-            i = cell.Row
-            rows_to_check = i+rows
-            while i <= rows_to_check:
-                if sheet.Cells(i,1).EntireRow.Hidden:
-                    temporary_sheet.Cells(i,1).EntireRow.Insert()
-                    rows_to_check += 1
-                i += 1
+                ### METHOD 2: INSERT BLANKS AND PASTE USING SKIP BLANKS ###
+                i = cell.Row
+                rows_to_check = i+rows
+                while i <= rows_to_check:
+                    if sheet.Cells(i,1).EntireRow.Hidden:
+                        temporary_sheet.Cells(i,1).EntireRow.Insert()
+                        rows_to_check += 1
+                    i += 1
 
-            i = cell.Column
-            cols_to_check = i+cols
-            while i <= cols_to_check:
-                if sheet.Cells(1,i).EntireColumn.Hidden:
-                    temporary_sheet.Cells(1,i).EntireColumn.Insert()
-                    cols_to_check += 1
-                i += 1
+                i = cell.Column
+                cols_to_check = i+cols
+                while i <= cols_to_check:
+                    if sheet.Cells(1,i).EntireColumn.Hidden:
+                        temporary_sheet.Cells(1,i).EntireColumn.Insert()
+                        cols_to_check += 1
+                    i += 1
 
-            temporary_sheet.UsedRange.Copy()
-            cell.PasteSpecial(pasteType, SkipBlanks=True)
+                temporary_sheet.UsedRange.Copy()
+                cell.PasteSpecial(pasteType, SkipBlanks=True)
             
         except:
             bkt.message("Sorry, etwas ist schiefgelaufen!?")
+            logging.exception("Error pasting on visible cells")
 
         temporary_sheet.Delete()
         xllib.unfreeze_app()
