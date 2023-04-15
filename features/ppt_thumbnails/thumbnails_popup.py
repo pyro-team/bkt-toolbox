@@ -53,7 +53,8 @@ class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
     @WpfActionCallback
     def btntoggleco(self, sender, event):
         try:
-            Thumbnailer.toggle_content_only(self._context.shape, self._context.app)
+            for shape in self._context.shapes:
+                Thumbnailer.toggle_content_only(shape, self._context.app)
         except:
             bkt.message.error("Fehler beim Wechsel des Thumbnail-Inhalts.", "BKT: Thumbnails")
             logging.exception("Thumbnails: Error in popup!")
@@ -61,7 +62,8 @@ class ThumbnailPopup(bkt.ui.WpfWindowAbstract):
     @WpfActionCallback
     def btnfixar(self, sender, event):
         try:
-            Thumbnailer.reset_aspect_ratio(self._context.shape)
+            for shape in self._context.shapes:
+                Thumbnailer.reset_aspect_ratio(shape)
         except:
             bkt.message.error("Fehler beim Zurücksetzen des Seitenverhältnisses.", "BKT: Thumbnails")
             logging.exception("Thumbnails: Error in popup!")
