@@ -10,7 +10,7 @@ Created on 29.08.2019
 import bkt
 
 # import toolbox modules with ui
-from . import arrange
+from .arrange import UiGroups as arrange
 from . import info
 from . import language
 from . import text
