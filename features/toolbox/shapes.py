@@ -655,7 +655,7 @@ class ShapeFormats(object):
         shapes = pplib.iterate_shape_subshapes(shapes)
         for shape in shapes:
             try:
-                return max(0, round(shape.fill.transparency*100))
+                return max(0, round(float(shape.fill.transparency)*100))
             except:
                 continue
         return None
@@ -689,7 +689,7 @@ class ShapeFormats(object):
         #IMPORTANT: if tables are not excluded, Powerpoint will crash if a table is selected and this function is executed
         for shape in shapes:
             try:
-                return max(0, round(shape.line.transparency*100))
+                return max(0, round(float(shape.line.transparency)*100))
             except:
                 continue
         return None
