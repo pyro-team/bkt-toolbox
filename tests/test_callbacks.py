@@ -286,3 +286,14 @@ class CallbackLazyTest(unittest.TestCase):
 
         self.assertFalse(cb_copy.is_transactional)
         self.assertTrue(cb_copy.is_cacheable)
+    
+    def test_callbacklazy_init_method_overwrite(self):
+        #Overwritting callback method is used by rounding spinnerbox
+        cb = CallbackLazy("tests.mock_callback", "do_something", shape=True)
+
+        old_method = cb.method
+        cb.method = lambda **kwargs: "original: " + old_method(**kwargs)
+
+        cb_copy = cb.copy()
+
+        self.assertEqual(cb_copy.method(), 'original: dosomething')

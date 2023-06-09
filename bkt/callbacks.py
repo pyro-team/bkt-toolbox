@@ -298,23 +298,17 @@ class Callback(object):
             return self.__class__.__name__
     
 
-
-class CallbackLazy(Callback):
+class CallbackLazyMethod(Callback):
     '''
-    Same as Callback, but imports module only on first use
+    Class that is used as method injected by CallbackLazy
     '''
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args):
         ''' Initialization method, use on of the following options
              1) Callback( module_name, container, method_name, **kwargs)
                 The invocation_context is then build from **kwargs. Without kwargs, invocation_context remains empty.
              2) Callback( module_name, method_name, **kwargs)
                 The invocation_context is then build from **kwargs. Without kwargs, invocation_context remains empty.
         '''
-        super().__init__(**kwargs)
-        
-        self.method = self._load_and_execute
-        self.invocation_context = InvocationContext(raise_error=False, **kwargs)
 
         self.module_name = None
         self.method_name = None
@@ -329,24 +323,8 @@ class CallbackLazy(Callback):
 
         self._module = None
         self._method = None
-
-        # self.init_method(self._load_and_execute, **kwargs)
-
-    def __repr__(self):
-        return '<%s container=%s, method=%s, invocation_context=%s, callback=%s, control=%s>' % (type(self).__name__,
-                                                                  self.container,
-                                                                  self.method_name,
-                                                                  self.invocation_context,
-                                                                  self.callback_type,
-                                                                  self.control)
     
-    def copy(self):
-        cb = CallbackLazy(self.module_name, self.container, self.method_name, **self._callback_args)
-        cb.invocation_context = self.invocation_context
-        cb.callback_type = self.callback_type
-        return cb
-    
-    def _load_and_execute(self, **kwargs):
+    def __call__(self, **kwargs):
         ''' load module and requested method in module '''
         logging.debug('CallbackLazy._load_and_execute')
         try:
@@ -361,7 +339,7 @@ class CallbackLazy(Callback):
             return self._method(**kwargs)
             
         except:
-            logging.exception("error in contextdialog window creation")
+            logging.exception("error in lazy loading callback")
 
     def _import_module(self):
         '''
@@ -372,6 +350,35 @@ class CallbackLazy(Callback):
             logging.debug('CallbackLazy._import_module importing %s' % self.module_name)
             #do an import equivalent to:  import <<module_name>>
             self._module = importlib.import_module(self.module_name)
+
+
+
+class CallbackLazy(Callback):
+    '''
+    Same as Callback, but imports module only on first use
+    '''
+
+    def __init__(self, *args, **kwargs):
+        ''' Initialization, refer to CallbackLazyMethod
+        '''
+        super().__init__(**kwargs)
+        
+        self.method = CallbackLazyMethod(*args)
+        self.invocation_context = InvocationContext(raise_error=False, **kwargs)
+
+    # def __repr__(self):
+    #     return '<%s container=%s, method=%s, invocation_context=%s, callback=%s, control=%s>' % (type(self).__name__,
+    #                                                               self.container,
+    #                                                               self.method_name,
+    #                                                               self.invocation_context,
+    #                                                               self.callback_type,
+    #                                                               self.control)
+    
+    # def copy(self):
+    #     cb = CallbackLazy(self.module_name, self.container, self.method_name, **self._callback_args)
+    #     cb.invocation_context = self.invocation_context
+    #     cb.callback_type = self.callback_type
+    #     return cb
 
 
 
