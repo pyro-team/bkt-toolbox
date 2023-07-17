@@ -1,5 +1,8 @@
 ---
 permalink: /legacy-toolbar.html
+redirect_from:
+  - /legacy/
+  - /legacy.html
 ---
 
 # BKT Legacy-Toolbar

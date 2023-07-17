@@ -6,6 +6,7 @@ show_downloads: false
 lang: de
 plugins:
   - jemoji
+  - jekyll-redirect-from
 logo: /assets/img/bkt_logo_1.0.svg
 defaults:
   - scope:
