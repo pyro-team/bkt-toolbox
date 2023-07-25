@@ -17,6 +17,7 @@ import traceback
 import configparser #required for config.txt file
 import shelve #required for BKTShelf
 
+from struct import error as struct_error
 from functools import wraps
 from itertools import groupby, chain, islice
 
@@ -331,6 +332,9 @@ class BKTShelf(shelve.DbfilenameShelf):
             return default
         except ValueError:
             logging.error("Operation on closed shelf file %s for getting key %s. Reset to default value: %s", self._filename, key, default)
+            return default
+        except struct_error:
+            logging.error("Reading error in shelf file %s for getting key %s. Reset to default value: %s", self._filename, key, default)
             return default
 
 
