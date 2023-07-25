@@ -96,7 +96,7 @@ class BKTUpdatesConfig(object):
     @property
     def last_check(self):
         try:
-            return datetime.strptime(self.cache.get("last_check", None), "%Y-%m-%d %H:%M:%S")
+            return datetime.strptime(self.cache.get("last_check", "2013-09-10 00:00:00"), "%Y-%m-%d %H:%M:%S")
         except ValueError:
             return datetime.min
     @last_check.setter
