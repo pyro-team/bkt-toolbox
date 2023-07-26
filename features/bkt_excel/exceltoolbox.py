@@ -20,6 +20,13 @@ from . import books
 version_short = 'v0.9b'
 version_long  = 'Excel Toolbox v0.9 beta'
 
+settings.settings_menu.additional_children.extend([
+        bkt.ribbon.Button(
+            label="Unfreeze App",
+            screentip="Unfreeze Excel after exception",
+            on_action=bkt.Callback(lambda: xllib.unfreeze_app(True)),
+        ),
+])
 
 info_gruppe = bkt.ribbon.Group(
     id='group_settings',
