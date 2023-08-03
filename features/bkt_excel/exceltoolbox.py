@@ -20,7 +20,7 @@ from . import books
 version_short = 'v0.9b'
 version_long  = 'Excel Toolbox v0.9 beta'
 
-settings.settings_menu.additional_children.extend([
+settings.settings_menu.children.extend([
         bkt.ribbon.Button(
             label="Unfreeze App",
             screentip="Unfreeze Excel after exception",
