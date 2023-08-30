@@ -2474,7 +2474,8 @@
       "6.2.0",
       "6.2.1",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Arrow Up Right From Square",
     "search": {
@@ -5635,7 +5636,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Book Open Reader",
     "search": {
@@ -12487,7 +12489,8 @@
   },
   "cloudsmith": {
     "changes": [
-      "5.0.0"
+      "5.0.0",
+      "6.4.1"
     ],
     "label": "Cloudsmith",
     "search": {
@@ -13565,7 +13568,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Copy",
     "search": {
@@ -14563,6 +14567,22 @@
       "solid"
     ],
     "unicode": "f1c0",
+    "voted": false
+  },
+  "debian": {
+    "changes": [
+      "6.4.1"
+    ],
+    "label": "Debian",
+    "search": {
+      "terms": [
+
+      ]
+    },
+    "styles": [
+      "brands"
+    ],
+    "unicode": "e60b",
     "voted": false
   },
   "deezer": {
@@ -22288,7 +22308,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Futbol",
     "search": {
@@ -24284,7 +24305,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Hand Holding Dollar",
     "search": {
@@ -24322,7 +24344,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Hand Holding Droplet",
     "search": {
@@ -24346,7 +24369,8 @@
       "6.1.0",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Hand Holding Hand",
     "search": {
@@ -24377,7 +24401,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Hand Holding Heart",
     "search": {
@@ -24409,7 +24434,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Hand Holding Medical",
     "search": {
@@ -24576,7 +24602,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Hand Point Left",
     "search": {
@@ -24610,7 +24637,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Hand Point Right",
     "search": {
@@ -24744,7 +24772,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Hand Sparkles",
     "search": {
@@ -24782,7 +24811,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Hand Spock",
     "search": {
@@ -24944,7 +24974,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Hands Bubbles",
     "search": {
@@ -25019,7 +25050,8 @@
       "6.1.2",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Hands Holding Child",
     "search": {
@@ -25043,7 +25075,8 @@
       "6.1.2",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Hands Holding Circle",
     "search": {
@@ -25107,7 +25140,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Handshake",
     "search": {
@@ -25217,7 +25251,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Handshake Simple Slash",
     "search": {
@@ -25247,7 +25282,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Handshake Slash",
     "search": {
@@ -26718,7 +26754,8 @@
   },
   "hotjar": {
     "changes": [
-      "5.0.0"
+      "5.0.0",
+      "6.4.1"
     ],
     "label": "Hotjar",
     "search": {
@@ -35173,7 +35210,8 @@
       "6.2.0",
       "6.2.1",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Paste",
     "search": {
@@ -37704,7 +37742,8 @@
       "6.0.0-beta3",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Plane",
     "search": {
@@ -37962,7 +38001,8 @@
       "6.1.0",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Plane Up",
     "search": {
@@ -38457,7 +38497,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Poop",
     "search": {
@@ -38772,7 +38813,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Puzzle Piece",
     "search": {
@@ -41966,7 +42008,8 @@
       "6.2.0",
       "6.2.1",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Share From Square",
     "search": {
@@ -42348,7 +42391,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Shirt",
     "search": {
@@ -45454,6 +45498,23 @@
     "unicode": "f1b7",
     "voted": false
   },
+  "square-threads": {
+    "changes": [
+      "6.4.1",
+      "6.4.2"
+    ],
+    "label": "Square Threads",
+    "search": {
+      "terms": [
+
+      ]
+    },
+    "styles": [
+      "brands"
+    ],
+    "unicode": "e619",
+    "voted": false
+  },
   "square-tumblr": {
     "aliases": {
       "names": [
@@ -45486,9 +45547,10 @@
     "changes": [
       "1.0.0",
       "5.0.0",
-      "6.1.2"
+      "6.1.2",
+      "6.4.2"
     ],
-    "label": "Twitter Square",
+    "label": "Square Twitter",
     "search": {
       "terms": [
         "social network",
@@ -45634,6 +45696,24 @@
       "brands"
     ],
     "unicode": "f40c",
+    "voted": false
+  },
+  "square-x-twitter": {
+    "changes": [
+      "6.4.2"
+    ],
+    "label": "Square X Twitter",
+    "search": {
+      "terms": [
+        " elon",
+        " x",
+        "twitter"
+      ]
+    },
+    "styles": [
+      "brands"
+    ],
+    "unicode": "e61a",
     "voted": false
   },
   "square-xing": {
@@ -48570,6 +48650,23 @@
     "unicode": "f731",
     "voted": false
   },
+  "threads": {
+    "changes": [
+      "6.4.1",
+      "6.4.2"
+    ],
+    "label": "Threads",
+    "search": {
+      "terms": [
+
+      ]
+    },
+    "styles": [
+      "brands"
+    ],
+    "unicode": "e618",
+    "voted": false
+  },
   "thumbs-down": {
     "aliases": {
       "unicodes": {
@@ -48762,7 +48859,8 @@
       "6.0.0-beta3",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Ticket Simple",
     "search": {
@@ -51149,7 +51247,8 @@
       "6.2.0",
       "6.2.1",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Up Right From Square",
     "search": {
@@ -54377,7 +54476,8 @@
       "6.0.0-beta1",
       "6.2.0",
       "6.3.0",
-      "6.4.0"
+      "6.4.0",
+      "6.4.1"
     ],
     "label": "Wine Glass Empty",
     "search": {
@@ -54751,6 +54851,24 @@
       "solid"
     ],
     "unicode": "f497",
+    "voted": false
+  },
+  "x-twitter": {
+    "changes": [
+      "6.4.2"
+    ],
+    "label": "X Twitter",
+    "search": {
+      "terms": [
+        "  elon",
+        " twitter",
+        " x"
+      ]
+    },
+    "styles": [
+      "brands"
+    ],
+    "unicode": "e61b",
     "voted": false
   },
   "xbox": {

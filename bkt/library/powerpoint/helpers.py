@@ -1416,6 +1416,7 @@ class GroupManager(object):
 
         self._attr = {n:getattr(group, n) for n in additional_attrs}
 
+        self._has_animation = False
         self._ungroup_prepared = False
 
     def __getattr__(self, name):
@@ -1475,6 +1476,13 @@ class GroupManager(object):
         Method is executed right before ungroup action in order to set rotation to 0.
         '''
         self._group.rotation = 0
+        #store animation
+        try:
+            self._group.PickupAnimation()
+            self._has_animation = True
+        except EnvironmentError:
+            self._has_animation = False
+        
         if self._fliph and self._group.HorizontalFlip: #avoid double flip if function if called twice
             self._group.Flip(0) #msoFlipHorizontal
         if self._flipv and self._group.VerticalFlip:
@@ -1490,6 +1498,9 @@ class GroupManager(object):
             self._group.Flip(0) #msoFlipHorizontal
         if self._flipv != self._group.VerticalFlip:
             self._group.Flip(1) #msoFlipVertical
+        #restore animation
+        if self._has_animation:
+            self._group.ApplyAnimation()
         self._ungroup_prepared = False
 
     def ungroup(self, prepare=True):
@@ -1541,6 +1552,12 @@ class GroupManager(object):
 
         regroup = False
         if self._group:
+            #store animation
+            try:
+                self.shape.PickupAnimation()
+                has_animation = True
+            except EnvironmentError:
+                has_animation = False
             regroup = True
             self.ungroup()
 
@@ -1566,6 +1583,9 @@ class GroupManager(object):
         
         if regroup:
             self.regroup()
+            #restore animation
+            if has_animation:
+                self.shape.ApplyAnimation()
         
         return self
 
@@ -1580,6 +1600,12 @@ class GroupManager(object):
             self._ungroup = shapes_to_range(self.child_items+shapes)
         
         else:
+            #store animation
+            try:
+                self.shape.PickupAnimation()
+                has_animation = True
+            except EnvironmentError:
+                has_animation = False
             #store position of first shape in group
             shape_to_restore_pos = self.shape.GroupItems[1]
             orig_left, orig_top = shape_to_restore_pos.left, shape_to_restore_pos.top
@@ -1594,6 +1620,9 @@ class GroupManager(object):
             #restore position
             self.shape.left -= shape_to_restore_pos.left-orig_left
             self.shape.top  -= shape_to_restore_pos.top-orig_top
+            #restore animation
+            if has_animation:
+                self.shape.ApplyAnimation()
 
             ### Simple method without considering rotation:
             # self.ungroup(prepare=False)
