@@ -231,6 +231,7 @@
   },
   "astronomy": {
     "icons": [
+      "binoculars",
       "globe",
       "meteor",
       "moon",
