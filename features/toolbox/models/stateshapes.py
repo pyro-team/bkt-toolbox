@@ -188,10 +188,14 @@ class StateShape(object):
     @classmethod
     def show_all(cls, shape):
         if shape.Type == pplib.MsoShapeType['msoGroup']:
-            ungrouped_shapes = shape.Ungroup()
-            for s in list(iter(ungrouped_shapes)):
+            shape_group = pplib.GroupManager(shape)
+            # shape_group.ungroup()
+            # ungrouped_shapes = shape.Ungroup()
+            for s in shape_group.child_items:
                 s.visible = True
-            ungrouped_shapes.Group().Select()
+            # ungrouped_shapes.Group().Select()
+            # shape_group.regroup().select()
+            shape.tags.delete(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY)
 
 
     @classmethod
