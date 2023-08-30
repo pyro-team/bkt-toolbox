@@ -65,8 +65,13 @@ class EditModeShapes(object):
         shp.TextFrame.TextRange.Characters(len(new_text)-3, 4).Select()
     
     
+    @classmethod
+    def toogleNotesOnSlides(cls, slides):
+        for slide in slides:
+            cls.toogleNotesOnSlide(slide)
+    
     @staticmethod
-    def toogleNotesOnSlide(slide, context):
+    def toogleNotesOnSlide(slide):
         visible = None
         for cShp in slide.shapes:
             if cShp.Tags.Item(TOOLBOX_NOTE) != "":
@@ -76,7 +81,7 @@ class EditModeShapes(object):
     
     
     @staticmethod
-    def toggleNotesOnAllSlides(slide, context):
+    def toggleNotesOnAllSlides(slide):
         visible = None
         for sld in slide.parent.slides:            
             for cShp in sld.shapes:
@@ -85,9 +90,13 @@ class EditModeShapes(object):
                         visible = 1 if cShp.Visible == 0 else 0
                     cShp.Visible = visible
     
+    @classmethod
+    def removeNotesOnSlides(cls, slides):
+        for slide in slides:
+            cls.removeNotesOnSlide(slide)
     
     @staticmethod
-    def removeNotesOnSlide(slide, context):
+    def removeNotesOnSlide(slide):
         shapesToRemove = []
         
         for cShp in slide.shapes:
@@ -99,7 +108,7 @@ class EditModeShapes(object):
     
     
     @staticmethod
-    def removeNotesOnAllSlides(slide, context):
+    def removeNotesOnAllSlides(slide):
         for sld in slide.parent.slides:
             shapesToRemove = []
             
@@ -160,14 +169,14 @@ notes_gruppe = bkt.ribbon.Group(
             label='An/Aus', screentip='Notizen auf Folie ein-/ausblenden',
             supertip="Alle Notizen der aktuellen Folie temporär ausblenden und wieder einblenden.",
             image='noteToggle',
-            on_action=bkt.Callback(EditModeShapes.toogleNotesOnSlide)
+            on_action=bkt.Callback(EditModeShapes.toogleNotesOnSlides)
         ),
         bkt.ribbon.Button(
             id = 'notes_remove',
             label='Löschen', screentip='Notizen auf Folie löschen',
             supertip="Alle Notizen der aktuellen Folie entfernen.",
             image='noteRemove',
-            on_action=bkt.Callback(EditModeShapes.removeNotesOnSlide)
+            on_action=bkt.Callback(EditModeShapes.removeNotesOnSlides)
         ),
         bkt.ribbon.Button(
             id = 'notes_toggle_all',

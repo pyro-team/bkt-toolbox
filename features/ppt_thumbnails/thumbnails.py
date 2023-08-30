@@ -45,13 +45,16 @@ class ThumbnailerTags(pplib.BKTTag):
     def is_thumbnail(self):
         return "slide_id" in self.data
 
-    def set_thumbnail(self, slide_id, slide_path, data_type=PASTE_DATATYPE_PNG, content_only=False, shape_id=None):
+    def set_thumbnail(self, slide_id, slide_path, data_type=PASTE_DATATYPE_PNG, content_only=False, shape_id=None, **kwargs):
         self.data["slide_id"] = slide_id
         self.data["slide_path"] = slide_path
         self.data["data_type"] = data_type
         self.data["content_only"] = content_only #=exclude placeholder shapes
         if shape_id is not None:
             self.data["shape_id"] = shape_id
+        
+        # for future compatibility
+        self.data.update(kwargs)
 
 
 class Thumbnailer(object):
@@ -105,7 +108,8 @@ class Thumbnailer(object):
 
     @classmethod
     @contextmanager
-    def find_and_export_object(cls, application, slide_id, slide_path, content_only=False, shape_id=None, data_type=None):
+    def find_and_export_object(cls, application, slide_id, slide_path, content_only=False, shape_id=None, data_type=None, **kwargs):
+        #kwargs added for for future compatibility
         #avoid referenced before assignment error in finally clause
         close = None
         tmpfile = None
@@ -230,6 +234,9 @@ class Thumbnailer(object):
                 with ThumbnailerTags(shape.Tags) as tags:
                     tags.set_thumbnail(slide_id, data["slide_path"], data_type, content_only, shape_id)
                 shape.Tags.Add(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY, BKT_THUMBNAIL)
+
+                # add hyperlink
+                cls._update_hyperlink(shape, application)
             except Exception as e:
                 #bkt.helpers.exception_as_message()
                 bkt.message.error("Fehler! Thumbnail konnte nicht im gewählten Format eingefügt werden.\n\n{}".format(e), "BKT: Thumbnails")
@@ -319,6 +326,20 @@ class Thumbnailer(object):
                 shp.Select()
             except IndexError:
                 bkt.message.error("Fehler! Shape in der referenzierten Präsentation nicht gefunden.", "BKT: Thumbnails")
+    
+    @classmethod
+    def presentation_unset(cls, presentation):
+        if bkt.message.confirmation("Dies löscht dauerhaft die Folien-Referenz und damit die Möglichkeit der Aktualisierung aller Thumbnails in der Präsentation.", "BKT: Thumbnails"):
+            total = 0
+            for sld in presentation.slides:
+                for shp in pplib.iterate_shape_subshapes( sld.shapes ):
+                    try:
+                        if cls.is_thumbnail(shp):
+                            shp.Tags.Delete(BKT_THUMBNAIL)
+                            shp.Tags.Delete(bkt.contextdialogs.BKT_CONTEXTDIALOG_TAGKEY)
+                            total += 1
+                    except:
+                        logging.exception("Thumbnails: Could not determine if shape is thumbnail")
 
     @classmethod
     def presentation_refresh(cls, application, presentation):
@@ -424,6 +445,8 @@ class Thumbnailer(object):
         new_shp.PictureFormat.crop.PictureOffsetX = shape.PictureFormat.crop.PictureOffsetX
         new_shp.PictureFormat.crop.PictureOffsetY = shape.PictureFormat.crop.PictureOffsetY
 
+        cls._update_hyperlink(new_shp, application)
+
         cls.remain_position_and_zorder(shape, new_shp)
         shape.PickUp()
         new_shp.Apply()
@@ -447,6 +470,19 @@ class Thumbnailer(object):
         #NOTE: selecting here is not a good idea as view might not be active (e.g. refresh whole presentation)
 
         return new_shp
+    
+    @classmethod
+    def _update_hyperlink(cls, shape, application):
+        with ThumbnailerTags(shape.Tags) as tags:
+            slide_id = tags["slide_id"]
+            slide_path = tags["slide_path"]
+
+        if slide_path == "CURRENT" or slide_path == application.ActivePresentation.FullName:
+            try:
+                slide = application.ActivePresentation.Slides.FindBySlideId(slide_id)
+                shape.ActionSettings(1).Hyperlink.SubAddress = "{},{},{}".format(slide.SlideId,slide.SlideIndex,slide.Name)
+            except EnvironmentError:
+                logging.warning("Thumbnails: Update of hyperlink failed!")
 
     @classmethod
     def _mark_erroneous_shape(cls, shape):
@@ -670,8 +706,17 @@ thumbnail_gruppe = bkt.ribbon.Group(
                         description="Alle Thumbnails in der gesamten Präsentation aktualisieren",
                         # show_label=True,
                         #image_mso='PictureChange',
-                        supertip="Alle Folien-Thumbnails in der Präsentation. Das Thumbnail muss vorher mit dieser Funktion eingefügt worden sein. Stammt die Folie aus einer anderen Datei, wird diese automatisch kurzzeitig geöffnet.",
+                        supertip="Alle Folien-Thumbnails in der Präsentation aktualisieren. Das Thumbnail muss vorher mit dieser Funktion eingefügt worden sein. Stammt die Folie aus einer anderen Datei, wird diese automatisch kurzzeitig geöffnet.",
                         on_action=bkt.Callback(Thumbnailer.presentation_refresh, application=True, presentation=True),
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'presentation_unset',
+                        label="Thumbnails in Präsentation umwandeln",
+                        description="Folien-Referenz aller Thumbnails in der Präsentation löschen und Thumbnails in Bilder konvertieren",
+                        # show_label=True,
+                        #image_mso='PictureChange',
+                        supertip="Alle Folien-Thumbnails in der Präsentation in normale Bilder konvertieren, die sich nicht mehr aktualisieren lassen.",
+                        on_action=bkt.Callback(Thumbnailer.presentation_unset, presentation=True),
                     ),
                 ])
             ]

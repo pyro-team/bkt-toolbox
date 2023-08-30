@@ -36,7 +36,5 @@ _build/
 #explicitly add all files in packages, i.e. IronPython
 !bin/*
 !bin/**/*
-!installer/ipy-2.7.*/*
-!installer/ipy-2.7.*/**/*
 !dotnet/packages/*
 !dotnet/packages/**/*

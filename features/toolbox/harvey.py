@@ -18,7 +18,9 @@ Drawing = dotnet.import_drawing()
 class HarveyBalls(object):
     BKT_HARVEY_DIALOG_TAG = "BKT_SHAPE_HARVEY"
     BKT_HARVEY_DENOM_TAG = "BKT_HARVEY_DENOM_TAG"
-    BKT_HARVEY_VERSION = "BKT_HARVEY_V1"
+    BKT_HARVEY_VERSION = "BKT_HARVEY_V2"
+
+    BKT_HARVEY_LEGACY_VERSION = ("BKT_HARVEY_V1")
 
     # _line_weight = 0.5
     # _line_color  = 0
@@ -185,9 +187,15 @@ class HarveyBalls(object):
         pie, circ = self.get_pie_circ(shape)
         if pie == None:
             return
-        pie.Fill.ForeColor.rgb  = color
-        pie.Line.ForeColor.rgb  = color
-        circ.Line.ForeColor.rgb = color
+        
+        # For backwards compatibility: if line color hasn't changed, also update line
+        pie_fill = pie.Fill.ForeColor
+        circ_line = circ.Line.ForeColor
+        if [pie_fill.ObjectThemeColor, pie_fill.Brightness, pie_fill.RGB] == [circ_line.ObjectThemeColor, circ_line.Brightness, circ_line.RGB]:
+            circ_line.rgb = color
+            pie.Line.ForeColor.rgb  = color
+
+        pie_fill.rgb  = color
     
     def color_gallery_theme_color_change(self, shapes, color_index, brightness):
         for shape in shapes:
@@ -198,17 +206,28 @@ class HarveyBalls(object):
         pie, circ = self.get_pie_circ(shape)
         if pie == None:
             return
-        pie.Fill.ForeColor.ObjectThemeColor  = color_index
-        pie.Line.ForeColor.ObjectThemeColor  = color_index
-        circ.Line.ForeColor.ObjectThemeColor = color_index
-        pie.Fill.ForeColor.Brightness  = brightness
-        pie.Line.ForeColor.Brightness  = brightness
-        circ.Line.ForeColor.Brightness = brightness
+        
+        # For backwards compatibility: if line color hasn't changed, also update line
+        pie_fill = pie.Fill.ForeColor
+        circ_line = circ.Line.ForeColor
+        if [pie_fill.ObjectThemeColor, pie_fill.Brightness, pie_fill.RGB] == [circ_line.ObjectThemeColor, circ_line.Brightness, circ_line.RGB]:
+            circ_line.ObjectThemeColor = color_index
+            circ_line.Brightness = brightness
+            pie.Line.ForeColor.Brightness  = brightness
+            pie.Line.ForeColor.ObjectThemeColor  = color_index
+
+        pie_fill.ObjectThemeColor  = color_index
+        pie_fill.Brightness  = brightness
     
     def get_selected_color(self, shapes):
-        _,circ = self.get_pie_circ(shapes[0])
-        if circ != None:
-            return [circ.Line.ForeColor.ObjectThemeColor, circ.Line.ForeColor.Brightness, circ.Line.ForeColor.RGB]
+        # _,circ = self.get_pie_circ(shapes[0])
+        # if circ != None:
+        #     return [circ.Line.ForeColor.ObjectThemeColor, circ.Line.ForeColor.Brightness, circ.Line.ForeColor.RGB]
+        # else:
+        #     return None
+        pie,_ = self.get_pie_circ(shapes[0])
+        if pie != None:
+            return [pie.Fill.ForeColor.ObjectThemeColor, pie.Fill.ForeColor.Brightness, pie.Fill.ForeColor.RGB]
         else:
             return None
 
@@ -266,6 +285,72 @@ class HarveyBalls(object):
     #     pie,circ = self.get_pie_circ(shapes[0])
     #     return circ.fill.visible == -1
 
+    # =======================
+    # = Linienfarbe aendern =
+    # =======================
+    
+    def line_gallery_action(self, shapes, color, upgrade=False):
+        for shape in shapes:
+            self.set_harvey_line_rgb(shape, color)
+    
+    def set_harvey_line_rgb(self, shape, color):
+        pie, circ = self.get_pie_circ(shape)
+        if pie == None:
+            return
+        circ.Line.Visible = -1
+        circ.Line.ForeColor.rgb = color
+        pie.Line.Visible = -1
+        pie.Line.ForeColor.rgb = color
+    
+    def line_gallery_theme_color_change(self, shapes, color_index, brightness, upgrade=False):
+        for shape in shapes:
+            self.set_harvey_line_theme(shape, color_index, brightness)
+
+    def set_harvey_line_theme(self, shape, color_index, brightness=0):
+        pie, circ = self.get_pie_circ(shape)
+        if pie == None:
+            return
+        circ.Line.Visible = -1
+        circ.Line.ForeColor.ObjectThemeColor = color_index
+        circ.Line.ForeColor.Brightness = brightness
+
+        #determine if style is modern, otherwise enable line
+        if pie.top <= circ.top:
+            pie.Line.Visible = -1
+        pie.Line.ForeColor.ObjectThemeColor = color_index
+        pie.Line.ForeColor.Brightness = brightness
+    
+    def get_selected_line(self, shapes):
+        _,circ = self.get_pie_circ(shapes[0])
+        if circ != None and circ.Line.Visible and circ.Line.Transparency == 0:
+            return [circ.Line.ForeColor.ObjectThemeColor, circ.Line.ForeColor.Brightness, circ.Line.ForeColor.RGB]
+        else:
+            return None
+    
+    def harvey_line_off(self, shapes):
+        for shape in shapes:
+            pie, circ = self.get_pie_circ(shape)
+            pie.Line.Visible = 0
+            circ.Line.Visible = 0
+    
+    def harvey_line_outside_only(self, shapes):
+        #determine new shape type for all
+        pie, _ = self.get_pie_circ(shapes[0])
+        if pie.AutoShapeType != powerpoint.MsoAutoShapeType['msoShapePie']:
+            new_type = powerpoint.MsoAutoShapeType['msoShapePie']
+        else:
+            new_type = powerpoint.MsoAutoShapeType['msoShapeArc']
+        
+        #adjust all shape types without changing the value
+        for shape in shapes:
+            pie, _ = self.get_pie_circ(shape)
+            cur1 = pie.adjustments.item[1]
+            cur2 = pie.adjustments.item[2]
+            pie.AutoShapeType = new_type
+            pie.adjustments.item[1] = cur1
+            pie.adjustments.item[2] = cur2
+
+
     # ================
     # = Stil aendern =
     # ================
@@ -274,6 +359,8 @@ class HarveyBalls(object):
         self.harvey_change_style(shapes, "classic")
     def harvey_change_style_modern(self, shapes):
         self.harvey_change_style(shapes, "modern")
+    def harvey_change_style_chart(self, shapes):
+        self.harvey_change_style(shapes, "chart")
 
     def harvey_change_style(self, shapes, style="classic"):
         for shape in shapes:
@@ -281,7 +368,14 @@ class HarveyBalls(object):
             if pie == None:
                 continue
 
+            # Store adjustment values and make arc a full circle; otherwise, incorrect width/height values are given for arc-type (no problem with pie)
+            cur1 = pie.adjustments.item[1]
+            cur2 = pie.adjustments.item[2]
+            pie.adjustments.item[1] = -90
+            pie.adjustments.item[2] = -90
+
             # always start from classic
+            circ.line.DashStyle = 1 #straight
             pie.left, pie.top = circ.left, circ.top
             pie.width, pie.height = circ.width, circ.height
             pie.line.visible = -1
@@ -290,7 +384,50 @@ class HarveyBalls(object):
             if style == "modern":
                 pie.line.visible = 0
                 pie.scaleHeight(0.8, 0, 1)
+            
+            elif style == "chart":
+                circ.line.DashStyle = 10 #dashed
+                pie.scaleHeight(1.1, 0, 1)
 
+            # Restore adjustment values
+            pie.adjustments.item[1] = cur1
+            pie.adjustments.item[2] = cur2
+
+    def harvey_fliph_pressed(self, shapes):
+        return shapes[0].HorizontalFlip == -1
+
+    def harvey_fliph(self, shapes, pressed):
+        pressed = -1 if pressed else 0
+        for shape in shapes:
+            if shape.HorizontalFlip != pressed:
+                shape.Flip(0) #msoFlipHorizontal
+
+
+    # 2022-12-16:
+    # Developed this code to upgrade harvey version but decided to take a different approach.
+    # Maybe this code can be reused later, so I did not delete it.
+
+    # def is_legacy(self, shape):
+    #     # return not powerpoint.TagHelper.has_tag(shape, self.BKT_HARVEY_DIALOG_TAG, self.BKT_HARVEY_VERSION)
+    #     version = powerpoint.TagHelper.get_tag(shape, self.BKT_HARVEY_DIALOG_TAG)
+    #     return not version or version in self.BKT_HARVEY_LEGACY_VERSION
+
+    # def is_legacy_any(self, shapes):
+    #     return any(self.is_legacy(shape) for shape in shapes)
+
+    # def upgrade(self, shape):
+    #     pie, _ = self.get_pie_circ(shape)
+    #     cur1 = pie.adjustments.item[1]
+    #     cur2 = pie.adjustments.item[2]
+    #     pie.AutoShapeType = powerpoint.MsoAutoShapeType['msoShapeArc']
+    #     pie.adjustments.item[1] = cur1
+    #     pie.adjustments.item[2] = cur2
+    #     self._add_tags(shape)
+
+    # def upgrade_all(self, shapes, pressed=True):
+    #     if bkt.message.confirmation("Nach der Aktualisierung ist die Optik der Harvey Balls minimal verändert (angeglichen an ThinkCell) und die Linienfarbe kann geändert werden, jedoch ist eine Anpassung in älteren BKT-Versionen ist nicht mehr möglich. Vorgang fortsetzen?", "BKT: Harvey Balls"):
+    #         for shape in shapes:
+    #             self.upgrade(shape)
 
     # =====================================
     # = Feature-Logik und Hilfsfunktionen =
@@ -310,9 +447,11 @@ class HarveyBalls(object):
         if not shape.GroupItems.Count == 2:
             return None, None
 
-        if shape.GroupItems(1).AutoShapeType == powerpoint.MsoAutoShapeType['msoShapePie']:
+        pie_types = (powerpoint.MsoAutoShapeType['msoShapePie'],powerpoint.MsoAutoShapeType['msoShapeArc'],powerpoint.MsoAutoShapeType['msoShapeBlockArc'])
+
+        if shape.GroupItems(1).AutoShapeType in pie_types:
             return shape.GroupItems(1), shape.GroupItems(2)
-        elif shape.GroupItems(2).AutoShapeType == powerpoint.MsoAutoShapeType['msoShapePie']:
+        elif shape.GroupItems(2).AutoShapeType in pie_types:
             return shape.GroupItems(2), shape.GroupItems(1)
         else:
             return None, None
@@ -415,6 +554,37 @@ def harvey_background_gallery(**kwargs):
         **kwargs
     )
 
+def harvey_line_gallery(**kwargs):
+    return bkt.ribbon.ColorGallery(
+        label = 'Linienfarbe ändern',
+        #image_mso = 'RecolorColorPicker',
+        image='harvey ball line',
+        screentip="Linienfarbe eines Harvey-Balls ändern",
+        supertip="Passe die Linienfarbe eines Harvey-Balls entsprechend der Auswahl an.\n\nEin Harvey-Ball-Shape ist eine Gruppe aus Kreis- und Torten-Shape.",
+        on_rgb_color_change   = bkt.Callback(harvey_balls.line_gallery_action, shapes=True),
+        on_theme_color_change = bkt.Callback(harvey_balls.line_gallery_theme_color_change, shapes=True),
+        get_selected_color    = bkt.Callback(harvey_balls.get_selected_line, shapes=True),
+        get_enabled           = bkt.Callback(harvey_balls.change_harvey_enabled, shapes=True),
+        children=[
+            bkt.ribbon.Button(
+                label='Linie aus',
+                supertip="Harvey-Ball Linie ausblenden",
+                #get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.6, 64)),
+                image='harvey ball line off',
+                on_action=bkt.Callback(harvey_balls.harvey_line_off),
+            ),
+            bkt.ribbon.Button(
+                label='Linie nur außen ein/aus',
+                supertip="Harvey-Ball Linie wird nur entweder um den ganzen Kuchen oder nur um den äußeren Kreis angezeigt",
+                #get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(0.6, 64)),
+                image='harvey ball line outside',
+                on_action=bkt.Callback(harvey_balls.harvey_line_outside_only),
+            ),
+        ],
+        item_width=16, item_height=16,
+        **kwargs
+    )
+
 def harvey_size_gallery(**kwargs):
     return bkt.ribbon.Gallery(
         label = 'Füllstand ändern',
@@ -486,6 +656,7 @@ harvey_ball_group = bkt.ribbon.Group(
         # ]),
 
         harvey_background_gallery(id='harvey_ball_background', size="large"),
+        harvey_line_gallery(id='harvey_ball_line', size="large"),
 
         bkt.ribbon.Separator(),
 
@@ -505,6 +676,25 @@ harvey_ball_group = bkt.ribbon.Group(
             supertip="Harvey-Ball im modernen Style mit weißem Rand darstellen.",
             image='harvey ball modern',
             on_action=bkt.Callback(harvey_balls.harvey_change_style_modern, shapes=True),
+        ),
+
+        bkt.ribbon.Button(
+            id='harvey_ball_style_chart',
+            size='large',
+            label='Style Diagramm',
+            supertip="Harvey-Ball im Diagramm-Style mit hervorgehobenem Füllstand.",
+            image='harvey ball diagram',
+            on_action=bkt.Callback(harvey_balls.harvey_change_style_chart, shapes=True),
+        ),
+
+        bkt.ribbon.ToggleButton(
+            id='harvey_ball_flip',
+            size='large',
+            label='Gegen Uhrzeigersinn',
+            supertip="Harvey-Ball spiegel, um Füllstand mit oder gegen den Uhrzeigersinn anzuzeigen.",
+            image='harvey ball flip',
+            get_pressed=bkt.Callback(harvey_balls.harvey_fliph_pressed, shapes=True),
+            on_toggle_action=bkt.Callback(harvey_balls.harvey_fliph, shapes=True),
         ),
 
         bkt.ribbon.Separator(),
@@ -587,6 +777,19 @@ harvey_ball_group = bkt.ribbon.Group(
             get_image=bkt.Callback(lambda: harvey_balls.get_harvey_image(1, 64)),
             on_action=bkt.Callback(lambda shapes: harvey_balls.set_harveys(shapes, 1, 1)),
         ),
+
+        # bkt.ribbon.Separator(),
+
+        # bkt.ribbon.Button(
+        #     id='harvey_legacy_upgrade',
+        #     size='large',
+        #     label='Version aktualisieren',
+        #     screentip="Harvey-Ball auf neuste Version aktualisieren",
+        #     supertip="Harvey-Ball wird auf die neueste Version aktualisiert, wodurch er optisch etwas besser aussieht und die Linienfarbe angepasst werden kann. Allerdings ist er dann nicht mehr mit älteren Versionen kompatibel.",
+        #     image_mso="UpdateIcon",
+        #     get_visible=bkt.Callback(harvey_balls.is_legacy_any),
+        #     on_action=bkt.Callback(harvey_balls.upgrade_all),
+        # ),
     ]
 )
 

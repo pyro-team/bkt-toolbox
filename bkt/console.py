@@ -589,6 +589,7 @@ def show_input(text, ok_method=None):
     form = InputMessageBox(ok_method)
     form.set_text(text)
     form.Visible = True
+    return form
 
 
 def main():

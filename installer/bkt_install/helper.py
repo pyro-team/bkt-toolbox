@@ -8,6 +8,7 @@ Created on 25.02.2019
 from __future__ import absolute_import, print_function
 
 import os
+import io
 import ConfigParser
 from ctypes import windll, POINTER
 from ctypes.wintypes import LPWSTR, DWORD, BOOL
@@ -94,7 +95,7 @@ class BKTConfigParser(ConfigParser.ConfigParser):
         '''
         Save the config back to disk.
         '''
-        with open(self.config_filename, "wb") as configfile:
+        with io.open(self.config_filename, "w", encoding='utf-8') as configfile:
             self.write(configfile)
 
     def get_smart(self, attr, default=None, attr_type=str):
@@ -134,6 +135,15 @@ class BKTConfigParser(ConfigParser.ConfigParser):
         if write_back:
             self.save_to_disk()
 
+    def read_unicode(self):
+        try:
+            with io.open(self.config_filename, encoding='utf-8') as configfile:
+                self.readfp(configfile)
+        except UnicodeDecodeError:
+            #before v2.7.5 config file was saved as ANSI, so open as ANSI here and save as Unicode later
+            with io.open(self.config_filename) as configfile:
+                self.readfp(configfile)
+
 configs = {}
 def get_config(config_filename):
     try:
@@ -141,7 +151,7 @@ def get_config(config_filename):
     except KeyError:
         configs[config_filename] = config = BKTConfigParser(config_filename)
         if os.path.exists(config_filename):
-            config.read(config_filename)
+            config.read_unicode()
             if not config.has_section('BKT'):
                 config.add_section('BKT')
         else:

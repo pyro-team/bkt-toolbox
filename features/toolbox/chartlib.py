@@ -51,7 +51,7 @@ def open_presentation_without_window(context, filename, readonly=True):
 THUMBNAIL_POSTFIX = '_thumbnails'
 FILETYPES_PPT = ('.pptx', '.ppt')
 FILETYPES_POT = ('.potx', '.pot')
-
+FOLDER_ICON = '.folder.png'
 
 
 class ChartLib(object):
@@ -446,7 +446,17 @@ class ChartLib(object):
     def get_dynamic_folder_menu(self, folder):
         ''' returns dynamic menu for folder. if menu unfolds, menu content is obtained by get_folder_menu '''
         basename = os.path.basename(folder)
-        return bkt.ribbon.DynamicMenu(label=basename, tag=folder, get_content=bkt.Callback(self.get_folder_menu_callback, current_control=True))
+        return bkt.ribbon.DynamicMenu(label=basename, tag=folder, get_content=bkt.Callback(self.get_folder_menu_callback, current_control=True), get_image=bkt.Callback(self.get_get_dynamic_folder_icon, current_control=True))
+    
+    def get_get_dynamic_folder_icon(self, current_control):
+        ''' callback for getting folder icon '''
+        folder = current_control['tag']
+        folder_icon = os.path.join(folder, FOLDER_ICON)
+        if os.path.exists(folder_icon):
+            return glib.open_bitmap_nonblocking(folder_icon)
+        else:
+            # return empty white image
+            return glib.empty_image(50,50)
     
     def get_dynamic_file_menu(self, filename):
         ''' returns dynamic menu for file. if menu unfolds, menu content is obtained by get_chartlib_menu_from_file '''
@@ -748,28 +758,42 @@ class ChartLib(object):
 
     @classmethod
     def add_shapes_to_lib(cls, context, presentation):
-        #Copy each shape individually
+        #Name each shape individually before starting the thread (show_user_input does not work in threads)
+        shapes_titles = []
         for shape in context.shapes:
             title = bkt.ui.show_user_input("Bitte Shape-Titel eingeben:", "Shape-Titel", shape.Name)
             if title is None:
                 break
-            shape.Copy()
-            slide = presentation.Slides.Add(presentation.Slides.Count+1, 11) #11=ppTitleOnly
-            
-            #set slide background color
-            slide.FollowMasterBackground = False
-            orig_bg = context.slides[0].Background.Fill.ForeColor
-            if orig_bg.Type == pplib.MsoColorType['msoColorTypeScheme'] and orig_bg.ObjectThemeColor > 0:
-                slide.Background.Fill.ForeColor.ObjectThemeColor = orig_bg.ObjectThemeColor
-                slide.Background.Fill.ForeColor.Brightness = orig_bg.Brightness
-            else:
-                slide.Background.Fill.ForeColor.RGB = orig_bg.RGB
-            
-            # new_shp = slide.Shapes.Paste()
-            new_shp = cls._save_paste(slide.Shapes)
-            new_shp.Left = (presentation.PageSetup.SlideWidth - new_shp.Width)*0.5
-            new_shp.Top  = (presentation.PageSetup.SlideHeight - new_shp.Height)*0.5
-            slide.Shapes.Title.Textframe.TextRange.Text = title
+            shapes_titles.append((shape, title))
+        
+        orig_bg = context.slides[0].Background.Fill.ForeColor
+
+        def _start_process():
+            try:
+                #Copy each shape individually
+                for shape, title in shapes_titles:
+                    shape.Copy()
+                    slide = presentation.Slides.Add(presentation.Slides.Count+1, 11) #11=ppTitleOnly
+                    
+                    #set slide background color
+                    slide.FollowMasterBackground = False
+                    if orig_bg.Type == pplib.MsoColorType['msoColorTypeScheme'] and orig_bg.ObjectThemeColor > 0:
+                        slide.Background.Fill.ForeColor.ObjectThemeColor = orig_bg.ObjectThemeColor
+                        slide.Background.Fill.ForeColor.Brightness = orig_bg.Brightness
+                    else:
+                        slide.Background.Fill.ForeColor.RGB = orig_bg.RGB
+                    
+                    # new_shp = slide.Shapes.Paste()
+                    new_shp = cls._save_paste(slide.Shapes)
+                    new_shp.Left = (presentation.PageSetup.SlideWidth - new_shp.Width)*0.5
+                    new_shp.Top  = (presentation.PageSetup.SlideHeight - new_shp.Height)*0.5
+                    slide.Shapes.Title.Textframe.TextRange.Text = title
+            except:
+                logging.exception("Error adding shapes to shape library")
+        
+        t = Thread(target=_start_process)
+        t.start()
+        t.join()
 
 
     # def add_chart_to_file(self, context, current_control):

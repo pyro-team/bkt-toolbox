@@ -142,7 +142,7 @@ class ShapeNodes(object):
     @staticmethod
     def draw_nodes(slide, nodes, tag="SHAPE"):
         size=10
-        for i,node in enumerate(nodes):
+        for i,node in enumerate(nodes, start=1):
             s=slide.shapes.AddShape(
                 9, #msoShapeOval
                 node[0]-size/2, node[1]-size/2,
@@ -164,6 +164,9 @@ class ShapeNodes(object):
         shape_nodes = [(node.points[0,0], node.points[0,1]) for node in dummy.nodes]
         dummy.delete()
         cls.draw_nodes(slide, shape_nodes, "SHAPE")
+
+        # mid = algos.mid_point(shape_nodes)
+        # cls.draw_nodes(slide, [mid], "SHAPE")
     
     @classmethod
     def draw_bounding_nodes(cls, shape, slide):
@@ -251,4 +254,84 @@ nodes_gruppe = bkt.ribbon.Group(
 )
 
 
-powerpoint_groups = [tags_gruppe, nodes_gruppe]
+class ShapePoints(object):
+    form = None
+
+    @staticmethod
+    def _get_edittype(node):
+        try:
+            return str(node.editingType)
+        except:
+            return "-2"
+
+    @classmethod
+    def _get_pointlist(cls, shape):
+        if not shape.Type == pplib.MsoShapeType['msoFreeform']:
+            #convert shape into freeform by adding and deleting node (not sure if this is required)
+            shape.Nodes.Insert(1, 0, 0, 0, 0) #msoSegmentLine, msoEditingAuto, x, y
+            shape.Nodes.Delete(2)
+            # shape.Nodes.SetPosition(1, shape.Left, shape.Top)
+        
+        pointlist = "["
+        for i,node in enumerate(shape.nodes, start=1):
+            if i > 1:
+                pointlist += ","
+            pointlist += "\r\n"
+            pointlist += ' {"i":' + str(i)
+            pointlist += ', "x":' + str(node.points[0,0])
+            pointlist += ', "y":' + str(node.points[0,1])
+            pointlist += ', "segmentType": ' + str(node.segmentType)
+            pointlist += ', "editingType": ' + cls._get_edittype(node)
+            pointlist += '}'
+        pointlist += "\r\n]"
+
+        return pointlist
+
+    @classmethod
+    def display_points(cls, shape):
+        
+        def json_callback(json_points):
+            cls.change_points(shape, json_points=json_points)
+        
+        cls.form = bkt.console.show_input(cls._get_pointlist(shape), json_callback)
+
+    @classmethod
+    def change_points(cls, shape, json_points=None):
+        import json
+
+        points = json.loads(json_points)
+        
+        # richtige Anzahl Punkte
+        nodes_count = shape.nodes.count
+        while len(points) > nodes_count:
+            shape.nodes.insert(nodes_count, 0,0,  0.0, 0.0)
+        while len(points) < nodes_count:
+            shape.nodes.delete(nodes_count)
+        
+        for p in reversed(points):
+            index = p['i']
+
+            if p['segmentType'] in (0,1) and shape.nodes[index].segmentType != p['segmentType']:
+                shape.nodes.setSegmentType(index, p['segmentType'])
+            
+            if index > 1 and index < nodes_count and p['editingType'] in (0,1,2,3) and cls._get_edittype(shape.nodes[index]) != p['editingType']:
+                shape.nodes.setEditingType(index, p['editingType'])
+            
+            shape.nodes.setPosition(index, p['x'], p['y'])
+
+        # update list (as changing editingType may result in new or deleted nodes)
+        cls.form.input.Text = cls._get_pointlist(shape)
+
+shape_points_gruppe = bkt.ribbon.Group(
+    label="Shape Points",
+    children=[
+        bkt.ribbon.Button(
+            label='Shape Points',
+            size="large",
+            imageMso='ObjectEditPoints',
+            on_action=bkt.Callback(ShapePoints.display_points)
+        )
+    ]
+)
+
+powerpoint_groups = [tags_gruppe, nodes_gruppe, shape_points_gruppe]
