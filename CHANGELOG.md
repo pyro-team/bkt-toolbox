@@ -1,4 +1,4 @@
-# Release 2023-06-11 (2.7.5)
+# Release 2023-08-30 (2.7.5)
 
   * Added folder icons for chart and shape libraries
   * Added feature to make PPT Thumbnails clickable in presentation mode (hyperlink to slide)
@@ -6,10 +6,11 @@
   * Added feature to toggle and remove PPT Notes from all selected slides
   * Added new options to style harvey moons
   * Font icons now support Segoe Fluent Icon Font
-  * Font Awesome updated to 6.4.0
+  * Font Awesome updated to 6.4.2
   * Fixed icons mixed up in arrage easy group (thanks to robertzb)
   * Fixed adding multiple shapes to a shape library didn't work
   * Fixed umlauts in install path / config paths didn't work
+  * Fixed handling of animations in group helper functions and state-shapes
 
 
 # Release 2022-09-03 (2.7.4)
