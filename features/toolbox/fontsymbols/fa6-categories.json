@@ -1862,6 +1862,7 @@
       "location-pin-lock",
       "magnet",
       "magnifying-glass",
+      "magnifying-glass-location",
       "magnifying-glass-minus",
       "magnifying-glass-plus",
       "map",
@@ -2076,6 +2077,8 @@
       "crutch",
       "disease",
       "dna",
+      "droplet",
+      "droplet-slash",
       "eye",
       "eye-dropper",
       "file-medical",
@@ -2085,6 +2088,7 @@
       "flask",
       "flask-vial",
       "hand-dots",
+      "hand-holding-droplet",
       "hand-holding-medical",
       "head-side-cough",
       "head-side-cough-slash",
@@ -2148,6 +2152,7 @@
       "teeth-open",
       "thermometer",
       "tooth",
+      "truck-droplet",
       "truck-medical",
       "user-doctor",
       "user-nurse",
@@ -2289,7 +2294,8 @@
       "volume-high",
       "volume-low",
       "volume-off",
-      "volume-xmark"
+      "volume-xmark",
+      "wave-square"
     ],
     "label": "Music + Audio"
   },
@@ -2710,6 +2716,9 @@
   },
   "spinners": {
     "icons": [
+      "arrow-rotate-left",
+      "arrow-rotate-right",
+      "arrows-rotate",
       "arrows-spin",
       "asterisk",
       "atom",
@@ -2727,6 +2736,8 @@
       "palette",
       "ring",
       "rotate",
+      "rotate-left",
+      "rotate-right",
       "slash",
       "snowflake",
       "spinner",
