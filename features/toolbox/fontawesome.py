@@ -35,6 +35,7 @@ class Fontawesome(object):
         ]
     search_engine = None
     searchable_fonts = []
+    exclusion = bkt.settings.get("toolbox.fonts_excluded", ["fontawesome4", "segoemdl2"])
 
     @classmethod
     def get_installed_fonts(cls):
@@ -59,7 +60,9 @@ class Fontawesome(object):
         symbol_galleries = []
         for font_module, font_name, suppress_hint in cls.fontsettings:
             # check if font exists
-            if cls.font_exists(font_name):
+            if font_module in cls.exclusion:
+                continue
+            elif cls.font_exists(font_name):
                 # import the corresponding font-symbol-module from 'fontsymbols'-folder
                 fontsymbolmodule = importlib.import_module('toolbox.fontsymbols.%s' % font_module)
                 
@@ -115,6 +118,36 @@ class Fontawesome(object):
                 id=None,
                 children=cls.get_symbol_galleries()
             )
+    
+    @classmethod
+    def toggle_exclusion(cls, current_control, pressed):
+        module = current_control["tag"]
+        if module in cls.exclusion:
+            cls.exclusion.remove(module)
+        else:
+            cls.exclusion.append(module)
+        bkt.settings["toolbox.fonts_excluded"] = cls.exclusion
+    
+    @classmethod
+    def pressed_exclusion(cls, current_control):
+        return current_control["tag"] in cls.exclusion
+
+    @classmethod
+    def get_exclusions(cls):
+        def _toggle_button(font_module, font_name):
+            return bkt.ribbon.ToggleButton(
+                    label=font_name,
+                    # screentip="Unicode-Schrift entspricht Theme-Schriftart",
+                    # supertip="Es wird keine spezielle Unicode-Schriftart verwendet, sondern die Standard-Schriftart des Themes.",
+                    tag=font_module,
+                    on_toggle_action=bkt.Callback(cls.toggle_exclusion),
+                    get_pressed=bkt.Callback(cls.pressed_exclusion),
+                )
+        
+        return [
+                _toggle_button(font_module, font_name)
+                for font_module, font_name, _ in cls.fontsettings
+            ]
 
 
 class FontSearch(object):

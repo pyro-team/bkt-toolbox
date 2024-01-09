@@ -145,6 +145,16 @@ class Characters(object):
                 id=None,
                 children=Fontawesome.get_symbol_galleries()
             )
+
+    @classmethod
+    def get_text_fontawesome_exclusion(cls):
+        from .fontawesome import Fontawesome
+
+        return bkt.ribbon.Menu(
+                xmlns="http://schemas.microsoft.com/office/2009/07/customui",
+                id=None,
+                children=Fontawesome.get_exclusions()
+            )
         
     @classmethod
     def get_text_unicodefont(cls):
@@ -264,6 +274,12 @@ class Characters(object):
                         image_mso='FontDialogPowerPoint',
                         supertip="Unicode-Zeichen können entweder mit der Standard-Schriftart oder einer speziellen Unicode-Schriftart eingefügt werden. Diese kann hier ausgewählt werden.",
                         get_content = bkt.Callback(cls.get_text_unicodefont)
+                    ),
+                    bkt.ribbon.DynamicMenu(
+                        label="Icons-Fonts ausschließen",
+                        # image_mso='FontDialogPowerPoint',
+                        supertip="xxx",
+                        get_content = bkt.Callback(cls.get_text_fontawesome_exclusion)
                     ),
                     bkt.ribbon.ToggleButton(
                         label='Als Text einfügen (Standard)',
