@@ -1,3 +1,10 @@
+# Release 2024-01-10 (3.0.1)
+
+  * Font Awesome updated to 6.5.1
+  * Update definition for Material Icons and added newer Material Symbols
+  * Added function to exclude icon fonts
+
+
 # Release 2023-08-31 (3.0.0)
 
   * Switch to IronPython 3.4.1 (avoiding issues with virus scanners)
