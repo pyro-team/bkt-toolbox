@@ -59,7 +59,7 @@ class Fontawesome(object):
     def get_symbol_galleries(cls):
         symbol_galleries = []
         for font_module, font_name, suppress_hint in cls.fontsettings:
-            # check if font exists
+            # check if font exists and is not excluded
             if font_module in cls.exclusion:
                 continue
             elif cls.font_exists(font_name):
@@ -102,8 +102,8 @@ class Fontawesome(object):
     @classmethod
     def update_search_index(cls, engine):
         for font_module, font_name, _ in cls.fontsettings:
-            # check if font exists
-            if cls.font_exists(font_name):
+            # check if font exists and is not excluded
+            if font_module not in cls.exclusion and cls.font_exists(font_name):
                 # import the corresponding font-symbol-module from 'fontsymbols'-folder
                 fontsymbolmodule = importlib.import_module('toolbox.fontsymbols.%s' % font_module)
                 try:
