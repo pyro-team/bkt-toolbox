@@ -869,7 +869,8 @@ class ToolboxAgenda(object):
                 return
 
             # link each paragraph
-            for paragraph in textbox.textframe.textrange.paragraphs():
+            for idx in range(1, textbox.TextFrame.TextRange.Paragraphs().Count+1):
+                paragraph = textbox.TextFrame.TextRange.Paragraphs(idx)
                 # find correct agenda_entry
                 for item in agenda_entries:
                     if item.indentlevel == paragraph.IndentLevel and item.text == paragraph.text.strip():
