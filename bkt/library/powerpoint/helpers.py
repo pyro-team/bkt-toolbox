@@ -1480,7 +1480,7 @@ class GroupManager(object):
         try:
             self._group.PickupAnimation()
             self._has_animation = True
-        except EnvironmentError:
+        except (EnvironmentError, SystemError):
             self._has_animation = False
         
         if self._fliph and self._group.HorizontalFlip: #avoid double flip if function if called twice
@@ -1556,7 +1556,7 @@ class GroupManager(object):
             try:
                 self.shape.PickupAnimation()
                 has_animation = True
-            except EnvironmentError:
+            except (EnvironmentError, SystemError):
                 has_animation = False
             regroup = True
             self.ungroup()
@@ -1604,7 +1604,7 @@ class GroupManager(object):
             try:
                 self.shape.PickupAnimation()
                 has_animation = True
-            except EnvironmentError:
+            except (EnvironmentError, SystemError):
                 has_animation = False
             #store position of first shape in group
             shape_to_restore_pos = self.shape.GroupItems[1]
