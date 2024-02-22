@@ -499,28 +499,40 @@ class Absatz(object):
 
     @staticmethod
     def set_word_wrap(shapes, pressed):
-        for shape in shapes:
-            shape.TextFrame.WordWrap = -1 if pressed else 0
+        for textframe in pplib.iterate_shape_textframes(shapes):
+            try:
+                textframe.WordWrap = -1 if pressed else 0
+            except:
+                continue
 
     @staticmethod
     def get_word_wrap(shapes):
-        if not shapes[0].TextFrame:
-            return None
-        return (shapes[0].TextFrame.WordWrap == -1) # msoTrue
+        for textframe in pplib.iterate_shape_textframes(shapes):
+            try:
+                return (textframe.WordWrap == -1) # msoTrue
+            except:
+                continue
+        return None
 
 
     @staticmethod
     def set_auto_size(shapes, pressed):
-        for shape in shapes:
-            shape.TextFrame.AutoSize = 1 if pressed else 0
-            # 1 = ppAutoSizeShapeToFitText
-            # 0 = ppAutoSizeNone
+        for textframe in pplib.iterate_shape_textframes(shapes):
+            try:
+                textframe.AutoSize = 1 if pressed else 0
+                # 1 = ppAutoSizeShapeToFitText
+                # 0 = ppAutoSizeNone
+            except:
+                continue
 
     @staticmethod
     def get_auto_size(shapes):
-        if not shapes[0].TextFrame:
-            return None
-        return (shapes[0].TextFrame.AutoSize == 1)
+        for textframe in pplib.iterate_shape_textframes(shapes):
+            try:
+                return (textframe.AutoSize == 1)
+            except:
+                continue
+        return None
 
     # def set_par_indent(self, shapes, value):
     #     # pt_value = cm_to_pt(value)
@@ -878,9 +890,9 @@ paragraph_group = bkt.ribbon.Group(
                     image_mso="FormattingMarkDropDown",
                     screentip="Text in Form umbrechen",
                     supertip="Konfiguriere die Textoption auf 'Text in Form umbrechen'.",
-                    on_toggle_action=bkt.Callback(Absatz.set_word_wrap , shapes=True, require_text=True),
-                    get_pressed=bkt.Callback(Absatz.get_word_wrap , shapes=True, require_text=True),
-                    get_enabled = bkt.get_enabled_auto,
+                    on_toggle_action=bkt.Callback(Absatz.set_word_wrap , shapes=True),
+                    get_pressed=bkt.Callback(Absatz.get_word_wrap , shapes=True),
+                    get_enabled = bkt.apps.ppt_selection_contains_textframe,
                 ),
                 bkt.ribbon.ToggleButton(
                     id = 'autosize',
@@ -888,9 +900,9 @@ paragraph_group = bkt.ribbon.Group(
                     image_mso="SmartArtLargerShape",
                     screentip="Größe der Form anpassen",
                     supertip="Konfiguriere die Textoption auf 'Größe der Form dem Text anpassen' bzw. 'Größe nicht automatisch anpassen'.",
-                    on_toggle_action=bkt.Callback(Absatz.set_auto_size , shapes=True, require_text=True),
-                    get_pressed=bkt.Callback(Absatz.get_auto_size , shapes=True, require_text=True),
-                    get_enabled = bkt.get_enabled_auto,
+                    on_toggle_action=bkt.Callback(Absatz.set_auto_size , shapes=True),
+                    get_pressed=bkt.Callback(Absatz.get_auto_size , shapes=True),
+                    get_enabled = bkt.apps.ppt_selection_contains_textframe,
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.mso.control.TextAlignMoreOptionsDialog
