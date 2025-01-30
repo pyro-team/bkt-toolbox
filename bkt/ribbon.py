@@ -487,8 +487,9 @@ class SpinnerBox(Box):
         # initialize children
         self.image_element = user_kwargs.pop('image_element', None) #image can be user defined element (e.g. button); otherwise image is given to textbox
         self.txt_box = EditBox()
-        self.inc_button = Button(label="»")
-        self.dec_button = Button(label="«")
+        self.inc_button = Button(label="🢒") #alternatives: » ⟩ › 🢒
+        self.dec_button = Button(label="🢐") #alternatives: « ⟨ ‹ 🢐
+        self.button_group = ButtonGroup(children=[self.dec_button, self.inc_button])
 
         # default attributes
 
@@ -496,10 +497,10 @@ class SpinnerBox(Box):
         if self.image_element is not None:
             # kwargs['children'] = [self.image_element, self.txt_box, self.dec_button, self.inc_button]
             # yet another box required to avoid space between image element and edit box
-            self.inner_box = Box(children=[self.txt_box, self.dec_button, self.inc_button])
+            self.inner_box = Box(children=[self.txt_box, self.button_group])
             kwargs['children'] = [self.image_element, self.inner_box]
         else:
-            kwargs['children'] = [self.txt_box, self.dec_button, self.inc_button]
+            kwargs['children'] = [self.txt_box, self.button_group]
         kwargs.update(user_kwargs or {})
         
         # init Box-control
@@ -543,10 +544,11 @@ class SpinnerBox(Box):
         box_id = self.attributes.id
         if self.image_element is not None:
             self.image_element['id']   = box_id + '_image'
-            self.inner_box['id']       = box_id + '_innerbox'
+            self.inner_box['id']       = box_id + '_ibox'
         self.txt_box['id']    = box_id + '_text'
-        self.inc_button['id'] = box_id + '_increment'
-        self.dec_button['id'] = box_id + '_decrement'
+        self.inc_button['id'] = box_id + '_inc'
+        self.dec_button['id'] = box_id + '_dec'
+        self.button_group['id'] = box_id + '_bgrp'
 
     def add_callback(self, callback):
         if callback.callback_type == CallbackTypes.increment:
