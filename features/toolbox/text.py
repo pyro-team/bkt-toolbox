@@ -387,10 +387,10 @@ class InnerMargin(pplib.TextframeSpinnerBox):
 
 
 
-inner_margin_top    = InnerMargin(attr="MarginTop",    id='textFrameMargin-top-2',    image_button=True, show_label=False, image_mso='FillDown' , label="Innenabstand oben",   screentip='Innenabstand oben',   supertip='Ändere den oberen Innenabstand des Textfelds auf das angegebene Maß (in cm).')
-inner_margin_bottom = InnerMargin(attr="MarginBottom", id='textFrameMargin-bottom-2', image_button=True, show_label=False, image_mso='FillUp'   , label="Innenabstand unten",  screentip='Innenabstand unten',  supertip='Ändere den unteren Innenabstand des Textfelds auf das angegebene Maß (in cm).')
-inner_margin_left   = InnerMargin(attr="MarginLeft",   id='textFrameMargin-left-2',   image_button=True, show_label=False, image_mso='FillRight', label="Innenabstand links",  screentip='Innenabstand links',  supertip='Ändere den linken Innenabstand des Textfelds auf das angegebene Maß (in cm).')
-inner_margin_right  = InnerMargin(attr="MarginRight",  id='textFrameMargin-right-2',  image_button=True, show_label=False, image_mso='FillLeft' , label="Innenabstand rechts", screentip='Innenabstand rechts', supertip='Ändere den rechten Innenabstand des Textfelds auf das angegebene Maß (in cm).')
+inner_margin_top    = InnerMargin(attr="MarginTop",    id='textFrameMargin-top-2',    image_button=False, show_label=False, image_mso='FillDown' , label="Innenabstand oben",   screentip='Innenabstand oben',   supertip='Ändere den oberen Innenabstand des Textfelds auf das angegebene Maß (in cm).')
+inner_margin_bottom = InnerMargin(attr="MarginBottom", id='textFrameMargin-bottom-2', image_button=False, show_label=False, image_mso='FillUp'   , label="Innenabstand unten",  screentip='Innenabstand unten',  supertip='Ändere den unteren Innenabstand des Textfelds auf das angegebene Maß (in cm).')
+inner_margin_left   = InnerMargin(attr="MarginLeft",   id='textFrameMargin-left-2',   image_button=False, show_label=False, image_mso='FillRight', label="Innenabstand links",  screentip='Innenabstand links',  supertip='Ändere den linken Innenabstand des Textfelds auf das angegebene Maß (in cm).')
+inner_margin_right  = InnerMargin(attr="MarginRight",  id='textFrameMargin-right-2',  image_button=False, show_label=False, image_mso='FillLeft' , label="Innenabstand rechts", screentip='Innenabstand rechts', supertip='Ändere den rechten Innenabstand des Textfelds auf das angegebene Maß (in cm).')
 
 
 
@@ -880,7 +880,7 @@ paragraph_group = bkt.ribbon.Group(
     image_mso='FormattingMarkDropDown',
     children = [
         bkt.ribbon.Menu(
-            label="Textbox",
+            label="Einst.",
             imageMso="FormattingMarkDropDown",
             supertip="Einstellungen für die Textbox ändern",
             children = [
@@ -911,6 +911,7 @@ paragraph_group = bkt.ribbon.Group(
         ParSpaceBefore(
             id = 'par_sep_top',
             show_label=False,
+            size_string = '##',
             # label=u"Absatzabstand oben",
             # image_mso='WordOpenParaAbove',
             # screentip="Oberen Absatzabstand",
@@ -920,6 +921,7 @@ paragraph_group = bkt.ribbon.Group(
         ParSpaceAfter(
             id = 'par_sep_bottom',
             show_label=False,
+            size_string = '##',
             # label=u"Absatzabstand unten",
             # image_mso='WordOpenParaBelow',
             # screentip="Unteren Absatzabstand",
@@ -1018,7 +1020,7 @@ compact_font_group = bkt.ribbon.Group(
     children = [
         #NOTE: horizontal box layout leads to spacing between Font and FontSize ComboBox!
         bkt.mso.comboBox.Font(sizeString="WWWWWWWI"),
-        bkt.ribbon.Box(box_style="horizontal", children=[
+        bkt.ribbon.ButtonGroup(children=[
             bkt.mso.control.Bold,
             bkt.mso.control.Italic,
             bkt.mso.control.Underline,
@@ -1032,11 +1034,11 @@ compact_font_group = bkt.ribbon.Group(
         ]),
 
         bkt.mso.control.FontSize,
-        bkt.ribbon.Box(box_style="horizontal", children=[
+        bkt.ribbon.ButtonGroup(children=[
             bkt.mso.control.FontSizeIncrease,
             bkt.mso.control.FontSizeDecrease,
         ]),
-        bkt.ribbon.Box(box_style="horizontal", children=[
+        bkt.ribbon.ButtonGroup(children=[
             bkt.mso.control.Superscript,
             bkt.mso.control.Subscript,
         ]),
@@ -1052,16 +1054,20 @@ compact_paragraph_group = bkt.ribbon.Group(
         bkt.ribbon.Box(box_style="horizontal", children=[
             bkt.mso.control.BulletsGallery,
             bkt.mso.control.NumberingGallery,
-            bkt.mso.control.IndentDecrease,
-            bkt.mso.control.IndentIncrease,
+            bkt.ribbon.ButtonGroup(children=[
+                bkt.mso.control.IndentDecrease,
+                bkt.mso.control.IndentIncrease,
+            ]),
             # bkt.mso.control.ConvertToSmartArt,
         ]),
         bkt.ribbon.Box(box_style="horizontal", children=[
-            bkt.mso.control.AlignLeft,
-            bkt.mso.control.AlignCenter,
-            bkt.mso.control.AlignRight,
-            bkt.mso.control.AlignJustify,
-            bkt.mso.control.AlignJustifyMenu,
+            bkt.ribbon.ButtonGroup(children=[
+                bkt.mso.control.AlignLeft,
+                bkt.mso.control.AlignCenter,
+                bkt.mso.control.AlignRight,
+                bkt.mso.control.AlignJustify,
+                bkt.mso.control.AlignJustifyMenu,
+            ]),
             # bkt.mso.control.ParagraphDistributed,
             # bkt.mso.control.AlignJustifyThai,
             # bkt.mso.control.TextDirectionLeftToRight,

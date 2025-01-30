@@ -152,7 +152,7 @@ class ShapeAdjustments(object):
 
     @classmethod
     def get_label(cls):
-        return "%s und %s" % cls.adjustment_nums
+        return "%s && %s" % cls.adjustment_nums
         # return "Werte %s u. %s" % cls.adjustment_nums
 
     @classmethod
@@ -320,10 +320,10 @@ adjustments_group = bkt.ribbon.Group(
     image_mso='ShapeArc',
     children=[
         # bkt.ribbon.Label(label="Rund./Spitzen"),
-        bkt.ribbon.Box(box_style="horizontal",
+        bkt.ribbon.ButtonGroup(#box_style="horizontal",
             children=[
                 bkt.ribbon.Button(
-                    label="<", #"#«",
+                    label="⟨", #"#«",
                     screentip="Vorherige Anfasser-Werte anzeigen",
                     supertip="Springe zu vorheriger Seite für die Anfasser-Werte.",
                     on_action=bkt.Callback(ShapeAdjustments.adjustment_nums_prev, context=True),
@@ -390,7 +390,7 @@ adjustments_group = bkt.ribbon.Group(
                     ]
                 ),
                 bkt.ribbon.Button(
-                    label=">", #"»",
+                    label="⟩", #"»",
                     screentip="Nächste Anfasser-Werte anzeigen",
                     supertip="Springe zu nächsten Seite für die Anfasser-Werte.",
                     on_action=bkt.Callback(ShapeAdjustments.adjustment_nums_next, context=True),
@@ -408,7 +408,7 @@ adjustments_group = bkt.ribbon.Group(
             get_text    = bkt.Callback(lambda shapes : ShapeAdjustments.get_shapes_rounded_corner_size(shapes, ShapeAdjustments.adjustment_nums[0])),
             get_enabled = bkt.Callback(lambda shapes : ShapeAdjustments.get_enabled(shapes, ShapeAdjustments.adjustment_nums[0])),
             round_cm = True,
-            size_string = '####',
+            size_string = '###',
         ),
         bkt.ribbon.RoundingSpinnerBox(
             id="anfasser2",
@@ -421,7 +421,7 @@ adjustments_group = bkt.ribbon.Group(
             get_text    = bkt.Callback(lambda shapes : ShapeAdjustments.get_shapes_rounded_corner_size(shapes, ShapeAdjustments.adjustment_nums[1])),
             get_enabled = bkt.Callback(lambda shapes : ShapeAdjustments.get_enabled(shapes, ShapeAdjustments.adjustment_nums[1])),
             round_cm = True,
-            size_string = '####',
+            size_string = '###',
         )
     ]
 )

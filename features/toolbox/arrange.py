@@ -1931,9 +1931,9 @@ UiGroups.arrange_group = lambda: bkt.ribbon.Group(
         
         #bkt.mso.control.ObjectRotateGallery,
         bkt.ribbon.DynamicMenu(
-            label='Mehr',
-            show_label=False,
-            image_mso='TableDesign',
+            label='☰', #⋮
+            # show_label=False,
+            # image_mso='TableDesign',
             screentip="Weitere Funktionen",
             supertip="Funktionen wie Positionierung, Verlinkte Shapes, ...",
             get_content=bkt.CallbackLazy("toolbox.models.arrange_menu", "arrange_menu")
@@ -1995,6 +1995,7 @@ UiGroups.distance_rotation_group = lambda: bkt.ribbon.Group(
             id = 'shape_sep_v',
             image_mso='VerticalSpacingIncrease',
             # image_button=True,
+            size_string="-###",
             label="Objektabstand vertikal",
             show_label=False,
             screentip="Vertikalen Objektabstand",
@@ -2071,6 +2072,7 @@ UiGroups.distance_rotation_group = lambda: bkt.ribbon.Group(
             id = 'shape_sep_h',
             image_mso='HorizontalSpacingIncrease',
             # image_button=True,
+            size_string="-###",
             label="Objektabstand horizontal",
             show_label=False,
             screentip="Horizontalen Objektabstand",
@@ -2149,6 +2151,7 @@ UiGroups.distance_rotation_group = lambda: bkt.ribbon.Group(
             show_label=False,
             image_mso='Repeat',
             # image_button=True,
+            size_string="-###",
             screentip="Form-Rotation",
             supertip="Ändere die Rotation des Shapes auf das angegebene Maß (in Grad).\n\nIcon-Klick für Rotation=0.\nShift-Klick für Rotation=180.\nStrg-Klick für Rotation angleichen.",
             on_change = bkt.Callback(ShapeRotation.set_rotation, shapes=True),
