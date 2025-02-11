@@ -131,6 +131,32 @@ class GroupsMore(object):
         pplib.shapes_to_range(all_shapes).select()
 
 
+    @classmethod
+    def auto_group(cls, shapes):
+        shapes = pplib.wrap_shapes(sorted(shapes, key=lambda s: s.ZOrderPosition))
+        processed_shapes = set()
+        groups = []
+        for child in shapes:
+            if child in processed_shapes:
+                continue
+            within_shapes = [
+                s for s in shapes
+                if s != child and s not in processed_shapes and
+                cls._is_shape_within(child, s)
+            ]
+            if len(within_shapes) > 0:
+                within_shapes.append(child)
+                groups.append(pplib.shapes_to_range(within_shapes).group())
+                processed_shapes.update(within_shapes)
+        if len(groups) > 0:
+            pplib.shapes_to_range(groups).select()
+
+    @classmethod
+    def _is_shape_within(cls, outer_s, inner_s):
+        #test if center point of inner_s is within bounds of outer_s
+        return inner_s.width<=outer_s.width and inner_s.height<=outer_s.height and outer_s.x <= inner_s.center_x <= outer_s.x1 and outer_s.y <= inner_s.center_y <= outer_s.y1
+
+
 class ArrangeCenter(object):
     @staticmethod
     def shape_in_center(center_shape, around_shapes):
@@ -479,6 +505,15 @@ arrange_menu = lambda: bkt.ribbon.Menu(
                     get_enabled = bkt.apps.ppt_shapes_min2_selected,
                 ),
                 bkt.ribbon.MenuSeparator(title="Gruppierung"),
+                bkt.ribbon.Button(
+                    id = 'auto_Group',
+                    label="Auto-Gruppierung",
+                    image_mso="ObjectsGroup",
+                    screentip="Zusammengehörige Shapes in gruppieren",
+                    supertip="Sucht zusammengehörige Shapes/Shape-Gruppen und gruppiert diese automatisch.",
+                    on_action=bkt.Callback(GroupsMore.auto_group, shapes=True),
+                    get_enabled = bkt.apps.ppt_shapes_min2_selected,
+                ),
                 bkt.ribbon.Button(
                     id = 'add_into_group',
                     label="In Gruppe einfügen",
