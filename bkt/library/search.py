@@ -13,6 +13,7 @@ import logging
 
 import re #for extracting keywords from string
 # import fnmatch #for fuzzy search in list
+# from difflib import get_close_matches #for fuzzy search in list
 
 from itertools import groupby, islice, chain
 from collections import namedtuple, OrderedDict, deque
@@ -211,6 +212,15 @@ class SearchSearcher(object):
         #     result_keywords.append([
         #         k for k in self._engine._keywords if search_term in k
         #     ])
+
+        #fuzzy search with difflib
+        # result_keywords = (
+        #     get_close_matches(search_term, self._engine._keywords, n=50, cutoff=0.7) for search_term in search_terms
+        # )
+        # result_keywords = list(result_keywords) #convert generator to list
+        # logging.info("SEARCH: found keywords "+",".join(chain.from_iterable(result_keywords)))
+        # -> disadvantage: e.g. "user" finds users, uers, cluster, suse, fuse, ... but does not find username
+
         #fastest version with generator expression
         result_keywords = (
             [
