@@ -487,8 +487,8 @@ class SpinnerBox(Box):
         # initialize children
         self.image_element = user_kwargs.pop('image_element', None) #image can be user defined element (e.g. button); otherwise image is given to textbox
         self.txt_box = EditBox()
-        self.inc_button = Button(label="🢒") #alternatives: » ⟩ › 🢒
-        self.dec_button = Button(label="🢐") #alternatives: « ⟨ ‹ 🢐
+        self.inc_button = Button(label="›") #alternatives: » ⟩ › 🢒
+        self.dec_button = Button(label="‹") #alternatives: « ⟨ ‹ 🢐
         self.button_group = ButtonGroup(children=[self.dec_button, self.inc_button])
 
         # default attributes
