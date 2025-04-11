@@ -96,7 +96,7 @@ LocPinCollection = LocPinFactory()
 
 
 
-swap_button = bkt.ribbon.SplitButton(
+swap_button = bkt.ribbon.SplitButtonFixed(
     show_label=False,
     get_enabled=bkt.apps.ppt_shapes_min2_selected,
     children=[
@@ -189,7 +189,7 @@ swap_button = bkt.ribbon.SplitButton(
     ]
 )
 
-equal_height_button = bkt.ribbon.SplitButton(
+equal_height_button = bkt.ribbon.SplitButtonFixed(
     show_label=False,
     get_enabled=bkt.apps.ppt_shapes_min2_selected,
     children=[
@@ -257,7 +257,7 @@ equal_height_button = bkt.ribbon.SplitButton(
     ]
 )
 
-equal_width_button = bkt.ribbon.SplitButton(
+equal_width_button = bkt.ribbon.SplitButtonFixed(
     show_label=False,
     get_enabled=bkt.apps.ppt_shapes_min2_selected,
     children=[
@@ -1513,7 +1513,7 @@ class ArrangeAdvanced(object):
 
     ### ui generation functions ###
     def get_master_button(self, postfix="", **kwargs):
-        return bkt.ribbon.SplitButton(id="arrange_master_splitbutton"+postfix, children=[
+        return bkt.ribbon.SplitButtonFixed(id="arrange_master_splitbutton"+postfix, children=[
             
             bkt.ribbon.ToggleButton(
                 id="arrange_use_master"+postfix,
@@ -1735,7 +1735,7 @@ class TAGallery(bkt.ribbon.Gallery):
             return context.python_addin.load_image(self.items[index][0])
 
 
-tablearrange_button = bkt.ribbon.SplitButton(
+tablearrange_button = bkt.ribbon.SplitButtonFixed(
     show_label=False,
     get_enabled = bkt.apps.ppt_shapes_min2_selected,
     children=[
@@ -1943,7 +1943,7 @@ UiGroups.arrange_group = lambda: bkt.ribbon.Group(
         bkt.mso.control.ObjectsUngroup,
         bkt.mso.control.ObjectsRegroup,
         # bkt.mso.control.ObjectBringToFrontMenu,
-        bkt.ribbon.SplitButton(
+        bkt.ribbon.SplitButtonFixed(
             id="bkt_bringtofront_menu",
             show_label=False,
             children=[
@@ -1962,7 +1962,7 @@ UiGroups.arrange_group = lambda: bkt.ribbon.Group(
             ]
         ),
         # bkt.mso.control.ObjectSendToBackMenu,
-        bkt.ribbon.SplitButton(
+        bkt.ribbon.SplitButtonFixed(
             id="bkt_sendtoback_menu",
             show_label=False,
             children=[
@@ -2007,7 +2007,7 @@ UiGroups.distance_rotation_group = lambda: bkt.ribbon.Group(
             # get_enabled = bkt.apps.ppt_shapes_min2_selected,
             round_cm = True,
             convert="pt_to_cm",
-            image_element=bkt.ribbon.SplitButton(show_label=False, children=[
+            image_element=bkt.ribbon.SplitButtonFixed(show_label=False, children=[
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeDistance.set_shape_sep_vertical_zero, shapes=True),
                 ),
@@ -2084,7 +2084,7 @@ UiGroups.distance_rotation_group = lambda: bkt.ribbon.Group(
             get_enabled = bkt.Callback(ShapeDistance.get_enabled_min2_group, shapes=True),
             round_cm = True,
             convert="pt_to_cm",
-            image_element=bkt.ribbon.SplitButton(show_label=False, children=[
+            image_element=bkt.ribbon.SplitButtonFixed(show_label=False, children=[
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeDistance.set_shape_sep_horizontal_zero, shapes=True),
                 ),
@@ -2161,7 +2161,7 @@ UiGroups.distance_rotation_group = lambda: bkt.ribbon.Group(
             # get_enabled = bkt.apps.ppt_shapes_or_text_selected,
             round_int = True,
             huge_step = 45,
-            image_element=bkt.ribbon.SplitButton(show_label=False, children=[
+            image_element=bkt.ribbon.SplitButtonFixed(show_label=False, children=[
                 bkt.ribbon.Button(
                     on_action = bkt.Callback(ShapeRotation.set_rotation_zero, shapes=True),
                 ),

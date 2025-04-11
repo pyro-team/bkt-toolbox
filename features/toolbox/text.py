@@ -855,7 +855,7 @@ class TextBox(object):
             return context.app.commandbars.GetPressedMso("TextBoxInsertHorizontal")
 
 
-text_splitbutton = bkt.ribbon.SplitButton(
+text_splitbutton = bkt.ribbon.SplitButtonFixed(
     id="textbox_insert_splitbutton",
     show_label=False,
     children=[
@@ -1052,8 +1052,10 @@ compact_paragraph_group = bkt.ribbon.Group(
     image_mso='GroupParagraph',
     children = [
         bkt.ribbon.Box(box_style="horizontal", children=[
-            bkt.mso.control.BulletsGallery,
-            bkt.mso.control.NumberingGallery,
+            bkt.ribbon.ButtonGroup(children=[
+                bkt.mso.control.BulletsGallery,
+                bkt.mso.control.NumberingGallery,
+            ]),
             bkt.ribbon.ButtonGroup(children=[
                 bkt.mso.control.IndentDecrease,
                 bkt.mso.control.IndentIncrease,

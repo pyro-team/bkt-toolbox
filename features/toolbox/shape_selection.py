@@ -13,7 +13,7 @@ clipboard_group = bkt.ribbon.Group(
     label='Ablage',
     image_mso='ObjectsMultiSelect',
     children=[
-        bkt.ribbon.SplitButton(
+        bkt.ribbon.SplitButtonFixed(
             show_label=False,
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Paste"), context=True),
             children=[
@@ -61,7 +61,7 @@ clipboard_group = bkt.ribbon.Group(
                 )
             ]
         ),
-        bkt.ribbon.SplitButton(
+        bkt.ribbon.SplitButtonFixed(
             show_label=False,
             get_enabled=bkt.Callback(lambda context: context.app.commandbars.GetEnabledMso("Copy"), context=True),
             children=[

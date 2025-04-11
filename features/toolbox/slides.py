@@ -18,7 +18,7 @@ slides_group = bkt.ribbon.Group(
     label='Folien',
     image_mso='SlideNewGallery',
     children=[
-        bkt.mso.control.SlideNewGallery,
+        bkt.mso.splitbutton.SlideNewGallery,
         #bkt.mso.control.SlideLayoutGallery,
         chartlib_button,
         bkt.ribbon.DynamicMenu(

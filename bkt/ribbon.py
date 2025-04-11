@@ -426,6 +426,23 @@ Image            = ImageControl = create_ribbon_control_class('image_control')
 
 
 
+class SplitButtonFixed(ButtonGroup):
+    _python_name = 'split_button_fix'
+    _xml_name = 'buttonGroup'
+    
+    def __init__(self, **user_kwargs):
+        self.split_button = SplitButton(**user_kwargs)
+        super().__init__(children=[self.split_button])
+    
+    def set_control_attributes(self, **kwargs):
+        # control-attributes are passed to splitbutton
+        self.split_button.set_control_attributes(**kwargs)
+
+    def add_callback(self, callback):
+        # callbacks are passed to splitbutton
+        self.split_button.add_callback(callback)
+
+
 class DialogBoxLauncher(Button):
     _python_name = 'dialog_box_launcher'
     
@@ -520,6 +537,8 @@ class SpinnerBox(Box):
             image_args.update(button_args)
             if isinstance(self.image_element, SplitButton):
                 self.image_element.children[0].set_control_attributes(**image_args)
+            elif isinstance(self.image_element, SplitButtonFixed):
+                self.image_element.children[0].children[0].set_control_attributes(**image_args)
             else:
                 self.image_element.set_control_attributes(**image_args)
             # avoid space before textbox
@@ -1183,8 +1202,11 @@ class MSOFactory(object):
         Example: MSOFactory.ShapesInsertGallery(control_type='control', show_label=False) '''
     def __init__(self, **kwargs):
         self._attributes = kwargs
+        self._splitbutton_fix = kwargs.pop('splitbutton_fix', False)
     
     def __getattr__(self, attr):
+        if self._splitbutton_fix:
+            return ButtonGroup(children=[MSOControl(id_mso=attr, **self._attributes)])
         return MSOControl(id_mso=attr, **self._attributes)
 
 
@@ -1195,6 +1217,10 @@ class MSOFactoryAccess(object):
         self.group   = MSOFactory(control_type='group')
         self.control = MSOFactory(control_type='control', show_label=False)
         self.button  = MSOFactory(control_type='button', show_label=False)
+
+        # this is a workaround for windows 11: splitbuttons without label have a much bigger size than with zero-width-space label (only works for some controls)
+        # self.splitbutton  = MSOFactory(control_type='control', label="\u200b", show_label=True)
+        self.splitbutton  = MSOFactory(control_type='control', show_label=False, splitbutton_fix=False)
     
     def __getattr__(self, attr):
         return MSOFactory(control_type=attr)
