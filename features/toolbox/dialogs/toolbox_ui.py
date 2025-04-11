@@ -90,6 +90,7 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
         self._model.set_setting("size_group", self._value2key(self._vm.size_group))
         self._model.set_setting("pos_size_group", self._value2key(self._vm.pos_size_group))
 
+        self._model.set_setting("arrange_group", self._value2key(self._vm.arrange_group))
         self._model.set_setting("arrange_mini_group", self._value2key(self._vm.arrange_mini_group))
         self._model.set_setting("arrange_euclid_group", self._value2key(self._vm.arrange_euclid_group))
         self._model.set_setting("arrange_adv_group", self._value2key(self._vm.arrange_adv_group))
