@@ -149,15 +149,15 @@ class UIControlTest(unittest.TestCase):
     def test_spinner_box(self):
         bkt.ribbon.RibbonControl.no_id = True
         ctrl = bkt.ribbon.SpinnerBox()
-        self.assertEqual(ctrl_to_str(ctrl), '<box>\n<editBox sizeString="####" />\n<button label="\xab" />\n<button label="\xbb" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box>\n<editBox sizeString="####" />\n<buttonGroup>\n<button label="‹" />\n<button label="›" />\n</buttonGroup>\n</box>')
         
         bkt.ribbon.RibbonControl.no_id = False
         ctrl = bkt.ribbon.SpinnerBox()
         ctrl.set_id('test-id')
-        self.assertEqual(ctrl_to_str(ctrl), '<box id="test-id">\n<editBox id="test-id_text" sizeString="####" />\n<button id="test-id_decrement" label="\xab" />\n<button id="test-id_increment" label="\xbb" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box id="test-id">\n<editBox id="test-id_text" sizeString="####" />\n<buttonGroup id="test-id_bgrp">\n<button id="test-id_dec" label="‹" />\n<button id="test-id_inc" label="›" />\n</buttonGroup>\n</box>')
         
         ctrl = bkt.ribbon.SpinnerBox(id='test-id')
-        self.assertEqual(ctrl_to_str(ctrl), '<box id="test-id">\n<editBox id="test-id_text" sizeString="####" />\n<button id="test-id_decrement" label="\xab" />\n<button id="test-id_increment" label="\xbb" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box id="test-id">\n<editBox id="test-id_text" sizeString="####" />\n<buttonGroup id="test-id_bgrp">\n<button id="test-id_dec" label="‹" />\n<button id="test-id_inc" label="›" />\n</buttonGroup>\n</box>')
         
         
         def on_change():
@@ -181,8 +181,8 @@ class UIControlTest(unittest.TestCase):
         # returns a list of Callbacks
         self.assertEqual(lst[('test-id_text', CallbackTypes.on_change )](), 'onchange')
         self.assertEqual(lst[('test-id_text', CallbackTypes.get_text )](), 'gettext')
-        self.assertEqual(lst[('test-id_increment', CallbackTypes.on_action )](), 'increment')
-        self.assertEqual(lst[('test-id_decrement', CallbackTypes.on_action )](), 'decrement')
+        self.assertEqual(lst[('test-id_inc', CallbackTypes.on_action )](), 'increment')
+        self.assertEqual(lst[('test-id_dec', CallbackTypes.on_action )](), 'decrement')
         
         
         
