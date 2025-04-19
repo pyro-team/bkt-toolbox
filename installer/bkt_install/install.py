@@ -372,7 +372,7 @@ def uninstall(args):
 
 
 def install(args):
-    if helper.is_admin() and not helper.yes_no_question('Are you sure to run BKT installer as admin?'):
+    if not args.silent and helper.is_admin() and not helper.yes_no_question('Are you sure to run BKT installer as admin?'):
         print('BKT installation cancelled')
         return
 

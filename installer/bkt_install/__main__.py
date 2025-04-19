@@ -34,7 +34,9 @@ class BktInstaller(object):
 
 
 parser = argparse.ArgumentParser(prog="bkt_install", description='BKT install and configuration scripts')
-subparsers = parser.add_subparsers(help='BKT Installer supports 3 modes: install, uninstall and configure')
+parser.add_argument('-s', '--silent', action='store_true', help='Do not confirm any questions or deletion')
+
+subparsers = parser.add_subparsers(help='BKT Installer supports 4 modes: install, uninstall, configure, and cleanup')
 
 parser_install = subparsers.add_parser('install', help='Installation and registration of BKT')
 parser_install.add_argument('--register_only', action='store_true', help='Only register addin without creating or updating default configuration')
@@ -54,13 +56,13 @@ parser_configure.add_argument('--remove_folders', metavar=('PATH1','PATH2'), nar
 parser_configure.add_argument('--migrate_from', metavar='OLD_VERSION', help='Migrate config.txt from the given version to the current one')
 parser_configure.set_defaults(func=BktInstaller.configure)
 
-parser_uninstall = subparsers.add_parser('cleanup', help='Perform clean-up tasks to fix problems with BKT')
-parser_uninstall.add_argument('--clear_cache', action='store_true', help='Clear all caches')
-parser_uninstall.add_argument('--clear_config', action='store_true', help='Clear config.txt file')
-parser_uninstall.add_argument('--clear_settings', action='store_true', help='Clear all app settings')
-parser_uninstall.add_argument('--clear_xml', action='store_true', help='Clear all generated XML files')
-parser_uninstall.add_argument('--clear_resiliency', action='store_true', help='Clear all disabled items in resiliency list from registry (addin block list)')
-parser_uninstall.set_defaults(func=BktInstaller.cleanup)
+parser_cleanup = subparsers.add_parser('cleanup', help='Perform clean-up tasks to fix problems with BKT')
+parser_cleanup.add_argument('--clear_cache', action='store_true', help='Clear all caches')
+parser_cleanup.add_argument('--clear_config', action='store_true', help='Clear config.txt file')
+parser_cleanup.add_argument('--clear_settings', action='store_true', help='Clear all app settings')
+parser_cleanup.add_argument('--clear_xml', action='store_true', help='Clear all generated XML files')
+parser_cleanup.add_argument('--clear_resiliency', action='store_true', help='Clear all disabled items in resiliency list from registry (addin block list)')
+parser_cleanup.set_defaults(func=BktInstaller.cleanup)
 
 args = parser.parse_args()
 
