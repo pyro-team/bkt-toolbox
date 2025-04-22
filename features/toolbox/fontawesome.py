@@ -66,6 +66,9 @@ class Fontawesome(object):
                 # import the corresponding font-symbol-module from 'fontsymbols'-folder
                 fontsymbolmodule = importlib.import_module('toolbox.fontsymbols.%s' % font_module)
                 
+                if not hasattr(fontsymbolmodule, 'menus'):
+                    continue
+
                 # add menu seperator with title
                 if fontsymbolmodule.menu_title:
                     symbol_galleries += [
@@ -96,11 +99,21 @@ class Fontawesome(object):
         from bkt.library.search import get_search_engine
         cls.search_engine = get_search_engine("fonticons", FontSymbol)
         # initialize search index on first use of engine
-        cls.update_search_index(cls.search_engine)
+        # cls.update_search_index(cls.search_engine)
+        
+        def loop(worker):
+            worker.ReportProgress(1, "Lege Suchindex an...")
+            try:
+                cls.update_search_index(cls.search_engine)
+            except:
+                bkt.message.error("Fehler beim erstellen des Suchindex: {}".format(e), "BKT: Font-Icons")
+
+        bkt.ui.execute_with_progress_bar(loop, context, indeterminate=True)
         return cls.search_engine
     
     @classmethod
-    def update_search_index(cls, engine):
+    def update_search_index(cls, engine=None):
+        engine = engine or cls.search_engine
         for font_module, font_name, _ in cls.fontsettings:
             # check if font exists and is not excluded
             if font_module not in cls.exclusion and cls.font_exists(font_name):
@@ -111,6 +124,7 @@ class Fontawesome(object):
                     cls.searchable_fonts.append(fontsymbolmodule.menu_title)
                 except AttributeError:
                     continue
+
     @classmethod
     def get_text_fontawesome(cls):
         return bkt.ribbon.Menu(
