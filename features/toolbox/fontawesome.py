@@ -89,7 +89,7 @@ class Fontawesome(object):
         return symbol_galleries
 
     @classmethod
-    def get_search_engine(cls):
+    def get_search_engine(cls, context):
         if cls.search_engine:
             return cls.search_engine
 
@@ -153,18 +153,18 @@ class Fontawesome(object):
 class FontSearch(object):
     search_term = ""
     search_results = None
-    search_exact = True
+    search_exact = bkt.settings.get("bkt.symbols.search_exact", True)
     search_and = True #True = AND-search, False=OR-search
 
     _cache_menu_infos = None
 
     @classmethod
-    def _perform_search(cls):
+    def _perform_search(cls, context):
         if len(cls.search_term) > 0:
             if len(cls.search_term) < 3:
                 cls.search_exact = True
             cls.search_results = None
-            engine = cls.get_search_engine()
+            engine = cls.get_search_engine(context)
             with engine.searcher() as searcher:
                 if cls.search_exact:
                     cls.search_results = searcher.search_exact(cls.search_term, cls.search_and)
@@ -174,29 +174,30 @@ class FontSearch(object):
             cls.search_results = None
 
     @classmethod
-    def toggle_search_exact(cls, pressed):
+    def toggle_search_exact(cls, pressed, context):
         cls.search_exact = not cls.search_exact
-        cls._perform_search()
+        bkt.settings["bkt.symbols.search_exact"] = cls.search_exact
+        cls._perform_search(context)
 
     @classmethod
     def checked_search_exact(cls):
         return cls.search_exact
 
     @classmethod
-    def set_search_term(cls, value):
+    def set_search_term(cls, value, context):
         cls.search_term = value
-        cls._perform_search()
+        cls._perform_search(context)
 
     @classmethod
     def get_search_term(cls):
         return cls.search_term
 
     @classmethod
-    def get_search_engine(cls):
-        return Fontawesome.get_search_engine()
+    def get_search_engine(cls, context):
+        return Fontawesome.get_search_engine(context)
     
     @classmethod
-    def get_symbol_galleries(cls):
+    def get_symbol_galleries(cls, context):
         if not cls.search_results or len(cls.search_results) == 0:
             fontmodules = [
                 bkt.ribbon.Button(
@@ -226,7 +227,7 @@ class FontSearch(object):
                     )
                 )
 
-        fontmodules.extend(cls._get_symbol_galleries_infos())
+        fontmodules.extend(cls._get_symbol_galleries_infos(context))
         
         return bkt.ribbon.Menu(
                     xmlns="http://schemas.microsoft.com/office/2009/07/customui",
@@ -235,17 +236,17 @@ class FontSearch(object):
                 )
     
     @classmethod
-    def _get_symbol_galleries_infos(cls):
+    def _get_symbol_galleries_infos(cls, context):
         if cls._cache_menu_infos:
             return cls._cache_menu_infos
 
-        engine = cls.get_search_engine()
+        engine = cls.get_search_engine(context)
         cls._cache_menu_infos = [
             bkt.ribbon.MenuSeparator(title="Informationen"),
             bkt.ribbon.ToggleButton(
                 label="Exakte Suche ein/aus",
                 supertip="Wenn die exakte Suche deaktiviert ist, wird bei 'person' auch 'personality', 'impersonal', usw. gefunden.",
-                on_toggle_action=bkt.Callback(cls.toggle_search_exact),
+                on_toggle_action=bkt.Callback(cls.toggle_search_exact, context=True),
                 get_pressed=bkt.Callback(cls.checked_search_exact),
             ),
             bkt.ribbon.Button(
@@ -300,14 +301,14 @@ fontsearch_gruppe = bkt.ribbon.Group(
             show_label=False,
             sizeString = '#######',
             get_text = bkt.Callback(FontSearch.get_search_term),
-            on_change = bkt.Callback(FontSearch.set_search_term),
+            on_change = bkt.Callback(FontSearch.set_search_term, context=True),
             supertip="Suchwort eingeben und ENTER klicken",
-            get_item_count=bkt.Callback(lambda: FontSearch.get_search_engine().count_recent_searches()),
-            get_item_label=bkt.Callback(lambda index: FontSearch.get_search_engine().get_recent_searches()[index]),
+            get_item_count=bkt.Callback(lambda context: FontSearch.get_search_engine(context).count_recent_searches(), context=True),
+            get_item_label=bkt.Callback(lambda index, context: FontSearch.get_search_engine(context).get_recent_searches()[index], context=True),
         ),
         bkt.ribbon.DynamicMenu(
             get_label=bkt.Callback(FontSearch.get_results_label),
-            get_content=bkt.Callback(FontSearch.get_symbol_galleries),
+            get_content=bkt.Callback(FontSearch.get_symbol_galleries, context=True),
             get_enabled=bkt.Callback(FontSearch.get_enabled_results),
             screentip="Suchergebnisse",
             supertip="Zeigt die Suchergebnisse der Icon-Suche nach dem gewünschten Suchwort an",
