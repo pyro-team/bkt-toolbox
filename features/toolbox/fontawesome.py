@@ -19,19 +19,20 @@ FontSymbol = namedtuple("FontSymbol", "module fontlabel fontname unicode label k
 class Fontawesome(object):
     installed_fonts = None
     fontsettings = [
-            # module-name,      font-filename, suppress-font-not-installed-message
-            ('fabricmdl2',      'Fabric MDL2 Assets',           True),
-            ('fontawesome4',    'FontAwesome',                  True),
-            ('fontawesome5',    'Font Awesome 5 Free Regular',  False),
-            ('fontawesome6',    'Font Awesome 6 Free Regular',  False),
-            ('icomoon',         'IcoMoon-Free',                 False),
-            ('materialicons',   'Material Icons',               True),
-            ('materialsymbols', 'Material Symbols Sharp',       False),
-            ('segoemdl2',       'Segoe MDL2 Assets',            True),
-            ('segoefluent',     'Segoe Fluent Icons',           True),
-            ('segoeui',         'Segoe UI',                     False),
-            ('wingdings',       'Wingdings',                    True),
-            # ('foobar', 'Non-existing test font', True),
+            # module-name,      font-filename,                  suppress-font-not-installed-message, label
+            ('fabricmdl2',      'Fabric MDL2 Assets',           True,  'Fabric MDL2'),
+            ('fontawesome4',    'FontAwesome',                  True,  'Font Awesome 4'),
+            ('fontawesome5',    'Font Awesome 5 Free Regular',  False, 'Font Awesome 5'),
+            ('fontawesome6',    'Font Awesome 6 Free Regular',  False, 'Font Awesome 6'),
+            ('icomoon',         'IcoMoon-Free',                 False, 'IcoMoon'),
+            ('materialicons',   'Material Icons',               True,  'Material Icons'),
+            ('materialsymbols', 'Material Symbols Sharp',       False, 'Material Symbols'),
+            ('segoemdl2',       'Segoe MDL2 Assets',            True,  'Segoe MDL2'),
+            ('segoefluent',     'Segoe Fluent Icons',           True,  'Segoe Fluent'),
+            ('segoeui',         'Segoe UI',                     False, 'Segoe UI'),
+            ('wingdings',       'Wingdings',                    True,  'Wingdings'),
+            ('unicodes',        'Segoe UI',                     True,  'Unicode Symbols'),
+            # ('foobar', 'Non-existing test font', True, 'Foobar Test Font'),
         ]
     search_engine = None
     searchable_fonts = []
@@ -58,7 +59,7 @@ class Fontawesome(object):
     @classmethod
     def get_symbol_galleries(cls):
         symbol_galleries = []
-        for font_module, font_name, suppress_hint in cls.fontsettings:
+        for font_module, font_name, suppress_hint, font_label in cls.fontsettings:
             # check if font exists and is not excluded
             if font_module in cls.exclusion:
                 continue
@@ -76,14 +77,14 @@ class Fontawesome(object):
                     ]
                 else:
                     symbol_galleries += [
-                        bkt.ribbon.MenuSeparator(),
+                        bkt.ribbon.MenuSeparator(title=font_label),
                     ]
                 
                 # add font-symbol-galleries
                 symbol_galleries += fontsymbolmodule.menus
             elif not suppress_hint:
                 symbol_galleries += [
-                    bkt.ribbon.MenuSeparator(title=font_name),
+                    bkt.ribbon.MenuSeparator(title=font_label),
                     bkt.ribbon.Button(
                         label="Font nicht installiert",
                         enabled=False
@@ -114,14 +115,15 @@ class Fontawesome(object):
     @classmethod
     def update_search_index(cls, engine=None):
         engine = engine or cls.search_engine
-        for font_module, font_name, _ in cls.fontsettings:
+        for font_module, font_name, _, font_label in cls.fontsettings:
             # check if font exists and is not excluded
             if font_module not in cls.exclusion and cls.font_exists(font_name):
                 # import the corresponding font-symbol-module from 'fontsymbols'-folder
                 fontsymbolmodule = importlib.import_module('toolbox.fontsymbols.%s' % font_module)
                 try:
                     fontsymbolmodule.update_search_index(engine)
-                    cls.searchable_fonts.append(fontsymbolmodule.menu_title)
+                    # cls.searchable_fonts.append(fontsymbolmodule.menu_title)
+                    cls.searchable_fonts.append(font_label)
                 except AttributeError:
                     continue
 
@@ -148,9 +150,9 @@ class Fontawesome(object):
 
     @classmethod
     def get_exclusions(cls):
-        def _toggle_button(font_module, font_name):
+        def _toggle_button(font_module, font_label):
             return bkt.ribbon.ToggleButton(
-                    label=font_name,
+                    label=font_label,
                     # screentip="Unicode-Schrift entspricht Theme-Schriftart",
                     # supertip="Es wird keine spezielle Unicode-Schriftart verwendet, sondern die Standard-Schriftart des Themes.",
                     tag=font_module,
@@ -159,8 +161,8 @@ class Fontawesome(object):
                 )
         
         return [
-                _toggle_button(font_module, font_name)
-                for font_module, font_name, _ in cls.fontsettings
+                _toggle_button(font_module, font_label)
+                for font_module, _, _, font_label in cls.fontsettings
             ]
 
 
