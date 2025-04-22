@@ -225,9 +225,16 @@ class FontSearch(object):
                 bkt.ribbon.MenuSeparator(title="{} Ergebnisse für »{}«".format(len(cls.search_results), cls.search_term))
             ]
             for fontlabel, icons in cls.search_results.groupedby("fontlabel"):
+                len_icons = len(icons)
+                if len_icons > 999:
+                    icons = icons[:999]
+                    label = "{} (999 of {})".format(fontlabel, len_icons)
+                else:
+                    label = f"{fontlabel} ({len_icons})"
+                
                 fontmodules.append(
                     PPTSymbolsGallery(
-                        label="{} ({})".format(fontlabel, len(icons)),
+                        label=label,
                         symbols=[
                             (
                                 ico.fontname,
