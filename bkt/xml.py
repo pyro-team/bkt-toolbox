@@ -6,7 +6,7 @@ Created on 23.11.2014
 @author: cschmitt
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 
@@ -25,15 +25,15 @@ class RibbonXMLFactory(object):
         self.namespace = namespace or type(self).namespace
         self.ns_office = linq.XNamespace.Get(self.namespace)
         
-    def node(self, tag, **kwargs):
-        element = linq.XElement(self.ns_office + tag)
+    def node(self, node_tag, **kwargs):
+        element = linq.XElement(self.ns_office + node_tag)
         for k in sorted(kwargs):
             v = kwargs[k]
             
             key_parts = k.split("_")
             if len(key_parts) == 2:
                 ns, key = key_parts
-                if self.namespace_prefixes.has_key(ns):
+                if ns in self.namespace_prefixes:
                     attr = linq.XAttribute(linq.XNamespace.Get(self.namespace_prefixes[ns]) + key, v)
                 else:
                     attr = linq.XAttribute(k, v)
@@ -43,8 +43,8 @@ class RibbonXMLFactory(object):
             
         return element
 
-    def pnode(self, parent, tag, **kwargs):
-        node = self.node(tag, **kwargs)
+    def pnode(self, parent, node_tag, **kwargs):
+        node = self.node(node_tag, **kwargs)
         parent.Add(node)
         return node
     
@@ -63,8 +63,7 @@ class RibbonXMLFactory(object):
         text = "<" + x.Name.ToString()
         if x.HasAttributes:
             attrs = {attr.Name.ToString():attr.Value for attr in x.Attributes() }
-            keys = attrs.keys()
-            keys.sort()
+            keys = sorted(attrs.keys())
             for k in keys:
                 text += " " + k + "=\"" + attrs[k] + "\""
         

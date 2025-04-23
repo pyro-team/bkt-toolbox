@@ -6,10 +6,11 @@ Created on 17.11.2014
 @author: cschmitt
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import uuid #for getting random id
+import collections #for callable
 
 from itertools import count
 
@@ -18,9 +19,6 @@ import bkt.library.system as lib_sys #for getting key-states in spinner
 
 from bkt.callbacks import CallbackTypes, CallbackType, Callback
 from bkt.xml import RibbonXMLFactory, linq
-
-# Abhängigkeit zu annotation nicht gewünscht, siehe RibbonControl-Klasse
-# from .annotation import AbstractAnnotationObject
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
@@ -42,12 +40,6 @@ class ArgAccessor(object):
     def __contains__(self, key):
         return key in self._attributes
 
-
-#FIXME: Nutzung von AbstractAnnotationObject führt zu Abhängigkeit vom annotation-Modul.
-#       Aktuell ist diese Abhängigkeit notwendig, damit RibbonControl-Instanzen in Klassenattributen bei der Control-Erstellung einer
-#       FeatureContainer-Klasse berücksichtigt werden.
-#       Sauberer wäre, die Logik vom AbstractAnnotationObject von außerhalb zu injezieren; diese Logik wird hier nicht weiter verwendet.
-# class RibbonControl(AbstractAnnotationObject):
 class RibbonControl(object):
     ''' Base class to represent any element from MSCustomUI.
         Holds attributes of the xml-element and callbacks associated to the element.
@@ -61,14 +53,9 @@ class RibbonControl(object):
     _id_attribute_key = "id"
     _auto_id_counter = count()
     _predefined_ids = set(["id_mso", "idMso", "id_q", "idQ"])
-
-    #NOTE: DEPRECATED: this counter is only used to set target_order for legacy annotations syntax
-    _order_counter = count()
     
     #def __init__(self, node_type, xml_name, id_tag=None, attributes=None, **kwargs):
     def __init__(self, xml_name, id_tag=None, attributes={}, **kwargs):
-        # AbstractAnnotationObject.__init__(self)
-        self.target_order = next(RibbonControl._order_counter)
         
         #self.node_type = node_type
         self.xml_name = xml_name
@@ -85,23 +72,21 @@ class RibbonControl(object):
         
         # init callbacks from kwargs, fallback is empty dict
         self._callbacks = {}
-        if kwargs.has_key('callbacks'):
+        if 'callbacks' in kwargs:
             self._callbacks = kwargs.pop('callbacks', {})
         else:
             # auto-identify callbacks
-            for ct in CallbackTypes.callback_map().keys():
+            for ct in list(CallbackTypes.callback_map().keys()):
                 if hasattr(self, ct):
-                    if callable(getattr(self, ct)):
-                        cb = Callback(getattr(self, ct))
-                        cb.callback_type = getattr(CallbackTypes, ct)
-                        self.add_callback(cb)
+                    if isinstance(getattr(self, ct), collections.Callable):
+                        self.add_callback( Callback(getattr(self, ct), getattr(CallbackTypes, ct)) )
                     
         
         # class attributes
         # initialize attributes from all attributes defined in class hierarchy
         attributes_from_classes = [ t.__dict__.get('_attributes') for t in type(self).mro()]
-        attributes_from_classes.reverse()
-        for cls_attr in attributes_from_classes:
+        # attributes_from_classes.reverse()
+        for cls_attr in reversed(attributes_from_classes):
             if cls_attr:
                 self.set_attributes(**cls_attr)
         
@@ -139,12 +124,12 @@ class RibbonControl(object):
     
     def set_attributes(self, **kwargs):
         ''' sets class-attributes, control-attributes and callbacks '''
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             if isinstance(value, Callback):
                 # add callback
-                if value.callback_type is None or value.callback_type.python_name is None:
+                if not value.callback_type or value.callback_type.python_name is None:
                     # use fallback callback-type
-                   value.callback_type = getattr(CallbackTypes, key)
+                    value.set_callback_type(getattr(CallbackTypes, key))
                 self.add_callback(value)
                 
             elif hasattr(self, key):
@@ -158,7 +143,7 @@ class RibbonControl(object):
     
     def set_control_attributes(self, **kwargs):
         ''' set attributes of ribbon control '''
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             self._attributes[key] = value
     
     
@@ -236,7 +221,7 @@ class RibbonControl(object):
         
     def __getattr__(self, attr):
         ''' access callbacks as properties, e.g. button.on_action '''
-        if self._callbacks.has_key(attr):
+        if attr in self._callbacks:
             return self._callbacks[attr]
         else:
             raise AttributeError(attr)
@@ -287,7 +272,7 @@ class RibbonControl(object):
             objects x to x.xml() or str(x)
         '''
         
-        return {key:value for key, value in self._attributes.iteritems() if value != None}
+        return {key:value for key, value in self._attributes.items() if value != None}
         
         
         
@@ -322,17 +307,10 @@ class RibbonControl(object):
         return '<%s uuid=%s, id=%s>' % (type(self).__name__, self.uuid, self.id)
     
     
-    def add_callback(self, original_callback, callback_type=None):
+    def add_callback(self, original_callback):
         ''' adds a callback to the element'''
-        if isinstance(original_callback, CallbackType):
-            # FIXME: is this ever used? should fail in xml-method
-            callback = original_callback
-            callback = callback_type or callback
-            self._callbacks[callback.python_name] = callback
-            callback.control = self
-        elif isinstance(original_callback, Callback):
+        if isinstance(original_callback, Callback):
             callback = original_callback.copy()
-            callback.callback_type = callback_type or callback.callback_type
             if not callback.callback_type is None:
                 self._callbacks[callback.callback_type.python_name] = callback
                 callback.control = self
@@ -448,6 +426,23 @@ Image            = ImageControl = create_ribbon_control_class('image_control')
 
 
 
+class SplitButtonFixed(ButtonGroup):
+    _python_name = 'split_button_fix'
+    _xml_name = 'buttonGroup'
+    
+    def __init__(self, **user_kwargs):
+        self.split_button = SplitButton(**user_kwargs)
+        super().__init__(children=[self.split_button])
+    
+    def set_control_attributes(self, **kwargs):
+        # control-attributes are passed to splitbutton
+        self.split_button.set_control_attributes(**kwargs)
+
+    def add_callback(self, callback):
+        # callbacks are passed to splitbutton
+        self.split_button.add_callback(callback)
+
+
 class DialogBoxLauncher(Button):
     _python_name = 'dialog_box_launcher'
     
@@ -491,7 +486,7 @@ class Gallery(GalleryMso):
         strFormat.Alignment = Drawing.StringAlignment.Center
         strFormat.LineAlignment = Drawing.StringAlignment.Center
         g.TextRenderingHint = Drawing.Text.TextRenderingHint.AntiAlias
-        g.DrawString(u"\uE10B",
+        g.DrawString("\uE10B",
                     Drawing.Font("Segoe UI Symbol", 24, Drawing.GraphicsUnit.Pixel), text_brush,
                     # Drawing.RectangleF(2, 3, size, size),
                     Drawing.RectangleF(1, 2, size, size-1), 
@@ -509,8 +504,9 @@ class SpinnerBox(Box):
         # initialize children
         self.image_element = user_kwargs.pop('image_element', None) #image can be user defined element (e.g. button); otherwise image is given to textbox
         self.txt_box = EditBox()
-        self.inc_button = Button(label=u"»")
-        self.dec_button = Button(label=u"«")
+        self.inc_button = Button(label="›") #alternatives: » ⟩ › 🢒
+        self.dec_button = Button(label="‹") #alternatives: « ⟨ ‹ 🢐
+        self.button_group = ButtonGroup(children=[self.dec_button, self.inc_button])
 
         # default attributes
 
@@ -518,10 +514,10 @@ class SpinnerBox(Box):
         if self.image_element is not None:
             # kwargs['children'] = [self.image_element, self.txt_box, self.dec_button, self.inc_button]
             # yet another box required to avoid space between image element and edit box
-            self.inner_box = Box(children=[self.txt_box, self.dec_button, self.inc_button])
+            self.inner_box = Box(children=[self.txt_box, self.button_group])
             kwargs['children'] = [self.image_element, self.inner_box]
         else:
-            kwargs['children'] = [self.txt_box, self.dec_button, self.inc_button]
+            kwargs['children'] = [self.txt_box, self.button_group]
         kwargs.update(user_kwargs or {})
         
         # init Box-control
@@ -539,8 +535,10 @@ class SpinnerBox(Box):
         if self.image_element is not None:
             image_args = { key: kwargs.pop(key) for key in ['label', 'show_label', 'image', 'image_mso', 'show_image'] if key in kwargs }
             image_args.update(button_args)
-            if type(self.image_element) == SplitButton:
+            if isinstance(self.image_element, SplitButton):
                 self.image_element.children[0].set_control_attributes(**image_args)
+            elif isinstance(self.image_element, SplitButtonFixed):
+                self.image_element.children[0].children[0].set_control_attributes(**image_args)
             else:
                 self.image_element.set_control_attributes(**image_args)
             # avoid space before textbox
@@ -565,26 +563,29 @@ class SpinnerBox(Box):
         box_id = self.attributes.id
         if self.image_element is not None:
             self.image_element['id']   = box_id + '_image'
-            self.inner_box['id']       = box_id + '_innerbox'
+            self.inner_box['id']       = box_id + '_ibox'
         self.txt_box['id']    = box_id + '_text'
-        self.inc_button['id'] = box_id + '_increment'
-        self.dec_button['id'] = box_id + '_decrement'
+        self.inc_button['id'] = box_id + '_inc'
+        self.dec_button['id'] = box_id + '_dec'
+        self.button_group['id'] = box_id + '_bgrp'
 
     def add_callback(self, callback):
-        if callback.callback_type.python_name == 'increment':
+        if callback.callback_type == CallbackTypes.increment:
             # pass increment-callback to button
-            self.inc_button.add_callback(callback, callback_type=CallbackTypes.on_action)
-        elif callback.callback_type.python_name == 'decrement':
+            callback.set_callback_type(CallbackTypes.on_action)
+            self.inc_button.add_callback(callback)
+        elif callback.callback_type == CallbackTypes.decrement:
             # pass decrement-callback to button
-            self.dec_button.add_callback(callback, callback_type=CallbackTypes.on_action)
-        elif callback.callback_type.python_name in ['get_enabled', 'get_visible']:
+            callback.set_callback_type(CallbackTypes.on_action)
+            self.dec_button.add_callback(callback)
+        elif callback.callback_type in [CallbackTypes.get_enabled, CallbackTypes.get_visible]:
             # pass enabled/visible-callback to all children
             self.inc_button.add_callback(callback)
             self.dec_button.add_callback(callback)
             self.txt_box.add_callback(callback)
             if self.image_element is not None:
                 self.image_element.add_callback(callback)
-        elif self.image_element is not None and callback.callback_type.python_name in ['on_action', 'on_toggle_action']:
+        elif self.image_element is not None and callback.callback_type in [CallbackTypes.on_action, CallbackTypes.on_toggle_action]:
             # pass on_action to image element
             self.image_element.add_callback(callback)
         else:
@@ -680,7 +681,7 @@ class RoundingSpinnerBox(SpinnerBox):
         ''' initializes the increment- and decrement-callback, if the editbox's on_change- and get_text-callback are defined.
             adds self._inc and self._dec as callbacks to the inc/dec-button
         '''
-        if not ( self.txt_box._callbacks.has_key('get_text') and self.txt_box._callbacks.has_key('on_change') ):
+        if not ( 'get_text' in self.txt_box._callbacks and 'on_change' in self.txt_box._callbacks ):
             return
 
         invocation_context = self.txt_box._callbacks['on_change'].invocation_context.copy()
@@ -691,7 +692,7 @@ class RoundingSpinnerBox(SpinnerBox):
         super(RoundingSpinnerBox, self).add_callback( Callback(self._inc, CallbackTypes.increment, invocation_context) )
 
         # add reset-Callback is image_element is button and does not have on_action-Callback already
-        if self.image_element is not None and type(self.image_element) == Button and not self.image_element._callbacks.has_key('on_action'):
+        if self.image_element is not None and isinstance(self.image_element, Button) and 'on_action' not in self.image_element._callbacks:
             super(RoundingSpinnerBox, self).add_callback( Callback(self._res, CallbackTypes.on_action, invocation_context) )
 
 
@@ -703,7 +704,7 @@ class RoundingSpinnerBox(SpinnerBox):
         if self.rounding_factor != None:
             return round(float(value) / self.rounding_factor) * self.rounding_factor
         elif self.round_at != None:
-            return round(value, self.round_at)
+            return round(float(value), self.round_at)
         else:
             return value
 
@@ -746,11 +747,11 @@ class RoundingSpinnerBox(SpinnerBox):
         
         if value is None:
             return None
-        elif type(value) is tuple:
+        elif isinstance(value, tuple):
             #tuple with 2 values ambiguous bool and fallback value
             assert len(value) == 2, "Ambiguity tuple must have exactly two values"
             ambiguous, value = value
-        elif type(value) is list:
+        elif isinstance(value, list):
             # list means ambiguous values
             value_0 = value[0]
             if not value or value_0 is None:
@@ -775,7 +776,7 @@ class RoundingSpinnerBox(SpinnerBox):
         ''' general convert-function using the control's convert-setting.
             converts the value before calling on_change-callback
         '''
-        if type(value) == str:
+        if isinstance(value, str):
             try:
                 value = float(value.replace(',', '.'))
             except:
@@ -910,18 +911,18 @@ class ColorGallery(Gallery):
         brightness = 0
 
         # get rgb-value and brightness
-        if index/10 == 0:
+        if index//10 == 0:
             # theme colors
             color = self.get_theme_color(context, index)
             rgb, themecolor = color.rgb, color.theme_index
-        elif index/10 < 6:
+        elif index//10 < 6:
             # theme color shades
-            color = self.get_theme_color_shade(context, index, index/10-1)
+            color = self.get_theme_color_shade(context, index, index//10-1)
             rgb, themecolor, brightness = color.rgb, color.theme_index, color.brightness
-        elif index/10 == 6:
+        elif index//10 == 6:
             # standard colors
             rgb = self.get_standard_color(index % 10)
-        elif index/10 == 7:
+        elif index//10 == 7:
             # recent colors
             rgb = self.get_recent_color(context, index % 10)
 
@@ -937,13 +938,13 @@ class ColorGallery(Gallery):
         '''
             Returns the label for the given gallery-item-index.
         '''
-        if index/10 == 0:
+        if index//10 == 0:
             return self.get_theme_color_name(context, index)
-        elif index/10 < 6:
-            return self.get_theme_color_shade_name(context, index, index/10-1)
-        elif index/10 == 6:
+        elif index//10 < 6:
+            return self.get_theme_color_shade_name(context, index, index//10-1)
+        elif index//10 == 6:
             return self.get_standard_color_name(index % 10)
-        elif index/10 == 7:
+        elif index//10 == 7:
             return 'recently used color'
         else:
             return ''
@@ -1201,8 +1202,11 @@ class MSOFactory(object):
         Example: MSOFactory.ShapesInsertGallery(control_type='control', show_label=False) '''
     def __init__(self, **kwargs):
         self._attributes = kwargs
+        self._splitbutton_fix = kwargs.pop('splitbutton_fix', False)
     
     def __getattr__(self, attr):
+        if self._splitbutton_fix:
+            return ButtonGroup(children=[MSOControl(id_mso=attr, **self._attributes)])
         return MSOControl(id_mso=attr, **self._attributes)
 
 
@@ -1213,6 +1217,10 @@ class MSOFactoryAccess(object):
         self.group   = MSOFactory(control_type='group')
         self.control = MSOFactory(control_type='control', show_label=False)
         self.button  = MSOFactory(control_type='button', show_label=False)
+
+        # this is a workaround for windows 11: splitbuttons without label have a much bigger size than with zero-width-space label (only works for some controls)
+        # self.splitbutton  = MSOFactory(control_type='control', label="\u200b", show_label=True)
+        self.splitbutton  = MSOFactory(control_type='control', show_label=False, splitbutton_fix=True)
     
     def __getattr__(self, attr):
         return MSOFactory(control_type=attr)
@@ -1251,7 +1259,7 @@ def convert_value_to_string(v, key=None):
         return 'true'
     elif v is False:
         return 'false'
-    elif isinstance(v, (str, unicode)):
+    elif isinstance(v, str):
         return escape_field(v, key)
     else:
         try:
@@ -1280,6 +1288,6 @@ def convert_value_to_string(v, key=None):
     # return ''.join(parts_new)
 
 def convert_dict_to_ribbon_xml_style(d):
-    return {_h.snake_to_lower_camelcase(k):convert_value_to_string(v, k) for k, v in d.iteritems()}
+    return {_h.snake_to_lower_camelcase(k):convert_value_to_string(v, k) for k, v in d.items()}
 
 

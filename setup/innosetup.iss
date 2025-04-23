@@ -4,8 +4,8 @@
 #define MyAppName "BKT-Toolbox"
 #define MyAppPublisher "Business Kasper"
 #define MyAppURL "https://www.bkt-toolbox.de"
-#define MyAppVersion "2.7.5"
-#define MyReleaseDate "230830"
+#define MyAppVersion "3.0.1"
+#define MyReleaseDate "240110"
 ;GetDateTimeString('yymmdd', '', '');
 
 [Setup]
@@ -102,12 +102,12 @@ Name: "{group}\BKT-AddIn neu registrieren"; Filename: "{app}\installer\install.b
 Name: "{group}\BKT-Ordner öffnen"; Filename: "{app}\"
 
 [Run]
-Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --migrate 2.6"; WorkingDir: "{app}\installer"; StatusMsg: "Alte Konfiguration migrieren..."; Flags: runasoriginaluser runhidden
+; Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --migrate 2.6"; WorkingDir: "{app}\installer"; StatusMsg: "Alte Konfiguration migrieren..."; Flags: runasoriginaluser runhidden
 
-Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install install"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: not (excel or visio)
-Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install install --apps excel"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: excel and not visio
-Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install install --apps visio"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: visio and not excel
-Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install install --apps excel visio"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser; Components: excel and visio
+Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install install -s"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser runhidden; Components: not (excel or visio)
+Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install install -s --apps excel"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser runhidden; Components: excel and not visio
+Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install install -s --apps visio"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser runhidden; Components: visio and not excel
+Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install install -s --apps excel visio"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn einrichten..."; Flags: runasoriginaluser runhidden; Components: excel and visio
 
 Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --add_folders features\ppt_customformats"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint Benutzerdef. Formate aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\customformats
 Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --add_folders features\ppt_consolidation_split"; WorkingDir: "{app}\installer"; StatusMsg: "PowerPoint-Konsolidierungstool aktivieren..."; Flags: runasoriginaluser runhidden; Components: powerpoint\consol

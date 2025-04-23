@@ -4,7 +4,7 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 
@@ -77,7 +77,7 @@ class SelectWindow(bkt.ui.WpfWindowAbstract):
     
     def shapes_select(self, sender, event):
         logging.debug("SelectWindow.shapes_select")
-        keys = [k for k,v in self._vm._shape_keys.iteritems() if v==True]
+        keys = [k for k,v in self._vm._shape_keys.items() if v==True]
         self._model.selectByKeys(self._context, keys, self._master_shapes, True)
     
     def shapes_select_close(self, sender, event):

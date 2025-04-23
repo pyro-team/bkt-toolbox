@@ -2,7 +2,7 @@
 
 # https://fontawesome.com/v4.7.0/
 
-from __future__ import absolute_import
+
 
 import os.path
 import io
@@ -28,9 +28,9 @@ with io.open(file, 'r', encoding='utf-8') as json_file:
         if not "tags" in icon["icon"]:
             continue
         if i < 250:
-            symbols1.append(("IcoMoon-Free", unichr(int(icon['properties']['code'])), icon['properties']['name'], ", ".join(icon['icon']['tags'])))
+            symbols1.append(("IcoMoon-Free", chr(int(icon['properties']['code'])), icon['properties']['name'], ", ".join(icon['icon']['tags'])))
         else:
-            symbols2.append(("IcoMoon-Free", unichr(int(icon['properties']['code'])), icon['properties']['name'], ", ".join(icon['icon']['tags'])))
+            symbols2.append(("IcoMoon-Free", chr(int(icon['properties']['code'])), icon['properties']['name'], ", ".join(icon['icon']['tags'])))
         i += 1
 
 

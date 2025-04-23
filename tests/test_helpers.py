@@ -5,7 +5,7 @@ Created on 13.05.2020
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -23,15 +23,15 @@ class IterTools(unittest.TestCase):
         self.assertTrue(helpers.iterable("ABCD"))
         self.assertTrue(helpers.iterable([]))
         self.assertTrue(helpers.iterable([1, 2, 3]))
-        self.assertTrue(helpers.iterable(range(3)))
+        self.assertTrue(helpers.iterable(list(range(3))))
         self.assertTrue(helpers.iterable(x for x in range(3)))
 
     def test_flatten(self):
-        self.assertListEqual( list(helpers.flatten([range(2), range(2,4)])), [0,1,2,3] )
-        self.assertListEqual( list(helpers.flatten(range(i) for i in range(4))), [0,0,1,0,1,2] )
+        self.assertListEqual( list(helpers.flatten([list(range(2)), list(range(2,4))])), [0,1,2,3] )
+        self.assertListEqual( list(helpers.flatten(list(range(i)) for i in range(4))), [0,0,1,0,1,2] )
 
     def test_all_equal(self):
-        self.assertFalse(helpers.all_equal( range(2) ))
+        self.assertFalse(helpers.all_equal( list(range(2)) ))
         self.assertFalse(helpers.all_equal( [1,1,0,1,1] ))
         self.assertFalse(helpers.all_equal( i<3 for i in range(4) ))
         self.assertFalse(helpers.all_equal( i>0 for i in range(4) ))
@@ -43,8 +43,8 @@ class IterTools(unittest.TestCase):
         self.assertTrue(helpers.all_equal( "ABC" for _ in range(4) ))
 
     def test_nth(self):
-        self.assertEqual(helpers.nth(range(4,8), 2), 6)
-        self.assertEqual(helpers.nth(range(4,8), 25), None)
+        self.assertEqual(helpers.nth(list(range(4,8)), 2), 6)
+        self.assertEqual(helpers.nth(list(range(4,8)), 25), None)
         self.assertEqual(helpers.nth(["a", "b", "c"], 1, "x"), "b")
         self.assertEqual(helpers.nth(["a", "b", "c"], 5, "x"), "x")
 
@@ -54,7 +54,7 @@ class IterTools(unittest.TestCase):
         self.assertTupleEqual(helpers.get_ambiguity_tuple(["a","a","a"]), (False, "a"))
         self.assertTupleEqual(helpers.get_ambiguity_tuple(["b","a","a"]), (True, "b"))
 
-        self.assertTupleEqual(helpers.get_ambiguity_tuple(range(2,6)), (True, 2))
+        self.assertTupleEqual(helpers.get_ambiguity_tuple(list(range(2,6))), (True, 2))
         self.assertTupleEqual(helpers.get_ambiguity_tuple(i>0 for i in range(2,6)), (False, True))
 
 
@@ -107,7 +107,7 @@ class CacheTest(unittest.TestCase):
         self.cache["testvalue"] = set([1,2,3])
         self.assertSetEqual(self.cache["testvalue"], set([1,2,3]))
 
-        ustring = u"ÖÄÜß 😘 \r\n\tABC"
+        ustring = "ÖÄÜß 😘 \r\n\tABC"
         self.cache["unicode_value"] = ustring
         self.cache[ustring] = "unicode_key"
         self.cache.sync()
@@ -117,7 +117,7 @@ class CacheTest(unittest.TestCase):
     def test_cache_openclose(self):
         self.cache["testvalue"] = set([1,2,3])
 
-        ustring = u"ÖÄÜß 😘 \r\n\tABC"
+        ustring = "ÖÄÜß 😘 \r\n\tABC"
         self.cache["unicode_value"] = ustring
         self.cache[ustring] = "unicode_key"
         

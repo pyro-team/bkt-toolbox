@@ -5,152 +5,9 @@ Created on 06.07.2016
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
-from threading import Thread
-
 import bkt
 import bkt.library.powerpoint as pplib
 
-# import fontawesome
-
-
-
-class TextPlaceholder(object):
-    recent_placeholder = bkt.settings.get("toolbox.recent_placeholder", "…")
-    #labels for counter, but max 0..25
-    # label_a = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-    # label_A = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-    # label_I = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV', 'XXVI']
-
-    @staticmethod
-    def set_text_for_shape(textframe, text=None): #None=delete text
-        if text is not None:
-            if type(text) == list:
-                if text[0] != '':
-                    textframe.TextRange.InsertBefore( text[0] )
-                if text[1] != '':
-                    textframe.TextRange.InsertAfter( text[1] )
-            else:
-                textframe.TextRange.Text = text
-        else:
-            textframe.TextRange.Delete()
-
-    @classmethod
-    def text_truncate(cls, shapes):
-        for textframe in pplib.iterate_shape_textframes(shapes):
-            cls.set_text_for_shape(textframe, None)
-
-    @classmethod
-    def text_replace(cls, shapes, presentation):
-        from string import Template
-        from formatter import AbstractFormatter, DumbWriter
-
-        input_text = bkt.ui.show_user_input('''Text eingeben, der auf alle Shapes angewendet werden soll. Es stehen folgende Platzhalter zur Verfügung:
-
-${text}:\t\tSetzt bestehenden Shape-Text ein
-$text_len:\tAnzahl Zeichen im bestehenden Text
-$counter:\tNummerierung (Fortsetzung wenn erstes Shape eine Zahl enthält)
-$counter_a/A:\tNummerierung mit Klein- bzw. Großbuchstaben
-$counter_i/I:\tNummerierung mit römischen Ziffern (bspw. xi bzw. XI)''', "Text ersetzen", cls.recent_placeholder, True)
-
-        if input_text is None:
-            return
-        cls.recent_placeholder = bkt.settings["toolbox.recent_placeholder"] = input_text
-
-        #get very first textframe to define language and counter start
-        first_textframe = next(iter(pplib.iterate_shape_textframes(shapes)))
-
-        #if first shape has a number, use it as counter start
-        try:
-            count_start = int(first_textframe.TextRange.Text)-1
-        except (ValueError, TypeError):
-            count_start = 0
-
-        template = Template(input_text)
-        count_formatter = AbstractFormatter(DumbWriter())
-
-        for i,textframe in enumerate(pplib.iterate_shape_textframes(shapes), start=1):
-            placeholders = {
-                "counter":   count_formatter.format_counter('1', i+count_start),
-                "counter_a": count_formatter.format_counter('a', i),
-                "counter_A": count_formatter.format_counter('A', i),
-                "counter_i": count_formatter.format_counter('i', i),
-                "counter_I": count_formatter.format_counter('I', i),
-
-                "text":      "[$text]",
-                "text_len":  len(textframe.TextRange.Text),
-            }
-
-            # run template engine
-            new_text = template.safe_substitute(placeholders)
-            
-            # check if $text placeholder was present
-            placeholder_count = new_text.count("[$text]")
-            if placeholder_count > 1:
-                #replace placeholder with text, might loose existing formatting
-                new_text = new_text.replace("[$text]", textframe.TextRange.Text)
-            elif placeholder_count == 1:
-                #only one occurence of text-placeholder, make use of InsertBefore/After to keep formatting
-                new_text = new_text.split("[$text]", 1)
-            
-            cls.set_text_for_shape(textframe, new_text)
-
-    @classmethod
-    def text_tbd(cls, shapes):
-        for textframe in pplib.iterate_shape_textframes(shapes):
-            cls.set_text_for_shape(textframe, "tbd")
-
-    @classmethod
-    def text_counter(cls, shapes):
-        for counter,textframe in enumerate(pplib.iterate_shape_textframes(shapes), start=1):
-            cls.set_text_for_shape(textframe, str(counter))
-
-    @classmethod
-    def text_lorem(cls, shapes):
-        lorem_text = '''Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.'''
-        lorem_text = bkt.helpers.endings_to_windows(lorem_text)
-
-        for textframe in pplib.iterate_shape_textframes(shapes):
-            cls.set_text_for_shape(textframe, lorem_text)
-
-    @staticmethod
-    def remove_placeholders(slides):
-        for sld in slides:
-            for plh in list(iter(sld.Shapes.Placeholders)):
-                if plh.HasTextFrame == -1 and plh.TextFrame2.HasText == 0:
-                    #placeholder is a text placeholder and has no text. note: placeholder can also be a picture, table or diagram without text!
-                    plh.Delete()
-
-
-class Calendar(object):
-    @classmethod
-    def get_calendar(cls):
-        pass
-        # import calendar
-        # from itertools import count, cycle
-
-        # daynames_iter   = cycle(calendar.day_name)
-        # monthnames_iter = cycle(calendar.month_name[1:])
-
-        # dayabbrs_iter   = cycle(calendar.day_abbr)
-        # monthabbrs_iter = cycle(calendar.month_abbr[1:])
-
-        # "day_names":    daynames_iter.next(),
-        # "month_names":  monthnames_iter.next(),
-        # "day_abbrs":    dayabbrs_iter.next(),
-        # "month_abbrs":  monthabbrs_iter.next(),
-
-        # with pplib.override_locale(presentation.DefaultLanguageID):
-        # with pplib.override_locale(first_textframe.TextRange.LanguageID):
-
-    #create 1 month view like outlook
-    #create week table
-    #create 1 month mini calendar
-    #create month-> calendar week rows
-    #datumsfeld? (WPF Calendar, Datepicker)
 
 
 class Characters(object):
@@ -167,111 +24,111 @@ class Characters(object):
     ### TYPOGRAPHY ###
     @staticmethod
     def add_protected_hyphen(selection):
-        selection.TextRange2.text=u'\xad'
+        selection.TextRange2.text='\xad'
 
     @staticmethod
     def add_protected_space(selection):
-        selection.TextRange2.text=u'\xa0'
+        selection.TextRange2.text='\xa0'
 
     @staticmethod
     def add_protected_narrow_space(selection):
-        selection.TextRange2.text=u'\u202F'
+        selection.TextRange2.text='\u202F'
 
     ### TYPOGRAPHY ###
     typography = [
-        (None, u'\xbb', "Linkes Guillemets"),
-        (None, u'\xab', "Rechtes Guillemets"),
-        (None, u'\xb6', "Paragraph"),
-        (None, u'\u2026', "Auslassungspunkte (Ellipse)", "Auslassungspunkte sind drei kurz aufeinanderfolgende Punkte. Meistens zeigen diese eine Ellipse (Auslassung eines Textteils) an."),
-        (None, u'\u2013', "Gedankenstrich (Halbgeviertstrich/En-Dash)", "Ein Gedankenstrich (sog. Halbgeviertstrich) wie er von Office teilweise automatisch gesetzt wird. Verwendet als Bis-Strich oder Streckenstrich."),
-        (None, u'\u2014', "Waagerechter Strich (Geviertstrich/Em-Dash)"),
-        (None, u'\u2020', "Kreuz"),
-        (None, u'\u2021', "Doppelkreuz"),
-        (None, u'\u25A0', "Schwarzes Quadrat"),
-        (None, u'\u25A1', "Weißes Quadrat"),
-        (None, u'\u2423', "Leerzeichen-Symbol"),
-        (None, u'\xa9',   "Copyright"),
-        (None, u'\xae',   "Registered Trade Mark"),
-        (None, u'\u2122', "Trade Mark"),
-        (None, u'\u2030', "Per mil"),
-        (None, u'\u20AC', "Euro"),
-        (None, u'\u1E9E', "Großes Eszett"),
+        (None, '\xbb', "Linkes Guillemets"),
+        (None, '\xab', "Rechtes Guillemets"),
+        (None, '\xb6', "Paragraph"),
+        (None, '\u2026', "Auslassungspunkte (Ellipse)", "Auslassungspunkte sind drei kurz aufeinanderfolgende Punkte. Meistens zeigen diese eine Ellipse (Auslassung eines Textteils) an."),
+        (None, '\u2013', "Gedankenstrich (Halbgeviertstrich/En-Dash)", "Ein Gedankenstrich (sog. Halbgeviertstrich) wie er von Office teilweise automatisch gesetzt wird. Verwendet als Bis-Strich oder Streckenstrich."),
+        (None, '\u2014', "Waagerechter Strich (Geviertstrich/Em-Dash)"),
+        (None, '\u2020', "Kreuz"),
+        (None, '\u2021', "Doppelkreuz"),
+        (None, '\u25A0', "Schwarzes Quadrat"),
+        (None, '\u25A1', "Weißes Quadrat"),
+        (None, '\u2423', "Leerzeichen-Symbol"),
+        (None, '\xa9',   "Copyright"),
+        (None, '\xae',   "Registered Trade Mark"),
+        (None, '\u2122', "Trade Mark"),
+        (None, '\u2030', "Per mil"),
+        (None, '\u20AC', "Euro"),
+        (None, '\u1E9E', "Großes Eszett"),
     ]
 
     ### MATH ###
     math = [
-        (None, u'\xb1',   "Plus-Minus-Zeichen", "Ein Plus-Minus-Zeichen einfügen."),
-        (None, u'\u2212', "Echtes Minuszeichen", "Ein echtes Minuszeichen (kein Bindestrich) einfügen."),
-        (None, u'\xd7',   "Echtes Malzeichen (Kreuz)", "Ein echtes Kreuz-Multiplikatorzeichen einfügen."),
-        (None, u'\u22c5', "Echtes Malzeichen (Punkt)", "Ein echtes Punkt-Multiplikatorzeichen einfügen."),
-        (None, u'\u2044', "Echter Bruchstrich", "Einen echten Bruchstrich (ähnlich Schrägstrich) einfügen."),
-        (None, u'\u2248', "Ungefähr Gleich", "Ein Ungefähr Gleich Zeichen einfügen."),
-        (None, u'\u2260', "Ungleich", "Ein Ungleich-Zeichen einfügen."),
-        (None, u'\u2206', "Delta", "Ein Deltazeichen einfügen."), #alt: \u0394 griechisches Delta
-        (None, u'\u2300', "Mittelwert/Durchmesser", "Ein Durchmesserzeichen bzw. Durchschnittszeichen einfügen."), #alt: \xD8 leere menge
-        (None, u'\u2211', "Summenzeichen", "Ein Summenzeichen einfügen."),
-        (None, u'\u221A', "Wurzelzeichen", "Ein Wurzelzeichen einfügen."),
-        (None, u'\u221E', "Unendlich-Zeichen", "Ein Unendlich-Zeichen (liegende Acht) einfügen."),
-        (None, u'\u2264', "Kleiner-Gleich", "Ein kleiner oder gleich Zeichen einfügen."),
-        (None, u'\u2265', "Größer-Gleich", "Ein größer oder gleich Zeichen einfügen."),
+        (None, '\xb1',   "Plus-Minus-Zeichen", "Ein Plus-Minus-Zeichen einfügen."),
+        (None, '\u2212', "Echtes Minuszeichen", "Ein echtes Minuszeichen (kein Bindestrich) einfügen."),
+        (None, '\xd7',   "Echtes Malzeichen (Kreuz)", "Ein echtes Kreuz-Multiplikatorzeichen einfügen."),
+        (None, '\u22c5', "Echtes Malzeichen (Punkt)", "Ein echtes Punkt-Multiplikatorzeichen einfügen."),
+        (None, '\u2044', "Echter Bruchstrich", "Einen echten Bruchstrich (ähnlich Schrägstrich) einfügen."),
+        (None, '\u2248', "Ungefähr Gleich", "Ein Ungefähr Gleich Zeichen einfügen."),
+        (None, '\u2260', "Ungleich", "Ein Ungleich-Zeichen einfügen."),
+        (None, '\u2206', "Delta", "Ein Deltazeichen einfügen."), #alt: \u0394 griechisches Delta
+        (None, '\u2300', "Mittelwert/Durchmesser", "Ein Durchmesserzeichen bzw. Durchschnittszeichen einfügen."), #alt: \xD8 leere menge
+        (None, '\u2211', "Summenzeichen", "Ein Summenzeichen einfügen."),
+        (None, '\u221A', "Wurzelzeichen", "Ein Wurzelzeichen einfügen."),
+        (None, '\u221E', "Unendlich-Zeichen", "Ein Unendlich-Zeichen (liegende Acht) einfügen."),
+        (None, '\u2264', "Kleiner-Gleich", "Ein kleiner oder gleich Zeichen einfügen."),
+        (None, '\u2265', "Größer-Gleich", "Ein größer oder gleich Zeichen einfügen."),
     ]
 
     ### LIST ###
     lists = [
-        (None, u'\u2022', "Aufzählungszeichen (Kreis)", "Ein Aufzählungszeichen (schwarzer Punkt) einfügen."),
-        (None, u'\u2023', "Aufzählungszeichen (Dreieck)", "Ein Aufzählungszeichen (schwarzes Dreieck) einfügen."),
-        (None, u'\u25AA', "Aufzählungszeichen (Quadrat)", "Ein Aufzählungszeichen (schwarzes Quadrat) einfügen."),
-        (None, u'\u2043', "Aufzählungszeichen (Strich)", "Ein Aufzählungszeichen (Bindestrich) einfügen."),
-        (None, u'\u2212', "Echtes Minuszeichen", "Ein echtes Minuszeichen (kein Bindestrich) einfügen."),
-        (None, u'\x2b',   "Pluszeichen", "Ein Pluszeichen einfügen."),
-        (None, u'\u2610', "Box leer"),
-        (None, u'\u2611', "Box Häkchen"),
-        (None, u'\u2612', "Box Kreuzchen"),
-        ("Wingdings", u'J', "Wingdings Smiley gut"),
-        ("Wingdings", u'K', "Wingdings Smiley neutral"),
-        ("Wingdings", u'L', "Wingdings Smiley schlecht"),
-        (None, u'\u2713', "Häkchen", "Ein Häkchen-Symbol einfügen."),
-        (None, u'\u2714', "Häkchen fett", "Ein fettes Häkchen-Symbol einfügen."),
-        (None, u'\u2717', "Kreuzchen geschwungen", "Ein geschwungenes Kreuzchen (passend zu Häkchen) einfügen."),
-        (None, u'\u2718', "Kreuzchen geschwungen fett", "Ein fettes geschwungenes Kreuzchen (passend zu Häkchen) einfügen."),
-        (None, u'\u2715', "Kreuzchen symmetrisch", "Ein symmetrisches Kreuzchen (ähnlich Malzeichen) einfügen."),
-        (None, u'\u2716', "Kreuzchen symmetrisch fett", "Ein fettes symmetrisches Kreuzchen (ähnlich Malzeichen) einfügen."),
-        (None, u'\u2605', "Stern schwarz"),
-        (None, u'\u2606', "Stern weiß"),
-        (None, u'\u261B', "Zeigefinger schwarz"),
-        (None, u'\u261E', "Zeigefinger weiß"),
-        ("Wingdings", u'C', "Wingdings Thumbs-Up"),
-        ("Wingdings", u'D', "Wingdings Thumbs-Down"),
+        (None, '\u2022', "Aufzählungszeichen (Kreis)", "Ein Aufzählungszeichen (schwarzer Punkt) einfügen."),
+        (None, '\u2023', "Aufzählungszeichen (Dreieck)", "Ein Aufzählungszeichen (schwarzes Dreieck) einfügen."),
+        (None, '\u25AA', "Aufzählungszeichen (Quadrat)", "Ein Aufzählungszeichen (schwarzes Quadrat) einfügen."),
+        (None, '\u2043', "Aufzählungszeichen (Strich)", "Ein Aufzählungszeichen (Bindestrich) einfügen."),
+        (None, '\u2212', "Echtes Minuszeichen", "Ein echtes Minuszeichen (kein Bindestrich) einfügen."),
+        (None, '\x2b',   "Pluszeichen", "Ein Pluszeichen einfügen."),
+        (None, '\u2610', "Box leer"),
+        (None, '\u2611', "Box Häkchen"),
+        (None, '\u2612', "Box Kreuzchen"),
+        ("Wingdings", 'J', "Wingdings Smiley gut"),
+        ("Wingdings", 'K', "Wingdings Smiley neutral"),
+        ("Wingdings", 'L', "Wingdings Smiley schlecht"),
+        (None, '\u2713', "Häkchen", "Ein Häkchen-Symbol einfügen."),
+        (None, '\u2714', "Häkchen fett", "Ein fettes Häkchen-Symbol einfügen."),
+        (None, '\u2717', "Kreuzchen geschwungen", "Ein geschwungenes Kreuzchen (passend zu Häkchen) einfügen."),
+        (None, '\u2718', "Kreuzchen geschwungen fett", "Ein fettes geschwungenes Kreuzchen (passend zu Häkchen) einfügen."),
+        (None, '\u2715', "Kreuzchen symmetrisch", "Ein symmetrisches Kreuzchen (ähnlich Malzeichen) einfügen."),
+        (None, '\u2716', "Kreuzchen symmetrisch fett", "Ein fettes symmetrisches Kreuzchen (ähnlich Malzeichen) einfügen."),
+        (None, '\u2605', "Stern schwarz"),
+        (None, '\u2606', "Stern weiß"),
+        (None, '\u261B', "Zeigefinger schwarz"),
+        (None, '\u261E', "Zeigefinger weiß"),
+        ("Wingdings", 'C', "Wingdings Thumbs-Up"),
+        ("Wingdings", 'D', "Wingdings Thumbs-Down"),
         ### Default list symbol:
         # ("Arial",       u'\u2022', "Arial Bullet"),
-        ("Courier New", u'o', "Courier New Kreis"),
-        ("Wingdings",   u'\xa7', "Wingdings Rechteck"),
-        ("Symbol",      u'-', "Symbol Strich"),
-        ("Wingdings",   u'v', "Wingdings Stern"),
-        ("Wingdings",   u'\xd8', "Wingdings Pfeil"),
-        ("Wingdings",   u'\xfc', "Wingdings Häckchen"),
+        ("Courier New", 'o', "Courier New Kreis"),
+        ("Wingdings",   '\xa7', "Wingdings Rechteck"),
+        ("Symbol",      '-', "Symbol Strich"),
+        ("Wingdings",   'v', "Wingdings Stern"),
+        ("Wingdings",   '\xd8', "Wingdings Pfeil"),
+        ("Wingdings",   '\xfc', "Wingdings Häckchen"),
     ]
 
     ### ARROWS ###
     arrows = [
-        (None, u'\u2192', "Pfeil rechts"),
-        (None, u'\u2190', "Pfeil links"),
-        (None, u'\u2191', "Pfeil oben"),
-        (None, u'\u2193', "Pfeil unten"),
-        (None, u'\u2194', "Pfeil links und rechts"),
-        (None, u'\u21C4', "Pfeil links und rechts"),
-        (None, u'\u2197', "Pfeil rechts oben"),
-        (None, u'\u2196', "Pfeil links oben"),
-        (None, u'\u2198', "Pfeil rechts unten"),
-        (None, u'\u2199', "Pfeil links unten"),
-        (None, u'\u2195', "Pfeil oben und unten"),
-        (None, u'\u21C5', "Pfeil oben und unten"),
-        (None, u'\u21E8', "Weißer Pfeil rechts"),
-        (None, u'\u21E6', "Weißer Pfeil links"),
-        (None, u'\u21E7', "Weißer Pfeil oben"),
-        (None, u'\u21E9', "Weißer Pfeil unten"),
-        (None, u'\u21AF', "Blitz"),
-        (None, u'\u21BA', "Kreispfeil gegen den Uhrzeigersinn"),
+        (None, '\u2192', "Pfeil rechts"),
+        (None, '\u2190', "Pfeil links"),
+        (None, '\u2191', "Pfeil oben"),
+        (None, '\u2193', "Pfeil unten"),
+        (None, '\u2194', "Pfeil links und rechts"),
+        (None, '\u21C4', "Pfeil links und rechts"),
+        (None, '\u2197', "Pfeil rechts oben"),
+        (None, '\u2196', "Pfeil links oben"),
+        (None, '\u2198', "Pfeil rechts unten"),
+        (None, '\u2199', "Pfeil links unten"),
+        (None, '\u2195', "Pfeil oben und unten"),
+        (None, '\u21C5', "Pfeil oben und unten"),
+        (None, '\u21E8', "Weißer Pfeil rechts"),
+        (None, '\u21E6', "Weißer Pfeil links"),
+        (None, '\u21E7', "Weißer Pfeil oben"),
+        (None, '\u21E9', "Weißer Pfeil unten"),
+        (None, '\u21AF', "Blitz"),
+        (None, '\u21BA', "Kreispfeil gegen den Uhrzeigersinn"),
     ]
 
     @staticmethod
@@ -290,9 +147,17 @@ class Characters(object):
             )
 
     @classmethod
-    def get_text_menu(cls):
-        # import fontawesome
+    def get_text_fontawesome_exclusion(cls):
+        from .fontawesome import Fontawesome
 
+        return bkt.ribbon.Menu(
+                xmlns="http://schemas.microsoft.com/office/2009/07/customui",
+                id=None,
+                children=Fontawesome.get_exclusions()
+            )
+        
+    @classmethod
+    def get_text_unicodefont(cls):
         def _unicode_font_button(font):
             return bkt.ribbon.ToggleButton(
                 label=font,
@@ -300,9 +165,28 @@ class Characters(object):
                 supertip=font+" als Unicode-Schriftart verwenden.",
                 on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(font)),
                 get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font == font),
-                get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image(font, u"\u2192"))
+                get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image(font, "\u2192"))
             )
 
+        return bkt.ribbon.Menu(
+                xmlns="http://schemas.microsoft.com/office/2009/07/customui",
+                id=None,
+                children=[
+                            bkt.ribbon.ToggleButton(
+                                label='Theme-Schriftart (Standard)',
+                                screentip="Unicode-Schrift entspricht Theme-Schriftart",
+                                supertip="Es wird keine spezielle Unicode-Schriftart verwendet, sondern die Standard-Schriftart des Themes.",
+                                on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(None)),
+                                get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font is None),
+                            ),
+                        ] + [
+                            _unicode_font_button(font)
+                            for font in pplib.PPTSymbolsSettings.UNICODE_FONTS
+                        ]
+            )
+
+    @classmethod
+    def get_text_menu(cls):
         recent_symbols = pplib.PPTSymbolsGalleryRecent(
             id="symbols_recent_gallery",
             label="Zuletzt verwendet",
@@ -338,7 +222,7 @@ class Characters(object):
                         supertip='Ein geschütztes Leerzeichen erlaubt keinen Zeilenumbruch.',
                         on_action=bkt.Callback(cls.add_protected_space, selection=True),
                         get_enabled = bkt.Callback(cls.text_selection, selection=True),
-                        get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", u"\u23B5")) #alt: 2423
+                        get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", "\u23B5")) #alt: 2423
                     ),
                     bkt.ribbon.Button(
                         id='symbols_add_protected_narrow_space',
@@ -346,7 +230,7 @@ class Characters(object):
                         supertip='Ein schmales geschütztes Leerzeichen erlaubt keinen Zeilenumbruch und ist bspw. zwischen Buchstaben von Abkürzungen zu verwenden.',
                         on_action=bkt.Callback(cls.add_protected_narrow_space, selection=True),
                         get_enabled = bkt.Callback(cls.text_selection, selection=True),
-                        get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", u"\u02FD"))
+                        get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image("Arial", "\u02FD"))
                     ),
 
                     pplib.PPTSymbolsGallery(
@@ -385,22 +269,17 @@ class Characters(object):
                         get_content = bkt.Callback(cls.get_text_fontawesome)
                     ),
                     bkt.ribbon.MenuSeparator(title="Einstellungen"),
-                    bkt.ribbon.Menu(
+                    bkt.ribbon.DynamicMenu(
                         label="Unicode-Schriftart wählen",
                         image_mso='FontDialogPowerPoint',
                         supertip="Unicode-Zeichen können entweder mit der Standard-Schriftart oder einer speziellen Unicode-Schriftart eingefügt werden. Diese kann hier ausgewählt werden.",
-                        children=[
-                            bkt.ribbon.ToggleButton(
-                                label='Theme-Schriftart (Standard)',
-                                screentip="Unicode-Schrift entspricht Theme-Schriftart",
-                                supertip="Es wird keine spezielle Unicode-Schriftart verwendet, sondern die Standard-Schriftart des Themes.",
-                                on_toggle_action=bkt.Callback(lambda pressed: pplib.PPTSymbolsSettings.switch_unicode_font(None)),
-                                get_pressed=bkt.Callback(lambda: pplib.PPTSymbolsSettings.unicode_font is None),
-                            ),
-                        ] + [
-                            _unicode_font_button(font)
-                            for font in ["Arial", "Arial Unicode MS", "Calibri", "Lucida Sans Unicode", "Segoe UI"]
-                        ]
+                        get_content = bkt.Callback(cls.get_text_unicodefont)
+                    ),
+                    bkt.ribbon.DynamicMenu(
+                        label="Icons-Fonts ausschließen",
+                        # image_mso='FontDialogPowerPoint',
+                        supertip="Bestimmte Icon-Fonts nicht anzeigen und nicht in der Suche berücksichtigen.",
+                        get_content = bkt.Callback(cls.get_text_fontawesome_exclusion)
                     ),
                     bkt.ribbon.ToggleButton(
                         label='Als Text einfügen (Standard)',
@@ -505,15 +384,13 @@ class InnerMargin(pplib.TextframeSpinnerBox):
             textframe.MarginBottom = value
             textframe.MarginLeft   = value
             textframe.MarginRight  = value
-    
-    
-    
-    
-    
-inner_margin_top    = InnerMargin(attr="MarginTop",    id='textFrameMargin-top-2',    image_button=True, show_label=False, image_mso='FillDown' , label="Innenabstand oben",   screentip='Innenabstand oben',   supertip='Ändere den oberen Innenabstand des Textfelds auf das angegebene Maß (in cm).')
-inner_margin_bottom = InnerMargin(attr="MarginBottom", id='textFrameMargin-bottom-2', image_button=True, show_label=False, image_mso='FillUp'   , label="Innenabstand unten",  screentip='Innenabstand unten',  supertip='Ändere den unteren Innenabstand des Textfelds auf das angegebene Maß (in cm).')
-inner_margin_left   = InnerMargin(attr="MarginLeft",   id='textFrameMargin-left-2',   image_button=True, show_label=False, image_mso='FillRight', label="Innenabstand links",  screentip='Innenabstand links',  supertip='Ändere den linken Innenabstand des Textfelds auf das angegebene Maß (in cm).')
-inner_margin_right  = InnerMargin(attr="MarginRight",  id='textFrameMargin-right-2',  image_button=True, show_label=False, image_mso='FillLeft' , label="Innenabstand rechts", screentip='Innenabstand rechts', supertip='Ändere den rechten Innenabstand des Textfelds auf das angegebene Maß (in cm).')
+
+
+
+inner_margin_top    = InnerMargin(attr="MarginTop",    id='textFrameMargin-top-2',    image_button=False, show_label=False, image_mso='FillDown' , label="Innenabstand oben",   screentip='Innenabstand oben',   supertip='Ändere den oberen Innenabstand des Textfelds auf das angegebene Maß (in cm).')
+inner_margin_bottom = InnerMargin(attr="MarginBottom", id='textFrameMargin-bottom-2', image_button=False, show_label=False, image_mso='FillUp'   , label="Innenabstand unten",  screentip='Innenabstand unten',  supertip='Ändere den unteren Innenabstand des Textfelds auf das angegebene Maß (in cm).')
+inner_margin_left   = InnerMargin(attr="MarginLeft",   id='textFrameMargin-left-2',   image_button=False, show_label=False, image_mso='FillRight', label="Innenabstand links",  screentip='Innenabstand links',  supertip='Ändere den linken Innenabstand des Textfelds auf das angegebene Maß (in cm).')
+inner_margin_right  = InnerMargin(attr="MarginRight",  id='textFrameMargin-right-2',  image_button=False, show_label=False, image_mso='FillLeft' , label="Innenabstand rechts", screentip='Innenabstand rechts', supertip='Ändere den rechten Innenabstand des Textfelds auf das angegebene Maß (in cm).')
 
 
 
@@ -523,16 +400,16 @@ innenabstand_gruppe = bkt.ribbon.Group(
     image_mso='ObjectNudgeRight',
     children=[
     bkt.ribbon.Box(id='textFrameMargin-box-top', children=[
-        bkt.ribbon.LabelControl(id='textFrameMargin-label-top', label=u'         \u200b'),
+        bkt.ribbon.LabelControl(id='textFrameMargin-label-top', label='         \u200b'),
         #create_margin_spinner('MarginTop', imageMso='ObjectNudgeDown'),
         inner_margin_top,
-        bkt.ribbon.LabelControl(label=u'   \u200b'),
+        bkt.ribbon.LabelControl(label='   \u200b'),
         bkt.ribbon.Button(
             id='textFrameMargin-zero',
-            label=u"=\u202F0",
+            label="=\u202F0",
             screentip="Innenabstand auf Null",
             supertip="Ändere in Innenabstand des Textfelds an allen Seiten auf Null.",
-            on_action=bkt.Callback( InnerMargin.set_to_0 )
+            on_action=bkt.Callback( InnerMargin.set_to_0, shapes=True, context=True )
         )
     ]),
     bkt.ribbon.Box(id='textFrameMargin-box-LR', children=[
@@ -543,10 +420,10 @@ innenabstand_gruppe = bkt.ribbon.Group(
         inner_margin_right,
     ]),
     bkt.ribbon.Box(id='textFrameMargin-box-bottom', children=[
-        bkt.ribbon.LabelControl(id='textFrameMargin-label-bottom', label=u'         \u200b'),
+        bkt.ribbon.LabelControl(id='textFrameMargin-label-bottom', label='         \u200b'),
         #create_margin_spinner('MarginBottom', imageMso='ObjectNudgeUp'),
         inner_margin_bottom,
-        bkt.ribbon.LabelControl(label=u'   \u200b'),
+        bkt.ribbon.LabelControl(label='   \u200b'),
         bkt.ribbon.ToggleButton(
             id='textFrameMargin-equal',
             label="==",
@@ -562,11 +439,10 @@ innenabstand_gruppe = bkt.ribbon.Group(
 
 
 
-
 class ParSpaceBefore(pplib.ParagraphFormatSpinnerBox):
     attr = 'SpaceBefore'
     _attributes = dict(
-        label=u"Absatzabstand oben",
+        label="Absatzabstand oben",
         image_mso='WordOpenParaAbove',
         screentip="Oberen Absatzabstand",
         supertip="Ändere den Absatzabstand vor dem Absatz auf das angegebene Maß (entweder in Abstand Zeilen oder in pt).",
@@ -575,7 +451,7 @@ class ParSpaceBefore(pplib.ParagraphFormatSpinnerBox):
 class ParSpaceAfter(pplib.ParagraphFormatSpinnerBox):
     attr = 'SpaceAfter'
     _attributes = dict(
-        label=u"Absatzabstand unten",
+        label="Absatzabstand unten",
         image_mso='WordOpenParaBelow',
         screentip="Unteren Absatzabstand",
         supertip="Ändere den Absatzabstand hinter dem Absatz auf das angegebene Maß (entweder in Abstand Zeilen oder in pt).",
@@ -584,7 +460,7 @@ class ParSpaceAfter(pplib.ParagraphFormatSpinnerBox):
 class ParSpaceWithin(pplib.ParagraphFormatSpinnerBox):
     attr = 'SpaceWithin'
     _attributes = dict(
-        label=u"Zeilenabstand",
+        label="Zeilenabstand",
         image_mso='LineSpacing',
         screentip="Zeilenabstand",
         supertip="Ändere den Zeilenabstand (entweder in Abstand Zeilen oder in pt).",
@@ -594,7 +470,7 @@ class ParSpaceWithin(pplib.ParagraphFormatSpinnerBox):
 class ParFirstLineIndent(pplib.ParagraphFormatSpinnerBox):
     attr = 'FirstLineIndent'
     _attributes = dict(
-        label=u"Einzug 1. Zeile",
+        label="Einzug 1. Zeile",
         image='first_line_indent',
         screentip="Sondereinzug",
         supertip="Ändere den Sondereinzug (1. Zeile, hängend) auf das angegebene Maß (in cm).",
@@ -603,7 +479,7 @@ class ParFirstLineIndent(pplib.ParagraphFormatSpinnerBox):
 class ParLeftIndent(pplib.ParagraphFormatSpinnerBox):
     attr = 'LeftIndent'
     _attributes = dict(
-        label=u"Einzug links",
+        label="Einzug links",
         image_mso='ParagraphIndentLeft',
         screentip="Absatzeinzug links",
         supertip="Ändere den linken Absatzeinzug auf das angegebene Maß (in cm).",
@@ -612,7 +488,7 @@ class ParLeftIndent(pplib.ParagraphFormatSpinnerBox):
 class ParRightIndent(pplib.ParagraphFormatSpinnerBox):
     attr = 'RightIndent'
     _attributes = dict(
-        label=u"Einzug rechts",
+        label="Einzug rechts",
         image_mso='ParagraphIndentRight',
         screentip="Absatzeinzug rechts",
         supertip="Ändere den rechten Absatzeinzug auf das angegebene Maß (in cm).",
@@ -623,28 +499,40 @@ class Absatz(object):
 
     @staticmethod
     def set_word_wrap(shapes, pressed):
-        for shape in shapes:
-            shape.TextFrame.WordWrap = -1 if pressed else 0
+        for textframe in pplib.iterate_shape_textframes(shapes):
+            try:
+                textframe.WordWrap = -1 if pressed else 0
+            except:
+                continue
 
     @staticmethod
     def get_word_wrap(shapes):
-        if not shapes[0].TextFrame:
-            return None
-        return (shapes[0].TextFrame.WordWrap == -1) # msoTrue
+        for textframe in pplib.iterate_shape_textframes(shapes):
+            try:
+                return (textframe.WordWrap == -1) # msoTrue
+            except:
+                continue
+        return None
 
 
     @staticmethod
     def set_auto_size(shapes, pressed):
-        for shape in shapes:
-            shape.TextFrame.AutoSize = 1 if pressed else 0
-            # 1 = ppAutoSizeShapeToFitText
-            # 0 = ppAutoSizeNone
+        for textframe in pplib.iterate_shape_textframes(shapes):
+            try:
+                textframe.AutoSize = 1 if pressed else 0
+                # 1 = ppAutoSizeShapeToFitText
+                # 0 = ppAutoSizeNone
+            except:
+                continue
 
     @staticmethod
     def get_auto_size(shapes):
-        if not shapes[0].TextFrame:
-            return None
-        return (shapes[0].TextFrame.AutoSize == 1)
+        for textframe in pplib.iterate_shape_textframes(shapes):
+            try:
+                return (textframe.AutoSize == 1)
+            except:
+                continue
+        return None
 
     # def set_par_indent(self, shapes, value):
     #     # pt_value = cm_to_pt(value)
@@ -778,197 +666,169 @@ class Absatz(object):
 
 
 
-class BulletStyle(object):
-    
-    @staticmethod
-    def set_bullet_color_rgb(selection, shapes, color):
-        if selection.Type == 3:
-            # text selected
-            selection.TextRange2.ParagraphFormat.Bullet.Font.Fill.ForeColor.RGB = color
-
-        else:
-            for textframe in pplib.iterate_shape_textframes(shapes):
-                textframe.TextRange.ParagraphFormat.Bullet.Font.Fill.ForeColor.RGB = color
-
-        # for shape in shapes:
-        #     shape.TextFrame2.TextRange.ParagraphFormat.Bullet.Font.Fill.ForeColor.RGB = color
-
-    @staticmethod
-    def set_bullet_theme_color(selection, shapes, color_index, brightness):
-        if selection.Type == 3:
-            # text selected
-            selection.TextRange2.ParagraphFormat.Bullet.Font.Fill.ForeColor.ObjectThemeColor = color_index
-            selection.TextRange2.ParagraphFormat.Bullet.Font.Fill.ForeColor.Brightness = brightness
-
-        else:
-            for textframe in pplib.iterate_shape_textframes(shapes):
-                textframe.TextRange.ParagraphFormat.Bullet.Font.Fill.ForeColor.ObjectThemeColor = color_index
-                textframe.TextRange.ParagraphFormat.Bullet.Font.Fill.ForeColor.Brightness = brightness
-
-        # for shape in shapes:
-        #     shape.TextFrame2.TextRange.ParagraphFormat.Bullet.Font.Fill.ForeColor.ObjectThemeColor = color_index
-        #     shape.TextFrame2.TextRange.ParagraphFormat.Bullet.Font.Fill.ForeColor.Brightness = brightness
-
-    @staticmethod
-    def set_bullet_color_auto(selection, shapes):
-        if selection.Type == 3:
-            # text selected
-            selection.TextRange2.ParagraphFormat.Bullet.UseTextColor = -1
-
-        else:
-            for textframe in pplib.iterate_shape_textframes(shapes):
-                textframe.TextRange.ParagraphFormat.Bullet.UseTextColor = -1
-
-    @staticmethod
-    def set_bullet_symbol(selection, shapes, symbol):
-        def _set_bullet(par):
-            par.Bullet.Character = ord(symbol[1])
-            if symbol[0]:
-                par.Bullet.Font.Name = symbol[0]
-            else:
-                par.Bullet.UseTextFont = -1
-
-
-        if selection.Type == 3:
-            # text selected
-            _set_bullet(selection.TextRange2.ParagraphFormat)
-
-        else:
-            for textframe in pplib.iterate_shape_textframes(shapes):
-                _set_bullet(textframe.TextRange.ParagraphFormat)
-
-
-
-
-    @classmethod
-    def get_bullet_color_rgb(cls, selection, shapes):
-        return cls._get_from_par_format(selection, shapes, cls._get_bullet_color_from_par)
-
-    @classmethod
-    def get_bullet_symbol(cls, selection, shapes):
-        return cls._get_from_par_format(selection, shapes, cls._get_bullet_symbol_from_par)
-
-
-    @classmethod
-    def _get_from_par_format(cls, selection, shapes, getter_method):
-        if selection.Type == 3:
-            # text selected
-            try:
-                # produces error if no text is selected
-                return getter_method(selection.TextRange2.Paragraphs(1,1).ParagraphFormat)
-            except ValueError: #ValueError: Der Index in der angegebenen Sammlung ist außerhalb des zulässigen Bereichs.
-                return getter_method(selection.TextRange2.ParagraphFormat)
-        
-        else:
-            # shapes selected
-            for textframe in pplib.iterate_shape_textframes(shapes):
-                return getter_method(textframe.TextRange.ParagraphFormat)
-
-
-    @classmethod
-    def _get_bullet_color_from_par(cls, par_format):
-        return [par_format.Bullet.Font.Fill.ForeColor.ObjectThemeColor, par_format.Bullet.Font.Fill.ForeColor.Brightness, par_format.Bullet.Font.Fill.ForeColor.RGB]
-
-    @classmethod
-    def _get_bullet_symbol_from_par(cls, par_format):
-        if par_format.Bullet.Visible:
-            return unichr(par_format.Bullet.Character)
-        return None
-
-    
-    @classmethod
-    def fix_bullet_style(cls, shapes):
-        shape = shapes[0]
-        slide = shape.Parent
-        placeholders = [shape for shape in slide.Master.Shapes if shape.Type == 14 and shape.PlaceholderFormat.Type == 2]
-        ref_shape = placeholders[0]
-        cls.fix_bullet_style_by_reference(shapes, ref_shape)
-    
-    
-    @staticmethod
-    def fix_bullet_style_by_reference(shapes, ref_shape):
-        # shape = shapes[0]
-        # slide = shape.Parent
-        # placeholders = [shape for shape in slide.Master.Shapes if shape.Type == 14 and shape.PlaceholderFormat.Type == 2]
-        # textph = placeholders[0]
-        ph_paragraphs = [p for p in ref_shape.TextFrame2.TextRange.Paragraphs() ]
-        ph_paragraphs = [[p for p in ph_paragraphs if p.ParagraphFormat.IndentLevel == indent_level] for indent_level in range(1,6) ] #IndentLevel is between 1 and 5
-        ph_paragraphs = [ None if len(ph_list) == 0 else ph_list[0] for ph_list in ph_paragraphs ]
-        
-        ph_formats = [None if p==None else p.ParagraphFormat for p in ph_paragraphs ]
-        
-        # for shape in shapes:
-            # for par in shape.TextFrame2.TextRange.Paragraphs() :
-        for textframe in pplib.iterate_shape_textframes(shapes):
-            for par in textframe.TextRange.Paragraphs() :
-                indent_level = par.ParagraphFormat.IndentLevel
-            
-                if ph_paragraphs[indent_level] is None:
-                    continue
-
-                par.ParagraphFormat.Bullet.Style = ph_formats[indent_level].Bullet.Style
-                par.ParagraphFormat.Bullet.Type = ph_formats[indent_level].Bullet.Type
-                par.ParagraphFormat.Bullet.RelativeSize = ph_formats[indent_level].Bullet.RelativeSize
-                par.ParagraphFormat.Bullet.Character = ph_formats[indent_level].Bullet.Character
-
-                if ph_formats[indent_level].Bullet.UseTextFont == -1:
-                    par.ParagraphFormat.Bullet.UseTextFont = -1
-                else:
-                    par.ParagraphFormat.Bullet.Font.Name = ph_formats[indent_level].Bullet.Font.Name
-                
-                if ph_formats[indent_level].Bullet.UseTextColor == -1:
-                    par.ParagraphFormat.Bullet.UseTextColor = -1
-                else:
-                    if ph_formats[indent_level].Bullet.Font.Fill.ForeColor.ObjectThemeColor == 0:
-                        par.ParagraphFormat.Bullet.Font.Fill.ForeColor.RGB = ph_formats[indent_level].Bullet.Font.Fill.ForeColor.RGB
-                    else:
-                        par.ParagraphFormat.Bullet.Font.Fill.ForeColor.ObjectThemeColor = ph_formats[indent_level].Bullet.Font.Fill.ForeColor.ObjectThemeColor
-                        par.ParagraphFormat.Bullet.Font.Fill.ForeColor.Brightness = ph_formats[indent_level].Bullet.Font.Fill.ForeColor.Brightness
-            
-                # par.ParagraphFormat.Bullet.UseTextColor = ph_formats[indent_level].Bullet.UseTextColor
-                # par.ParagraphFormat.Bullet.UseTextFont = ph_formats[indent_level].Bullet.UseTextFont
-
-                par.ParagraphFormat.Bullet.Visible = ph_formats[indent_level].Bullet.Visible
-            
-                par.ParagraphFormat.LeftIndent = ph_formats[indent_level].LeftIndent
-                par.ParagraphFormat.RightIndent = ph_formats[indent_level].RightIndent
-                par.ParagraphFormat.FirstLineIndent = ph_formats[indent_level].FirstLineIndent
-                par.ParagraphFormat.HangingPunctuation = ph_formats[indent_level].HangingPunctuation
-            
-                par.ParagraphFormat.BaselineAlignment = ph_formats[indent_level].BaselineAlignment
-                par.ParagraphFormat.LineRuleBefore    = ph_formats[indent_level].LineRuleBefore
-                par.ParagraphFormat.SpaceBefore       = ph_formats[indent_level].SpaceBefore
-                par.ParagraphFormat.LineRuleAfter     = ph_formats[indent_level].LineRuleAfter
-                par.ParagraphFormat.SpaceAfter        = ph_formats[indent_level].SpaceAfter
-                par.ParagraphFormat.LineRuleWithin    = ph_formats[indent_level].LineRuleWithin
-                par.ParagraphFormat.SpaceWithin       = ph_formats[indent_level].SpaceWithin
-            
-                # Text format
-                par.Font.Name   = ph_paragraphs[indent_level].Font.Name
-                par.Font.Size   = ph_paragraphs[indent_level].Font.Size
-                par.Font.Bold   = ph_paragraphs[indent_level].Font.Bold
-                par.Font.Italic = ph_paragraphs[indent_level].Font.Italic
-                par.Font.Caps   = ph_paragraphs[indent_level].Font.Caps
-                if ph_paragraphs[indent_level].Font.Fill.ForeColor.ObjectThemeColor == 0:
-                    par.Font.Fill.ForeColor.RGB = ph_paragraphs[indent_level].Font.Fill.ForeColor.RGB
-                else:
-                    par.Font.Fill.ForeColor.ObjectThemeColor = ph_paragraphs[indent_level].Font.Fill.ForeColor.ObjectThemeColor
-                    par.Font.Fill.ForeColor.Brightness = ph_paragraphs[indent_level].Font.Fill.ForeColor.Brightness
-    
+text_menu = bkt.ribbon.Menu(
+    label="Textfeld zeichnen Menü",
+    supertip="Sticker einfügen, Bullet Points angleichen, sowie weitere Text-bezogene Funktionen",
+    children=[
+        bkt.ribbon.MenuSeparator(title="Textformen einfügen"),
+        bkt.mso.control.TextBoxInsert,
+        bkt.ribbon.DynamicMenu(
+            id="sticker_splitbutton", #2023-01-26 not a splitbutton anymore to make it dynamic
+            label="Sticker Menü",
+            supertip="Verschiedene Sticker einfügen",
+            get_content=bkt.CallbackLazy("toolbox.models.text_menu", "sticker_menu")
+        ),
+        bkt.ribbon.Button(
+            id = 'underlined_textbox',
+            label = "Unterstrichene Textbox",
+            image = "underlined_textbox",
+            screentip="Unterstrichene Textbox einfügen",
+            supertip="Füge eine Textbox mit Linie unten am Shape auf dem aktuellen Slide ein.",
+            on_action=bkt.CallbackLazy("toolbox.models.text_menu", "TextShapes", "addUnderlinedTextbox", slide=True, presentation=True)
+        ),
+        bkt.ribbon.MenuSeparator(title="Aufzählungszeichen"),
+        bkt.ribbon.Button(
+            id="bullet_fixing",
+            label="Aufzählungszeichen korrigieren",
+            supertip="Aufzählungszeichen werden korrigiert. Der Stil wird vom Textplatzhalter auf dem Masterslide übernommen. Betrifft: Symbol, Symbol-/Textfarbe, Absatzeinzug/-abstand",
+            image_mso='MultilevelListGallery',
+            on_action=bkt.CallbackLazy("toolbox.models.text_menu", "BulletStyle", "fix_bullet_style", shapes=True),
+            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+        ),
+        bkt.ribbon.MenuSeparator(),
+        bkt.ribbon.ColorGallery(
+            id = 'bullet_color',
+            label='Farbe ändern',
+            screentip="Bullet Point Farbe ändern",
+            supertip="Ändert die Farbe der gewählten Bullet Points.",
+            on_rgb_color_change = bkt.CallbackLazy("toolbox.models.text_menu", "BulletStyle", "set_bullet_color_rgb", selection=True, shapes=True),
+            on_theme_color_change = bkt.CallbackLazy("toolbox.models.text_menu", "BulletStyle", "set_bullet_theme_color", selection=True, shapes=True),
+            get_selected_color = bkt.CallbackLazy("toolbox.models.text_menu", "BulletStyle", "get_bullet_color_rgb", selection=True, shapes=True),
+            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+            children=[
+                bkt.ribbon.Button(
+                    id="bullet_color_auto",
+                    label="Automatisch",
+                    screentip="Bullet Point Farbe automatisch bestimmen",
+                    supertip="Bullet Point Farbe wird automatisch anhand der Textfarbe bestimmt.",
+                    on_action=bkt.CallbackLazy("toolbox.models.text_menu", "BulletStyle", "set_bullet_color_auto", selection=True, shapes=True),
+                    image_mso="ColorBlack",
+                ),
+            ]
+        ),
+        bkt.ribbon.SymbolsGallery(
+            id="bullet_symbol",
+            label="Symbol ändern",
+            screentip="Bullet Point Symbol ändern",
+            supertip="Ändert das Symbol der gewählten Bullet Points.",
+            symbols = Characters.lists,
+            on_symbol_change = bkt.CallbackLazy("toolbox.models.text_menu", "BulletStyle", "set_bullet_symbol", selection=True, shapes=True),
+            get_selected_symbol = bkt.CallbackLazy("toolbox.models.text_menu", "BulletStyle", "get_bullet_symbol", selection=True, shapes=True),
+            get_enabled = bkt.apps.ppt_shapes_or_text_selected
+        ),
+        bkt.ribbon.MenuSeparator(title="Textoperationen"),
+        bkt.ribbon.Button(
+            id = 'text_in_shape',
+            label = "Text in Shape",
+            image_mso = "TextBoxInsert",
+            screentip="Text in Shape kombinieren",
+            supertip="Kopiere den Text eines Text-Shapes in das zweite markierte Shape und löscht das Text-Shape.",
+            on_action=bkt.CallbackLazy("toolbox.models.text_menu", "TextOnShape", "textIntoShape", shapes=True, shapes_min=2),
+            get_enabled = bkt.apps.ppt_shapes_min2_selected,
+        ),
+        bkt.ribbon.Button(
+            id = 'text_on_shape',
+            label = "Text auf Shape",
+            image_mso = "TableCellCustomMarginsDialog",
+            screentip="Text auf Shape zerlegen",
+            supertip="Überführe jeweils den Textinhalt der markierten Shapes in ein separates Text-Shape.",
+            on_action=bkt.CallbackLazy("toolbox.models.text_menu", "TextOnShape", "textOutOfShape", shapes=True, slide=True),
+            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+        ),
+        bkt.ribbon.MenuSeparator(),
+        bkt.ribbon.Button(
+            id = 'decompose_text',
+            label = "Shape-Text zerlegen",
+            image_mso = "TraceDependents",
+            supertip="Zerlege die markierten Shapes anhand der Text-Absätze in mehrere Shapes. Pro Absatz wird ein Shape mit dem entsprechenden Text angelegt.",
+            on_action=bkt.CallbackLazy("toolbox.models.text_menu", "SplitTextShapes", "splitShapesByParagraphs", shapes=True, context=True),
+            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+        ),
+        bkt.ribbon.Button(
+            id = 'compose_text',
+            label = "Shape-Text zusammenführen",
+            image_mso = "TracePrecedents",
+            supertip="Führe die markierten Shapes in ein Shape zusammen. Der Text aller Shapes wird übernommen und aneinandergehängt.",
+            on_action=bkt.CallbackLazy("toolbox.models.text_menu", "SplitTextShapes", "joinShapesWithText", shapes=True, shapes_min=2),
+            get_enabled = bkt.apps.ppt_shapes_min2_selected,
+        ),
+        bkt.ribbon.MenuSeparator(),
+        bkt.ribbon.Button(
+            id = 'text_truncate',
+            label="Shape-Texte löschen",
+            image_mso='ReviewDeleteMarkup',
+            supertip="Text aller gewählten Shapes löschen.",
+            on_action=bkt.CallbackLazy("toolbox.models.text_menu", "TextPlaceholder", "text_truncate", shapes=True),
+            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+        ),
+        bkt.ribbon.SplitButton(
+            id = 'text_replace_splitbutton',
+            get_enabled=bkt.apps.ppt_shapes_or_text_selected,
+            children=[
+                bkt.ribbon.Button(
+                    id = 'text_replace',
+                    label="Shape-Texte ersetzen…",
+                    image_mso='ReplaceDialog',
+                    supertip="Text aller gewählten Shapes mit im Dialogfeld eingegebenen Text ersetzen.",
+                    on_action=bkt.CallbackLazy("toolbox.models.text_menu", "TextPlaceholder", "text_replace", shapes=True, presentation=True),
+                    get_enabled=bkt.apps.ppt_shapes_or_text_selected,
+                ),
+                bkt.ribbon.Menu(label="Shape-Texte ersetzen Menü", supertip="Text mit vordefinierten Standard-Platzhaltern ersetzen", children=[
+                    bkt.ribbon.Button(
+                        id = 'text_tbd',
+                        label="… mit »tbd«",
+                        image_mso='TextDialog',
+                        screentip="Text mit »tbd« ersetzen",
+                        supertip="Text aller gewählten Shapes mit 'tbd' ersetzen.",
+                        on_action=bkt.CallbackLazy("toolbox.models.text_menu", "TextPlaceholder", "text_tbd", shapes=True),
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'text_lorem',
+                        label="… mit Lorem ipsum",
+                        image_mso='TextDialog',
+                        screentip="Text mit Lorem ipsum ersetzen",
+                        supertip="Text aller gewählten Shapes mit langem 'Lorem ipsum'-Platzhaltertext ersetzen.",
+                        on_action=bkt.CallbackLazy("toolbox.models.text_menu", "TextPlaceholder", "text_lorem", shapes=True),
+                    ),
+                    bkt.ribbon.Button(
+                        id = 'text_counter',
+                        label="… mit Nummerierung",
+                        image_mso='TextDialog',
+                        screentip="Text mit Nummerierung ersetzen",
+                        supertip="Text aller gewählten Shapes durch Nummerierung ersetzen.",
+                        on_action=bkt.CallbackLazy("toolbox.models.text_menu", "TextPlaceholder", "text_counter", shapes=True),
+                    ),
+                    bkt.ribbon.MenuSeparator(),
+                    bkt.ribbon.Button(
+                        id = 'text_replace2',
+                        label="… mit benutzerdefiniertem Text",
+                        image_mso='ReplaceDialog',
+                        screentip="Text mit eigener Eingabe ersetzen",
+                        supertip="Text aller gewählten Shapes mit im Dialogfeld eingegebenen Text ersetzen.",
+                        on_action=bkt.CallbackLazy("toolbox.models.text_menu", "TextPlaceholder", "text_replace", shapes=True, presentation=True),
+                        get_enabled=bkt.apps.ppt_shapes_or_text_selected,
+                    ),
+                ])
+            ]
+        ),
+    ]
+)
 
 
-class TextShapes(object):
-    sticker_alignment = bkt.settings.get("toolbox.sticker_alignment", "right")
-    sticker_fontsize = bkt.settings.get("toolbox.sticker_fontsize", 14)
-    sticker_custom = bkt.settings.get("toolbox.sticker_custom", None)
-
-    @classmethod
-    def settings_setter(cls, name, value):
-        setattr(cls, name, value)
-        bkt.settings["toolbox."+name] = value
-
+class TextBox(object):
     @staticmethod
     def textbox_insert(context, pressed):
+        from .models.text_menu import TextShapes
         if bkt.get_key_state(bkt.KeyCodes.SHIFT):
             TextShapes.addUnderlinedTextbox(context.slide, context.presentation)
         elif bkt.get_key_state(bkt.KeyCodes.CTRL):
@@ -993,696 +853,9 @@ class TextShapes(object):
             return context.app.commandbars.GetPressedMso("TextBoxInsert")
         except:
             return context.app.commandbars.GetPressedMso("TextBoxInsertHorizontal")
-    
-    @staticmethod
-    def addUnderlinedTextbox(slide, presentation):
-        # Textbox erstellen, damit Standardformatierung der Textbox genommen wird
-        shp = slide.shapes.AddTextbox( 1 #msoTextOrientationHorizontal
-            , 100, 100, 200, 50)
-        # Shape-Typ ist links-rechts-Pfeil, weil es die passenden Connector-Ecken hat
-        shp.AutoShapeType = pplib.MsoAutoShapeType['msoShapeLeftRightArrow']
-        # Shape-Anpassung, so dass es wie ein Rechteck aussieht
-        shp.Adjustments.item[1] = 1
-        shp.Adjustments.item[2] = 0
-        # Text
-        shp.TextFrame.TextRange.text = "Lorem ipsum"
-
-        # Mitting ausrichten
-        shp.Top = (presentation.PageSetup.SlideHeight - shp.height) /2
-        shp.Left = (presentation.PageSetup.SlideWidth - shp.width) /2
-
-        # Connectoren erstellen und mit Connector-Ecken des Shapes verbinden
-        connector = slide.shapes.AddConnector(Type=1 #msoConnectorStraight
-            , BeginX=0, BeginY=0, EndX=100, EndY=100)
-        connector.ConnectorFormat.BeginConnect(ConnectedShape=shp, ConnectionSite=5)
-        connector.ConnectorFormat.EndConnect(ConnectedShape=shp, ConnectionSite=7)
-        
-        # Default Formatierung
-        color = shp.TextFrame.TextRange.Font.Color
-        if color.Type == pplib.MsoColorType["msoColorTypeScheme"]:
-            connector.Line.ForeColor.ObjectThemeColor = color.ObjectThemeColor
-            connector.Line.ForeColor.Brightness = color.Brightness
-        else:
-            connector.Line.ForeColor.RGB = color.RGB
-        connector.Line.Weight = 1.5
-        # shp.TextFrame.MarginBottom = 0
-        # shp.TextFrame.MarginTop    = 0
-        # shp.TextFrame.MarginLeft   = 0
-        # shp.TextFrame.MarginRight  = 0
-
-        # Text auswählen
-        shp.TextFrame2.TextRange.Select()
-    
-    
-    @classmethod
-    def addSticker(cls, slide, presentation, sticker_text="DRAFT", select_text=True):
-        # Textbox erstellen, damit Standardformatierung der Textbox genommen wird
-        shp = slide.shapes.AddTextbox( 1 #msoTextOrientationHorizontal
-            , 0, 60, 100, 20)
-        # Shape-Typ ist links-rechts-Pfeil, weil es die passenden Connector-Ecken hat
-        shp.AutoShapeType = pplib.MsoAutoShapeType['msoShapeLeftRightArrow']
-        # Shape-Anpassung, so dass es wie ein Rechteck aussieht
-        shp.Adjustments.item[1] = 1
-        shp.Adjustments.item[2] = 0
-        # Shape-Stil
-        # shp.Line.Weight = 0.75
-        shp.Fill.Visible = 0 #msoFalse
-        shp.Line.Visible = 0 #msoFalse
-        # Text-Stil
-        # shp.TextFrame.TextRange.Font.Color.RGB = 0
-        shp.TextFrame.TextRange.Font.Size = cls.sticker_fontsize
-        shp.TextFrame.TextRange.ParagraphFormat.Bullet.Visible = False
-        # Autosize / Text nicht umbrechen
-        shp.TextFrame.WordWrap = 0 #msoFalse
-        shp.TextFrame.AutoSize = 1 #ppAutoSizeShapeToFitText
-        # Innenabstand
-        shp.TextFrame.MarginBottom = 0
-        shp.TextFrame.MarginTop    = 0
-        shp.TextFrame.MarginLeft   = 0
-        shp.TextFrame.MarginRight  = 0
-        # Text
-        shp.TextFrame.TextRange.text = sticker_text
-        # Top-Position
-        shp.Top = 15
-
-        # Text alignment + Left-Position
-        if cls.sticker_alignment == "left":
-            shp.TextFrame.TextRange.ParagraphFormat.Alignment = 1 #ppAlignLeft
-            shp.Left = 15
-        elif cls.sticker_alignment == "center":
-            shp.TextFrame.TextRange.ParagraphFormat.Alignment = 2 #ppAlignCenter
-            shp.Left = presentation.PageSetup.SlideWidth/2 - shp.width/2
-        else: #right
-            shp.TextFrame.TextRange.ParagraphFormat.Alignment = 3 #ppAlignRight
-            shp.Left = presentation.PageSetup.SlideWidth - shp.width - 15
-
-        # Connectoren erstellen und mit Connector-Ecken des Shapes verbinden
-        connector1 = slide.shapes.AddConnector(Type=1 #msoConnectorStraight
-            , BeginX=0, BeginY=0, EndX=100, EndY=100)
-        connector1.ConnectorFormat.BeginConnect(ConnectedShape=shp, ConnectionSite=1)
-        connector1.ConnectorFormat.EndConnect(ConnectedShape=shp, ConnectionSite=3)
-        connector1.Line.ForeColor.RGB = 0
-        connector1.Line.Weight = 0.75
-
-        connector2 = slide.shapes.AddConnector(Type=1 #msoConnectorStraight
-            , BeginX=0, BeginY=0, EndX=100, EndY=100)
-        connector2.ConnectorFormat.BeginConnect(ConnectedShape=shp, ConnectionSite=5)
-        connector2.ConnectorFormat.EndConnect(ConnectedShape=shp, ConnectionSite=7)
-        connector2.Line.ForeColor.RGB = 0
-        connector2.Line.Weight = 0.75
-
-        color = shp.TextFrame.TextRange.Font.Color
-        if color.Type == pplib.MsoColorType["msoColorTypeScheme"]:
-            connector1.Line.ForeColor.ObjectThemeColor = color.ObjectThemeColor
-            connector1.Line.ForeColor.Brightness = color.Brightness
-            connector2.Line.ForeColor.ObjectThemeColor = color.ObjectThemeColor
-            connector2.Line.ForeColor.Brightness = color.Brightness
-        else:
-            connector1.Line.ForeColor.RGB = color.RGB
-            connector2.Line.ForeColor.RGB = color.RGB
-
-        if select_text:
-            # Text auswählen
-            shp.Select()
-            shp.TextFrame2.TextRange.Select()
-    
-    
-    @classmethod
-    def add_sticker_to_slides(cls, slides, presentation, sticker_text="DRAFT"):
-        select_text = len(slides) == 1
-        for slide in slides:
-            cls.addSticker(slide, presentation, sticker_text, select_text)
-    
-    @classmethod
-    def own_sticker_enabled(cls):
-        return cls.sticker_custom is not None
-    
-    @classmethod
-    def own_sticker_label(cls):
-        if cls.sticker_custom:
-            return cls.sticker_custom + "-Sticker"
-        else:
-            return "Noch nicht definiert"
-    
-    @classmethod
-    def own_sticker_insert(cls, slides, presentation):
-        if cls.sticker_custom and not bkt.get_key_state(bkt.KeyCodes.SHIFT):
-            cls.add_sticker_to_slides(slides, presentation, cls.sticker_custom)
-        else:
-            res = cls.own_sticker_edit(slides, presentation)
-    
-    @classmethod
-    def own_sticker_edit(cls, slides, presentation):
-        res = bkt.ui.show_user_input("Selbst definierten Sticker-Text eingeben:", "Sticker bearbeiten", cls.sticker_custom)
-        if res:
-            cls.sticker_custom = bkt.settings["toolbox.sticker_custom"] = res
-            cls.add_sticker_to_slides(slides, presentation, res)
 
 
-class TextOnShape(object):
-
-    @classmethod
-    def find_shape_on_shape(cls, master_shape, shapes):
-        if master_shape.HasTextFrame == 0:
-            return None
-        for s in shapes:
-            #shape on top of master shape and shape midpoint within master shape
-            if s != master_shape and s.HasTextFrame == -1 and s.ZOrderPosition > master_shape.ZOrderPosition and s.left+s.width/2 >= master_shape.left and s.left+s.width/2 <= master_shape.left+master_shape.width and s.top+s.height/2 >= master_shape.top and s.top+s.height/2 <= master_shape.top+master_shape.height:
-                return s
-        return None
-    
-    @classmethod
-    def merge_shapes(cls, master_shape, text_shape):
-        # Kein TextFrame, bspw. bei Linien
-        if master_shape.HasTextFrame == 0 or text_shape.HasTextFrame == 0:
-            return
-
-        # Text kopieren
-        # text_shape.TextFrame2.TextRange.Copy()
-        # master_shape.TextFrame2.TextRange.Paste()
-        pplib.transfer_textrange(text_shape.TextFrame2.TextRange, master_shape.TextFrame2.TextRange)
-        # Textbox loeschen
-        text_shape.Delete()
-
-    @classmethod
-    def textIntoShape(cls, shapes):
-        def loop(worker=None):
-            if len(shapes) == 2 and shapes[0].Type == pplib.MsoShapeType['msoTextBox']:
-                cls.merge_shapes(shapes[1], shapes[0])
-            elif len(shapes) == 2 and shapes[1].Type == pplib.MsoShapeType['msoTextBox']:
-                cls.merge_shapes(shapes[0], shapes[1])
-            else:
-                sorted_shapes = sorted(shapes, key=lambda s: s.ZOrderPosition) #important due to removal of items in for loops
-                for shape in sorted_shapes:
-                    inner_shp = cls.find_shape_on_shape(shape, sorted_shapes)
-                    if inner_shp is not None:
-                        cls.merge_shapes(shape, inner_shp)
-                        sorted_shapes.remove(inner_shp)
-
-        # IMPORTANT: many copy-paste operations lead to EnvironmentError. Putting all in a thread solves this issue.
-        t = Thread(target=loop)
-        t.start()
-        t.join()
-
-        # Alternative way:
-        # bkt.ui.execute_with_progress_bar(loop, indeterminate=True)
-
-    @staticmethod
-    def create_txt_shape_onto_shape(shp, slide):
-        shpTxt = slide.shapes.AddTextbox(
-            1, #msoTextOrientationHorizontal
-            shp.Left, shp.Top, shp.Width, shp.Height)
-        # WordWrap / AutoSize
-        # shpTxt.TextFrame2.WordWrap = -1 #msoTrue
-        shpTxt.TextFrame2.WordWrap = shp.TextFrame2.WordWrap
-        shpTxt.TextFrame2.AutoSize = 0 #ppAutoSizeNone
-        shpTxt.Height   = shp.Height
-        shpTxt.Rotation = shp.Rotation
-        shpTxt.Name     = shp.Name + " Text"
-        # Seitenraender
-        shpTxt.TextFrame2.MarginBottom = shp.TextFrame2.MarginBottom
-        shpTxt.TextFrame2.MarginTop    = shp.TextFrame2.MarginTop
-        shpTxt.TextFrame2.MarginLeft   = shp.TextFrame2.MarginLeft
-        shpTxt.TextFrame2.MarginRight  = shp.TextFrame2.MarginRight
-        # Ausrichtung
-        shpTxt.TextFrame2.Orientation      = shp.TextFrame2.Orientation
-        shpTxt.TextFrame2.HorizontalAnchor = shp.TextFrame2.HorizontalAnchor
-        shpTxt.TextFrame2.VerticalAnchor   = shp.TextFrame2.VerticalAnchor
-        # Text kopieren
-        pplib.transfer_textrange(shp.TextFrame2.TextRange, shpTxt.TextFrame2.TextRange)
-        # shp.TextFrame2.TextRange.Copy()
-        # shpTxt.TextFrame2.TextRange.Paste()
-        shp.TextFrame2.DeleteText()
-        # Größe wiederherstellen
-        shp.Top = shpTxt.Top
-        shp.Height = shpTxt.Height
-        shp.Width = shpTxt.Width
-        # Textfeld selektieren
-        shpTxt.Select(0)
-
-    @classmethod
-    def textOutOfShape(cls, shapes, slide):
-        def loop(worker=None):
-            errors = 0
-            # shapes_len = len(shapes)
-            # i = 1.
-            for shp in shapes:
-                # worker.ReportProgress(i/shapes_len*100)
-                # i += 1
-
-                #if shp.TextFrame.TextRange.text != "":
-                if not shp.HasTextFrame or not shp.TextFrame.HasText:
-                    continue
-                try:
-                    # bkt.Clipboard.clear()
-
-                    cls.create_txt_shape_onto_shape(shp, slide)
-                    # cls.duplicate_txt_shape_onto_shape(shp, slide)
-                except EnvironmentError:
-                    errors += 1
-            if errors > 0:
-                bkt.message.error("Kopierfehler bei %s Shape(s)." % errors)
-
-        # IMPORTANT: many copy-paste operations lead to EnvironmentError. Putting all in a thread solves this issue.
-        t = Thread(target=loop)
-        t.start()
-        t.join()
-
-        # Alternative way:
-        # bkt.ui.execute_with_progress_bar(loop, context, indeterminate=True)
-    
-    ### context menu callbacks ###
-
-    @staticmethod
-    def is_outable(shape):
-        return shape.HasTextFrame == -1 and shape.TextFrame.HasText == -1 and shape.Type not in [pplib.MsoShapeType['msoTextBox'], pplib.MsoShapeType['msoPlaceholder']]
-    
-    @staticmethod
-    def is_mergable(shapes):
-        return len(shapes) == 2 and (shapes[0].Type == pplib.MsoShapeType['msoTextBox'] or shapes[1].Type == pplib.MsoShapeType['msoTextBox'])
-    
-
-class SplitTextShapes(object):
-
-
-    ### This method was required in Office 2007 were BoundXXX methods were not available
-    # @classmethod
-    # def paragraph_height(cls, par, with_par_spaces=True):
-    #     parHeight = par.Lines().Count * cls.line_height(par) * 1.0
-    #     if with_par_spaces:
-    #         parHeight = parHeight + max(0, par.ParagraphFormat.SpaceBefore) + max(0, par.ParagraphFormat.SpaceAfter)
-    #     return parHeight
-    
-
-    ### This method was required in Office 2007 were BoundXXX methods were not available
-    # @staticmethod
-    # def line_height(par):
-    #     if par.ParagraphFormat.LineRuleWithin == -1:
-    #         # spacing = number of lines
-    #         # Annahme zur Korrektur der Abstände: Abstand zwischen zwei Zeilen ist 0.2pt
-    #         return par.Font.Size * (max(0, par.ParagraphFormat.SpaceWithin) + 0.2)
-    #     else:
-    #         # spacing = number of pt
-    #         # Annahme zur Korrektur der Abstände: Abstand zwischen zwei Zeilen ist 0.2pt
-    #         return par.ParagraphFormat.SpaceWithin #+ 0.1 * .Font.Size
-    
-    
-    @staticmethod
-    def trim_newline_character(par):
-        if par.Characters(par.Length, 1).Text == "\r":
-            par.Characters(par.Length, 1).Delete()
-    
-    
-    @classmethod
-    def splitShapesByParagraphs(cls, shapes, context):
-        for shp in shapes:
-            # if shp.TextFrame2.TextRange.Text != "":
-            if shp.HasTextFrame == -1 and shp.TextFrame.HasText == -1 and shp.TextFrame.TextRange.Paragraphs().Count > 1:
-                #Shape exklusiv markieren (alle anderen deselektieren)
-                # shp.Select(-1) # msoTrue
-
-                par_count = shp.TextFrame2.TextRange.Paragraphs().Count
-                for par_index in range(2, par_count+1):
-                    par = shp.TextFrame2.TextRange.Paragraphs(par_index)
-                    # Leere Paragraphen überspringen
-                    if par.text in ["", "\r"]:
-                        continue
-                    # Shape dublizieren
-                    shpCopy = shp.Duplicate()
-                    shpCopy.Select(0) # msoFalse
-                    shpCopy.Top  = par.BoundTop - shp.TextFrame2.MarginTop + par.ParagraphFormat.SpaceBefore
-                    shpCopy.Left = shp.Left
-                    
-                    # Absaetze 1..i-1 entfernen und Shape entsprechend verschieben
-                    shpCopy.TextFrame2.TextRange.Paragraphs(1, par_index-1).Delete()
-                    # for index in range(1, par_index):
-                    #     # Textbox Position entsprechend Absatzhoehe anpassen
-                    #     # shpCopy.Top = shpCopy.Top + cls.paragraph_height(shpCopy.TextFrame2.TextRange.Paragraphs(1))
-                    #     # Absatz entfernen
-                    #     shpCopy.TextFrame2.TextRange.Paragraphs(1).Delete()
-                    
-                    # Absaetze i+1..n entfernen
-                    shpCopy.TextFrame2.TextRange.Paragraphs(2, shpCopy.TextFrame2.TextRange.Paragraphs().Count-1).Delete()
-                    # for index in range(par_index + 1, shp.TextFrame2.TextRange.Paragraphs().Count + 1):
-                    #     shpCopy.TextFrame2.TextRange.Paragraphs(2).Delete()
-
-                    # Letztes CR-Zeichen loeschen
-                    cls.trim_newline_character(shpCopy.TextFrame2.TextRange)
-
-                    # Shape Hoehe abhaengig von Absaetzhoehe
-                    # shpCopy.Height = cls.paragraph_height(shpCopy.TextFrame.TextRange.Paragraphs(1)) + shpCopy.TextFrame2.MarginTop + shpCopy.TextFrame2.MarginBottom
-                    shpCopy.Height = par.BoundHeight + shp.TextFrame2.MarginTop + shp.TextFrame2.MarginBottom - par.ParagraphFormat.SpaceBefore - par.ParagraphFormat.SpaceAfter
-                    if par_index == par_count:
-                        #last paragraph does not have spaceafter
-                        shpCopy.Height += par.ParagraphFormat.SpaceAfter
-
-                    # --> ein Absatz bleibt übrig
-
-                # letzten Shape nach unten schieben
-                # shpCopy.Top = max(shpCopy.Top, shp.Top + shp.Height - shpCopy.Height)
-
-                # Absaetze 2..n im Original-Shape entfernen
-                shp.TextFrame2.TextRange.Paragraphs(2, par_count-1).Delete()
-
-                # Letztes CR-Zeichen loeschen
-                cls.trim_newline_character(shp.TextFrame2.TextRange)
-                # Textbox Hoehe an Absatzhoehe anpassen
-                # shp.Height = cls.paragraph_height(shp.TextFrame2.TextRange.Paragraphs(1)) + shp.TextFrame2.MarginTop + shp.TextFrame2.MarginBottom
-                shp.Height = shp.TextFrame2.TextRange.Paragraphs(1).BoundHeight + shp.TextFrame2.MarginTop + shp.TextFrame2.MarginBottom
-                
-                #Verteilung bei 2 Shapes führt zu Fehler
-                # if context.app.ActiveWindow.Selection.ShapeRange.Count > 2:
-                #     # Objekte vertikal verteilen
-                #     context.app.ActiveWindow.Selection.ShapeRange.Distribute(
-                #         1, #msoDistributeVertically
-                #         0) #msoFalse)
-
-    @classmethod
-    def joinShapesWithText(cls, shapes):
-        # Shapes nach top sortieren
-        shapes = sorted(shapes, key=lambda shape: shape.Top)
-        # Anapssung Größe des ersten Shapes (Master-Shape) mit TextFrame
-        for i in range(len(shapes)):
-            shpMaster = shapes.pop(i) #shapes[0]
-            if shpMaster.HasTextFrame:
-                break
-        else:
-            # no shape with textframe found
-            return
-        
-        shpMaster.Height = max(shpMaster.Height, shapes[-1].Top + shapes[-1].Height - shpMaster.Top)
-
-        for shp in shapes: #[1:]:
-            # Text aus Shape kopieren
-            shp.TextFrame2.TextRange.Copy()
-            # neuen Absatz in Master-Shape erstellen
-            # Bug in PowerPoint: machmal muss InsertAfter mehrmals aufgerufen werden
-            parCount = shpMaster.TextFrame2.TextRange.Paragraphs().Count
-            for i in range(10):
-                txtRange = shpMaster.TextFrame2.TextRange.Paragraphs().InsertAfter("\r")
-                if parCount < shpMaster.TextFrame2.TextRange.Paragraphs().Count:
-                    break
-            # Text in Master-Shape einfuegen
-            txtRange.Paste()
-            # Letztes CR-Zeichen loeschen
-            cls.trim_newline_character(txtRange)
-            # Shape loeschen
-            shp.Delete()
-    
-    ### context menu callbacks ###
-
-    @staticmethod
-    def is_splitable(shape):
-        return shape.HasTextFrame == -1 and shape.TextFrame2.TextRange.Paragraphs().Count>1
-    
-    @staticmethod
-    def is_joinable(shapes):
-        return any(shp.HasTextFrame == -1 and shp.TextFrame2.HasText == -1 for shp in shapes)
-    
-
-
-text_menu = bkt.ribbon.Menu(
-    label="Textfeld zeichnen Menü",
-    supertip="Sticker einfügen, Bullet Points angleichen, sowie weitere Text-bezogene Funktionen",
-    children=[
-        bkt.ribbon.MenuSeparator(title="Textformen einfügen"),
-        bkt.mso.control.TextBoxInsert,
-        bkt.ribbon.SplitButton(
-            id="sticker_splitbutton",
-            children=[
-                bkt.ribbon.Button(
-                    id = 'sticker',
-                    label = u"Sticker",
-                    image = "Sticker",
-                    screentip="Sticker einfügen",
-                    supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide ein.",
-                    on_action=bkt.Callback(TextShapes.add_sticker_to_slides, slides=True, presentation=True)
-                ),
-                bkt.ribbon.Menu(label="Sticker Menü", supertip="Verschiedene Sticker einfügen", children=[
-                    bkt.ribbon.Button(
-                        id="sticker_draft",
-                        label = u"DRAFT-Sticker",
-                        image = "Sticker",
-                        screentip="DRAFT-Sticker einfügen",
-                        supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text DRAFT ein.",
-                        on_action=bkt.Callback(TextShapes.add_sticker_to_slides, slides=True, presentation=True)
-                    ),
-                    bkt.ribbon.Button(
-                        id="sticker_backup",
-                        label = u"BACKUP-Sticker",
-                        screentip="BACKUP-Sticker einfügen",
-                        supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text BACKUP ein.",
-                        on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "BACKUP"), slides=True, presentation=True)
-                    ),
-                    bkt.ribbon.Button(
-                        id="sticker_discussion",
-                        label = u"FOR DISCUSSION-Sticker",
-                        screentip="FOR DISCUSSION-Sticker einfügen",
-                        supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text FOR DISCUSSION ein.",
-                        on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "FOR DISCUSSION"), slides=True, presentation=True)
-                    ),
-                    bkt.ribbon.Button(
-                        id="sticker_illustrative",
-                        label = u"ILLUSTRATIVE-Sticker",
-                        screentip="ILLUSTRATIVE-Sticker einfügen",
-                        supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text ILLUSTRATIVE ein.",
-                        on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "ILLUSTRATIVE"), slides=True, presentation=True)
-                    ),
-                    bkt.ribbon.Button(
-                        id="sticker_confidential",
-                        label = u"CONFIDENTIAL-Sticker",
-                        screentip="CONFIDENTIAL-Sticker einfügen",
-                        supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit Text CONFIDENTIAL ein.",
-                        on_action=bkt.Callback(lambda slides, presentation: TextShapes.add_sticker_to_slides(slides, presentation, "CONFIDENTIAL"), slides=True, presentation=True)
-                    ),
-                    bkt.ribbon.MenuSeparator(),
-                    bkt.ribbon.Button(
-                        id="sticker_own",
-                        get_label=bkt.Callback(TextShapes.own_sticker_label),
-                        screentip="Selbst definierten Sticker einfügen",
-                        supertip="Füge ein Sticker-Shape oben rechts auf dem aktuellen Slide mit selbst definiertem ein.",
-                        on_action=bkt.Callback(TextShapes.own_sticker_insert, slides=True, presentation=True),
-                        get_enabled=bkt.Callback(TextShapes.own_sticker_enabled)
-                    ),
-                    bkt.ribbon.Button(
-                        id="sticker_own_edit",
-                        label = u"Sticker-Text ändern",
-                        screentip="Selbst definierten Sticker bearbeiten",
-                        supertip="Ändere den Text des selbst definierten Stickers und füge diesen sofort ein.",
-                        on_action=bkt.Callback(TextShapes.own_sticker_edit, slides=True, presentation=True)
-                    ),
-                    bkt.ribbon.MenuSeparator(),
-                    bkt.ribbon.Menu(
-                        label="Ausrichtung",
-                        supertip="Ausrichtungsoptionen für Sticker einstellen",
-                        children=[
-                            bkt.ribbon.ToggleButton(
-                                label="Links",
-                                screentip="Sticker-Ausrichtung Links",
-                                supertip="Setzt die Position beim Einfügen der Sticker auf links.",
-                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_alignment == "left"),
-                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_alignment", "left")),
-                            ),
-                            bkt.ribbon.ToggleButton(
-                                label="Mitte",
-                                screentip="Sticker-Ausrichtung Mitte",
-                                supertip="Setzt die Position beim Einfügen der Sticker auf mittig.",
-                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_alignment == "center"),
-                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_alignment", "center")),
-                            ),
-                            bkt.ribbon.ToggleButton(
-                                label="Rechts",
-                                screentip="Sticker-Ausrichtung Rechts",
-                                supertip="Setzt die Position beim Einfügen der Sticker auf rechts.",
-                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_alignment == "right"),
-                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_alignment", "right")),
-                            ),
-                        ]
-                    ),
-                    bkt.ribbon.Menu(
-                        label="Schriftgröße",
-                        supertip="Schriftgrößenoptionen für Sticker einstellen",
-                        children=[
-                            bkt.ribbon.ToggleButton(
-                                label="10",
-                                screentip="Sticker-Schriftgröße 10",
-                                supertip="Setzt die Schriftgröße beim Einfügen der Sticker auf 10",
-                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 10),
-                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 10)),
-                            ),
-                            bkt.ribbon.ToggleButton(
-                                label="11",
-                                screentip="Sticker-Schriftgröße 11",
-                                supertip="Setzt die Schriftgröße beim Einfügen der Sticker auf 11",
-                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 11),
-                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 11)),
-                            ),
-                            bkt.ribbon.ToggleButton(
-                                label="12",
-                                screentip="Sticker-Schriftgröße 12",
-                                supertip="Setzt die Schriftgröße beim Einfügen der Sticker auf 12",
-                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 12),
-                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 12)),
-                            ),
-                            bkt.ribbon.ToggleButton(
-                                label="14",
-                                screentip="Sticker-Schriftgröße 14",
-                                supertip="Setzt die Schriftgröße beim Einfügen der Sticker auf 14",
-                                get_pressed=bkt.Callback(lambda: TextShapes.sticker_fontsize == 14),
-                                on_toggle_action=bkt.Callback(lambda pressed: TextShapes.settings_setter("sticker_fontsize", 14)),
-                            ),
-                        ]
-                    ),
-                ])
-            ]
-        ),
-        bkt.ribbon.Button(
-            id = 'underlined_textbox',
-            label = u"Unterstrichene Textbox",
-            image = "underlined_textbox",
-            screentip="Unterstrichene Textbox einfügen",
-            supertip="Füge eine Textbox mit Linie unten am Shape auf dem aktuellen Slide ein.",
-            on_action=bkt.Callback(TextShapes.addUnderlinedTextbox)
-        ),
-        bkt.ribbon.MenuSeparator(title="Aufzählungszeichen"),
-        bkt.ribbon.Button(
-            id="bullet_fixing",
-            label=u"Aufzählungszeichen korrigieren",
-            supertip=u"Aufzählungszeichen werden korrigiert. Der Stil wird vom Textplatzhalter auf dem Masterslide übernommen. Betrifft: Symbol, Symbol-/Textfarbe, Absatzeinzug/-abstand",
-            image_mso='MultilevelListGallery',
-            on_action=bkt.Callback(BulletStyle.fix_bullet_style),
-            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
-        ),
-        bkt.ribbon.MenuSeparator(),
-        bkt.ribbon.ColorGallery(
-            id = 'bullet_color',
-            label=u'Farbe ändern',
-            screentip="Bullet Point Farbe ändern",
-            supertip="Ändert die Farbe der gewählten Bullet Points.",
-            on_rgb_color_change = bkt.Callback(BulletStyle.set_bullet_color_rgb, selection=True, shapes=True),
-            on_theme_color_change = bkt.Callback(BulletStyle.set_bullet_theme_color, selection=True, shapes=True),
-            get_selected_color = bkt.Callback(BulletStyle.get_bullet_color_rgb, selection=True, shapes=True),
-            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
-            children=[
-                bkt.ribbon.Button(
-                    id="bullet_color_auto",
-                    label="Automatisch",
-                    screentip="Bullet Point Farbe automatisch bestimmen",
-                    supertip="Bullet Point Farbe wird automatisch anhand der Textfarbe bestimmt.",
-                    on_action=bkt.Callback(BulletStyle.set_bullet_color_auto, selection=True, shapes=True),
-                    image_mso="ColorBlack",
-                ),
-            ]
-        ),
-        bkt.ribbon.SymbolsGallery(
-            id="bullet_symbol",
-            label=u"Symbol ändern",
-            screentip="Bullet Point Symbol ändern",
-            supertip="Ändert das Symbol der gewählten Bullet Points.",
-            symbols = Characters.lists,
-            on_symbol_change = bkt.Callback(BulletStyle.set_bullet_symbol, selection=True, shapes=True),
-            get_selected_symbol = bkt.Callback(BulletStyle.get_bullet_symbol, selection=True, shapes=True),
-            get_enabled = bkt.apps.ppt_shapes_or_text_selected
-        ),
-        bkt.ribbon.MenuSeparator(title="Textoperationen"),
-        bkt.ribbon.Button(
-            id = 'text_in_shape',
-            label = u"Text in Shape",
-            image_mso = "TextBoxInsert",
-            screentip="Text in Shape kombinieren",
-            supertip="Kopiere den Text eines Text-Shapes in das zweite markierte Shape und löscht das Text-Shape.",
-            on_action=bkt.Callback(TextOnShape.textIntoShape, shapes=True, shapes_min=2),
-            get_enabled = bkt.apps.ppt_shapes_min2_selected,
-        ),
-        bkt.ribbon.Button(
-            id = 'text_on_shape',
-            label = u"Text auf Shape",
-            image_mso = "TableCellCustomMarginsDialog",
-            screentip="Text auf Shape zerlegen",
-            supertip="Überführe jeweils den Textinhalt der markierten Shapes in ein separates Text-Shape.",
-            on_action=bkt.Callback(TextOnShape.textOutOfShape, shapes=True, slide=True),
-            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
-        ),
-        bkt.ribbon.MenuSeparator(),
-        bkt.ribbon.Button(
-            id = 'decompose_text',
-            label = u"Shape-Text zerlegen",
-            image_mso = "TraceDependents",
-            supertip="Zerlege die markierten Shapes anhand der Text-Absätze in mehrere Shapes. Pro Absatz wird ein Shape mit dem entsprechenden Text angelegt.",
-            on_action=bkt.Callback(SplitTextShapes.splitShapesByParagraphs, shapes=True, context=True),
-            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
-        ),
-        bkt.ribbon.Button(
-            id = 'compose_text',
-            label = u"Shape-Text zusammenführen",
-            image_mso = "TracePrecedents",
-            supertip="Führe die markierten Shapes in ein Shape zusammen. Der Text aller Shapes wird übernommen und aneinandergehängt.",
-            on_action=bkt.Callback(SplitTextShapes.joinShapesWithText, shapes=True, shapes_min=2),
-            get_enabled = bkt.apps.ppt_shapes_min2_selected,
-        ),
-        bkt.ribbon.MenuSeparator(),
-        bkt.ribbon.Button(
-            id = 'text_truncate',
-            label="Shape-Texte löschen",
-            image_mso='ReviewDeleteMarkup',
-            supertip="Text aller gewählten Shapes löschen.",
-            on_action=bkt.Callback(TextPlaceholder.text_truncate, shapes=True),
-            get_enabled = bkt.apps.ppt_shapes_or_text_selected,
-        ),
-        bkt.ribbon.SplitButton(
-            id = 'text_replace_splitbutton',
-            get_enabled=bkt.apps.ppt_shapes_or_text_selected,
-            children=[
-                bkt.ribbon.Button(
-                    id = 'text_replace',
-                    label="Shape-Texte ersetzen…",
-                    image_mso='ReplaceDialog',
-                    supertip="Text aller gewählten Shapes mit im Dialogfeld eingegebenen Text ersetzen.",
-                    on_action=bkt.Callback(TextPlaceholder.text_replace, shapes=True, presentation=True),
-                    get_enabled=bkt.apps.ppt_shapes_or_text_selected,
-                ),
-                bkt.ribbon.Menu(label="Shape-Texte ersetzen Menü", supertip="Text mit vordefinierten Standard-Platzhaltern ersetzen", children=[
-                    bkt.ribbon.Button(
-                        id = 'text_tbd',
-                        label="… mit »tbd«",
-                        image_mso='TextDialog',
-                        screentip="Text mit »tbd« ersetzen",
-                        supertip="Text aller gewählten Shapes mit 'tbd' ersetzen.",
-                        on_action=bkt.Callback(TextPlaceholder.text_tbd, shapes=True),
-                    ),
-                    bkt.ribbon.Button(
-                        id = 'text_lorem',
-                        label="… mit Lorem ipsum",
-                        image_mso='TextDialog',
-                        screentip="Text mit Lorem ipsum ersetzen",
-                        supertip="Text aller gewählten Shapes mit langem 'Lorem ipsum'-Platzhaltertext ersetzen.",
-                        on_action=bkt.Callback(TextPlaceholder.text_lorem, shapes=True),
-                    ),
-                    bkt.ribbon.Button(
-                        id = 'text_counter',
-                        label="… mit Nummerierung",
-                        image_mso='TextDialog',
-                        screentip="Text mit Nummerierung ersetzen",
-                        supertip="Text aller gewählten Shapes durch Nummerierung ersetzen.",
-                        on_action=bkt.Callback(TextPlaceholder.text_counter, shapes=True),
-                    ),
-                    bkt.ribbon.MenuSeparator(),
-                    bkt.ribbon.Button(
-                        id = 'text_replace2',
-                        label="… mit benutzerdefiniertem Text",
-                        image_mso='ReplaceDialog',
-                        screentip="Text mit eigener Eingabe ersetzen",
-                        supertip="Text aller gewählten Shapes mit im Dialogfeld eingegebenen Text ersetzen.",
-                        on_action=bkt.Callback(TextPlaceholder.text_replace, shapes=True, presentation=True),
-                        get_enabled=bkt.apps.ppt_shapes_or_text_selected,
-                    ),
-                ])
-            ]
-        ),
-    ]
-)
-
-text_splitbutton = bkt.ribbon.SplitButton(
+text_splitbutton = bkt.ribbon.SplitButtonFixed(
     id="textbox_insert_splitbutton",
     show_label=False,
     children=[
@@ -1691,9 +864,9 @@ text_splitbutton = bkt.ribbon.SplitButton(
             label="Textfeld zeichnen",
             image_mso="TextBoxInsert",
             supertip="Zeichnen Sie ein Textfeld an einer beliebigen Stelle.\n\nMit gedrückter Umschalt-Taste wird eine unterstrichene Textbox eingefügt.\n\nMit gedrückter Strg-Taste wird ein Sticker eingefügt.",
-            on_toggle_action=bkt.Callback(TextShapes.textbox_insert, context=True),
-            get_pressed=bkt.Callback(TextShapes.textbox_pressed, context=True),
-            get_enabled=bkt.Callback(TextShapes.textbox_enabled, context=True),
+            on_toggle_action=bkt.Callback(TextBox.textbox_insert, context=True),
+            get_pressed=bkt.Callback(TextBox.textbox_pressed, context=True),
+            get_enabled=bkt.Callback(TextBox.textbox_enabled, context=True),
         ),
         # bkt.mso.toggleButton.TextBoxInsert,
         text_menu
@@ -1703,11 +876,11 @@ text_splitbutton = bkt.ribbon.SplitButton(
 
 paragraph_group = bkt.ribbon.Group(
     id="bkt_paragraph_group",
-    label = u"Absatz",
+    label = "Absatz",
     image_mso='FormattingMarkDropDown',
     children = [
         bkt.ribbon.Menu(
-            label=u"Textbox",
+            label="Einst.",
             imageMso="FormattingMarkDropDown",
             supertip="Einstellungen für die Textbox ändern",
             children = [
@@ -1717,9 +890,9 @@ paragraph_group = bkt.ribbon.Group(
                     image_mso="FormattingMarkDropDown",
                     screentip="Text in Form umbrechen",
                     supertip="Konfiguriere die Textoption auf 'Text in Form umbrechen'.",
-                    on_toggle_action=bkt.Callback(Absatz.set_word_wrap , shapes=True, require_text=True),
-                    get_pressed=bkt.Callback(Absatz.get_word_wrap , shapes=True, require_text=True),
-                    get_enabled = bkt.get_enabled_auto,
+                    on_toggle_action=bkt.Callback(Absatz.set_word_wrap , shapes=True),
+                    get_pressed=bkt.Callback(Absatz.get_word_wrap , shapes=True),
+                    get_enabled = bkt.apps.ppt_selection_contains_textframe,
                 ),
                 bkt.ribbon.ToggleButton(
                     id = 'autosize',
@@ -1727,9 +900,9 @@ paragraph_group = bkt.ribbon.Group(
                     image_mso="SmartArtLargerShape",
                     screentip="Größe der Form anpassen",
                     supertip="Konfiguriere die Textoption auf 'Größe der Form dem Text anpassen' bzw. 'Größe nicht automatisch anpassen'.",
-                    on_toggle_action=bkt.Callback(Absatz.set_auto_size , shapes=True, require_text=True),
-                    get_pressed=bkt.Callback(Absatz.get_auto_size , shapes=True, require_text=True),
-                    get_enabled = bkt.get_enabled_auto,
+                    on_toggle_action=bkt.Callback(Absatz.set_auto_size , shapes=True),
+                    get_pressed=bkt.Callback(Absatz.get_auto_size , shapes=True),
+                    get_enabled = bkt.apps.ppt_selection_contains_textframe,
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.mso.control.TextAlignMoreOptionsDialog
@@ -1738,6 +911,7 @@ paragraph_group = bkt.ribbon.Group(
         ParSpaceBefore(
             id = 'par_sep_top',
             show_label=False,
+            size_string = '##',
             # label=u"Absatzabstand oben",
             # image_mso='WordOpenParaAbove',
             # screentip="Oberen Absatzabstand",
@@ -1747,6 +921,7 @@ paragraph_group = bkt.ribbon.Group(
         ParSpaceAfter(
             id = 'par_sep_bottom',
             show_label=False,
+            size_string = '##',
             # label=u"Absatzabstand unten",
             # image_mso='WordOpenParaBelow',
             # screentip="Unteren Absatzabstand",
@@ -1759,7 +934,7 @@ paragraph_group = bkt.ribbon.Group(
 
 paragraph_indent_group = bkt.ribbon.Group(
     id="bkt_paragraph_adv_group",
-    label = u"Absatzeinzug",
+    label = "Absatzeinzug",
     image_mso='ViewRulerPowerPoint',
     #ViewRulerPowerPoint
     children = [
@@ -1840,12 +1015,12 @@ paragraph_indent_group = bkt.ribbon.Group(
 
 compact_font_group = bkt.ribbon.Group(
     id="bkt_compact_font_group",
-    label = u"Schriftart",
+    label = "Schriftart",
     image_mso='GroupFont',
     children = [
         #NOTE: horizontal box layout leads to spacing between Font and FontSize ComboBox!
         bkt.mso.comboBox.Font(sizeString="WWWWWWWI"),
-        bkt.ribbon.Box(box_style="horizontal", children=[
+        bkt.ribbon.ButtonGroup(children=[
             bkt.mso.control.Bold,
             bkt.mso.control.Italic,
             bkt.mso.control.Underline,
@@ -1859,11 +1034,11 @@ compact_font_group = bkt.ribbon.Group(
         ]),
 
         bkt.mso.control.FontSize,
-        bkt.ribbon.Box(box_style="horizontal", children=[
+        bkt.ribbon.ButtonGroup(children=[
             bkt.mso.control.FontSizeIncrease,
             bkt.mso.control.FontSizeDecrease,
         ]),
-        bkt.ribbon.Box(box_style="horizontal", children=[
+        bkt.ribbon.ButtonGroup(children=[
             bkt.mso.control.Superscript,
             bkt.mso.control.Subscript,
         ]),
@@ -1873,22 +1048,28 @@ compact_font_group = bkt.ribbon.Group(
 
 compact_paragraph_group = bkt.ribbon.Group(
     id="bkt_compact_paragraph_group",
-    label = u"Absatz",
+    label = "Absatz",
     image_mso='GroupParagraph',
     children = [
         bkt.ribbon.Box(box_style="horizontal", children=[
-            bkt.mso.control.BulletsGallery,
-            bkt.mso.control.NumberingGallery,
-            bkt.mso.control.IndentDecrease,
-            bkt.mso.control.IndentIncrease,
+            bkt.ribbon.ButtonGroup(children=[
+                bkt.mso.control.BulletsGallery,
+                bkt.mso.control.NumberingGallery,
+            ]),
+            bkt.ribbon.ButtonGroup(children=[
+                bkt.mso.control.IndentDecrease,
+                bkt.mso.control.IndentIncrease,
+            ]),
             # bkt.mso.control.ConvertToSmartArt,
         ]),
         bkt.ribbon.Box(box_style="horizontal", children=[
-            bkt.mso.control.AlignLeft,
-            bkt.mso.control.AlignCenter,
-            bkt.mso.control.AlignRight,
-            bkt.mso.control.AlignJustify,
-            bkt.mso.control.AlignJustifyMenu,
+            bkt.ribbon.ButtonGroup(children=[
+                bkt.mso.control.AlignLeft,
+                bkt.mso.control.AlignCenter,
+                bkt.mso.control.AlignRight,
+                bkt.mso.control.AlignJustify,
+                bkt.mso.control.AlignJustifyMenu,
+            ]),
             # bkt.mso.control.ParagraphDistributed,
             # bkt.mso.control.AlignJustifyThai,
             # bkt.mso.control.TextDirectionLeftToRight,

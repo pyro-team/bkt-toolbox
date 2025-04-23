@@ -5,7 +5,7 @@ Created on 04.06.2020
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 from bkt import dotnet
 from bkt.helpers import memoize

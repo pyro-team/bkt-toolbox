@@ -4,7 +4,7 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import, division
+
 
 import bkt.ui
 notify_property = bkt.ui.notify_property
@@ -13,6 +13,7 @@ notify_property = bkt.ui.notify_property
 class ViewModel(bkt.ui.ViewModelAsbtract):
     default_shape_keys = {'type': False, 'x': True, 'y': True, 'x1': True, 'y1': True, 'center_x': False, 'center_y': False, 'width': False, 'height': False, 'rotation': False, 'name': False}
     default_threshold  = 0.0
+    default_shape_sync = {'pos': False, 'size': False, 'format': False, 'text': False}
 
     def __init__(self, context):
         super(ViewModel, self).__init__()
@@ -37,6 +38,7 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
 
         self._threshold = ViewModel.default_threshold
         self._shape_keys = ViewModel.default_shape_keys
+        self._shape_sync = ViewModel.default_shape_sync
     
     def _get_last_slideindex_in_section(self, context):
         sections = context.presentation.sectionProperties
@@ -135,6 +137,34 @@ class ViewModel(bkt.ui.ViewModelAsbtract):
     def attr_name(self, value):
         self._shape_keys["name"] = value
         self.OnPropertyChanged('okay_enabled')
+
+    @notify_property
+    def attr_sync_pos(self):
+        return self._shape_sync["pos"]
+    @attr_sync_pos.setter
+    def attr_sync_pos(self, value):
+        self._shape_sync["pos"] = value
+
+    @notify_property
+    def attr_sync_size(self):
+        return self._shape_sync["size"]
+    @attr_sync_size.setter
+    def attr_sync_size(self, value):
+        self._shape_sync["size"] = value
+
+    @notify_property
+    def attr_sync_format(self):
+        return self._shape_sync["format"]
+    @attr_sync_format.setter
+    def attr_sync_format(self, value):
+        self._shape_sync["format"] = value
+
+    @notify_property
+    def attr_sync_text(self):
+        return self._shape_sync["text"]
+    @attr_sync_text.setter
+    def attr_sync_text(self, value):
+        self._shape_sync["text"] = value
     
 
     @notify_property
@@ -213,6 +243,28 @@ class FindWindow(bkt.ui.WpfWindowAbstract):
         shape_keys = [k for k,v in self._vm._shape_keys.items() if v]
         num_slides = None if self._vm.findmode_all else self._vm._num_slides
         self._model.find_similar_shapes_and_link(self.shape, self._context, shape_keys, self._vm._threshold, num_slides, dry_run)
+
+    def _sync_shapes(self):
+        try:
+            if self._vm.attr_sync_size:
+                self._model.size_linked_shape(self.shape, self._context)
+        except:
+            pass
+        try:
+            if self._vm.attr_sync_pos:
+                self._model.align_linked_shape(self.shape, self._context)
+        except:
+            pass
+        try:
+            if self._vm.attr_sync_format:
+                self._model.format_linked_shape(self.shape, self._context)
+        except:
+            pass
+        try:
+            if self._vm.attr_sync_text:
+                self._model.text_linked_shape(self.shape, self._context)
+        except:
+            pass
     
     def select_all(self, sender, event):
         self._vm.attr_bottom    = True
@@ -237,10 +289,23 @@ class FindWindow(bkt.ui.WpfWindowAbstract):
         self._vm.attr_top       = False
         self._vm.attr_type      = False
         self._vm.attr_width     = False
+        
+    def sync_all(self, sender, event):
+        self._vm.attr_sync_pos     = True
+        self._vm.attr_sync_size    = True
+        self._vm.attr_sync_format  = True
+        self._vm.attr_sync_text    = True
+
+    def sync_none(self, sender, event):
+        self._vm.attr_sync_pos     = False
+        self._vm.attr_sync_size    = False
+        self._vm.attr_sync_format  = False
+        self._vm.attr_sync_text    = False
     
     def linkshapes_find(self, sender, event):
         self.Close()
         self._link_shapes()
+        self._sync_shapes()
     
     def linkshapes_dryrun(self, sender, event):
         self._link_shapes(True)

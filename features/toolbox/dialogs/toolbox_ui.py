@@ -4,7 +4,7 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import sys
 import os.path
@@ -90,6 +90,7 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
         self._model.set_setting("size_group", self._value2key(self._vm.size_group))
         self._model.set_setting("pos_size_group", self._value2key(self._vm.pos_size_group))
 
+        self._model.set_setting("arrange_group", self._value2key(self._vm.arrange_group))
         self._model.set_setting("arrange_mini_group", self._value2key(self._vm.arrange_mini_group))
         self._model.set_setting("arrange_euclid_group", self._value2key(self._vm.arrange_euclid_group))
         self._model.set_setting("arrange_adv_group", self._value2key(self._vm.arrange_adv_group))
@@ -102,7 +103,6 @@ class ToolboxUiWindow(bkt.ui.WpfWindowAbstract):
 
         self._model.set_setting("adjustments_group", self._value2key(self._vm.adjustments_group))
         self._model.set_setting("format_group", self._value2key(self._vm.format_group))
-        self._model.set_setting("split_group", self._value2key(self._vm.split_group))
         self._model.set_setting("language_group", self._value2key(self._vm.language_group))
         self._model.set_setting("stateshape_group", self._value2key(self._vm.stateshape_group))
         self._model.set_setting("iconsearch_group", self._value2key(self._vm.iconsearch_group))

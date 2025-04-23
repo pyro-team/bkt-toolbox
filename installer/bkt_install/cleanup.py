@@ -5,7 +5,7 @@ Created on 25.02.2019
 @author: fstallmann
 '''
 
-from __future__ import absolute_import, print_function
+
 
 import os
 
@@ -14,13 +14,15 @@ from .globals import INSTALL_BASE
 
 
 class Cleaner(object):
+    silent = False
+
     @classmethod
     def _purge_folder(cls, folder):
         if not os.path.isdir(folder):
             helper.log("%s not found" % folder)
             return
         
-        if not helper.yes_no_question("Delete %s" % folder):
+        if not cls.silent and not helper.yes_no_question("Delete %s" % folder):
             return
         
         files = os.listdir(folder)
@@ -50,7 +52,7 @@ class Cleaner(object):
     def clear_config(cls):
         config_filename = os.path.join(INSTALL_BASE, 'config.txt')
         if os.path.exists(config_filename):
-            if helper.yes_no_question("Delete %s" % config_filename):
+            if cls.silent or helper.yes_no_question("Delete %s" % config_filename):
                 os.remove(config_filename)
                 helper.log("config.txt successfully removed")
                 print("\nIMPORTANT: You need to run install command in order to generate new config.txt file!")
@@ -77,6 +79,8 @@ class Cleaner(object):
 
 
 def clean(args):
+    Cleaner.silent = args.silent
+
     if args.clear_cache:
         print("\nClearing cache...")
         Cleaner.clear_cache()

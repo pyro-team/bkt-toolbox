@@ -6,7 +6,7 @@ Created on 11.11.2019
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import time #required for cache
@@ -206,6 +206,7 @@ class AppContext(object):
         # resolve generic arguments
         kwargs.update(self.resolve_generic_arguments(callback.invocation_context))
         # application-specific arguments should be resolved by invoke_callback
+        kwargs.pop('context', None) # ensure that context is not in the kwargs dict, otherwise ipy3 will throw an error
         return_value = self.app_callbacks.invoke_callback(self, callback, *args, **kwargs)
         # release com objects
         # logging.debug("Context.invoke_callback: request com release after callback %s", callback.method)
@@ -276,7 +277,7 @@ class AppContextPowerPoint(AppContext):
         ''' gives list-access to app.ActiveWindow.Selection.SlideRange '''
         try:
             slides = list(iter(self.selection.SlideRange))
-        except EnvironmentError:
+        except SystemError:
             #fallback for Invalid request.  SlideRange cannot be constructed from a Master.
             return [self.app.ActiveWindow.View.Slide]
         return slides
@@ -285,7 +286,7 @@ class AppContextPowerPoint(AppContext):
     def slide(self):
         try:
             return self.slides[0]
-        except EnvironmentError:
+        except SystemError:
             #fallback for Invalid request.  SlideRange cannot be constructed from a Master.
             return self.app.ActiveWindow.View.Slide
     
@@ -374,7 +375,7 @@ class AppContextPowerPoint(AppContext):
             except KeyError:
                 try:
                     self.cache['slides'] = slides = list(iter(selection.SlideRange))
-                except EnvironmentError:
+                except SystemError:
                     #fallback to slide in view, e.g. Invalid request.  SlideRange cannot be constructed from a Master.
                     try:
                         self.cache['slides'] = slides = [self.app.ActiveWindow.View.Slide]

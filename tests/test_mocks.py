@@ -5,7 +5,7 @@ Created on 13.05.2020
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import unittest
 

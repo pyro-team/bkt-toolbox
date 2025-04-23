@@ -5,7 +5,7 @@ Created on 06.02.2018
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 
@@ -13,7 +13,7 @@ import bkt
 # from . import text
 # from . import arrange
 from .. import harvey
-from .. import shapes as mod_shapes
+# from .. import shapes as mod_shapes
 # from . import shape_selection
 from .. import info
 from .. import agenda
@@ -21,6 +21,79 @@ from .. import linkshapes
 # from . import processshapes
 # from . import language
 # from . import slides
+
+
+# =========================================
+# = LOGIC ONLY REQUIRED FOR CONTEXT MENUS =
+# =========================================
+
+# Context menu if multiple connectors are selected
+class CtxVerbinder(object):
+    @staticmethod
+    def ctx_connectors_reroute_enabled(shapes):
+        return all(shape.Connector == -1 and shape.ConnectorFormat.BeginConnected == -1 and shape.ConnectorFormat.EndConnected == -1 for shape in shapes)
+
+    @staticmethod
+    def ctx_connectors_visible(shapes):
+        return all(shape.Connector == -1 for shape in shapes)
+
+    @staticmethod
+    def set_connector_type(shapes, con_type):
+        for shape in shapes:
+            if shape.Connector == -1: #msoTrue
+                shape.ConnectorFormat.Type = con_type
+
+    @staticmethod
+    def reroute_connectors(shapes):
+        for shape in shapes:
+            if shape.Connector == -1 and shape.ConnectorFormat.BeginConnected == -1 and shape.ConnectorFormat.EndConnected == -1: #msoTrue
+                shape.RerouteConnections()
+
+    @staticmethod
+    def invert_direction(shapes):
+        for shape in shapes:
+            if shape.Connector == -1: #msoTrue
+                #Swap begin and end styles
+                shape.Line.BeginArrowheadLength, shape.Line.EndArrowheadLength = shape.Line.EndArrowheadLength, shape.Line.BeginArrowheadLength
+                shape.Line.BeginArrowheadStyle, shape.Line.EndArrowheadStyle = shape.Line.EndArrowheadStyle, shape.Line.BeginArrowheadStyle
+                shape.Line.BeginArrowheadWidth, shape.Line.EndArrowheadWidth = shape.Line.EndArrowheadWidth, shape.Line.BeginArrowheadWidth
+
+
+class PictureFormat(object):
+    @staticmethod
+    def make_img_transparent(slide, shapes, transparency=0.5):
+        if not bkt.message.confirmation("Das bestehende Bild wird dabei ersetzt. Fortfahren?"):
+            return
+
+        import tempfile, os
+        import bkt.library.powerpoint as pplib
+        filename = os.path.join(tempfile.gettempdir(), "bktimgtransp.png")
+
+        for shape in shapes:
+            if shape.Type != pplib.MsoShapeType["msoPicture"]:
+                continue
+
+            shape.Export(filename, 2) #2=ppShapeFormatPNG
+
+            pic_shape = slide.Shapes.AddShape(
+                shape.AutoShapeType,
+                shape.Left, shape.Top,
+                shape.Width, shape.Height
+                )
+            pic_shape.LockAspectRatio = -1
+            pic_shape.Rotation = shape.Rotation
+            pplib.set_shape_zorder(pic_shape, value=shape.ZOrderPosition)
+            shape.PickUp()
+            pic_shape.Apply()
+            pic_shape.line.visible = shape.line.visible # line is not properly transferred by pickup-apply
+
+            pic_shape.fill.UserPicture(filename)
+            pic_shape.fill.transparency = transparency
+            pic_shape.Select(replace=False)
+
+            shape.Delete()
+            os.remove(filename)
+
 
 
 # =================
@@ -81,7 +154,7 @@ bkt.powerpoint.add_context_menu(
         ### Any shapes format sync
         bkt.ribbon.Button(id='context-format-sync', label="Format angleichen", insertBeforeMso='Cut', image_mso="FormatPainter",
             supertip="Alle Shapes so formatieren wie das Shape, welches beim Öffnen des Kontextmenüs unter dem Cursor ist",
-            on_action=bkt.CallbackLazy("toolbox.shape_selection", "FormatPainter", "cm_sync_shapes", shapes=True, context=True),
+            on_action=bkt.CallbackLazy("toolbox.models.copy_paste_format", "FormatPainter", "cm_sync_shapes", shapes=True, context=True),
         ),
         bkt.ribbon.MenuSeparator(insertBeforeMso='Cut'),
         ### Connector functions (basically "copy" standard functions to multi-selection of connectors)
@@ -91,25 +164,25 @@ bkt.powerpoint.add_context_menu(
             supertip="Verbindungstyp für alle ausgewählten Verbinder ändern",
             image_mso='ShapeConnectorStyleMenu',
             insertBeforeMso='ObjectsGroupMenu',
-            get_visible=bkt.Callback(mod_shapes.CtxVerbinder.ctx_connectors_visible, shapes=True),
+            get_visible=bkt.Callback(CtxVerbinder.ctx_connectors_visible, shapes=True),
             children=[
                 bkt.ribbon.Button(
                     id='context-connectors-type-straight',
                     label="Gerader Verbinder",
                     image_mso='ShapeConnectorStyleStraight',
-                    on_action=bkt.Callback(lambda shapes: mod_shapes.CtxVerbinder.set_connector_type(shapes, 1), shapes=True),
+                    on_action=bkt.Callback(lambda shapes: CtxVerbinder.set_connector_type(shapes, 1), shapes=True),
                 ),
                 bkt.ribbon.Button(
                     id='context-connectors-type-elbow',
                     label="Gewinkelte Verbindung",
                     image_mso='ShapeConnectorStyleElbow',
-                    on_action=bkt.Callback(lambda shapes: mod_shapes.CtxVerbinder.set_connector_type(shapes, 2), shapes=True),
+                    on_action=bkt.Callback(lambda shapes: CtxVerbinder.set_connector_type(shapes, 2), shapes=True),
                 ),
                 bkt.ribbon.Button(
                     id='context-connectors-type-curved',
                     label="Gekrümmte Verbindung",
                     image_mso='ShapeConnectorStyleCurved',
-                    on_action=bkt.Callback(lambda shapes: mod_shapes.CtxVerbinder.set_connector_type(shapes, 3), shapes=True),
+                    on_action=bkt.Callback(lambda shapes: CtxVerbinder.set_connector_type(shapes, 3), shapes=True),
                 ),
             ]
         ),
@@ -119,9 +192,9 @@ bkt.powerpoint.add_context_menu(
             supertip="Alle ausgewählten Verbinder neu erstellen",
             insertBeforeMso='ObjectsGroupMenu',
             image_mso='ShapeRerouteConnectors',
-            on_action=bkt.Callback(mod_shapes.CtxVerbinder.reroute_connectors, shapes=True),
-            get_visible=bkt.Callback(mod_shapes.CtxVerbinder.ctx_connectors_visible, shapes=True),
-            get_enabled=bkt.Callback(mod_shapes.CtxVerbinder.ctx_connectors_reroute_enabled, shapes=True),
+            on_action=bkt.Callback(CtxVerbinder.reroute_connectors, shapes=True),
+            get_visible=bkt.Callback(CtxVerbinder.ctx_connectors_visible, shapes=True),
+            get_enabled=bkt.Callback(CtxVerbinder.ctx_connectors_reroute_enabled, shapes=True),
         ),
         bkt.ribbon.Button(
             id='context-connectors-invert',
@@ -129,8 +202,8 @@ bkt.powerpoint.add_context_menu(
             supertip="Pfeilrichtung des Verbinders umkehren",
             insertBeforeMso='ObjectsGroupMenu',
             image_mso='ArrowStyleGallery',
-            on_action=bkt.Callback(mod_shapes.CtxVerbinder.invert_direction, shapes=True),
-            get_visible=bkt.Callback(mod_shapes.CtxVerbinder.ctx_connectors_visible, shapes=True),
+            on_action=bkt.Callback(CtxVerbinder.invert_direction, shapes=True),
+            get_visible=bkt.Callback(CtxVerbinder.ctx_connectors_visible, shapes=True),
         ),
         bkt.ribbon.MenuSeparator(insertBeforeMso='ObjectsGroupMenu'),
         ### Language setting
@@ -229,8 +302,8 @@ bkt.powerpoint.add_context_menu(
             supertip="Pfeilrichtung des Verbinders umkehren",
             insertAfterMso='ShapeRerouteConnectors',
             image_mso='ArrowStyleGallery',
-            on_action=bkt.Callback(mod_shapes.CtxVerbinder.invert_direction, shapes=True),
-            #get_visible=bkt.Callback(mod_shapes.CtxVerbinder.ctx_connectors_visible, shapes=True),
+            on_action=bkt.Callback(CtxVerbinder.invert_direction, shapes=True),
+            #get_visible=bkt.Callback(CtxVerbinder.ctx_connectors_visible, shapes=True),
         ),
     ])
 )
@@ -299,6 +372,30 @@ bkt.powerpoint.add_context_menu(
 # = CONTEXTUAL TAB =
 # ==================
 
+picture_format_tab = bkt.ribbon.Tab(
+    idMso = "TabPictureToolsFormat",
+    children = [
+        bkt.ribbon.Group(
+            id="bkt_pictureformat_group",
+            label="Format",
+            insert_after_mso="GroupPictureTools",
+            children = [
+                bkt.ribbon.Button(
+                    id = 'make_img_transparent',
+                    label="Transparenz ermöglichen",
+                    supertip="Ersetzt das Bild durch ein Shape mit Bildfüllung, welches nativ transparent gemacht werden kann. Dabei wird das bestehende Bild exportiert und dann gelöscht, d.h. etwaige zugeschnittene Bereiche gehen verloren und Bildformate können nicht rückgängig gemacht werden.",
+                    size="large",
+                    show_label=True,
+                    image_mso='PictureRecolorWashout',
+                    on_action=bkt.Callback(PictureFormat.make_img_transparent),
+                    # get_enabled = bkt.apps.ppt_shapes_or_text_selected,
+                ),
+            ]
+        )
+    ]
+)
+
+
 # bkt.powerpoint.add_contextual_tab(
 #     "TabSetDrawingTools",
 #     harvey.harvey_ball_tab
@@ -312,7 +409,7 @@ bkt.powerpoint.add_tab(linkshapes.linkshapes_tab)
 
 bkt.powerpoint.add_contextual_tab(
     "TabSetPictureTools",
-    mod_shapes.picture_format_tab
+    picture_format_tab
 )
 
 bkt.powerpoint.add_contextual_tab(

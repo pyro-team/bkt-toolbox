@@ -25,7 +25,7 @@ def ctrl_to_str(ctrl):
 
 
 
-@bkt.configure(label=u'Dummy Group')
+@bkt.configure(label='Dummy Group')
 @bkt.group
 class DummyGroup(bkt.FeatureContainer):
     
@@ -34,7 +34,7 @@ class DummyGroup(bkt.FeatureContainer):
         return 'first button'
 
 
-@bkt.configure(label=u'Dummy Button')
+@bkt.configure(label='Dummy Button')
 @bkt.decorators.UIControlAnnotationCommand('button') 
 class DummyButton(bkt.FeatureContainer):
     @bkt.callback_type(CallbackTypes.on_action)
@@ -42,7 +42,7 @@ class DummyButton(bkt.FeatureContainer):
         return 'dummy action'
 
 
-@bkt.configure(label=u'Dummy Spinner')
+@bkt.configure(label='Dummy Spinner')
 @bkt.decorators.UIControlAnnotationCommand(bkt.ribbon.SpinnerBox) 
 class DummySpinner(bkt.FeatureContainer):
     @bkt.callback_type(CallbackTypes.on_change)
@@ -109,7 +109,7 @@ class FeatureContainerTest(unittest.TestCase):
         f = bkt.factory.ControlFactory(DummySpinner)
         ctrl = f.create_control()
         #self.assertEqual(ctrl_to_str(ctrl), u'<box id="DummySpinner">\n<editBox onChange="PythonOnChange" sizeString="###" label="Dummy Spinner" />\n<button label="\xab" />\n<button label="\xbb" />\n</box>')
-        self.assertEqual(ctrl_to_str(ctrl), u'<box id="DummySpinner">\n<editBox getText="PythonGetText" id="DummySpinner_text" label="Dummy Spinner" onChange="PythonOnChange" sizeString="####" />\n<button id="DummySpinner_decrement" label="«" onAction="PythonOnAction" />\n<button id="DummySpinner_increment" label="»" onAction="PythonOnAction" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box id="DummySpinner">\n<editBox getText="PythonGetText" id="DummySpinner_text" label="Dummy Spinner" onChange="PythonOnChange" sizeString="####" />\n<button id="DummySpinner_decrement" label="«" onAction="PythonOnAction" />\n<button id="DummySpinner_increment" label="»" onAction="PythonOnAction" />\n</box>')
         
         callbacks = ctrl.collect_callbacks()
         lst = { (cb.control.id, cb.callback_type):cb.method  for cb in callbacks}

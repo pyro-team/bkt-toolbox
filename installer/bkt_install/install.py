@@ -6,7 +6,7 @@ Refactored on 25.02.2017
 @author: cschmitt
 '''
 
-from __future__ import absolute_import, division, print_function
+
 
 import os
 from collections import OrderedDict
@@ -225,7 +225,7 @@ class Installer(object):
             existing_value = getattr(config, key)
             if existing_value == None or existing_value == '':
                 new_value = value
-            elif type(existing_value) == list and type(value) == list:
+            elif isinstance(existing_value, list) and isinstance(value, list):
                 new_value = existing_value + [v for v in value if not v in existing_value]
             else:
                 new_value = existing_value
@@ -265,7 +265,6 @@ dummy_option = dummy_value
 	#  async_startup = False
 	#  task_panes = False
 	#  use_keymouse_hooks = True
-	#  enable_legacy_syntax = False
 	#  updates_auto_check_frequency = fridays-only
 	#  
 	#  ### Optional path settings
@@ -309,8 +308,8 @@ dummy_option = dummy_value
 	#
 """
         # append config example
-        with open(config_filename, 'a') as fd:
-            fd.write(config_example.encode('utf-8'))
+        with open(config_filename, 'a', encoding='utf-8') as fd:
+            fd.write(config_example)
 
 
     
@@ -373,7 +372,7 @@ def uninstall(args):
 
 
 def install(args):
-    if helper.is_admin() and not helper.yes_no_question('Are you sure to run BKT installer as admin?'):
+    if not args.silent and helper.is_admin() and not helper.yes_no_question('Are you sure to run BKT installer as admin?'):
         print('BKT installation cancelled')
         return
 

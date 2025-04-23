@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+
 
 import unittest
 
@@ -19,24 +19,24 @@ class TaskpaneBaseObjectTest(unittest.TestCase):
         
         # default XamlPropertyElement
         b = bkt.taskpane.XamlPropertyElement()
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<NotSpecified.NotSpecified' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<NotSpecified.NotSpecified' + XMLNS + ' />')
         #self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<NotSpecified.Resources xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" />')
 
         # specifying property name failed
         b = bkt.taskpane.XamlPropertyElement(property_name="PropertyName")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<NotSpecified.PropertyName' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<NotSpecified.PropertyName' + XMLNS + ' />')
 
         # specifying type name failed
         b = bkt.taskpane.XamlPropertyElement(type_name="TypeName")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<TypeName.NotSpecified' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<TypeName.NotSpecified' + XMLNS + ' />')
 
         # specifying type name and property name failed
         b = bkt.taskpane.XamlPropertyElement(type_name="TypeName", property_name="PropertyName")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<TypeName.PropertyName' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<TypeName.PropertyName' + XMLNS + ' />')
 
         # specifying type name at xml-generation failed
         b = bkt.taskpane.XamlPropertyElement(property_name="PropertyName")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml("TypeName")), u'<TypeName.PropertyName' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml("TypeName")), '<TypeName.PropertyName' + XMLNS + ' />')
         
         bkt.taskpane.TaskPaneControl.no_id = False
     
@@ -47,19 +47,19 @@ class TaskpaneBaseObjectTest(unittest.TestCase):
         
         # Definition of XamlPropertyElement with fixed type name failed
         b = myclass()
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<FixedTypeName.NotSpecified' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<FixedTypeName.NotSpecified' + XMLNS + ' />')
 
         # specifying property name failed
         b = myclass(property_name="PropertyName")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<FixedTypeName.PropertyName' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<FixedTypeName.PropertyName' + XMLNS + ' />')
 
         # type name should be overwritable
         b = myclass(type_name="TypeName")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<TypeName.NotSpecified' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<TypeName.NotSpecified' + XMLNS + ' />')
 
         # type name and property name should be overwritable
         b = myclass(type_name="TypeName", property_name="PropertyName")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<TypeName.PropertyName' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<TypeName.PropertyName' + XMLNS + ' />')
         
         bkt.taskpane.TaskPaneControl.no_id = False
     
@@ -71,15 +71,15 @@ class TaskpaneBaseObjectTest(unittest.TestCase):
         
         # Definition of XamlPropertyElement with fixed property name failed
         b = myclass()
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<NotSpecified.FixedPropertyName' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<NotSpecified.FixedPropertyName' + XMLNS + ' />')
 
         # property name should be overwritable
         b = myclass(property_name="PropertyName")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<NotSpecified.PropertyName' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<NotSpecified.PropertyName' + XMLNS + ' />')
 
         # specifying type name failed
         b = myclass(type_name="TypeName")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<TypeName.FixedPropertyName' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<TypeName.FixedPropertyName' + XMLNS + ' />')
         
         bkt.taskpane.TaskPaneControl.no_id = False
     
@@ -90,19 +90,19 @@ class TaskpaneBaseObjectTest(unittest.TestCase):
 
         # simple usage of XamlPropertyElementGenerator failed
         b = bkt.taskpane.XamlPropertyElements.Resources()
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<NotSpecified.Resources' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<NotSpecified.Resources' + XMLNS + ' />')
         
         # specification of type name failed
         b = bkt.taskpane.XamlPropertyElements.Resources("Button")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Button.Resources' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Button.Resources' + XMLNS + ' />')
 
         # specification of type name failed
         b = bkt.taskpane.XamlPropertyElements.Resources(type_name="Button")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Button.Resources' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Button.Resources' + XMLNS + ' />')
 
         # property name should be overwritable
         b = bkt.taskpane.XamlPropertyElements.Resources(type_name="Button", property_name="Overwritten")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Button.Overwritten' + XMLNS + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Button.Overwritten' + XMLNS + ' />')
         
         bkt.taskpane.TaskPaneControl.no_id = False
     
@@ -112,23 +112,23 @@ class TaskpaneBaseObjectTest(unittest.TestCase):
 
         # usage of XamlPropertyElement as attribute failed
         b = bkt.taskpane.TaskPaneControl(resources=bkt.taskpane.XamlPropertyElement(property_name="PropertyName"))
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<TaskPaneControl' + XMLNS + '>\r\n  <TaskPaneControl.PropertyName />\r\n</TaskPaneControl>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<TaskPaneControl' + XMLNS + '>\r\n  <TaskPaneControl.PropertyName />\r\n</TaskPaneControl>')
         
         # usage of XamlPropertyElementGenerator as attribute failed
         b = bkt.taskpane.TaskPaneControl(resources=bkt.taskpane.XamlPropertyElements.Resources())
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<TaskPaneControl' + XMLNS + '>\r\n  <TaskPaneControl.Resources />\r\n</TaskPaneControl>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<TaskPaneControl' + XMLNS + '>\r\n  <TaskPaneControl.Resources />\r\n</TaskPaneControl>')
 
         # usage of XamlPropertyElementGenerator with other xml-namespace failed
         b = bkt.taskpane.FluentRibbon.Button(resources=bkt.taskpane.XamlPropertyElements.Resources())
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Button' + XMLNS_FR + '>\r\n  <Button.Resources />\r\n</Button>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Button' + XMLNS_FR + '>\r\n  <Button.Resources />\r\n</Button>')
         
         # type name should not be overwritable
         b = bkt.taskpane.TaskPaneControl(resources=bkt.taskpane.XamlPropertyElement(type_name="TypeName", property_name="PropertyName"))
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<TaskPaneControl' + XMLNS + '>\r\n  <TaskPaneControl.PropertyName />\r\n</TaskPaneControl>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<TaskPaneControl' + XMLNS + '>\r\n  <TaskPaneControl.PropertyName />\r\n</TaskPaneControl>')
         
         # type name should not be overwritable
         b = bkt.taskpane.TaskPaneControl(resources=bkt.taskpane.XamlPropertyElements.Resources(type_name="TypeName"))
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<TaskPaneControl' + XMLNS + '>\r\n  <TaskPaneControl.Resources />\r\n</TaskPaneControl>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<TaskPaneControl' + XMLNS + '>\r\n  <TaskPaneControl.Resources />\r\n</TaskPaneControl>')
         
         bkt.taskpane.TaskPaneControl.no_id = False
     
@@ -138,20 +138,20 @@ class TaskpaneBaseObjectTest(unittest.TestCase):
 
         # usage of XamlPropertyElement as child-element faild
         b = bkt.taskpane.TaskPaneControl(children=[bkt.taskpane.XamlPropertyElement(type_name="TypeName", property_name="PropertyName")])
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<TaskPaneControl' + XMLNS + '>\r\n  <TypeName.PropertyName />\r\n</TaskPaneControl>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<TaskPaneControl' + XMLNS + '>\r\n  <TypeName.PropertyName />\r\n</TaskPaneControl>')
         
         # usage of XamlPropertyElementGenerator as child-element failed
         b = bkt.taskpane.TaskPaneControl(children=[bkt.taskpane.XamlPropertyElements.Resources("TypeName")])
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<TaskPaneControl' + XMLNS + '>\r\n  <TypeName.Resources />\r\n</TaskPaneControl>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<TaskPaneControl' + XMLNS + '>\r\n  <TypeName.Resources />\r\n</TaskPaneControl>')
         
         # no default type_name if child definition is used
         # type name should have no fallback if child definition is used
         b = bkt.taskpane.TaskPaneControl(children=[bkt.taskpane.XamlPropertyElement(property_name="PropertyName")])
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<TaskPaneControl' + XMLNS + '>\r\n  <NotSpecified.PropertyName />\r\n</TaskPaneControl>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<TaskPaneControl' + XMLNS + '>\r\n  <NotSpecified.PropertyName />\r\n</TaskPaneControl>')
         
         # type name should have no fallback if child definition is used
         b = bkt.taskpane.TaskPaneControl(children=[bkt.taskpane.XamlPropertyElements.Resources()])
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<TaskPaneControl' + XMLNS + '>\r\n  <NotSpecified.Resources />\r\n</TaskPaneControl>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<TaskPaneControl' + XMLNS + '>\r\n  <NotSpecified.Resources />\r\n</TaskPaneControl>')
         
         bkt.taskpane.TaskPaneControl.no_id = False
     
@@ -161,7 +161,7 @@ class TaskpaneBaseObjectTest(unittest.TestCase):
 
         # definition of RibbonButton failed
         b = bkt.taskpane.Ribbon.RibbonButton()
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<RibbonButton xmlns="clr-namespace:System.Windows.Controls.Ribbon;assembly=System.Windows.Controls.Ribbon" />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<RibbonButton xmlns="clr-namespace:System.Windows.Controls.Ribbon;assembly=System.Windows.Controls.Ribbon" />')
 
         bkt.taskpane.TaskPaneControl.no_id = False
 
@@ -172,7 +172,7 @@ class TaskpaneBaseObjectTest(unittest.TestCase):
 
         # definition of FluentRibbon-Button failed
         b = bkt.taskpane.FluentRibbon.Button()
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Button xmlns="urn:fluent-ribbon" />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Button xmlns="urn:fluent-ribbon" />')
 
         bkt.taskpane.FluentRibbonControl.no_id = False
     
@@ -183,35 +183,35 @@ class TaskpaneBaseObjectTest(unittest.TestCase):
         
         # Button with simple tooltip attribute failed
         b = bkt.taskpane.FluentRibbon.Button(tool_tip="Tooltip text")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Button ToolTip="Tooltip text"' + XMLNS_FR + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Button ToolTip="Tooltip text"' + XMLNS_FR + ' />')
         
         # Definition ToolTip-Property-Element failed
         b = bkt.taskpane.ToolTip("Button")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Button.ToolTip' + XMLNS_FR + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Button.ToolTip' + XMLNS_FR + ' />')
         
         # Definition of Screentip-Element failed
         b = bkt.taskpane.FluentRibbon.ScreenTip(text="screentip text")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<ScreenTip Text="screentip text"' + XMLNS_FR + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<ScreenTip Text="screentip text"' + XMLNS_FR + ' />')
 
         # Definition of Screentip-Element failed
         b = bkt.taskpane.FluentRibbon.ScreenTip(text="screentip text", title="screentip title", disable_reason="This button is diabled because ...", help_topic="Info for additional help")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<ScreenTip DisableReason="This button is diabled because ..." HelpTopic="Info for additional help" Text="screentip text" Title="screentip title"' + XMLNS_FR + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<ScreenTip DisableReason="This button is diabled because ..." HelpTopic="Info for additional help" Text="screentip text" Title="screentip title"' + XMLNS_FR + ' />')
         
         # Screentip-attribute should be parsed to ScreenTip-object
         b = bkt.taskpane.FluentRibbon.Button(screentip="Screentip text")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Button' + XMLNS_FR + '>\r\n  <Button.ToolTip>\r\n    <ScreenTip IsRibbonAligned="False" Text="Screentip text" />\r\n  </Button.ToolTip>\r\n</Button>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Button' + XMLNS_FR + '>\r\n  <Button.ToolTip>\r\n    <ScreenTip IsRibbonAligned="False" Text="Screentip text" />\r\n  </Button.ToolTip>\r\n</Button>')
 
         # Screentip-attribute should be parsed to ScreenTip-object
         b = bkt.taskpane.FluentRibbon.Button(screentip="Screentip text", screentip_title="Title", disable_reason="This button is diabled because ...", help_topic="Info for additional help")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Button' + XMLNS_FR + '>\r\n  <Button.ToolTip>\r\n    <ScreenTip DisableReason="This button is diabled because ..." HelpTopic="Info for additional help" IsRibbonAligned="False" Text="Screentip text" Title="Title" />\r\n  </Button.ToolTip>\r\n</Button>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Button' + XMLNS_FR + '>\r\n  <Button.ToolTip>\r\n    <ScreenTip DisableReason="This button is diabled because ..." HelpTopic="Info for additional help" IsRibbonAligned="False" Text="Screentip text" Title="Title" />\r\n  </Button.ToolTip>\r\n</Button>')
         
         # Screentip definition should overwrite tooltip
         b = bkt.taskpane.FluentRibbon.Button(tool_tip="Tooltip text", screentip="Screentip text")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Button' + XMLNS_FR + '>\r\n  <Button.ToolTip>\r\n    <ScreenTip IsRibbonAligned="False" Text="Screentip text" />\r\n  </Button.ToolTip>\r\n</Button>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Button' + XMLNS_FR + '>\r\n  <Button.ToolTip>\r\n    <ScreenTip IsRibbonAligned="False" Text="Screentip text" />\r\n  </Button.ToolTip>\r\n</Button>')
         
         # Definition of screentip through tooltip-attribute failed
         b = bkt.taskpane.FluentRibbon.Button(tool_tip=bkt.taskpane.FluentRibbon.ScreenTip(text="Screentip text"))
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Button' + XMLNS_FR + '>\r\n  <Button.ToolTip>\r\n    <ScreenTip Text="Screentip text" />\r\n  </Button.ToolTip>\r\n</Button>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Button' + XMLNS_FR + '>\r\n  <Button.ToolTip>\r\n    <ScreenTip Text="Screentip text" />\r\n  </Button.ToolTip>\r\n</Button>')
 
 
         bkt.taskpane.FluentRibbonControl.no_id = False
@@ -222,7 +222,7 @@ class TaskpaneBaseObjectTest(unittest.TestCase):
         bkt.taskpane.FluentRibbonControl.no_id = True
         
         b = bkt.taskpane.FluentRibbon.Button(image="test_image")
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Button Icon="{StaticResource test_image}"' + XMLNS_FR + ' />')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Button Icon="{StaticResource test_image}"' + XMLNS_FR + ' />')
         
 
     def test_ExpanderStackPanel(self):
@@ -230,16 +230,16 @@ class TaskpaneBaseObjectTest(unittest.TestCase):
         bkt.taskpane.FluentRibbonControl.no_id = True
         
         b = bkt.taskpane.Expander(auto_stack=True, children=[bkt.taskpane.Wpf.Button()])
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Expander IsExpanded="false"'+XMLNS+'>\r\n  <StackPanel Orientation="Vertical">\r\n    <Button />\r\n  </StackPanel>\r\n</Expander>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Expander IsExpanded="false"'+XMLNS+'>\r\n  <StackPanel Orientation="Vertical">\r\n    <Button />\r\n  </StackPanel>\r\n</Expander>')
 
         b = bkt.taskpane.Expander(auto_wrap=True, children=[bkt.taskpane.Wpf.Button()])
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Expander IsExpanded="false"'+XMLNS+'>\r\n  <WrapPanel Orientation="Horizontal">\r\n    <Button />\r\n  </WrapPanel>\r\n</Expander>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Expander IsExpanded="false"'+XMLNS+'>\r\n  <WrapPanel Orientation="Horizontal">\r\n    <Button />\r\n  </WrapPanel>\r\n</Expander>')
         
         b = bkt.taskpane.Expander(auto_stack=True, header="Test Header", children=[bkt.taskpane.Wpf.Button()])
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Expander Header="Test Header" IsExpanded="false"'+XMLNS+'>\r\n  <StackPanel Orientation="Vertical">\r\n    <Button />\r\n  </StackPanel>\r\n</Expander>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Expander Header="Test Header" IsExpanded="false"'+XMLNS+'>\r\n  <StackPanel Orientation="Vertical">\r\n    <Button />\r\n  </StackPanel>\r\n</Expander>')
     
         b = bkt.taskpane.Expander(auto_stack=True, is_expanded=True, children=[bkt.taskpane.Wpf.Button()])
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<Expander IsExpanded="true"'+XMLNS+'>\r\n  <StackPanel Orientation="Vertical">\r\n    <Button />\r\n  </StackPanel>\r\n</Expander>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<Expander IsExpanded="true"'+XMLNS+'>\r\n  <StackPanel Orientation="Vertical">\r\n    <Button />\r\n  </StackPanel>\r\n</Expander>')
     
     
     def test_Group(self):
@@ -248,8 +248,8 @@ class TaskpaneBaseObjectTest(unittest.TestCase):
         self.maxDiff = None
         
         b = bkt.taskpane.Group(auto_wrap=True, children=[bkt.taskpane.Wpf.Button()])
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<StackPanel Orientation="Vertical"'+XMLNS+'>\r\n  <Grid Margin="0,10,0,5">\r\n    <Grid.ColumnDefinitions>\r\n      <ColumnDefinition Width="*" />\r\n    </Grid.ColumnDefinitions>\r\n    <Border Height="1" Background="{StaticResource BKTDivider}" HorizontalAlignment="Stretch" SnapsToDevicePixels="True" Margin="7,3,10,3" />\r\n  </Grid>\r\n  <WrapPanel Orientation="Horizontal">\r\n    <Button />\r\n  </WrapPanel>\r\n</StackPanel>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<StackPanel Orientation="Vertical"'+XMLNS+'>\r\n  <Grid Margin="0,10,0,5">\r\n    <Grid.ColumnDefinitions>\r\n      <ColumnDefinition Width="*" />\r\n    </Grid.ColumnDefinitions>\r\n    <Border Height="1" Background="{StaticResource BKTDivider}" HorizontalAlignment="Stretch" SnapsToDevicePixels="True" Margin="7,3,10,3" />\r\n  </Grid>\r\n  <WrapPanel Orientation="Horizontal">\r\n    <Button />\r\n  </WrapPanel>\r\n</StackPanel>')
 
         b = bkt.taskpane.Group(auto_wrap=True, show_separator=False, children=[bkt.taskpane.Wpf.Button()])
-        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), u'<StackPanel Orientation="Vertical"'+XMLNS+'>\r\n  <WrapPanel Orientation="Horizontal">\r\n    <Button />\r\n  </WrapPanel>\r\n</StackPanel>')
+        self.assertEqual(bkt.xml.WpfXMLFactory.to_string(b.wpf_xml()), '<StackPanel Orientation="Vertical"'+XMLNS+'>\r\n  <WrapPanel Orientation="Horizontal">\r\n    <Button />\r\n  </WrapPanel>\r\n</StackPanel>')
 

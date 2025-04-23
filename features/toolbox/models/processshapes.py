@@ -5,7 +5,7 @@ Created on 08.07.2019
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 

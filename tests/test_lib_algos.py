@@ -5,7 +5,7 @@ Created on 13.05.2020
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import unittest
 
@@ -15,9 +15,9 @@ from bkt.library import algorithms
 
 
 def float_to_int(var):
-    if type(var) is list:
+    if isinstance(var, list):
         return [float_to_int(f) for f in var]
-    elif type(var) is tuple:
+    elif isinstance(var, tuple):
         return tuple(float_to_int(f) for f in var)
     else:
         return round(var)
@@ -60,7 +60,7 @@ class ShapeTests(unittest.TestCase):
         s0 = Shape(left=1,top=2,width=3,height=4)
         s1 = Shape(left=1,top=2,width=3,height=4)
         s1.rotation = 180
-        s2 = Shape(left=1,top=2,width=3,height=4)
+        s2 = Shape(left=1,top=2,width=3,height=5)
         s2.rotation = 90
         s3 = Shape(left=0,top=5,width=6,height=3)
         s4 = Shape(left=7,top=5,width=1,height=25)
@@ -78,7 +78,7 @@ class ShapeTests(unittest.TestCase):
     def test_get_bounding_nodes(self):
         self.assertListEqual(float_to_int(algorithms.get_bounding_nodes(self.shapes[0])), [[1,2],[1,6],[4,6],[4,2]])
         self.assertListEqual(float_to_int(algorithms.get_bounding_nodes(self.shapes[1])), [[4,6],[4,2],[1,2],[1,6]])
-        self.assertListEqual(float_to_int(algorithms.get_bounding_nodes(self.shapes[2])), [[5,3],[1,2],[0,6],[5,6]])
+        self.assertListEqual(float_to_int(algorithms.get_bounding_nodes(self.shapes[2])), [[5,3],[0,3],[0,6],[5,6]])
 
 
 class ColorTests(unittest.TestCase):

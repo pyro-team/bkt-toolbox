@@ -6,7 +6,7 @@ Created on 11.11.2019
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 
@@ -58,7 +58,7 @@ class TaskPaneControl(TypedRibbonControl):
         node = f.node(self.xml_name, **convert_dict_to_ribbon_xml_style(self._attributes))
         
         # parse XamlPropertyElement-attributes
-        for key,value in self._attributes.iteritems():
+        for key,value in self._attributes.items():
             if isinstance(value, XamlPropertyElement):
                 value.xml_namespace = self.xml_namespace
                 node.Add(value.wpf_xml(type_name=self.xml_name))
@@ -170,7 +170,7 @@ class FluentRibbonControl(TaskPaneControl):
 # =========================================
 
 
-NOTSPECIFIED = u'NotSpecified'
+NOTSPECIFIED = 'NotSpecified'
 
 class XamlPropertyElement(TaskPaneControl):
     _property_name = None
@@ -459,7 +459,7 @@ def convert_value_to_string(v):
         return 'true'
     elif v is False:
         return 'false'
-    elif isinstance(v, (str, unicode)):
+    elif isinstance(v, str):
         return v
     else:
         try:

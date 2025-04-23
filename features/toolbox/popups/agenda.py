@@ -5,12 +5,12 @@ Created on 21.12.2017
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 
 from bkt.callbacks import WpfActionCallback
-from ..agenda import ToolboxAgenda
+from ..models.agenda import ToolboxAgenda
 
 
 class AgendaPopup(bkt.ui.WpfWindowAbstract):

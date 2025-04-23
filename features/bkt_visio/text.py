@@ -5,7 +5,7 @@ Created on 14.03.2018
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 # import math
 # import logging
@@ -80,12 +80,12 @@ innenabstand_gruppe = bkt.ribbon.Group(
     image_mso='ObjectNudgeRight',
     children=[
     bkt.ribbon.Box(children=[
-        bkt.ribbon.LabelControl(label=u'         \u200b'),
+        bkt.ribbon.LabelControl(label='         \u200b'),
         inner_margin_top,
-        bkt.ribbon.LabelControl(label=u'   \u200b'),
+        bkt.ribbon.LabelControl(label='   \u200b'),
         bkt.ribbon.Button(
             id='textFrameMargin-zero',
-            label=u"=\u202F0",
+            label="=\u202F0",
             screentip="Innenabstand auf Null",
             supertip="Ändere in Innenabstand des Textfelds an allen Seiten auf Null.",
             on_action=bkt.Callback( InnerMargin.set_to_0 )
@@ -96,9 +96,9 @@ innenabstand_gruppe = bkt.ribbon.Group(
         inner_margin_right,
     ]),
     bkt.ribbon.Box(children=[
-        bkt.ribbon.LabelControl(label=u'         \u200b'),
+        bkt.ribbon.LabelControl(label='         \u200b'),
         inner_margin_bottom,
-        bkt.ribbon.LabelControl(label=u'   \u200b'),
+        bkt.ribbon.LabelControl(label='   \u200b'),
         bkt.ribbon.ToggleButton(
             id='textFrameMargin-equal',
             label="==",

@@ -91,6 +91,32 @@
             </StackPanel>
         </GroupBox>
 
+        <GroupBox Margin="5">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Sofort synchronisieren?" />
+                    <Button Style="{StaticResource selectAllBtn}" Click="sync_all" />
+                    <Button Style="{StaticResource selectNoneBtn}" Click="sync_none" />
+                </StackPanel>
+            </GroupBox.Header>
+            <StackPanel>
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <CheckBox Grid.Row="0" Grid.Column="0" Content="Position" IsChecked="{Binding attr_sync_pos, Mode=TwoWay}" Margin="5" />
+                    <CheckBox Grid.Row="0" Grid.Column="1" Content="Größe" IsChecked="{Binding attr_sync_size, Mode=TwoWay}" Margin="5" />
+                    <CheckBox Grid.Row="1" Grid.Column="0" Content="Formatierung" IsChecked="{Binding attr_sync_format, Mode=TwoWay}" Margin="5" />
+                    <CheckBox Grid.Row="1" Grid.Column="1" Content="Text" IsChecked="{Binding attr_sync_text, Mode=TwoWay}" Margin="5" />
+                </Grid>
+            </StackPanel>
+        </GroupBox>
+
         <Grid Margin="0">
           <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*" />

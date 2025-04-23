@@ -4,7 +4,7 @@ Created on 2018-05-29
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 
@@ -74,7 +74,7 @@ class ShapeFormats(object):
         indent_levels = OrderedDict()
         if textframe_object.TextRange.Paragraphs().Count > 0:
             # at least one paragraph
-            indent_level_range = range(0,6) #indent levels 0 to 5, whereas 0 is used as internal fallback format!
+            indent_level_range = list(range(0,6)) #indent levels 0 to 5, whereas 0 is used as internal fallback format!
             for par in textframe_object.TextRange.Paragraphs():
                 indent_level = par.ParagraphFormat.IndentLevel
                 if indent_level == 1 and par.ParagraphFormat.Bullet.Visible == 0:

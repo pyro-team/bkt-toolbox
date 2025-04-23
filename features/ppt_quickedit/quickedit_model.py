@@ -4,7 +4,7 @@ Created on 2018-01-10
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import os.path
 import io

@@ -4,7 +4,7 @@ Created on 2017-08-16
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 #for caching
 # import time
@@ -210,7 +210,7 @@ class ShapeTables(object):
 
     def table_info(self,shapes):
         tr = self._prepare_table(shapes, force=True)
-        msg = u""
+        msg = ""
         msg += "Tabellengröße: Zeilen=%d, Spalten=%d\r\n" % tr.dimension
         msg += "Median-Abstand: %s cm" % round(pt_to_cm(tr.median_spacing()),2)
         bkt.message(msg)
@@ -222,7 +222,7 @@ class ShapeTables(object):
 
             # shapes = pplib.get_shapes_from_selection(selection)
             tr = self._prepare_table(context.shapes)
-            return u"Tabelle: %d Z. \xd7 %d S." % tr.dimension #Zeilen x Spalten
+            return "Tabelle: %d Z. \xd7 %d S." % tr.dimension #Zeilen x Spalten
         except:
             return "Tabelle: -"
 
@@ -515,7 +515,7 @@ tabellen_gruppe = bkt.ribbon.Group(
         # ),
         bkt.ribbon.RoundingSpinnerBox(
             id = 'align_table_spacing_rows',
-            label=u"Zeilenabstand",
+            label="Zeilenabstand",
             show_label=False,
             image_mso="VerticalSpacingIncrease",
             supertip="Ändert den Zeilenabstand der Shapes. [ALT] wechselt zwischen Bewegen und Dehen/Stauchen.",
@@ -527,7 +527,7 @@ tabellen_gruppe = bkt.ribbon.Group(
         ),
         bkt.ribbon.RoundingSpinnerBox(
             id = 'align_table_spacing_cols',
-            label=u"Spaltenabstand",
+            label="Spaltenabstand",
             show_label=False,
             image_mso="HorizontalSpacingIncrease",
             supertip="Ändert den Spaltenabstand der Shapes. [ALT] wechselt zwischen Bewegen und Dehen/Stauchen.",
@@ -584,7 +584,7 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
     #id_q="nsBKT:powerpoint_toolbox_extensions",
     #insert_after_q="nsBKT:powerpoint_toolbox_advanced",
     insert_before_mso="TabHome",
-    label=u'Toolbox 3/3',
+    label='Toolbox 3/3',
     # get_visible defaults to False during async-startup
     get_visible=bkt.Callback(lambda:True),
     children = [

@@ -7,13 +7,13 @@ Created on 10.09.2013
 @author: cschmitt, rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 __author__ = "Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann"
 __copyright__ = "Copyright 2019 Christoph Schmitt, Ruben Debeerst, Thomas Weuffel, Florian Stallmann"
 __license__ = "MIT"
-__version__ = "2.7.5"
-__release__ = "BKT r23-08-30"
+__version__ = "3.0.1"
+__release__ = "BKT r24-01-10"
 
 
 # NOTE: Use StandardLib.dll as alternative to /bin/Lib, but seems to have problems with wpf/fluent
@@ -62,62 +62,3 @@ from bkt.library.system import (
     message,
     MessageBox
 )
-
-# enable legacy annotations syntax with decorators
-if config.enable_legacy_syntax or False:
-    from bkt.annotation import FeatureContainer #@deprecated
-    # @deprecated
-    from bkt.decorators import (
-        # public classes
-        #EventHandler,
-        #CallableContextInformation,
-        #Resources,
-        
-        # decorators for ribbon-classes
-        uicontrol,
-        use,
-        tab,
-        group,
-        menu,
-        box,
-        button,
-        large_button,
-        toggle_button,
-        edit_box,
-        spinner_box,
-        gallery,
-        combo_box,
-        #dialog_box_launcher,
-        #check_box,
-        #incdec_edit_box,
-        
-        # decorators for ribbon attributes
-        configure,
-        image,
-        image_mso,
-        
-        # decorators for callbacks
-        callback_type,
-        increment,
-        decrement,
-        on_change,
-        get_text,
-        
-        # decorators for context
-        arg_python_addin,
-        arg_ribbon_id,
-        arg_context,
-        arg_presentation,
-        arg_shape,
-        arg_shapes,
-        arg_shapes_limited,
-        arg_slide,
-        arg_slides,
-        arg_slides_limited,
-        arg_page_shapes,
-        require_text,
-        no_transaction,
-        uuid
-        # decorators for office apps
-    )
-

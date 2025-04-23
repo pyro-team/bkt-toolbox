@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, division
+
 
 import logging
 
@@ -48,7 +48,7 @@ class ScaleShapes(object):
             rel = value / shape.width
         else:
             rel = value
-            logging.warning("scale percent: %s", rel)
+            logging.info("scale percent: %s", rel)
 
         if 'size' in settings:
             shape.ScaleWidth(rel,0,0)
@@ -56,41 +56,47 @@ class ScaleShapes(object):
                 shape.ScaleHeight(rel,0,0)
 
         for shape in pplib.iterate_shape_subshapes([shape]):
-            if 'line' in settings and shape.Line.Visible:
-                shape.Line.Weight *= rel
+            try:
+                if 'line' in settings and shape.Line.Visible:
+                    shape.Line.Weight *= rel
 
-            if 'shadow' in settings and shape.Shadow.Visible:
-                shape.shadow.Blur *= rel
-                shape.shadow.OffsetX *= rel
-                shape.shadow.OffsetY *= rel
+                if 'shadow' in settings and shape.Shadow.Visible:
+                    shape.shadow.Blur *= rel
+                    shape.shadow.OffsetX *= rel
+                    shape.shadow.OffsetY *= rel
 
-            if shape.HasTextFrame:
-                textframe = shape.TextFrame2
-                if 'margin' in settings:
-                    textframe.MarginTop *= rel
-                    textframe.MarginBottom *= rel
-                    textframe.MarginLeft *= rel
-                    textframe.MarginRight *= rel
-                #per run
-                textrange = textframe.TextRange
-                for run in textrange.Runs():
-                    if 'font' in settings:
-                        run.Font.Size *= rel
-                        if run.Font.Line.Visible:
-                            run.Font.Line.Weight *= rel
+                if shape.HasTextFrame:
+                    textframe = shape.TextFrame2
+                    if 'margin' in settings:
+                        textframe.MarginTop *= rel
+                        textframe.MarginBottom *= rel
+                        textframe.MarginLeft *= rel
+                        textframe.MarginRight *= rel
+                    #per run
+                    textrange = textframe.TextRange
+                    for run in textrange.Runs():
+                        if 'font' in settings:
+                            run.Font.Size *= rel
+                            if run.Font.Line.Visible:
+                                run.Font.Line.Weight *= rel
 
-                    if 'indent' in settings:
-                        parf = run.ParagraphFormat
-                        if not parf.LineRuleBefore:
-                            parf.SpaceBefore *= rel
-                        if not parf.LineRuleAfter:
-                            parf.SpaceAfter *= rel
-                        if not parf.LineRuleWithin:
-                            parf.SpaceWithin *= rel
+                        if 'indent' in settings:
+                            parf = run.ParagraphFormat
+                            if not parf.LineRuleBefore:
+                                parf.SpaceBefore *= rel
+                            if not parf.LineRuleAfter:
+                                parf.SpaceAfter *= rel
+                            if not parf.LineRuleWithin:
+                                parf.SpaceWithin *= rel
 
-                        parf.FirstLineIndent *= rel
-                        parf.LeftIndent *= rel
-                        parf.RightIndent *= rel
+                            if int(parf.FirstLineIndent) > -2147483648:
+                                parf.FirstLineIndent *= rel
+                            if int(parf.LeftIndent) > -2147483648:
+                                parf.LeftIndent *= rel
+                            if int(parf.RightIndent) > -2147483648:
+                                parf.RightIndent *= rel
+            except:
+                logging.exception("scale shape failed for subshape")
 
 
 

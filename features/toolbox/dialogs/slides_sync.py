@@ -4,7 +4,7 @@ Created on 2020-09-19
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import, division
+
 
 import logging
 
@@ -41,7 +41,7 @@ class SlidesSync(object):
             try:
                 if worker.CancellationPending:
                     break
-                worker.ReportProgress(i/len_slides*100)
+                worker.ReportProgress(round(i/len_slides*100))
                 self.sync_slide(worker, template_shapes, slide)
             except:
                 logging.exception("error with slide %s", slide.slideindex)

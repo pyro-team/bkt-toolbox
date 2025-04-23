@@ -5,7 +5,7 @@ Created on 26.02.2020
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import json
@@ -76,7 +76,7 @@ class DevGroup(object):
         import sys
         import bkt.console
         
-        bkt.console.show_message('\r\n'.join( sorted(sys.modules.iterkeys()) ))
+        bkt.console.show_message('\r\n'.join( sorted(sys.modules.keys()) ))
     
     @staticmethod
     def show_clipboard():
@@ -115,10 +115,6 @@ class DevGroup(object):
     @staticmethod
     def toggle_log_write_file(pressed):
         bkt.config.set_smart("log_write_file", pressed)
-        
-    @staticmethod
-    def toggle_legacy_syntax(pressed):
-        bkt.config.set_smart("enable_legacy_syntax", pressed)
     
     @staticmethod
     def change_log_level(pressed, current_control):
@@ -241,7 +237,7 @@ class AllControls(object):
 
     def add_all_standard_tabs(self):
         #standard tabs
-        for tab_id, tab in self.python_addin.app_ui.tabs.iteritems():
+        for tab_id, tab in self.python_addin.app_ui.tabs.items():
             tab_label = self._getattr(tab, "label")
             #if no label is given try getting standard idmso label
             if tab_label is None:
@@ -266,7 +262,7 @@ class AllControls(object):
 
     def add_all_contextual_tabs(self):
         #contextual_tabs
-        for tab_id, tablist in self.python_addin.app_ui.contextual_tabs.iteritems():
+        for tab_id, tablist in self.python_addin.app_ui.contextual_tabs.items():
             for tab in tablist:
                 tab_control = OrderedDict()
                 tab_control["id"]       = tab_id
@@ -310,7 +306,7 @@ class AllControls(object):
         context_menus["name"]     = "Kontextmenüs"
         context_menus["children"] = []
         #context menu controls
-        for _, contextmenu in self.python_addin.app_ui.context_menus.iteritems():
+        for _, contextmenu in self.python_addin.app_ui.context_menus.items():
             try:
                 cm_control = self._get_control_dict(contextmenu)
                 cm_control["children"] = []
@@ -352,10 +348,10 @@ class AllControls(object):
                                 description = ""
                             name = control["name"]
                             if control["is_standard"]:
-                                name = u"*{}*".format(name)
+                                name = "*{}*".format(name)
                             if control["submenu"]:
-                                name = u"{} > {}".format(control["submenu"], name)
-                            md_file.write(u"| {:50} | {:50} |\n".format(name, description))
+                                name = "{} > {}".format(control["submenu"], name)
+                            md_file.write("| {:50} | {:50} |\n".format(name, description))
                         md_file.write("\n")
                     md_file.write("\n")
                 md_file.write("\n\n\n")
@@ -377,13 +373,13 @@ common_group = bkt.ribbon.Group(
             label="Interactive Console",
             size="large",
             image_mso="WatchWindow",
-            on_action=bkt.Callback(DevGroup.show_console, context=True, transaction=False),
+            on_action=bkt.Callback(DevGroup.show_console, context=True, transactional=False),
         ),
         bkt.ribbon.Button(
             label="Reload BKT",
             size="large",
             image_mso="AccessRefreshAllLists",
-            on_action=bkt.Callback(DevGroup.reload_bkt, context=True, transaction=False),
+            on_action=bkt.Callback(DevGroup.reload_bkt, context=True, transactional=False),
         ),
         bkt.ribbon.Separator(),
         bkt.ribbon.Menu(
@@ -394,29 +390,29 @@ common_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     label="Open config.txt",
                     image_mso="NewNotepadTool",
-                    on_action=bkt.Callback(settings.BKTInfos.open_config, transaction=False)
+                    on_action=bkt.Callback(settings.BKTInfos.open_config, transactional=False)
                 ),
                 bkt.ribbon.Button(
                     label="Show config",
                     image_mso="WebPageComponent",
-                    on_action=bkt.Callback(DevGroup.show_config, context=True, transaction=False),
+                    on_action=bkt.Callback(DevGroup.show_config, context=True, transactional=False),
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
                     label="Show app settings",
                     image_mso="WebPartProperties",
-                    on_action=bkt.Callback(DevGroup.show_settings, context=True, transaction=False),
+                    on_action=bkt.Callback(DevGroup.show_settings, context=True, transactional=False),
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.ToggleButton(
                     label="Show exceptions on/off",
                     get_pressed=bkt.Callback(lambda: bkt.config.show_exception or False),
-                    on_toggle_action=bkt.Callback(DevGroup.toggle_show_exception, transaction=False)
+                    on_toggle_action=bkt.Callback(DevGroup.toggle_show_exception, transactional=False)
                 ),
                 bkt.ribbon.ToggleButton(
                     label="Write log file on/off",
                     get_pressed=bkt.Callback(lambda: bkt.config.log_write_file or False),
-                    on_toggle_action=bkt.Callback(DevGroup.toggle_log_write_file, transaction=False)
+                    on_toggle_action=bkt.Callback(DevGroup.toggle_log_write_file, transactional=False)
                 ),
                 bkt.ribbon.Menu(
                     label="Change log-level",
@@ -425,38 +421,33 @@ common_group = bkt.ribbon.Group(
                             label="DEBUG",
                             tag="DEBUG",
                             get_pressed=bkt.Callback(DevGroup.get_log_level, current_control=True),
-                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transaction=False)
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transactional=False)
                         ),
                         bkt.ribbon.ToggleButton(
                             label="INFO",
                             tag="INFO",
                             get_pressed=bkt.Callback(DevGroup.get_log_level, current_control=True),
-                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transaction=False)
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transactional=False)
                         ),
                         bkt.ribbon.ToggleButton(
                             label="WARNING",
                             tag="WARNING",
                             get_pressed=bkt.Callback(DevGroup.get_log_level, current_control=True),
-                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transaction=False)
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transactional=False)
                         ),
                         bkt.ribbon.ToggleButton(
                             label="ERROR",
                             tag="ERROR",
                             get_pressed=bkt.Callback(DevGroup.get_log_level, current_control=True),
-                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transaction=False)
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transactional=False)
                         ),
                         bkt.ribbon.ToggleButton(
                             label="CRITICAL",
                             tag="CRITICAL",
                             get_pressed=bkt.Callback(DevGroup.get_log_level, current_control=True),
-                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transaction=False)
+                            on_toggle_action=bkt.Callback(DevGroup.change_log_level, current_control=True, transactional=False)
                         ),
                     ]
-                ),
-                bkt.ribbon.ToggleButton(
-                    label="Legacy Syntax on/off",
-                    get_pressed=bkt.Callback(lambda: bkt.config.enable_legacy_syntax or False),
-                    on_toggle_action=bkt.Callback(DevGroup.toggle_legacy_syntax, transaction=False)
                 ),
             ]
         ),
@@ -468,33 +459,33 @@ common_group = bkt.ribbon.Group(
                 bkt.ribbon.Button(
                     label="Open BKT folder",
                     image_mso="Folder",
-                    on_action=bkt.Callback(settings.BKTInfos.open_folder, transaction=False)
+                    on_action=bkt.Callback(settings.BKTInfos.open_folder, transactional=False)
                 ),
                 bkt.ribbon.Button(
                     label="Open Cache folder",
                     image_mso="Folder",
-                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_cache_folder()), transaction=False)
+                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_cache_folder()), transactional=False)
                 ),
                 bkt.ribbon.Button(
                     label="Open Settings folder",
                     image_mso="Folder",
-                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_settings_folder()), transaction=False)
+                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_settings_folder()), transactional=False)
                 ),
                 bkt.ribbon.Button(
                     label="Open Favorites folder",
                     image_mso="Folder",
-                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_fav_folder()), transaction=False)
+                    on_action=bkt.Callback(lambda: settings.BKTInfos.open_folder(bkt.helpers.get_fav_folder()), transactional=False)
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
                     label="Open Python-Log-File",
                     image_mso="ScriptDebugger",
-                    on_action=bkt.Callback(DevGroup.open_log_py, transaction=False),
+                    on_action=bkt.Callback(DevGroup.open_log_py, transactional=False),
                 ),
                 bkt.ribbon.Button(
                     label="Open .NET-Log-File",
                     image_mso="ScriptDebugger",
-                    on_action=bkt.Callback(DevGroup.open_log_dotnet, transaction=False),
+                    on_action=bkt.Callback(DevGroup.open_log_dotnet, transactional=False),
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
@@ -502,29 +493,29 @@ common_group = bkt.ribbon.Group(
                     # size="large",
                     # image="xml",
                     image_mso="DataFromXmlFile",
-                    on_action=bkt.Callback(DevGroup.show_ribbon_xml, python_addin=True, ribbon_id=True, transaction=False),
+                    on_action=bkt.Callback(DevGroup.show_ribbon_xml, python_addin=True, ribbon_id=True, transactional=False),
                 ),
                 bkt.ribbon.Button(
                     label="Show ContextMenu IDs",
                     image_mso="ContextHelp",
-                    on_action=bkt.Callback(DevGroup.show_contextmenuids, transaction=False),
+                    on_action=bkt.Callback(DevGroup.show_contextmenuids, transactional=False),
                 ),
                 bkt.ribbon.Button(
                     label="Show sys.modules",
                     image_mso="CreateClassModule",
-                    on_action=bkt.Callback(DevGroup.show_sysmodules, transaction=False),
+                    on_action=bkt.Callback(DevGroup.show_sysmodules, transactional=False),
                 ),
                 bkt.ribbon.Button(
                     label="Show Clipboard DataFormats",
                     image_mso="ShowClipboard",
-                    on_action=bkt.Callback(DevGroup.show_clipboard, transaction=False),
+                    on_action=bkt.Callback(DevGroup.show_clipboard, transactional=False),
                 ),
                 bkt.ribbon.MenuSeparator(),
                 bkt.ribbon.Button(
                     label="Generate controls overview",
                     # size="large",
                     image_mso="CreateMap",
-                    on_action=bkt.Callback(AllControls.generate_overview, context=True, transaction=False),
+                    on_action=bkt.Callback(AllControls.generate_overview, context=True, transactional=False),
                 ),
             ]
         ),
@@ -560,7 +551,7 @@ class ImageMso(object):
         file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "imagemso2.json")
         with io.open(file, 'r', encoding='utf-8') as json_file:
             icons = json.load(json_file, object_pairs_hook=OrderedDict)
-            for icon, keywords in icons.iteritems():
+            for icon, keywords in icons.items():
                 # keywords = cls.camel_to_keywords(icon)
                 search_writer.add_document(module="imagemso", name=icon, keywords=keywords)
             search_writer.commit()

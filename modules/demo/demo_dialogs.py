@@ -9,17 +9,17 @@ import System
 
 def show_dialog():
     logging.debug("show dialog")
-    from dialogs import dialog
+    from .dialogs import dialog
     dialog.show(System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle)
 
 def show_fluentdialog():
     logging.debug("show fluent dialog")
-    from dialogs import fluentdialog
+    from .dialogs import fluentdialog
     fluentdialog.show(System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle)
 
 def show_mahappsdialog():
     logging.debug("show Mahapps.Metro dialog")
-    from dialogs import mahapps_dialog
+    from .dialogs import mahapps_dialog
     mahapps_dialog.show(System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle)
 
 

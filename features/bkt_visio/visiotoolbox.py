@@ -4,7 +4,7 @@ Created on 2016-04-27
 @author: Tobias Schickling, Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 
@@ -192,7 +192,7 @@ bkt.visio.add_tab(
     bkt.ribbon.Tab(
         id="bkt_visio_toolbox",
         #id_q="nsBKT:visio_toolbox",
-        label=u"Toolbox 1/2",
+        label="Toolbox 1/2",
         insert_before_mso="TabHome",
         get_visible=bkt.Callback(lambda: True),
         children = [
@@ -217,7 +217,7 @@ bkt.visio.add_tab(
     bkt.ribbon.Tab(
         id="bkt_visio_toolbox_advanced",
         #id_q="nsBKT:visio_toolbox_advanced",
-        label=u"Toolbox 2/2",
+        label="Toolbox 2/2",
         insert_before_mso="TabHome",
         get_visible=bkt.Callback(lambda: True),
         children = [

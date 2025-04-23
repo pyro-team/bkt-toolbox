@@ -5,7 +5,7 @@ Created on 29.07.2015
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import unittest
 
@@ -149,15 +149,15 @@ class UIControlTest(unittest.TestCase):
     def test_spinner_box(self):
         bkt.ribbon.RibbonControl.no_id = True
         ctrl = bkt.ribbon.SpinnerBox()
-        self.assertEqual(ctrl_to_str(ctrl), u'<box>\n<editBox sizeString="####" />\n<button label="\xab" />\n<button label="\xbb" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box>\n<editBox sizeString="####" />\n<buttonGroup>\n<button label="‹" />\n<button label="›" />\n</buttonGroup>\n</box>')
         
         bkt.ribbon.RibbonControl.no_id = False
         ctrl = bkt.ribbon.SpinnerBox()
         ctrl.set_id('test-id')
-        self.assertEqual(ctrl_to_str(ctrl), u'<box id="test-id">\n<editBox id="test-id_text" sizeString="####" />\n<button id="test-id_decrement" label="\xab" />\n<button id="test-id_increment" label="\xbb" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box id="test-id">\n<editBox id="test-id_text" sizeString="####" />\n<buttonGroup id="test-id_bgrp">\n<button id="test-id_dec" label="‹" />\n<button id="test-id_inc" label="›" />\n</buttonGroup>\n</box>')
         
         ctrl = bkt.ribbon.SpinnerBox(id='test-id')
-        self.assertEqual(ctrl_to_str(ctrl), u'<box id="test-id">\n<editBox id="test-id_text" sizeString="####" />\n<button id="test-id_decrement" label="\xab" />\n<button id="test-id_increment" label="\xbb" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box id="test-id">\n<editBox id="test-id_text" sizeString="####" />\n<buttonGroup id="test-id_bgrp">\n<button id="test-id_dec" label="‹" />\n<button id="test-id_inc" label="›" />\n</buttonGroup>\n</box>')
         
         
         def on_change():
@@ -181,8 +181,8 @@ class UIControlTest(unittest.TestCase):
         # returns a list of Callbacks
         self.assertEqual(lst[('test-id_text', CallbackTypes.on_change )](), 'onchange')
         self.assertEqual(lst[('test-id_text', CallbackTypes.get_text )](), 'gettext')
-        self.assertEqual(lst[('test-id_increment', CallbackTypes.on_action )](), 'increment')
-        self.assertEqual(lst[('test-id_decrement', CallbackTypes.on_action )](), 'decrement')
+        self.assertEqual(lst[('test-id_inc', CallbackTypes.on_action )](), 'increment')
+        self.assertEqual(lst[('test-id_dec', CallbackTypes.on_action )](), 'decrement')
         
         
         
@@ -190,7 +190,7 @@ class UIControlTest(unittest.TestCase):
         bkt.ribbon.RibbonControl.no_id = True
         self.maxDiff = None
         ctrl = bkt.ribbon.ColorGallery()
-        self.assertEqual(ctrl_to_str(ctrl), u'<gallery columns="10" getItemCount="PythonGetItemCount" getItemImage="PythonGetItemImage" getItemLabel="PythonGetItemLabel" imageMso="SmartArtChangeColorsGallery" itemHeight="14" itemWidth="14" onAction="PythonOnActionIndexed" showItemLabel="false" />')
+        self.assertEqual(ctrl_to_str(ctrl), '<gallery columns="10" getItemCount="PythonGetItemCount" getItemImage="PythonGetItemImage" getItemLabel="PythonGetItemLabel" imageMso="SmartArtChangeColorsGallery" itemHeight="14" itemWidth="14" onAction="PythonOnActionIndexed" showItemLabel="false" />')
         
         def set_rgb(color):
             return 'set rgb: ' + str(color)
@@ -198,7 +198,7 @@ class UIControlTest(unittest.TestCase):
             return 'set theme: ' + str(color_index)+ '/' + str(brightness)
             
         ctrl.add_callback(Callback(set_rgb, CallbackTypes.on_rgb_color_change))
-        self.assertEqual(ctrl_to_str(ctrl), u'<gallery columns="10" getItemCount="PythonGetItemCount" getItemImage="PythonGetItemImage" getItemLabel="PythonGetItemLabel" imageMso="SmartArtChangeColorsGallery" itemHeight="14" itemWidth="14" onAction="PythonOnActionIndexed" showItemLabel="false" />')
+        self.assertEqual(ctrl_to_str(ctrl), '<gallery columns="10" getItemCount="PythonGetItemCount" getItemImage="PythonGetItemImage" getItemLabel="PythonGetItemLabel" imageMso="SmartArtChangeColorsGallery" itemHeight="14" itemWidth="14" onAction="PythonOnActionIndexed" showItemLabel="false" />')
         
         callbacks = ctrl.collect_callbacks()
         lst = { cb.callback_type:cb.method  for cb in callbacks}
@@ -226,7 +226,7 @@ class UIControlTest(unittest.TestCase):
         ctrl = myofficeapp.get_customui_control()
         # ctrl is customUI-control
         # TODO: check just ribbon-child of customUI, not customUI attributes
-        self.assertEqual(ctrl_to_str(ctrl), u'<customUI loadImage="PythonLoadImage" onLoad="PythonOnRibbonLoad" {http://www.w3.org/2000/xmlns/}nsBKT="http://www.business-kasper-toolbox.com/toolbox">\n<ribbon startFromScratch="false">\n<tabs>\n<tab label="TestTab">\n<group label="TestGroup">\n<button label="test button" />\n</group>\n</tab>\n</tabs>\n</ribbon>\n</customUI>')
+        self.assertEqual(ctrl_to_str(ctrl), '<customUI loadImage="PythonLoadImage" onLoad="PythonOnRibbonLoad" {http://www.w3.org/2000/xmlns/}nsBKT="http://www.business-kasper-toolbox.com/toolbox">\n<ribbon startFromScratch="false">\n<tabs>\n<tab label="TestTab">\n<group label="TestGroup">\n<button label="test button" />\n</group>\n</tab>\n</tabs>\n</ribbon>\n</customUI>')
     
         
         
@@ -244,19 +244,19 @@ class LabledLargeButton(LargeButton):
 
 class ButtonWithAction(bkt.ribbon.Button):
     def on_action(self):
-        print "this will do something"
+        print("this will do something")
 
 class UIControlSubclassingTest(unittest.TestCase):
                 
     def test_ui_control_subclassing(self):
         bkt.ribbon.RibbonControl.no_id = True
         llb = LabledLargeButton()
-        self.assertEqual(ctrl_to_str(llb), u'<button label="mylabel" size="large" />')
+        self.assertEqual(ctrl_to_str(llb), '<button label="mylabel" size="large" />')
         
     def test_ui_control_auto_callbacks(self):
         bkt.ribbon.RibbonControl.no_id = True
         b = ButtonWithAction()
-        self.assertEqual(ctrl_to_str(b), u'<button onAction="PythonOnAction" />')
+        self.assertEqual(ctrl_to_str(b), '<button onAction="PythonOnAction" />')
         
         
         

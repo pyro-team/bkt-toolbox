@@ -4,7 +4,7 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import os #for filelist
@@ -590,17 +590,16 @@ class FileListOps(object):
             xllib.unfreeze_app()
 
         else:
-            # use os.listdir for flat file list (NOTE use scandir when upgrading to python 3)
             xllib.freeze_app()
-            for file in os.listdir(base_folder):
-                full_path = os.path.join(base_folder, file)
+            for file in os.scandir(base_folder):
+                full_path = file.path
 
-                if os.path.isdir(full_path) and cls.folder_rows:
+                if file.is_dir() and cls.folder_rows:
                     cls._create_group_row(sheet, cur_row, base_folder, full_path)
                     cur_row += 1
 
-                if os.path.isfile(full_path):
-                    cls._create_file_row(sheet, cur_row, base_folder, full_path, file)
+                if file.is_file():
+                    cls._create_file_row(sheet, cur_row, base_folder, full_path, file.name)
                     cur_row += 1
                     worker.ReportProgress(42, "{} - {}".format(cur_row-3, full_path))
             xllib.unfreeze_app()
@@ -620,91 +619,110 @@ class FileListOps(object):
     def _create_file_row(cls, sheet, cur_row, base_folder, full_path, file):
         #["Name", "Typ", "Größe", "Erstellt", "Geändert", "Tiefe", "Übergeordneter Ordner", "Relativer Pfad", "Voller Pfad"]
         root,ext = os.path.splitext(file)
-        rel_path = os.path.relpath(full_path, base_folder)
-        parent_folder = os.path.basename(os.path.dirname(full_path))
-        depth = rel_path.count(os.sep)
+        parent_folder = "'" + os.path.basename(os.path.dirname(full_path))
         try:
+            #relpath exception if path exceeds 255 characters
+            rel_path = "'" + os.path.relpath(full_path, base_folder)
+            depth = rel_path.count(os.sep)
+        except:
+            logging.exception("Error getting relative path")
+            rel_path = "#N/A"
+            depth = None
+        try:
+            stat = os.stat(full_path)
             row = Array[object]([
                 "'" + root, #ensure string, otherwise filenames such as "001" cause problems
-                ext,
-                str(os.path.getsize(full_path)),
-                datetime.fromtimestamp(os.path.getctime(full_path)).strftime('%Y-%m-%d %H:%M:%S'),
-                datetime.fromtimestamp(os.path.getmtime(full_path)).strftime('%Y-%m-%d %H:%M:%S'),
+                "'" + ext,
+                str(stat.st_size),
+                datetime.fromtimestamp(stat.st_ctime).strftime('%Y-%m-%d %H:%M:%S'),
+                datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
                 depth,
-                "'" + parent_folder,
-                "'" + rel_path
+                parent_folder,
+                rel_path
             ])
             sheet.Range("A{0}:H{0}".format(cur_row)).Value = row
             if cls.folder_rows: #indention and grouping only makes sense with folder rows
                 cls._format_row(sheet.Rows(cur_row), depth)
             sheet.Hyperlinks.Add(sheet.Cells(cur_row,9), full_path, "", "", full_path) #anchor, address, subaddress, screentip, texttodisplay
-        except Exception as e:
-            logging.error("Error writing file row: %s" % str(e))
+        except:
+            logging.exception("Error writing file row")
             #Fallback: Simple info
             sheet.Cells(cur_row,1).Value = "'" + root
-            sheet.Cells(cur_row,2).Value = ext
+            sheet.Cells(cur_row,2).Value = "'" + ext
             sheet.Cells(cur_row,6).Value = depth
-            sheet.Cells(cur_row,7).Value = "'" + parent_folder
-            sheet.Cells(cur_row,8).Value = "'" + rel_path
+            sheet.Cells(cur_row,7).Value = parent_folder
+            sheet.Cells(cur_row,8).Value = rel_path
             sheet.Cells(cur_row,9).Value = full_path
     
     @classmethod
     def _create_group_row(cls, sheet, cur_row, base_folder, full_path):
         #["Name", "Typ", "Größe", "Erstellt", "Geändert", "Tiefe", "Übergeordneter Ordner", "Relativer Pfad", "Voller Pfad"]
         folder_name = os.path.basename(full_path)
-        rel_path = os.path.relpath(full_path, base_folder)
-        parent_folder = os.path.basename(os.path.dirname(full_path))
-        depth = rel_path.count(os.sep)
+        parent_folder = "'" + os.path.basename(os.path.dirname(full_path))
         try:
+            rel_path = "'" + os.path.relpath(full_path, base_folder)
+            depth = rel_path.count(os.sep)
+        except:
+            logging.exception("Error getting relative path: %s", str(e))
+            rel_path = "#N/A"
+            depth = None
+        try:
+            stat = os.stat(full_path)
             row = Array[object]([
                 "'" + folder_name, #ensure string, otherwise filenames such as "001" cause problems
                 '',
                 '',
-                datetime.fromtimestamp(os.path.getctime(full_path)).strftime('%Y-%m-%d %H:%M:%S'),
-                datetime.fromtimestamp(os.path.getmtime(full_path)).strftime('%Y-%m-%d %H:%M:%S'),
+                datetime.fromtimestamp(stat.st_ctime).strftime('%Y-%m-%d %H:%M:%S'),
+                datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
                 depth,
-                "'" + parent_folder,
-                "'" + rel_path
+                parent_folder,
+                rel_path
             ])
             sheet.Range("A{0}:H{0}".format(cur_row)).Value = row
             cls._format_row(sheet.Rows(cur_row), depth)
             sheet.Hyperlinks.Add(sheet.Cells(cur_row,9), full_path, "", "", full_path) #anchor, address, subaddress, screentip, texttodisplay
-        except Exception as e:
-            logging.error("Error writing group row: %s" % str(e))
+        except:
+            logging.exception("Error writing group row")
             #Fallback: Simple info
             sheet.Cells(cur_row,1).Value = "'" + folder_name
             sheet.Cells(cur_row,6).Value = depth
-            sheet.Cells(cur_row,7).Value = "'" + parent_folder
-            sheet.Cells(cur_row,8).Value = "'" + rel_path
+            sheet.Cells(cur_row,7).Value = parent_folder
+            sheet.Cells(cur_row,8).Value = rel_path
             sheet.Cells(cur_row,9).Value = full_path
 
     @classmethod
     def _create_folder_row(cls, sheet, cur_row, base_folder, full_path, dirs, files):
         #["Name", "Anz. Ordner", "Anz. Dateien", "Erstellt", "Geändert", "Tiefe", "Übergeordneter Ordner", "Relativer Pfad", "Voller Pfad"]
-        rel_path = os.path.relpath(full_path, base_folder)
-        parent_folder = os.path.basename(os.path.dirname(full_path))
-        depth = rel_path.count(os.sep)
+        folder_name = os.path.basename(full_path)
+        parent_folder = "'" + os.path.basename(os.path.dirname(full_path))
         try:
+            rel_path = "'" + os.path.relpath(full_path, base_folder)
+            depth = rel_path.count(os.sep)
+        except:
+            logging.exception("Error getting relative path")
+            rel_path = "#N/A"
+        try:
+            stat = os.stat(full_path)
             row = Array[object]([
-                "'" + os.path.basename(full_path), #ensure string, otherwise dirnames such as "001" cause problems
+                "'" + folder_name, #ensure string, otherwise dirnames such as "001" cause problems
                 len(dirs),
                 len(files),
-                datetime.fromtimestamp(os.path.getctime(full_path)).strftime('%Y-%m-%d %H:%M:%S'),
-                datetime.fromtimestamp(os.path.getmtime(full_path)).strftime('%Y-%m-%d %H:%M:%S'),
+                datetime.fromtimestamp(stat.st_ctime).strftime('%Y-%m-%d %H:%M:%S'),
+                datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
                 depth,
-                "'" + parent_folder,
-                "'" + rel_path
+                parent_folder,
+                rel_path
             ])
             sheet.Range("A{0}:H{0}".format(cur_row)).Value = row
             cls._format_row(sheet.Rows(cur_row), depth)
             sheet.Hyperlinks.Add(sheet.Cells(cur_row,9), full_path, "", "", full_path) #anchor, address, subaddress, screentip, texttodisplay
-        except Exception as e:
-            logging.error("Error writing folder row: %s" % str(e))
+        except:
+            logging.exception("Error writing folder row")
             #Fallback: Simple info
-            sheet.Cells(cur_row,1).Value = "'" + os.path.basename(full_path)
+            sheet.Cells(cur_row,1).Value = "'" + folder_name
             sheet.Cells(cur_row,6).Value = depth
-            sheet.Cells(cur_row,7).Value = "'" + parent_folder
-            sheet.Cells(cur_row,8).Value = "'" + rel_path
+            sheet.Cells(cur_row,7).Value = parent_folder
+            sheet.Cells(cur_row,8).Value = rel_path
             sheet.Cells(cur_row,9).Value = full_path
     
     @classmethod

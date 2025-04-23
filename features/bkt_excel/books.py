@@ -4,7 +4,7 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import os.path #required to split filenames
 import tempfile #required to copy color scheme
@@ -253,13 +253,13 @@ class BooksOps(object):
             exclude_sheets = []
         else:
             exclude_sheets = form_return["exclude_sheets"].split(',')
-            exclude_sheets = map(str.strip, exclude_sheets)
+            exclude_sheets = list(map(str.strip, exclude_sheets))
 
         if form_return["include_sheets"] == '':
             include_sheets = []
         else:
             include_sheets = form_return["include_sheets"].split(',')
-            include_sheets = map(str.strip, include_sheets)
+            include_sheets = list(map(str.strip, include_sheets))
 
         xllib.freeze_app(disable_display_alerts=True)
         application.StatusBar = "Konsolidiere Mappen"

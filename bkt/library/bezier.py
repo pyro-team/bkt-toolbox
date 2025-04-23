@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import division
+
 
 
 def _punktAufGerade(t, P, Q):
@@ -59,7 +59,7 @@ def _bezierKurvenEinheitskreis():
 
 def _bezierKreisN(n):
     '''Einheitskreis in Bezierkurven, Quadranten n-fach geteilt'''
-    kurven = map(lambda k : _bezierKurveNFachTeilen(k,n), _bezierKurvenEinheitskreis())
+    kurven = [_bezierKurveNFachTeilen(k,n) for k in _bezierKurvenEinheitskreis()]
     return [item for sublist in kurven for item in sublist]
 
 def _bezierKreisNR(n,r):
