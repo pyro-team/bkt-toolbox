@@ -218,6 +218,8 @@ class PPTSymbolsSettings(object):
     convert_into_bitmap = bkt.settings.get("bkt.symbols.convert_into_bitmap", False) #always convert newly inserted symbols into bitmap picture
     unicode_font = bkt.settings.get("bkt.symbols.unicode_font", None) #insert unicode characters as symbol with special font (e.g. Arial Unicode)
 
+    UNICODE_FONTS = ["Aptos", "Arial", "Arial Unicode MS", "Calibri", "Lucida Sans Unicode", "Segoe UI", "Segoe UI Emoji", "Segoe UI Symbol"]
+
     @classmethod
     def add_to_recent(cls, item):
         try:

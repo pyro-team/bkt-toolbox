@@ -181,7 +181,7 @@ class Characters(object):
                             ),
                         ] + [
                             _unicode_font_button(font)
-                            for font in ["Arial", "Arial Unicode MS", "Calibri", "Lucida Sans Unicode", "Segoe UI"]
+                            for font in pplib.PPTSymbolsSettings.UNICODE_FONTS
                         ]
             )
 
@@ -278,7 +278,7 @@ class Characters(object):
                     bkt.ribbon.DynamicMenu(
                         label="Icons-Fonts ausschließen",
                         # image_mso='FontDialogPowerPoint',
-                        supertip="xxx",
+                        supertip="Bestimmte Icon-Fonts nicht anzeigen und nicht in der Suche berücksichtigen.",
                         get_content = bkt.Callback(cls.get_text_fontawesome_exclusion)
                     ),
                     bkt.ribbon.ToggleButton(
