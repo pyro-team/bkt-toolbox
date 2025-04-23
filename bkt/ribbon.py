@@ -1220,7 +1220,7 @@ class MSOFactoryAccess(object):
 
         # this is a workaround for windows 11: splitbuttons without label have a much bigger size than with zero-width-space label (only works for some controls)
         # self.splitbutton  = MSOFactory(control_type='control', label="\u200b", show_label=True)
-        self.splitbutton  = MSOFactory(control_type='control', show_label=False, splitbutton_fix=False)
+        self.splitbutton  = MSOFactory(control_type='control', show_label=False, splitbutton_fix=True)
     
     def __getattr__(self, attr):
         return MSOFactory(control_type=attr)
