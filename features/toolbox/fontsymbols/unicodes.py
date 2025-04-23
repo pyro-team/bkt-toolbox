@@ -35,7 +35,8 @@ def update_search_index(search_engine):
         search_writer.add_document(
             module="unicodes",
             fontlabel="Unicode Symbols",
-            fontname="Segoe UI Emoji",
+            # fontname=UnicodeSymbols.rendering_font,
+            fontname=None,
             unicode=chr(code),
             label=f"{label} (U+{code:04X})",
             keywords=label.lower().split()

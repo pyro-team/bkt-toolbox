@@ -91,6 +91,11 @@ class Fontawesome(object):
                     )
                 ]
         return symbol_galleries
+    
+    @classmethod
+    def clear_search_engine(cls):
+        cls.search_engine = None
+        cls.searchable_fonts = []
 
     @classmethod
     def get_search_engine(cls, context):
@@ -106,7 +111,7 @@ class Fontawesome(object):
             worker.ReportProgress(1, "Lege Suchindex an...")
             try:
                 cls.update_search_index(cls.search_engine)
-            except:
+            except Exception as e:
                 bkt.message.error("Fehler beim erstellen des Suchindex: {}".format(e), "BKT: Font-Icons")
 
         bkt.ui.execute_with_progress_bar(loop, context, indeterminate=True)
@@ -165,12 +170,22 @@ class Fontawesome(object):
                 for font_module, _, _, font_label in cls.fontsettings
             ]
 
+    @classmethod
+    def get_exclusion_menu(cls):
+        return bkt.ribbon.Menu(
+                xmlns="http://schemas.microsoft.com/office/2009/07/customui",
+                id=None,
+                children=cls.get_exclusions()
+            )
+
 
 class FontSearch(object):
     search_term = ""
     search_results = None
     search_exact = bkt.settings.get("bkt.symbols.search_exact", True)
     search_and = True #True = AND-search, False=OR-search
+
+    search_fallback_font = bkt.settings.get("bkt.symbols.search_fallback_font", "Segoe UI Emoji")
 
     _cache_menu_infos = None
 
@@ -188,6 +203,13 @@ class FontSearch(object):
                     cls.search_results = searcher.search(cls.search_term, cls.search_and)
         else:
             cls.search_results = None
+
+    @classmethod
+    def set_rendering_font(cls, font_name):
+        cls._cache_menu_infos = None
+        # Fontawesome.clear_search_engine()
+        cls.search_fallback_font = font_name
+        bkt.settings["bkt.symbols.search_fallback_font"] = font_name
 
     @classmethod
     def toggle_search_exact(cls, pressed, context):
@@ -239,7 +261,7 @@ class FontSearch(object):
                         label=label,
                         symbols=[
                             (
-                                ico.fontname,
+                                ico.fontname or cls.search_fallback_font,
                                 ico.unicode,
                                 # unichr(int(ico.unicode, 16)),
                                 ico.label,
@@ -266,12 +288,6 @@ class FontSearch(object):
         engine = cls.get_search_engine(context)
         cls._cache_menu_infos = [
             bkt.ribbon.MenuSeparator(title="Informationen"),
-            bkt.ribbon.ToggleButton(
-                label="Exakte Suche ein/aus",
-                supertip="Wenn die exakte Suche deaktiviert ist, wird bei 'person' auch 'personality', 'impersonal', usw. gefunden.",
-                on_toggle_action=bkt.Callback(cls.toggle_search_exact, context=True),
-                get_pressed=bkt.Callback(cls.checked_search_exact),
-            ),
             bkt.ribbon.Button(
                 label="Indizierte Icons: {}".format(engine.count_documents()),
                 enabled=False,
@@ -298,6 +314,27 @@ class FontSearch(object):
             return "{} Icons".format(len(cls.search_results))
         else:
             return "Ergebnis"
+    
+    @classmethod
+    def get_unicode_settings_menu(cls):
+        def _unicode_font_button(font):
+            return bkt.ribbon.ToggleButton(
+                label=font,
+                screentip="Unicode-Schriftart "+font,
+                supertip=font+" als Unicode-Schriftart verwenden.",
+                on_toggle_action=bkt.Callback(lambda pressed: cls.set_rendering_font(font)),
+                get_pressed=bkt.Callback(lambda: cls.search_fallback_font == font),
+                get_image=bkt.Callback(lambda:bkt.ribbon.SymbolsGallery.create_symbol_image(font, "\u2194"))
+            )
+
+        return bkt.ribbon.Menu(
+                xmlns="http://schemas.microsoft.com/office/2009/07/customui",
+                id=None,
+                children=[
+                            _unicode_font_button(font)
+                            for font in bkt.library.powerpoint.PPTSymbolsSettings.UNICODE_FONTS
+                        ]
+            )
 
 
 # Font search
@@ -306,15 +343,15 @@ fontsearch_gruppe = bkt.ribbon.Group(
     label="Icon-Suche",
     image_mso='GroupSearch',
     children=[
-        bkt.ribbon.DynamicMenu(
-            id="fontsearch_all_symbols",
-            label="Alle Icons",
-            size="large",
-            supertip="Zeigt Icons für verfügbare Icon-Fonts an, die als Textsymbol oder Grafik eingefügt werden können.\n\nHinweis: Die Icon-Fonts müssen auf dem Rechner installiert sein.",
-            image_mso="Call",
-            get_content = bkt.Callback(Fontawesome.get_text_fontawesome)
-        ),
-        bkt.ribbon.Separator(),
+        # bkt.ribbon.DynamicMenu(
+        #     id="fontsearch_all_symbols",
+        #     label="Alle Icons",
+        #     size="large",
+        #     supertip="Zeigt Icons für verfügbare Icon-Fonts an, die als Textsymbol oder Grafik eingefügt werden können.\n\nHinweis: Die Icon-Fonts müssen auf dem Rechner installiert sein.",
+        #     image_mso="Call",
+        #     get_content = bkt.Callback(Fontawesome.get_text_fontawesome)
+        # ),
+        # bkt.ribbon.Separator(),
         bkt.ribbon.Label(
             label="Suchwort:",
         ),
@@ -322,18 +359,45 @@ fontsearch_gruppe = bkt.ribbon.Group(
         bkt.ribbon.ComboBox(
             label="Suchwort",
             show_label=False,
-            sizeString = '#######',
+            sizeString = '######',
             get_text = bkt.Callback(FontSearch.get_search_term),
             on_change = bkt.Callback(FontSearch.set_search_term, context=True),
             supertip="Suchwort eingeben und ENTER klicken",
             get_item_count=bkt.Callback(lambda context: FontSearch.get_search_engine(context).count_recent_searches(), context=True),
             get_item_label=bkt.Callback(lambda index, context: FontSearch.get_search_engine(context).get_recent_searches()[index], context=True),
         ),
+        bkt.ribbon.Menu(
+            label="Konfig.",
+            screentip="Einstellungen",
+            supertip="Einstellungen der Icon-Suche",
+            children=[
+                bkt.ribbon.ToggleButton(
+                    label="Exakte Suche ein/aus",
+                    supertip="Wenn die exakte Suche deaktiviert ist, wird bei 'person' auch 'personality', 'impersonal', usw. gefunden.",
+                    on_toggle_action=bkt.Callback(FontSearch.toggle_search_exact, context=True),
+                    get_pressed=bkt.Callback(FontSearch.checked_search_exact),
+                ),
+                bkt.ribbon.DynamicMenu(
+                    label="Icons-Fonts ausschließen",
+                    supertip="Bestimmte Icon-Fonts nicht anzeigen und nicht in der Suche berücksichtigen.",
+                    get_content = bkt.Callback(Fontawesome.get_exclusion_menu),
+                ),
+                bkt.ribbon.DynamicMenu(
+                    label="Font für Unicode Symbols",
+                    supertip="Schriftart zum Rendern der Unicode Symbols auswählen. Standard ist Segoe Emoji.",
+                    # get_content = bkt.CallbackLazy("toolbox.fontsymbols.unicodes", "get_settings_menu"),
+                    get_content = bkt.Callback(FontSearch.get_unicode_settings_menu),
+                ),
+            ]
+        ),
+        bkt.ribbon.Separator(),
         bkt.ribbon.DynamicMenu(
             get_label=bkt.Callback(FontSearch.get_results_label),
             get_content=bkt.Callback(FontSearch.get_symbol_galleries, context=True),
             get_enabled=bkt.Callback(FontSearch.get_enabled_results),
             screentip="Suchergebnisse",
+            size="large",
+            image_mso="Call",
             supertip="Zeigt die Suchergebnisse der Icon-Suche nach dem gewünschten Suchwort an",
         ),
         # bkt.ribbon.Box(children=[
