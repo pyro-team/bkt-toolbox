@@ -185,19 +185,19 @@ settings.settings_menu.additional_children.extend([
                 label="Standard (3-seitig)",
                 supertip="Drei Tabs für die Toolbox mit allen erweiterten Features auf einer separaten Seite 3",
                 get_pressed=bkt.Callback(ToolbarVariations.get_pressed_default),
-                on_toggle_action=bkt.Callback(ToolbarVariations.change_to_default, context=True)
+                on_toggle_action=bkt.Callback(ToolbarVariations.change_to_default, context=True, transactional=False)
             ),
             bkt.ribbon.ToggleButton(
                 label="Widescreen (2-seitig)",
                 supertip="Zwei Tabs für die Toolbox mit allen erweiterten Features gemeinsam auf Seite 2.",
                 get_pressed=bkt.Callback(ToolbarVariations.get_pressed_wide),
-                on_toggle_action=bkt.Callback(ToolbarVariations.change_to_wide, context=True)
+                on_toggle_action=bkt.Callback(ToolbarVariations.change_to_wide, context=True, transactional=False)
             ),
             bkt.ribbon.MenuSeparator(),
             bkt.ribbon.Button(
                 label="Theme-Einstellungen anpassen",
                 supertip="Festlegung der Seite je Gruppe und Ausblenden von Gruppen.",
-                on_action=bkt.Callback(ToolbarVariations.show_uisettings),
+                on_action=bkt.Callback(ToolbarVariations.show_uisettings, transactional=False),
             ),
         ]
     ),
