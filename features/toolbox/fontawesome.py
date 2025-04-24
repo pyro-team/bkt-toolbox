@@ -22,9 +22,9 @@ class Fontawesome(object):
             # module-name,      font-filename,                  suppress-font-not-installed-message, label
             ('fabricmdl2',      'Fabric MDL2 Assets',           True,  'Fabric MDL2'),
             ('fontawesome4',    'FontAwesome',                  True,  'Font Awesome 4'),
-            ('fontawesome5',    'Font Awesome 5 Free Regular',  False, 'Font Awesome 5'),
+            ('fontawesome5',    'Font Awesome 5 Free Regular',  True, 'Font Awesome 5'),
             ('fontawesome6',    'Font Awesome 6 Free Regular',  False, 'Font Awesome 6'),
-            ('icomoon',         'IcoMoon-Free',                 False, 'IcoMoon'),
+            ('icomoon',         'IcoMoon-Free',                 True, 'IcoMoon'),
             ('materialicons',   'Material Icons',               True,  'Material Icons'),
             ('materialsymbols', 'Material Symbols Sharp',       False, 'Material Symbols'),
             ('segoemdl2',       'Segoe MDL2 Assets',            True,  'Segoe MDL2'),
