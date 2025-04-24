@@ -13,8 +13,9 @@ from bkt.library.powerpoint import PPTSymbolsGallery
 
 menu_title = 'Material Symbols'
 
-#JSON File from here: https://github.com/google/material-design-icons/issues/729
-#Update on 9.1.2024
+#JSON File from here: https://github.com/google/material-design-icons/issues/729 or https://fonts.google.com/metadata/icons?key=material_symbols&incomplete=true
+#Run materialsymbols_json_cleanup.py to remove all old font specifications
+#Last update on 24.04.2025
 
 # full font names
 font_names = [
