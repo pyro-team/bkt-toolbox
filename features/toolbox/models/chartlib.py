@@ -579,15 +579,30 @@ class ChartLib(object):
                 )
         
         if self.library_folders:
+            folder_fav  = []
             folders_lib = []
             folder_feat = []
             for folder in self.library_folders:
-                if isinstance(folder, dict):
-                    folder_feat.append(
+                # potentially cut off shapelib/chartlib from folder name
+                folder_dir = os.path.dirname(folder["folder"])
+                # Check if library is a favorite folder
+                if folder["folder"] == self.fav_folder:
+                    folder_fav.append(
                         bkt.ribbon.Button(
                             label=folder["title"],
                             supertip=folder["folder"],
-                            tag="ff|"+folder["folder"],
+                            tag="fav|"+folder["folder"],
+                            image_mso="Folder",
+                            on_action=bkt.Callback(self.delete_library),
+                        )
+                    )
+                # Check if library is a feature folder
+                elif folder_dir in bkt.config.feature_folders:
+                    folder_feat.append(
+                        bkt.ribbon.Button(
+                            label=folder["title"],
+                            supertip=folder_dir,
+                            tag="ff|"+folder_dir,
                             image_mso="Delete",
                             on_action=bkt.Callback(self.delete_library),
                         )
@@ -595,14 +610,16 @@ class ChartLib(object):
                 else:
                     folders_lib.append(
                         bkt.ribbon.Button(
-                            label=os.path.basename(folder),
-                            supertip=folder,
-                            tag=folder,
+                            label=os.path.basename(folder["title"]),
+                            supertip=folder["folder"],
+                            tag=folder["folder"],
                             image_mso="Delete",
                             on_action=bkt.Callback(self.delete_library),
                         )
                     )
 
+            if folder_fav:
+                children.extend(folder_fav)
             if folders_lib:
                 children.append(bkt.ribbon.MenuSeparator(title="Ordner-Libraries"))
                 children.extend(folders_lib)
@@ -640,15 +657,13 @@ class ChartLib(object):
     
     def delete_library(self, current_control):
         lib = current_control["tag"]
-        if lib.startswith("ff|"):
-            lib = lib[3:]
-            
-            if lib == self.fav_folder:
-                bkt.message.warning("Der Favoriten-Ordner selbst kann nicht gelöscht werden, aber einzelne Dateien können manuell gelöscht werden. Der Ordner wird nun im Explorer geöffnet.")
-                return self._open_in_explorer(lib)
-            
+        if lib.startswith("fav|"):
+            bkt.message.warning("Der Favoriten-Ordner selbst kann nicht gelöscht werden, aber einzelne Dateien können manuell gelöscht werden. Der Ordner wird nun im Explorer geöffnet.")
+            return self._open_in_explorer(lib[4:])
+        elif lib.startswith("ff|"):
             if not bkt.message.confirmation("Soll der Feature-Folder aus der Library entfernt werden?\n\nAchtung: Feature-Folder können gleichzeitig ChartLibs, ShapeLibs und Funktionen enthalten, die dann nicht mehr verfügbar sind!"):
                 return
+            lib = lib[3:]
             conf = "feature_folders"
         elif os.path.isfile(lib):
             if self.copy_shapes_setting:
@@ -663,6 +678,8 @@ class ChartLib(object):
         else:
             bkt.message.error("Library nicht gefunden!")
         
+        logging.info("Deleting library %s from config", lib)
+
         current = getattr(bkt.config, conf) or []
         current.remove(lib)
         bkt.config.set_smart(conf, current)
