@@ -398,7 +398,7 @@ class ChartLib(object):
         subfolders = []
         
         if os.path.isdir(folder):
-            for filename in os.listdir(folder):
+            for filename in sorted(os.listdir(folder)):
                 # find pptx-Files
                 if self._is_valid_powerpoint(filename):
                     files.append(filename)
