@@ -404,6 +404,7 @@ Hier ist eine Übersicht aller Funktionen der BKT in PowerPoint sortiert nach de
 | Mehr > Kanten-Autofixer Menü > Toleranz ändern > Mittel 0,3cm | Setzt Toleranz vom Kanten-Autofixer auf mittel = 0,3cm |
 | Mehr > Kanten-Autofixer Menü > Toleranz ändern > Groß 1 cm | Setzt Toleranz vom Kanten-Autofixer auf groß = 1cm |
 | Mehr > Shape in Mitte positionieren                | Setzt das zuletzt markierte Shape in den gewichteten Mittelpunkt aller anderen markierten Shapes. |
+| Mehr > Auto-Gruppierung                            | Sucht zusammengehörige Shapes/Shape-Gruppen und gruppiert diese automatisch. |
 | Mehr > In Gruppe einfügen                          | Sofern das zuerst oder zuletzt markierte Shape eine Gruppe ist, werden alle anderen Shapes in diese Gruppe eingefügt. Anderenfalls werden alle Shapes gruppiert. |
 | Mehr > Rekursives Gruppe aufheben                  | Wendet Gruppe aufheben solange an, bis alle verschachtelten Gruppen aufgelöst sind. |
 | Mehr > Elemente der Gruppe markieren               | Markiert alle Elemente innerhalb der Gruppe.       |
