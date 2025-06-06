@@ -19,8 +19,6 @@ Forms = dotnet.import_forms()
 
 
 class ConsolSplit(object):
-    trans_table = str.maketrans('\t\n\r\f\v', '     ') #\t\n\r\x0b\x0c
-
     @classmethod
     def consolidate_ppt_slides(cls, application, presentation):
         fileDialog = Forms.OpenFileDialog()
@@ -80,7 +78,11 @@ class ConsolSplit(object):
     @classmethod
     def _get_safe_filename(cls, title):
         # title = title.encode('ascii', 'ignore') #remove unicode characters -> this also removes umlauts
-        title = title.translate(cls.trans_table, r'\/:*?"<>|') #replace special whitespace chacaters with space, also delete not allowed characters
+        trans_table_whitespaces = str.maketrans('\t\n\r\f\v', '     ') #\t\n\r\x0b\x0c
+        remove_chars = r'\/:*?"<>|'
+        trans_table_remove = {ord(c): None for c in remove_chars}
+        title = title.translate(trans_table_whitespaces)  # replace special whitespace characters with space
+        title = title.translate(trans_table_remove)       # remove not allowed characters
         title = title[:64] #max 64 characters of title
         title = title.strip() #remove whitespaces at beginning and end
         return title
@@ -120,6 +122,7 @@ class ConsolSplit(object):
             try:
                 title = cls._get_safe_filename(slide.Shapes.Title.TextFrame.TextRange.Text)
             except:
+                logging.exception("split_slides_to_ppt: Error getting slide title")
                 title = "UNKNOWN"
             
             filename = save_pattern.replace("[slidenumber]", str(slide.SlideNumber)).replace("[slidetitle]", title)
@@ -138,7 +141,7 @@ class ConsolSplit(object):
                 try:
                     cls.export_slide(application, [slide], _get_name(slide))
                 except:
-                    logging.exception("split_slides_to_ppt error")
+                    logging.exception("split_slides_to_ppt: Error exporting slide")
                     error = True
 
             worker.ReportProgress(100)
@@ -191,6 +194,7 @@ class ConsolSplit(object):
             try:
                 title = cls._get_safe_filename(sections.Name(index))
             except:
+                logging.exception("split_slides_to_ppt: Error getting section name")
                 title = "UNKNOWN"
             
             filename = save_pattern.replace("[sectionnumber]", str(index)).replace("[sectiontitle]", title)
