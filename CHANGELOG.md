@@ -1,3 +1,19 @@
+# Release 2025-06-06 (3.0.2)
+
+  * Font Icon Search: Added unicode symbols search, progress bar while indexing, UI improvements
+  * Various UI improvements (e.g. spinner label, size of SplitButtons on Win11) to make the toolbar narrower and avoid collapsing of groups on smaller screens
+  * New function AutoGroup to group coherent shapes in the selection
+  * New option to sync shapes right after "find and link" shapes
+  * Font Awesome updated to 6.7.2
+  * Fixed shape scaling error for certain paragraph formats
+  * Fixed toggle WordWrap and AutoSize for groups
+  * Fixed hyperlinks in agenda
+  * Fixed chartlib removal of libraries
+  * Fixed "split slides by section" did not get section names
+  * Fixed installer did not enable toolbar in PowerPoint if another Office program was selected
+  * Update of IronPython to 3.4.2
+
+
 # Release 2024-01-10 (3.0.1)
 
   * Font Awesome updated to 6.5.1

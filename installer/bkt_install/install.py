@@ -378,7 +378,7 @@ def install(args):
 
     print('Deactivate any previous installation...')
     try:
-        #this is required to avoid BKT loading when doing wow6232 check during installation
+        #this is required to avoid BKT loading when doing wow6432 check during installation
         Installer(wow6432=True).unregister()
         Installer(wow6432=False).unregister()
     except:
