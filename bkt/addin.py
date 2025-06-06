@@ -5,7 +5,7 @@ Created on 13.11.2014
 @authors: cschmitt, rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import sys #for appending sys.paths
 import traceback #for error tracing
@@ -41,14 +41,14 @@ if _h.config.log_write_file:
     logfile = _h.bkt_base_path_join("bkt-debug-py.log")
 
     # filehandler = logging.FileHandler(logfile, 'w', 'utf-8')
-    filehandler = RotatingFileHandler(logfile, 'a', 'utf-8', backupCount=2)
+    filehandler = RotatingFileHandler(logfile, 'a', encoding='utf-8', backupCount=2)
     try:
         filehandler.doRollover() #rollover on each start
     except WindowsError:
         #rollover fails if file is not accessible due to other office program with bkt addin
         pass
     filehandler.setLevel(log_level)
-    filehandler.setFormatter(logging.Formatter(u'%(asctime)s %(levelname)s: %(message)s'))
+    filehandler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s'))
 
     logger = logging.getLogger()
     logger.setLevel(log_level)
@@ -145,7 +145,7 @@ def add_callbacks(cls):
         addin_callback.__name__ = callback.python_name
         return addin_callback
     
-    for name, callback in bkt.callbacks.CallbackTypes.callback_map().iteritems():
+    for name, callback in bkt.callbacks.CallbackTypes.callback_map().items():
         if callback.custom:
             continue
         setattr(cls, name, create_cb_method(callback))
@@ -249,7 +249,7 @@ class AddIn(object):
             self.context.customui_control = control
             #kwargs.update(self.context.resolve_callback.resolve_arguments(callback.invocation_context))
             #return_value= self.app_callbacks.invoke_callback(callback, *args, **kwargs)
-            return_value= self.context.invoke_callback(callback, *args, **kwargs)
+            return_value = self.context.invoke_callback(callback, *args, **kwargs)
             logging.debug("return value=%s", return_value)
             
             if callback.callback_type == bkt.CallbackTypes.get_content:
@@ -289,7 +289,7 @@ class AddIn(object):
             #     bkt.callbacks.CallbackTypes.on_action_repurposed,
             #     bkt.callbacks.CallbackTypes.on_toggle_action,
             #     bkt.callbacks.CallbackTypes.on_change]:
-            if callback_type.transactional:
+            if callback.is_transactional:
                 self.invalidate_ribbon()
         
         return return_value
@@ -555,12 +555,18 @@ class AddIn(object):
             return
         self.created = True
         
+        logging.debug('host app is %s', dotnet_context.hostAppName)
+
         #open app-specific settings database
         _h.settings.open(dotnet_context.hostAppName)
+
+        logging.debug('settings opened')
 
         # wrap dotnet-context and add self as python_addin
         self.context = bkt.context.AppContext.create_app_context(dotnet_context.hostAppName, dotnet_context, python_addin=self)
         #self.dotnet_context.python_addin = self
+
+        logging.debug('extending python paths')
         
         # extend PYTHONPATH
         for path in bkt.config.pythonpath or []:
@@ -605,7 +611,7 @@ class AddIn(object):
             sys.path.extend(import_cache['sys.path'])
             _h.Resources.root_folders.extend(import_cache['resources.path'])
 
-            for module_name, feature in import_cache['inits.features'].iteritems():
+            for module_name, feature in import_cache['inits.features'].items():
                 # feature = import_cache['feature.'+module_name]
                 logging.info('importing bkt feature: %s', feature['name'])
                 try:
@@ -758,6 +764,7 @@ class AddIn(object):
             _h.caches.close(cache_name)
 
 
+        logging.debug('imports done, initialize app ui')
         
         #### initialize AppUI, AppCallbacks
         try:
@@ -814,6 +821,7 @@ class AddIn(object):
             logging.info('Retrieve CustomUI for ribbon: %s', ribbon_id)
             
             if self.app_ui is None:
+                logging.debug('AppUI is None')
                 return None
             
             ### initialize UI-callbacks

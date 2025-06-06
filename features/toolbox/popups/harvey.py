@@ -5,14 +5,14 @@ Created on 21.12.2017
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 
 import bkt
 
 from bkt.callbacks import WpfActionCallback
-from ..harvey import harvey_balls
+from ..models.harvey import harvey_balls
 
 
 

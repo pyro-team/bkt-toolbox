@@ -1,3 +1,34 @@
+# Release 2025-06-06 (3.0.2)
+
+  * Font Icon Search: Added unicode symbols search, progress bar while indexing, UI improvements
+  * Various UI improvements (e.g. spinner label, size of SplitButtons on Win11) to make the toolbar narrower and avoid collapsing of groups on smaller screens
+  * New function AutoGroup to group coherent shapes in the selection
+  * New option to sync shapes right after "find and link" shapes
+  * Font Awesome updated to 6.7.2
+  * Fixed shape scaling error for certain paragraph formats
+  * Fixed toggle WordWrap and AutoSize for groups
+  * Fixed hyperlinks in agenda
+  * Fixed chartlib removal of libraries
+  * Fixed "split slides by section" did not get section names
+  * Fixed installer did not enable toolbar in PowerPoint if another Office program was selected
+  * Update of IronPython to 3.4.2
+
+
+# Release 2024-01-10 (3.0.1)
+
+  * Font Awesome updated to 6.5.1
+  * Update definition for Material Icons and added newer Material Symbols
+  * Added function to exclude icon fonts
+
+
+# Release 2023-08-31 (3.0.0)
+
+  * Switch to IronPython 3.4.1 (avoiding issues with virus scanners)
+  * Moved most logic into dedicated models to increase lazy loading
+  * Fixed updating of multiple selected thumbnails via popup
+  * Excel: Added button to unfreeze UI in case a previous function cased an exception
+
+
 # Release 2023-08-30 (2.7.5)
 
   * Added folder icons for chart and shape libraries

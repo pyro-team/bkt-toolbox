@@ -207,116 +207,110 @@
             <Rectangle Grid.Row="15" Fill="WhiteSmoke" Grid.ColumnSpan="4" />
             <Label Grid.Row="15" Grid.Column="0" Content="Anordnen-Gruppen" />
 
-            <Label Grid.Row="16" Grid.Column="0" Content="Abstand und Rotation" Style="{StaticResource lblGroup}">
+            <Label Grid.Row="16" Grid.Column="0" Content="Anordnen" Style="{StaticResource lblGroup}">
+                <Label.ToolTip>
+                    <Image Source="{Binding arrange_group_url}" />
+                </Label.ToolTip>
+            </Label>
+            <RadioButton Grid.Row="16" Grid.Column="1" GroupName="arrange_group" IsChecked="{Binding arrange_group[0], Mode=TwoWay}" Content="{Binding arrange_group_header[0]}" />
+            <RadioButton Grid.Row="16" Grid.Column="2" GroupName="arrange_group" IsChecked="{Binding arrange_group[1], Mode=TwoWay}" Content="{Binding arrange_group_header[1]}" />
+            <RadioButton Grid.Row="16" Grid.Column="3" GroupName="arrange_group" IsChecked="{Binding arrange_group[2], Mode=TwoWay}" Content="{Binding arrange_group_header[2]}" />
+
+            <Label Grid.Row="17" Grid.Column="0" Content="Abstand und Rotation" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
                     <Image Source="{Binding arrange_dist_rota_group_url}" />
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="16" Grid.Column="1" GroupName="arrange_dist_rota_group" IsChecked="{Binding arrange_dist_rota_group[0], Mode=TwoWay}" Content="{Binding arrange_dist_rota_group_header[0]}" />
-            <RadioButton Grid.Row="16" Grid.Column="2" GroupName="arrange_dist_rota_group" IsChecked="{Binding arrange_dist_rota_group[1], Mode=TwoWay}" Content="{Binding arrange_dist_rota_group_header[1]}" />
-            <RadioButton Grid.Row="16" Grid.Column="3" GroupName="arrange_dist_rota_group" IsChecked="{Binding arrange_dist_rota_group[2], Mode=TwoWay}" Content="{Binding arrange_dist_rota_group_header[2]}" />
+            <RadioButton Grid.Row="17" Grid.Column="1" GroupName="arrange_dist_rota_group" IsChecked="{Binding arrange_dist_rota_group[0], Mode=TwoWay}" Content="{Binding arrange_dist_rota_group_header[0]}" />
+            <RadioButton Grid.Row="17" Grid.Column="2" GroupName="arrange_dist_rota_group" IsChecked="{Binding arrange_dist_rota_group[1], Mode=TwoWay}" Content="{Binding arrange_dist_rota_group_header[1]}" />
+            <RadioButton Grid.Row="17" Grid.Column="3" GroupName="arrange_dist_rota_group" IsChecked="{Binding arrange_dist_rota_group[2], Mode=TwoWay}" Content="{Binding arrange_dist_rota_group_header[2]}" />
 
-            <Label Grid.Row="17" Grid.Column="0" Content="Euklidischer Abstand und Winkel" Style="{StaticResource lblGroup}">
+            <Label Grid.Row="18" Grid.Column="0" Content="Euklidischer Abstand und Winkel" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
                     <Image Source="{Binding arrange_euclid_group_url}" />
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="17" Grid.Column="1" GroupName="arrange_euclid_group" IsChecked="{Binding arrange_euclid_group[0], Mode=TwoWay}" Content="{Binding arrange_euclid_group_header[0]}" />
-            <RadioButton Grid.Row="17" Grid.Column="2" GroupName="arrange_euclid_group" IsChecked="{Binding arrange_euclid_group[1], Mode=TwoWay}" Content="{Binding arrange_euclid_group_header[1]}" />
-            <RadioButton Grid.Row="17" Grid.Column="3" GroupName="arrange_euclid_group" IsChecked="{Binding arrange_euclid_group[2], Mode=TwoWay}" Content="{Binding arrange_euclid_group_header[2]}" />
+            <RadioButton Grid.Row="18" Grid.Column="1" GroupName="arrange_euclid_group" IsChecked="{Binding arrange_euclid_group[0], Mode=TwoWay}" Content="{Binding arrange_euclid_group_header[0]}" />
+            <RadioButton Grid.Row="18" Grid.Column="2" GroupName="arrange_euclid_group" IsChecked="{Binding arrange_euclid_group[1], Mode=TwoWay}" Content="{Binding arrange_euclid_group_header[1]}" />
+            <RadioButton Grid.Row="18" Grid.Column="3" GroupName="arrange_euclid_group" IsChecked="{Binding arrange_euclid_group[2], Mode=TwoWay}" Content="{Binding arrange_euclid_group_header[2]}" />
 
-            <Label Grid.Row="18" Grid.Column="0" Content="Erweitertes Anordnen" Style="{StaticResource lblGroup}">
+            <Label Grid.Row="19" Grid.Column="0" Content="Erweitertes Anordnen" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
                     <Image Source="{Binding arrange_adv_group_url}" />
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="18" Grid.Column="1" GroupName="arrange_adv_group" IsChecked="{Binding arrange_adv_group[0], Mode=TwoWay}" Content="{Binding arrange_adv_group_header[0]}" />
-            <RadioButton Grid.Row="18" Grid.Column="2" GroupName="arrange_adv_group" IsChecked="{Binding arrange_adv_group[1], Mode=TwoWay}" Content="{Binding arrange_adv_group_header[1]}" />
-            <RadioButton Grid.Row="18" Grid.Column="3" GroupName="arrange_adv_group" IsChecked="{Binding arrange_adv_group[2], Mode=TwoWay}" Content="{Binding arrange_adv_group_header[2]}" />
+            <RadioButton Grid.Row="19" Grid.Column="1" GroupName="arrange_adv_group" IsChecked="{Binding arrange_adv_group[0], Mode=TwoWay}" Content="{Binding arrange_adv_group_header[0]}" />
+            <RadioButton Grid.Row="19" Grid.Column="2" GroupName="arrange_adv_group" IsChecked="{Binding arrange_adv_group[1], Mode=TwoWay}" Content="{Binding arrange_adv_group_header[1]}" />
+            <RadioButton Grid.Row="19" Grid.Column="3" GroupName="arrange_adv_group" IsChecked="{Binding arrange_adv_group[2], Mode=TwoWay}" Content="{Binding arrange_adv_group_header[2]}" />
 
-            <Label Grid.Row="19" Grid.Column="0" Content="Erweitertes Anordnen (vereinfacht)" Style="{StaticResource lblGroup}">
+            <Label Grid.Row="20" Grid.Column="0" Content="Erweitertes Anordnen (vereinfacht)" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
                     <Image Source="{Binding arrange_adv_easy_group_url}" />
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="19" Grid.Column="1" GroupName="arrange_adv_easy_group" IsChecked="{Binding arrange_adv_easy_group[0], Mode=TwoWay}" Content="{Binding arrange_adv_easy_group_header[0]}" />
-            <RadioButton Grid.Row="19" Grid.Column="2" GroupName="arrange_adv_easy_group" IsChecked="{Binding arrange_adv_easy_group[1], Mode=TwoWay}" Content="{Binding arrange_adv_easy_group_header[1]}" />
-            <RadioButton Grid.Row="19" Grid.Column="3" GroupName="arrange_adv_easy_group" IsChecked="{Binding arrange_adv_easy_group[2], Mode=TwoWay}" Content="{Binding arrange_adv_easy_group_header[2]}" />
+            <RadioButton Grid.Row="20" Grid.Column="1" GroupName="arrange_adv_easy_group" IsChecked="{Binding arrange_adv_easy_group[0], Mode=TwoWay}" Content="{Binding arrange_adv_easy_group_header[0]}" />
+            <RadioButton Grid.Row="20" Grid.Column="2" GroupName="arrange_adv_easy_group" IsChecked="{Binding arrange_adv_easy_group[1], Mode=TwoWay}" Content="{Binding arrange_adv_easy_group_header[1]}" />
+            <RadioButton Grid.Row="20" Grid.Column="3" GroupName="arrange_adv_easy_group" IsChecked="{Binding arrange_adv_easy_group[2], Mode=TwoWay}" Content="{Binding arrange_adv_easy_group_header[2]}" />
 
-            <Label Grid.Row="20" Grid.Column="0" Content="Erweitertes Anordnen Mini-Gruppe" Style="{StaticResource lblGroup}">
+            <Label Grid.Row="21" Grid.Column="0" Content="Erweitertes Anordnen Mini-Gruppe" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
                     <Image Source="{Binding arrange_mini_group_url}" />
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="20" Grid.Column="1" GroupName="arrange_mini_group" IsChecked="{Binding arrange_mini_group[0], Mode=TwoWay}" Content="{Binding arrange_mini_group_header[0]}" />
-            <RadioButton Grid.Row="20" Grid.Column="2" GroupName="arrange_mini_group" IsChecked="{Binding arrange_mini_group[1], Mode=TwoWay}" Content="{Binding arrange_mini_group_header[1]}" />
-            <RadioButton Grid.Row="20" Grid.Column="3" GroupName="arrange_mini_group" IsChecked="{Binding arrange_mini_group[2], Mode=TwoWay}" Content="{Binding arrange_mini_group_header[2]}" />
+            <RadioButton Grid.Row="21" Grid.Column="1" GroupName="arrange_mini_group" IsChecked="{Binding arrange_mini_group[0], Mode=TwoWay}" Content="{Binding arrange_mini_group_header[0]}" />
+            <RadioButton Grid.Row="21" Grid.Column="2" GroupName="arrange_mini_group" IsChecked="{Binding arrange_mini_group[1], Mode=TwoWay}" Content="{Binding arrange_mini_group_header[1]}" />
+            <RadioButton Grid.Row="21" Grid.Column="3" GroupName="arrange_mini_group" IsChecked="{Binding arrange_mini_group[2], Mode=TwoWay}" Content="{Binding arrange_mini_group_header[2]}" />
 
-            <Rectangle Grid.Row="21" Fill="WhiteSmoke" Grid.ColumnSpan="4" />
-            <Label Grid.Row="21" Grid.Column="0" Content="Text/Paragraph-Gruppen" />
+            <Rectangle Grid.Row="22" Fill="WhiteSmoke" Grid.ColumnSpan="4" />
+            <Label Grid.Row="22" Grid.Column="0" Content="Text/Paragraph-Gruppen" />
 
-            <Label Grid.Row="22" Grid.Column="0" Content="Textfeld Innenabstand" Style="{StaticResource lblGroup}">
+            <Label Grid.Row="23" Grid.Column="0" Content="Textfeld Innenabstand" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
                     <Image Source="{Binding text_padding_group_url}" />
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="22" Grid.Column="1" GroupName="text_padding_group" IsChecked="{Binding text_padding_group[0], Mode=TwoWay}" Content="{Binding text_padding_group_header[0]}" />
-            <RadioButton Grid.Row="22" Grid.Column="2" GroupName="text_padding_group" IsChecked="{Binding text_padding_group[1], Mode=TwoWay}" Content="{Binding text_padding_group_header[1]}" />
-            <RadioButton Grid.Row="22" Grid.Column="3" GroupName="text_padding_group" IsChecked="{Binding text_padding_group[2], Mode=TwoWay}" Content="{Binding text_padding_group_header[2]}" />
+            <RadioButton Grid.Row="23" Grid.Column="1" GroupName="text_padding_group" IsChecked="{Binding text_padding_group[0], Mode=TwoWay}" Content="{Binding text_padding_group_header[0]}" />
+            <RadioButton Grid.Row="23" Grid.Column="2" GroupName="text_padding_group" IsChecked="{Binding text_padding_group[1], Mode=TwoWay}" Content="{Binding text_padding_group_header[1]}" />
+            <RadioButton Grid.Row="23" Grid.Column="3" GroupName="text_padding_group" IsChecked="{Binding text_padding_group[2], Mode=TwoWay}" Content="{Binding text_padding_group_header[2]}" />
 
-            <Label Grid.Row="23" Grid.Column="0" Content="Absatz" Style="{StaticResource lblGroup}">
+            <Label Grid.Row="24" Grid.Column="0" Content="Absatz" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
                     <Image Source="{Binding text_par_group_url}" />
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="23" Grid.Column="1" GroupName="text_par_group" IsChecked="{Binding text_par_group[0], Mode=TwoWay}" Content="{Binding text_par_group_header[0]}" />
-            <RadioButton Grid.Row="23" Grid.Column="2" GroupName="text_par_group" IsChecked="{Binding text_par_group[1], Mode=TwoWay}" Content="{Binding text_par_group_header[1]}" />
-            <RadioButton Grid.Row="23" Grid.Column="3" GroupName="text_par_group" IsChecked="{Binding text_par_group[2], Mode=TwoWay}" Content="{Binding text_par_group_header[2]}" />
+            <RadioButton Grid.Row="24" Grid.Column="1" GroupName="text_par_group" IsChecked="{Binding text_par_group[0], Mode=TwoWay}" Content="{Binding text_par_group_header[0]}" />
+            <RadioButton Grid.Row="24" Grid.Column="2" GroupName="text_par_group" IsChecked="{Binding text_par_group[1], Mode=TwoWay}" Content="{Binding text_par_group_header[1]}" />
+            <RadioButton Grid.Row="24" Grid.Column="3" GroupName="text_par_group" IsChecked="{Binding text_par_group[2], Mode=TwoWay}" Content="{Binding text_par_group_header[2]}" />
 
-            <Label Grid.Row="24" Grid.Column="0" Content="Absatzeinzug" Style="{StaticResource lblGroup}">
+            <Label Grid.Row="25" Grid.Column="0" Content="Absatzeinzug" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
                     <Image Source="{Binding text_parindent_group_url}" />
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="24" Grid.Column="1" GroupName="text_parindent_group" IsChecked="{Binding text_parindent_group[0], Mode=TwoWay}" Content="{Binding text_parindent_group_header[0]}" />
-            <RadioButton Grid.Row="24" Grid.Column="2" GroupName="text_parindent_group" IsChecked="{Binding text_parindent_group[1], Mode=TwoWay}" Content="{Binding text_parindent_group_header[1]}" />
-            <RadioButton Grid.Row="24" Grid.Column="3" GroupName="text_parindent_group" IsChecked="{Binding text_parindent_group[2], Mode=TwoWay}" Content="{Binding text_parindent_group_header[2]}" />
+            <RadioButton Grid.Row="25" Grid.Column="1" GroupName="text_parindent_group" IsChecked="{Binding text_parindent_group[0], Mode=TwoWay}" Content="{Binding text_parindent_group_header[0]}" />
+            <RadioButton Grid.Row="25" Grid.Column="2" GroupName="text_parindent_group" IsChecked="{Binding text_parindent_group[1], Mode=TwoWay}" Content="{Binding text_parindent_group_header[1]}" />
+            <RadioButton Grid.Row="25" Grid.Column="3" GroupName="text_parindent_group" IsChecked="{Binding text_parindent_group[2], Mode=TwoWay}" Content="{Binding text_parindent_group_header[2]}" />
 
-            <Rectangle Grid.Row="25" Fill="WhiteSmoke" Grid.ColumnSpan="4" />
-            <Label Grid.Row="25" Grid.Column="0" Content="Sonstige Gruppen" />
+            <Rectangle Grid.Row="26" Fill="WhiteSmoke" Grid.ColumnSpan="4" />
+            <Label Grid.Row="26" Grid.Column="0" Content="Sonstige Gruppen" />
 
-            <Label Grid.Row="26" Grid.Column="0" Content="Format-Gruppe" Style="{StaticResource lblGroup}">
+            <Label Grid.Row="27" Grid.Column="0" Content="Format-Gruppe" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
                     <Image Source="{Binding format_group_url}" />
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="26" Grid.Column="1" GroupName="format_group" IsChecked="{Binding format_group[0], Mode=TwoWay}" Content="{Binding format_group_header[0]}" />
-            <RadioButton Grid.Row="26" Grid.Column="2" GroupName="format_group" IsChecked="{Binding format_group[1], Mode=TwoWay}" Content="{Binding format_group_header[1]}" />
-            <RadioButton Grid.Row="26" Grid.Column="3" GroupName="format_group" IsChecked="{Binding format_group[2], Mode=TwoWay}" Content="{Binding format_group_header[2]}" />
+            <RadioButton Grid.Row="27" Grid.Column="1" GroupName="format_group" IsChecked="{Binding format_group[0], Mode=TwoWay}" Content="{Binding format_group_header[0]}" />
+            <RadioButton Grid.Row="27" Grid.Column="2" GroupName="format_group" IsChecked="{Binding format_group[1], Mode=TwoWay}" Content="{Binding format_group_header[1]}" />
+            <RadioButton Grid.Row="27" Grid.Column="3" GroupName="format_group" IsChecked="{Binding format_group[2], Mode=TwoWay}" Content="{Binding format_group_header[2]}" />
 
-            <Label Grid.Row="27" Grid.Column="0" Content="Fine-Tuning (Anfasserwerte)" Style="{StaticResource lblGroup}">
+            <Label Grid.Row="28" Grid.Column="0" Content="Fine-Tuning (Anfasserwerte)" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>
                     <Image Source="{Binding adjustments_group_url}" />
                 </Label.ToolTip>
             </Label>
-            <RadioButton Grid.Row="27" Grid.Column="1" GroupName="adjustments_group" IsChecked="{Binding adjustments_group[0], Mode=TwoWay}" Content="{Binding adjustments_group_header[0]}" />
-            <RadioButton Grid.Row="27" Grid.Column="2" GroupName="adjustments_group" IsChecked="{Binding adjustments_group[1], Mode=TwoWay}" Content="{Binding adjustments_group_header[1]}" />
-            <RadioButton Grid.Row="27" Grid.Column="3" GroupName="adjustments_group" IsChecked="{Binding adjustments_group[2], Mode=TwoWay}" Content="{Binding adjustments_group_header[2]}" />
-
-            <Label Grid.Row="28" Grid.Column="0" Content="Teilen/Vervielfachen" Style="{StaticResource lblGroup}">
-                <Label.ToolTip>
-                    <StackPanel Orientation="Vertical">
-                        <Image Source="{Binding split_group_url}" />
-                        <AccessText FontStyle="Italic" TextWrapping="WrapWithOverflow" Width="120">
-                            Auch verfügbar über Gruppe "Formen" > "Shape verändern".
-                        </AccessText>
-                    </StackPanel>
-                </Label.ToolTip>
-            </Label>
-            <RadioButton Grid.Row="28" Grid.Column="1" GroupName="split_group" IsChecked="{Binding split_group[0], Mode=TwoWay}" Content="{Binding split_group_header[0]}" />
-            <RadioButton Grid.Row="28" Grid.Column="2" GroupName="split_group" IsChecked="{Binding split_group[1], Mode=TwoWay}" Content="{Binding split_group_header[1]}" />
-            <RadioButton Grid.Row="28" Grid.Column="3" GroupName="split_group" IsChecked="{Binding split_group[2], Mode=TwoWay}" Content="{Binding split_group_header[2]}" />
-
+            <RadioButton Grid.Row="28" Grid.Column="1" GroupName="adjustments_group" IsChecked="{Binding adjustments_group[0], Mode=TwoWay}" Content="{Binding adjustments_group_header[0]}" />
+            <RadioButton Grid.Row="28" Grid.Column="2" GroupName="adjustments_group" IsChecked="{Binding adjustments_group[1], Mode=TwoWay}" Content="{Binding adjustments_group_header[1]}" />
+            <RadioButton Grid.Row="28" Grid.Column="3" GroupName="adjustments_group" IsChecked="{Binding adjustments_group[2], Mode=TwoWay}" Content="{Binding adjustments_group_header[2]}" />
 
             <Label Grid.Row="29" Grid.Column="0" Content="Sprache" Style="{StaticResource lblGroup}">
                 <Label.ToolTip>

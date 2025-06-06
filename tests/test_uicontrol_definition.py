@@ -5,7 +5,7 @@ Created on 07.08.2015
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import unittest
 
@@ -28,18 +28,20 @@ class SpinnerBox(Box):
     #
     def __init__(self, **kwargs):
         self.txt_box = EditBox(size_string='###', **kwargs)
-        self.inc_button = Button(label=u"»")
-        self.dec_button = Button(label=u"«")
+        self.inc_button = Button(label="»")
+        self.dec_button = Button(label="«")
         super(SpinnerBox, self).__init__(children = [self.txt_box, self.dec_button, self.inc_button])
         #self._local_callbacks = {}
         #
     
     def add_callback(self, rc):
-        if rc.callback_type.python_name == 'increment':
-            self.inc_button.add_callback(rc, callback_type=CallbackTypes.on_action)
-        elif rc.callback_type.python_name == 'decrement':
-            self.dec_button.add_callback(rc, callback_type=CallbackTypes.on_action)
-        elif rc.callback_type.python_name in ['get_enabled', 'get_visible']:
+        if rc.callback_type == CallbackTypes.increment:
+            rc.callback_type=CallbackTypes.on_action
+            self.inc_button.add_callback(rc)
+        elif rc.callback_type == CallbackTypes.decrement:
+            rc.callback_type=CallbackTypes.on_action
+            self.dec_button.add_callback(rc)
+        elif rc.callback_type in [CallbackTypes.get_enabled, CallbackTypes.get_visible]:
             self.inc_button.add_callback(rc)
             self.dec_button.add_callback(rc)
             self.txt_box.add_callback(rc)
@@ -66,8 +68,8 @@ class WorkingSpinner(SpinnerBox):
         
         # inc_rc = Callback( self.increment, CallbackTypes.increment, {'context': True} )
         # dec_rc = Callback( self.decrement, CallbackTypes.decrement, {'context': True} )
-        inc_rc = Callback( self.increment, python_name='increment', context=True )
-        dec_rc = Callback( self.decrement, python_name='decrement', context=True )
+        inc_rc = Callback( self.increment, CallbackTypes.increment, context=True )
+        dec_rc = Callback( self.decrement, CallbackTypes.decrement, context=True )
         self.add_callback( inc_rc )
         self.add_callback( dec_rc )
         self.step = 1
@@ -119,7 +121,7 @@ class UIDefinitionTest(unittest.TestCase):
         
         self.maxDiff = None
         ctrl = SpinnerBox()
-        self.assertEqual(ctrl_to_str(ctrl), u'<box>\n<editBox sizeString="###" />\n<button label="\xab" />\n<button label="\xbb" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box>\n<editBox sizeString="###" />\n<button label="\xab" />\n<button label="\xbb" />\n</box>')
 
         def my_gettext():
             return 10
@@ -139,10 +141,10 @@ class UIDefinitionTest(unittest.TestCase):
         ctrl.add_callback( cb_onchange )
         ctrl.add_callback( cb_gettext )
         ctrl.add_callback( cb_inc )
-        self.assertEqual(ctrl_to_str(ctrl), u'<box>\n<editBox getText="PythonGetText" onChange="PythonOnChange" sizeString="###" />\n<button label="\xab" />\n<button label="\xbb" onAction="PythonOnAction" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box>\n<editBox getText="PythonGetText" onChange="PythonOnChange" sizeString="###" />\n<button label="\xab" />\n<button label="\xbb" onAction="PythonOnAction" />\n</box>')
 
         ctrl.add_callback( cb_dec )
-        self.assertEqual(ctrl_to_str(ctrl), u'<box>\n<editBox getText="PythonGetText" onChange="PythonOnChange" sizeString="###" />\n<button label="\xab" onAction="PythonOnAction" />\n<button label="\xbb" onAction="PythonOnAction" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box>\n<editBox getText="PythonGetText" onChange="PythonOnChange" sizeString="###" />\n<button label="\xab" onAction="PythonOnAction" />\n<button label="\xbb" onAction="PythonOnAction" />\n</box>')
 
 
 
@@ -183,7 +185,7 @@ class UIDefinitionTest(unittest.TestCase):
         
         ctrl = WorkingSpinner()
         
-        self.assertEqual(ctrl_to_str(ctrl), u'<box>\n<editBox sizeString="###" />\n<button label="\xab" onAction="PythonOnAction" />\n<button label="\xbb" onAction="PythonOnAction" />\n</box>')
+        self.assertEqual(ctrl_to_str(ctrl), '<box>\n<editBox sizeString="###" />\n<button label="\xab" onAction="PythonOnAction" />\n<button label="\xbb" onAction="PythonOnAction" />\n</box>')
         
         def my_gettext():
             return 10

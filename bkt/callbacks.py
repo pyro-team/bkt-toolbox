@@ -6,7 +6,7 @@ Created on 13.11.2014
 @authors: cschmitt, rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import importlib
 import logging
@@ -90,7 +90,7 @@ class CallbackTypesCatalog(object):
             super(CallbackTypesCatalog, self).__setattr__(attr, value)
     
     def has_callback_type(self, name):
-        return self._callback_types.has_key(name)
+        return name in self._callback_types
 
     def get_callback_type(self, name):
         return self._callback_types[name]
@@ -169,7 +169,8 @@ CallbackTypes.bkt_event = callback_type(xml_name=None, dotnet_name='BKTEvent')
 
 
 class Callback(object):
-    CALLBACK_KEYS = set(('python_name', 'dotnet_name', 'xml_name', 'pos_args', 'custom', 'transactional', 'cacheable'))
+    # CALLBACK_KEYS = set(('python_name', 'dotnet_name', 'xml_name', 'pos_args', 'custom', 'transactional', 'cacheable'))
+    CALLBACK_KEYS = set(('transactional', 'cacheable'))
 
     ''' Represents a callback-method with information about the method-arguments which need to be passed to invoke the method. '''
     def __init__(self, *args, **kwargs):
@@ -179,11 +180,13 @@ class Callback(object):
                     The method is obtained from the container_class
              3) Callback( method, callback_type, **kwargs)
                     The invocation_context is then build from **kwargs
-             4) Callback( method, **kwargs)
+             4) Callback( method, callback_type)
+                    The invocation_context is then build from method params.
+             5) Callback( method, **kwargs)
                     The invocation_context and the callback_type are then build from **kwargs.
                     callback_type uses the arguments: python_name, dotnet_name, xml_name, pos_args, custom, transactional, cacheable
                     All other arguments are used for the invocation_context
-             5) Callback( method)
+             6) Callback( method)
                     The invocation_context ist build from method params.
         
         '''
@@ -191,25 +194,33 @@ class Callback(object):
         self.method = None
         self.control = None
         self.callback_type = None
+
+        # extract kwargs that are related to the callback and not passed to invocation_context
+        self._callback_args = { key:kwargs.pop(key) for key in list(kwargs.keys()) if key in self.CALLBACK_KEYS }
+
+        len_args = len(args)
         
-        if len(args) == 4:
+        if len_args == 4:
             #FIXME: if len(kwargs) != 0: ERROR
             container, method_name, callback_type, invocation_context = args
             self.init_container_method(container, method_name, callback_type, invocation_context)
             
-        elif len(args) == 3:
-            # no logic, alls objects as arguments
+        elif len_args == 3:
+            # no logic, all objects as arguments
             self.method, self.callback_type, self.invocation_context = args
             
-        elif len(args) == 2:
+        elif len_args == 2:
             method, callback_type = args
-            self.init_method_callback(method, callback_type, **kwargs)
-            
-        elif len(args) == 1:
-            if len(kwargs) == 0:
-                self.init_method_auto(args[0])
+            if kwargs:
+                self.init_method_callback(method, callback_type, **kwargs)
             else:
+                self.init_method_callback_auto(method, callback_type)
+            
+        elif len_args == 1:
+            if kwargs:
                 self.init_method(args[0], **kwargs)
+            else:
+                self.init_method_auto(args[0])
     
     
     def init_container_method(self, container, method_name, callback_type, invocation_context):
@@ -230,25 +241,42 @@ class Callback(object):
         self.method = method
         self.callback_type = callback_type
         self.invocation_context = InvocationContext(**kwargs)
-        
-    def init_method(self, method, **kwargs):
-        ''' initialization method. Builds callback_type and invocation_context from keyword-arguments  '''
-        # split kwargs for callback_type and invocation_context
-        callback_args = { key:kwargs.pop(key) for key in kwargs.keys() if key in self.CALLBACK_KEYS }
-        # callback_args = { key:value for key, value in kwargs.items() if key in self.CALLBACK_KEYS }
-        # kwargs        = { key:value for key, value in kwargs.items() if key not in self.CALLBACK_KEYS }
-        callback_type = CallbackType(**callback_args)
+    
+    def init_method_callback_auto(self, method, callback_type):
+        ''' initialization method. Builds invocation_context from varnames of method '''
         self.method = method
         self.callback_type = callback_type
+        self.invocation_context = InvocationContext.from_method(method)
+        
+    def init_method(self, method, **kwargs):
+        ''' initialization method. Builds invocation_context from keyword-arguments  '''
+        # split kwargs for callback_type and invocation_context
+        # callback_args = { key:kwargs.pop(key) for key in list(kwargs.keys()) if key in self.CALLBACK_KEYS }
+        # callback_args = { key:value for key, value in kwargs.items() if key in self.CALLBACK_KEYS }
+        # kwargs        = { key:value for key, value in kwargs.items() if key not in self.CALLBACK_KEYS }
+        # callback_type = CallbackType(**callback_args)
+        self.method = method
+        # self.callback_type = CallbackType(**callback_args)
         self.invocation_context = InvocationContext(**kwargs)
     
     def init_method_auto(self, method):
         ''' initialization method. Builds invocation_context from varnames of method '''
         self.method = method
-        self.callback_type = None
         self.invocation_context = InvocationContext.from_method(method)
+
+
+    def set_callback_type(self, callback_type):
+        self.callback_type = callback_type
+
+    @property
+    def is_cacheable(self):
+        return self._callback_args.get("cacheable", self.callback_type.cacheable)
     
+    @property
+    def is_transactional(self):
+        return self._callback_args.get("transactional", self.callback_type.transactional)
     
+
     def __repr__(self):
         return '<%s container=%s, method=%s, invocation_context=%s, callback=%s, control=%s>' % (type(self).__name__,
                                                                   self.container,
@@ -258,11 +286,10 @@ class Callback(object):
                                                                   self.control)
     
     def copy(self):
-        cb = Callback(self.method, self.callback_type, self.invocation_context)
+        cb = Callback(self.method, self.callback_type, self.invocation_context, **self._callback_args)
         cb.container = self.container
         return cb
-        
-        
+    
     
     def xml(self):
         if self.callback_type:
@@ -271,18 +298,17 @@ class Callback(object):
             return self.__class__.__name__
     
 
-
-class CallbackLazy(Callback):
+class CallbackLazyMethod(Callback):
     '''
-    Same as Callback, but imports module only on first use
+    Class that is used as method injected by CallbackLazy
     '''
-
-    def __init__(self, *args, **kwargs):
-        # super(CallbackLazy, self).__init__(*args, **kwargs)
-        
-        self.container = None
-        self.control = None
-        self.callback_type = None
+    def __init__(self, *args):
+        ''' Initialization method, use on of the following options
+             1) Callback( module_name, container, method_name, **kwargs)
+                The invocation_context is then build from **kwargs. Without kwargs, invocation_context remains empty.
+             2) Callback( module_name, method_name, **kwargs)
+                The invocation_context is then build from **kwargs. Without kwargs, invocation_context remains empty.
+        '''
 
         self.module_name = None
         self.method_name = None
@@ -297,25 +323,15 @@ class CallbackLazy(Callback):
 
         self._module = None
         self._method = None
-
-        self.init_method(self._load_and_execute, **kwargs)
-
-    def __repr__(self):
-        return '<%s container=%s, method=%s, invocation_context=%s, callback=%s, control=%s>' % (type(self).__name__,
-                                                                  self.container,
-                                                                  self.method_name,
-                                                                  self.invocation_context,
-                                                                  self.callback_type,
-                                                                  self.control)
     
-    def _load_and_execute(self, **kwargs):
+    def __call__(self, **kwargs):
         ''' load module and requested method in module '''
         logging.debug('CallbackLazy._load_and_execute')
         try:
             if not self._method:
                 self._import_module()
                 if self.container is None:
-                    self._method = getattr(self.container, self.method_name)
+                    self._method = getattr(self._module, self.method_name)
                 else:
                     class_ = getattr(self._module, self.container)
                     self._method = getattr(class_, self.method_name)
@@ -323,7 +339,7 @@ class CallbackLazy(Callback):
             return self._method(**kwargs)
             
         except:
-            logging.exception("error in contextdialog window creation")
+            logging.exception("error in lazy loading callback")
 
     def _import_module(self):
         '''
@@ -334,6 +350,35 @@ class CallbackLazy(Callback):
             logging.debug('CallbackLazy._import_module importing %s' % self.module_name)
             #do an import equivalent to:  import <<module_name>>
             self._module = importlib.import_module(self.module_name)
+
+
+
+class CallbackLazy(Callback):
+    '''
+    Same as Callback, but imports module only on first use
+    '''
+
+    def __init__(self, *args, **kwargs):
+        ''' Initialization, refer to CallbackLazyMethod
+        '''
+        super().__init__(**kwargs)
+        
+        self.method = CallbackLazyMethod(*args)
+        self.invocation_context = InvocationContext(raise_error=False, **kwargs)
+
+    # def __repr__(self):
+    #     return '<%s container=%s, method=%s, invocation_context=%s, callback=%s, control=%s>' % (type(self).__name__,
+    #                                                               self.container,
+    #                                                               self.method_name,
+    #                                                               self.invocation_context,
+    #                                                               self.callback_type,
+    #                                                               self.control)
+    
+    # def copy(self):
+    #     cb = CallbackLazy(self.module_name, self.container, self.method_name, **self._callback_args)
+    #     cb.invocation_context = self.invocation_context
+    #     cb.callback_type = self.callback_type
+    #     return cb
 
 
 
@@ -376,9 +421,7 @@ class InvocationContext(object):
         self.customui_control = False
         self.context = False
         self.application = False
-        self.transaction = True #obsolete?
         self.current_control = False
-        self.cache = True
         
         # powerpoint/visio
         self.shapes = False
@@ -424,17 +467,19 @@ class InvocationContext(object):
     
     def copy(self):
         ctx = InvocationContext()
-        for key in [ 'python_addin', 'ribbon_id', 'customui_control', 'context', 'application', 'transaction', 'current_control', 'cache', 'shapes', 'shape', 'shapes_min', 'shapes_max', 'wrap_shapes', 'selection', 'slide_of_shapes', 'slides', 'slide', 'slides_min', 'slides_max', 'presentation', 'require_text', 'page', 'page_shapes', 'workbook', 'sheet', 'require_worksheet', 'sheets', 'selected_sheets', 'cell', 'cells', 'areas', 'areas_min', 'areas_max' ]:
+        for key in [ 'python_addin', 'ribbon_id', 'customui_control', 'context', 'application', 'current_control', 'shapes', 'shape', 'shapes_min', 'shapes_max', 'wrap_shapes', 'selection', 'slide_of_shapes', 'slides', 'slide', 'slides_min', 'slides_max', 'presentation', 'require_text', 'page', 'page_shapes', 'workbook', 'sheet', 'require_worksheet', 'sheets', 'selected_sheets', 'cell', 'cells', 'areas', 'areas_min', 'areas_max' ]:
             setattr(ctx, key, getattr(self, key))
         return ctx
     
     @staticmethod
     def from_method(method):
         ''' Alternative constructor. Derives InvocationContext-settings from methods's parameter-names  '''
-        kwargs = {}
-        for var_name in list(method.__code__.co_varnames)[:method.__code__.co_argcount]:
-            if var_name != "self":
-                kwargs[var_name] = True
+        kwargs = dict.fromkeys(list(method.__code__.co_varnames)[:method.__code__.co_argcount], True)
+        kwargs.pop("self", None)
+        # kwargs = {}
+        # for var_name in list(method.__code__.co_varnames)[:method.__code__.co_argcount]:
+        #     if var_name != "self":
+        #         kwargs[var_name] = True
         
         return InvocationContext(raise_error=False, **kwargs)
         

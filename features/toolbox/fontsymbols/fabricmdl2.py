@@ -3,7 +3,7 @@
 # https://docs.microsoft.com/de-de/windows/uwp/design/style/segoe-ui-symbol-font
 
 
-from __future__ import absolute_import
+
 
 import os.path
 import io
@@ -69,13 +69,13 @@ with io.open(file, 'r', encoding='utf-8') as json_file:
         if not "unicode" in char:
             continue
         if 0 <= i <= chunk_size:
-            fabric_symbols1.append(("Fabric MDL2 Assets", unichr(int(char['unicode'], 16)), char['name'], "Fabric MDL2 Assets > 1"))
+            fabric_symbols1.append(("Fabric MDL2 Assets", chr(int(char['unicode'], 16)), char['name'], "Fabric MDL2 Assets > 1"))
         elif chunk_size < i <= 2*chunk_size:
-            fabric_symbols2.append(("Fabric MDL2 Assets", unichr(int(char['unicode'], 16)), char['name'], "Fabric MDL2 Assets > 2"))
+            fabric_symbols2.append(("Fabric MDL2 Assets", chr(int(char['unicode'], 16)), char['name'], "Fabric MDL2 Assets > 2"))
         elif 2*chunk_size < i <= 3*chunk_size:
-            fabric_symbols3.append(("Fabric MDL2 Assets", unichr(int(char['unicode'], 16)), char['name'], "Fabric MDL2 Assets > 3"))
+            fabric_symbols3.append(("Fabric MDL2 Assets", chr(int(char['unicode'], 16)), char['name'], "Fabric MDL2 Assets > 3"))
         else:
-            fabric_symbols4.append(("Fabric MDL2 Assets", unichr(int(char['unicode'], 16)), char['name'], "Fabric MDL2 Assets > 4"))
+            fabric_symbols4.append(("Fabric MDL2 Assets", chr(int(char['unicode'], 16)), char['name'], "Fabric MDL2 Assets > 4"))
         # if char['name'] in mono_icons:
         #     fabric_symbols_mono.append(t)
 

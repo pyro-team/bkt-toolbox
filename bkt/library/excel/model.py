@@ -4,7 +4,7 @@ Created on 08.09.2014
 @author: cschmitt
 '''
 
-from __future__ import absolute_import
+
 
 from collections import OrderedDict
 
@@ -28,7 +28,7 @@ class AttributeContainer(object):
         return self._elems[key]
     
     def __iter__(self):
-        return self._elems.values()
+        return list(self._elems.values())
     
 class Model(object):
     def __init__(self):
@@ -41,7 +41,7 @@ class BaseType(object):
         entity = type(self)._entity
         for col in entity.columns:
             setattr(self, col.name, None)
-        for attr, value in kwargs.iteritems():
+        for attr, value in kwargs.items():
             col = entity.col_by_name.get(attr)
             if col is None:
                 raise TypeError('unknown argument %s for entity %s' % (attr, entity.name))
@@ -76,7 +76,7 @@ class EntityBuilder(object):
     
     def __exit__(self, exc_type, value, traceback):
         cols = []
-        for attr, value in self.temp.__dict__.iteritems():
+        for attr, value in self.temp.__dict__.items():
             if isinstance(value, Column):
                 value.name = attr
                 cols.append(value)

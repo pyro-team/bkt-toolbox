@@ -4,7 +4,7 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 from collections import namedtuple # required for color class
 
@@ -165,7 +165,7 @@ def xls_evaluate(input_text, dec_sep=None, numberformat=None):
                 return application.WorksheetFunction.Text(dec, numberformat)
             except:
                 pass
-        return unicode(dec).replace('.', dec_sep)
+        return str(dec).replace('.', dec_sep)
 
     res = application.Evaluate(input_text)
     type_res = type(res)
@@ -183,8 +183,8 @@ def xls_evaluate(input_text, dec_sep=None, numberformat=None):
         return _conv_dec(res)
     
     #"Normal" results
-    elif type_res in (int, str, unicode):
-        return unicode(res)
+    elif type_res in (int, str, str):
+        return str(res)
     
     #Any iterable object, can be range of cells or System.Array
     else:
@@ -204,7 +204,7 @@ def xls_evaluate(input_text, dec_sep=None, numberformat=None):
                 return ret[0]
     
     #Fallback
-    return unicode(res)
+    return str(res)
     #return "{0!r}".format(res).replace('.', dec_sep)
 
 
@@ -331,9 +331,9 @@ class ColorHelper(object):
         # depending on HSL-Luminosity, different brightness-values are used
         # brightness-values = percentage brighter  (darker if negative)
         [[0],           [ 50,   35,  25,  15,   5] ],
-        [range(1,20),   [ 90,   75,  50,  25,  10] ],
-        [range(20,80),  [ 80,   60,  40, -25, -50] ],
-        [range(80,100), [-10,  -25, -50, -75, -90] ],
+        [list(range(1,20)),   [ 90,   75,  50,  25,  10] ],
+        [list(range(20,80)),  [ 80,   60,  40, -25, -50] ],
+        [list(range(80,100)), [-10,  -25, -50, -75, -90] ],
         [[100],         [ -5,  -15, -25, -35, -50] ]
     ] #using int values to avoid floating point comparison problems
 

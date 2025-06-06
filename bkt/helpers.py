@@ -7,16 +7,17 @@ Created on 10.09.2013
 '''
 
 
-from __future__ import absolute_import, print_function
+
 
 import os.path
 import io
 import logging
 import traceback
 
-import ConfigParser #required for config.txt file
+import configparser #required for config.txt file
 import shelve #required for BKTShelf
 
+from struct import error as struct_error
 from functools import wraps
 from itertools import groupby, chain, islice
 
@@ -140,7 +141,7 @@ def log(s):
     bkt.console.show_message(s)
 
 def exception_as_message(additional_message=None):
-    from cStringIO import StringIO
+    from io import StringIO
     import traceback
 
     import bkt.console
@@ -172,13 +173,13 @@ def bkt_base_path_join(*args):
 # = Load config.txt file =
 # ========================
 
-class BKTConfigParser(ConfigParser.ConfigParser):
+class BKTConfigParser(configparser.ConfigParser):
     ''' Global configuration is stored in config.txt file '''
     config_filename = None
 
     def __init__(self, config_filename):
         self.config_filename = config_filename
-        ConfigParser.ConfigParser.__init__(self)
+        configparser.ConfigParser.__init__(self)
 
     def __getattr__(self, attr):
         '''
@@ -226,7 +227,7 @@ class BKTConfigParser(ConfigParser.ConfigParser):
         to '\n'-seperated strings. List-values can be read from the config file
         using attribute notation (e.g. config.my_list_option).
         '''
-        if type(value) == list:
+        if isinstance(value, list):
             if value:
                 self.set('BKT', option, "\n" + "\n".join(str(v) for v in value))
             else:
@@ -332,6 +333,9 @@ class BKTShelf(shelve.DbfilenameShelf):
         except ValueError:
             logging.error("Operation on closed shelf file %s for getting key %s. Reset to default value: %s", self._filename, key, default)
             return default
+        except struct_error:
+            logging.error("Reading error in shelf file %s for getting key %s. Reset to default value: %s", self._filename, key, default)
+            return default
 
 
 
@@ -348,10 +352,10 @@ class BKTSettings(BKTShelf):
         shelve.Shelf.__init__(self, shelve._ClosedDict(), protocol=2)
     
     def open(self, filename):
-        import anydbm
+        import dbm
         self._filename = get_settings_folder(filename)
         try:
-            self.dict = anydbm.open(self._filename, 'c')
+            self.dict = dbm.open(self._filename, 'c')
         except:
             logging.exception("error reading bkt settings")
             exception_as_message("Critical error opening settings-file '{}'. Settings will not be saved. Manual deletion of settings-file required.\n\n".format(self._filename)) #FIXME: bessere fehlermeldung mit pfad zur datei
@@ -506,7 +510,7 @@ class BitwiseValueAccessor(object):
             self._bitvalue = self._bitvalue ^ option
 
     def __dir__(self):
-        return sorted(set( dir(type(self)) + self.__dict__.keys() + self._attributes ))
+        return sorted(set( dir(type(self)) + list(self.__dict__.keys()) + self._attributes ))
     
     def __contains__(self, value):
         return value in self._attributes

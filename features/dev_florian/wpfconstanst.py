@@ -39,7 +39,7 @@ constants = {
 
 def check(input):
     result = ""
-    for key,value in constants.iteritems():
+    for key,value in constants.items():
         if (input & value) == abs(value):
             result += key + "\r\n"
     return result
@@ -76,7 +76,7 @@ exconstants = {
 
 def check2(input):
     result = ""
-    for key,value in exconstants.iteritems():
+    for key,value in exconstants.items():
         if (input & value) == abs(value):
             result += key + "\r\n"
     return result

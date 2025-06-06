@@ -4,7 +4,7 @@ Created on 2018-01-10
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 
@@ -33,7 +33,7 @@ class QuickEditPanelManager(object):
     def autostart_toggle(cls, pressed):
         bkt.settings["quickedit.restore_panel"] = pressed
         if cls.panel_windows:
-            panel = cls.panel_windows.itervalues().next()
+            panel = next(iter(cls.panel_windows.values()))
             panel._vm.OnPropertyChanged("auto_start")
 
     @classmethod
@@ -113,7 +113,7 @@ class QuickEditPanelManager(object):
     @classmethod
     def close_all_panels(cls):
         logging.debug("close all panels")
-        for windowid in cls.panel_windows.keys():
+        for windowid in list(cls.panel_windows.keys()):
             cls._close_panel(windowid)
 
     @classmethod
@@ -297,7 +297,7 @@ bkt.powerpoint.add_tab(bkt.ribbon.Tab(
     #id_q="nsBKT:powerpoint_toolbox_extensions",
     #insert_after_q="nsBKT:powerpoint_toolbox_advanced",
     insert_before_mso="TabHome",
-    label=u'Toolbox 3/3',
+    label='Toolbox 3/3',
     # get_visible defaults to False during async-startup
     get_visible=bkt.Callback(lambda:True),
     children = [

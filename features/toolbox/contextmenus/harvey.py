@@ -5,7 +5,7 @@ Created on 01.08.2022
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 
@@ -15,7 +15,7 @@ from .. import harvey
 class ContextHarveyShapes(object):
     @staticmethod
     def get_buttons(shapes):
-        if not harvey.harvey_balls.change_harvey_enabled(shapes):
+        if not harvey.harveyui.change_harvey_enabled(shapes):
             return []
         return [
             bkt.ribbon.MenuSeparator(title="Harvey Balls"),

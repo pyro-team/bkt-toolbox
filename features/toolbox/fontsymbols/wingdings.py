@@ -2,7 +2,7 @@
 
 # https://docs.microsoft.com/de-de/windows/uwp/design/style/segoe-ui-symbol-font
 
-from __future__ import absolute_import
+
 
 import os.path
 import io
@@ -26,7 +26,7 @@ with io.open(file, 'r', encoding='utf-8') as json_file:
 
     for ico in chars:
         all_fonts[ico["font"]].append(
-            (ico["font"], unichr(ico['dec']), ico["name"])
+            (ico["font"], chr(ico['dec']), ico["name"])
         )
 
 

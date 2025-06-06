@@ -8,12 +8,12 @@ import bkt
 
 bkt.powerpoint.add_tab(
     bkt.ribbon.Tab(
-        label=u'Demo: idQ-Tab',
+        label='Demo: idQ-Tab',
         id_q='nsBKT:my-unique-id',
         children = [
             bkt.ribbon.Group(
-                label=u'Demo: idQ-Group',
-                id_q=u'nsBKT:first-group',
+                label='Demo: idQ-Group',
+                id_q='nsBKT:first-group',
                 children = [
                     bkt.ribbon.Label(label="Some element")
                 ]
@@ -28,8 +28,8 @@ bkt.powerpoint.add_tab(
         id_q='nsBKT:my-unique-id',
         children = [
             bkt.ribbon.Group(
-                label=u'Next group',
-                id_q=u'nsBKT:next-group',
+                label='Next group',
+                id_q='nsBKT:next-group',
                 children = [
                     bkt.ribbon.Label(label="Element in another group")
                 ]
@@ -48,7 +48,7 @@ bkt.powerpoint.add_tab(
         id_q='nsBKT:my-unique-id',
         children = [
             bkt.ribbon.Group(
-                insert_before_q=u'nsBKT:first-group',
+                insert_before_q='nsBKT:first-group',
                 label='Another group inserted before',
                 children = [
                     bkt.ribbon.Label(label="Another element")

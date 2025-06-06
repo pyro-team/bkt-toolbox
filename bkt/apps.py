@@ -6,7 +6,7 @@ Created on 11.07.2014
 @authors: cschmitt, rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 
@@ -196,7 +196,7 @@ class AppCallbacksBase(AppCallbacks):
         #kwargs = {}
         do_cache = False
         # if callback.callback_type in self.cache_cb_types and not self.refresh_cache():
-        if callback.callback_type.cacheable and callback.invocation_context.cache and not self.refresh_cache():
+        if callback.is_cacheable and not self.refresh_cache():
             logging.debug("trying cache for callback %s", callback.method)
             # cache_key = repr([callback.method.__name__] + kwargs.keys()) #TESTME: add invocation context to key?
             # cache_key = callback.method.__name__ #only method name not sufficient if same name is used in different classes
@@ -352,12 +352,12 @@ class AppCallbacksVisio(AppCallbacksBase):
     def undo_start(self, callback):
         # print callback.method.__name__ + " / " + str(callback.callback_type.transactional)
         #NOTE: duplicate open of beginscope will completely disable undo in visio, therefore need to check scope_id=0!
-        if self.scope_id == 0 and callback.callback_type.transactional and callback.method.__name__ not in ["undo", "redo", "reload_bkt"]:
+        if self.scope_id == 0 and callback.is_transactional and callback.method.__name__ not in ["undo", "redo", "reload_bkt"]:
             self.scope_id = self.context.app.BeginUndoScope("BKT Operation")
         # logging.warning(self.scope_id)
 
     def undo_end(self, callback):
-        if self.scope_id > 0 and callback.callback_type.transactional and self.context:
+        if self.scope_id > 0 and callback.is_transactional and self.context:
             self.context.app.EndUndoScope(self.scope_id, True)
             self.scope_id = 0
         # logging.warning(self.scope_id)
@@ -416,7 +416,7 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
     # ============================
     
     def undo_start(self, callback):
-        if callback.callback_type.transactional:
+        if callback.is_transactional:
             self.context.app.StartNewUndoEntry()
             # self.context.app.ActiveWindow.Presentation.SetUndoText("BKT Operation")
     
@@ -465,10 +465,10 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
         #app.WindowSelectionChange += dump
         
         #event available in PPT2013
-        if float(app.Version) >= 15.0:
-            app.AfterShapeSizeChange += self.after_shape_size_changed
-            #app.AfterShapeSizeChange += self.invalidate
-            #app.AfterShapeSizeChange += dump
+        # if float(app.Version) >= 15.0:
+        app.AfterShapeSizeChange += self.after_shape_size_changed
+        #app.AfterShapeSizeChange += self.invalidate
+        #app.AfterShapeSizeChange += dump
         
     
         app.AfterPresentationOpen  += self.after_presentation_open
@@ -492,8 +492,8 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
             app.WindowActivate -= self.window_activate 
             # app.WindowSelectionChange -= self.window_selection_changed
             #event available in PPT2013
-            if float(app.Version) >= 15.0:
-                app.AfterShapeSizeChange -= self.after_shape_size_changed
+            # if float(app.Version) >= 15.0:
+            app.AfterShapeSizeChange -= self.after_shape_size_changed
     
             app.AfterPresentationOpen  -= self.after_presentation_open
             app.AfterNewPresentation   -= self.after_new_presentation

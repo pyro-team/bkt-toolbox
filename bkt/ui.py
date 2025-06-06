@@ -6,10 +6,11 @@ Created on 23.01.2014
 @author: cschmitt, fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import os.path
+import collections
 
 from bkt import dotnet
 bkt_addin = dotnet.import_bkt()
@@ -34,9 +35,7 @@ class Singleton(type):
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
-class ViewModelSingleton(NotifyPropertyChangedBase):
-    __metaclass__ = Singleton
-
+class ViewModelSingleton(NotifyPropertyChangedBase, metaclass=Singleton):
     def __init__(self):
         super(ViewModelSingleton, self).__init__()
 
@@ -350,9 +349,9 @@ class UserInputBox(object):
 
     def confirmation(self, sender, e):
         for con_input in self.input:
-            if len(con_input) > 2 and callable(con_input[2]):
+            if len(con_input) > 2 and isinstance(con_input[2], collections.Callable):
                 self.values[con_input[0]] = con_input[2](con_input[1])
-            elif len(con_input) > 2 and type(con_input[2]) == str:
+            elif len(con_input) > 2 and isinstance(con_input[2], str):
                 self.values[con_input[0]] = getattr(con_input[1], con_input[2], None)
             else:
                 self.values[con_input[0]] = con_input[1]

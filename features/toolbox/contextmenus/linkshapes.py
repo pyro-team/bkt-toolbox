@@ -5,11 +5,11 @@ Created on 29.04.2021
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 
-from ..linkshapes import LinkedShapes
+from ..models.linkshapes import LinkedShapes
 
 
 class ContextLinkedShapes(object):

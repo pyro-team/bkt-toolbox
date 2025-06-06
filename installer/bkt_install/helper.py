@@ -5,11 +5,11 @@ Created on 25.02.2019
 @author: fstallmann
 '''
 
-from __future__ import absolute_import, print_function
+
 
 import os
 import io
-import ConfigParser
+import configparser
 from ctypes import windll, POINTER
 from ctypes.wintypes import LPWSTR, DWORD, BOOL
 
@@ -28,7 +28,7 @@ def is_admin():
 
 
 def yes_no_question(question):
-    reply = str(raw_input(question + ' (y/n): ')).lower().strip()
+    reply = str(input(question + ' (y/n): ')).lower().strip()
     if reply[0] == 'y':
         return True
     else:
@@ -54,20 +54,20 @@ def is_64bit_exe(path):
 
 
 def exception_as_message():
-    import StringIO
+    import io
     import traceback
 
-    fd = StringIO.StringIO()
+    fd = io.StringIO()
     traceback.print_exc(file=fd)
     traceback.print_exc()
 
 
-class BKTConfigParser(ConfigParser.ConfigParser):
+class BKTConfigParser(configparser.ConfigParser):
     config_filename = None
 
     def __init__(self, config_filename):
         self.config_filename = config_filename
-        ConfigParser.ConfigParser.__init__(self)
+        configparser.ConfigParser.__init__(self)
 
     def __getattr__(self, attr):
         '''
@@ -122,7 +122,7 @@ class BKTConfigParser(ConfigParser.ConfigParser):
         to '\n'-seperated strings. List-values can be read from the config file
         using attribute notation (e.g. config.my_list_option).
         '''
-        if type(value) == list:
+        if isinstance(value, list):
             if value:
                 self.set('BKT', option, "\n" + "\n".join(str(v) for v in value))
             else:

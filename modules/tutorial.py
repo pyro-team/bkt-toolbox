@@ -121,14 +121,14 @@ class MyFirstBKTTab(bkt.FeatureContainer):
 
 my_second_tab = bkt.ribbon.Tab(
     # Attributes are given as parameters:
-    label=u'tutorial-2',
+    label='tutorial-2',
     # Sub-elements are specified through the children-parameter
     children = [
         bkt.ribbon.Group(
-            label=u'My first group',
+            label='My first group',
             children = [
                 bkt.ribbon.Button(
-                    label=u'equal height',
+                    label='equal height',
                     # Now the Button gets a callback for the click-event 
                     # (called on_action) and refer to the function
                     # defined above
@@ -160,7 +160,7 @@ bkt.powerpoint.add_tab(my_second_tab)
 # Parameters added to the python classes (or decorators) become XML-Attributes 
 # for the ribbon UI. Hereby, the pythonic underscore notation is transformed
 # into camelCase, e.g.
-button = bkt.ribbon.Button(label=u'my first button', image_mso='ShapeHeight')
+button = bkt.ribbon.Button(label='my first button', image_mso='ShapeHeight')
 # defines the following XML:
 #   <button label='my first button' imageMso='ShapeHeight'>
 #
@@ -186,7 +186,7 @@ def on_change_function(value):
     bkt.message('edit-box changed: new text=%s' % value)
 
 textbox = bkt.ribbon.EditBox(
-    label=u'my first editbox',
+    label='my first editbox',
     size_string='xxxxxxxx',
     on_change=bkt.Callback(on_change_function)
 )

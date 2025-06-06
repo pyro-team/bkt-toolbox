@@ -5,7 +5,7 @@ Created on 02.11.2017
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 from collections import deque
 
@@ -217,6 +217,8 @@ class PPTSymbolsSettings(object):
     convert_into_shape = bkt.settings.get("bkt.symbols.convert_into_shape", True) #always convert newly inserted symbols into shapes
     convert_into_bitmap = bkt.settings.get("bkt.symbols.convert_into_bitmap", False) #always convert newly inserted symbols into bitmap picture
     unicode_font = bkt.settings.get("bkt.symbols.unicode_font", None) #insert unicode characters as symbol with special font (e.g. Arial Unicode)
+
+    UNICODE_FONTS = ["Aptos", "Arial", "Arial Unicode MS", "Calibri", "Lucida Sans Unicode", "Segoe UI", "Segoe UI Emoji", "Segoe UI Symbol"]
 
     @classmethod
     def add_to_recent(cls, item):
@@ -462,20 +464,20 @@ class PositionGallery(bkt.ribbon.Gallery):
     #   reference: CONTENTE / SLIDE / ABS 
     #       values are converted according to reference
     items = [
-        [u"Volle Fläche",  [ 0, 0, 1, 1],       'CONTENT'],
-        [u"2/3 Links",     [   0,  0, 2./3, 1], 'CONTENT'],
-        [u"2/3 Rechts",    [1./3,  0, 2./3, 1], 'CONTENT'],
+        ["Volle Fläche",  [ 0, 0, 1, 1],       'CONTENT'],
+        ["2/3 Links",     [   0,  0, 2./3, 1], 'CONTENT'],
+        ["2/3 Rechts",    [1./3,  0, 2./3, 1], 'CONTENT'],
         
-        [u"1/2 Links",     [  0, 0, .5, 1], 'CONTENT'],
-        [u"1/2 Mitte",     [.25, 0, .5, 1], 'CONTENT'],
-        [u"1/2 Rechts",    [ .5, 0, .5, 1], 'CONTENT'],
+        ["1/2 Links",     [  0, 0, .5, 1], 'CONTENT'],
+        ["1/2 Mitte",     [.25, 0, .5, 1], 'CONTENT'],
+        ["1/2 Rechts",    [ .5, 0, .5, 1], 'CONTENT'],
         
-        [u"1/3 Links",     [  0,  0, 1./3, 1], 'CONTENT'],
-        [u"1/3 Mitte",     [1./3, 0, 1./3, 1], 'CONTENT'],
-        [u"1/3 Rechts",    [2./3, 0, 1./3, 1], 'CONTENT'],
+        ["1/3 Links",     [  0,  0, 1./3, 1], 'CONTENT'],
+        ["1/3 Mitte",     [1./3, 0, 1./3, 1], 'CONTENT'],
+        ["1/3 Rechts",    [2./3, 0, 1./3, 1], 'CONTENT'],
         
-        [u"1/6 Oben",      [ 0,    0, 1, 1./6], 'CONTENT'],
-        [u"1/6 Unten",     [ 0, 5./6, 1, 1./6], 'CONTENT']
+        ["1/6 Oben",      [ 0,    0, 1, 1./6], 'CONTENT'],
+        ["1/6 Unten",     [ 0, 5./6, 1, 1./6], 'CONTENT']
     ]
     
     def __init__(self, positions=None, label="Standardpositionen", columns=3, **kwargs):
@@ -484,7 +486,7 @@ class PositionGallery(bkt.ribbon.Gallery):
             label = label,
             columns = columns,
             image_mso='PositionAnchoringGallery',
-            supertip=u"Positioniere die ausgewählten Shapes auf eine Standardposition.",
+            supertip="Positioniere die ausgewählten Shapes auf eine Standardposition.",
             children=[
                 bkt.ribbon.Button(
                     label="Benutzerdef. Bereich festlegen",
@@ -549,15 +551,15 @@ class PositionGallery(bkt.ribbon.Gallery):
     def create_image(self, position, reference, presentation):
         # create bitmap, define pen/brush
         height = 40
-        width = height*16./9
+        width = round(height*16/9)
         img = Drawing.Bitmap(width, height)
         g = Drawing.Graphics.FromImage(img)
         
         
         # reference size
         if reference == 'CONTENT':
-            v_offset = height/5
-            v_ref = (height*4)/5
+            v_offset = height//5
+            v_ref = (height*4)//5
             left,top,fill_width,fill_height = self.rect_from_definition(position, ref_frame=[0,v_offset,width, v_ref])
             
         else: # SLIDE / ABS
@@ -570,11 +572,11 @@ class PositionGallery(bkt.ribbon.Gallery):
         
         color = Drawing.ColorTranslator.FromHtml('#ffdd0000')
         brush = Drawing.SolidBrush(color)
-        g.FillRectangle(brush, Drawing.Rectangle(round(left),round(top), round(fill_width), round(fill_height)))
+        g.FillRectangle(brush, Drawing.Rectangle(round(left), round(top), round(fill_width), round(fill_height)))
         
         color = Drawing.ColorTranslator.FromHtml('#ff999999')
         pen = Drawing.Pen(color,1)
-        g.DrawRectangle(pen, Drawing.Rectangle(0,0, width-1, height/5-1))
+        g.DrawRectangle(pen, Drawing.Rectangle(0,0, width-1, height//5-1))
         g.DrawRectangle(pen, Drawing.Rectangle(0,0, width-1, height-1))
         
         return img
@@ -589,14 +591,14 @@ class PositionGallery(bkt.ribbon.Gallery):
         
         
     def length_from_definition(self, length_definition, reference):
-        if type(length_definition) == list:
+        if isinstance(length_definition, list):
             # allow [150, 50%]
             l = 0
             for ldef in length_definition:
                 l += self.length_from_definition(ldef, reference)
             return l
             
-        elif type(length_definition) in [int, float, long]:
+        elif type(length_definition) in [int, float, int]:
             if length_definition < 0:
                 # negative values specify distance 'from right'
                 return reference - self.length_from_definition(-length_definition, reference)
@@ -636,4 +638,4 @@ class PositionGallery(bkt.ribbon.Gallery):
             left, top, width, height = pplib.ContentArea.read_contentarea(presentation)
             if len(self.items) == 12:
                 self.items.pop()
-            self.items.append([u"Benutzerdef. Bereich", [left, top, width, height], 'ABS'])
+            self.items.append(["Benutzerdef. Bereich", [left, top, width, height], 'ABS'])

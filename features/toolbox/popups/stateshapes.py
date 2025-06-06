@@ -5,14 +5,14 @@ Created on 21.12.2017
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 
 import bkt.ui
 
 from bkt.callbacks import WpfActionCallback
-from ..stateshapes import StateShape
+from ..models.stateshapes import StateShape
 
 
 class StateShapePopup(bkt.ui.WpfWindowAbstract):

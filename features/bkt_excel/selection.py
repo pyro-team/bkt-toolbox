@@ -4,7 +4,7 @@ Created on 2017-07-18
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 import bkt.library.excel.helpers as xllib
@@ -99,7 +99,7 @@ class SelectionOps(object):
         cells_selected = None
         area = sheet.UsedRange
         #for area in areas:
-        for i in xrange(1,area.Rows.Count+1):
+        for i in range(1,area.Rows.Count+1):
             if application.WorksheetFunction.CountA(area.Rows(i).EntireRow) == 0:
                 cells_selected = xllib.range_union(cells_selected, area.Rows(i).EntireRow)
 
@@ -121,7 +121,7 @@ class SelectionOps(object):
         cells_selected = None
         area = sheet.UsedRange
         #for area in areas:
-        for i in xrange(1,area.Columns.Count+1):
+        for i in range(1,area.Columns.Count+1):
             if application.WorksheetFunction.CountA(area.Columns(i).EntireColumn) == 0:
                 cells_selected = xllib.range_union(cells_selected, area.Columns(i).EntireColumn)
 
@@ -444,7 +444,7 @@ selektion_gruppe = bkt.ribbon.Group(
                 #TODO: areas_max entfernen und Auswahl für jede Area einzeln verschieben
                 bkt.ribbon.SpinnerBox(
                     id = 'selection_top',
-                    label=u"Oben",
+                    label="Oben",
                     show_label=False,
                     image_mso='ObjectNudgeDown',
                     screentip="Reihen oberhalb der Selektion",
@@ -459,7 +459,7 @@ selektion_gruppe = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.SpinnerBox(
                     id = 'selection_height',
-                    label=u"Reihen",
+                    label="Reihen",
                     show_label=False,
                     image_mso='TableRowsDistribute',
                     screentip="Anzahl der selektierten Reihen",
@@ -478,7 +478,7 @@ selektion_gruppe = bkt.ribbon.Group(
             children = [
                 bkt.ribbon.SpinnerBox(
                     id = 'selection_left',
-                    label=u"Links",
+                    label="Links",
                     show_label=False,
                     image_mso='ObjectNudgeRight',
                     screentip="Spalten links der Selektion",
@@ -493,7 +493,7 @@ selektion_gruppe = bkt.ribbon.Group(
                 ),
                 bkt.ribbon.SpinnerBox(
                     id = 'selection_width',
-                    label=u"Spalten",
+                    label="Spalten",
                     show_label=False,
                     image_mso='TableColumnsDistribute',
                     screentip="Anzahl der selektierten Spalten",
@@ -510,7 +510,7 @@ selektion_gruppe = bkt.ribbon.Group(
         ),
         bkt.ribbon.ToggleButton(
             id='selection_move_resize',
-            label=u"Verschieben ändert Größe",
+            label="Verschieben ändert Größe",
             show_label=True,
             image_mso='SizeToControlHeightAndWidth',
             supertip="Verschieben der Selektion verändert auch die Größe",

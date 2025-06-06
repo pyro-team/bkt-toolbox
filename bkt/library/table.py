@@ -5,7 +5,7 @@ Created on 11.09.2013
 @author: cschmitt
 '''
 
-from __future__ import absolute_import, division #always force float-division, for int divison use //
+
 
 import math
 import logging
@@ -303,7 +303,7 @@ class TableRecognition(object):
         rows, cols = self.dimension
 
         #tuple = (row spacing, column spacing)
-        if type(spacing) == tuple:
+        if isinstance(spacing, tuple):
             spacing_rows, spacing_cols = spacing
         else:
             spacing_rows = spacing
@@ -374,7 +374,7 @@ class TableRecognition(object):
         widths = [self._column_width(col) for col in range(num_columns)]
         
         #tuple = (row spacing, column spacing)
-        if type(spacing) == tuple:
+        if isinstance(spacing, tuple):
             spacing_rows, spacing_cols = spacing
         else:
             spacing_rows = spacing

@@ -5,7 +5,7 @@ Created on 03.01.2013
 @author: cschmitt
 '''
 
-from __future__ import absolute_import
+
 
 import re
 import traceback
@@ -544,7 +544,7 @@ class DropContext(ItemAsAttribute):
         self.visio_page = visio_page
         
     def __call__(self,obj,x=0,y=0,fix_pin=False):
-        if isinstance(obj, basestring):
+        if isinstance(obj, str):
             drop_obj = self.visio_page.visio.masters[obj]
         elif isinstance(obj, VisioShape):
             drop_obj = obj.shape
@@ -869,7 +869,7 @@ class VisioPage(Wrapper):
         try:
             return _global_cache[app]
         except WrapperUnavilableException:
-            print 'Warning: Wrapper for current application not found, references to loaded stencils lost.'
+            print('Warning: Wrapper for current application not found, references to loaded stencils lost.')
             return VisioWrapper(app)
     
     @property
@@ -924,7 +924,7 @@ class VisioWrapper(Wrapper):
         while self._stencils_open():
             for window in [w for w in self.app.Windows]:
                 if window.Type == 2:
-                    print 'closing %s' % window.Caption
+                    print('closing %s' % window.Caption)
                     window.Close()
                     
     def _stencils_open(self):

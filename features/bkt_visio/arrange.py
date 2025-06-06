@@ -5,7 +5,7 @@ Created on 17.03.2017
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import math
 import logging
@@ -27,7 +27,7 @@ class ObjektAbstand(object):
         apply_to_lower = [shape for shape in shapes[1:] if shape._bottom <= master._bottom]
         apply_to_upper.sort(key=lambda shape: shape._bottom)
         apply_to_lower.sort(key=lambda shape: shape._bottom, reverse=True)
-        if type(value) == str:
+        if isinstance(value, str):
             value = float(value.replace(',', '.'))
         top = master._bottom
         for shape in apply_to_lower:
@@ -51,7 +51,7 @@ class ObjektAbstand(object):
         apply_to_lefthand = [shape for shape in shapes[1:] if shape._left <= master._left]
         apply_to_righthand.sort(key=lambda shape: shape._left)
         apply_to_lefthand.sort(key=lambda shape: shape._left, reverse=True)
-        if type(value) == str:
+        if isinstance(value, str):
             value = float(value.replace(',', '.'))
         top = master._left
         for shape in apply_to_lefthand:
@@ -89,7 +89,7 @@ objektabstand_gruppe = bkt.ribbon.Group(
     children=[
         bkt.ribbon.RoundingSpinnerBox(
             id = 'shape_sep_v',
-            label=u"Objektabstand vertikal",
+            label="Objektabstand vertikal",
             show_label=False,
             image_mso='VerticalSpacingIncrease',
             on_change = bkt.Callback(ObjektAbstand.set_shape_sep_vertical, shapes=True, shapes_min=2),
@@ -100,7 +100,7 @@ objektabstand_gruppe = bkt.ribbon.Group(
 
         bkt.ribbon.RoundingSpinnerBox(
             id = 'shape_sep_h',
-            label=u"Objektabstand horizontal",
+            label="Objektabstand horizontal",
             show_label=False,
             image_mso='HorizontalSpacingIncrease',
             on_change = bkt.Callback(ObjektAbstand.set_shape_sep_horizontal, shapes=True, shapes_min=2),
@@ -111,7 +111,7 @@ objektabstand_gruppe = bkt.ribbon.Group(
 
         bkt.ribbon.RoundingSpinnerBox(
             id = 'rotation',
-            label=u"Rotation",
+            label="Rotation",
             show_label=False,
             image_mso='RotationTool',
             on_change = bkt.Callback(ObjektAbstand.set_rotation, shapes=True, shapes_min=1),

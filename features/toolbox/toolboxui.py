@@ -5,12 +5,12 @@ Created on 29.08.2019
 @author: fstallmann
 '''
 
-from __future__ import absolute_import
+
 
 import bkt
 
 # import toolbox modules with ui
-from . import arrange
+from .arrange import UiGroups as arrange
 from . import info
 from . import language
 from . import text
@@ -54,7 +54,6 @@ class ToolboxUi(object):
         "text_parindent_group": 2, #page no 2
 
         "format_group": 2, #page no 2
-        "split_group": 0, #off
         "language_group": 0, #off
         "adjustments_group": 1, #page no 1
         "stateshape_group": 2, #page no 2
@@ -81,7 +80,7 @@ class ToolboxUi(object):
         ToolboxUi._instance = self
     
     def get_all_keys(self):
-        return self.theme_settings.keys()
+        return list(self.theme_settings.keys())
 
     def get_theme_setting(self, key):
         return self.theme_settings[key]
@@ -170,7 +169,6 @@ class ToolboxUi(object):
     def _render_pages_others(self):
         #others
         self.toolboxui_pages[self.toolboxui_settings["format_group"]].append(mod_shapes.format_group)
-        self.toolboxui_pages[self.toolboxui_settings["split_group"]].append(mod_shapes.split_shapes_group)
         self.toolboxui_pages[self.toolboxui_settings["language_group"]].append(language.sprachen_gruppe)
         self.toolboxui_pages[self.toolboxui_settings["adjustments_group"]].append(shape_adjustments.adjustments_group)
         self.toolboxui_pages[self.toolboxui_settings["stateshape_group"]].append(stateshapes.stateshape_gruppe)

@@ -4,7 +4,7 @@ Created on 2017-07-24
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import os.path
 import ctypes

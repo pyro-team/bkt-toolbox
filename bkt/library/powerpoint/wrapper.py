@@ -5,9 +5,9 @@ Created on 02.11.2017
 @author: fstallmann
 '''
 
-from __future__ import absolute_import, division #always force float-division, for int divison use //
 
-import math
+
+# import math
 
 import bkt.library.algorithms as algorithms
 
@@ -313,11 +313,11 @@ class ShapeWrapper(object):
     def visual_width(self, value):
         ''' set visual width considering rotation '''
         if self.shape.rotation == 0 or self.shape.rotation == 180:
-            self.shape.width = value
+            self.width = value
         elif self.shape.rotation == 90 or self.shape.rotation == 270:
-            cur_x = self.visual_x #save current x
+            cur_x = self.visual_left #save current x
             self.shape.height = value #might change left edge of shape
-            self.visual_x = cur_x #move back to x, resize always to right
+            self.visual_left = cur_x #move back to x
         else:
             delta = value - self.visual_width
             # delta_vector (delta-width, 0) um shape-rotation drehen
@@ -326,14 +326,14 @@ class ShapeWrapper(object):
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
             # aktuelle position speichern
-            cur_x, cur_y = self.visual_x, self.visual_y
+            cur_x, cur_y = self.visual_left, self.visual_top
             # shape anpassen
             self.shape.width += delta_vector[0]
             self.shape.height += delta_vector[1]
             # force recalculation of bounding notes
             self.reset_caches()
             # vorherige position wiederherstellen
-            self.visual_x, self.visual_y = cur_x, cur_y
+            self.visual_left, self.visual_top = cur_x, cur_y
 
     @property
     def visual_height(self):
@@ -349,11 +349,11 @@ class ShapeWrapper(object):
     def visual_height(self, value):
         ''' set visual height considering rotation '''
         if self.shape.rotation == 0 or self.shape.rotation == 180:
-            self.shape.height = value
+            self.height = value
         elif self.shape.rotation == 90 or self.shape.rotation == 270:
-            cur_y = self.visual_y #save current y
+            cur_y = self.visual_top #save current y
             self.shape.width = value #might change top edge of shape
-            self.visual_y = cur_y #move back to y, resize always to bottom
+            self.visual_top = cur_y #move back to y
         else:
             delta = value - self.visual_height
             # delta_vector (delta-width, 0) um shape-rotation drehen
@@ -362,14 +362,14 @@ class ShapeWrapper(object):
             vorzeichen = 1 if delta > 0 else -1
             delta_vector = [vorzeichen * abs(delta_vector[0]), vorzeichen * abs(delta_vector[1]) ]
             # aktuelle position speichern
-            cur_x, cur_y = self.visual_x, self.visual_y
+            cur_x, cur_y = self.visual_left, self.visual_top
             # shape anpassen
             self.shape.width += delta_vector[0]
             self.shape.height += delta_vector[1]
             # force recalculation of bounding notes
             self.reset_caches()
             # vorherige position wiederherstellen
-            self.visual_x, self.visual_y = cur_x, cur_y
+            self.visual_left, self.visual_top = cur_x, cur_y
     
     @property
     def locpin_x(self):

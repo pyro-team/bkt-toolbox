@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+
 
 
 import logging
@@ -83,7 +83,10 @@ class AutoReleasingComObject(object):
         self._comobj += other
     def __isub__(self, other):
         self._comobj -= other
-        
+    
+    # hash is also relevant for creating sets
+    def __hash__(self):
+        return hash(self._comobj)
     
     
     ##### CLASS REPRESENTATION #####
@@ -99,7 +102,7 @@ class AutoReleasingComObject(object):
     def __dir__(self):
         #this is essential for interactive python console
         # return dir(self._comobj)
-        return sorted(set( dir(type(self)) + self.__dict__.keys() + dir(self._comobj) ))
+        return sorted(set( dir(type(self)) + list(self.__dict__.keys()) + dir(self._comobj) ))
     
     
     
@@ -329,7 +332,7 @@ class WrappedDispCallable(object):
           foo.item(1), foo.item[1]
           foo.item(1,2), foo.item[1,2]
         '''
-        if type(key) == tuple:
+        if isinstance(key, tuple):
             # convert tuple to argument list
             return self.__call__(*key)
         else:

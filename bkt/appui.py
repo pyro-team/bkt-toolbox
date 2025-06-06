@@ -6,7 +6,7 @@ Created on 11.11.2019
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 
@@ -236,18 +236,6 @@ class AppUI(object):
             element.children = [self.create_control(c, ribbon_id=ribbon_id) for c in element.children]
             return element
         
-        elif bkt.config.enable_legacy_syntax or False:
-            from bkt.annotation import ContainerUsage #@deprecated
-            from bkt.factory import ControlFactory #@deprecated
-            
-            if isinstance(element, ContainerUsage):
-                logging.debug("create_control for ContainerUsage: %s", element.container)
-                return ControlFactory(element.container, ribbon_info=None).create_control()
-            
-            else:
-                logging.warning("FeatureContainer used where instance of ContainerUsage was expected: %s", element)
-                return ControlFactory(element, ribbon_info=None).create_control()
-        
         else:
             logging.warning("create_control for element %s skipped", element)
     
@@ -298,7 +286,7 @@ class AppUI(object):
                             for tab in tablist
                         ]
                     )
-                    for id_mso, tablist in custom_ribbon.contextual_tabs.iteritems()
+                    for id_mso, tablist in custom_ribbon.contextual_tabs.items()
                 ]
             )]
         
@@ -327,7 +315,7 @@ class AppUI(object):
         tabs = []
         if len(custom_ribbon.tabs) > 0:
             tabs = [mod_ribbon.Tabs(
-                    children = [self.create_control(tab, ribbon_id)  for _, tab in custom_ribbon.tabs.iteritems()]
+                    children = [self.create_control(tab, ribbon_id)  for _, tab in custom_ribbon.tabs.items()]
             )]
 
         # Ribbon

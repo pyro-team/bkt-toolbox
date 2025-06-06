@@ -4,7 +4,7 @@ Created on 2016-04-27
 @author: Florian Stallmann
 '''
 
-from __future__ import absolute_import
+
 
 import math
 # import logging
@@ -103,10 +103,10 @@ class TestVisio(object):
             data = IO.StreamReader(memstream)
             data_string = data.ReadToEnd()
 
-            print "Clipboard data for " + name + ": " + data_string
+            print("Clipboard data for " + name + ": " + data_string)
             bkt.message("Clipboard data for " + name + ": " + data_string)
         except:
-            print "could not read " + name
+            print("could not read " + name)
     
     @staticmethod
     def shape_data(shape):
@@ -158,7 +158,7 @@ class Adjustments(object):
             sizeString = '######',
             
             on_change   = bkt.Callback(
-                lambda shapes, value: map( lambda shape: cls.set_adjustment(shape, prop[1], value), shapes),
+                lambda shapes, value: [cls.set_adjustment(shape, prop[1], value) for shape in shapes],
                 shapes=True),
             
             get_text    = bkt.Callback(
@@ -247,7 +247,7 @@ bkt.visio.add_tab(
     bkt.ribbon.Tab(
         id="bkt_visio_toolbox_tests",
         #id_q="nsBKT:visio_toolbox_advanced",
-        label=u"Toolbox TEST",
+        label="Toolbox TEST",
         insert_before_mso="TabHome",
         get_visible=bkt.Callback(lambda: True),
         children = [

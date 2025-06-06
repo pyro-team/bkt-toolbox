@@ -6,7 +6,7 @@ Created on 11.11.2019
 @author: rdebeerst
 '''
 
-from __future__ import absolute_import
+
 
 import logging
 import importlib #for loading context dialog modules
