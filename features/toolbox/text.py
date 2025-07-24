@@ -1019,7 +1019,7 @@ compact_font_group = bkt.ribbon.Group(
     image_mso='GroupFont',
     children = [
         #NOTE: horizontal box layout leads to spacing between Font and FontSize ComboBox!
-        bkt.mso.comboBox.Font(sizeString="WWWWWWWI"),
+        bkt.mso.comboBox.Font(sizeString="WWWWWWWI", show_label=False),
         bkt.ribbon.ButtonGroup(children=[
             bkt.mso.control.Bold,
             bkt.mso.control.Italic,
