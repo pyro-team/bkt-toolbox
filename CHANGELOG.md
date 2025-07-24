@@ -1,3 +1,9 @@
+# Release 2025-07-24 (3.0.3)
+
+  * Fixed label of font combobox was visible
+  * Font Awesome updated to 7.0.0
+
+
 # Release 2025-06-06 (3.0.2)
 
   * Font Icon Search: Added unicode symbols search, progress bar while indexing, UI improvements
