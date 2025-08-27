@@ -1027,7 +1027,7 @@ compact_font_group = bkt.ribbon.Group(
             # bkt.mso.control.Shadow,
             bkt.mso.control.Strikethrough,
         ]),
-        bkt.ribbon.Box(box_style="horizontal", children=[
+        bkt.ribbon.ButtonGroup(children=[
             bkt.mso.control.CharacterSpacingGallery,
             bkt.mso.control.ChangeCaseGallery,
             bkt.mso.control.ClearFormatting,
@@ -1069,12 +1069,12 @@ compact_paragraph_group = bkt.ribbon.Group(
                 bkt.mso.control.AlignRight,
                 bkt.mso.control.AlignJustify,
                 bkt.mso.control.AlignJustifyMenu,
+                bkt.mso.control.TableColumnsGallery,
             ]),
             # bkt.mso.control.ParagraphDistributed,
             # bkt.mso.control.AlignJustifyThai,
             # bkt.mso.control.TextDirectionLeftToRight,
             # bkt.mso.control.TextDirectionRightToLeft,
-            bkt.mso.control.TableColumnsGallery,
         ]),
 
         bkt.ribbon.Box(box_style="horizontal", children=[
