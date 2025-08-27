@@ -1,3 +1,8 @@
+# Release 2025-08-27 (3.0.4)
+
+  * Fixed issue that margin of shape/chess table is not saved (#57)
+
+
 # Release 2025-07-24 (3.0.3)
 
   * Fixed label of font combobox was visible
