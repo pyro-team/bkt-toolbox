@@ -17,6 +17,8 @@ import bkt.library.powerpoint as pplib
 from .. import agenda
 from .. import language
 
+from bkt.helpers import memoize
+
 
 
 class SendOrSaveSlides(object):
@@ -562,7 +564,7 @@ class SlideShow(object):
             sld_settings.ShowType = prev
 
 
-slides_menu = lambda: bkt.ribbon.Menu(
+slides_menu = memoize(lambda: bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
                 id=None, 
                 children=[
@@ -757,4 +759,4 @@ slides_menu = lambda: bkt.ribbon.Menu(
                         on_action=bkt.Callback(SlideShow.fullscreen_slideshow),
                     ),
                 ]
-            )
+            ))

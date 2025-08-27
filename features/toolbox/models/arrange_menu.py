@@ -11,7 +11,7 @@ import bkt.library.powerpoint as pplib
 
 
 from .linkshapes import LinkedShapes
-
+from bkt.helpers import memoize
 
 class RepositionGallery(pplib.PositionGallery):
     
@@ -338,7 +338,7 @@ class EdgeAutoFixer(object):
                     shape.visual_height = master_shape.visual_y1-shape.visual_y
 
 
-arrange_menu = lambda: bkt.ribbon.Menu(
+arrange_menu = memoize(lambda: bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
                 id=None, 
                 children=[
@@ -721,4 +721,4 @@ arrange_menu = lambda: bkt.ribbon.Menu(
                 #     ]
                 # )
                 ]
-        )
+        ))

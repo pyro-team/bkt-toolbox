@@ -19,6 +19,7 @@ cm_to_pt = pplib.cm_to_pt
 get_ambiguity_tuple = bkt.helpers.get_ambiguity_tuple
 
 from bkt.library.algorithms import get_bounding_nodes, mid_point
+from bkt.helpers import memoize
 
 from bkt import dotnet
 Drawing = dotnet.import_drawing()
@@ -610,7 +611,7 @@ class ShapeConnectors(object):
         # shpConnector.Select()
 
 
-shapes_interactive_menu = lambda: bkt.ribbon.Menu(
+shapes_interactive_menu = memoize(lambda: bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
                 id=None, 
                 children=[
@@ -762,7 +763,7 @@ shapes_interactive_menu = lambda: bkt.ribbon.Menu(
                         get_enabled = bkt.Callback(ShapeConnectors.is_connector, shape=True),
                     ),
                 ]
-            )
+            ))
 
 
 class ShapeTableGallery(bkt.ribbon.Gallery):
@@ -940,8 +941,8 @@ class ChessTableGallery(ShapeTableGallery):
         shapes = pplib.last_n_shapes_on_slide(slide, num_to_sel)
         shapes.select()
 
-
-shapes_table_menu = lambda: bkt.ribbon.Menu(
+#IMPORTANT: memoize the menu to avoid recreation of classes and reinit of attributes
+shapes_table_menu = memoize(lambda: bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
                 id=None, 
                 children=[
@@ -951,7 +952,7 @@ shapes_table_menu = lambda: bkt.ribbon.Menu(
                     ShapeTableGallery(id="insert_shape_table"),
                     ChessTableGallery(id="insert_shape_chessboard")
                 ]
-            )
+            ))
 
 
 
@@ -1077,7 +1078,7 @@ class PlaceholderConverter(object):
 
 
 
-shapes_change_menu = lambda: bkt.ribbon.Menu(
+shapes_change_menu = memoize(lambda: bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
                 id=None, 
                 children=[
@@ -1121,10 +1122,10 @@ shapes_change_menu = lambda: bkt.ribbon.Menu(
                     bkt.mso.control.ShapesIntersect,
                     bkt.mso.control.ShapesSubtract
                 ]
-            )
+            ))
 
 
-shapes_more_menu = lambda: bkt.ribbon.Menu(
+shapes_more_menu = memoize(lambda: bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
                 id=None, 
                 children=[
@@ -1165,4 +1166,4 @@ shapes_more_menu = lambda: bkt.ribbon.Menu(
                         on_action=bkt.Callback(ShapesMore.show_invisible_shapes)
                     ),
                 ]
-            )
+            ))
