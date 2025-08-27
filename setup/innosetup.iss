@@ -4,8 +4,8 @@
 #define MyAppName "BKT-Toolbox"
 #define MyAppPublisher "Business Kasper"
 #define MyAppURL "https://www.bkt-toolbox.de"
-#define MyAppVersion "3.0.3"
-#define MyReleaseDate "250724"
+#define MyAppVersion "3.0.4"
+#define MyReleaseDate "250827"
 ;GetDateTimeString('yymmdd', '', '');
 
 [Setup]

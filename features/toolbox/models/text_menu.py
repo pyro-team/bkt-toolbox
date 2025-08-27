@@ -11,6 +11,8 @@ from threading import Thread
 import bkt
 import bkt.library.powerpoint as pplib
 
+from bkt.helpers import memoize
+
 
 # class Calendar(object):
 #     @classmethod
@@ -746,7 +748,7 @@ class TextShapes(object):
             cls.add_sticker_to_slides(slides, presentation, res)
 
 
-sticker_menu = lambda: bkt.ribbon.Menu(
+sticker_menu = memoize(lambda: bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
                 id=None, 
                 children=[
@@ -868,4 +870,4 @@ sticker_menu = lambda: bkt.ribbon.Menu(
                             ),
                         ]
                     ),
-                ])
+                ]))

@@ -13,6 +13,8 @@ from collections import OrderedDict
 import bkt
 import bkt.library.powerpoint as pplib
 
+from bkt.helpers import memoize
+
 
 
 class ShapeSelector(object):
@@ -200,7 +202,7 @@ class ShapeSelector(object):
                 shp.Select(replace=False)
 
 
-selection_menu = lambda: bkt.ribbon.Menu(
+selection_menu = memoize(lambda: bkt.ribbon.Menu(
                 xmlns="http://schemas.microsoft.com/office/2009/07/customui",
                 id=None, 
                 children=[
@@ -343,4 +345,4 @@ selection_menu = lambda: bkt.ribbon.Menu(
                         supertip="Markiert alle Shapes auf der Folie mit Tags (Meta-Daten), die u.A. für diverse BKT-Funktionen verwendet werden.",
                     ),
                 ]
-            )
+            ))
