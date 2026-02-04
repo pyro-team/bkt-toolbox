@@ -417,6 +417,21 @@ namespace BKT
             }
         }
         
+        private void AsyncStartupWithPython() {
+            // This method runs IronPython initialization AND bootstrap on a background thread.
+            // This allows Office to display the ribbon faster while Python loads in background.
+            DebugMessage("AsyncStartupWithPython called - initializing Python on background thread");
+            try {
+                // Initialize IronPython engine (this is the heavy operation)
+                LoadPython();
+                
+                // Now proceed with normal async startup (bootstrap the Python addin)
+                AsyncStartup();
+            } catch (Exception e) {
+                Message(e.ToString());
+            }
+        }
+        
         private void CreatePythonEngine() {
             DebugMessage("CreatePythonEngine called");
             Debug.Indent();
@@ -509,23 +524,23 @@ namespace BKT
                 string msg = "instance_id=" + instance_id + "\r\nfinalize_count=" + finalize_counter;
                 msg += "\r\n\r\n" + DumpConfig();
                 LogMessage(msg);
-                // initialize python instance
-                DebugMessage("Initialize Python instance");
-                LoadPython();
                 
-                // FIXME: optional, je nach Einstellung, Bootstrap erst beim Aufruf der ersten Click-Aktion
+                // Check async_startup setting
                 async_startup = bool.Parse(GetConfigEntry("async_startup", "false"));
                 LogMessage("async_startup =" + async_startup );
                 
                 if (! async_startup) {
-                    // bootstrap directly
+                    // Synchronous startup: initialize Python and bootstrap directly
+                    DebugMessage("Initialize Python instance (sync)");
+                    LoadPython();
                     BootstrapAddIn();
                     created = true;
                     
                 } else {
-                    LogMessage("Starting asynchronous Bootstrap");
-                    // bootstrap asynchronously
-                    Thread bootstrapperThread = new Thread(AsyncStartup);
+                    // Asynchronous startup: move Python initialization to background thread
+                    // This allows Office to show the ribbon faster while Python loads in background
+                    LogMessage("Starting asynchronous Python initialization and Bootstrap");
+                    Thread bootstrapperThread = new Thread(AsyncStartupWithPython);
                     bootstrapperThread.Start();
                 }
                 
