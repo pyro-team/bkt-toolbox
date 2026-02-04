@@ -242,7 +242,8 @@ namespace BKT
         private void Message(string s) {
             MessageBox.Show(s);
         }
-        
+
+        [Conditional("DEBUG")]
         private void DebugMessage(string s) {
             Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + ": " + s);
             // Debug.Flush(); --> not required as AutoFlush=true
