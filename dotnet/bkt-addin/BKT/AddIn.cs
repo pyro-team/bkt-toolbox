@@ -79,6 +79,7 @@ namespace BKT
         private string hostAppName;
         private IKeyboardMouseEvents m_GlobalHook;
         private bool keymouse_hooks_activated = false;
+        private bool use_keymouse_hooks = true; // Lazy hook subscription: stored config value
         
         private DateTime ppt_last_selection_changed = DateTime.MinValue;
         private int ppt_last_selection_shape_id = 0;
@@ -121,20 +122,8 @@ namespace BKT
             Debug.WriteLine("================================================================================");
             DebugMessage("Addin started");
             
-            // initialize Mouse/Key-Hooks
-            try
-            {
-                bool use_keymouse_hooks = Boolean.Parse(GetConfigEntry("use_keymouse_hooks", "true"));
-                DebugMessage("Subscribe to Key/Mouse Events: " + use_keymouse_hooks.ToString());
-                if (use_keymouse_hooks)
-                {
-                    HookEvents();
-                }
-            }
-            catch (Exception)
-            {
-                DebugMessage("Error subscribing to Mouse Events");
-            }
+            // Note: Mouse/Key-Hooks are now subscribed lazily after Python is ready
+            // This improves startup time by deferring hook setup until the addin is fully loaded
             
         }
         
@@ -408,12 +397,34 @@ namespace BKT
                     GetPythonCustomUIAndWriteToFile(async_startup_ribbon_id);
                     //FIXME: check whether this invalidates at the right time
                     created = true;
+                    
+                    // Subscribe to Mouse/Key-Hooks after addin is fully loaded
+                    InitializeKeyMouseHooks();
+                    
                     if (context.ribbon != null) {
                         context.ribbon.Invalidate();
                     }
                 }
             } catch (Exception e) {
                 Message(e.ToString());
+            }
+        }
+        
+        private void InitializeKeyMouseHooks() {
+            // Lazy hook subscription: subscribe to Mouse/Key events after Python is ready
+            // This improves startup time by deferring hook setup
+            try
+            {
+                use_keymouse_hooks = Boolean.Parse(GetConfigEntry("use_keymouse_hooks", "true"));
+                if (use_keymouse_hooks)
+                {
+                    DebugMessage("Subscribe to Key/Mouse Events (lazy)");
+                    HookEvents();
+                }
+            }
+            catch (Exception)
+            {
+                DebugMessage("Error subscribing to Mouse Events");
             }
         }
         
@@ -535,6 +546,9 @@ namespace BKT
                     LoadPython();
                     BootstrapAddIn();
                     created = true;
+                    
+                    // Subscribe to Mouse/Key-Hooks after addin is fully loaded
+                    InitializeKeyMouseHooks();
                     
                 } else {
                     // Asynchronous startup: move Python initialization to background thread
