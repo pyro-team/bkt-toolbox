@@ -635,7 +635,6 @@ namespace BKT
             }
         }
         
-        
         public void OnDisconnection(ext_DisconnectMode remove_mode, ref Array custom)
         {    
             LogMessage("OnDisconnection: instance_id=" + instance_id);
@@ -778,11 +777,12 @@ namespace BKT
                 // File.OpenRead(@"C:\Office 2010 Developer Resources\Schemas\customui14.xsd"))
             
             xsd_res.Close();
-            
+#if DEBUG
             XDocument doc = XDocument.Parse(text);
             DebugMessage("Validating XML...");
             doc.Validate(ss, new ValidationEventHandler(ValidationCallBack));
             DebugMessage("Validating XML completed!");
+#endif
         }
 
         private void ValidationCallBack(object sender, ValidationEventArgs vea)
@@ -809,7 +809,9 @@ namespace BKT
         
         private void MouseDownEvent(object sender, MouseEventExtArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("MouseDown: \t{0}; \t System Timestamp: \t{1}", e.Button, e.Timestamp));
+#endif
             if (!created) return;
             ppt_last_selection_changed = DateTime.MinValue; // Reset timestamp for selection_changed event
             python_delegate.mouse_down(sender, e);
@@ -817,7 +819,9 @@ namespace BKT
         
         private void MouseUpEvent(object sender, MouseEventExtArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("MouseUp: \t{0}; \t System Timestamp: \t{1}", e.Button, e.Timestamp));
+#endif
             if (!created) return;
             python_delegate.mouse_up(sender, e);
         }
@@ -831,35 +835,45 @@ namespace BKT
 
         private void MouseDoubleClickEvent(object sender, MouseEventArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("MouseDoubleClick: \t{0}", e.Button));
+#endif
             if (!created) return;
             python_delegate.mouse_double_click(sender, e);
         }
 
         private void MouseDragStartedEvent(object sender, MouseEventExtArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("MouseDragStartedEvent: \t{0} / {1}; \t System Timestamp: \t{2}", e.X, e.Y, e.Timestamp));
+#endif
             if (!created) return;
             python_delegate.mouse_drag_start(sender, e);
         }
 
         private void MouseDragFinishedEvent(object sender, MouseEventExtArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("MouseDragFinishedEvent: \t{0} / {1}; \t System Timestamp: \t{2}", e.X, e.Y, e.Timestamp));
+#endif
             if (!created) return;
             python_delegate.mouse_drag_end(sender, e);
         }
 
         private void KeyDownEvent(object sender, KeyEventArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("KeyDown: \t{0}", e.KeyCode));
+#endif
             if (!created) return;
             python_delegate.key_down(sender, e);
         }
                 
         private void KeyUpEvent(object sender, KeyEventArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("KeyUp: \t{0}", e.KeyCode));
+#endif
             if (!created) return;
             python_delegate.key_up(sender, e);
         }
@@ -1044,7 +1058,9 @@ namespace BKT
 
         private void PowerPoint_WindowSelectionChange(PowerPoint.Selection selection)
         {
-            DebugMessage("PowerPoint: window selection changed instance="+instance_id);
+#if DEBUG
+            DebugMessage("PowerPoint: window selection changed instance=" + instance_id);
+#endif
             try {
                 selection_type = (int)selection.Type;
 
@@ -1497,8 +1513,10 @@ namespace BKT
         //  https://msdn.microsoft.com/en-us/library/bb736142(v=office.12).aspx
         
         public string PythonGetContent(IRibbonControl control)
-        {    
+        {
+#if DEBUG
             DebugMessage("event GetContent " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_content(control);
@@ -1514,8 +1532,10 @@ namespace BKT
         }
         
         public string PythonGetDescription(IRibbonControl control)
-        {    
+        {
+#if DEBUG
             DebugMessage("event GetDescription " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_description(control);
@@ -1532,7 +1552,9 @@ namespace BKT
         
         public bool PythonGetEnabled(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled " + control.Id);
+#endif
             if (!created) return false;
             try {
                 return (python_delegate.get_enabled(control) == true);
@@ -1543,7 +1565,9 @@ namespace BKT
         }
          
         public Bitmap PythonGetImage(IRibbonControl control) {
+#if DEBUG
             DebugMessage("event GetImage " + control.Id);
+#endif
             if (!created) return null;
             if(broken) {
                 return null;
@@ -1558,7 +1582,9 @@ namespace BKT
         
         public string PythonGetKeytip(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetKeytip " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_keytip(control);
@@ -1575,7 +1601,9 @@ namespace BKT
         
         public string PythonGetLabel(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetLabel " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_label(control);
@@ -1592,7 +1620,9 @@ namespace BKT
         
         public bool PythonGetPressed(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetPressed " + control.Id);
+#endif
             if (!created) return false;
             try {
                 return (python_delegate.get_pressed(control) == true);
@@ -1604,7 +1634,9 @@ namespace BKT
         
         public string PythonGetScreentip(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetScreentip " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_screentip(control);
@@ -1621,7 +1653,9 @@ namespace BKT
         
         public bool PythonGetShowImage(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetShowImage " + control.Id);
+#endif
             if (!created) return false;
             try {
                 return (python_delegate.get_show_image(control) == true);
@@ -1633,7 +1667,9 @@ namespace BKT
         
         public bool PythonGetShowLabel(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetShowLabel " + control.Id);
+#endif
             if (!created) return false;
             try {
                 return (python_delegate.get_show_label(control) == true);
@@ -1645,7 +1681,9 @@ namespace BKT
         
         public int PythonGetSize(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetSize " + control.Id);
+#endif
             if (!created) return 0;
             try {
                 var result = python_delegate.get_size(control);
@@ -1662,7 +1700,9 @@ namespace BKT
         
         public string PythonGetSupertip(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetSupertip " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_supertip(control);
@@ -1679,7 +1719,9 @@ namespace BKT
         
         public string PythonGetText(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetText " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_text(control);
@@ -1696,7 +1738,9 @@ namespace BKT
 
         public string PythonGetTitle(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetTitle " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_title(control);
@@ -1713,7 +1757,9 @@ namespace BKT
         
         public bool PythonGetVisible(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetVisible " + control.Id);
+#endif
             if (!created) return false;
             try {
                 return (python_delegate.get_visible(control) == true);
@@ -1729,7 +1775,9 @@ namespace BKT
         // ====================================
         
         public int PythonGetItemCount(IRibbonControl control) {
+#if DEBUG
             DebugMessage("event GetItemCount " + control.Id);
+#endif
             if (!created) return 0;
             if(broken) {
                 return 0;
@@ -1748,7 +1796,9 @@ namespace BKT
         }
 
         public int PythonGetSelectedItemIndex(IRibbonControl control) {
+#if DEBUG
             DebugMessage("event GetSelectedItemIndex " + control.Id);
+#endif
             if (!created) return 0;
             if(broken) {
                 return 0;
@@ -1763,7 +1813,9 @@ namespace BKT
         
         public string PythonGetSelectedItemID(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetSelectedItemID " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_selected_item_id(control);
@@ -1784,7 +1836,9 @@ namespace BKT
         // ==============================================
         
         public int PythonGetItemHeight(IRibbonControl control) {
+#if DEBUG
             DebugMessage("event GetItemHeight " + control.Id);
+#endif
             if (!created) return 0;
             if(broken) {
                 return 0;
@@ -1798,7 +1852,9 @@ namespace BKT
         }
         
         public string PythonGetItemID(IRibbonControl control, int index) {
+#if DEBUG
             DebugMessage("event GetItemID " + control.Id);
+#endif
             if (!created) return "";
             if(broken) {
                 return null;
@@ -1813,7 +1869,9 @@ namespace BKT
         
         public Bitmap PythonGetItemImage(IRibbonControl control, int index) {
         //public stdole.IPictureDisp GetItemImage(IRibbonControl oRbnCtrl, int iItemIndex)
+#if DEBUG
             DebugMessage("event GetItemImage " + control.Id);
+#endif
             if (!created) return null;
             if(broken) {
                 return null;
@@ -1827,7 +1885,9 @@ namespace BKT
         }
         
         public string PythonGetItemLabel(IRibbonControl control, int index) {
+#if DEBUG
             DebugMessage("event GetItemLabel " + control.Id);
+#endif
             if (!created) return "";
             if(broken) {
                 return null;
@@ -1841,7 +1901,9 @@ namespace BKT
         }
         
         public string PythonGetItemScreentip(IRibbonControl control, int index) {
+#if DEBUG
             DebugMessage("event GetItemScreentip " + control.Id);
+#endif
             if (!created) return "";
             if(broken) {
                 return null;
@@ -1855,7 +1917,9 @@ namespace BKT
         }
         
         public string PythonGetItemSupertip(IRibbonControl control, int index) {
+#if DEBUG
             DebugMessage("event GetItemSupertip " + control.Id);
+#endif
             if (!created) return "";
             if(broken) {
                 return null;
@@ -1869,7 +1933,9 @@ namespace BKT
         }
         
         public int PythonGetItemWidth(IRibbonControl control) {
+#if DEBUG
             DebugMessage("event GetItemWidth " + control.Id);
+#endif
             if (!created) return 0;
             if(broken) {
                 return 0;
@@ -1889,7 +1955,9 @@ namespace BKT
         
         public void PythonOnAction(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event OnAction " + control.Id);
+#endif
             if (!created) return;
             try {
                 python_delegate.on_action(control);
@@ -1900,7 +1968,9 @@ namespace BKT
         
         public void PythonOnActionRepurposed(IRibbonControl control, ref bool cancelDefault)
         {    
+#if DEBUG
             DebugMessage("event OnActionRepurposed " + control.Id);
+#endif
             if (!created) return;
             try {
                 cancelDefault = Convert.ToBoolean(python_delegate.on_action_repurposed(control));
@@ -1911,7 +1981,9 @@ namespace BKT
         
         public void PythonOnActionIndexed(IRibbonControl control, string selectedItem, int index)
         {    
+#if DEBUG
             DebugMessage("event OnActionIndex " + control.Id);
+#endif
             if (!created) return;
             try {
                 python_delegate.on_action_indexed(control, selectedItem, index);
@@ -1922,7 +1994,9 @@ namespace BKT
         
         public void PythonOnToggleAction(IRibbonControl control, bool pressed)
         {    
+#if DEBUG
             DebugMessage("event OnToggleAction " + control.Id);
+#endif
             if (!created) return;
             try {
                 python_delegate.on_toggle_action(control, pressed);
@@ -1933,7 +2007,9 @@ namespace BKT
         
         public void PythonOnChange(IRibbonControl control, string value)
         {    
+#if DEBUG
             DebugMessage("event OnChange " + control.Id);
+#endif
             if (!created) return;
             try {
                 python_delegate.on_change(control, value);
@@ -1948,7 +2024,9 @@ namespace BKT
         // ======================================
         
         public Bitmap PythonLoadImage(string image_name) {
+#if DEBUG
             DebugMessage("event LoadImage " + image_name);
+#endif
             if (!created) return null;
             if(broken) {
                 return null;
@@ -1963,7 +2041,9 @@ namespace BKT
         
         public void PythonOnRibbonLoad(IRibbonUI ui)
         {
+#if DEBUG
             DebugMessage("event OnRibbonLoad");
+#endif
             if (!created) 
             {
                 async_startup_ribbon = ui;
@@ -1990,42 +2070,54 @@ namespace BKT
 
         public bool GetEnabled_True(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled_True " + control.Id);
+#endif
             if (!created) return false;
             return true;
         }
 
         public bool GetEnabled_Ppt_ShapesOrText(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled_Ppt_ShapesOrText " + control.Id);
+#endif
             if (!created) return false;
             return selection_type == 2 || selection_type == 3;
         }
 
         public bool GetEnabled_Ppt_Shapes_ExactOne(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled_Ppt_Shapes_ExactOne " + control.Id);
+#endif
             if (!created) return false;
             return selection_shapes == 1;
         }
 
         public bool GetEnabled_Ppt_Shapes_ExactTwo(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled_Ppt_Shapes_ExactTwo " + control.Id);
+#endif
             if (!created) return false;
             return selection_shapes == 2;
         }
 
         public bool GetEnabled_Ppt_Shapes_MinTwo(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled_Ppt_Shapes_MinTwo " + control.Id);
+#endif
             if (!created) return false;
             return selection_shapes >= 2;
         }
 
         public bool GetEnabled_Ppt_ContainsTextFrame(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled_Ppt_ContainsTextFrame " + control.Id);
+#endif
             if (!created) return false;
             return selection_containstextframe;
         }
