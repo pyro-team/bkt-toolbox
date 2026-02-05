@@ -49,7 +49,8 @@ class AppEventType(object):
     #         method()
 
     def __iter__(self):
-        for method in self.registered_methods:
+        # Iterate over a snapshot in case handlers unregister themselves during event firing.
+        for method in list(self.registered_methods):
             yield method
     
     def __repr__(self):
