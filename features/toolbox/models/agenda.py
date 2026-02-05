@@ -726,9 +726,9 @@ class ToolboxAgenda(object):
                 for idx in par_idx_to_hide:
                     textbox.TextFrame.TextRange.Paragraphs(idx+1).Delete()
                     if idx == textbox.TextFrame.TextRange.Paragraphs().Count:
-                        # deleted last paragraph
-                        # textbox.Textframe.TextRange.paragraphs(idx).characters(textbox.Textframe.TextRange.paragraphs(idx).characters().count  ).Delete()
-                        textbox.Textframe.TextRange.paragraphs(idx).Delete()
+                        # deleted last paragraph, need to remove trailing paragraph mark from new last paragraph
+                        new_last = textbox.TextFrame.TextRange.Paragraphs(idx)
+                        new_last.Characters(new_last.Characters().Count).Delete()
                 
                 # paragraphs hidden before current
                 hidden_before_current = sum(1 for hide in hide_paragraph[0:selected_paragraph_index-1] if hide)
