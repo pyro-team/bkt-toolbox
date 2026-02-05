@@ -85,6 +85,7 @@ namespace BKT
         
         private DateTime ppt_last_selection_changed = DateTime.MinValue;
         private int ppt_last_selection_shape_id = 0;
+        private bool _needs_async_ribbon_load = false; // Flag to trigger on_ribbon_load_async on first GetVisible
         
 
         #region Contructor and reset
@@ -166,6 +167,7 @@ namespace BKT
             async_startup_ribbon = null;
             // Note: force_customui_reload is static and intentionally NOT reset here
             first_start_needs_reload = false;
+            _needs_async_ribbon_load = false;
             
         }
 
@@ -425,9 +427,7 @@ namespace BKT
             try {
                 if (!created && async_startup) {
                     BootstrapAddIn();
-                    // PythonOnRibbonLoad aufrufen ?
-                    // wird bei async starup vorher geblockt
-                    // deswegen hier noch ribbon setzen
+                    // Set ribbon from async startup (on_ribbon_load_async will be called later on UI thread)
                     if (async_startup_ribbon != null) {
                         context.ribbon = async_startup_ribbon;
                     }
@@ -1846,6 +1846,18 @@ namespace BKT
             DebugMessage("event GetVisible " + control.Id);
 #endif
             if (!created) return false;
+            
+            // In async mode, trigger on_ribbon_load_async on first GetVisible call (runs on UI thread)
+            if (_needs_async_ribbon_load) {
+                _needs_async_ribbon_load = false;
+                try {
+                    DebugMessage("Triggering on_ribbon_load_async");
+                    python_delegate.on_ribbon_load_async();
+                } catch (Exception e) {
+                    DebugMessage("Error in on_ribbon_load_async: " + e.ToString());
+                }
+            }
+            
             try {
                 return (python_delegate.get_visible(control) == true);
             } catch (Exception e) {
@@ -2132,6 +2144,8 @@ namespace BKT
             if (!created) 
             {
                 async_startup_ribbon = ui;
+                // Set flag to trigger on_ribbon_load_async on first GetVisible (runs on UI thread)
+                _needs_async_ribbon_load = true;
                 return;
             }
             try {

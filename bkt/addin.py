@@ -809,6 +809,14 @@ class AddIn(object):
         ''' IRibbonUI ribbon'''
         self.app_callbacks.fire_event(self.events.bkt_load)
     
+    def on_ribbon_load_async(self):
+        '''Called from C# on first GetVisible in async mode (runs on UI thread).
+        This handles deferred ribbon load events and app-specific async startup logic.'''
+        self.app_callbacks.fire_event(self.events.bkt_load)
+        # Call app-specific async startup handler if available
+        if hasattr(self.app_callbacks, 'on_ribbon_load_async'):
+            self.app_callbacks.on_ribbon_load_async()
+    
     def load_image(self, image_name):
         path = _h.Resources.images.locate(image_name)  #@UndefinedVariable
         if path is None:
