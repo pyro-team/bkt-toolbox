@@ -1145,6 +1145,7 @@ namespace BKT
 #if DEBUG
             DebugMessage("PowerPoint: window selection changed instance=" + instance_id);
 #endif
+            if (!created) return;
             try {
                 selection_type = (int)selection.Type;
 
