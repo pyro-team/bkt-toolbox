@@ -526,7 +526,7 @@ class SettingsMenu(bkt.ribbon.DynamicMenu):
             label=label,
             supertip="Feature-Ordner »{}« aus BKT-Konfiguration entfernen".format(folder),
             image_mso='DeleteThisFolder',
-            on_action=bkt.Callback(lambda context: FolderSetup.delete_folder(context, folder))
+            on_action=bkt.Callback(lambda context: FolderSetup.delete_folder(context, folder), context=True, transactional=False)
         )
 
     def get_folder_menu(self, context):
