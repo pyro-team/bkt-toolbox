@@ -72,6 +72,8 @@ namespace BKT
         private bool created;
         private string async_startup_ribbon_id;
         private IRibbonUI async_startup_ribbon;
+        private static bool force_customui_reload;  // Static to survive Reload()
+        private bool first_start_needs_reload;  // True if loading UI was shown on first start and reload is needed
         private TextWriterTraceListener listener;
         private FileStream logFileStream;
         
@@ -162,6 +164,8 @@ namespace BKT
             debug = false;
             log_show_msgbox = false;
             async_startup_ribbon = null;
+            // Note: force_customui_reload is static and intentionally NOT reset here
+            first_start_needs_reload = false;
             
         }
 
@@ -195,7 +199,17 @@ namespace BKT
         }
 
         public void Reload() {
+            Reload(false);
+        }
+        
+        public void Reload(bool forceCustomUIReload) {
             try {
+                // Set flag to force CustomUI regeneration on next GetCustomUI call
+                if (forceCustomUIReload) {
+                    force_customui_reload = true;
+                    DebugMessage("Force CustomUI reload flag set");
+                }
+                
                 COMAddIns addins = GetCOMAddIns();
                 if (addins != null)
                 {
@@ -219,6 +233,31 @@ namespace BKT
             } catch (Exception) {
                 DebugMessage("error reloading addin");
             }
+        }
+        
+        /// <summary>
+        /// Clears the cached CustomUI XML file for the specified ribbon_id.
+        /// Call this before Reload() when you want to force regeneration.
+        /// </summary>
+        public void ClearCachedCustomUI(string ribbon_id) {
+            try {
+                string filename = GetFilenameFromRibbonId(ribbon_id);
+                if (File.Exists(filename)) {
+                    File.Delete(filename);
+                    DebugMessage("Deleted cached CustomUI file: " + filename);
+                }
+            } catch (Exception e) {
+                DebugMessage("Error deleting cached CustomUI file: " + e.Message);
+            }
+        }
+        
+        /// <summary>
+        /// Sets flag to force CustomUI regeneration on next GetCustomUI call.
+        /// Use this when config has changed and you want fresh XML from Python.
+        /// </summary>
+        public void ForceCustomUIReload() {
+            force_customui_reload = true;
+            DebugMessage("Force CustomUI reload flag set");
         }
         #endregion
 
@@ -400,6 +439,18 @@ namespace BKT
                     
                     // Subscribe to Mouse/Key-Hooks after addin is fully loaded
                     InitializeKeyMouseHooks();
+                    
+                    // Check if this was a first start where loading UI was shown
+                    // In this case, we need to trigger a full reload to show the real UI
+                    // because Office doesn't support reloading CustomUI XML after startup
+                    if (first_start_needs_reload) {
+                        DebugMessage("First start detected - triggering auto-reload to show real UI");
+                        first_start_needs_reload = false;
+                        // Small delay to ensure Office is fully ready
+                        Thread.Sleep(500);
+                        Reload();
+                        return; // Reload will reinitialize everything
+                    }
                     
                     if (context.ribbon != null) {
                         context.ribbon.Invalidate();
@@ -723,20 +774,40 @@ namespace BKT
                 streamReader.Close();
                 //LogMessage(customUI);
             } else {
-                LogMessage("file not found.");
-                customUI = "";
+                LogMessage("file not found, returning default loading UI.");
+                // Return a minimal CustomUI that shows a loading indicator on first start
+                // Mark that we need to auto-reload once Python is ready, because Office
+                // doesn't support reloading CustomUI XML after startup
+                first_start_needs_reload = true;
+                customUI = GetDefaultLoadingCustomUI(ribbon_id);
             }
             
             return customUI;
         }
         
+        private string GetDefaultLoadingCustomUI(string ribbon_id) {
+            // Return a minimal ribbon tab that indicates the addin is loading
+            // The ribbon will be invalidated and reloaded once Python is ready
+            return @"<customUI xmlns=""http://schemas.microsoft.com/office/2009/07/customui"">
+  <ribbon>
+    <tabs>
+      <tab id=""bkt_loading_tab"" label=""BKT (Loading...)"" insertBeforeMso=""TabHome"">
+        <group id=""bkt_loading_group"" label=""Please wait"">
+          <labelControl id=""bkt_loading_label"" label=""Add-in is initializing..."" />
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>";
+        }
+        
         public string GetCustomUI(string ribbon_id) {
             DebugMessage("GetCustomUI called");
             
-            // remeber ribbon_id for asynchronous startup
+            // remember ribbon_id for asynchronous startup
             async_startup_ribbon_id = ribbon_id;
             
-            // if not in aync mode, load custom ui
+            // if not in async mode, load custom ui
             if(!async_startup) {
                 return GetPythonCustomUIAndWriteToFile(ribbon_id);
             } 
@@ -744,14 +815,29 @@ namespace BKT
             // from here on:
             // addin is in async mode
             
-            if (! created) {
-                // python scope not created yet, return custom ui from file
+            if (!created) {
+                // Check if force reload is requested (e.g., after config change)
+                // In this case, Python isn't ready yet, so we return loading UI
+                // and set first_start_needs_reload to trigger auto-reload once Python is ready
+                if (force_customui_reload) {
+                    DebugMessage("Force reload requested but Python not ready, returning loading UI and scheduling auto-reload");
+                    force_customui_reload = false; // Reset flag
+                    first_start_needs_reload = true; // Trigger auto-reload once Python is ready
+                    return GetDefaultLoadingCustomUI(ribbon_id);
+                }
+                // python scope not created yet, return custom ui from file (or loading UI if file doesn't exist)
                 return GetCustomUIFromFile(ribbon_id);
             }
             
             if(broken) {
                 // fallback for broken addin
                 return "";
+            }
+            
+            // Check if force reload is requested - always regenerate from Python
+            if (force_customui_reload) {
+                DebugMessage("Force reload requested, regenerating CustomUI from Python");
+                force_customui_reload = false; // Reset flag
             }
             
             // we're in async mode, addin is created, not broken
@@ -777,12 +863,10 @@ namespace BKT
                 // File.OpenRead(@"C:\Office 2010 Developer Resources\Schemas\customui14.xsd"))
             
             xsd_res.Close();
-#if DEBUG
             XDocument doc = XDocument.Parse(text);
             DebugMessage("Validating XML...");
             doc.Validate(ss, new ValidationEventHandler(ValidationCallBack));
             DebugMessage("Validating XML completed!");
-#endif
         }
 
         private void ValidationCallBack(object sender, ValidationEventArgs vea)
