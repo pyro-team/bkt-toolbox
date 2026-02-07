@@ -785,18 +785,28 @@ class AddIn(object):
             
         except:
             logging.exception("initialize app-classes failed")
-            bkt.message.error("initialize app-classes failed")
+            bkt.message.error("Initialisierung der Applikation fehlgeschlagen", title="BKT: Kritischer Startfehler")
         
         
             
 
         ### bind callbacks to app-sepcific events
-        try:
-            logging.debug('bind application events')
-            self.app_callbacks.bind_app_events()
-        except:
-            logging.exception("binding of callbacks to application events failed")
-            bkt.message.error("binding of callbacks to application events failed")
+        bind_success = False
+        while not bind_success:
+            try:
+                logging.debug('bind application events')
+                self.app_callbacks.bind_app_events()
+                bind_success = True
+            except:
+                logging.exception("binding of callbacks to application events failed")
+                # Ask user in German if they want to retry
+                retry = bkt.message.non_modal(
+                    "Das Binden der Anwendungs-Callbacks ist fehlgeschlagen. Bitte alle Dialoge schließen.\n\nErneut versuchen?",
+                    title="Fehler beim Binden der Callbacks"
+                )
+                if not retry:
+                    bkt.message.error("Fehler beim Binden der Anwendungs-Callbacks", title="BKT: Kritischer Startfehler")
+                    break
         
         
         logging.debug('on_create done ')
