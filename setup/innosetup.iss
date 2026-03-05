@@ -4,8 +4,8 @@
 #define MyAppName "BKT-Toolbox"
 #define MyAppPublisher "Business Kasper"
 #define MyAppURL "https://www.bkt-toolbox.de"
-#define MyAppVersion "3.0.4"
-#define MyReleaseDate "250827"
+#define MyAppVersion "3.1.0"
+#define MyReleaseDate "260305"
 ;GetDateTimeString('yymmdd', '', '');
 
 [Setup]
@@ -127,8 +127,8 @@ Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --add_folde
 ; NOTE: use flag "nowait" if problems with hanging script occure
 ; NOTE: use flag runhidden if DOS window should not show up
 
-Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --set_config async_startup=True"; WorkingDir: "{app}\installer"; StatusMsg: "Async Mode aktivieren..."; Flags: runasoriginaluser runhidden; Tasks: asyncmode\on
-Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --set_config async_startup=False"; WorkingDir: "{app}\installer"; StatusMsg: "Async Mode deaktivieren..."; Flags: runasoriginaluser runhidden; Tasks: asyncmode\off
+Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --set_config async_startup True"; WorkingDir: "{app}\installer"; StatusMsg: "Async Mode aktivieren..."; Flags: runasoriginaluser runhidden; Tasks: asyncmode\on
+Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --set_config async_startup False"; WorkingDir: "{app}\installer"; StatusMsg: "Async Mode deaktivieren..."; Flags: runasoriginaluser runhidden; Tasks: asyncmode\off
 
 Filename: "{app}\documentation\Changelog.pptx"; Description: "Neue Funktionen und Änderungen anzeigen"; Flags: postinstall shellexec skipifsilent
   

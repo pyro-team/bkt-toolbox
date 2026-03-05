@@ -1,3 +1,13 @@
+# Release 2026-03-05 (3.1.0)
+
+  * Updated build configuration to use modern C# compiler
+  * Improved async startup and fixed various related problems (thanks to GenAI)
+  * Added task page to installer to enable async startup and clear all settings
+  * Fixed handling of color none (e.g. in agenda settings)
+  * Fixed invalidate error when feature folders were removed
+  * Font Awesome updated to 7.2.0
+
+
 # Release 2025-08-27 (3.0.4)
 
   * Fixed issue that margin of shape/chess table is not saved (#57)
