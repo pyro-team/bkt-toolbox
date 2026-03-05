@@ -395,7 +395,7 @@ class BKTCacheFactory(object):
     def close(self, name=None):
         if name is None:
             #close all
-            for name in self._caches.keys():
+            for name in list(self._caches.keys()):
                 self._close(name)
         else:
             self._close(name)

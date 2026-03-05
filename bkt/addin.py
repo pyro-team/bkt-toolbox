@@ -785,18 +785,28 @@ class AddIn(object):
             
         except:
             logging.exception("initialize app-classes failed")
-            bkt.message.error("initialize app-classes failed")
+            bkt.message.error("Initialisierung der Applikation fehlgeschlagen", title="BKT: Kritischer Startfehler")
         
         
             
 
         ### bind callbacks to app-sepcific events
-        try:
-            logging.debug('bind application events')
-            self.app_callbacks.bind_app_events()
-        except:
-            logging.exception("binding of callbacks to application events failed")
-            bkt.message.error("binding of callbacks to application events failed")
+        bind_success = False
+        while not bind_success:
+            try:
+                logging.debug('bind application events')
+                self.app_callbacks.bind_app_events()
+                bind_success = True
+            except:
+                logging.exception("binding of callbacks to application events failed")
+                # Ask user in German if they want to retry
+                retry = bkt.message.non_modal(
+                    "Das Binden der Anwendungs-Callbacks ist fehlgeschlagen. Bitte alle Dialoge schließen.\n\nErneut versuchen?",
+                    title="Fehler beim Binden der Callbacks"
+                )
+                if not retry:
+                    bkt.message.error("Fehler beim Binden der Anwendungs-Callbacks", title="BKT: Kritischer Startfehler")
+                    break
         
         
         logging.debug('on_create done ')
@@ -808,6 +818,14 @@ class AddIn(object):
     def on_ribbon_load(self, ribbon):
         ''' IRibbonUI ribbon'''
         self.app_callbacks.fire_event(self.events.bkt_load)
+    
+    def on_ribbon_load_async(self):
+        '''Called from C# on first GetVisible in async mode (runs on UI thread).
+        This handles deferred ribbon load events and app-specific async startup logic.'''
+        self.app_callbacks.fire_event(self.events.bkt_load)
+        # Call app-specific async startup handler if available
+        if hasattr(self.app_callbacks, 'on_ribbon_load_async'):
+            self.app_callbacks.on_ribbon_load_async()
     
     def load_image(self, image_name):
         path = _h.Resources.images.locate(image_name)  #@UndefinedVariable

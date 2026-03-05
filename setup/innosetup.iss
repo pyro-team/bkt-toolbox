@@ -4,8 +4,8 @@
 #define MyAppName "BKT-Toolbox"
 #define MyAppPublisher "Business Kasper"
 #define MyAppURL "https://www.bkt-toolbox.de"
-#define MyAppVersion "3.0.4"
-#define MyReleaseDate "250827"
+#define MyAppVersion "3.1.0"
+#define MyReleaseDate "260305"
 ;GetDateTimeString('yymmdd', '', '');
 
 [Setup]
@@ -65,6 +65,12 @@ Name: "excel\calc"; Description: "Sofort-Mini-Rechner"; Types: full
 Name: "visio"; Description: "Visio"; Types: full
 Name: "visio\toolbar"; Description: "Visio Toolbar (BETA)"; Types: full
 
+[Tasks]
+Name: cleanup; Description: "Alle Einstellungen zurücksetzen"; Flags: unchecked
+Name: asyncmode; Description: "Schneller Start (Asynchroner Modus)"; Flags: unchecked
+Name: asyncmode\off; Description: "Deaktivieren (Standard)"; Flags: exclusive unchecked
+Name: asyncmode\on; Description: "Aktivieren (kann sehr selten zu Fehlern beim Start führen)"; Flags: exclusive unchecked
+
 [InstallDelete]
 ; NOTE: Remove files from old version before 2.7.0
 Type: files; Name: "{app}\bkt\*.xaml"
@@ -104,6 +110,8 @@ Name: "{group}\BKT-Ordner öffnen"; Filename: "{app}\"
 [Run]
 ; Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --migrate 2.6"; WorkingDir: "{app}\installer"; StatusMsg: "Alte Konfiguration migrieren..."; Flags: runasoriginaluser runhidden
 
+Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install cleanup --clear_cache --clear_config --clear_settings --clear_xml --clear_resiliency --silent"; WorkingDir: "{app}\installer"; StatusMsg: "Full Cleanup..."; Flags: runasoriginaluser runhidden; Tasks: cleanup
+
 Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install install -s"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn für PowerPoint einrichten..."; Flags: runasoriginaluser runhidden; Components: not (excel or visio)
 Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install install -s --apps powerpoint excel"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn für PowerPoint und Excel einrichten..."; Flags: runasoriginaluser runhidden; Components: excel and not visio
 Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install install -s --apps powerpoint visio"; WorkingDir: "{app}\installer"; StatusMsg: "Office-AddIn für PowerPoint und Visio einrichten..."; Flags: runasoriginaluser runhidden; Components: visio and not excel
@@ -118,6 +126,9 @@ Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --add_folde
 Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --add_folders features\bkt_visio"; WorkingDir: "{app}\installer"; StatusMsg: "Visio-Toolbar aktivieren..."; Flags: runasoriginaluser runhidden; Components: visio\toolbar
 ; NOTE: use flag "nowait" if problems with hanging script occure
 ; NOTE: use flag runhidden if DOS window should not show up
+
+Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --set_config async_startup True"; WorkingDir: "{app}\installer"; StatusMsg: "Async Mode aktivieren..."; Flags: runasoriginaluser runhidden; Tasks: asyncmode\on
+Filename: "{app}\bin\ipy.exe"; Parameters: "-m bkt_install configure --set_config async_startup False"; WorkingDir: "{app}\installer"; StatusMsg: "Async Mode deaktivieren..."; Flags: runasoriginaluser runhidden; Tasks: asyncmode\off
 
 Filename: "{app}\documentation\Changelog.pptx"; Description: "Neue Funktionen und Änderungen anzeigen"; Flags: postinstall shellexec skipifsilent
   

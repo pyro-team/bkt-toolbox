@@ -49,7 +49,8 @@ class AppEventType(object):
     #         method()
 
     def __iter__(self):
-        for method in self.registered_methods:
+        # Iterate over a snapshot in case handlers unregister themselves during event firing.
+        for method in list(self.registered_methods):
             yield method
     
     def __repr__(self):
@@ -478,6 +479,19 @@ class AppCallbacksPowerPoint(AppCallbacksBase):
         app.SlideShowBegin += self.slideshow_begin
         app.SlideShowEnd   += self.slideshow_end
         #print 'PPT events registered'
+    
+    
+    def on_ribbon_load_async(self):
+        '''Called from addin.on_ribbon_load_async in async mode (runs on UI thread).
+        Fire synthetic events for presentations that were opened before event binding.'''
+        logging.info("async mode: firing synthetic presentation open events")
+        try:
+            app = self.context.app
+            for pres in app.Presentations:
+                logging.info("async mode: firing synthetic after_presentation_open for %s", pres.Name)
+                self.after_presentation_open(pres)
+        except:
+            logging.exception("error firing synthetic presentation open events")
         
         
     def unbind_app_events(self):

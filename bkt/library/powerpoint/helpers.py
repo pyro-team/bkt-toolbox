@@ -798,7 +798,7 @@ class PPTColor(object):
 
     @classmethod
     def from_color_tuple(cls, color_tuple):
-        if not color_tuple:
+        if not color_tuple or color_tuple[0] == cls.COLOR_NONE:
             return cls(cls.COLOR_NONE)
         elif color_tuple[0] == cls.COLOR_RGB:
             return cls(cls.COLOR_RGB, color_rgb=color_tuple[1])
@@ -862,7 +862,7 @@ class PPTColor(object):
         elif self.color_type == self.COLOR_RGB:
             return (self.COLOR_RGB, self.color_rgb)
         else:
-            return None
+            return (self.COLOR_NONE,)
 
 
 class ColorHelper(object):
@@ -1089,8 +1089,10 @@ class BKTTag(object):
     
     def __setitem__(self, arg, value):
         ''' access ribbon-attributes in dict-style, e.g. button['label'] = 'foo' '''
-        if arg is None or value is None:
-            raise ValueError("value cannot be none")
+        if arg is None:
+            raise ValueError("arg cannot be none")
+        if value is None:
+            raise ValueError(f"value for {arg} cannot be none")
         
         self.data[arg] = value
     

@@ -72,6 +72,8 @@ namespace BKT
         private bool created;
         private string async_startup_ribbon_id;
         private IRibbonUI async_startup_ribbon;
+        private static bool force_customui_reload;  // Static to survive Reload()
+        private bool first_start_needs_reload;  // True if loading UI was shown on first start and reload is needed
         private TextWriterTraceListener listener;
         private FileStream logFileStream;
         
@@ -79,9 +81,11 @@ namespace BKT
         private string hostAppName;
         private IKeyboardMouseEvents m_GlobalHook;
         private bool keymouse_hooks_activated = false;
+        private bool use_keymouse_hooks = true; // Lazy hook subscription: stored config value
         
         private DateTime ppt_last_selection_changed = DateTime.MinValue;
         private int ppt_last_selection_shape_id = 0;
+        private bool _needs_async_ribbon_load = false; // Flag to trigger on_ribbon_load_async on first GetVisible
         
 
         #region Contructor and reset
@@ -121,20 +125,8 @@ namespace BKT
             Debug.WriteLine("================================================================================");
             DebugMessage("Addin started");
             
-            // initialize Mouse/Key-Hooks
-            try
-            {
-                bool use_keymouse_hooks = Boolean.Parse(GetConfigEntry("use_keymouse_hooks", "true"));
-                DebugMessage("Subscribe to Key/Mouse Events: " + use_keymouse_hooks.ToString());
-                if (use_keymouse_hooks)
-                {
-                    HookEvents();
-                }
-            }
-            catch (Exception)
-            {
-                DebugMessage("Error subscribing to Mouse Events");
-            }
+            // Note: Mouse/Key-Hooks are now subscribed lazily after Python is ready
+            // This improves startup time by deferring hook setup until the addin is fully loaded
             
         }
         
@@ -173,6 +165,9 @@ namespace BKT
             debug = false;
             log_show_msgbox = false;
             async_startup_ribbon = null;
+            // Note: force_customui_reload is static and intentionally NOT reset here
+            first_start_needs_reload = false;
+            _needs_async_ribbon_load = false;
             
         }
 
@@ -206,7 +201,17 @@ namespace BKT
         }
 
         public void Reload() {
+            Reload(false);
+        }
+        
+        public void Reload(bool forceCustomUIReload) {
             try {
+                // Set flag to force CustomUI regeneration on next GetCustomUI call
+                if (forceCustomUIReload) {
+                    force_customui_reload = true;
+                    DebugMessage("Force CustomUI reload flag set");
+                }
+                
                 COMAddIns addins = GetCOMAddIns();
                 if (addins != null)
                 {
@@ -231,6 +236,31 @@ namespace BKT
                 DebugMessage("error reloading addin");
             }
         }
+        
+        /// <summary>
+        /// Clears the cached CustomUI XML file for the specified ribbon_id.
+        /// Call this before Reload() when you want to force regeneration.
+        /// </summary>
+        public void ClearCachedCustomUI(string ribbon_id) {
+            try {
+                string filename = GetFilenameFromRibbonId(ribbon_id);
+                if (File.Exists(filename)) {
+                    File.Delete(filename);
+                    DebugMessage("Deleted cached CustomUI file: " + filename);
+                }
+            } catch (Exception e) {
+                DebugMessage("Error deleting cached CustomUI file: " + e.Message);
+            }
+        }
+        
+        /// <summary>
+        /// Sets flag to force CustomUI regeneration on next GetCustomUI call.
+        /// Use this when config has changed and you want fresh XML from Python.
+        /// </summary>
+        public void ForceCustomUIReload() {
+            force_customui_reload = true;
+            DebugMessage("Force CustomUI reload flag set");
+        }
         #endregion
 
 
@@ -242,7 +272,8 @@ namespace BKT
         private void Message(string s) {
             MessageBox.Show(s);
         }
-        
+
+        [Conditional("DEBUG")]
         private void DebugMessage(string s) {
             Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss,fff") + ": " + s);
             // Debug.Flush(); --> not required as AutoFlush=true
@@ -396,9 +427,7 @@ namespace BKT
             try {
                 if (!created && async_startup) {
                     BootstrapAddIn();
-                    // PythonOnRibbonLoad aufrufen ?
-                    // wird bei async starup vorher geblockt
-                    // deswegen hier noch ribbon setzen
+                    // Set ribbon from async startup (on_ribbon_load_async will be called later on UI thread)
                     if (async_startup_ribbon != null) {
                         context.ribbon = async_startup_ribbon;
                     }
@@ -407,10 +436,59 @@ namespace BKT
                     GetPythonCustomUIAndWriteToFile(async_startup_ribbon_id);
                     //FIXME: check whether this invalidates at the right time
                     created = true;
+                    
+                    // Subscribe to Mouse/Key-Hooks after addin is fully loaded
+                    InitializeKeyMouseHooks();
+                    
+                    // Check if this was a first start where loading UI was shown
+                    // In this case, we need to trigger a full reload to show the real UI
+                    // because Office doesn't support reloading CustomUI XML after startup
+                    if (first_start_needs_reload) {
+                        DebugMessage("First start detected - triggering auto-reload to show real UI");
+                        first_start_needs_reload = false;
+                        // Small delay to ensure Office is fully ready
+                        Thread.Sleep(500);
+                        Reload();
+                        return; // Reload will reinitialize everything
+                    }
+                    
                     if (context.ribbon != null) {
                         context.ribbon.Invalidate();
                     }
                 }
+            } catch (Exception e) {
+                Message(e.ToString());
+            }
+        }
+        
+        private void InitializeKeyMouseHooks() {
+            // Lazy hook subscription: subscribe to Mouse/Key events after Python is ready
+            // This improves startup time by deferring hook setup
+            try
+            {
+                use_keymouse_hooks = Boolean.Parse(GetConfigEntry("use_keymouse_hooks", "true"));
+                if (use_keymouse_hooks)
+                {
+                    DebugMessage("Subscribe to Key/Mouse Events (lazy)");
+                    HookEvents();
+                }
+            }
+            catch (Exception)
+            {
+                DebugMessage("Error subscribing to Mouse Events");
+            }
+        }
+        
+        private void AsyncStartupWithPython() {
+            // This method runs IronPython initialization AND bootstrap on a background thread.
+            // This allows Office to display the ribbon faster while Python loads in background.
+            DebugMessage("AsyncStartupWithPython called - initializing Python on background thread");
+            try {
+                // Initialize IronPython engine (this is the heavy operation)
+                LoadPython();
+                
+                // Now proceed with normal async startup (bootstrap the Python addin)
+                AsyncStartup();
             } catch (Exception e) {
                 Message(e.ToString());
             }
@@ -508,23 +586,26 @@ namespace BKT
                 string msg = "instance_id=" + instance_id + "\r\nfinalize_count=" + finalize_counter;
                 msg += "\r\n\r\n" + DumpConfig();
                 LogMessage(msg);
-                // initialize python instance
-                DebugMessage("Initialize Python instance");
-                LoadPython();
                 
-                // FIXME: optional, je nach Einstellung, Bootstrap erst beim Aufruf der ersten Click-Aktion
+                // Check async_startup setting
                 async_startup = bool.Parse(GetConfigEntry("async_startup", "false"));
                 LogMessage("async_startup =" + async_startup );
                 
                 if (! async_startup) {
-                    // bootstrap directly
+                    // Synchronous startup: initialize Python and bootstrap directly
+                    DebugMessage("Initialize Python instance (sync)");
+                    LoadPython();
                     BootstrapAddIn();
                     created = true;
                     
+                    // Subscribe to Mouse/Key-Hooks after addin is fully loaded
+                    InitializeKeyMouseHooks();
+                    
                 } else {
-                    LogMessage("Starting asynchronous Bootstrap");
-                    // bootstrap asynchronously
-                    Thread bootstrapperThread = new Thread(AsyncStartup);
+                    // Asynchronous startup: move Python initialization to background thread
+                    // This allows Office to show the ribbon faster while Python loads in background
+                    LogMessage("Starting asynchronous Python initialization and Bootstrap");
+                    Thread bootstrapperThread = new Thread(AsyncStartupWithPython);
                     bootstrapperThread.Start();
                 }
                 
@@ -604,7 +685,6 @@ namespace BKT
                 DebugMessage("error unbinding host application events");
             }
         }
-        
         
         public void OnDisconnection(ext_DisconnectMode remove_mode, ref Array custom)
         {    
@@ -694,20 +774,40 @@ namespace BKT
                 streamReader.Close();
                 //LogMessage(customUI);
             } else {
-                LogMessage("file not found.");
-                customUI = "";
+                LogMessage("file not found, returning default loading UI.");
+                // Return a minimal CustomUI that shows a loading indicator on first start
+                // Mark that we need to auto-reload once Python is ready, because Office
+                // doesn't support reloading CustomUI XML after startup
+                first_start_needs_reload = true;
+                customUI = GetDefaultLoadingCustomUI(ribbon_id);
             }
             
             return customUI;
         }
         
+        private string GetDefaultLoadingCustomUI(string ribbon_id) {
+            // Return a minimal ribbon tab that indicates the addin is loading
+            // The ribbon will be invalidated and reloaded once Python is ready
+            return @"<customUI xmlns=""http://schemas.microsoft.com/office/2009/07/customui"">
+  <ribbon>
+    <tabs>
+      <tab id=""bkt_loading_tab"" label=""BKT (Loading...)"" insertBeforeMso=""TabHome"">
+        <group id=""bkt_loading_group"" label=""Please wait"">
+          <labelControl id=""bkt_loading_label"" label=""Add-in is initializing..."" />
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>";
+        }
+        
         public string GetCustomUI(string ribbon_id) {
             DebugMessage("GetCustomUI called");
             
-            // remeber ribbon_id for asynchronous startup
+            // remember ribbon_id for asynchronous startup
             async_startup_ribbon_id = ribbon_id;
             
-            // if not in aync mode, load custom ui
+            // if not in async mode, load custom ui
             if(!async_startup) {
                 return GetPythonCustomUIAndWriteToFile(ribbon_id);
             } 
@@ -715,14 +815,29 @@ namespace BKT
             // from here on:
             // addin is in async mode
             
-            if (! created) {
-                // python scope not created yet, return custom ui from file
+            if (!created) {
+                // Check if force reload is requested (e.g., after config change)
+                // In this case, Python isn't ready yet, so we return loading UI
+                // and set first_start_needs_reload to trigger auto-reload once Python is ready
+                if (force_customui_reload) {
+                    DebugMessage("Force reload requested but Python not ready, returning loading UI and scheduling auto-reload");
+                    force_customui_reload = false; // Reset flag
+                    first_start_needs_reload = true; // Trigger auto-reload once Python is ready
+                    return GetDefaultLoadingCustomUI(ribbon_id);
+                }
+                // python scope not created yet, return custom ui from file (or loading UI if file doesn't exist)
                 return GetCustomUIFromFile(ribbon_id);
             }
             
             if(broken) {
                 // fallback for broken addin
                 return "";
+            }
+            
+            // Check if force reload is requested - always regenerate from Python
+            if (force_customui_reload) {
+                DebugMessage("Force reload requested, regenerating CustomUI from Python");
+                force_customui_reload = false; // Reset flag
             }
             
             // we're in async mode, addin is created, not broken
@@ -748,7 +863,6 @@ namespace BKT
                 // File.OpenRead(@"C:\Office 2010 Developer Resources\Schemas\customui14.xsd"))
             
             xsd_res.Close();
-            
             XDocument doc = XDocument.Parse(text);
             DebugMessage("Validating XML...");
             doc.Validate(ss, new ValidationEventHandler(ValidationCallBack));
@@ -779,7 +893,9 @@ namespace BKT
         
         private void MouseDownEvent(object sender, MouseEventExtArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("MouseDown: \t{0}; \t System Timestamp: \t{1}", e.Button, e.Timestamp));
+#endif
             if (!created) return;
             ppt_last_selection_changed = DateTime.MinValue; // Reset timestamp for selection_changed event
             python_delegate.mouse_down(sender, e);
@@ -787,7 +903,9 @@ namespace BKT
         
         private void MouseUpEvent(object sender, MouseEventExtArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("MouseUp: \t{0}; \t System Timestamp: \t{1}", e.Button, e.Timestamp));
+#endif
             if (!created) return;
             python_delegate.mouse_up(sender, e);
         }
@@ -801,35 +919,45 @@ namespace BKT
 
         private void MouseDoubleClickEvent(object sender, MouseEventArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("MouseDoubleClick: \t{0}", e.Button));
+#endif
             if (!created) return;
             python_delegate.mouse_double_click(sender, e);
         }
 
         private void MouseDragStartedEvent(object sender, MouseEventExtArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("MouseDragStartedEvent: \t{0} / {1}; \t System Timestamp: \t{2}", e.X, e.Y, e.Timestamp));
+#endif
             if (!created) return;
             python_delegate.mouse_drag_start(sender, e);
         }
 
         private void MouseDragFinishedEvent(object sender, MouseEventExtArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("MouseDragFinishedEvent: \t{0} / {1}; \t System Timestamp: \t{2}", e.X, e.Y, e.Timestamp));
+#endif
             if (!created) return;
             python_delegate.mouse_drag_end(sender, e);
         }
 
         private void KeyDownEvent(object sender, KeyEventArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("KeyDown: \t{0}", e.KeyCode));
+#endif
             if (!created) return;
             python_delegate.key_down(sender, e);
         }
                 
         private void KeyUpEvent(object sender, KeyEventArgs e)
         {
+#if DEBUG
             DebugMessage(String.Format("KeyUp: \t{0}", e.KeyCode));
+#endif
             if (!created) return;
             python_delegate.key_up(sender, e);
         }
@@ -1014,7 +1142,10 @@ namespace BKT
 
         private void PowerPoint_WindowSelectionChange(PowerPoint.Selection selection)
         {
-            DebugMessage("PowerPoint: window selection changed instance="+instance_id);
+#if DEBUG
+            DebugMessage("PowerPoint: window selection changed instance=" + instance_id);
+#endif
+            if (!created) return;
             try {
                 selection_type = (int)selection.Type;
 
@@ -1467,8 +1598,10 @@ namespace BKT
         //  https://msdn.microsoft.com/en-us/library/bb736142(v=office.12).aspx
         
         public string PythonGetContent(IRibbonControl control)
-        {    
+        {
+#if DEBUG
             DebugMessage("event GetContent " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_content(control);
@@ -1484,8 +1617,10 @@ namespace BKT
         }
         
         public string PythonGetDescription(IRibbonControl control)
-        {    
+        {
+#if DEBUG
             DebugMessage("event GetDescription " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_description(control);
@@ -1502,7 +1637,9 @@ namespace BKT
         
         public bool PythonGetEnabled(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled " + control.Id);
+#endif
             if (!created) return false;
             try {
                 return (python_delegate.get_enabled(control) == true);
@@ -1513,7 +1650,9 @@ namespace BKT
         }
          
         public Bitmap PythonGetImage(IRibbonControl control) {
+#if DEBUG
             DebugMessage("event GetImage " + control.Id);
+#endif
             if (!created) return null;
             if(broken) {
                 return null;
@@ -1528,7 +1667,9 @@ namespace BKT
         
         public string PythonGetKeytip(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetKeytip " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_keytip(control);
@@ -1545,7 +1686,9 @@ namespace BKT
         
         public string PythonGetLabel(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetLabel " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_label(control);
@@ -1562,7 +1705,9 @@ namespace BKT
         
         public bool PythonGetPressed(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetPressed " + control.Id);
+#endif
             if (!created) return false;
             try {
                 return (python_delegate.get_pressed(control) == true);
@@ -1574,7 +1719,9 @@ namespace BKT
         
         public string PythonGetScreentip(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetScreentip " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_screentip(control);
@@ -1591,7 +1738,9 @@ namespace BKT
         
         public bool PythonGetShowImage(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetShowImage " + control.Id);
+#endif
             if (!created) return false;
             try {
                 return (python_delegate.get_show_image(control) == true);
@@ -1603,7 +1752,9 @@ namespace BKT
         
         public bool PythonGetShowLabel(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetShowLabel " + control.Id);
+#endif
             if (!created) return false;
             try {
                 return (python_delegate.get_show_label(control) == true);
@@ -1615,7 +1766,9 @@ namespace BKT
         
         public int PythonGetSize(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetSize " + control.Id);
+#endif
             if (!created) return 0;
             try {
                 var result = python_delegate.get_size(control);
@@ -1632,7 +1785,9 @@ namespace BKT
         
         public string PythonGetSupertip(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetSupertip " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_supertip(control);
@@ -1649,7 +1804,9 @@ namespace BKT
         
         public string PythonGetText(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetText " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_text(control);
@@ -1666,7 +1823,9 @@ namespace BKT
 
         public string PythonGetTitle(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetTitle " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_title(control);
@@ -1683,8 +1842,22 @@ namespace BKT
         
         public bool PythonGetVisible(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetVisible " + control.Id);
+#endif
             if (!created) return false;
+            
+            // In async mode, trigger on_ribbon_load_async on first GetVisible call (runs on UI thread)
+            if (_needs_async_ribbon_load) {
+                _needs_async_ribbon_load = false;
+                try {
+                    DebugMessage("Triggering on_ribbon_load_async");
+                    python_delegate.on_ribbon_load_async();
+                } catch (Exception e) {
+                    DebugMessage("Error in on_ribbon_load_async: " + e.ToString());
+                }
+            }
+            
             try {
                 return (python_delegate.get_visible(control) == true);
             } catch (Exception e) {
@@ -1699,7 +1872,9 @@ namespace BKT
         // ====================================
         
         public int PythonGetItemCount(IRibbonControl control) {
+#if DEBUG
             DebugMessage("event GetItemCount " + control.Id);
+#endif
             if (!created) return 0;
             if(broken) {
                 return 0;
@@ -1718,7 +1893,9 @@ namespace BKT
         }
 
         public int PythonGetSelectedItemIndex(IRibbonControl control) {
+#if DEBUG
             DebugMessage("event GetSelectedItemIndex " + control.Id);
+#endif
             if (!created) return 0;
             if(broken) {
                 return 0;
@@ -1733,7 +1910,9 @@ namespace BKT
         
         public string PythonGetSelectedItemID(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event GetSelectedItemID " + control.Id);
+#endif
             if (!created) return "";
             try {
                 var result = python_delegate.get_selected_item_id(control);
@@ -1754,7 +1933,9 @@ namespace BKT
         // ==============================================
         
         public int PythonGetItemHeight(IRibbonControl control) {
+#if DEBUG
             DebugMessage("event GetItemHeight " + control.Id);
+#endif
             if (!created) return 0;
             if(broken) {
                 return 0;
@@ -1768,7 +1949,9 @@ namespace BKT
         }
         
         public string PythonGetItemID(IRibbonControl control, int index) {
+#if DEBUG
             DebugMessage("event GetItemID " + control.Id);
+#endif
             if (!created) return "";
             if(broken) {
                 return null;
@@ -1783,7 +1966,9 @@ namespace BKT
         
         public Bitmap PythonGetItemImage(IRibbonControl control, int index) {
         //public stdole.IPictureDisp GetItemImage(IRibbonControl oRbnCtrl, int iItemIndex)
+#if DEBUG
             DebugMessage("event GetItemImage " + control.Id);
+#endif
             if (!created) return null;
             if(broken) {
                 return null;
@@ -1797,7 +1982,9 @@ namespace BKT
         }
         
         public string PythonGetItemLabel(IRibbonControl control, int index) {
+#if DEBUG
             DebugMessage("event GetItemLabel " + control.Id);
+#endif
             if (!created) return "";
             if(broken) {
                 return null;
@@ -1811,7 +1998,9 @@ namespace BKT
         }
         
         public string PythonGetItemScreentip(IRibbonControl control, int index) {
+#if DEBUG
             DebugMessage("event GetItemScreentip " + control.Id);
+#endif
             if (!created) return "";
             if(broken) {
                 return null;
@@ -1825,7 +2014,9 @@ namespace BKT
         }
         
         public string PythonGetItemSupertip(IRibbonControl control, int index) {
+#if DEBUG
             DebugMessage("event GetItemSupertip " + control.Id);
+#endif
             if (!created) return "";
             if(broken) {
                 return null;
@@ -1839,7 +2030,9 @@ namespace BKT
         }
         
         public int PythonGetItemWidth(IRibbonControl control) {
+#if DEBUG
             DebugMessage("event GetItemWidth " + control.Id);
+#endif
             if (!created) return 0;
             if(broken) {
                 return 0;
@@ -1859,7 +2052,9 @@ namespace BKT
         
         public void PythonOnAction(IRibbonControl control)
         {    
+#if DEBUG
             DebugMessage("event OnAction " + control.Id);
+#endif
             if (!created) return;
             try {
                 python_delegate.on_action(control);
@@ -1870,7 +2065,9 @@ namespace BKT
         
         public void PythonOnActionRepurposed(IRibbonControl control, ref bool cancelDefault)
         {    
+#if DEBUG
             DebugMessage("event OnActionRepurposed " + control.Id);
+#endif
             if (!created) return;
             try {
                 cancelDefault = Convert.ToBoolean(python_delegate.on_action_repurposed(control));
@@ -1881,7 +2078,9 @@ namespace BKT
         
         public void PythonOnActionIndexed(IRibbonControl control, string selectedItem, int index)
         {    
+#if DEBUG
             DebugMessage("event OnActionIndex " + control.Id);
+#endif
             if (!created) return;
             try {
                 python_delegate.on_action_indexed(control, selectedItem, index);
@@ -1892,7 +2091,9 @@ namespace BKT
         
         public void PythonOnToggleAction(IRibbonControl control, bool pressed)
         {    
+#if DEBUG
             DebugMessage("event OnToggleAction " + control.Id);
+#endif
             if (!created) return;
             try {
                 python_delegate.on_toggle_action(control, pressed);
@@ -1903,7 +2104,9 @@ namespace BKT
         
         public void PythonOnChange(IRibbonControl control, string value)
         {    
+#if DEBUG
             DebugMessage("event OnChange " + control.Id);
+#endif
             if (!created) return;
             try {
                 python_delegate.on_change(control, value);
@@ -1918,7 +2121,9 @@ namespace BKT
         // ======================================
         
         public Bitmap PythonLoadImage(string image_name) {
+#if DEBUG
             DebugMessage("event LoadImage " + image_name);
+#endif
             if (!created) return null;
             if(broken) {
                 return null;
@@ -1933,10 +2138,14 @@ namespace BKT
         
         public void PythonOnRibbonLoad(IRibbonUI ui)
         {
+#if DEBUG
             DebugMessage("event OnRibbonLoad");
+#endif
             if (!created) 
             {
                 async_startup_ribbon = ui;
+                // Set flag to trigger on_ribbon_load_async on first GetVisible (runs on UI thread)
+                _needs_async_ribbon_load = true;
                 return;
             }
             try {
@@ -1960,42 +2169,54 @@ namespace BKT
 
         public bool GetEnabled_True(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled_True " + control.Id);
+#endif
             if (!created) return false;
             return true;
         }
 
         public bool GetEnabled_Ppt_ShapesOrText(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled_Ppt_ShapesOrText " + control.Id);
+#endif
             if (!created) return false;
             return selection_type == 2 || selection_type == 3;
         }
 
         public bool GetEnabled_Ppt_Shapes_ExactOne(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled_Ppt_Shapes_ExactOne " + control.Id);
+#endif
             if (!created) return false;
             return selection_shapes == 1;
         }
 
         public bool GetEnabled_Ppt_Shapes_ExactTwo(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled_Ppt_Shapes_ExactTwo " + control.Id);
+#endif
             if (!created) return false;
             return selection_shapes == 2;
         }
 
         public bool GetEnabled_Ppt_Shapes_MinTwo(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled_Ppt_Shapes_MinTwo " + control.Id);
+#endif
             if (!created) return false;
             return selection_shapes >= 2;
         }
 
         public bool GetEnabled_Ppt_ContainsTextFrame(IRibbonControl control)
         {
+#if DEBUG
             DebugMessage("event GetEnabled_Ppt_ContainsTextFrame " + control.Id);
+#endif
             if (!created) return false;
             return selection_containstextframe;
         }

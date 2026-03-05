@@ -124,8 +124,8 @@ class MessageBox(object):
     
 
     # Easy access to standard message box types
-    def __call__(self, text, title="BKT", icon=INFO, buttons=MB_OK):
-        return MessageBox._show_message_box(MessageBox._get_hwnd(), text, title, buttons | icon | MessageBox.MB_TASKMODAL | MessageBox.MB_SETFOREGROUND)
+    def __call__(self, text, title="BKT", icon=INFO, buttons=MB_OK, config=MB_TASKMODAL | MB_SETFOREGROUND):
+        return MessageBox._show_message_box(MessageBox._get_hwnd(), text, title, buttons | icon | config)
     
     def confirmation(self, text, title="BKT", buttons=MB_OKCANCEL, icon=QUESTION):
         result = self(text, title, buttons, icon)
@@ -139,5 +139,12 @@ class MessageBox(object):
 
     def error(self, text, title="BKT"):
         return self(text, title, icon=MessageBox.STOP)
+    
+    def non_modal(self, text, title="BKT", buttons=MB_YESNO, icon=STOP):
+        result = MessageBox._show_message_box(None, text, title, buttons | icon | MessageBox.MB_SETFOREGROUND)
+        if buttons in (MessageBox.MB_OKCANCEL, MessageBox.MB_YESNO):
+            return result in (MessageBox.IDOK, MessageBox.IDYES)
+        else:
+            return result
 
 message = MessageBox()
