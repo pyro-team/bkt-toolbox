@@ -30,6 +30,8 @@ Hier ist eine Übersicht aller Funktionen der BKT in PowerPoint sortiert nach de
 
 ## Toolbox 1/3
 
+<img src="assets/img/screenshot3-page1.png" alt="Screenshot der BKT Toolbar in PowerPoint Seite 1/3">
+
 ### Ablage
 
 <img src="documentation/groups/bkt_clipboard_group.jpg">
@@ -595,6 +597,8 @@ Hier ist eine Übersicht aller Funktionen der BKT in PowerPoint sortiert nach de
 
 ## Toolbox 2/3
 
+<img src="assets/img/screenshot3-page2.png" alt="Screenshot der BKT Toolbar in PowerPoint Seite 2/3">
+
 ### Position/Größe
 
 <img src="documentation/groups/bkt_possize_group.jpg">
@@ -821,6 +825,8 @@ Hier ist eine Übersicht aller Funktionen der BKT in PowerPoint sortiert nach de
 
 
 ## Toolbox 3/3
+
+<img src="assets/img/screenshot3-page3.png" alt="Screenshot der BKT Toolbar in PowerPoint Seite 3/3">
 
 ### Folien-Thumbnails
 
