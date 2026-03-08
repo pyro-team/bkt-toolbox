@@ -1,0 +1,431 @@
+<!-- ribbon_id: Microsoft.Excel.Workbook -->
+<customUI loadImage="PythonLoadImage" onLoad="PythonOnRibbonLoad" xmlns:nsBKT="http://www.business-kasper-toolbox.com/toolbox" xmlns="http://schemas.microsoft.com/office/2009/07/customui">
+  <ribbon startFromScratch="false">
+    <tabs>
+      <tab idMso="TabHome">
+        <group id="bkt_tabhome_settings_group" image="bkt_logo" label="BKT">
+          <dynamicMenu id="bkt-settings-tabhome" label="Settings" size="large" supertip="BKT-Einstellungen verwalten, BKT neu laden, Website aufrufen, etc." getImage="PythonGetImage" getContent="PythonGetContent" />
+        </group>
+      </tab>
+      <tab idMso="TabDeveloper">
+        <group id="bkt_common_dev_group" imageMso="ControlsGallery" label="Common development tools">
+          <button id="_auto_id_32" imageMso="WatchWindow" label="Interactive Console" size="large" onAction="PythonOnAction" />
+          <button id="_auto_id_33" imageMso="AccessRefreshAllLists" label="Reload BKT" size="large" onAction="PythonOnAction" />
+          <separator id="_auto_id_34" />
+          <menu id="_auto_id_35" imageMso="WebPageComponent" label="Config" size="large">
+            <button id="_auto_id_36" imageMso="NewNotepadTool" label="Open config.txt" onAction="PythonOnAction" />
+            <button id="_auto_id_37" imageMso="WebPageComponent" label="Show config" onAction="PythonOnAction" />
+            <menuSeparator id="_auto_id_38" />
+            <button id="_auto_id_39" imageMso="WebPartProperties" label="Show app settings" onAction="PythonOnAction" />
+            <menuSeparator id="_auto_id_40" />
+            <toggleButton id="_auto_id_41" label="Show exceptions on/off" getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+            <toggleButton id="_auto_id_42" label="Write log file on/off" getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+            <menu id="_auto_id_43" label="Change log-level">
+              <toggleButton id="_auto_id_44" label="DEBUG" tag="DEBUG" getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+              <toggleButton id="_auto_id_45" label="INFO" tag="INFO" getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+              <toggleButton id="_auto_id_46" label="WARNING" tag="WARNING" getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+              <toggleButton id="_auto_id_47" label="ERROR" tag="ERROR" getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+              <toggleButton id="_auto_id_48" label="CRITICAL" tag="CRITICAL" getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+            </menu>
+          </menu>
+          <menu id="_auto_id_49" imageMso="ScriptDebugger" label="Debug" size="large">
+            <button id="_auto_id_50" imageMso="Folder" label="Open BKT folder" onAction="PythonOnAction" />
+            <button id="_auto_id_51" imageMso="Folder" label="Open Cache folder" onAction="PythonOnAction" />
+            <button id="_auto_id_52" imageMso="Folder" label="Open Settings folder" onAction="PythonOnAction" />
+            <button id="_auto_id_53" imageMso="Folder" label="Open Favorites folder" onAction="PythonOnAction" />
+            <menuSeparator id="_auto_id_54" />
+            <button id="_auto_id_55" imageMso="ScriptDebugger" label="Open Python-Log-File" onAction="PythonOnAction" />
+            <button id="_auto_id_56" imageMso="ScriptDebugger" label="Open .NET-Log-File" onAction="PythonOnAction" />
+            <menuSeparator id="_auto_id_57" />
+            <button id="_auto_id_58" imageMso="DataFromXmlFile" label="Show Ribbon XML" onAction="PythonOnAction" />
+            <button id="_auto_id_59" imageMso="ContextHelp" label="Show ContextMenu IDs" onAction="PythonOnAction" />
+            <button id="_auto_id_60" imageMso="CreateClassModule" label="Show sys.modules" onAction="PythonOnAction" />
+            <button id="_auto_id_61" imageMso="ShowClipboard" label="Show Clipboard DataFormats" onAction="PythonOnAction" />
+            <menuSeparator id="_auto_id_62" />
+            <button id="_auto_id_63" imageMso="CreateMap" label="Generate controls overview" onAction="PythonOnAction" />
+          </menu>
+        </group>
+        <group id="bkt_common_dev_iconsearch_group" imageMso="SearchUI" label="ImageMso">
+          <labelControl id="_auto_id_67" label="Suchwort:" />
+          <editBox id="_auto_id_68" label="Suchwort" showLabel="false" sizeString="#########" supertip="Suchwort eingeben und ENTER klicken" onChange="PythonOnChange" getText="PythonGetText" />
+          <dynamicMenu id="_auto_id_69" screentip="Suchergebnisse" supertip="Zeigt die Suchergebnisse der Icon-Suche nach dem gewünschten Suchwort an" getContent="PythonGetContent" getEnabled="PythonGetEnabled" getLabel="PythonGetLabel" />
+        </group>
+      </tab>
+      <tab id="bkt_excel_toolbox" insertBeforeMso="TabHome" label="Toolbox 1/3" getVisible="PythonGetVisible">
+        <group id="group_clipboard" imageMso="GroupClipboard" label="Ablage">
+          <control idMso="PasteMenu" showLabel="false" />
+          <control idMso="CopySplitButton" showLabel="false" />
+          <control idMso="FormatPainter" showLabel="false" />
+        </group>
+        <group idMso="GroupFont" />
+        <group id="group_misc" label="Sonst.">
+          <toggleButton getEnabled="PythonGetEnabled" id="halign_centeracross_toggle" imageMso="MergeCellsAcross" label="Über Auswahl zentrieren" showLabel="false" supertip="Ausgewählte zellen 'Über Auswahl zentriert' ausrichten, d.h es werden verbundene Zellen simuliert." getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+          <control idMso="AlignJustify" showLabel="false" />
+          <control idMso="Strikethrough" showLabel="false" />
+        </group>
+        <group idMso="GroupAlignmentExcel" />
+        <group idMso="GroupNumber" />
+        <group idMso="GroupStyles" />
+        <group idMso="GroupCells" />
+        <group idMso="GroupEditingExcel" />
+        <group id="group_outline" imageMso="GroupOutline" label="Gliederung">
+          <control idMso="OutlineGroupMenu" showLabel="false" size="large" />
+          <control idMso="OutlineUngroupMenu" showLabel="false" size="large" />
+          <control idMso="OutlineShowDetail" showLabel="false" />
+          <control idMso="OutlineHideDetail" showLabel="false" />
+          <control idMso="OutlineSymbolsShowHide" showLabel="false" />
+          <dialogBoxLauncher>
+            <button idMso="OutlineSettings" />
+          </dialogBoxLauncher>
+        </group>
+        <group id="group_settings" label="Settings">
+          <dynamicMenu id="bkt-settings-duplicate" label="Settings" showLabel="false" supertip="BKT-Einstellungen verwalten, BKT neu laden, Website aufrufen, etc." getImage="PythonGetImage" getContent="PythonGetContent" />
+          <button id="_auto_id_267" label="v0.9b" screentip="Toolbox" supertip="Excel Toolbox v0.9 beta&#xA;BKT r25-08-27" onAction="PythonOnAction" />
+        </group>
+      </tab>
+      <tab id="bkt_excel_toolbox_p2" insertBeforeMso="TabHome" label="Toolbox 2/3 BETA" getVisible="PythonGetVisible">
+        <group id="group_cell_contents" imageMso="Formula" label="Zellen-Inhalte">
+          <button getEnabled="PythonGetEnabled" id="apply_formula" imageMso="Formula" label="Formel anwenden…" showLabel="true" size="large" supertip="Eine Formel auf alle ausgewählten Zellen anwenden." onAction="PythonOnAction" />
+          <menu id="apply_regex" imageMso="ApplyFilter" label="RegEx anwenden…" showLabel="true" size="large" supertip="Einen regulären Ausdruck auf alle ausgewählten Zellen anwenden.">
+            <button getEnabled="PythonGetEnabled" id="regex_match" label="Mit RegEx zählen/filtern" supertip="Die Anzahl der Ergebnisse/Gruppen eines regulären Ausdrucks für ausgewählte Zellen in jeweilige Zelle schreiben." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="regex_split" label="Mit RegEx in Spalten aufteilen" supertip="Alle Ergebnisse/Gruppen eines regulären Ausdrucks für ausgewählte Zellen in Spalten aufteilen." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="regex_replace" label="Mit RegEx suchen und ersetzen" supertip="Mit einem regulären Ausdruck in ausgewählten Zellen suchen und ersetzen." onAction="PythonOnAction" />
+          </menu>
+          <menu id="_auto_id_268" imageMso="FormControlEditBox" label="Textwerkzeuge" screentip="Verschiedene Text-Manipulationen" showLabel="true" supertip="Text hinzufügen oder schneiden.">
+            <button getEnabled="PythonGetEnabled" id="prepend_text" label="Text voranstellen…" showLabel="true" supertip="Einen Text allen ausgewählten Zellen voranstellen." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="append_text" label="Text anhängen…" showLabel="true" supertip="Einen Text allen ausgewählten Zellen anhängen." onAction="PythonOnAction" />
+            <menuSeparator id="_auto_id_269" />
+            <button getEnabled="PythonGetEnabled" id="slice_text" label="Text anhand Position schneiden…" showLabel="true" supertip="Einen Text vorne oder hinten nach gegebener Position abschneiden." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="find_and_slice_text" label="Text anhand Zeichen schneiden…" showLabel="true" supertip="Einen Text vorne oder hinten nach gegebenem Zeichen abschneiden." onAction="PythonOnAction" />
+            <menuSeparator id="_auto_id_270" />
+            <control idMso="ReplaceDialog" showLabel="false" />
+          </menu>
+          <splitButton id="_auto_id_271">
+            <button getEnabled="PythonGetEnabled" id="formula_to_values" imageMso="ShowFormulas" label="Formeln zu Werten" showLabel="true" supertip="Formeln in allen ausgewählten Zellen durch jeweilige Werte ersetzen. Zellen ohne Formeln bleiben unverändert." onAction="PythonOnAction" />
+            <menu id="_auto_id_272">
+              <menuSeparator id="_auto_id_273" title="Werte/Text" />
+              <button getEnabled="PythonGetEnabled" id="formula_to_values2" imageMso="ShowFormulas" label="Formeln zu Werten" showLabel="true" supertip="Formeln in allen ausgewählten Zellen durch jeweilige Werte ersetzen. Zellen ohne Formeln bleiben unverändert." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="values_to_showntext" label="Zu angezeigtem Text" showLabel="true" supertip="Werte in allen ausgewählten Zellen durch den tatsächlich angezeigten Text ersetzen. Dabei wird das Zellenformat auf 'Text' geändert." onAction="PythonOnAction" />
+              <menuSeparator id="_auto_id_274" title="Zahlen/Daten" />
+              <button getEnabled="PythonGetEnabled" id="numbers_to_text" label="Zahlenwerte zu Text" showLabel="true" supertip="Konvertiert numerische Werte (Zahlen, Datum, Zeit) in als Text gespeicherte Zahlen. Dabei wird das Zellenformat auf 'Text' geändert." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="text_to_numbers" label="Text zu Zahlen" showLabel="true" supertip="Konvertiert als Text gespeicherte Zahlen in echte Zahlen. Dabei wird das Zellenformat auf 'Standard' geändert." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="text_to_datetime" label="Text zu Datum/Zeit" showLabel="true" supertip="Konvertiert als Text gespeicherte Datum- und Zeitwerte in ein echtes Datum ggf. mit Uhrzeit. Dabei wird das Zellenformat auf 'Standard' geändert." onAction="PythonOnAction" />
+              <menuSeparator id="_auto_id_275" title="Formeln" />
+              <button getEnabled="PythonGetEnabled" id="text_to_formula" label="Text zu Formeln" showLabel="true" supertip="Konvertiert als Text gespeicherte Formeln in echte Formeln. Dabei wird das Zellenformat auf 'Standard' geändert." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="formula_to_text" label="Formeln zu Text" showLabel="true" supertip="Konvertiert Formeln in als Text gespeicherte Formeln. Dabei wird das Zellenformat auf 'Text' geändert. Zellen ohne Formeln bleiben unverändert." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="formula_to_absolute" label="Formeln A1 zu $A$1" showLabel="true" supertip="Konvertiert Referenzen in Formeln zu absoluten Referenzen." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="formula_to_relative" label="Formeln $A$1 zu A1" showLabel="true" supertip="Konvertiert Referenzen in Formeln zu relativen Referenzen." onAction="PythonOnAction" />
+              <menuSeparator id="_auto_id_276" />
+              <button getEnabled="PythonGetEnabled" id="eng_text_to_formula" label="Englische Formeln zu Formeln" showLabel="true" supertip="Konvertiert als Text gespeicherte englische Formeln in echte Formeln. Dabei wird das Zellenformat auf 'Standard' geändert." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="formula_to_eng_text" label="Formeln zu englischen Formeln" showLabel="true" supertip="Konvertiert Formeln in als Text gespeicherte englische Formeln. Dabei wird das Zellenformat auf 'Text' geändert. Zellen ohne Formeln bleiben unverändert." onAction="PythonOnAction" />
+            </menu>
+          </splitButton>
+          <splitButton id="_auto_id_277">
+            <button getEnabled="PythonGetEnabled" id="cells_trim" imageMso="TextDirectionContext" label="Glätten (Trim)" showLabel="true" supertip="Entferne überflüssige Leerzeichen am Anfang oder Ende aller selektierten Zellen (wie Excel-Funktion GLÄTTEN)." onAction="PythonOnAction" />
+            <menu id="_auto_id_278">
+              <button getEnabled="PythonGetEnabled" id="cells_trim2" imageMso="TextDirectionContext" label="Glätten/Kürzen (Trim)" showLabel="true" supertip="Entferne überflüssige Leerzeichen am Anfang oder Ende aller selektierten Zellen (wie Excel-Funktion GLÄTTEN)." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="cells_trim_python" label="Erweitertes Glätten/Kürzen (Trim)" showLabel="true" supertip="Entferne überflüssige Leerzeichen am Anfang oder Ende aller selektierten Zellen mit Pythons Strip-Funktion." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="cells_clean" label="Säubern/Bereinigen (Clean)" showLabel="true" supertip="Entferne nicht-druckbare Zeichen in allen selektierten Zellen (wie Excel-Funktion SÄUBERN)." onAction="PythonOnAction" />
+            </menu>
+          </splitButton>
+          <splitButton id="_auto_id_279">
+            <button getEnabled="PythonGetEnabled" id="cells_fill_down" imageMso="FillDown" label="Leere Zellen nach unten füllen" showLabel="true" supertip="Leere Zellen im selektierten Bereich mit jeweils gefüllter Zelle darüber füllen." onAction="PythonOnAction" />
+            <menu id="_auto_id_280">
+              <button getEnabled="PythonGetEnabled" id="cells_fill_down2" imageMso="FillDown" label="Leere Zellen nach unten füllen" showLabel="true" supertip="Leere Zellen im selektierten Bereich mit jeweils gefüllter Zelle darüber füllen." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="cells_undo_fill_down" imageMso="FillUp" label="Nach unten gefüllte Zellen wieder leeren" showLabel="true" supertip="Sich wiederholende Zellenwerte löschen, sodass nur jeweils oberste Zelle gefüllt bleibt." onAction="PythonOnAction" />
+              <menuSeparator id="_auto_id_281" />
+              <button getEnabled="PythonGetEnabled" id="cells_merge" label="Alle Zell-Inhalte zusammenführen" showLabel="true" supertip="Fügt alle Zellen in aktive Zelle getrennt mit Zeilenumbruch ein" onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="cells_merge_cols" label="Spaltenweise zusammenführen mit Komma" showLabel="true" supertip="Fügt alle Spalten (je Selektionsbereich) in die erste Spalte getrennt mit Kommas ein" onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="cells_merge_rows" label="Zeilenweise zusammenführen mit Umbruch" showLabel="true" supertip="Fügt alle Zeilen (je Selektionsbereich) in erste Zeile getrennt mit Zeilenumbruch ein" onAction="PythonOnAction" />
+              <menuSeparator id="_auto_id_282" />
+              <button getEnabled="PythonGetEnabled" id="cells_split_cols" label="Komma-getrennt in Spalten trennen" showLabel="true" supertip="Zelleninhalte in Spalten für jedes Komma trennen" onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="cells_split_rows" label="Zeilenumbrüche in Zeilen trennen" showLabel="true" supertip="Zelleninhalte in Zeilen für jeden Zeilenumbruch trennen" onAction="PythonOnAction" />
+            </menu>
+          </splitButton>
+          <splitButton id="_auto_id_283" getEnabled="PythonGetEnabled">
+            <button getEnabled="PythonGetEnabled" id="selection_subtotal_sum" imageMso="Copy" label="Kopiere Summe markierter Zellen" showLabel="true" supertip="Kopiere die Summe über die selektierten sichtbaren Zellen in die Zwischenablage." onAction="PythonOnAction" />
+            <menu id="_auto_id_284">
+              <button getEnabled="PythonGetEnabled" id="selection_subtotal_sum2" imageMso="Copy" label="Kopiere Summe markierter Zellen" showLabel="true" supertip="Kopiere die Summe über die selektierten sichtbaren Zellen in die Zwischenablage." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="selection_subtotal_avg" label="Kopiere Mittelwert markierter Zellen" showLabel="true" supertip="Kopiere den Mittelwert über die selektierten sichtbaren Zellen in die Zwischenablage." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="selection_subtotal_min" label="Kopiere Minimum markierter Zellen" showLabel="true" supertip="Kopiere das Minimum über die selektierten sichtbaren Zellen in die Zwischenablage." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="selection_subtotal_max" label="Kopiere Maximum markierter Zellen" showLabel="true" supertip="Kopiere das Maximum über die selektierten sichtbaren Zellen in die Zwischenablage." onAction="PythonOnAction" />
+            </menu>
+          </splitButton>
+          <splitButton id="_auto_id_285" getEnabled="PythonGetEnabled">
+            <button getEnabled="PythonGetEnabled" id="paste_on_visible_all" imageMso="PasteTableByOverwritingCells" label="Einfügen auf sichtbare Zellen" showLabel="true" supertip="Fügt den Inhalt der Zwischenablage nur auf sichtbare Zellen ein. Ausgeblendete bzw. herausgefilterte Zellen werden übersprungen." onAction="PythonOnAction" />
+            <menu id="_auto_id_286">
+              <button getEnabled="PythonGetEnabled" id="paste_on_visible_all2" imageMso="PasteTableByOverwritingCells" label="Einfügen auf sichtbare Zellen" showLabel="true" supertip="Fügt den Inhalt der Zwischenablage nur auf sichtbare Zellen ein. Ausgeblendete bzw. herausgefilterte Zellen werden übersprungen." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="paste_on_visible_values" imageMso="PasteValues" label="Werte einfügen auf sichtbare Zellen" showLabel="true" supertip="Fügt den Inhalt der Zwischenablage als Werte nur auf sichtbare Zellen ein. Ausgeblendete bzw. herausgefilterte Zellen werden übersprungen." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="paste_on_visible_formulas" imageMso="PasteFormulas" label="Formeln einfügen auf sichtbare Zellen" showLabel="true" supertip="Fügt den Inhalt der Zwischenablage als Formeln nur auf sichtbare Zellen ein. Ausgeblendete bzw. herausgefilterte Zellen werden übersprungen." onAction="PythonOnAction" />
+            </menu>
+          </splitButton>
+        </group>
+        <group id="group_cell_formats" imageMso="TableColumnsInsertLeftExcel" label="Zellen-Formate">
+          <splitButton id="_auto_id_287" size="large">
+            <button getEnabled="PythonGetEnabled" id="toggle_hidden_columns" imageMso="TableColumnsInsertLeftExcel" label="Spalten ein/ausblenden" showLabel="true" supertip="Alle ausgeblendeten Spalten zwischen aus- und einblenden umschalten.&#xA;&#xA;Wenn keine ausgeblendeten Spalten zwischengespeichert bzw. im Blatt vorhanden sind, und Spalten markiert sind, werden diese ausgeblendet." onAction="PythonOnAction" />
+            <menu id="_auto_id_288">
+              <button getEnabled="PythonGetEnabled" id="toggle_hidden_columns2" imageMso="TableColumnsInsertLeftExcel" label="Spalten ein/ausblenden" showLabel="true" supertip="Alle ausgeblendeten Spalten zwischen aus- und einblenden umschalten.&#xA;&#xA;Wenn keine ausgeblendeten Spalten zwischengespeichert bzw. im Blatt vorhanden sind, und Spalten markiert sind, werden diese ausgeblendet." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="toggle_hidden_rows" imageMso="TableRowsInsertBelowExcel" label="Zeilen ein/ausblenden" showLabel="true" supertip="Alle ausgeblendeten Zeilen zwischen aus- und einblenden umschalten.&#xA;&#xA;Wenn keine ausgeblendeten Zeilen zwischengespeichert bzw. im Blatt vorhanden sind, und Zeilen markiert sind, werden diese ausgeblendet." onAction="PythonOnAction" />
+              <menuSeparator id="_auto_id_289" />
+              <button getEnabled="PythonGetEnabled" id="show_all_cells" label="Alle Spalten und Zeilen einblenden" showLabel="true" supertip="Alle ausgeblendeten Spalten und Zeilen wieder einblenden." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="hide_unused_areas" label="Ungenutzten Bereich ausblenden" showLabel="true" supertip="Alle Spalten und Zeilen des nicht genutzten Bereichs ausblenden." onAction="PythonOnAction" />
+              <menuSeparator id="_auto_id_290" />
+              <button getEnabled="PythonGetEnabled" id="remove_hidden_cols" label="Ausgeblendete Spalten löschen" showLabel="true" supertip="Alle ausgeblendeten Spalten löschen." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="remove_hidden_rows" label="Ausgeblendete Zeilen löschen" showLabel="true" supertip="Alle ausgeblendeten Zeilen löschen." onAction="PythonOnAction" />
+            </menu>
+          </splitButton>
+          <button getEnabled="PythonGetEnabled" id="prohibit_duplicates" imageMso="DataValidation" label="Duplikate verbieten" showLabel="true" supertip="Verbietet Duplikate innerhalb der jeweils selektierten Bereiche über eine Datenüberprüfung. Bestehende Datenüberprüfungen werden dabei überschrieben." onAction="PythonOnAction" />
+          <splitButton id="_auto_id_291">
+            <toggleButton getEnabled="PythonGetEnabled" id="hide_zero" image="hide_zero" label="0 ein-/ausblenden" screentip="Nullwerte verstecken" showLabel="true" supertip="Per Zellen-Format 0-Werte ausblenden und wieder einblenden. Dabei wird versucht, dass bestehende Zellen-Format zu erkennen und entsprechend anzupassen." getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+            <menu id="_auto_id_292">
+              <button getEnabled="PythonGetEnabled" id="hide_zero_simple" image="hide_zero" label="0-Werte verstecken" screentip="Nullwerte verstecken" showLabel="true" supertip="Per Zellen-Format ('0;;;@') 0-Werte ausblenden. Bestehendes Zellen-Format wird überschrieben." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="number_in_thousand" image="number_in_thousand" label="Tausender zu 0,0 k" screentip="Tausenderbeträge übersichtlich darstellen" showLabel="true" supertip="Per Zellen-Format Tausenderbeträge als x,x k. anzeigen. Bestehendes Zellen-Format wird überschrieben." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="number_in_million" image="number_in_million" label="Mio.-Werte zu 0,0 M" screentip="Millionenbeträge übersichtlich darstellen" showLabel="true" supertip="Per Zellen-Format Millionenbeträge als x,x Mio. anzeigen. Bestehendes Zellen-Format wird überschrieben." onAction="PythonOnAction" />
+            </menu>
+          </splitButton>
+          <menu id="_auto_id_293" imageMso="AlignJustify" label="Zellen u. Ausrichtung" screentip="Verbundene Zellen ersetzen und ungewöhnliche Textausrichtungen nutzen" showLabel="true">
+            <button getEnabled="PythonGetEnabled" id="merged_cells_to_center_across" label="Verbundene Zellen ersetzen durch Über Auswahl zentrieren" showLabel="true" supertip="Ersetzt verbundene Zellen innerhalb der aktuellen Auswahl durch die horizontale Ausrichtung 'Über Auswahl zentrieren', sofern die verbundenen Zellen aus einer Zeile bestehen und bisher zentriert formatiert waren." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="merged_cells_to_unmerged_filled" label="Verbundene Zellen aufheben und Inhalte verteilen" showLabel="true" supertip="Hebt verbundene Zellen innerhalb der aktuellen Auswahl auf und fügt den ursprünglichen Zelleninhalt in alle Zellen ein." onAction="PythonOnAction" />
+            <menuSeparator id="_auto_id_294" />
+            <toggleButton getEnabled="PythonGetEnabled" id="halign_justify" imageMso="AlignJustify" label="Blocksatz" showLabel="true" supertip="Ausgewählte zellen als Blocksatz ausrichten." getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+            <toggleButton getEnabled="PythonGetEnabled" id="halign_distributed" imageMso="ParagraphDistributed" label="Gleichmäßig verteilt" showLabel="true" supertip="Ausgewählte zellen horizontal verteilt ausrichten (extremer Blocksatz)." getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+            <toggleButton getEnabled="PythonGetEnabled" id="halign_centeracross" label="Über Auswahl zentrieren" showLabel="true" supertip="Ausgewählte zellen 'Über Auswahl zentriert' ausrichten, d.h es werden verbundene Zellen simuliert." getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+            <toggleButton getEnabled="PythonGetEnabled" id="halign_fill" label="Ausfüllen (Text bis Ende wiederholen)" showLabel="true" supertip="Ausgewählte zellen 'Ausfüllen', d.h. Zelleninhalt wird optisch wiederholt über die gesamte Zellenbreite." getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+          </menu>
+          <dialogBoxLauncher>
+            <button idMso="CellAlignmentOptions" />
+          </dialogBoxLauncher>
+        </group>
+        <group id="group_cell_comments" imageMso="ReviewNewComment" label="Kommentare">
+          <control idMso="ReviewNewComment" showLabel="false" size="large" />
+          <box boxStyle="horizontal" id="_auto_id_295">
+            <control idMso="ShapeChangeShapeGallery" showLabel="false" />
+            <control idMso="ShapeFillColorPicker" showLabel="false" />
+            <control idMso="ShapeOutlineColorPicker" showLabel="false" />
+          </box>
+          <box boxStyle="horizontal" id="_auto_id_296">
+            <control idMso="ReviewPreviousComment" showLabel="false" />
+            <control idMso="ReviewNextComment" showLabel="true" />
+          </box>
+          <box boxStyle="horizontal" id="_auto_id_297">
+            <control idMso="ReviewShowAllComments" label="Alle an/aus" showLabel="true" />
+          </box>
+          <dialogBoxLauncher>
+            <button idMso="ObjectFormatDialog" />
+          </dialogBoxLauncher>
+        </group>
+        <group id="group_borders" imageMso="BorderDrawMenu" label="Rahmen">
+          <control idMso="BorderTop" showLabel="false" />
+          <control idMso="BorderLeft" showLabel="false" />
+          <control idMso="BorderInsideHorizontal" showLabel="false" />
+          <control idMso="BorderRight" showLabel="false" />
+          <control idMso="BorderBottom" showLabel="false" />
+          <control idMso="BorderInsideVertical" showLabel="false" />
+          <control idMso="BordersAll" showLabel="false" />
+          <control idMso="BorderNone" showLabel="false" />
+          <control idMso="BorderColorPickerExcel" showLabel="false" />
+          <dialogBoxLauncher>
+            <button idMso="BordersMoreDialog" />
+          </dialogBoxLauncher>
+        </group>
+        <group id="group_names" imageMso="NameManager" label="Definierte Namen">
+          <control idMso="NameDefineMenu" showLabel="true" />
+          <control idMso="NameUseInFormula" showLabel="true" />
+          <control idMso="NameCreateFromSelection" showLabel="true" />
+          <dialogBoxLauncher>
+            <button idMso="NameManager" />
+          </dialogBoxLauncher>
+        </group>
+        <group id="group_tools" imageMso="RemoveDuplicates" label="Datentools">
+          <control idMso="PivotTableInsert" showLabel="false" size="large" />
+          <control idMso="ConvertTextToTable" showLabel="true" />
+          <control idMso="RemoveDuplicates" showLabel="true" />
+          <control idMso="DataValidationMenu" showLabel="true" />
+        </group>
+        <group id="group_window" imageMso="WindowNew" label="Fenster">
+          <control idMso="WindowsArrangeAll" showLabel="true" />
+          <control idMso="ViewFreezePanesGallery" showLabel="true" />
+          <control idMso="WindowSideBySideSynchronousScrolling" showLabel="true" />
+        </group>
+        <group id="group_print" imageMso="PrintAreaMenu" label="Drucken">
+          <control idMso="PageOrientationGallery" showLabel="true" />
+          <control idMso="PageScaleToFitWidth" showLabel="true" />
+          <control idMso="PageScaleToFitHeight" showLabel="true" />
+          <dialogBoxLauncher>
+            <button idMso="PageSetupPageDialog" />
+          </dialogBoxLauncher>
+        </group>
+      </tab>
+      <tab id="bkt_excel_toolbox_advanced" insertBeforeMso="TabHome" label="Toolbox 3/3 BETA" getVisible="PythonGetVisible">
+        <group id="group_selection" imageMso="SelectCurrentRegion" label="Selektion">
+          <splitButton id="_auto_id_298" size="large">
+            <button getEnabled="PythonGetEnabled" id="deselect" imageMso="SelectCell" label="Deselektieren…" showLabel="true" supertip="Aktuelle Selektion um gewählten Bereich reduzieren (Komplement)." onAction="PythonOnAction" />
+            <menu id="_auto_id_299">
+              <button getEnabled="PythonGetEnabled" id="deselect2" imageMso="SelectCell" label="Deselektieren…" showLabel="true" supertip="Aktuelle Selektion um gewählten Bereich reduzieren (Komplement)." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="select_intersection" imageMso="ShapesObjectIntersect" label="Schnittmenge bilden…" showLabel="true" supertip="Schnittmenge aus aktueller Selektion und gewähltem Bereich." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="select_union" imageMso="ShapesObjectUnion" label="Vereinigung bilden…" showLabel="true" supertip="Vereinigungsmenge aus aktueller Selektion und gewähltem Bereich." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="select_symdiff" imageMso="ShapesObjectCombine" label="Symmetrische Differenz bilden…" showLabel="true" supertip="Symmetrische Differenz (Vereinigungsmenge abzüglich Schnittmenge) aus aktueller Selektion und gewähltem Bereich." onAction="PythonOnAction" />
+            </menu>
+          </splitButton>
+          <box boxStyle="vertical" id="_auto_id_300">
+            <splitButton id="_auto_id_301">
+              <button getEnabled="PythonGetEnabled" id="select_used_range" imageMso="SelectCurrentRegion" label="Genutzten Bereich markieren" showLabel="true" supertip="Markiert den genutzten Bereich (UsedRange)." onAction="PythonOnAction" />
+              <menu id="_auto_id_302">
+                <button getEnabled="PythonGetEnabled" id="select_used_range2" imageMso="SelectCurrentRegion" label="Genutzten Bereich markieren" showLabel="true" supertip="Markiert den genutzten Bereich (UsedRange)." onAction="PythonOnAction" />
+                <control idMso="SelectCurrentRegion" showImage="false" showLabel="true" />
+                <button getEnabled="PythonGetEnabled" id="select_unused_areas" label="Ungenutzten Bereich markieren" showLabel="true" supertip="Markiert den ungenutzten Bereich." onAction="PythonOnAction" />
+              </menu>
+            </splitButton>
+            <control idMso="TableSelectVisibleCells" showLabel="true" />
+            <button getEnabled="PythonGetEnabled" id="invert_selection" imageMso="PictureContrastGallery" label="Markierung umkehren…" showLabel="true" supertip="Markiert den nicht markierten Bereich innerhalb des gewählten Bereichs." onAction="PythonOnAction" />
+            <splitButton id="_auto_id_303">
+              <button getEnabled="PythonGetEnabled" id="select_empty_rows" imageMso="TableRowSelect" label="Leere Zeilen" showLabel="true" supertip="Alle leeren Zeilen innerhalb der benutzen Zellen (UsedRange) markieren." onAction="PythonOnAction" />
+              <menu id="_auto_id_304">
+                <button getEnabled="PythonGetEnabled" id="select_empty_rows2" imageMso="TableRowSelect" label="Leere Zeilen markieren" showLabel="true" supertip="Alle leeren Zeilen innerhalb der benutzen Zellen (UsedRange) markieren." onAction="PythonOnAction" />
+                <button getEnabled="PythonGetEnabled" id="select_entire_rows" label="Ganze Zeilen markieren" showLabel="true" supertip="Alle Zeilen der aktuell markierten Zellen markieren." onAction="PythonOnAction" />
+              </menu>
+            </splitButton>
+            <splitButton id="_auto_id_305">
+              <button getEnabled="PythonGetEnabled" id="select_empty_columns" imageMso="TableColumnSelect" label="Leere Spalten" showLabel="true" supertip="Alle leeren Spalten innerhalb der benutzen Zellen (UsedRange) markieren." onAction="PythonOnAction" />
+              <menu id="_auto_id_306">
+                <button getEnabled="PythonGetEnabled" id="select_empty_columns2" imageMso="TableColumnSelect" label="Leere Spalten markieren" showLabel="true" supertip="Alle leeren Spalten innerhalb der benutzen Zellen (UsedRange) markieren." onAction="PythonOnAction" />
+                <button getEnabled="PythonGetEnabled" id="select_entire_columns" label="Ganze Spalten markieren" showLabel="true" supertip="Alle Spalten der aktuell markierten Zellen markieren." onAction="PythonOnAction" />
+              </menu>
+            </splitButton>
+            <button getEnabled="PythonGetEnabled" id="select_samecolor" imageMso="SelectedTaskGoTo" label="Gleiche Farbe" showLabel="true" supertip="Alle Zellen mit der gleichen Hintergrundfarbe wie die ausgewählten Zellen markieren." onAction="PythonOnAction" />
+          </box>
+          <separator id="_auto_id_307" />
+          <box boxStyle="horizontal" id="_auto_id_308">
+            <box id="selection_top">
+              <editBox getEnabled="PythonGetEnabled" id="selection_top_text" imageMso="ObjectNudgeDown" label="Oben" screentip="Reihen oberhalb der Selektion" showLabel="false" sizeString="####" supertip="Selektion nach oben verschieben" onChange="PythonOnChange" getText="PythonGetText" />
+              <buttonGroup id="selection_top_bgrp">
+                <button getEnabled="PythonGetEnabled" id="selection_top_dec" label="‹" screentip="Reihen oberhalb der Selektion" supertip="Selektion nach oben verschieben" onAction="PythonOnAction" />
+                <button getEnabled="PythonGetEnabled" id="selection_top_inc" label="›" screentip="Reihen oberhalb der Selektion" supertip="Selektion nach oben verschieben" onAction="PythonOnAction" />
+              </buttonGroup>
+            </box>
+            <box id="selection_height">
+              <editBox getEnabled="PythonGetEnabled" id="selection_height_text" imageMso="TableRowsDistribute" label="Reihen" screentip="Anzahl der selektierten Reihen" showLabel="false" sizeString="####" supertip="Selektion um Reihen erweitern" onChange="PythonOnChange" getText="PythonGetText" />
+              <buttonGroup id="selection_height_bgrp">
+                <button getEnabled="PythonGetEnabled" id="selection_height_dec" label="‹" screentip="Anzahl der selektierten Reihen" supertip="Selektion um Reihen erweitern" onAction="PythonOnAction" />
+                <button getEnabled="PythonGetEnabled" id="selection_height_inc" label="›" screentip="Anzahl der selektierten Reihen" supertip="Selektion um Reihen erweitern" onAction="PythonOnAction" />
+              </buttonGroup>
+            </box>
+          </box>
+          <box boxStyle="horizontal" id="_auto_id_317">
+            <box id="selection_left">
+              <editBox getEnabled="PythonGetEnabled" id="selection_left_text" imageMso="ObjectNudgeRight" label="Links" screentip="Spalten links der Selektion" showLabel="false" sizeString="####" supertip="Selektion nach links verschieben" onChange="PythonOnChange" getText="PythonGetText" />
+              <buttonGroup id="selection_left_bgrp">
+                <button getEnabled="PythonGetEnabled" id="selection_left_dec" label="‹" screentip="Spalten links der Selektion" supertip="Selektion nach links verschieben" onAction="PythonOnAction" />
+                <button getEnabled="PythonGetEnabled" id="selection_left_inc" label="›" screentip="Spalten links der Selektion" supertip="Selektion nach links verschieben" onAction="PythonOnAction" />
+              </buttonGroup>
+            </box>
+            <box id="selection_width">
+              <editBox getEnabled="PythonGetEnabled" id="selection_width_text" imageMso="TableColumnsDistribute" label="Spalten" screentip="Anzahl der selektierten Spalten" showLabel="false" sizeString="####" supertip="Selektion um Spalten erweitern" onChange="PythonOnChange" getText="PythonGetText" />
+              <buttonGroup id="selection_width_bgrp">
+                <button getEnabled="PythonGetEnabled" id="selection_width_dec" label="‹" screentip="Anzahl der selektierten Spalten" supertip="Selektion um Spalten erweitern" onAction="PythonOnAction" />
+                <button getEnabled="PythonGetEnabled" id="selection_width_inc" label="›" screentip="Anzahl der selektierten Spalten" supertip="Selektion um Spalten erweitern" onAction="PythonOnAction" />
+              </buttonGroup>
+            </box>
+          </box>
+          <toggleButton id="selection_move_resize" imageMso="SizeToControlHeightAndWidth" label="Verschieben ändert Größe" showLabel="true" supertip="Verschieben der Selektion verändert auch die Größe" getPressed="PythonGetPressed" onAction="PythonOnToggleAction" getEnabled="PythonGetEnabled" />
+          <separator id="_auto_id_326" />
+          <button getEnabled="PythonGetEnabled" id="save_selection" imageMso="TableSave" label="Selektion speichern" showLabel="true" supertip="Aktuelle Selektion zwischenspeichern, um diese später wiederherzustellen." onAction="PythonOnAction" />
+          <button id="restore_selection" imageMso="TableSelect" label="Selektion laden" showLabel="true" supertip="Zwischengespeicherte Selektion auf aktuellem Blatt wiederherstellen." getEnabled="PythonGetEnabled" onAction="PythonOnAction" />
+          <button getEnabled="PythonGetEnabled" id="selection_address" imageMso="TableSelect" label="Adresse selektieren…" showLabel="true" supertip="Zeigt Fenster zum Eingeben der Selektionsadresse mit der Adresse der aktuellen Selektion als Standardwert." onAction="PythonOnAction" />
+          <dialogBoxLauncher>
+            <button idMso="GoToSpecial" />
+          </dialogBoxLauncher>
+        </group>
+        <group autoScale="true" id="group_sheets" imageMso="SheetInsert" label="Blätter">
+          <splitButton id="_auto_id_327" size="large">
+            <button getEnabled="PythonGetEnabled" id="toggle_hidden_sheets" imageMso="SheetInsert" label="Blätter ein/ausblenden" showLabel="true" supertip="Alle ausgeblendeten Blätter zwischen ein- und ausblenden umschalten.&#xA;&#xA;Sind keine Blätter ausgeblendet, werden die ausgewählten Blätter bzw. das aktuelle Blatt ausgeblendet." onAction="PythonOnAction" />
+            <menu id="_auto_id_328">
+              <menuSeparator id="_auto_id_329" title="Ein-/Ausblenden" />
+              <button getEnabled="PythonGetEnabled" id="toggle_hidden_sheets2" imageMso="SheetInsert" label="Blätter ein/ausblenden" showLabel="true" supertip="Alle ausgeblendeten Blätter zwischen ein- und ausblenden umschalten.&#xA;&#xA;Sind keine Blätter ausgeblendet, werden die ausgewählten Blätter bzw. das aktuelle Blatt ausgeblendet." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="toggle_veryhidden_sheets" label="Blätter anzeigen/verstecken (xlVeryHidden)" showLabel="true" supertip="Alle versteckten (xlVeryHidden) Blätter zwischen anzeigen und verstecken umschalten. &#xA;&#xA;ind keine Blätter versteckt, werden die ausgewählten Blätter bzw. das aktuelle Blatt versteckt." onAction="PythonOnAction" />
+              <menuSeparator id="_auto_id_330" title="Ausblenden" />
+              <button getEnabled="PythonGetEnabled" id="hide_sheets" label="Blatt ausblenden" showLabel="true" supertip="Aktuelles Blatt bzw. ausgewählte Blätter ausblenden." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="hide_sheets_veryhidden" label="Blatt verstecken (xlVeryHidden)" showLabel="true" supertip="Aktuelles Blatt bzw. ausgewählte Blätter verstecken (xlVeryHidden), sodass diese nur über die Toolbox oder ein Makro wieder sichtbar gemacht werden können." onAction="PythonOnAction" />
+              <menuSeparator id="_auto_id_331" title="Einblenden" />
+              <button getEnabled="PythonGetEnabled" id="show_sheets_dialog" label="Blätter anzeigen…" showLabel="true" supertip="Zeigt eine Auswahl aller ausgeblendeten und versteckten Blätter, die zum Anzeigen ausgewählt werden können." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="show_hidden_sheets" label="Alle ausgeblendeten Blätter einblenden" showLabel="true" supertip="Alle ausgeblendeten Blätter wieder einblenden." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="show_veryhidden_sheets" label="Alle versteckten Blätter (nur xlVeryHidden) einblenden" showLabel="true" supertip="Alle ausgeblendeten oder versteckten (xlVeryHidden) Blätter wieder einblenden." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="show_all_sheets" label="Alle Blätter (inkl. xlVeryHidden) einblenden" showLabel="true" supertip="Alle ausgeblendeten oder versteckten (xlVeryHidden) Blätter wieder einblenden." onAction="PythonOnAction" />
+            </menu>
+          </splitButton>
+          <menu id="_auto_id_332" imageMso="TableOfContentsDialog" label="Listen erstellen" screentip="Verschiedene Listen erstellen" showLabel="true" size="large" supertip="Liste aller Blätter, Arbeitsmappen, Dateliste, ...">
+            <menuSeparator id="_auto_id_333" title="Listen zum Blatt" />
+            <button getEnabled="PythonGetEnabled" id="list_comments" label="Liste aller Kommentare" showLabel="true" supertip="Erstellt Liste aller Kommentare des aktuellen Blatts in neuem Blatt." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="list_cond_formats" label="Liste aller bedingten Formatierungen" showLabel="true" supertip="Erstellt Liste aller bedingten Formatierungen des aktuellen Blatts in neuem Blatt." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="list_validations" label="Liste aller Datenüberprüfungen" showLabel="true" supertip="Erstellt Liste aller Datenüberprüfungen des aktuellen Blatts in neuem Blatt." onAction="PythonOnAction" />
+            <menuSeparator id="_auto_id_334" title="Listen zur Mappe" />
+            <button getEnabled="PythonGetEnabled" id="list_names" label="Liste aller Namen" showLabel="true" supertip="Erstellt Liste aller Namen dieser Arbeitsmappe in neuem Blatt." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="list_sheets" label="Liste aller Arbeitsblätter" showLabel="true" supertip="Erstellt Liste aller Blätter dieser Arbeitsmappe in einem neuen Blatt." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="list_properties" label="Liste aller Dokumenteneigenschaften" showLabel="true" supertip="Erstellt Liste aller Dokumenteneigenschaften dieser Arbeitsmappe in neuem Blatt." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="list_workbooks" label="Liste aller geöffneten Arbeitsmappen" showLabel="true" supertip="Erstellt Liste aller geöffneten Arbeitsmappen inkl. Pfad in einem neuen Blatt." onAction="PythonOnAction" />
+            <menuSeparator id="_auto_id_335" title="Dateilisten" />
+            <button getEnabled="PythonGetEnabled" id="file_list" imageMso="FileVersionHistory" label="Dateiliste erstellen…" showLabel="true" supertip="Wähle Ordner und erstelle Liste aller Dateien in diesem Ordner in neuem Blatt." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="file_list_recursive" label="Dateiliste erstellen (rekursiv)…" showLabel="true" supertip="Wähle Ordner und erstelle Liste aller Dateien in diesem Ordner und allen Unterordnern in neuem Blatt." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="file_list_folders" label="Ordnerliste erstellen (rekursiv)…" showLabel="true" supertip="Wähle Ordner und erstelle Liste aller Ordner in diesem Ordner und allen Unterordnern in neuem Blatt." onAction="PythonOnAction" />
+            <menuSeparator id="_auto_id_336" />
+            <menu id="_auto_id_337" label="Dateilisten-Einstellungen">
+              <toggleButton id="_auto_id_338" label="Ordnerzeilen" screentip="Bei Dateiliste auch Ordner als Zeilen einfügen" getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+              <toggleButton id="_auto_id_339" label="Gruppieren" screentip="Jede Hierachieebene gruppieren (nur rekursiv)" getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+              <toggleButton id="_auto_id_340" label="Einrücken" screentip="Jede Hierachieebene einrücken (nur rekursiv)" getPressed="PythonGetPressed" onAction="PythonOnToggleAction" />
+            </menu>
+          </menu>
+          <menu id="_auto_id_341" imageMso="Rename" label="Umbenennen/ Sortieren" screentip="Mehrere Blätter umbennen, sortieren oder neu erstellen" showLabel="true" size="large" supertip="Mehrere Arbeitsblätter gemäß einer Auswahl umbenennen oder erstellen aus Vorlage">
+            <button getEnabled="PythonGetEnabled" id="sheets_base_list" label="Basisliste erstellen" showLabel="true" supertip="Erstellt Liste aller Blätter dieser Arbeitsmappe in einem neuen Blatt." onAction="PythonOnAction" />
+            <menuSeparator id="_auto_id_342" />
+            <button getEnabled="PythonGetEnabled" id="rename_all_sheets" label="Blätter gemäß aktueller Auswahl umbenennen" showLabel="true" supertip="Alle Blätter gemäß der Auswahl umbenennen. Die Auswahl muss aus genau 2 Spalten bestehen, wobei die erste Spalten den alten Namen und die zweite Spalte den neuen Namen enthält. Leere Namen werden übersprungen." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="sort_all_sheets" label="Blätter gemäß aktueller Auswahl sortieren" showLabel="true" supertip="Alle Blätter gemäß der Auswahl sortieren. Die Auswahl muss aus genau einer Spalten mit den Blattnamen in der gewünschten Reihenfolge bestehen." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="create_sheets" label="Blätter gemäß aktueller Auswahl erstellen" showLabel="true" supertip="Neue Blätter gemäß der aktuellen Auswahl erstellen. Die Auswahl muss aus genauer einer Spalte mit den anzulegenden Blattnamen bestehen." onAction="PythonOnAction" />
+          </menu>
+        </group>
+        <group autoScale="true" id="group_workbook" imageMso="ExportExcel" label="Arbeitsmappe">
+          <button id="reset_workbook" imageMso="ResetCurrentView" label="Datei zurücksetzen" showLabel="true" size="large" supertip="Datei auf den zuletzt gespeicherten Zustand zurücksetzen. Die Datei wird dazu geschlossen ohne zu speichern und neu geöffnet." getEnabled="PythonGetEnabled" onAction="PythonOnAction" />
+          <splitButton id="_auto_id_343" size="large">
+            <button getEnabled="PythonGetEnabled" id="consolidate_open_workbooks" imageMso="ReviewShareWorkbook" label="Arbeitsmappen konsolidieren…" screentip="Geöffnete Arbeitsmappen konsolidieren" showLabel="true" supertip="Konsolidiert die ausgewählten geöffneten Arbeitsmappen in einer neuen Arbeitsmappe, d.h. kopiert alle Blätter in eine Arbeitsmappe. Die aktuelle Arbeitsmappe wird nicht verändert." onAction="PythonOnAction" />
+            <menu id="_auto_id_344">
+              <button getEnabled="PythonGetEnabled" id="consolidate_open_workbooks2" imageMso="ReviewShareWorkbook" label="Geöffnete Arbeitsmappen konsolidieren…" screentip="Geöffnete Arbeitsmappen konsolidieren" showLabel="true" supertip="Konsolidiert die ausgewählten geöffneten Arbeitsmappen in einer neuen Arbeitsmappe, d.h. kopiert alle Blätter in eine Arbeitsmappe. Die aktuelle Arbeitsmappe wird nicht verändert." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="consolidate_file_workbooks" label="Dateien zum Konsolidieren auswählen…" screentip="Mehrere Dateien konsolidieren" showLabel="true" supertip="Konsolidiert die Blätter der ausgewählten Dateien in einer neuen Arbeitsmappe. Die aktuelle Arbeitsmappe wird nicht verändert." onAction="PythonOnAction" />
+            </menu>
+          </splitButton>
+          <button getEnabled="PythonGetEnabled" id="consolidate_worksheets" imageMso="ReviewCombineRevisions" label="Blätter in ein Blatt konsolidieren…" screentip="Blätter dieser Arbeitsmappe in ein Blatt konsolidieren" showLabel="true" size="large" supertip="Konsolidiert alle ausgewählten Blätter dieser Arbeitsmappe in einem neuen Blatt." onAction="PythonOnAction" />
+          <button getEnabled="PythonGetEnabled" id="close_workbooks" imageMso="CloseAllItems" label="Alle Anderen schließen" showLabel="true" supertip="Alle Arbeitsmappen außer der aktuellen Mappe schließen. Gibt es ungespeicherte Änderungen, kommt vorab eine Meldung." onAction="PythonOnAction" />
+          <menu id="_auto_id_345" imageMso="ExportExcel" label="Blätter kopieren" screentip="Blätter der Arbeitsmappe kopieren" showLabel="true" supertip="Blätter aus der aktuellen Arbeitsmappe getrennt kopieren und einzeln speichern">
+            <button getEnabled="PythonGetEnabled" id="copy_selected_sheets" label="Markierte Blätter in neue Arbeitsmappe kopieren" showLabel="true" supertip="Kopiert die markierten Arbeitsblätter in eine neue Arbeitsmappe. Dies funktioniert auch, wenn mehrere Blätter Listen und Tabellen enthalten. Die aktuelle Arbeitsmappe wird nicht verändert." onAction="PythonOnAction" />
+            <button getEnabled="PythonGetEnabled" id="copy_sheets_and_save" label="Blätter in jeweils eigene Datei speichern…" showLabel="true" supertip="Kopiert alle sichtbaren Blätter jeweils in eine neue Arbeitsmappe und speichert diese im gleichen Verzeichnis wie die aktuelle Arbeitsmappe. Die aktuelle Arbeitsmappe wird nicht verändert." onAction="PythonOnAction" />
+          </menu>
+          <menu id="_auto_id_346" imageMso="SchemeColorsGallery" label="Theme &amp;&amp; Color Scheme" showLabel="true">
+            <button getEnabled="PythonGetEnabled" id="theme_apply" imageMso="SchemeColorsGallery" label="Theme aus Datei anwenden" supertip="Beliebige Excel-Datei auswählen und dessen Theme (Farb- und Fontschema) auf aktuelle Datei anwenden." onAction="PythonOnAction" />
+            <menuSeparator id="_auto_id_347" />
+            <menu id="_auto_id_348" label="Color Scheme" showLabel="true">
+              <button getEnabled="PythonGetEnabled" id="theme_color_export" label="Export" screentip="Farbschema Export" supertip="Exportiere Farbschema der Arbeitsmappe als XML-Datei." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="theme_color_import" label="Import" screentip="Farbschema Import" supertip="Importiere Farbschema aus einer XML-Datei in die Arbeitsmappe." onAction="PythonOnAction" />
+            </menu>
+            <menu id="_auto_id_349" label="Font Scheme" showLabel="true">
+              <button getEnabled="PythonGetEnabled" id="theme_font_export" label="Export" screentip="Fontschema Export" supertip="Exportiere Fontschema der Arbeitsmappe als XML-Datei." onAction="PythonOnAction" />
+              <button getEnabled="PythonGetEnabled" id="theme_font_import" label="Import" screentip="Fontschema Import" supertip="Importiere Fontschema aus einer XML-Datei in die Arbeitsmappe." onAction="PythonOnAction" />
+            </menu>
+          </menu>
+        </group>
+        <group id="_auto_id_352" imageMso="Calculator" label="Mini-Rechner">
+          <button getEnabled="PythonGetEnabled" id="run_eval" imageMso="Calculator" label="Neuer Mini-Rechner" screentip="Zeigt einen kleines Tool zum Auswerten von Formeln und Berechnungen an an" showLabel="true" size="large" onAction="PythonOnAction" />
+        </group>
+      </tab>
+      <tab id="_auto_id_355" insertBeforeMso="TabHome" label="Verbindlichkeiten" getVisible="PythonGetVisible">
+        <group id="_auto_id_354" label="Verbindlichkeiten">
+          <button id="_auto_id_353" imageMso="DataTypeCurrency" label="Verbindlichkeiten" size="large" onAction="PythonOnAction" />
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+  <contextMenus>
+    <contextMenu idMso="ContextMenuWorkbookPly">
+      <button getEnabled="PythonGetEnabled" id="ctx-hide_sheets_veryhidden" insertBeforeMso="SelectAllSheets" label="Verstecken (xlVeryHidden)" onAction="PythonOnAction" />
+      <button getEnabled="PythonGetEnabled" id="ctx-show_sheets" insertBeforeMso="SelectAllSheets" label="Anzeigen…" onAction="PythonOnAction" />
+      <menuSeparator id="_auto_id_350" insertBeforeMso="SelectAllSheets" />
+    </contextMenu>
+  </contextMenus>
+</customUI>
